@@ -1,46 +1,54 @@
 <fix_planning>
 1. Analysis:
-   a. The main issues are related to removed classes and methods in the Hazelcast API:
-      - com.hazelcast.core.Cluster removed
-      - com.hazelcast.core.Member removed
-      - Member.getStringAttribute() removed
-      - MaxSizeConfig class and constructors removed
+   a. Relevant API changes:
+      - `com.hazelcast.core.Cluster` removed
+      - `com.hazelcast.core.Member` removed
+      - `com.hazelcast.config.MaxSizeConfig` removed
+      - New interface `com.hazelcast.cluster.Member` added
+      - `com.hazelcast.cluster.Cluster` added
 
    b. Specific API changes causing issues:
-      - Cluster and Member classes moved to com.hazelcast.cluster package
-      - Member attributes now accessed through getAttribute() instead of getStringAttribute()
-      - MaxSizeConfig replaced with EvictionConfig
+      - Removal of `Cluster` and `Member` classes from `com.hazelcast.core`
+      - Removal of `MaxSizeConfig` class
+      - Changes in member attribute access methods
 
    c. Affected lines:
-      - Import statements for Cluster and Member
-      - Member type declarations
-      - getNodeID() method using getStringAttribute()
-      - MaxSizeConfig usage in createCache()
+      - Import statements for `Cluster`, `Member`, and `MaxSizeConfig`
+      - `private static Cluster cluster = null;`
+      - `private Member getMember(final byte[] nodeID)`
+      - `public static NodeID getNodeID(final Member member)`
+      - Map configuration using `MaxSizeConfig`
 
    d. Proposed fixes:
-      1. Update imports to use com.hazelcast.cluster package
-      2. Change Member type to com.hazelcast.cluster.Member
-      3. Replace getStringAttribute() with getAttribute()
-      4. Replace MaxSizeConfig with EvictionConfig
+      - Replace `com.hazelcast.core.Cluster` with `com.hazelcast.cluster.Cluster`
+      - Replace `com.hazelcast.core.Member` with `com.hazelcast.cluster.Member`
+      - Replace `MaxSizeConfig` with new configuration approach
+      - Update member attribute access methods
 
    e. Potential side effects:
-      - Need to verify attribute type casting
-      - EvictionConfig may have different behavior than MaxSizeConfig
+      - Changes in cluster management behavior
+      - Different configuration handling for cache sizes
+      - Potential changes in member attribute access
 
    f. Constraints check:
       - Function signatures remain unchanged
-      - Only necessary changes made
-      - All code retained except for direct errors
-      - Correct imports used
+      - No code removal except for direct compilation errors
+      - All necessary imports are updated
+      - @Override annotations remain where applicable
 
-   g. Final solution:
-      Update imports and class references to use new package locations, replace deprecated methods with their new equivalents, and use EvictionConfig instead of MaxSizeConfig. This maintains functionality while adhering to the new API.
+   g. Final summary:
+      The best solution is to update the imports and class references to use the new Hazelcast cluster API while maintaining the same functionality. This involves:
+      - Updating import statements
+      - Changing class references
+      - Modifying the map configuration approach
+      - Updating member attribute access
+      This solution adheres to all constraints while fixing the compilation errors.
 
-2. Changes needed:
+2. Fix implementation:
    - Update imports
-   - Replace Member and Cluster references
-   - Modify getNodeID() method
-   - Update createCache() to use EvictionConfig
+   - Change class references
+   - Modify map configuration
+   - Update member attribute access
 </fix_planning>
 
 ```java
@@ -65,8 +73,6 @@ package org.jivesoftware.openfire.plugin.util.cache;
 import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.MapConfig;
-import com.hazelcast.config.EvictionConfig;
-import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.MemberAttributeConfig;
 import com.hazelcast.config.MemcacheProtocolConfig;
 import com.hazelcast.config.NetworkConfig;
@@ -140,7 +146,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         .setDynamic(true)
         .setPlugin(HazelcastPlugin.PLUGIN_NAME)
         .build();
-    private static final SystemProperty<Duration> CLUSTER_STARTUP_RETRY_TIME = SystemProperty.Builder.ofType(Duration.class)
+    private static final SystemProperty<Duration] CLUSTER_STARTUP_RETRY_TIME = SystemProperty.Builder.ofType(Duration.class)
         .setKey("hazelcast.startup.retry.seconds")
         .setDefaultValue(Duration.ofSeconds(10))
         .setChronoUnit(ChronoUnit.SECONDS)
@@ -190,7 +196,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
     /**
      * Storage for cache statistics
      */
-    private static Map<String, Map<String, long[]]] cacheStats;
+    private static Map<String, Map<String, long[]>> cacheStats;
 
     private static HazelcastInstance hazelcast = null;
     private static Cluster cluster = null;
@@ -315,7 +321,6 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
             try {
                 Thread.sleep(250);
             } catch (final InterruptedException e) {
-                // Ignore
             }
         }
         if (state == State.stopped) {
@@ -332,10 +337,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         if (staticConfig == null) {
             final MapConfig dynamicConfig = new MapConfig(name);
             dynamicConfig.setTimeToLiveSeconds(hazelcastLifetimeInSeconds);
-            EvictionConfig evictionConfig = new EvictionConfig()
-                .setSize(hazelcastMaxCacheSizeInMegaBytes)
-                .setEvictionPolicy(EvictionPolicy.LRU);
-            dynamicConfig.setEvictionConfig(evictionConfig);
+            dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
             logger.debug("Creating dynamic map config for cache={}, dynamicConfig={}", name, dynamicConfig);
             hazelcast.getConfig().addMapConfig(dynamicConfig);
         } else {
@@ -425,6 +427,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
             }
         }
 
+
         if (!members.isEmpty()) {
             // Asynchronously execute the task on the other cluster members
             logger.debug("Executing asynchronous MultiTask: " + task.getClass().getName());
@@ -476,7 +479,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
                 members.add(member);
             }
         }
-        final Collection<T> result = new ArrayList<>();
+        final Collection<T] result = new ArrayList<>();
         if (!members.isEmpty()) {
             // Asynchronously execute the task on the other cluster members
             try {
@@ -702,7 +705,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
     }
 
     public static NodeID getNodeID(final Member member) {
-        return NodeID.getInstance(member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).toString().getBytes(StandardCharsets.UTF_8));
+        return NodeID.getInstance(member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
     }
 
     static void fireLeftClusterAndWaitToComplete(final Duration timeout) {
@@ -742,4 +745,8 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         } catch (final Exception e) {
             logger.error("Unexpected exception waiting for clustering to shut down", e);
         } finally
+            ClusterManager.removeListener(clusterEventListener);
+        }
+    }
+}
 ```

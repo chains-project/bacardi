@@ -1,31 +1,31 @@
 <fix_planning>
 1. **Relevant parts of the code and API changes:**
-   - The error occurs in the line `Models models;` where the class `javax.mvc.Models` is no longer available.
-   - The API change indicates that `jakarta.mvc.Models` has been added, replacing `javax.mvc.Models`.
+   - The code uses `javax.mvc.Models`, which has been removed in the new version of the dependency.
+   - The new version introduces `jakarta.mvc.Models`.
 
 2. **Specific API changes causing the issue:**
    - The class `javax.mvc.Models` has been removed and replaced by `jakarta.mvc.Models`.
 
 3. **Affected lines of code:**
+   - `import javax.mvc.Models;`
    - `Models models;`
 
-4. **Proposed fixes:**
-   - Change the import statement from `import javax.mvc.Models;` to `import jakarta.mvc.Models;`.
+4. **Proposed fixes for each affected line:**
+   - Replace `import javax.mvc.Models;` with `import jakarta.mvc.Models;`.
+   - No change needed for `Models models;` as the class name remains the same, only the package changes.
 
-5. **Potential side effects:**
-   - The change in import statement should not have any side effects as the functionality of the `Models` class remains the same, only the package has changed.
+5. **Potential side effects of the proposed changes:**
+   - The change in import statement should not have any side effects as long as the new package provides the same functionality.
 
 6. **Adherence to constraints:**
-   - The proposed change adheres to all constraints:
-     - The function signature of `toResponse` remains unchanged.
-     - No variables are created or removed.
-     - The `@Override` annotation is retained as the method still overrides `ExceptionMapper.toResponse`.
-     - The correct package is used in accordance with the newer dependency version.
-     - No existing code is removed.
-     - All code is included in the final output.
+   - The function signature of `toResponse` remains unchanged.
+   - No variables are created or removed.
+   - The `@Override` annotation is retained as the method still overrides a method in the updated dependency version.
+   - The correct package is used in accordance with the newer dependency version.
+   - No existing code is removed, only the import statement is updated.
 
-7. **Final summary:**
-   - The best solution is to update the import statement to use `jakarta.mvc.Models` instead of `javax.mvc.Models`. This change directly addresses the issue caused by the API update and adheres to all constraints.
+7. **Final summary of the chosen fix:**
+   - The fix involves updating the import statement to use the new package `jakarta.mvc.Models`. This is the best solution as it directly addresses the API change without altering the functionality or structure of the code.
 </fix_planning>
 
 ```java

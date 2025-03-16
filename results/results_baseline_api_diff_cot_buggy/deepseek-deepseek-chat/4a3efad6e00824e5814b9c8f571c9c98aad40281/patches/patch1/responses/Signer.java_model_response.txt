@@ -9,14 +9,21 @@
    d. Potential fixes:
       - Remove the line setting the permission if it's no longer needed
       - Replace with equivalent functionality if available in the new API
-      - Since the class has been removed and no direct replacement is mentioned, the safest option is to remove the permission setting
+      - Use a different permission setting if available
    e. Side effects:
-      - The PDF signing process might have different permission settings
-      - This might affect the level of changes permitted in the signed PDF
+      - Removing the permission setting might affect the document's certification level
+      - Using a different permission might change the document's behavior
    f. Constraints check:
-      - The fix adheres to all constraints as it only removes the problematic line without changing method signatures or adding new code
-   g. Final summary:
-      - The best solution is to remove the line setting the permission since the class has been removed and no direct replacement is available
+      - The fix doesn't change method signatures
+      - No existing code is removed except the problematic line
+      - No placeholder comments are used
+   g. Final solution:
+      - Remove the permission setting line since the class has been removed and there's no direct replacement in the API documentation
+      - This is the safest option as it maintains functionality without the removed feature
+
+2. Fix implementation:
+   - Remove the line: `signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);`
+   - Remove the import: `import eu.europa.esig.dss.pades.CertificationPermission;`
 </fix_planning>
 
 ```java

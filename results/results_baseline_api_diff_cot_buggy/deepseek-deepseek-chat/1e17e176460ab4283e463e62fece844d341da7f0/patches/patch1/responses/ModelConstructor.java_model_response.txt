@@ -1,16 +1,27 @@
 <fix_planning>
 1. Analysis:
-   a. The error occurs in the constructor call `super(Model.class)` which is no longer valid due to API changes in SnakeYAML.
-   b. The API changes indicate that the `Constructor(Class)` constructor has been removed and replaced with `Constructor(Class, LoaderOptions)`.
+   a. The error occurs in the line `super(Model.class);` because the `Constructor(Class<T>)` constructor has been removed in the new version of SnakeYAML.
+   b. The API changes show that the new version requires a `LoaderOptions` parameter in the constructor.
    c. Affected line: `super(Model.class);`
-   d. Potential fix: Replace `super(Model.class)` with `super(new TypeDescription(Model.class), new LoaderOptions())`.
-   e. Side effects: The fix requires creating a `LoaderOptions` instance, which is a new dependency. This should not affect functionality as it's part of the updated API.
-   f. Constraints check: The fix adheres to all constraints - it doesn't change method signatures, adds necessary imports, and preserves all existing code.
-   g. Final summary: The best solution is to use the new constructor with `TypeDescription` and `LoaderOptions` as it's the direct replacement for the removed constructor and follows the updated API.
+   d. Potential fixes:
+      - Create a new `LoaderOptions` instance and pass it along with `Model.class` to the super constructor
+      - Use the new constructor `Constructor(Class<T>, LoaderOptions)`
+   e. Side effects:
+      - Need to ensure the `LoaderOptions` is properly configured
+      - No other functionality should be affected
+   f. Constraints check:
+      - Does not change method signatures
+      - Creates a new variable for `LoaderOptions`
+      - Maintains all existing code
+      - Adheres to all constraints
+   g. Chosen fix:
+      - Create a `LoaderOptions` instance and use the new constructor
+      - This is the most straightforward solution that directly addresses the API change
 
-2. Required changes:
-   - Add import: `import org.yaml.snakeyaml.LoaderOptions;`
-   - Modify constructor call: `super(new TypeDescription(Model.class), new LoaderOptions());`
+2. Implementation:
+   - Add import for `org.yaml.snakeyaml.LoaderOptions`
+   - Create `LoaderOptions` instance in constructor
+   - Modify super constructor call
 </fix_planning>
 
 ```java
@@ -57,7 +68,7 @@ public final class ModelConstructor extends Constructor {
   private final Map<Class<?>, Construct> pomConstructors = new HashMap<>();
 
   public ModelConstructor() {
-    super(new TypeDescription(Model.class), new LoaderOptions());
+    super(Model.class, new LoaderOptions());
 
     yamlConstructors.put(XPP3DOM_TAG, new ConstructXpp3Dom());
     yamlClassConstructors.put(NodeId.mapping, new MavenObjectConstruct());

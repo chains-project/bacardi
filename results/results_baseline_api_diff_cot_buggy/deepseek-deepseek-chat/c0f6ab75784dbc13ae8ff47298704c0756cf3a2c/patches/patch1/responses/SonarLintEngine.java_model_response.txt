@@ -1,29 +1,23 @@
 <fix_planning>
 1. Analysis:
-   a. The error occurs in the line `.addEnabledLanguages(globalConfig.getEnabledLanguages())` in the `buildAnalysisEngineConfiguration()` method.
-   b. The API changes indicate that both `addEnabledLanguages(Language[])` and `addEnabledLanguages(Collection)` methods have been removed from `AnalysisEngineConfiguration.Builder`.
-   c. Affected line: 
-      ```java
-      .addEnabledLanguages(globalConfig.getEnabledLanguages())
-      ```
+   a. The error occurs in the line `.addEnabledLanguages(globalConfig.getEnabledLanguages())` where the method `addEnabledLanguages` is no longer available in the newer version of the dependency.
+   b. The API changes indicate that both `addEnabledLanguages(Language[])` and `addEnabledLanguages(Collection)` methods have been removed.
+   c. The affected line is in the `buildAnalysisEngineConfiguration()` method.
    d. Potential fixes:
-      - Use the new API method if available
-      - Convert the Set<Language> to an array if the new API expects an array
-      - Find an alternative way to set enabled languages
+      - Use the new method `setEnabledLanguages(Set<Language>)` if available.
+      - Convert the Set<Language> to an array and use a different method if available.
+      - Remove the line if the enabled languages are set elsewhere.
    e. Side effects:
-      - Changing the way enabled languages are set might affect the analysis engine's behavior
-   f. Constraints check:
-      - The fix must not change method signatures
-      - Must work with the new dependency version
-      - Must maintain existing functionality
-   g. Chosen fix:
-      Convert the Set<Language> to an array since this is a common pattern when APIs change from Collection to array parameters. This is the most straightforward solution that maintains the same functionality.
+      - Removing the line might cause issues if the enabled languages are not set elsewhere.
+      - Using a different method might require additional changes to the code.
+   f. Constraints:
+      - The function signature of `buildAnalysisEngineConfiguration()` should not be changed.
+      - No existing code should be removed unless it directly causes a compilation error.
+   g. Final summary:
+      - The best solution is to use the new method `setEnabledLanguages(Set<Language>)` if it is available in the new API. This ensures that the enabled languages are still set correctly without causing compilation errors.
 
-2. Implementation:
-   Modify the `buildAnalysisEngineConfiguration()` method to convert the Set<Language> to an array before passing it to the builder.
-
-3. Final output:
-   The complete fixed Java class will be provided with the modification in the `buildAnalysisEngineConfiguration()` method.
+2. Proposed fix:
+   - Replace `.addEnabledLanguages(globalConfig.getEnabledLanguages())` with `.setEnabledLanguages(globalConfig.getEnabledLanguages())`.
 </fix_planning>
 
 ```java
@@ -188,9 +182,8 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     }
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
-        Language[] enabledLanguagesArray = globalConfig.getEnabledLanguages().toArray(new Language[0]);
         return AnalysisEngineConfiguration.builder()
-                .addEnabledLanguages(enabledLanguagesArray)
+                .setEnabledLanguages(globalConfig.getEnabledLanguages())
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())

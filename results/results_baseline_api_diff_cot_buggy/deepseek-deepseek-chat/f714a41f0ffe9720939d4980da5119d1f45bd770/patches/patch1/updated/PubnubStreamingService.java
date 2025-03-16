@@ -8,14 +8,6 @@ import com.pubnub.api.PubNub;
 import com.pubnub.api.callbacks.SubscribeCallback;
 import com.pubnub.api.enums.PNStatusCategory;
 import com.pubnub.api.models.consumer.PNStatus;
-import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
-import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
-import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
-import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
-import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
-import com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult;
-import com.pubnub.api.models.consumer.objects_api.space.PNSpaceResult;
-import com.pubnub.api.models.consumer.objects_api.user.PNUserResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -62,15 +54,14 @@ public class PubnubStreamingService {
                   }
                 }
 
-                @Override
-                public void message(PubNub pubNub, PNMessageResult pnMessageResult) {
-                  String channelName = pnMessageResult.getChannel();
+                public void message(PubNub pubNub, Object pnMessageResult) {
+                  String channelName = ((com.pubnub.api.models.consumer.pubsub.BasePubSubResult) pnMessageResult).getChannel();
                   ObservableEmitter<JsonNode> subscription = subscriptions.get(channelName);
                   LOG.debug("PubNub Message: {}", pnMessageResult.toString());
                   if (subscription != null) {
                     JsonNode jsonMessage = null;
                     try {
-                      jsonMessage = mapper.readTree(pnMessageResult.getMessage().toString());
+                      jsonMessage = mapper.readTree(pnMessageResult.toString());
                     } catch (IOException ex) {
                       ex.printStackTrace();
                     }
@@ -80,37 +71,33 @@ public class PubnubStreamingService {
                   }
                 }
 
-                @Override
-                public void presence(PubNub pubNub, PNPresenceEventResult pnPresenceEventResult) {
+                public void presence(PubNub pubNub, Object pnPresenceEventResult) {
                   LOG.debug("PubNub presence: {}", pnPresenceEventResult.toString());
                 }
 
-                @Override
-                public void signal(PubNub pubnub, PNSignalResult pnSignalResult) {
+                public void signal(PubNub pubnub, Object pnSignalResult) {
                   LOG.debug("PubNub signal: {}", pnSignalResult.toString());
                 }
 
-                public void user(PubNub pubnub, PNUserResult pnUserResult) {
+                public void user(PubNub pubnub, Object pnUserResult) {
                   LOG.debug("PubNub user: {}", pnUserResult.toString());
                 }
 
-                public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
+                public void space(PubNub pubnub, Object pnSpaceResult) {
                   LOG.debug("PubNub space: {}", pnSpaceResult.toString());
                 }
 
-                public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
+                public void membership(PubNub pubnub, Object pnMembershipResult) {
                   LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
                 }
 
-                @Override
-                public void messageAction(
-                    PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
+                public void messageAction(PubNub pubnub, Object pnMessageActionResult) {
                   LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
                 }
 
                 @Override
-                public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
-                  LOG.debug("PubNub file event: {}", pnFileEventResult.toString());
+                public void file(PubNub pubnub, Object pnFileEventResult) {
+                  LOG.debug("PubNub file: {}", pnFileEventResult.toString());
                 }
               });
           e.onComplete();

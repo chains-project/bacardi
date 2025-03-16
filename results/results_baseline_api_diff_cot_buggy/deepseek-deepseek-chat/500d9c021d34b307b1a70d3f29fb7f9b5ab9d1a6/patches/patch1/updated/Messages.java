@@ -2,14 +2,15 @@ import java.util.ResourceBundle;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.faces.context.FacesContext;
+import jakarta.mvc.MvcContext;
 
 /**
- * Provides I18n messages for the UI per request. To get the correct locale, the method {@link FacesContext#getViewRoot()}
- * is used. This method uses the built-in {@link javax.faces.context.FacesContext} of the used JSF Implementation.
+ * Provides I18n messages for the UI per request. To get the correct locale, the method {@link MvcContext#getLocale()}
+ * is used. This method uses the built-in {@link javax.mvc.locale.LocaleResolver} of the used MVC Implementation.
  *
  * @author Tobias Erdle
- * @see FacesContext#getViewRoot()
+ * @see MvcContext#getLocale()
+ * @see javax.mvc.locale.LocaleResolver
  */
 @RequestScoped
 @Named("msg")
@@ -18,7 +19,7 @@ public class Messages {
     private static final String BASE_NAME = "messages";
 
     @Inject
-    private FacesContext facesContext;
+    private MvcContext mvcContext;
 
     /**
      * Get the assigned message to some key based on the {@link java.util.Locale} of the current request.
@@ -28,7 +29,7 @@ public class Messages {
      * placeholder for unknown keys.
      */
     public final String get(final String key) {
-        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, facesContext.getViewRoot().getLocale());
+        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
 
         return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);
     }

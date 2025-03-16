@@ -1,26 +1,30 @@
 <fix_planning>
-1. Analysis:
-   a. The error occurs because the `liquibase.util.StringUtils` class has been removed in the new version of the dependency.
-   b. The specific API changes causing the issue are:
-      - `liquibase.util.StringUtils` class removed
-      - `liquibase.repackaged.org.apache.commons.lang3.StringUtils` class added
-      - `liquibase.util.StringUtils.trimToNull(java.lang.String)` method removed
-      - `liquibase.repackaged.org.apache.commons.lang3.StringUtils.trimToNull(java.lang.String)` method added
-   c. Affected lines:
-      - `import liquibase.util.StringUtils;`
-      - `if (StringUtils.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {`
-   d. Proposed fixes:
-      - Replace import with `import liquibase.repackaged.org.apache.commons.lang3.StringUtils;`
-      - Keep the usage of `StringUtils.trimToNull()` as it's available in the new package
-   e. Potential side effects:
-      - None expected as the method signature remains the same
-   f. Constraints check:
-      - All constraints are adhered to
-      - Function signatures remain unchanged
-      - No code is removed
-      - Correct import is used
-   g. Final summary:
-      - The best solution is to update the import statement to use the new package location of StringUtils while keeping the existing functionality intact
+1. **Relevant parts of the code and API changes:**
+   - The code uses `liquibase.util.StringUtils.trimToNull()` which has been removed.
+   - The new API provides `liquibase.util.StringUtil.trimToNull()` and `liquibase.repackaged.org.apache.commons.lang3.StringUtils.trimToNull()`.
+
+2. **Specific API changes causing the issue:**
+   - `liquibase.util.StringUtils.trimToNull()` has been removed.
+   - The class `liquibase.util.StringUtils` has been removed.
+
+3. **Affected lines of code:**
+   - `import liquibase.util.StringUtils;`
+   - `if (StringUtils.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {`
+
+4. **Proposed fixes:**
+   - Replace `import liquibase.util.StringUtils;` with `import liquibase.util.StringUtil;`.
+   - Replace `StringUtils.trimToNull()` with `StringUtil.trimToNull()`.
+
+5. **Potential side effects:**
+   - The new method `StringUtil.trimToNull()` should behave the same as the old `StringUtils.trimToNull()`, so no functional side effects are expected.
+
+6. **Adherence to constraints:**
+   - The function signatures remain unchanged.
+   - No existing code is removed.
+   - The correct package is used in accordance with the newer dependency version.
+
+7. **Final summary:**
+   - The best solution is to replace the import and method call with the new API provided by the dependency. This adheres to all constraints and fixes the compilation error without introducing new issues.
 </fix_planning>
 
 ```java
@@ -35,7 +39,7 @@ import liquibase.sqlgenerator.SqlGeneratorChain;
 import liquibase.sqlgenerator.core.AddPrimaryKeyGenerator;
 import liquibase.statement.core.AddPrimaryKeyStatement;
 import liquibase.structure.core.Index;
-import liquibase.repackaged.org.apache.commons.lang3.StringUtils;
+import liquibase.util.StringUtil;
 
 public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
   @Override
@@ -90,7 +94,7 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
     // the only new feature being added is support for fillFactor
     sql += " WITH (FILLFACTOR = " + statement.getFillFactor() + ")";
 
-    if (StringUtils.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
+    if (StringUtil.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
       sql += " ON "+statement.getTablespace();
     }
 

@@ -9,7 +9,6 @@ import com.artipie.http.Headers;
 import com.artipie.http.Response;
 import com.artipie.http.auth.AuthScheme;
 import com.artipie.http.auth.Authentication;
-import com.artipie.http.auth.BasicIdentities;
 import com.artipie.http.rs.StandardRs;
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -27,6 +26,18 @@ import org.reactivestreams.Publisher;
  * @since 0.11
  */
 class AuthScopeSliceTest {
+
+    private static final class User {
+        private final String name;
+
+        User(String name) {
+            this.name = name;
+        }
+
+        String name() {
+            return this.name;
+        }
+    }
 
     @Test
     void testScope() {
@@ -53,9 +64,8 @@ class AuthScopeSliceTest {
             },
             (headers, rline) -> CompletableFuture.completedFuture(
                 new AuthScheme.Result() {
-                    @Override
-                    public Optional<BasicIdentities.User> user() {
-                        return Optional.of(new BasicIdentities.User("alice"));
+                    public Optional<User> user() {
+                        return Optional.of(new User("alice"));
                     }
 
                     @Override

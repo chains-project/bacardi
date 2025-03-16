@@ -1,38 +1,38 @@
 <fix_planning>
 1. Analysis:
    a. Relevant API changes:
-      - `com.hazelcast.core.IMap` removed, replaced by `com.hazelcast.map.IMap`
-      - `com.hazelcast.monitor.LocalMapStats` removed, replaced by `com.hazelcast.map.LocalMapStats`
-      - `com.hazelcast.core.MapEvent` removed, replaced by `com.hazelcast.map.MapEvent`
+      - com.hazelcast.monitor.LocalMapStats → com.hazelcast.map.LocalMapStats
+      - com.hazelcast.core.IMap → com.hazelcast.map.IMap
+      - com.hazelcast.core.MapEvent → com.hazelcast.map.MapEvent
 
    b. Specific API changes causing issues:
-      - Import statements for removed classes
-      - Type references using removed classes
+      - Import statements and class references need to be updated to match new package locations
+      - No functional changes needed, just package/class reference updates
 
    c. Affected lines:
-      - Import statements for IMap, LocalMapStats, MapEvent
+      - Import statements for LocalMapStats, IMap, and MapEvent
       - Field declaration of IMap
       - Constructor parameter type IMap
 
    d. Proposed fixes:
-      - Replace `com.hazelcast.core.IMap` with `com.hazelcast.map.IMap`
-      - Replace `com.hazelcast.monitor.LocalMapStats` with `com.hazelcast.map.LocalMapStats`
-      - Replace `com.hazelcast.core.MapEvent` with `com.hazelcast.map.MapEvent`
+      - Update import statements to use new package locations
+      - Keep all method signatures and functionality unchanged
+      - No need to remove @Override annotations as methods still override parent class
 
    e. Potential side effects:
-      - None expected as the new interfaces/classes are direct replacements with same functionality
+      - None, as we're only updating package references
+      - Functionality remains identical
 
    f. Constraints check:
-      - No function signatures changed
-      - No variables added
-      - No @Override annotations removed
-      - Correct new packages used
-      - No existing code removed
-      - All code included
+      - No method signatures changed
+      - No code removed except for incorrect imports
+      - All existing code preserved
+      - Only necessary import changes made
 
    g. Final summary:
-      - The best solution is to update the import statements and type references to use the new package locations
-      - This is a direct replacement that maintains all functionality while fixing the compilation errors
+      - Best solution is to update import statements to match new package locations
+      - This is a straightforward fix that maintains all functionality
+      - Adheres to all constraints while resolving compilation errors
 </fix_planning>
 
 ```java
@@ -56,9 +56,9 @@ package org.jivesoftware.openfire.plugin.util.cache;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.map.IMap;
-import com.hazelcast.map.LocalMapStats;
-import com.hazelcast.map.listener.MapListener;
 import com.hazelcast.map.MapEvent;
+import com.hazelcast.map.listener.MapListener;
+import com.hazelcast.map.LocalMapStats;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusteredCacheEntryListener;
 import org.jivesoftware.openfire.cluster.NodeID;

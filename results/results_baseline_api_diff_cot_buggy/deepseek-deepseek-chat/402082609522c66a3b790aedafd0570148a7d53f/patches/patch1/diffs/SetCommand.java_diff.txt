@@ -1,0 +1,57 @@
+13,17c13,15
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.args.GenericArguments;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+> import org.spongepowered.api.command.CommandExecutor;
+21,22c19
+< import static org.spongepowered.api.command.args.GenericArguments.flags;
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+---
+> import static org.spongepowered.api.command.parameter.Parameter.string;
+37,39c34,36
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+---
+>     public CommandResult execute(CommandContext args) {
+>         if (!(args.getCause().getRoot() instanceof Player)) {
+>             plugin.sendMessage(args.getCause().getRoot(), "no-console");
+43c40
+<         UUID uniqueId = ((Player) src).getUniqueId();
+---
+>         UUID uniqueId = ((Player) args.getCause().getRoot()).getUniqueId();
+45c42
+<             plugin.sendMessage(src, "cooldown");
+---
+>             plugin.sendMessage(args.getCause().getRoot(), "cooldown");
+49,50c46,47
+<         Player receiver = (Player) src;
+<         String targetSkin = args.<String>getOne("skin").get();
+---
+>         Player receiver = (Player) args.getCause().getRoot();
+>         String targetSkin = args.one("skin").get();
+60c57
+<             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(src, targetUUID, true)) {
+---
+>             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(args.getCause().getRoot(), targetUUID, true)) {
+64,65c61,62
+<             plugin.sendMessage(src, "skin-change-queue");
+<             Runnable skinDownloader = new SkinDownloader(plugin, src, receiver, targetUUID, keepSkin);
+---
+>             plugin.sendMessage(args.getCause().getRoot(), "skin-change-queue");
+>             Runnable skinDownloader = new SkinDownloader(plugin, args.getCause().getRoot(), receiver, targetUUID, keepSkin);
+70c67
+<         Runnable nameResolver = new NameResolver(plugin, src, targetSkin, receiver, keepSkin);
+---
+>         Runnable nameResolver = new NameResolver(plugin, args.getCause().getRoot(), targetSkin, receiver, keepSkin);
+75d71
+<     @Override
+81c77
+<                         flags().flag("keep").buildWith(GenericArguments.none()))
+---
+>                         Parameter.flags().flag("keep").buildWith(Parameter.none()))

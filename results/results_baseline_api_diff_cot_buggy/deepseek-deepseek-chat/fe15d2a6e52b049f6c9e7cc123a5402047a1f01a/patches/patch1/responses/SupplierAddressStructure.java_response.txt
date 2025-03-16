@@ -183,7 +183,7 @@ public class SupplierAddressStructure implements ToString2
      * Sets the value of the postalCode property.
      * 
      * @param value
-     *     allowed object is
+    极     allowed object is
      *     {@link String }
      *     
      */
@@ -204,11 +204,11 @@ public class SupplierAddressStructure implements ToString2
     }
 
     /**
-     * Sets the value of the region property.
+     * Sets the value of极 the region property.
      * 
      * @param value
      *     allowed object is
-    极     {@link String }
+     *     {@link String }
      *     
      */
     public void setRegion(String value) {
@@ -241,7 +241,7 @@ public class SupplierAddressStructure implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

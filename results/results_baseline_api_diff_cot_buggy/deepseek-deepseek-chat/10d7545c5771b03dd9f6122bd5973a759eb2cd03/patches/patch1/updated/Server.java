@@ -251,7 +251,7 @@ public abstract class Server<Config extends Configuration> extends Application<C
         registerFeatures();
 
         environment.healthChecks().register("Storage", new StorageHealthCheck(storageFactory));
-        environment.healthChecks().register("Crypto", new CryptoHealthCheck(cryptoFactory);
+        environment.healthChecks().register("Crypto", new CryptoHealthCheck(cryptoFactory));
         environment.healthChecks().register("Alice2Bob", new Alice2Bob(cryptoFactory));
         environment.healthChecks().register("Outbound", new Outbound(getClient()));
 

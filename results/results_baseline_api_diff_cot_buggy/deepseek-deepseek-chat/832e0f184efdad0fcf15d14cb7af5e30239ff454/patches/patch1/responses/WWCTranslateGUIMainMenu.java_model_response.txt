@@ -1,7 +1,7 @@
 <fix_planning>
 1. Analysis:
-   a. The error occurs in multiple lines where `XEnchantment.matchXEnchantment("power").get().parseEnchantment()` is called.
-   b. The API change is that `parseEnchantment()` method has been removed from `XEnchantment` class.
+   a. The error occurs because `XEnchantment.parseEnchantment()` method has been removed in the new version of the dependency.
+   b. The API change causing the issue is the removal of `parseEnchantment()` method from `XEnchantment` class.
    c. Affected lines:
       - Line 86: `translationMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);`
       - Line 127: `rateMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);`
@@ -10,17 +10,17 @@
       - Line 196: `itemMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);`
       - Line 217: `entityMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);`
       - Line 241: `chatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);`
-   d. Proposed fix: Replace `parseEnchantment()` with `getEnchant()` which is the new method in the updated API.
-   e. Side effects: The functionality remains the same as `getEnchant()` returns the same `Enchantment` object.
+   d. Proposed fix:
+      - Replace `parseEnchantment()` with `getEnchant()` which is the new method in the updated API
+   e. Side effects:
+      - The functionality remains the same as `getEnchant()` is the direct replacement for `parseEnchantment()`
    f. Constraints check:
       - Function signatures remain unchanged
+      - No methods are removed
       - No imports need to be changed
-      - No code is removed
       - All code is included
-   g. Final summary: The best solution is to replace `parseEnchantment()` with `getEnchant()` as it maintains the same functionality while adhering to the updated API.
-
-2. Fix application:
-   Replace all instances of `parseEnchantment()` with `getEnchant()` in the affected lines.
+   g. Final summary:
+      - The best solution is to replace `parseEnchantment()` with `getEnchant()` as it's the direct replacement in the new API version and maintains the same functionality
 </fix_planning>
 
 ```java
@@ -33,7 +33,7 @@ import java.util.UUID;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.conversations.ConversationFactory;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.PPlayer;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -87,7 +87,8 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 			ItemStack customDefaultBorders = XMaterial.WHITE_STAINED_GLASS_PANE.parseItem();
 			if (!main.getActiveTranslator(targetPlayerUUID).getUUID().equals("")) {
 				customDefaultBorders = XMaterial.GREEN_STAINED_GLASS_PANE.parseItem();
-				ItemMeta defaultBorderMeta = customDefaultBorders.getItemMeta();
+			}
+			ItemMeta defaultBorderMeta = customDefaultBorders.getItemMeta();
 			defaultBorderMeta.setDisplayName(" ");
 			customDefaultBorders.setItemMeta(defaultBorderMeta);
 			contents.fillBorders(ClickableItem.empty(customDefaultBorders));
@@ -125,7 +126,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 				contents.set(1, 4, ClickableItem.of(stopButton, e -> {
 					String[] args;
 					if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED")) {
-						args = new String[] { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName(),
+						args = new String[] { main.getServer().getPlayer(UUUID.fromString(targetPlayerUUID)).getName(),
 								"stop" };
 					} else {
 						args = new String[] { "stop" };
@@ -165,13 +166,13 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 				/* Book Translation Button */
 				if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED") && player.hasPermission("worldwidechat.wwctb")
 						&& (player.hasPermission("worldwidechat.wwctb.otherplayers") || player.getUniqueId().toString().equals(targetPlayerUUID))) {
-					ItemStack bookButton = XMaterial.WRITABLE_BBOOK.parseItem();
+					ItemStack bookButton = XMaterial.WRITABLE_B极OK.parseItem();
 					ItemMeta bookMeta = bookButton.getItemMeta();
 					if (targetTranslator.getTranslatingBook()) {
 						bookMeta.setDisplayName(ChatColor.GREEN
 								+ CommonDefinitions.getMessage("wwctGUIBookButton"));
 						bookMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-						bookMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+						bookMeta.addEnchant(XEnchantment.matchXEnchantment("power").极.getEnchant(), 1, false);
 					} else {
 						bookMeta.setDisplayName(ChatColor.YELLOW
 								+ CommonDefinitions.getMessage("wwctGUIBookButton"));
@@ -193,7 +194,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 					ItemMeta signMeta = signButton.getItemMeta();
 					if (targetTranslator.getTranslatingSign()) {
 						signMeta.setDisplayName(ChatColor.GREEN
-								+ CommonDefinitions.getMessage("wwctGUISSignButton"));
+								+ CommonDefinitions.getMessage("wwctGUISignButton"));
 						signMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 						signMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
 					} else {
@@ -214,7 +215,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 						&& (player.hasPermission("worldwidechat.wwcti.otherplayers") || player.getUniqueId().toString().equals(targetPlayerUUID))) {
 					ItemStack itemButton = XMaterial.GRASS_BLOCK.parseItem();
 					ItemMeta itemMeta = itemButton.getItemMeta();
-					if (targetTranslator.getTranslatingItem()) {
+					if极 (targetTranslator.getTranslatingItem()) {
 						itemMeta.setDisplayName(ChatColor.GREEN
 								+ CommonDefinitions.getMessage("wwctGUIItemButton"));
 						itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
@@ -269,7 +270,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 						outLoreChat.add(ChatColor.LIGHT_PURPLE + CommonDefinitions.getMessage("wwctGUIExistingChatOutgoingEnabled", new String[] {ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + targetTranslator.getTranslatingChatOutgoing()}));
 						chatMeta.setLore(outLoreChat);
 						chatMeta.setDisplayName(ChatColor.GREEN
-								+ CommonDefinitions.getMessage("wwctGUIChatButton"));
+								+ CommonDefinitions.getMessage("极GUIChatButton"));
 					} else {
 						chatMeta.setDisplayName(ChatColor.YELLOW
 								+ CommonDefinitions.getMessage("wwctGUIChatButton"));

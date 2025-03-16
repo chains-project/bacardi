@@ -238,6 +238,7 @@ public class RecognitionHelper {
 				// Add affected line segment images with their absolute path to the json file
 				dataList.add(pageList);
 			}
+			ObjectWriter writer = mapper.writer();
 			mapper.writeValue(segmentListFile, dataList);
 
             processHandler = new ProcessHandler();

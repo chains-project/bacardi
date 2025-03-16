@@ -1,22 +1,29 @@
 <fix_planning>
 1. **Analysis of the Problem:**
-   - **Relevant Code:** The method `between(Date from, Date to)` in the `DateTime` class is causing errors.
-   - **API Changes:** The method `net.datafaker.DateAndTime.between(java.util.Date,java.util.Date)` has been removed. Instead, `net.datafaker.DateAndTime.between(java.sql.Timestamp,java.sql.Timestamp)` has been added.
-   - **Affected Lines:** 
-     ```java
-     @Override
-     public Timestamp between(Date from, Date to) throws IllegalArgumentException {
-       return new Timestamp(super.between(from, to).getTime());
-     }
-     ```
-   - **Proposed Fix:** Convert the `Date` parameters to `Timestamp` before calling the `super.between` method.
-   - **Side Effects:** The conversion from `Date` to `Timestamp` should not cause any issues as `Timestamp` is a subclass of `Date`.
-   - **Adherence to Constraints:** The function signature remains unchanged, and the fix adheres to all constraints.
-   - **Final Summary:** The best solution is to convert the `Date` parameters to `Timestamp` before calling the `super.between` method. This ensures compatibility with the updated API while maintaining the original method signature.
+   - **Relevant Code and API Changes:**
+     - The method `between(Date from, Date to)` in the `DateTime` class is attempting to override a method that no longer exists in the `DateAndTime` class.
+     - The API changes indicate that the `between` methods accepting `java.util.Date` parameters have been removed and replaced with methods accepting `java.sql.Timestamp` parameters.
+   - **Specific API Changes Causing the Issue:**
+     - `Method net.datafaker.DateAndTime.between(java.util.Date,java.util.Date)` has been removed.
+     - `Method net.datafaker.DateAndTime.between(java.sql.Timestamp,java.sql.Timestamp)` has been added.
+   - **Affected Lines of Code:**
+     - Line 43: `@Override`
+     - Line 45: `return new Timestamp(super.between(from, to).getTime());`
+   - **Proposed Fixes:**
+     - Remove the `@Override` annotation since the method no longer overrides a method in the superclass.
+     - Convert the `Date` parameters to `Timestamp` before passing them to the `super.between` method.
+   - **Potential Side Effects:**
+     - The conversion from `Date` to `Timestamp` should be safe as `Timestamp` is a subclass of `Date`.
+   - **Adherence to Constraints:**
+     - The function signature remains unchanged.
+     - No existing code is removed.
+     - The `@Override` annotation is removed only because the method no longer overrides a method in the superclass.
+   - **Final Summary:**
+     - The best solution is to remove the `@Override` annotation and convert the `Date` parameters to `Timestamp` before calling the `super.between` method. This adheres to all constraints and fixes the compilation errors.
 
-2. **Fix Application:**
-   - Modify the `between` method to convert `Date` parameters to `Timestamp`.
-   - Remove the `@Override` annotation since the method no longer overrides a method in the updated dependency version.
+2. **Proposed Fix:**
+   - Remove the `@Override` annotation.
+   - Convert `Date` parameters to `Timestamp` before calling `super.between`.
 </fix_planning>
 
 ```java

@@ -1,26 +1,30 @@
 <fix_planning>
 1. Analysis:
    a. The error occurs because the class `org.codehaus.plexus.util.xml.Xpp3Dom` has been removed in the new version of the dependency.
-   b. The specific API change causing the issue is the removal of the `Xpp3Dom` class and all its constructors.
-   c. The affected line of code is:
-      ```java
-      import org.codehaus.plexus.util.xml.Xpp3Dom;
-      ```
-      and its usage in the `collectUsedClassesFromProcessors` method:
-      ```java
-      .map(config -> config.getChild("processors"))
-      .map(Xpp3Dom::getChildren)
-      ```
+   b. The specific API change causing the issue is the removal of the entire `Xpp3Dom` class.
+   c. Affected lines:
+      - Import statement: `import org.codehaus.plexus.util.xml.Xpp3Dom;`
+      - Usage in method: `.map(config -> (Xpp3Dom) exec.getConfiguration())`
    d. Potential fixes:
-      - Replace `Xpp3Dom` with an equivalent class from a different package that provides similar functionality.
-      - Use a different approach to parse the XML configuration without relying on `Xpp3Dom`.
+      - Replace `Xpp3Dom` with an equivalent class from the new version of the dependency.
+      - Use a different approach to access the configuration data.
    e. Side effects:
-      - Changing the XML parsing approach might require modifications to how the configuration is accessed and processed.
+      - The new implementation might have different behavior or API.
+      - Need to ensure compatibility with the rest of the code.
    f. Constraints check:
-      - The function signature of `collectUsedClassesFromProcessors` must remain unchanged.
-      - The fix should not remove any existing code unless it directly causes a compilation error.
+      - The function signature remains unchanged.
+      - No existing code is removed except for the problematic import.
+      - The fix adheres to all constraints.
    g. Final summary:
-      - The best solution is to replace `Xpp3Dom` with `org.apache.maven.plugin.PluginParameterExpressionEvaluator` or a similar class that can handle XML configuration in the new version of the dependency.
+      - The best solution is to replace `Xpp3Dom` with `org.apache.maven.plugin.PluginParameterExpressionEvaluator` or similar class from the Maven API that can handle plugin configurations.
+
+2. Proposed changes:
+   - Replace the import statement with the appropriate Maven API class.
+   - Modify the type casting in the `collectUsedClassesFromProcessors` method.
+
+3. Implementation:
+   - Replace `Xpp3Dom` with `org.apache.maven.plugin.PluginParameterExpressionEvaluator` or similar class.
+   - Update the type casting in the method accordingly.
 </fix_planning>
 
 ```java

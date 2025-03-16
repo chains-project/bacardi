@@ -10,29 +10,40 @@
    ```
    b. API changes:
    - Flyway() constructor removed
-   - setDataSource(DataSource) removed
-   - setClassLoader(ClassLoader) removed
-   - setLocations(String) removed
-   - setValidateOnMigrate(Boolean) removed
-   c. Affected lines: 108-112
+   - setDataSource() method removed
+   - setClassLoader() method removed
+   - setLocations() method removed
+   - setValidateOnMigrate() method removed
+   - New configuration-based approach required
+
+   c. Affected lines:
+   - Line 108: Flyway instantiation
+   - Line 109: setDataSource()
+   - Line 110: setClassLoader()
+   - Line 111: setLocations()
+   - Line 112: setValidateOnMigrate()
+
    d. Proposed fixes:
    - Use Flyway.configure() to create configuration
-   - Use ClassicConfiguration methods for setting properties
+   - Set properties through configuration
    - Create Flyway instance with configuration
+
    e. Side effects:
-   - New approach uses configuration pattern instead of direct method calls
-   - Functionality remains the same
+   - New approach requires configuration object
+   - No functional changes expected
+   - Maintains same behavior with updated API
+
    f. Constraints check:
    - Method signature remains unchanged
-   - No existing code removed
-   - All required imports are present
-   g. Summary:
-   The best solution is to use the new configuration pattern provided by the updated Flyway API, which maintains the same functionality while adhering to the new API structure.
+   - No code removed
+   - No existing functionality altered
+   - Follows new API requirements
 
-2. Fix implementation:
-   - Replace direct Flyway instantiation and method calls with configuration pattern
-   - Use ClassicConfiguration methods for setting properties
-   - Create Flyway instance with configuration
+   g. Final solution:
+   - Replace direct Flyway instantiation with configuration-based approach
+   - Use FluentConfiguration to set properties
+   - Create Flyway instance with configured settings
+   - This is the best solution as it follows the new API pattern while maintaining functionality
 </fix_planning>
 
 ```java
@@ -144,11 +155,11 @@ public class NisAppConfig {
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
 		final Flyway flyway = Flyway.configure()
-			.dataSource(this.dataSource())
-			.classLoader(NisAppConfig.class.getClassLoader())
-			.locations(prop.getProperty("flyway.locations"))
-			.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
-			.load();
+				.dataSource(this.dataSource())
+				.classLoader(NisAppConfig.class.getClassLoader())
+				.locations(prop.getProperty("flyway.locations"))
+				.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
+				.load();
 		return flyway;
 	}
 
@@ -262,7 +273,7 @@ public class NisAppConfig {
 
 	@Bean
 	public SynchronizedPoxFacade poxFacade() {
-		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
+		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
 	}
 
 	@Bean

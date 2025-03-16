@@ -1,29 +1,29 @@
 <fix_planning>
-1. Analyze the problem:
-   a. The error occurs because the class `org.apache.thrift.transport.TFramedTransport` has been removed in the new version of the dependency.
-   b. The API changes indicate that `org.apache.thrift.transport.layered.TFramedTransport` has been added as a replacement.
-   c. Affected lines:
-      - `import org.apache.thrift.transport.TFramedTransport;`
-      - `private final TFramedTransport framedTransport;`
-      - `this.framedTransport = new TFramedTransport(new TIOStreamTransport(this.byteOffsetInputStream), maxMessageSize);`
-   d. Potential fixes:
-      - Update the import statement to use the new package: `import org.apache.thrift.transport.layered.TFramedTransport;`
-      - Keep the variable declaration as is since the class name remains the same
-      - The constructor call remains the same as the new class has a compatible constructor
-   e. Side effects:
-      - No expected side effects as the new class appears to be a direct replacement with the same functionality
-   f. Constraints check:
-      - The function signatures remain unchanged
-      - No variables need to be created
-      - No @Override annotations need to be removed
-      - The import is updated to the correct package
-      - No existing code is removed
-   g. Final summary:
-      - The best solution is to update the import statement to use the new package location while keeping the rest of the code unchanged, as the new class appears to be a direct replacement with the same functionality and constructor signature.
+1. **Analysis of the Problem:**
+   - The error occurs because the `TFramedTransport` class has been moved from `org.apache.thrift.transport` to `org.apache.thrift.transport.layered` in the new version of the dependency.
+   - The import statement `import org.apache.thrift.transport.TFramedTransport;` is no longer valid.
+   - The class `TFramedTransport` is used in the code to declare the `framedTransport` variable and to instantiate it in the constructor.
 
-2. Apply the fix:
-   - Update the import statement to use the new package location
-   - Keep the rest of the code unchanged
+2. **Affected Lines:**
+   - `import org.apache.thrift.transport.TFramedTransport;`
+   - `private final TFramedTransport framedTransport;`
+
+3. **Proposed Fixes:**
+   - Update the import statement to use the new package: `import org.apache.thrift.transport.layered.TFramedTransport;`
+   - No changes are needed for the declaration of `framedTransport` since the class name remains the same, only the package has changed.
+
+4. **Potential Side Effects:**
+   - The change in the import statement should not have any side effects as long as the new `TFramedTransport` class in the `org.apache.thrift.transport.layered` package has the same API as the old one.
+
+5. **Adherence to Constraints:**
+   - The proposed changes adhere to all constraints:
+     - The function signatures remain unchanged.
+     - No variables are removed or added.
+     - The import statement is updated to the correct package.
+     - No existing code is removed.
+
+6. **Final Summary:**
+   - The best solution is to update the import statement to reflect the new package location of `TFramedTransport`. This is a straightforward fix that resolves the compilation error without introducing any side effects.
 </fix_planning>
 
 ```java
@@ -49,9 +49,9 @@ import com.google.common.base.Strings;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.layered.TFramedTransport;
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.layered.TFramedTransport;
 
 import java.io.Closeable;
 import java.io.IOException;

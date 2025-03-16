@@ -1,36 +1,40 @@
 <fix_planning>
 1. Analysis:
    a. Relevant code:
-   ```java
-   final org.flywaydb.core.Flyway flyway = new Flyway();
-   flyway.setDataSource(this.dataSource());
-   flyway.setClassLoader(NisAppConfig.class.getClassLoader());
-   flyway.setLocations(prop.getProperty("flyway.locations"));
-   flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-   ```
+      ```java
+      final org.flywaydb.core.Flyway flyway = new Flyway();
+      flyway.setDataSource(this.dataSource());
+      flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+      flyway.setLocations(prop.getProperty("flyway.locations"));
+      flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+      ```
    b. API changes causing issues:
-   - Flyway() constructor removed
-   - setDataSource() method removed
-   - setClassLoader() method removed
-   - setLocations() method removed
-   - setValidateOnMigrate() method removed
+      - Flyway() constructor removed
+      - setDataSource(DataSource) removed
+      - setClassLoader(ClassLoader) removed
+      - setLocations(String) removed
+      - setValidateOnMigrate(boolean) removed
    c. Affected lines: 108-112
    d. Proposed fixes:
-   - Use Flyway.configure() to create configuration
-   - Use ClassicConfiguration for setting properties
-   - Create Flyway instance with configuration
+      - Use ClassicConfiguration to configure Flyway
+      - Create ClassicConfiguration instance
+      - Set properties on ClassicConfiguration
+      - Pass configuration to Flyway constructor
    e. Potential side effects:
-   - Need to ensure all properties are properly set through new API
-   - Configuration object needs to be properly initialized
+      - None, as we're using the new recommended way to configure Flyway
    f. Constraints check:
-   - Function signature remains unchanged
-   - No existing code removed
-   - Only client code modified
-   g. Final solution:
-   - Use Flyway.configure() pattern
-   - Set properties through ClassicConfiguration
-   - Create Flyway instance with configuration
-   This is the best solution as it follows the new API pattern while maintaining all functionality.
+      - Function signatures remain unchanged
+      - No code removed
+      - No unnecessary imports added
+      - All code included in final output
+   g. Final summary:
+      The best solution is to use ClassicConfiguration to configure Flyway properties before creating the Flyway instance. This adheres to the new API while maintaining the same functionality.
+
+2. Fix implementation:
+   - Create ClassicConfiguration instance
+   - Set properties using ClassicConfiguration methods
+   - Pass configuration to Flyway constructor
+   - Keep all other code unchanged
 </fix_planning>
 
 ```java
@@ -141,12 +145,15 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final Flyway flyway = Flyway.configure()
-			.dataSource(this.dataSource())
-			.classLoader(NisAppConfig.class.getClassLoader())
-			.locations(prop.getProperty("flyway.locations"))
-			.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
-			.load();
+		final org.flywaydb.core.api.configuration.ClassicConfiguration configuration = new org.flywaydb.core.api.configuration.ClassicConfiguration();
+		configuration.setDataSource(this.dataSource());
+		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+		configuration.setLocations(new org.flywaydb.core.api.Location[] {
+			new org.flywaydb.core.api.Location(prop.getProperty("flyway.locations"))
+		});
+		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		
+		final org.flywaydb.core.Flyway flyway = new Flyway(configuration);
 		return flyway;
 	}
 

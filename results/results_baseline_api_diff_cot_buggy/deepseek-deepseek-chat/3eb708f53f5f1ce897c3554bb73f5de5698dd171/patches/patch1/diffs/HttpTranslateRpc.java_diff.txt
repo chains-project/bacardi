@@ -8,68 +8,75 @@
 > import com.google.api.services.translate.v3.model.DetectLanguageResponse;
 > import com.google.api.services.translate.v3.model.SupportedLanguages;
 > import com.google.api.services.translate.v3.model.Translation;
-69c69
+68,69c68
+<   @Override
 <   public List<List<DetectionsResourceItems>> detect(List<String> texts) {
 ---
->   public List<List<DetectLanguageResponse>> detect(List<String> texts) {
-71,73c71,74
+>   public List<List<Map<String, String>>> detect(List<String> texts) {
+71,73c70,73
 <       List<List<DetectionsResourceItems>> detections =
 <           translate.detections().list(texts).setKey(options.getApiKey()).execute().getDetections();
 <       return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
 ---
->       List<List<DetectLanguageResponse>> detections =
->           translate.projects().locations().detectLanguage("projects/" + options.getProjectId(), texts)
->               .setKey(options.getApiKey()).execute().getDetections();
->       return detections != null ? detections : ImmutableList.<List<DetectLanguageResponse>>of();
-80c81
+>       DetectLanguageResponse response = translate.projects().locations()
+>           .detectLanguage("projects/" + options.getProjectId(), texts)
+>           .execute();
+>       return response.getDetections() != null ? response.getDetections() : ImmutableList.of();
+79,80c79
+<   @Override
 <   public List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
 ---
->   public List<SupportedLanguages> listSupportedLanguages(Map<Option, ?> optionMap) {
-82,85c83,84
+>   public List<Map<String, String>> listSupportedLanguages(Map<Option, ?> optionMap) {
+82,88c81,83
 <       List<LanguagesResource> languages =
 <           translate
 <               .languages()
 <               .list()
----
->       List<SupportedLanguages> languages =
->           translate.projects().locations().getSupportedLanguages("projects/" + options.getProjectId())
-87c86
+<               .setKey(options.getApiKey())
 <               .setTarget(
+<                   firstNonNull(
 ---
->               .setLanguageCode(
-92c91
+>       SupportedLanguages response = translate.projects().locations()
+>           .getSupportedLanguages("projects/" + options.getProjectId())
+>           .setTargetLanguage(firstNonNull(
+90,92c85,86
+<               .execute()
+<               .getLanguages();
 <       return languages != null ? languages : ImmutableList.<LanguagesResource>of();
 ---
->       return languages != null ? languages : ImmutableList.<SupportedLanguages>of();
-99c98
+>           .execute();
+>       return response.getLanguages() != null ? response.getLanguages() : ImmutableList.of();
+98,99c92
+<   @Override
 <   public List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap) {
 ---
->   public List<Translation> translate(List<String> texts, Map<Option, ?> optionMap) {
-104,108c103,105
+>   public List<Map<String, String>> translate(List<String> texts, Map<Option, ?> optionMap) {
+104,109c97,101
 <       List<TranslationsResource> translations =
 <           translate
 <               .translations()
 <               .list(texts, targetLanguage)
 <               .setSource(sourceLanguage)
+<               .setKey(options.getApiKey())
 ---
->       List<Translation> translations =
->           translate.projects().locations().translateText("projects/" + options.getProjectId(), texts, targetLanguage)
->               .setSourceLanguageCode(sourceLanguage)
-115,116c112,113
+>       
+>       List<Translation> translations = translate.projects().locations()
+>           .translateText("projects/" + options.getProjectId(), texts)
+>           .setTargetLanguageCode(targetLanguage)
+>           .setSourceLanguageCode(sourceLanguage)
+113a106
+>       
+115,122c108,111
 <           translations != null ? translations : ImmutableList.<TranslationsResource>of(),
 <           new Function<TranslationsResource, TranslationsResource>() {
----
->           translations != null ? translations : ImmutableList.<Translation>of(),
->           new Function<Translation, Translation>() {
-118,120c115,117
+<             @Override
 <             public TranslationsResource apply(TranslationsResource translationsResource) {
 <               if (translationsResource.getDetectedSourceLanguage() == null) {
 <                 translationsResource.setDetectedSourceLanguage(sourceLanguage);
----
->             public Translation apply(Translation translation) {
->               if (translation.getDetectedLanguageCode() == null) {
->                 translation.setDetectedLanguageCode(sourceLanguage);
-122c119
+<               }
 <               return translationsResource;
 ---
->               return translation;
+>           translations != null ? translations : ImmutableList.<Translation>of(),
+>           new Function<Translation, Map<String, String>>() {
+>             public Map<String, String> apply(Translation translation) {
+>               return translation.getModel();

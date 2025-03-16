@@ -1,31 +1,33 @@
 <fix_planning>
 1. Analysis:
    a. The error occurs in the line: `ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);`
-   b. The API changes show that `readValue(String, Class)` has been removed in the new version of the dependency.
+   b. The API changes indicate that `ObjectMapper.readValue(String, Class)` has been removed in the new version.
    c. Affected line: Line 88 in SimpleLocalizeClient.java
    d. Potential fixes:
-      - Use `readValue(String, TypeReference)` instead of `readValue(String, Class)`
-      - Create a TypeReference for ExportResponse
+      - Use `ObjectReader` instead of `ObjectMapper` for reading values
+      - Create an `ObjectReader` instance from `ObjectMapper` and use it to read the value
    e. Side effects:
-      - The change is minimal and only affects the deserialization of the response
-      - No impact on other parts of the code
+      - The change is minimal and only affects how the JSON is parsed
+      - No functional changes expected
    f. Constraints check:
-      - The function signature remains unchanged
-      - No existing code is removed
-      - Only the client code is modified
+      - Function signature remains unchanged
+      - No imports need to be added
+      - No code is removed
+      - All constraints are satisfied
    g. Final summary:
-      - The best solution is to use TypeReference since it's the recommended way to handle generic types in Jackson
-      - This adheres to the new API and maintains the same functionality
+      - The best solution is to use `ObjectReader` as it's the recommended approach in newer Jackson versions
+      - This change maintains functionality while adhering to the new API
 
-2. Implementation:
-   - Add import for TypeReference
-   - Modify the readValue call to use TypeReference
+2. Proposed fix:
+   Replace the line with:
+   ```java
+   ExportResponse exportResponse = objectMapper.readerFor(ExportResponse.class).readValue(body);
+   ```
 </fix_planning>
 
 ```java
 package io.simplelocalize.cli.client;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
@@ -111,7 +113,7 @@ public class SimpleLocalizeClient
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
     throwOnError(httpResponse);
     String body = httpResponse.body();
-    ExportResponse exportResponse = objectMapper.readValue(body, new TypeReference<ExportResponse>() {});
+    ExportResponse exportResponse = objectMapper.readerFor(ExportResponse.class).readValue(body);
     return exportResponse.getFiles();
   }
 

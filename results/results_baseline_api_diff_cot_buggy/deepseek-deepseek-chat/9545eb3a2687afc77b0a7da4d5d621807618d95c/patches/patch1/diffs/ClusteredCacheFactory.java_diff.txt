@@ -1,30 +1,35 @@
-22c22
+22d21
 < import com.hazelcast.config.MaxSizeConfig;
----
-> import com.hazelcast.config.EvictionConfig;
-27c27
+27c26
 < import com.hazelcast.core.Cluster;
 ---
 > import com.hazelcast.cluster.Cluster;
-30c30
+30c29
 < import com.hazelcast.core.Member;
 ---
 > import com.hazelcast.cluster.Member;
-288c288,290
+96c95
+<     private static final SystemProperty<Duration> CLUSTER_STARTUP_RETRY_TIME = SystemProperty.Builder.ofType(Duration.class)
+---
+>     private static final SystemProperty<Duration] CLUSTER_STARTUP_RETRY_TIME = SystemProperty.Builder.ofType(Duration.class)
+288c287,288
 <             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
 ---
->             EvictionConfig evictionConfig = new EvictionConfig();
->             evictionConfig.setSize(hazelcastMaxCacheSizeInMegaBytes);
->             dynamicConfig.setEvictionConfig(evictionConfig);
-378d379
+>             dynamicConfig.getEvictionConfig().setSize(hazelcastMaxCacheSizeInMegaBytes);
+>             dynamicConfig.getEvictionConfig().setMaxSizePolicy(MaxSizePolicy.PER_NODE);
+378d377
 < 
-656c657
+438c437
+<                 for (final Future<T> future : futures.values()) {
+---
+>                 for (final Future<T] future : futures.values()) {
+656c655
 <         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
 ---
->         return NodeID.getInstance(member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).toString().getBytes(StandardCharsets.UTF_8));
-699d699
+>         return NodeID.getInstance(member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
+699d697
 < 
-701,703d700
+701,703d698
 < 
 < 
 < 

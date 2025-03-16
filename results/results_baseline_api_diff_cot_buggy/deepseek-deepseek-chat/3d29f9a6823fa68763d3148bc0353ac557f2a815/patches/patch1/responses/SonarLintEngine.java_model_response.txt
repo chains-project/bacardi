@@ -1,26 +1,27 @@
 <fix_planning>
 1. Analysis:
-   a. The error occurs in the line `.addEnabledLanguages(globalConfig.getEnabledLanguages())` where the method `addEnabledLanguages` is no longer available in the new version of the dependency.
+   a. The error occurs in the line `.addEnabledLanguages(globalConfig.getEnabledLanguages())` where the method `addEnabledLanguages` is no longer available in the new API.
    b. The API changes indicate that both `addEnabledLanguages(Language[])` and `addEnabledLanguages(Collection)` methods have been removed.
-   c. The affected line is in the `buildAnalysisEngineConfiguration()` method.
+   c. Affected line: `AnalysisEngineConfiguration.builder().addEnabledLanguages(globalConfig.getEnabledLanguages())`
    d. Potential fixes:
-      - Use the new API method if available
-      - Modify the code to use a different approach to set enabled languages
+      - Check the new API documentation to find the replacement method or alternative approach.
+      - If no direct replacement exists, consider setting the enabled languages through a different mechanism or configuration.
    e. Side effects:
-      - The fix should ensure that the enabled languages are still properly set in the analysis engine configuration.
+      - The fix should ensure that the enabled languages are still correctly set for the analysis engine.
+      - The fix should not break any other functionality that depends on the enabled languages.
    f. Constraints check:
-      - The function signature of `buildAnalysisEngineConfiguration()` remains unchanged.
-      - No existing code is removed.
+      - The fix does not change any method signatures.
+      - No existing code is removed unless it directly causes a compilation error.
       - The fix adheres to all given constraints.
    g. Final summary:
-      - The best solution is to use the new API method `setEnabledLanguages` if available, or directly set the enabled languages in the builder.
+      - The best solution is to use the new API method `setEnabledLanguages` if available, or find an alternative way to set the enabled languages.
 
-2. Fix:
+2. Proposed fix:
    - Replace `.addEnabledLanguages(globalConfig.getEnabledLanguages())` with `.setEnabledLanguages(globalConfig.getEnabledLanguages())` if the method exists.
-   - If `setEnabledLanguages` is not available, directly set the enabled languages in the builder.
+   - If `setEnabledLanguages` is not available, consider using a different approach to set the enabled languages, such as passing them directly to the builder or using a configuration object.
 
-3. Final fix:
-   - The fix will use the `setEnabledLanguages` method, assuming it is available in the new API version.
+3. Final chosen fix:
+   - Replace `.addEnabledLanguages(globalConfig.getEnabledLanguages())` with `.setEnabledLanguages(globalConfig.getEnabledLanguages())` assuming the new API provides this method.
 </fix_planning>
 
 ```java
@@ -254,7 +255,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
             throw SonarLintWrappedException.wrap(e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw SonarLintWrappedException.wrap(e);
+            throw SonarLintWrappedException.wwrap(e);
         }
     }
 

@@ -2,22 +2,20 @@
 1. Analysis:
    a. The error occurs because the `org.hamcrest.Matchers` class has been removed in the new version of the dependency.
    b. The specific API change causing the issue is the removal of the `org.hamcrest.Matchers` class.
-   c. The affected line is the import statement: `import org.hamcrest.Matchers;` and the usage of `Matchers` in the `hasPath` and `hasQuery` methods.
+   c. Affected lines:
+      - `import org.hamcrest.Matchers;`
+      - `Matchers.<URI>hasProperty("rawPath", path)`
+      - `Matchers.<URI>hasProperty("rawQuery", query)`
    d. Potential fixes:
-      - Replace `Matchers` with `CoreMatchers` from the `org.hamcrest` package, which is the recommended replacement in newer versions of Hamcrest.
-      - Update the import statement to use `CoreMatchers` instead of `Matchers`.
+      - Replace `Matchers` with `CoreMatchers` from `org.hamcrest.CoreMatchers` since it contains the `hasProperty` method.
    e. Side effects:
-      - The change should not affect the functionality of the code since `CoreMatchers` provides the same functionality as `Matchers`.
-   f. The proposed changes adhere to all constraints:
+      - The change should not affect the functionality as `CoreMatchers` provides the same functionality as `Matchers`.
+   f. Constraints check:
       - The function signatures remain unchanged.
-      - No code is removed except for the problematic import.
-      - The correct package is used in accordance with the newer dependency version.
+      - No existing code is removed.
+      - The fix addresses the missing import issue.
    g. Final summary:
-      - The best solution is to replace `Matchers` with `CoreMatchers` in both the import statement and the code. This is the recommended approach in newer versions of Hamcrest and maintains the same functionality.
-
-2. Fix:
-   - Replace `import org.hamcrest.Matchers;` with `import org.hamcrest.CoreMatchers;`.
-   - Replace `Matchers.<URI>hasProperty` with `CoreMatchers.<URI>hasProperty` in the `hasPath` and `hasQuery` methods.
+      - The best solution is to replace `Matchers` with `CoreMatchers` since it provides the same functionality and is available in the new version of the dependency.
 </fix_planning>
 
 ```java

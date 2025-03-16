@@ -1,7 +1,7 @@
 <fix_planning>
 1. **Analysis of the Problem:**
-   - The error occurs because the `liquibase.util.StringUtils` class has been removed in the new version of the dependency.
-   - The method `StringUtils.trimToNull(String)` has been moved to `liquibase.repackaged.org.apache.commons.lang3.StringUtils.trimToNull(String)`.
+   - The error occurs because the class `liquibase.util.StringUtils` has been removed in the new version of the dependency.
+   - The method `trimToNull` has been moved to `liquibase.util.StringUtil` and `liquibase.repackaged.org.apache.commons.lang3.StringUtils`.
    - The affected lines are:
      ```java
      import liquibase.util.StringUtils;
@@ -11,25 +11,20 @@
      ```
 
 2. **Proposed Fixes:**
-   - Replace the import statement with the new package:
-     ```java
-     import liquibase.repackaged.org.apache.commons.lang3.StringUtils;
-     ```
-   - The usage of `StringUtils.trimToNull` remains the same, but it will now refer to the new package.
+   - Replace the import statement with `import liquibase.util.StringUtil;` or `import liquibase.repackaged.org.apache.commons.lang3.StringUtils;`.
+   - Replace `StringUtils.trimToNull` with `StringUtil.trimToNull` or `StringUtils.trimToNull` depending on the chosen import.
 
 3. **Potential Side Effects:**
-   - The change in the import statement should not have any side effects as long as the method `trimToNull` behaves the same way in the new package.
+   - The change should not have any side effects as the functionality of `trimToNull` remains the same in the new classes.
 
 4. **Adherence to Constraints:**
-   - The function signatures remain unchanged.
-   - No variables are created.
-   - The `@Override` annotations are not removed.
-   - The correct package is used in the import statement.
-   - No existing code is removed.
-   - All code is included in the final output.
+   - The proposed changes adhere to all constraints:
+     - No method signatures are changed.
+     - No existing code is removed.
+     - The correct package is used in accordance with the newer dependency version.
 
 5. **Final Summary:**
-   - The best solution is to update the import statement to use the new package `liquibase.repackaged.org.apache.commons.lang3.StringUtils`. This change adheres to all constraints and resolves the compilation errors.
+   - The best solution is to replace the import with `import liquibase.util.StringUtil;` and use `StringUtil.trimToNull` because it is the direct replacement in the same package hierarchy.
 </fix_planning>
 
 ```java
@@ -44,7 +39,7 @@ import liquibase.sql.UnparsedSql;
 import liquibase.sqlgenerator.SqlGeneratorChain;
 import liquibase.sqlgenerator.core.CreateIndexGenerator;
 import liquibase.statement.core.CreateIndexStatement;
-import liquibase.repackaged.org.apache.commons.lang3.StringUtils;
+import liquibase.util.StringUtil;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -109,7 +104,7 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
       builder.append(" WITH (FILLFACTOR = ").append(statement.getFillFactor()).append(")");
     }
     // This block simplified, since we know we have MSSQLDatabase
-    if (StringUtils.trimToNull(statement.getTablespace()) != null) {
+    if (StringUtil.trimToNull(statement.getTablespace()) != null) {
       builder.append(" ON ").append(statement.getTablespace());
     }
 

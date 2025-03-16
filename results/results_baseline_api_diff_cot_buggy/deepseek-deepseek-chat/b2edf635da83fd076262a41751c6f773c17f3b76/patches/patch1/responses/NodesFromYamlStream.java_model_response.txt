@@ -1,27 +1,26 @@
 <fix_planning>
 1. Analysis:
    a. The error occurs in the line `Constructor constructor = new Constructor(Config.class);`
-   b. The API changes indicate that all Constructor constructors have been removed in the new version of the dependency.
-   c. The affected line is: `Constructor constructor = new Constructor(Config.class);`
+   b. The API changes indicate that all Constructor constructors have been removed, including the one that takes a Class parameter
+   c. Affected line: `Constructor constructor = new Constructor(Config.class);`
    d. Potential fixes:
-      - Use the new `LoaderOptions` class and `SafeConstructor` instead of the removed `Constructor` class
-      - Create a `LoaderOptions` instance and pass it to the `Yaml` constructor
+      - Use the new SafeConstructor class instead of Constructor
+      - Create a LoaderOptions object and pass it to the Yaml constructor
+      - Modify the code to use the new API pattern for YAML parsing
    e. Side effects:
-      - The new approach might require different handling of type descriptions
-      - Need to ensure the YAML parsing still works correctly with the new constructor
+      - Using SafeConstructor might change the parsing behavior slightly
+      - Need to ensure the new approach maintains the same functionality
    f. Constraints check:
       - The function signature remains unchanged
       - No existing code is removed
-      - The fix adheres to all constraints
-   g. Final summary:
-      - The best solution is to use `LoaderOptions` and `SafeConstructor` as they are the recommended replacements in the new version of SnakeYAML
-      - This maintains the functionality while using the updated API
+      - All imports are properly handled
+   g. Final solution:
+      - Replace Constructor with SafeConstructor
+      - This is the most straightforward fix that maintains functionality while adhering to the new API
 
-2. Proposed fix:
-   - Replace `Constructor` with `SafeConstructor`
-   - Create a `LoaderOptions` instance
-   - Pass the `LoaderOptions` to the `Yaml` constructor
-   - Keep the type description handling
+2. Chosen fix:
+   - Replace `Constructor constructor = new Constructor(Config.class);` with `SafeConstructor constructor = new SafeConstructor();`
+   - Add import for SafeConstructor: `import org.yaml.snakeyaml.constructor.SafeConstructor;`
 </fix_planning>
 
 ```java
@@ -59,7 +58,6 @@ import org.jclouds.byon.domain.YamlNode;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
-import org.yaml.snakeyaml.LoaderOptions;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
@@ -108,8 +106,7 @@ public class NodesFromYamlStream implements Function<ByteSource, LoadingCache<St
    @Override
    public LoadingCache<String, Node> apply(ByteSource source) {
 
-      LoaderOptions options = new LoaderOptions();
-      SafeConstructor constructor = new SafeConstructor(options);
+      SafeConstructor constructor = new SafeConstructor();
 
       TypeDescription nodeDesc = new TypeDescription(YamlNode.class);
       nodeDesc.putListPropertyType("tags", String.class);

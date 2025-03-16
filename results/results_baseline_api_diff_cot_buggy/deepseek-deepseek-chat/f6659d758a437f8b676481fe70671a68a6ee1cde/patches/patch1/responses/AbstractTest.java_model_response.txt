@@ -1,28 +1,30 @@
 <fix_planning>
 1. Analysis:
-   a. The error occurs because the class `TrustedTagInspector` has been removed in the new version of the SnakeYAML dependency.
+   a. The error occurs because the `TrustedTagInspector` class and its constructor have been removed in the new version of the SnakeYAML dependency.
    b. The specific API changes causing the issue are:
-      - Removal of `org.yaml.snakeyaml.inspector.TrustedTagInspector`
+      - Removal of `org.yaml.snakeyaml.inspector.TrustedTagInspector` class
       - Removal of `TrustedTagInspector()` constructor
    c. Affected lines:
+      - `loadingConfig.setTagInspector(new TrustedTagInspector());` (twice)
       - `import org.yaml.snakeyaml.inspector.TrustedTagInspector;`
-      - `loadingConfig.setTagInspector(new TrustedTagInspector());`
    d. Potential fixes:
-      - Remove the import statement
       - Replace `TrustedTagInspector` with `TagInspector` and use `new TagInspector()`
-      - Alternatively, use `new DefaultTagInspector()` if available
+      - Use `TagInspector` from the new SnakeYAML API
    e. Side effects:
-      - The change might affect how YAML tags are inspected, but since `TrustedTagInspector` was removed, using the default behavior should be acceptable
+      - The new `TagInspector` might have different behavior than the old `TrustedTagInspector`
+      - Need to ensure the new implementation still provides the necessary security constraints
    f. Constraints check:
-      - The function signatures remain unchanged
-      - No existing code is removed except for the problematic parts
-      - The fix adheres to all constraints
+      - The fix adheres to all constraints:
+        - No method signatures are changed
+        - No code is removed except the problematic lines
+        - Imports are updated correctly
+        - All other code remains unchanged
    g. Final summary:
-      - The best solution is to remove the `TrustedTagInspector` import and use the default tag inspection behavior by not setting a custom tag inspector, as the `LoaderOptions` should handle this by default in the newer version.
+      - The best solution is to replace `TrustedTagInspector` with `TagInspector` from the new SnakeYAML API, as it's the direct replacement and maintains the intended functionality while working with the updated dependency.
 
-2. Fix:
-   - Remove the import statement for `TrustedTagInspector`
-   - Remove the line setting the tag inspector
+2. Proposed changes:
+   - Replace `import org.yaml.snakeyaml.inspector.TrustedTagInspector;` with `import org.yaml.snakeyaml.inspector.TagInspector;`
+   - Replace `loadingConfig.setTagInspector(new TrustedTagInspector());` with `loadingConfig.setTagInspector(new TagInspector());`
 </fix_planning>
 
 ```java
@@ -61,6 +63,8 @@ import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.inspector.TagInspector;
+import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.BufferedReader;
@@ -89,6 +93,7 @@ public class AbstractTest {
 
     public <T extends MockBaseEntity> T createMockEntity(Class<T> clazz, String path) {
         final LoaderOptions loadingConfig = new LoaderOptions();
+        loadingConfig.setTagInspector(new TagInspector());
 
         final Representer representer = new Representer(new DumperOptions());
         final Tag zoneIdTag = new Tag("!ZoneId");

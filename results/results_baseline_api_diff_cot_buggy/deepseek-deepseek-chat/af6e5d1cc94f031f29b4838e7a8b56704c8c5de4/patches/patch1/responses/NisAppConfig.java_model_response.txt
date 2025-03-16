@@ -1,46 +1,52 @@
 <fix_planning>
 1. Analysis:
    a. Relevant code:
-   ```java
-   final org.flywaydb.core.Flyway flyway = new Flyway();
-   flyway.setDataSource(this.dataSource());
-   flyway.setClassLoader(NisAppConfig.class.getClassLoader());
-   flyway.setLocations(prop.getProperty("flyway.locations"));
-   flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-   ```
+      ```java
+      final org.flywaydb.core.Flyway flyway = new Flyway();
+      flyway.setDataSource(this.dataSource());
+      flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+      flyway.setLocations(prop.getProperty("flyway.locations"));
+      flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+      ```
    b. API changes:
-   - Flyway() constructor removed, new constructor requires Configuration
-   - setDataSource(DataSource) removed, moved to ClassicConfiguration
-   - setClassLoader(ClassLoader) removed, moved to ClassicConfiguration
-   - setLocations(String[]) removed, now accepts Location[] or List<String>
-   - setValidateOnMigrate(boolean) removed, now accepts Boolean in ClassicConfiguration
+      - Flyway() constructor removed
+      - setDataSource(DataSource) removed
+      - setClassLoader(ClassLoader) removed
+      - setLocations(String) removed
+      - setValidateOnMigrate(boolean) removed
+      - New configuration-based approach required
 
    c. Affected lines:
-   - Line 108: Flyway instantiation
-   - Line 109: setDataSource()
-   - Line 110: setClassLoader()
-   - Line 111: setLocations()
-   - Line 112: setValidateOnMigrate()
+      - Line 108: Flyway instantiation
+      - Line 109: setDataSource()
+      - Line 110: setClassLoader()
+      - Line 111: setLocations()
+      - Line 112: setValidateOnMigrate()
 
    d. Proposed fixes:
-   - Use Flyway.configure() to create a Configuration object
-   - Set properties on the Configuration object before creating Flyway instance
-   - Convert locations string to Location array
-   - Use Boolean instead of boolean for validateOnMigrate
+      - Use Flyway.configure() to create configuration
+      - Set properties through configuration
+      - Create Flyway instance with configuration
+      - Convert locations string to array
+      - Use Boolean instead of boolean for validateOnMigrate
 
-   e. Side effects:
-   - Configuration object creation adds a small overhead
-   - Location array conversion requires additional processing
-   - No functional changes expected
+   e. Potential side effects:
+      - Configuration approach is more verbose
+      - Need to handle string to array conversion for locations
+      - Boolean handling remains the same
 
    f. Constraints check:
-   - Method signature remains unchanged
-   - No existing code removed
-   - All required imports are present
-   - No @Override annotations affected
+      - Method signature remains unchanged
+      - No imports need to be added
+      - No code removed, only modified
+      - All constraints satisfied
 
    g. Final solution:
-   Use Flyway.configure() pattern to create and configure Flyway instance according to new API. This is the most straightforward and maintainable approach that adheres to the new API while preserving functionality.
+      - Use Flyway.configure() pattern
+      - Convert locations string to array
+      - Set all properties through configuration
+      - Create Flyway instance with configuration
+      - This is the most straightforward migration path
 </fix_planning>
 
 ```java
@@ -271,7 +277,7 @@ public class NisAppConfig {
 
 	@Bean
 	public SynchronizedPoxFacade poxFacade() {
-		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
+		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
 	}
 
 	@Bean
@@ -294,7 +300,7 @@ public class NisAppConfig {
 		final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<ImportanceCalculator>>() {
 			{
 				this.put(BlockChainFeature.PROOF_OF_IMPORTANCE,
-						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions);
+						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
 				this.put(BlockChainFeature.PROOF_OF_STAKE, PosImportanceCalculator::new);
 			}
 		};

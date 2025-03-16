@@ -158,7 +158,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
   private Set<Integer> badPartitions = ConcurrentHashMap.newKeySet();
 
   /**
-   * For each event (identified by LoggingAuditHeaders, key of the map), track the number of tries
+   * For each event ( identified by LoggingAuditHeaders, key of the map), track the number of tries
    * for sending to Kafka. Each try will choose a different and partition that is not in the
    * badPartitions.  When event is send out successfully or dropped, the corresponding entry in
    * this map is removed.

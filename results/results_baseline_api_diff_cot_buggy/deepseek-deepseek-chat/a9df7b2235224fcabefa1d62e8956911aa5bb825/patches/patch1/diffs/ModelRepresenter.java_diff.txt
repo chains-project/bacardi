@@ -1,2 +1,15 @@
-217d216
-<   @Override
+218,219c218
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+235,236c234,235
+<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+<           throws IntrospectionException {
+---
+>   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+>       try {
+240a240,242
+>       } catch (Exception e) {
+>           throw new RuntimeException("Failed to get properties for type: " + type, e);
+>       }

@@ -1,42 +1,46 @@
 <fix_planning>
 1. Analysis:
-   a. Relevant code:
-   ```java
-   final org.flywaydb.core.Flyway flyway = new Flyway();
-   flyway.setDataSource(this.dataSource());
-   flyway.setClassLoader(NisAppConfig.class.getClassLoader());
-   flyway.setLocations(prop.getProperty("flyway.locations"));
-   flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-   ```
-   b. API changes causing issues:
-   - Flyway() constructor removed
-   - setDataSource() method removed
-   - setClassLoader() method removed
-   - setLocations() method removed
-   - setValidateOnMigrate() method removed
-   c. Affected lines:
-   - Line 108: Flyway constructor
-   - Line 109: setDataSource()
-   - Line 110: setClassLoader()
-   - Line 111: setLocations()
-   - Line 112: setValidateOnMigrate()
-   d. Proposed fixes:
-   - Use Flyway.configure() to create a configuration
-   - Set properties on the configuration object
-   - Create Flyway instance with configuration
-   e. Potential side effects:
-   - None, as the new API provides equivalent functionality
-   f. Constraints check:
-   - Function signatures remain unchanged
-   - No code removed
-   - No unnecessary imports added
-   g. Final solution:
-   - Use the new Flyway configuration API to create and configure Flyway instance
-   - This is the best solution as it follows the new API pattern while maintaining the same functionality
+   a. Relevant API changes:
+      - `Flyway.setDataSource(DataSource)` removed
+      - `Flyway.setClassLoader(ClassLoader)` removed
+      - `Flyway()` constructor removed
+      - `Flyway.setLocations(String)` removed
+      - `Flyway.setValidateOnMigrate(boolean)` removed
+      - New methods added in `ClassicConfiguration` interface
+      - New `Flyway(Configuration)` constructor added
 
-2. Fix implementation:
-   - Replace the Flyway initialization code with new configuration-based approach
-   - Keep all other code unchanged
+   b. Specific API changes causing issues:
+      - The code uses deprecated/removed methods and constructor
+      - Need to use new configuration-based approach
+
+   c. Affected lines:
+      - Line 108: `final org.flywaydb.core.Flyway flyway = new Flyway();`
+      - Line 109: `flyway.setDataSource(this.dataSource());`
+      - Line 110: `flyway.setClassLoader(NisAppConfig.class.getClassLoader());`
+      - Line 111: `flyway.setLocations(prop.getProperty("flyway.locations"));`
+      - Line 112: `flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));`
+
+   d. Proposed fixes:
+      - Create a `Configuration` object first
+      - Use new `Flyway(Configuration)` constructor
+      - Move all configuration settings to the `Configuration` object
+      - Use `Flyway.configure()` to create configuration
+
+   e. Potential side effects:
+      - Need to ensure all configuration properties are properly set
+      - Migration behavior should remain the same
+
+   f. Constraints check:
+      - Function signature remains unchanged
+      - No existing code removed
+      - All required imports are present
+      - New variables introduced to simplify code
+
+   g. Final solution:
+      - Use `Flyway.configure()` to create configuration
+      - Set all properties through configuration
+      - Create Flyway instance with configuration
+      - This is the most straightforward way to migrate to the new API
 </fix_planning>
 
 ```java

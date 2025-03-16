@@ -1,26 +1,16 @@
 <fix_planning>
 1. Analysis:
-   a. The error occurs because the class `org.cactoos.iterable.LengthOf` has been removed in the new version of the dependency.
-   b. The specific API change causing the issue is the removal of `org.cactoos.iterable.LengthOf` and the addition of `org.cactoos.scalar.LengthOf`.
-   c. The affected line of code is:
-      ```java
-      import org.cactoos.iterable.LengthOf;
-      ```
-   d. Potential fixes:
-      - Replace the import statement with `import org.cactoos.scalar.LengthOf;`
-      - Modify the usage of `LengthOf` to match the new API.
-   e. Side effects:
-      - The new `LengthOf` class in `org.cactoos.scalar` might have a different interface, so we need to ensure the usage is compatible.
-   f. Constraints check:
-      - The function signature of the constructor remains unchanged.
-      - No existing code is removed.
-      - The correct package is used in the import statement.
-   g. Final summary:
-      - The best solution is to replace the import statement with `import org.cactoos.scalar.LengthOf;` and adjust the usage of `LengthOf` to match the new API.
+   a. The error occurs because `org.cactoos.iterable.LengthOf` has been removed in the new version of the dependency.
+   b. The API changes indicate that `org.cactoos.iterable.LengthOf` has been removed and replaced with `org.cactoos.scalar.LengthOf`.
+   c. The affected line is: `new LengthOf(n.score().suffixes()).intValue() >= 16`
+   d. Potential fix: Replace `org.cactoos.iterable.LengthOf` with `org.cactoos.scalar.LengthOf` and adjust the usage accordingly.
+   e. Side effects: The functionality should remain the same since both classes are used to calculate the length of an iterable.
+   f. Constraints check: The fix adheres to all constraints as it only changes the import and the class used, without modifying the method signature or removing any code.
+   g. Summary: The best solution is to replace `org.cactoos.iterable.LengthOf` with `org.cactoos.scalar.LengthOf` since it's the direct replacement in the new API version.
 
 2. Proposed fix:
-   - Replace `import org.cactoos.iterable.LengthOf;` with `import org.cactoos.scalar.LengthOf;`
-   - Modify the usage of `LengthOf` to match the new API.
+   - Change the import from `org.cactoos.iterable.LengthOf` to `org.cactoos.scalar.LengthOf`
+   - Keep the usage of `LengthOf` the same since the constructor signature remains compatible
 </fix_planning>
 
 ```java

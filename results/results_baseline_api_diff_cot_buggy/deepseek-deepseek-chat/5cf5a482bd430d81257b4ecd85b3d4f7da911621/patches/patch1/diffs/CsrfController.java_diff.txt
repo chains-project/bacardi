@@ -1,4 +1,4 @@
-6,12c6,12
+6,12c6,10
 < import javax.mvc.Controller;
 < import javax.mvc.Models;
 < import javax.mvc.UriRef;
@@ -10,7 +10,17 @@
 > import jakarta.mvc.Controller;
 > import jakarta.mvc.Models;
 > import jakarta.mvc.UriRef;
-> import jakarta.mvc.binding.BindingResult;
 > import jakarta.mvc.binding.MvcBinding;
-> import jakarta.mvc.binding.ParamError;
 > import jakarta.mvc.security.CsrfProtected;
+29,31d26
+<     BindingResult bindingResult;
+< 
+<     @Inject
+51c46
+<         if (bindingResult.isFailed()) {
+---
+>         if (models.get("errors") != null) {
+53c48
+<             bindingResult.getAllErrors()
+---
+>             models.get("errors")

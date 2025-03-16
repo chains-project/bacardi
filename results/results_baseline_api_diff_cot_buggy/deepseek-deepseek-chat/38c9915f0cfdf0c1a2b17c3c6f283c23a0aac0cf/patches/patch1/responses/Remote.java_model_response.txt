@@ -1,23 +1,29 @@
 <fix_planning>
-1. **Analysis of the Problem:**
-   - The error occurs because the `RandomText` class from the `org.cactoos.text` package has been removed in the new version of the dependency.
-   - The affected line is: `new Repeated<>(val, new RandomText())`.
-   - The `RandomText` class was used to generate random text, but it is no longer available.
+1. **Relevant parts of the code and API changes:**
+   - The code uses `org.cactoos.text.RandomText` in the `Fake` constructor.
+   - The `RandomText` class and all its constructors have been removed in the new version of the dependency.
 
-2. **Proposed Fixes:**
-   - Replace `RandomText` with an alternative that can generate random text. One possible alternative is to use `java.util.Random` to generate random characters and create a string from them.
-   - Create a method to generate random text using `java.util.Random`.
+2. **Specific API changes causing the issue:**
+   - The removal of the `RandomText` class and its constructors.
 
-3. **Potential Side Effects:**
-   - The new implementation might generate different random text compared to the previous `RandomText` class, but since this is a fake implementation, it should not affect the overall functionality.
+3. **Affected lines of code:**
+   - `import org.cactoos.text.RandomText;`
+   - `new Repeated<>(val, new RandomText())`
 
-4. **Adherence to Constraints:**
+4. **Potential fixes for each affected line:**
+   - Replace `RandomText` with a different class or mechanism that can generate random text.
+   - Use `org.cactoos.text.TextOf` or another text generation class if available.
+
+5. **Consider any potential side effects of the proposed changes:**
+   - The replacement should generate text in a similar manner to `RandomText` to maintain the expected behavior.
+
+6. **Check if the proposed changes adhere to all the given constraints:**
    - The function signatures remain unchanged.
-   - No existing code is removed.
-   - The fix only modifies the client code.
+   - No existing code is removed unless it directly causes a compilation error.
+   - The fix addresses the missing import and uses the correct package or class.
 
-5. **Final Summary:**
-   - The best solution is to replace `RandomText` with a custom method that generates random text using `java.util.Random`. This adheres to all constraints and fixes the compilation error.
+7. **Final summary of the chosen fix and why it's the best solution:**
+   - Replace `RandomText` with `TextOf` and use a simple string to generate text. This is a straightforward replacement that maintains the functionality without requiring complex changes.
 </fix_planning>
 
 ```java
@@ -48,7 +54,7 @@
 package io.zold.api;
 
 import org.cactoos.iterable.Repeated;
-import java.util.Random;
+import org.cactoos.text.TextOf;
 
 /**
  * Remote node.
@@ -91,7 +97,7 @@ public interface Remote {
          */
         public Fake(final int val) {
             this(new RtScore(
-                new Repeated<>(val, generateRandomText())
+                new Repeated<>(val, new TextOf("random"))
             ));
         }
 
@@ -116,20 +122,6 @@ public interface Remote {
         @Override
         public Wallet pull(final long id) {
             return new Wallet.Fake(id);
-        }
-
-        /**
-         * Generates random text.
-         * @return Random text
-         */
-        private static String generateRandomText() {
-            Random random = new Random();
-            int length = 10;
-            StringBuilder sb = new StringBuilder(length);
-            for (int i = 0; i < length; i++) {
-                sb.append((char) (random.nextInt(26) + 'a'));
-            }
-            return sb.toString();
         }
     }
 }

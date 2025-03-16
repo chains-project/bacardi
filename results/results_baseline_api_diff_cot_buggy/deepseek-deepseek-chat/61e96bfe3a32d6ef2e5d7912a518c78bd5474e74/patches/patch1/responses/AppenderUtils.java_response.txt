@@ -80,10 +80,6 @@ public class AppenderUtils {
     public byte[] footerBytes() {
       return new byte[0];
     }
-
-    public byte[] headerBytes() {
-      return new byte[0];
-    }
   }
 
   /**

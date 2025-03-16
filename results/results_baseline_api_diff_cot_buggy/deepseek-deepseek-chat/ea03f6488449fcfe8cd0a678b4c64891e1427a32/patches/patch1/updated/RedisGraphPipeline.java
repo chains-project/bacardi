@@ -1,7 +1,7 @@
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
-import redis.clients.jedis.ClusterPipeline;
+
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;

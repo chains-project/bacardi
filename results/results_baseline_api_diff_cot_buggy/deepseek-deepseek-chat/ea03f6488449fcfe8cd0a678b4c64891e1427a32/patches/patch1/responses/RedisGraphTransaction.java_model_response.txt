@@ -1,37 +1,41 @@
 <fix_planning>
 1. **Analysis of the Problem:**
-   - The errors are caused by the removal of several interfaces and classes in the newer version of the dependency. Specifically, the following interfaces/classes have been removed:
-     - `redis.clients.jedis.commands.ClusterPipeline`
-     - `redis.clients.jedis.commands.RedisPipeline`
-     - `redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline`
-     - `redis.clients.jedis.commands.MultiKeyCommandsPipeline`
-     - `redis.clients.jedis.commands.BasicRedisPipeline`
-     - `redis.clients.jedis.commands.BinaryScriptingCommandsPipeline`
-     - `redis.clients.jedis.commands.BinaryRedisPipeline`
-     - `redis.clients.jedis.commands.ScriptingCommandsPipeline`
-   - The new version introduces a new interface `redis.clients.jedis.ClusterPipeline`, but it is not directly compatible with the old interfaces.
+   - The error messages indicate that several classes in the `redis.clients.jedis.commands` package have been removed in the new version of the dependency.
+   - The affected classes include:
+     - `MultiKeyBinaryRedisPipeline`
+     - `BasicRedisPipeline`
+     - `ClusterPipeline`
+     - `BinaryScriptingCommandsPipeline`
+     - `MultiKeyCommandsPipeline`
+     - `BinaryRedisPipeline`
+     - `ScriptingCommandsPipeline`
+     - `RedisPipeline`
+   - The API changes suggest that these classes have been removed, and some new classes or interfaces have been introduced, such as `redis.clients.jedis.ClusterPipeline`.
 
-2. **Affected Lines of Code:**
-   - The import statements for the removed interfaces/classes.
-   - The interface declaration where `RedisGraphTransaction` extends the removed interfaces.
+2. **Proposed Fixes:**
+   - Remove the imports for the removed classes.
+   - Remove the references to the removed classes in the `RedisGraphTransaction` interface.
+   - Since the `ClusterPipeline` interface has been moved to `redis.clients.jedis`, update the import statement accordingly.
+   - The `RedisGraphTransaction` interface should now only extend the remaining relevant interfaces.
 
-3. **Proposed Fixes:**
-   - Remove the import statements for the removed interfaces/classes.
-   - Update the interface declaration to extend the new `redis.clients.jedis.ClusterPipeline` interface.
-   - Since the other interfaces have been removed, we need to remove them from the `extends` clause in the `RedisGraphTransaction` interface.
+3. **Potential Side Effects:**
+   - Removing the references to the removed classes might affect the functionality if these classes were providing essential methods. However, since the interface methods are still present, the functionality should remain intact.
+   - The `ClusterPipeline` interface has been moved, so updating the import should resolve the issue without side effects.
 
-4. **Potential Side Effects:**
-   - The removal of the interfaces may affect the functionality of the `RedisGraphTransaction` interface, as it may no longer inherit certain methods. However, since the methods in `RedisGraphTransaction` are explicitly defined, this should not cause immediate issues.
-
-5. **Adherence to Constraints:**
-   - The function signatures of the methods in `RedisGraphTransaction` remain unchanged.
-   - No variables are created, as it is not necessary.
+4. **Adherence to Constraints:**
+   - The function signatures of the methods remain unchanged.
+   - No new variables are introduced.
    - The `@Override` annotation is not used in this interface, so no changes are needed there.
-   - The correct package for the new `ClusterPipeline` interface is used.
-   - No existing code is removed except for the import statements and the removed interfaces in the `extends` clause.
+   - The correct package for `ClusterPipeline` is used.
+   - No existing code is removed unless it directly causes a compilation error.
 
-6. **Final Summary:**
-   - The best solution is to remove the import statements for the removed interfaces and update the `extends` clause to include only the new `ClusterPipeline` interface. This adheres to the constraints and resolves the compilation errors.
+5. **Final Summary:**
+   - The best solution is to remove the imports and references to the removed classes and update the import for `ClusterPipeline`. This adheres to all constraints and resolves the compilation errors.
+
+**Final Fix:**
+- Remove the imports for the removed classes.
+- Update the import for `ClusterPipeline` to `redis.clients.jedis`.
+- Remove the references to the removed classes in the `RedisGraphTransaction` interface.
 </fix_planning>
 
 ```java
@@ -39,7 +43,6 @@ package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
 import redis.clients.jedis.ClusterPipeline;
-
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +50,7 @@ import java.util.Map;
 /**
  * An interface which aligned to Jedis transactional interface
  */
-public interface RedisGraphTransaction extends ClusterPipeline, Closeable {
+public interface RedisGraphTransaction extends Closeable {
 
     /**
      * Execute a Cypher query.

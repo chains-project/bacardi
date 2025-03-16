@@ -1,6 +1,6 @@
 <fix_planning>
 1. Analysis:
-   a. The error occurs because the `JsonBranch` class and its methods have been removed in the new version of the dependency.
+   a. The error messages indicate that the `JsonBranch` class and its methods have been removed in the new version of the dependency.
    b. The specific API changes causing the issue are:
       - Removal of `JsonBranch` class
       - Removal of `getJsonPath()` method
@@ -9,24 +9,24 @@
       - Line 313: `private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {`
       - Line 322: `private static String extractFirst(JsonPathCache cache, JsonBranch branch) {`
    d. Potential fixes:
-      - Replace `JsonBranch` with a new class or interface that provides similar functionality
-      - Modify the methods to work directly with `JsonPathCache` without needing `JsonBranch`
+      - Replace `JsonBranch` with a different class or interface that provides similar functionality
+      - Modify the methods to work with the new API
    e. Side effects:
-      - Changes to the internal implementation of `extractList` and `extractFirst` methods
-      - Need to ensure compatibility with the rest of the code that uses these methods
+      - Changes may affect other parts of the code that use `JsonBranch`
+      - Need to ensure compatibility with `JsonPathCache`
    f. Constraints check:
-      - Function signatures remain unchanged
-      - No existing code is removed
-      - Only client code is modified
+      - Function signatures must remain unchanged
+      - Can create new variables if needed
+      - Must address missing imports correctly
    g. Final solution:
       - Replace `JsonBranch` with `String` for the path parameter
-      - Modify methods to accept a path string directly
-      - This is the simplest solution that maintains functionality while adhering to constraints
+      - Modify methods to accept `String` instead of `JsonBranch`
+      - This solution adheres to constraints while fixing the compilation errors
 
-2. Fix implementation:
-   - Change method parameters from `JsonBranch` to `String`
-   - Update method implementations to use the path string directly
-   - Update method calls to pass the path string instead of `JsonBranch` object
+2. Chosen fix:
+   - Replace `JsonBranch` parameter with `String` for the path
+   - Update method implementations to work with `String` path
+   - This is the best solution as it maintains functionality while working with the new API
 </fix_planning>
 
 ```java
@@ -95,36 +95,36 @@ public class MarcFactory {
 
   public static BibliographicRecord create(JsonPathCache cache, MarcVersion version) {
     var marcRecord = new Marc21Record();
-    for (var branch : schema.getPaths()) {
-      if (branch.getParent() != null)
+    for (String path : schema.getPaths()) {
+      if (path.contains("."))
         continue;
-      switch (branch.getLabel()) {
+      switch (path) {
         case "leader":
-          marcRecord.setLeader(new Leader(extractFirst(cache, branch.getLabel())));
+          marcRecord.setLeader(new Leader(extractFirst(cache, path)));
           break;
         case "001":
-          marcRecord.setControl001(new Control001(extractFirst(cache, branch.getLabel())));
+          marcRecord.setControl001(new Control001(extractFirst(cache, path)));
           break;
         case "003":
-          marcRecord.setControl003(new Control003(extractFirst(cache, branch.getLabel())));
+          marcRecord.setControl003(new Control003(extractFirst(cache, path)));
           break;
         case "005":
-          marcRecord.setControl005(new Control005(extractFirst(cache, branch.getLabel()), marcRecord));
+          marcRecord.setControl005(new Control005(extractFirst(cache, path), marcRecord));
           break;
         case "006":
           marcRecord.setControl006(
-            new Control006(extractFirst(cache, branch.getLabel()), marcRecord));
+            new Control006(extractFirst(cache, path), marcRecord));
           break;
         case "007":
           marcRecord.setControl007(
-            new Control007(extractFirst(cache, branch.getLabel()), marcRecord));
+            new Control007(extractFirst(cache, path), marcRecord));
           break;
         case "008":
           marcRecord.setControl008(
-            new Control008(extractFirst(cache, branch.getLabel()), marcRecord));
+            new Control008(extractFirst(cache, path), marcRecord));
           break;
         default:
-          JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getLabel());
+          JSONArray fieldInstances = (JSONArray) cache.getFragment(path);
           for (var fieldInsanceNr = 0; fieldInsanceNr < fieldInstances.size(); fieldInsanceNr++) {
             var fieldInstance = (Map) fieldInstances.get(fieldInsanceNr);
             var field = MapToDatafield.parse(fieldInstance, version);
@@ -132,7 +132,7 @@ public class MarcFactory {
               marcRecord.addDataField(field);
               field.setMarcRecord(marcRecord);
             } else {
-              marcRecord.addUnhandledTags(branch.getLabel());
+              marcRecord.addUnhandledTags(path);
             }
           }
           break;
@@ -416,4 +416,57 @@ public class MarcFactory {
           );
           for (String[] pair : line.parseSubfields()) {
             if (pair.length == 2 && pair[0] != null && pair[1] != null) {
-              df.addSubfield(new SubfieldImpl(p
+              df.addSubfield(new SubfieldImpl(pair[0].charAt(0), pair[1]));
+            } else {
+              logger.warning(String.format(
+                "parse error in record #%s) tag %s: '%s'",
+                line.getRecordID(), line.getTag(), line.getRawContent()
+              ));
+            }
+          }
+          marc4jRecord.addVariableField(df);
+        }
+      }
+    }
+    return marc4jRecord;
+  }
+
+  public static Record createRecordFromMarcline(List<MarclineLine> lines) {
+    Record marc4jRecord = new RecordImpl();
+    for (MarclineLine line : lines) {
+      if (line.isLeader()) {
+        try {
+          marc4jRecord.setLeader(new LeaderImpl(line.getContent()));
+        } catch (StringIndexOutOfBoundsException e) {
+          logger.severe("Error at creating leader: " + e.getMessage());
+        }
+      } else if (line.isNumericTag()) {
+        if (line.isControlField()) {
+          marc4jRecord.addVariableField(new ControlFieldImpl(line.getTag(), line.getContent()));
+        } else {
+          var df = new DataFieldImpl(line.getTag(), line.getInd1().charAt(0), line.getInd2().charAt(0));
+          for (String[] pair : line.parseSubfields()) {
+            if (pair.length == 2 && pair[0] != null && pair[1] != null) {
+              df.addSubfield(new SubfieldImpl(pair[0].charAt(0), pair[1]));
+            } else {
+              logger.warning(String.format(
+                "parse error in record #%s) tag %s: '%s'",
+                line.getRecordID(), line.getTag(), line.getRawContent()
+              ));
+            }
+          }
+          marc4jRecord.addVariableField(df);
+        }
+      }
+    }
+    return marc4jRecord;
+  }
+
+  public static Record createRecordFromMarcMaker(List<MarcMakerLine> lines) {
+    Record marc4jRecord = new RecordImpl();
+    for (MarcMakerLine line : lines) {
+      if (line.isLeader()) {
+        try {
+          marc4jRecord.setLeader(new LeaderImpl(line.getContent()));
+        } catch (StringIndexOutOfBoundsException e) {
+          logger.severe("Error at creating leader:

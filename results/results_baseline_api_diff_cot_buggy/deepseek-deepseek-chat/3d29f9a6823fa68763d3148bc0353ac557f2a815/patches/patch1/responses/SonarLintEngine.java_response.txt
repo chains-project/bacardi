@@ -228,7 +228,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
             throw SonarLintWrappedException.wrap(e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw SonarLintWrappedException.wrap(e);
+            throw SonarLintWrappedException.wwrap(e);
         }
     }
 

@@ -155,7 +155,7 @@ public class AllureCommandline {
                 new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
         buildingRequest.setResolveDependencies(false);
 
-        final Dependency cliDep = new Dependency();
+        final Dependency cliDep = new Dependency;
         cliDep.setGroupId("io.qameta.allure");
         cliDep.setArtifactId("allure-commandline");
         cliDep.setVersion(version);

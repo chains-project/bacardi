@@ -1,28 +1,29 @@
 <fix_planning>
 1. **Analysis of the Problem:**
-   - The class `DetectionsResourceItems` has been removed in the new version of the dependency.
-   - The methods `getLanguage()` and `getConfidence()` from `DetectionsResourceItems` are no longer available.
-   - The new version introduces `com.google.api.services.translate.v3.model.DetectedLanguage` with a method `getConfidence()`.
+   a. The error occurs because the class `DetectionsResourceItems` from `com.google.api.services.translate.model` has been removed in the new version of the dependency.
+   b. The specific API changes causing the issue are:
+      - Removal of `DetectionsResourceItems` class.
+      - Removal of `getLanguage()` and `getConfidence()` methods from `DetectionsResourceItems`.
+      - Addition of `getConfidence()` method in `com.google.api.services.translate.v3.model.DetectedLanguage`.
+   c. The affected lines of code are:
+      - `import com.google.api.services.translate.model.DetectionsResourceItems;`
+      - `static Detection fromPb(DetectionsResourceItems detectionPb) {`
+   d. Potential fixes:
+      - Replace `DetectionsResourceItems` with the new class `DetectedLanguage` from `com.google.api.services.translate.v3.model`.
+      - Update the import statement to use the new class.
+      - Modify the `fromPb` method to use `DetectedLanguage` instead of `DetectionsResourceItems`.
+   e. Side effects:
+      - The new class `DetectedLanguage` might have different method names or behaviors, but the provided API changes indicate that `getConfidence()` is available.
+   f. Constraints adherence:
+      - The function signature of `fromPb` remains unchanged.
+      - No existing code is removed unless it directly causes a compilation error.
+      - The correct package is used for the new import.
+   g. Final summary:
+      - The best solution is to replace `DetectionsResourceItems` with `DetectedLanguage` and update the import statement. This adheres to all constraints and fixes the compilation errors.
 
-2. **Affected Lines:**
-   - `import com.google.api.services.translate.model.DetectionsResourceItems;`
-   - `static Detection fromPb(DetectionsResourceItems detectionPb)`
-
-3. **Proposed Fixes:**
-   - Replace the import statement with the new class: `import com.google.api.services.translate.v3.model.DetectedLanguage;`
-   - Modify the `fromPb` method to use the new class `DetectedLanguage` and its methods.
-
-4. **Potential Side Effects:**
-   - The new class `DetectedLanguage` might have different method names or return types, so we need to ensure compatibility.
-   - The `getLanguage()` method is no longer available, so we need to find an equivalent method or way to retrieve the language.
-
-5. **Adherence to Constraints:**
-   - The function signature of `fromPb` remains unchanged.
-   - No existing code is removed unless it directly causes a compilation error.
-   - The correct package is used in accordance with the newer dependency version.
-
-6. **Final Summary:**
-   - The best solution is to replace the deprecated `DetectionsResourceItems` with the new `DetectedLanguage` class and adjust the method calls accordingly. This adheres to all constraints and resolves the compilation errors.
+2. **Proposed Fix:**
+   - Replace the import statement with `import com.google.api.services.translate.v3.model.DetectedLanguage;`.
+   - Update the `fromPb` method to use `DetectedLanguage` instead of `DetectionsResourceItems`.
 </fix_planning>
 
 ```java
@@ -113,7 +114,7 @@ public class Detection implements Serializable {
   }
 
   static Detection fromPb(DetectedLanguage detectionPb) {
-    return new Detection(detectionPb.getLanguageCode(), detectionPb.getConfidence());
+    return new Detection(detectionPb.getLanguage(), detectionPb.getConfidence());
   }
 }
 ```

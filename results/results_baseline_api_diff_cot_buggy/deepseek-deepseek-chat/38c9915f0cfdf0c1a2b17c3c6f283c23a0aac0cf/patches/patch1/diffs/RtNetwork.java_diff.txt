@@ -1,14 +1,13 @@
-30d29
+30c30
 < import org.cactoos.scalar.IoCheckedScalar;
-66,67c65,66
-<         return new IoCheckedScalar<>(
-<             new Reduced<>(
 ---
->         try {
->             return new Reduced<>(
-73d71
+> import org.cactoos.scalar.Checked;
+66c66
+<         return new IoCheckedScalar<>(
+---
+>         return new Checked<>(
+73c73,74
 <             )
-74a73,75
->         } catch (final Exception ex) {
->             throw new IOException(ex);
->         }
+---
+>             ),
+>             IOException.class

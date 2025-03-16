@@ -1,23 +1,30 @@
 <fix_planning>
-1. Analysis:
-   a. The error occurs because the class `com.jcabi.aspects.Tv` has been removed in the new version of the dependency.
-   b. The specific API change is the removal of the `Tv` class, which was used to provide constant values.
-   c. Affected lines:
-      - `private static final int TEN = 10;`
-      - `private static final int EIGHT = 8;`
-   d. Potential fixes:
-      - Replace `Tv.TEN` with the literal value `10`
-      - Replace `Tv.EIGHT` with the literal value `8`
-   e. Side effects:
-      - The code will be less maintainable as the constants are now hardcoded.
-      - No functional changes expected.
-   f. Constraints check:
-      - The function signatures remain unchanged.
-      - No new variables are created.
-      - No imports are removed or added.
-      - No existing code is removed.
-   g. Final summary:
-      - The best solution is to replace the constants with their literal values since the `Tv` class is no longer available and the values are simple integers.
+1. **Analysis of the Problem:**
+   - The error occurs because the class `com.jcabi.aspects.Tv` has been removed in the new version of the dependency.
+   - The class `Tv` was used to define constants like `Tv.TEN` and `Tv.EIGHT` in the code.
+
+2. **Affected Lines of Code:**
+   - `final String name = RandomStringUtils.randomAlphanumeric(Tv.TEN);`
+   - `final String attr = RandomStringUtils.randomAlphabetic(Tv.EIGHT);`
+   - `final String value = RandomStringUtils.randomAlphanumeric(Tv.TEN);`
+   - `for (int idx = 0; idx < Tv.TEN; ++idx) {`
+
+3. **Proposed Fixes:**
+   - Replace `Tv.TEN` with the literal value `10`.
+   - Replace `Tv.EIGHT` with the literal value `8`.
+
+4. **Potential Side Effects:**
+   - The change is straightforward and should not introduce any side effects since the constants were used to represent fixed values.
+
+5. **Adherence to Constraints:**
+   - The proposed changes adhere to all constraints:
+     - No method signatures are changed.
+     - No existing code is removed.
+     - No new imports are required.
+     - The functionality remains the same.
+
+6. **Final Summary:**
+   - The best solution is to replace the constants `Tv.TEN` and `Tv.EIGHT` with their literal values `10` and `8`, respectively. This approach is simple, maintains the original functionality, and adheres to all constraints.
 </fix_planning>
 
 ```java

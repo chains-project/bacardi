@@ -61,7 +61,7 @@ public class AppenderUtils {
       // log.
       final int bufferCapacity = 10;
       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
-          bufferCapacity, bufferCapacity);
+          bufferCapacity);
       protocol = new TBinaryProtocol(framedTransport);
     }
 

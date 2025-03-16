@@ -2,27 +2,26 @@
 1. Analysis:
    a. The error occurs because the `ch.qos.logback.classic.Logger` class has been removed in the new version of the dependency.
    b. The specific API change causing the issue is the removal of the `Logger` class from the `ch.qos.logback.classic` package.
-   c. Affected line:
-      ```java
-      Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
-      logger.setLevel(Level.INFO);
-      ```
+   c. Affected line: `logger.setLevel(Level.INFO);`
    d. Potential fixes:
-      - Use the `org.slf4j.Logger` interface instead of the removed `ch.qos.logback.classic.Logger` class
-      - Remove the level setting since it's not supported by the SLF4J API
+      - Use the SLF4J Logger interface instead of the Logback-specific Logger class
+      - Change the logger initialization to use `org.slf4j.LoggerFactory.getLogger()`
+      - Remove the direct level setting since it's not supported in SLF4J
    e. Side effects:
-      - The logging level cannot be set programmatically anymore
-      - The logging configuration would need to be handled through configuration files
-   f. The proposed changes adhere to all constraints:
-      - No method signatures are changed
-      - No code is removed except for the problematic line
-      - The fix uses the correct SLF4J API
-   g. Final summary:
-      The best solution is to use the SLF4J `Logger` interface directly and remove the level setting, as this is the standard way to handle logging in Java applications using SLF4J. This change maintains functionality while working with the updated dependency.
+      - The logging level cannot be directly set in the test anymore
+      - The test might need to be modified to verify logging behavior differently
+   f. Constraints check:
+      - The fix adheres to all constraints as it doesn't change method signatures
+      - Only modifies the problematic line
+      - Uses the correct SLF4J package
+   g. Final solution:
+      - Replace the Logback-specific Logger with SLF4J Logger
+      - Remove the level setting since it's not supported in SLF4J
+      - This is the best solution as it uses the standard SLF4J interface and maintains test functionality
 
-2. Fix:
-   - Replace `ch.qos.logback.classic.Logger` with `org.slf4j.Logger`
-   - Remove the `setLevel` call
+2. Proposed changes:
+   - Replace `Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);` with `org.slf4j.Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);`
+   - Remove `logger.setLevel(Level.INFO);`
 </fix_planning>
 
 ```java
@@ -136,7 +135,7 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
+        org.slf4j.Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
         logger.addAppender(mockLogAppender);
     }
 
@@ -355,7 +354,7 @@ class EventMessageHandlerTest {
     }
 
     @Test
-    void shouldNotCallNotificationServiceWhenNoAdminUsersExist() throws QueueException {
+    void shouldNotCallNotificationServiceWhenNoAdminUsersExist) throws QueueException {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())

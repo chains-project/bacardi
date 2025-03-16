@@ -1,29 +1,30 @@
 <fix_planning>
 1. Analysis:
-   a. The code uses javax.validation package which has been replaced by jakarta.validation in the new version.
+   a. The code uses javax.validation packages which have been removed in the new version. The new version uses jakarta.validation packages instead.
    b. Specific API changes causing issues:
-      - javax.validation.constraints.* -> jakarta.validation.constraints.*
-      - javax.validation.metadata.* -> jakarta.validation.metadata.*
-      - javax.validation.Validator -> jakarta.validation.Validator
+      - javax.validation.constraints.* → jakarta.validation.constraints.*
+      - javax.validation.metadata.* → jakarta.validation.metadata.*
+      - javax.validation.Validator → jakarta.validation.Validator
    c. Affected lines:
-      - Import statements
-      - Validator usage
-      - Constraint checking logic
+      - Import statements (lines 37-43)
+      - Validator usage (line 121)
+      - BeanDescriptor usage (line 122)
+      - ElementDescriptor usage (line 133)
+      - ConstraintDescriptor usage (lines 135,136)
+      - Constraint annotation checks (lines 137-139)
    d. Proposed fixes:
-      - Replace all javax.validation imports with jakarta.validation
-      - Update constraint checking logic to use new API
+      - Replace all javax.validation imports with jakarta.validation equivalents
+      - Keep the same class/method names as they exist in the new package
    e. Potential side effects:
-      - None expected as the functionality remains the same, only package names changed
+      - None expected as the API structure remains the same, only the package names changed
    f. Constraints check:
-      - No method signatures changed
-      - No code removed
-      - All imports updated correctly
+      - Adheres to all constraints: 
+        * No method signatures changed
+        * No code removed
+        * Only package names updated
+        * All code included
    g. Final summary:
-      - The best solution is to update all imports and usage of validation API to use jakarta.validation package instead of javax.validation, as this directly addresses the breaking changes while maintaining all functionality.
-
-2. Changes needed:
-   - Update import statements
-   - No changes needed to method implementations as the API usage remains the same, just with different package names
+      - The best solution is to update all javax.validation imports to jakarta.validation as this directly addresses the breaking changes while maintaining the same functionality.
 </fix_planning>
 
 ```java
@@ -120,4 +121,165 @@ public abstract class ListControlGroups<T> extends Panel {
 		this.renderers = renderers;
 	}
 
-	private Set<String极客时间确实是一个非常好的学习平台，它提供了丰富的技术课程，包括编程、算法、系统设计等多个领域。对于想要提升自己技术能力的开发者来说，极客时间是一个非常值得推荐的学习资源。
+	private Set<String> getPropertiesByOrder(Class<?> modelClass) {
+		Set<String> properties = new LinkedHashSet<String>();
+
+		for(String property : entitySettings.getOrderOfFields()){
+			if(!entitySettings.getHiddenFields().contains(property))
+				properties.add(property);
+		}
+		for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
+			if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
+			   !properties.contains(descriptor.getName()) &&
+			   !descriptor.getName().equals("class"))
+				properties.add(descriptor.getName());
+		}
+
+		return properties;
+	}
+
+	protected abstract EntityProvider<?> getEntityProvider(String name);
+
+	@Override
+	protected void onInitialize() {
+		super.onInitialize();
+
+		Class<?> modelClass = getModel().getObject().getClass();
+
+		Set<String> properties = getPropertiesByOrder(modelClass);
+
+		Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
+		BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
+		for(String property : properties){
+			PropertyDescriptor descriptor;
+			try {
+				descriptor = PropertyUtils.getPropertyDescriptor(getModel().getObject(), property);
+			} catch (Exception e) {
+				throw new RuntimeException("error getting property "+property, e);
+			}
+
+			boolean required = false;
+
+			ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+			if(constraintDescriptor!=null){
+				Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
+				for(ConstraintDescriptor<?> constraint : constraintsSet){
+					if(constraint.getAnnotation() instanceof NotNull ||
+					   constraint.getAnnotation() instanceof NotEmpty ||
+					   constraint.getAnnotation() instanceof NotBlank)
+						required = true;
+				}
+			}
+
+			objectProperties.add(new ObjectProperties(descriptor, required));
+		}
+		
+		RepeatingView view = new RepeatingView("controlGroup");
+		for(ObjectProperties objectProperty : objectProperties){
+			try {
+				AbstractControlGroup<?> controlGroup;
+				if(!controlGroupProviders.containsKey(objectProperty.type)) {
+					Constructor<?> constructor;
+					Class<? extends Panel> typesControlGroup = getControlGroupByType(objectProperty.type);
+					if(typesControlGroup==null){
+						if(objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
+						else typesControlGroup = ObjectChoiceControlGroup.class;
+					}
+
+					constructor = typesControlGroup.getConstructor(String.class, IModel.class);
+
+					controlGroup = (AbstractControlGroup<?>) constructor.newInstance(view.newChildId(), new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name));
+					controlGroup.init(objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
+					controlGroup.setEnabled(objectProperty.enabled);
+
+
+					if(typesControlGroup==ObjectChoiceControlGroup.class){
+						IObjectRenderer<?> renderer = renderers.get(objectProperty.type);
+						if(renderer==null){
+							renderer = new IObjectRenderer<Object>() {
+								private static final long serialVersionUID = -6171655578529011405L;
+
+								public String render(Object object) {
+									return object.toString();
+								}
+							};
+						}
+						((ObjectChoiceControlGroup<?>) controlGroup).setConfiguration(getEntityProvider(objectProperty.name), renderer);
+					} else if(typesControlGroup==CollectionControlGroup.class){
+						((CollectionControlGroup<?>) controlGroup).setConfiguration(getEntityProvider(objectProperty.name), renderers);
+					}
+
+				} else {
+					controlGroup = controlGroupProviders
+							.get(objectProperty.type)
+							.createControlGroup(view.newChildId()
+									, new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name)
+									, objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
+				}
+				view.add(controlGroup);
+
+				fieldComponents.put(objectProperty.name, controlGroup);
+			} catch (SecurityException e) {
+				throw new RuntimeException(e);
+			} catch (NoSuchMethodException e) {
+				throw new RuntimeException(e);
+			} catch (IllegalArgumentException e) {
+				throw new RuntimeException(e);
+			} catch (InstantiationException e) {
+				throw new RuntimeException(e);
+			} catch (IllegalAccessException e) {
+				throw new RuntimeException(e);
+			} catch (InvocationTargetException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		add(view);
+	}
+
+	@SuppressWarnings("unchecked")
+	public IModel<T> getModel(){
+		return (IModel<T>) getDefaultModel();
+	}
+
+	public Component getResourceBase(){
+		return this;
+	}
+
+	public Map<String, AbstractControlGroup<?>> getFieldsControlGroup(){
+		return Collections.unmodifiableMap(fieldComponents);
+	}
+
+	@SuppressWarnings("rawtypes")
+	private Class<? extends AbstractControlGroup> getControlGroupByType(Class<?> type){
+		for(Class<?> mapType : typesControlGroups.keySet()){
+			if(type.isAssignableFrom(mapType)) return typesControlGroups.get(mapType);
+		}
+		return null;
+	}
+
+	private static final class ObjectProperties implements Serializable {
+		private static final long serialVersionUID = 1747577998897955928L;
+		private String name;
+		private boolean enabled;
+		private Class<?> type;
+		private boolean required;
+
+		public ObjectProperties(PropertyDescriptor descriptor, boolean required){
+			this.name = descriptor.getName();
+			this.enabled = descriptor.getWriteMethod()!=null;
+			this.type = descriptor.getPropertyType();
+			this.required = required;
+		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	public Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap(){
+		return typesControlGroups;
+	}
+	
+	public Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> getControlGroupProviders(){
+		return this.controlGroupProviders;
+	}
+}
+```

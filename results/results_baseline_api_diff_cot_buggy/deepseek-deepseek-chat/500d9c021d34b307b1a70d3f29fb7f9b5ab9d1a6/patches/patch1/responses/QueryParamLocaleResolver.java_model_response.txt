@@ -1,32 +1,25 @@
 <fix_planning>
 1. **Analysis of the Problem:**
-   - The errors indicate that the classes `javax.mvc.locale.LocaleResolver` and `javax.mvc.locale.LocaleResolverContext` have been removed in the new version of the dependency.
-   - The API changes show that these classes have been replaced by their `jakarta.mvc` counterparts: `jakarta.mvc.locale.LocaleResolver` and `jakarta.mvc.locale.LocaleResolverContext`.
-   - The affected lines are:
-     - `import javax.mvc.locale.LocaleResolverContext;`
-     - `import javax.mvc.locale.LocaleResolver;`
-     - `public class QueryParamLocaleResolver implements LocaleResolver {`
-     - `public Locale resolveLocale(final LocaleResolverContext context) {`
-
-2. **Proposed Fixes:**
-   - Replace `javax.mvc.locale.LocaleResolverContext` with `jakarta.mvc.locale.LocaleResolverContext` in the import statement.
-   - Replace `javax.mvc.locale.LocaleResolver` with `jakarta.mvc.locale.LocaleResolver` in the import statement.
-   - The method `resolveLocale` should continue to use `LocaleResolverContext` from the `jakarta.mvc` package.
-   - The `@Override` annotation should be retained since the method still overrides a method in the updated dependency version.
-
-3. **Potential Side Effects:**
-   - The change in package names from `javax` to `jakarta` is a breaking change, but it is necessary to align with the updated dependency.
-   - The functionality of the code remains unchanged, as the method signatures and behavior are consistent with the new API.
-
-4. **Adherence to Constraints:**
-   - The function signature of `resolveLocale` remains unchanged.
-   - No variables are created as it is not necessary.
-   - The `@Override` annotation is retained.
-   - The correct package (`jakarta.mvc.locale`) is used for the imports.
-   - No existing code is removed, only the import statements are updated.
-
-5. **Final Summary:**
-   - The best solution is to update the import statements to use the `jakarta.mvc` package instead of `javax.mvc`. This aligns the code with the new API changes and resolves the compilation errors without altering the functionality or method signatures.
+   a. The errors indicate that the classes `javax.mvc.locale.LocaleResolver` and `javax.mvc.locale.LocaleResolverContext` are no longer available in the new version of the dependency.
+   b. The API changes show that these classes have been removed and replaced with their `jakarta.mvc.locale` counterparts.
+   c. The affected lines are:
+      - `import javax.mvc.locale.LocaleResolver;`
+      - `import javax.mvc.locale.LocaleResolverContext;`
+      - `public class QueryParamLocaleResolver implements LocaleResolver {`
+      - `public Locale resolveLocale(final LocaleResolverContext context) {`
+   d. Potential fixes:
+      - Replace `javax.mvc.locale.LocaleResolver` with `jakarta.mvc.locale.LocaleResolver`.
+      - Replace `javax.mvc.locale.LocaleResolverContext` with `jakarta.mvc.locale.LocaleResolverContext`.
+   e. Side effects:
+      - The changes are straightforward and should not introduce any side effects as the new classes are direct replacements.
+   f. Adherence to constraints:
+      - The function signature of `resolveLocale` remains unchanged.
+      - No variables are created.
+      - The `@Override` annotation is retained as the method still overrides a method in the updated dependency.
+      - Missing imports are addressed by using the correct package.
+      - No existing code is removed.
+   g. Final summary:
+      - The best solution is to update the imports and class implementations to use the `jakarta.mvc.locale` package, which directly addresses the issue without violating any constraints.
 </fix_planning>
 
 ```java

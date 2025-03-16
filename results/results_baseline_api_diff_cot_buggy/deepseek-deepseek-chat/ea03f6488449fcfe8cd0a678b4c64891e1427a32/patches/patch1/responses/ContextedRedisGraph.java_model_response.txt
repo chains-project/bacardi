@@ -1,27 +1,31 @@
 <fix_planning>
-1. **Analysis of the Problem:**
-   - The error messages indicate that the `Client` class from `redis.clients.jedis` package cannot be found.
-   - The API changes show that the `Client` class has been removed in the new version of the dependency.
-   - The affected lines are where `Client client = jedis.getClient();` is used, and the import statement `import redis.clients.jedis.Client;`.
+1. Analysis:
+   a. Relevant code parts:
+      - `Client client = jedis.getClient();` appears multiple times
+      - `import redis.clients.jedis.Client;`
+   b. API changes causing the issue:
+      - Class `redis.clients.jedis.Client` has been removed
+      - Method `redis.clients.jedis.Jedis.getClient()` has been added
+   c. Affected lines:
+      - All lines where `Client` is used or imported
+   d. Proposed fixes:
+      - Replace `Client` with `Connection` from the new API
+      - Update the import statement
+   e. Potential side effects:
+      - Need to ensure `Connection` provides the same functionality as `Client`
+   f. Constraints check:
+      - Function signatures remain unchanged
+      - Only necessary changes are made
+      - All code is included
+   g. Final summary:
+      - Replace `Client` with `Connection` as it's the new equivalent in the updated API
+      - Update import statement
+      - This is the most straightforward fix that maintains functionality
 
-2. **Proposed Fixes:**
-   - Since the `Client` class has been removed, we need to find an alternative way to achieve the same functionality.
-   - The `Jedis` class now provides a `getConnection()` method, which can be used to get the underlying connection.
-   - Replace `Client client = jedis.getClient();` with `Connection connection = jedis.getConnection();`.
-   - Remove the import statement `import redis.clients.jedis.Client;` and add `import redis.clients.jedis.Connection;`.
-
-3. **Potential Side Effects:**
-   - The `Connection` class might have a different API compared to the `Client` class, so we need to ensure that the methods used on `client` are available on `connection`.
-   - The `multi()` and `pipelined()` methods might need to be adjusted to work with the `Connection` class.
-
-4. **Adherence to Constraints:**
-   - The function signatures of the methods are not changed.
-   - No existing code is removed unless it directly causes a compilation error.
-   - The correct package and class are used in accordance with the newer dependency version.
-
-5. **Final Summary:**
-   - The best solution is to replace the `Client` class usage with the `Connection` class, as it is the recommended way to handle connections in the newer version of the dependency.
-   - This change adheres to all the given constraints and should resolve the compilation errors.
+2. Implementation:
+   - Replace `Client` with `Connection`
+   - Update import statement
+   - Keep all other code unchanged
 </fix_planning>
 
 ```java
@@ -37,9 +41,9 @@ import com.redislabs.redisgraph.impl.graph_cache.RedisGraphCaches;
 import com.redislabs.redisgraph.impl.resultset.ResultSetImpl;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Connection;
 import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.util.SafeEncoder;
-import redis.clients.jedis.Connection;
 
 /**
  * An implementation of RedisGraphContext. Allows sending RedisGraph and some Redis commands,
@@ -166,7 +170,7 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphTransaction multi() {
         Jedis jedis = getConnection();
-        Connection connection = jedis.getConnection();
+        Connection connection = jedis.getClient();
         connection.multi();
         connection.getOne();
         RedisGraphTransaction transaction = new RedisGraphTransaction(connection, this);
@@ -181,7 +185,7 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphPipeline pipelined() {
         Jedis jedis = getConnection();
-        Connection connection = jedis.getConnection();
+        Connection connection = jedis.getClient();
         RedisGraphPipeline pipeline = new RedisGraphPipeline(connection, this);
         pipeline.setRedisGraphCaches(caches);
         return pipeline;

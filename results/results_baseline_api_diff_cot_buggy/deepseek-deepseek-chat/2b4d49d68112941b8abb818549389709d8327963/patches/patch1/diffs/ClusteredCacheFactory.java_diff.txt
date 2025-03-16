@@ -1,42 +1,34 @@
-22c22,23
+22d21
 < import com.hazelcast.config.MaxSizeConfig;
----
-> import com.hazelcast.config.EvictionConfig;
-> import com.hazelcast.config.EvictionPolicy;
-27c28
+27c26
 < import com.hazelcast.core.Cluster;
 ---
 > import com.hazelcast.cluster.Cluster;
-30c31
+30c29
 < import com.hazelcast.core.Member;
 ---
 > import com.hazelcast.cluster.Member;
-146c147
-<     private static Map<String, Map<String, long[]>> cacheStats;
+96c95
+<     private static final SystemProperty<Duration> CLUSTER_STARTUP_RETRY_TIME = SystemProperty.Builder.ofType(Duration.class)
 ---
->     private static Map<String, Map<String, long[]]] cacheStats;
-288c289,292
-<             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+>     private static final SystemProperty<Duration] CLUSTER_STARTUP_RETRY_TIME = SystemProperty.Builder.ofType(Duration.class)
+271d269
+<                 // Ignore
+430c428
+<         final Collection<T> result = new ArrayList<>();
 ---
->             EvictionConfig evictionConfig = new EvictionConfig()
->                 .setSize(hazelcastMaxCacheSizeInMegaBytes)
->                 .setEvictionPolicy(EvictionPolicy.LRU);
->             dynamicConfig.setEvictionConfig(evictionConfig);
-378d381
-< 
-656c659
+>         final Collection<T] result = new ArrayList<>();
+656c654
 <         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
 ---
->         return NodeID.getInstance(member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).toString().getBytes(StandardCharsets.UTF_8));
-695,703c698
+>         return NodeID.getInstance(member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
+695c693
 <         } finally {
-<             ClusterManager.removeListener(clusterEventListener);
-<         }
-<     }
-< 
-< }
-< 
-< 
-< 
 ---
 >         } finally
+699d696
+< 
+701,703d697
+< 
+< 
+< 

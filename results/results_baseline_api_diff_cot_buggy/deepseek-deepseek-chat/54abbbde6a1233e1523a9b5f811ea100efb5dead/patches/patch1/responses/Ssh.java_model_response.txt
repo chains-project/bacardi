@@ -1,26 +1,25 @@
 <fix_planning>
 1. Analysis:
    a. The error occurs because the class `com.jcabi.aspects.Tv` has been removed in the new version of the dependency.
-   b. The specific API change causing the issue is the removal of the `Tv` class, which was previously used for constants.
+   b. The specific API change is the removal of the `Tv` class which contained constants like `SEVEN` and `MILLION`.
    c. Affected lines:
-      - `import com.jcabi.aspects.Tv;`
-      - `attempts = Tv.SEVEN,`
-      - `session.setServerAliveCountMax(Tv.MILLION);`
+      - Import statement: `import com.jcabi.aspects.Tv;`
+      - Usage in annotation: `attempts = Tv.SEVEN,`
+      - Usage in code: `session.setServerAliveCountMax(Tv.MILLION);`
    d. Potential fixes:
       - Replace `Tv.SEVEN` with a direct integer value `7`
       - Replace `Tv.MILLION` with a direct integer value `1000000`
-      - Remove the import statement for `com.jcabi.aspects.Tv`
+      - Remove the import statement for `Tv`
    e. Side effects:
-      - The changes are straightforward constant replacements and won't affect functionality
-      - The code will be more explicit about its values
+      - The code will still function the same way since we're replacing constants with their actual values
+      - No functionality is lost
    f. Constraints check:
-      - No function signatures are changed
+      - No method signatures are changed
       - No existing code is removed except the problematic import
-      - No new imports are needed
-      - All constraints are adhered to
+      - All other code remains unchanged
    g. Final summary:
-      - The best solution is to replace the `Tv` constants with their direct integer values since the class has been removed and the values are simple constants
-      - This maintains functionality while fixing the compilation errors
+      - The best solution is to replace the constants with their actual values and remove the import
+      - This is the simplest solution that maintains functionality while adhering to all constraints
 </fix_planning>
 
 ```java
@@ -145,7 +144,7 @@ public final class Ssh extends AbstractSshShell {
      * @param user Login
      * @param priv Private SSH key
      * @throws IOException If fails
-     * @since 1.4
+     * @since 极
      */
     public Ssh(final InetAddress adr, final String user, final URL priv)
         throws IOException {
@@ -168,7 +167,7 @@ public final class Ssh extends AbstractSshShell {
     /**
      * Constructor.
      * @param adr IP address
-     * @param user Login
+     *极
      * @param priv Private SSH key
      * @throws UnknownHostException If fails
      * @since 1.4
@@ -190,7 +189,7 @@ public final class Ssh extends AbstractSshShell {
      */
     public Ssh(final String adr, final int prt,
         final String user, final URL priv) throws IOException {
-        this(adr, prt, user, new UncheckedText(new TextOf(priv)).asString());
+        this(adr, pr极
     }
 
     /**

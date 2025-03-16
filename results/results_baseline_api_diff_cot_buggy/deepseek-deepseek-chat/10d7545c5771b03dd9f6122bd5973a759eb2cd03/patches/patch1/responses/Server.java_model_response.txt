@@ -1,27 +1,26 @@
 <fix_planning>
 1. Analysis:
-   a. The error occurs in the `createHttpClient` method where `JerseyClientBuilder` is instantiated with `Environment` parameter.
-   b. The API change indicates that `JerseyClientBuilder(io.dropwizard.setup.Environment)` has been removed and replaced with `JerseyClientBuilder(io.dropwizard.core.setup.Environment)`.
-   c. Affected line:
+   a. Relevant code: 
       ```java
       return new JerseyClientBuilder(env)
       ```
-   d. Potential fixes:
-      - Update the import statement to use `io.dropwizard.core.setup.Environment`
-      - Change the constructor call to use the new package path
+   b. API changes:
+      - Constructor `io.dropwizard.client.JerseyClientBuilder(io.dropwizard.setup.Environment)` has been removed
+      - Constructor `io.dropwizard.client.JerseyClientBuilder(io.dropwizard.core.setup.Environment)` has been added
+   c. Affected lines: Line 160
+   d. Proposed fixes:
+      - Change the import from `io.dropwizard.setup.Environment` to `io.dropwizard.core.setup.Environment`
+      - Update the constructor call to use the new package
    e. Side effects:
       - This change requires updating the import statement
-      - No functional changes expected as the new constructor is equivalent
+      - No functional changes expected
    f. Constraints check:
       - Function signature remains unchanged
-      - No code removal
-      - Import statement updated correctly
-   g. Final solution:
-      Update the import statement and use the new constructor path. This is the most straightforward fix that adheres to all constraints.
-
-2. Changes needed:
-   - Update import statement from `io.dropwizard.setup.Environment` to `io.dropwizard.core.setup.Environment`
-   - Keep the constructor call as is since the parameter type remains the same, just in a different package
+      - No code removed
+      - Import updated to match new dependency
+   g. Final summary:
+      - The best solution is to update the import statement to use the new package path for Environment
+      - This directly addresses the compilation error while maintaining all functionality
 </fix_planning>
 
 ```java
@@ -278,7 +277,7 @@ public abstract class Server<Config extends Configuration> extends Application<C
         registerFeatures();
 
         environment.healthChecks().register("Storage", new StorageHealthCheck(storageFactory));
-        environment.healthChecks().register("Crypto", new CryptoHealthCheck(cryptoFactory);
+        environment.healthChecks().register("Crypto", new CryptoHealthCheck(cryptoFactory));
         environment.healthChecks().register("Alice2Bob", new Alice2Bob(cryptoFactory));
         environment.healthChecks().register("Outbound", new Outbound(getClient()));
 

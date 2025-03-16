@@ -1,6 +1,6 @@
 12d11
 < import redis.clients.jedis.Client;
-15a15
+13a13
 > import redis.clients.jedis.Connection;
 142,145c142,145
 <         Client client = jedis.getClient();
@@ -8,7 +8,7 @@
 <         client.getOne();
 <         RedisGraphTransaction transaction = new RedisGraphTransaction(client, this);
 ---
->         Connection connection = jedis.getConnection();
+>         Connection connection = jedis.getClient();
 >         connection.multi();
 >         connection.getOne();
 >         RedisGraphTransaction transaction = new RedisGraphTransaction(connection, this);
@@ -16,5 +16,5 @@
 <         Client client = jedis.getClient();
 <         RedisGraphPipeline pipeline = new RedisGraphPipeline(client, this);
 ---
->         Connection connection = jedis.getConnection();
+>         Connection connection = jedis.getClient();
 >         RedisGraphPipeline pipeline = new RedisGraphPipeline(connection, this);

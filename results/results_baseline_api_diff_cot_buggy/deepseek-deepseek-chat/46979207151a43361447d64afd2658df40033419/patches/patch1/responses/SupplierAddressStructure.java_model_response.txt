@@ -1,25 +1,20 @@
 <fix_planning>
-1. **Analysis of the Problem:**
-   - **Relevant Code:** The error occurs in the `toString()` method where `JAXBToStringStrategy.getInstance()` is called.
-   - **API Changes:** The method `JAXBToStringStrategy.getInstance()` has been removed in the new version of the dependency.
-   - **Affected Lines:** 
-     ```java
-     final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
-     ```
-   - **Potential Fixes:** 
-     - Replace `JAXBToStringStrategy.getInstance()` with a direct instantiation of `JAXBToStringStrategy`.
-     - Use a different strategy class if available in the new version.
-   - **Side Effects:** 
-     - Direct instantiation might not be the intended use, but it should work if the class has a public constructor.
-     - Changing the strategy class might affect the behavior of the `toString()` method.
-   - **Adherence to Constraints:** 
-     - The function signature of `toString()` remains unchanged.
-     - No existing code is removed.
-     - The fix only modifies the instantiation of the strategy.
-   - **Chosen Fix:** Replace `JAXBToStringStrategy.getInstance()` with a direct instantiation of `JAXBToStringStrategy`.
-
-2. **Final Summary:**
-   - The best solution is to directly instantiate `JAXBToStringStrategy` since the `getInstance()` method has been removed. This adheres to all constraints and should resolve the compilation error without affecting the functionality.
+1. Analysis:
+   a. The error occurs in the line `final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();` where the `getInstance()` method is no longer available in the updated dependency.
+   b. The API changes indicate that `JAXBToStringStrategy.getInstance()` has been removed.
+   c. Affected lines:
+      - `final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();`
+   d. Potential fixes:
+      - Replace `JAXBToStringStrategy.getInstance()` with a direct instantiation of a suitable `ToStringStrategy2` implementation.
+      - Use `DefaultToStringStrategy` as a replacement since it's a common default implementation.
+   e. Side effects:
+      - The behavior might slightly change if `DefaultToStringStrategy` implements `toString` differently than `JAXBToStringStrategy`.
+   f. Constraints check:
+      - The function signature remains unchanged.
+      - No existing code is removed.
+      - No additional imports are needed as `DefaultToStringStrategy` is already part of the dependency.
+   g. Final summary:
+      - The best solution is to replace `JAXBToStringStrategy.getInstance()` with `new DefaultToStringStrategy()` since it maintains the functionality while adhering to the constraints.
 </fix_planning>
 
 ```java
@@ -60,7 +55,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PostalCode"/&gt;
  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Region" minOccurs="0"/&gt;
  *         &lt;element name="Country" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierCountry"/&gt;
- *       &lt;/sequence&gt;
+ *       &lt;sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
@@ -173,7 +168,7 @@ public class SupplierAddressStructure implements ToString2
      * 
      * @return
      *     possible object is
-    极     {@link String }
+     *     {@link String }
      *     
      */
     public String getCity() {
@@ -200,7 +195,7 @@ public class SupplierAddressStructure implements ToString2
      *     {@link String }
      *     
      */
-   极 public String getPostalCode() {
+    public String getPostalCode() {
         return postalCode;
     }
 
@@ -266,7 +261,7 @@ public class SupplierAddressStructure implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
+        final ToStringStrategy2 strategy = new org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -275,7 +270,7 @@ public class SupplierAddressStructure implements ToString2
     @Override
     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         strategy.appendStart(locator, this, buffer);
-        appendFields(l极ocator, buffer, strategy);
+        appendFields(locator, buffer, strategy);
         strategy.appendEnd(locator, this, buffer);
         return buffer;
     }

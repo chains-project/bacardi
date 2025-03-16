@@ -1,51 +1,53 @@
 <fix_planning>
 1. Analysis:
-   a. Relevant code and API changes:
-      - `flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));`
-      - `flyway.setLocations(prop.getProperty("flyway.locations"));`
-      - `flyway.setDataSource(this.dataSource());`
-      - `final org.flywaydb.core.Flyway flyway = new Flyway();`
-      - `flyway.setClassLoader(NisAppConfig.class.getClassLoader());`
-      - API changes show that these methods have been moved to `ClassicConfiguration` and the constructor now requires a `Configuration` parameter.
+   a. Relevant code:
+   ```java
+   final org.flywaydb.core.Flyway flyway = new Flyway();
+   flyway.setDataSource(this.dataSource());
+   flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+   flyway.setLocations(prop.getProperty("flyway.locations"));
+   flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+   ```
+   b. API changes:
+   - Constructor Flyway() removed, replaced with Flyway(Configuration)
+   - setDataSource(DataSource) removed, moved to ClassicConfiguration
+   - setClassLoader(ClassLoader) removed, moved to ClassicConfiguration
+   - setLocations(String) removed, replaced with setLocations(List) in FlywayModel or setLocations(Location[]) in ClassicConfiguration
+   - setValidateOnMigrate(boolean) removed, moved to ClassicConfiguration
 
-   b. Specific API changes causing the issue:
-      - Methods `setValidateOnMigrate`, `setLocations`, `setDataSource`, and `setClassLoader` have been removed from `Flyway` class
-      - Constructor `Flyway()` has been removed
-      - New methods added to `ClassicConfiguration` class
-      - New constructor `Flyway(Configuration)` added
-
-   c. Affected lines of code:
-      - Lines 108-112 in the original code
+   c. Affected lines: 108-112
 
    d. Proposed fixes:
-      - Create a `ClassicConfiguration` object
-      - Set properties on the configuration object
-      - Create Flyway instance using the configuration
-      - Convert string locations to array
-      - Convert string validate to boolean
+   - Create a ClassicConfiguration object
+   - Use Flyway(Configuration) constructor
+   - Move all configuration settings to ClassicConfiguration
+   - Convert locations string to array
+   - Create Flyway instance with configuration
 
    e. Potential side effects:
-      - None expected as we're using the new API correctly
-      - Behavior should remain the same
+   - Need to ensure proper conversion of locations string to array
+   - Configuration object needs to be properly initialized
 
    f. Constraints check:
-      - Function signatures remain unchanged
-      - No code removed
-      - No existing imports removed
-      - New imports added for `ClassicConfiguration` and `Location`
+   - Function signature remains unchanged
+   - No code removed except for direct errors
+   - No unnecessary imports added
+   - All existing code preserved
 
-   g. Final summary:
-      - Best solution is to use the new `ClassicConfiguration` approach
-      - Maintains all functionality while using the new API
-      - Adheres to all constraints
+   g. Final solution:
+   Create a ClassicConfiguration object, configure it with the required settings, and use it to instantiate Flyway. This adheres to the new API while maintaining the same functionality.
+
+2. Fix implementation:
+   - Import required classes: org.flywaydb.core.api.configuration.ClassicConfiguration, org.flywaydb.core.api.Location
+   - Create ClassicConfiguration object
+   - Configure settings using new API methods
+   - Instantiate Flyway with configuration
 </fix_planning>
 
 ```java
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.configuration.ClassicConfiguration;
-import org.flywaydb.core.api.Location;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -79,6 +81,8 @@ import org.springframework.context.annotation.*;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
+import org.flywaydb.core.api.Location;
 
 import javax.sql.DataSource;
 import java.io.IOException;

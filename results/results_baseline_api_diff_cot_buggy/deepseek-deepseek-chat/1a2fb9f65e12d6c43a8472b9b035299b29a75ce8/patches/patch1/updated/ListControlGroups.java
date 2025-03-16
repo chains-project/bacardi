@@ -63,7 +63,7 @@ public abstract class ListControlGroups<T> extends Panel {
 	@SuppressWarnings("rawtypes")
 	private final Map<Class<?>, Class<? extends AbstractControlGroup>> typesControlGroups = new HashMap<Class<?>, Class<? extends AbstractControlGroup>>();
 
-	private List<ObjectProperties极 objectProperties;
+	private List<ObjectProperties> objectProperties;
 	private CrudifierEntitySettings entitySettings;
 	private Map<Class<?>, IObjectRenderer<?>> renderers;
 
@@ -78,7 +78,7 @@ public abstract class ListControlGroups<T> extends Panel {
 		typesControlGroups.put(int.class, TextFieldControlGroup.class);
 		typesControlGroups.put(Long.class, TextFieldControlGroup.class);
 		typesControlGroups.put(long.class, TextFieldControlGroup.class);
-		typesControlGroups.put(Double.class, Text极ControlGroup.class);
+		typesControlGroups.put(Double.class, TextFieldControlGroup.class);
 		typesControlGroups.put(double.class, TextFieldControlGroup.class);
 		typesControlGroups.put(BigDecimal.class, TextFieldControlGroup.class);
 		typesControlGroups.put(BigInteger.class, TextFieldControlGroup.class);
@@ -150,7 +150,7 @@ public abstract class ListControlGroups<T> extends Panel {
 				AbstractControlGroup<?> controlGroup;
 				if(!controlGroupProviders.containsKey(objectProperty.type)) {
 					Constructor<?> constructor;
-					Class<? extends Panel> typesControlGroup = getControlGroup极Type(objectProperty.type);
+					Class<? extends Panel> typesControlGroup = getControlGroupByType(objectProperty.type);
 					if(typesControlGroup==null){
 						if(objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
 						else typesControlGroup = ObjectChoiceControlGroup.class;

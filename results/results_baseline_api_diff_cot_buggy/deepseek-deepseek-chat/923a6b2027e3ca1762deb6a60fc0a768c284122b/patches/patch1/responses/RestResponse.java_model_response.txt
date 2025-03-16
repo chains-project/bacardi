@@ -1,26 +1,32 @@
 <fix_planning>
 1. Analysis:
-   a. The error occurs because `org.hamcrest.Matchers` class has been removed in the new version of the dependency.
-   b. The specific API change causing the issue is the removal of the `Matchers` class.
+   a. The error occurs because `org.hamcrest.Matchers` has been removed in the new version of the dependency.
+   b. The specific API change is the removal of the `Matchers` class.
    c. Affected lines:
       - Line 48: `import org.hamcrest.Matchers;`
-      - Lines using Matchers methods: 
-        - Line 194: `Matchers.hasItems(value)`
-        - Line 222: `Matchers.not(Matchers.emptyIterableOf(String.class))`
-        - Line 280: `Matchers.notNullValue()`
+      - Lines using `Matchers` class methods: 
+        - `assertHeader(name, Matchers.hasItems(value))`
+        - `assertHeader(HttpHeaders.LOCATION, Matchers.not(Matchers.emptyIterableOf(String.class)))`
+        - `assertThat(cookie, Matchers.notNullValue())`
    d. Potential fixes:
-      - Replace `Matchers` with `CoreMatchers` from `org.hamcrest.CoreMatchers` package
-      - Update import statement to use `CoreMatchers` instead of `Matchers`
+      - Replace `Matchers` with equivalent methods from the new Hamcrest API
+      - Use static imports for specific matchers
+      - Use alternative matchers from the new API
    e. Side effects:
-      - The functionality remains the same as `CoreMatchers` contains the same methods
-      - No behavioral changes expected
+      - Need to ensure the new matchers provide equivalent functionality
+      - May require additional imports
    f. Constraints check:
       - Function signatures remain unchanged
-      - No methods are removed
-      - Only the import statement and class references are modified
-      - All constraints are adhered to
-   g. Final summary:
-      - The best solution is to replace `Matchers` with `CoreMatchers` as it provides the same functionality and is the recommended replacement in newer versions of Hamcrest.
+      - No code removal except for the problematic import
+      - All other code remains intact
+   g. Chosen fix:
+      - Replace `Matchers` with specific matcher imports from the new Hamcrest API
+      - Use static imports for commonly used matchers
+      - This solution maintains functionality while adhering to constraints
+
+2. Implementation:
+   - Replace `import org.hamcrest.Matchers;` with specific matcher imports
+   - Update method calls to use new matcher imports
 </fix_planning>
 
 ```java
@@ -71,7 +77,10 @@ import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.CoreMatchers;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.emptyIterable;
+import static org.hamcrest.Matchers.notNullValue;
 
 /**
  * REST response.
@@ -233,7 +242,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, CoreMatchers.hasItems(value));
+        return this.assertHeader(name, hasItems(value));
     }
 
     /**
@@ -269,7 +278,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            CoreMatchers.not(CoreMatchers.emptyIterableOf(String.class))
+            not(emptyIterable())
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -307,7 +316,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            CoreMatchers.notNullValue()
+            notNullValue()
         );
         assert cookie != null;
         return cookie;

@@ -6,13 +6,17 @@
 <   static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
 <       new Function<TranslationsResource, Translation>() {
 ---
->   static final Function<Translation, Translation> FROM_PB_FUNCTION =
->       new Function<Translation, Translation>() {
+>   static final Function<com.google.api.services.translate.v3.model.Translation, Translation> FROM_PB_FUNCTION =
+>       new Function<com.google.api.services.translate.v3.model.Translation, Translation>() {
 40c40
 <         public Translation apply(TranslationsResource translationPb) {
 ---
->         public Translation apply(Translation translationPb) {
+>         public Translation apply(com.google.api.services.translate.v3.model.Translation translationPb) {
 106c106
 <   static Translation fromPb(TranslationsResource translationPb) {
 ---
->   static Translation fromPb(Translation translationPb) {
+>   static Translation fromPb(com.google.api.services.translate.v3.model.Translation translationPb) {
+109c109
+<         translationPb.getDetectedSourceLanguage(),
+---
+>         translationPb.getDetectedLanguage(),

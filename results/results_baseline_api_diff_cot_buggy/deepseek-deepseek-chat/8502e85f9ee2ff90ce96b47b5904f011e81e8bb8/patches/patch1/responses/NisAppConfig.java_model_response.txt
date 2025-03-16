@@ -8,14 +8,13 @@
       flyway.setLocations(prop.getProperty("flyway.locations"));
       flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
       ```
-   b. API changes:
+   b. API changes causing issues:
       - Flyway() constructor removed
-      - setDataSource() method removed
-      - setClassLoader() method removed
-      - setLocations() method removed
-      - setValidateOnMigrate() method removed
-      - New Flyway(Configuration) constructor added
-      - New ClassicConfiguration class with configuration methods
+      - setDataSource(DataSource) removed
+      - setClassLoader(ClassLoader) removed
+      - setLocations(String) removed
+      - setValidateOnMigrate(Boolean) removed
+      - New ClassicConfiguration class added for configuration
 
    c. Affected lines:
       - Line 108: Flyway instantiation
@@ -25,23 +24,30 @@
       - Line 112: setValidateOnMigrate()
 
    d. Proposed fixes:
-      - Use Flyway.configure() to create a configuration object
-      - Set properties on the configuration object
-      - Create Flyway instance with the configuration
-      - Use new API methods for setting properties
+      - Use ClassicConfiguration for configuration
+      - Create Flyway instance with configuration
+      - Use new method names and parameter types
+      - Convert locations string to array
 
    e. Potential side effects:
-      - None expected as the functionality remains the same, just using new API
+      - Configuration changes might affect migration behavior
+      - Location parsing might need adjustment
+      - Validation behavior should remain the same
 
    f. Constraints check:
-      - Method signature remains unchanged
-      - No code removed
-      - No existing functionality changed
-      - New variables introduced for clarity
-      - All constraints satisfied
+      - Function signatures remain unchanged
+      - No code removed except error-causing parts
+      - All existing functionality preserved
+      - New variables added for clarity
 
    g. Final solution:
-      The best approach is to use the new Flyway.configure() pattern to create a configuration object, set all properties on it, and then create the Flyway instance. This matches the new API while maintaining the same functionality.
+      Use ClassicConfiguration to configure Flyway before instantiation, converting all settings to new API format.
+
+2. Fix implementation:
+   - Create ClassicConfiguration instance
+   - Set all properties using new API
+   - Instantiate Flyway with configuration
+   - Convert locations string to array
 </fix_planning>
 
 ```java
@@ -152,13 +158,12 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final Flyway flyway = Flyway.configure()
-			.dataSource(this.dataSource())
-			.classLoader(NisAppConfig.class.getClassLoader())
-			.locations(prop.getProperty("flyway.locations"))
-			.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
-			.load();
-		return flyway;
+		final org.flywaydb.core.api.configuration.ClassicConfiguration configuration = new org.flywaydb.core.api.configuration.ClassicConfiguration();
+		configuration.setDataSource(this.dataSource());
+		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+		configuration.setLocations(org.flywaydb.core.api.Location.forPaths(prop.getProperty("flyway.locations")));
+		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		return new Flyway(configuration);
 	}
 
 	@Bean
@@ -272,7 +277,7 @@ public class NisAppConfig {
 
 	@Bean
 	public SynchronizedPoxFacade poxFacade() {
-		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
+		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
 	}
 
 	@Bean

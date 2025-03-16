@@ -21,39 +21,18 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import io.vavr.control.Validation;
-import net.bytebuddy.ByteBuddy;
-import net.bytebuddy.TypeCache;
-import net.bytebuddy.TypeCache.SimpleKey;
-import net.bytebuddy.dynamic.scaffold.TypeValidation;
-import net.bytebuddy.implementation.Implementation;
-import net.bytebuddy.implementation.MethodDelegation;
-import net.bytebuddy.implementation.auxiliary.AuxiliaryType;
-import net.bytebuddy.implementation.bind.annotation.RuntimeType;
-import net.bytebuddy.implementation.bind.annotation.SuperCall;
-import net.bytebuddy.implementation.bind.annotation.This;
 import org.assertj.core.util.CheckReturnValue;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
 
-import static net.bytebuddy.matcher.ElementMatchers.any;
 import static org.assertj.core.util.Arrays.array;
-import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrategy;
 
 public class VavrAssumptions {
 
-    private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED)
-            .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
-
-    private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
-
-    private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
-
     private static final class AssumptionMethodInterceptor {
-
-        @RuntimeType
-        public static Object intercept(@This AbstractVavrAssert<?, ?> assertion, @SuperCall Callable<Object> proxy) throws Exception {
+        public static Object intercept(AbstractVavrAssert<?, ?> assertion, Callable<Object> proxy) throws Exception {
             try {
                 Object result = proxy.call();
                 if (result != assertion && result instanceof AbstractVavrAssert) {
@@ -131,45 +110,31 @@ public class VavrAssumptions {
                                                       Class<?>[] constructorTypes,
                                                       Object... constructorParams) {
         try {
-            Class<? extends ASSERTION> type = createAssumptionClass(assertionType);
-            Constructor<? extends ASSERTION> constructor = type.getConstructor(constructorTypes);
+            Constructor<ASSERTION> constructor = assertionType.getConstructor(constructorTypes);
             return constructor.newInstance(constructorParams);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
             throw new RuntimeException("Cannot create assumption instance", e);
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass) {
-        SimpleKey cacheKey = new SimpleKey(assertClass);
-        return (Class<ASSERTION>) CACHE.findOrInsert(VavrAssumptions.class.getClassLoader(),
-                cacheKey,
-                () -> generateAssumptionClass(assertClass));
+    private static RuntimeException assumptionNotMet(AssertionError assertionError) {
+        try {
+            Class<?> assumptionClass = getAssumptionClass("org.junit.AssumptionViolatedException");
+            if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
+
+            assumptionClass = getAssumptionClass("org.opentest4j.TestAbortedException");
+            if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
+
+            assumptionClass = getAssumptionClass("org.testng.SkipException");
+            if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
+
+            throw new IllegalStateException("Assumptions require JUnit, opentest4j or TestNG on the classpath");
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to create assumption exception", e);
+        }
     }
 
-    private static <ASSERTION> Class<? extends ASSERTION> generateAssumptionClass(Class<ASSERTION> assertionType) {
-        return BYTE_BUDDY.subclass(assertionType)
-                .method(any())
-                .intercept(ASSUMPTION)
-                .make()
-                .load(VavrAssumptions.class.getClassLoader(), classLoadingStrategy(assertionType))
-                .getLoaded();
-    }
-
-    private static RuntimeException assumptionNotMet(AssertionError assertionError) throws ReflectiveOperationException {
-        Class<?> assumptionClass = getAssumptionClass("org.junit.AssumptionViolatedException");
-        if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
-
-        assumptionClass = getAssumptionClass("org.opentest4j.TestAbortedException");
-        if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
-
-        assumptionClass = getAssumptionClass("org.testng.SkipException");
-        if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
-
-        throw new IllegalStateException("Assumptions require JUnit, opentest4j or TestNG on the classpath");
-    }
-
-    private static Class<?极 getAssumptionClass(String className) {
+    private static Class<?> getAssumptionClass(String className) {
         try {
             return Class.forName(className);
         } catch (ClassNotFoundException e) {
@@ -183,7 +148,7 @@ public class VavrAssumptions {
                 .newInstance("assumption was not met due to: " + e.getMessage(), e);
     }
 
-    private static AbstractVavrAssert<?, ?> asAssumption极AbstractVavrAssert<?, ?> assertion) {
+    private static AbstractVavrAssert<?, ?> asAssumption(AbstractVavrAssert<?, ?> assertion) {
         Object actual = assertion.actual();
         if (assertion instanceof LazyAssert) return asAssumption(LazyAssert.class, Lazy.class, actual);
         if (assertion instanceof EitherAssert) return asAssumption(EitherAssert.class, Either.class, actual);

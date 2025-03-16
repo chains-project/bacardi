@@ -1,16 +1,19 @@
-48c48
+48c48,51
 < import org.hamcrest.Matchers;
 ---
-> import org.hamcrest.CoreMatchers;
-210c210
+> import static org.hamcrest.Matchers.hasItems;
+> import static org.hamcrest.Matchers.not;
+> import static org.hamcrest.Matchers.emptyIterable;
+> import static org.hamcrest.Matchers.notNullValue;
+210c213
 <         return this.assertHeader(name, Matchers.hasItems(value));
 ---
->         return this.assertHeader(name, CoreMatchers.hasItems(value));
-246c246
+>         return this.assertHeader(name, hasItems(value));
+246c249
 <             Matchers.not(Matchers.emptyIterableOf(String.class))
 ---
->             CoreMatchers.not(CoreMatchers.emptyIterableOf(String.class))
-284c284
+>             not(emptyIterable())
+284c287
 <             Matchers.notNullValue()
 ---
->             CoreMatchers.notNullValue()
+>             notNullValue()

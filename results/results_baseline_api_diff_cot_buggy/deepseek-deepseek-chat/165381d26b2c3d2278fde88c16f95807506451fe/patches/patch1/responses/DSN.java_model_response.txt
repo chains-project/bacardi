@@ -1,27 +1,27 @@
 <fix_planning>
 1. Analysis:
-   a. The error occurs because the `PrettyPrinterConfiguration` class has been moved from `com.github.javaparser.printer` to `com.github.javaparser.printer.configuration` package.
-   b. The specific API changes causing the issue are:
-      - Class `com.github.javaparser.printer.PrettyPrinterConfiguration` has been removed
-      - Class `com.github.javaparser.printer.configuration.PrettyPrinterConfiguration` has been added
+   a. Relevant code parts:
+      - `import com.github.javaparser.printer.PrettyPrinterConfiguration;`
+      - `private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);`
+   b. API changes:
+      - `PrettyPrinterConfiguration` class moved from `com.github.javaparser.printer` to `com.github.javaparser.printer.configuration`
+      - Constructor and method signatures changed accordingly
    c. Affected lines:
-      - Line 15: `import com.github.javaparser.printer.PrettyPrinterConfiguration;`
-      - Line 335: `private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);`
+      - Import statement
+      - PrettyPrinterConfiguration initialization
    d. Proposed fixes:
-      - Change the import statement to use the new package
-      - Keep the same functionality but use the new class location
-   e. Potential side effects:
-      - None, as we're only changing the package reference while maintaining the same functionality
+      - Update import statement to use new package
+      - Update PrettyPrinterConfiguration initialization using new package
+   e. Side effects:
+      - None expected as the functionality remains the same, just the package location changed
    f. Constraints check:
-      - No function signatures are changed
-      - No code is removed
-      - Only the necessary import and class reference are modified
+      - No function signatures changed
+      - No code removed
+      - Only necessary imports updated
+      - All code included in final output
    g. Final summary:
-      - The best solution is to update the import statement and keep the same functionality using the new package location. This is a straightforward fix that adheres to all constraints.
-
-2. Fix implementation:
-   - Update the import statement
-   - Keep the same PrettyPrinterConfiguration usage but with the new package
+      - Best solution is to update the import statement and use the new package location for PrettyPrinterConfiguration
+      - This maintains functionality while adhering to the new API structure
 </fix_planning>
 
 ```java
@@ -138,7 +138,7 @@ public class DSN {
         p = Paths.get(root, "testing-speed-trans.csv");
         Files.deleteIfExists(p);
 
-        for (极 i = 1; i <= 30; i+=2) {
+        for (int i = 1; i <= 30; i+=2) {
             System.out.println("--- scaling factor " + i + "; transitions= " + Bench.transitions +" ---");
             Bench.transitions = true;
             Bench.population = 100;
@@ -151,7 +151,7 @@ public class DSN {
     //@Test
     public void specLength() throws Exception {
         SpecScanner sc = new SpecScanner();
-        List极Constraint> l = sc.scan();
+        List<Constraint> l = sc.scan();
         System.out.println(l.stream().map(Constraint::pretty).collect(Collectors.joining("\n")));
 
         Path path = Paths.get(root, "inv.csv");
@@ -210,7 +210,7 @@ public class DSN {
     }
 
     //@Test
-    public void specVsCheckers极 throws Exception {
+    public void specVsCheckers() throws Exception {
         TestScanner sc = newScanner();
         Bench.population = 500;
         Bench.scale = 10;
@@ -391,7 +391,7 @@ public class DSN {
                 }
             }
             System.out.println(n.getName());
-            n.getRange().ifPresent(r -> l.add(r.end.line - r.begin.line);
+            n.getRange().ifPresent(r -> l.add(r.end.line - r.begin.line));
             super.visit(n, arg);
         }
     }

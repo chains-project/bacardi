@@ -1,30 +1,35 @@
 <fix_planning>
-1. Analysis:
-   a. The error occurs because the class `IoCheckedScalar` has been removed in the new version of the dependency.
-   b. The specific API change causing the issue is the removal of the `IoCheckedScalar` class and its constructor.
-   c. The affected line of code is:
-      ```java
-      return new IoCheckedScalar<>(
-          new Reduced<>(
-              Wallet::merge,
-              new Mapped<>(
-                  c -> c::wallet,
-                  new Sorted<>(new Copies(id, this))
-              )
-          )
-      ).value();
-      ```
-   d. Potential fixes:
-      - Replace `IoCheckedScalar` with a similar class or mechanism that handles checked exceptions.
-      - Use a try-catch block to handle the `IOException` directly.
-   e. Side effects:
-      - Using a try-catch block might change the flow of the code but will maintain the same functionality.
-   f. The proposed changes adhere to all constraints:
-      - The function signature remains unchanged.
-      - No existing code is removed.
-      - The fix addresses the missing import issue.
-   g. Final summary:
-      - The best solution is to replace `IoCheckedScalar` with a try-catch block to handle the `IOException` directly. This maintains the functionality and adheres to all constraints.
+1. **Relevant parts of the code and API changes:**
+   - The error occurs in the import statement: `import org.cactoos.scalar.IoCheckedScalar;`
+   - The class `IoCheckedScalar` has been removed in the new version of the dependency.
+   - The constructor `IoCheckedScalar(org.cactoos.Scalar)` has also been removed.
+
+2. **Specific API changes causing the issue:**
+   - The removal of the `IoCheckedScalar` class and its constructor is the direct cause of the compilation error.
+
+3. **Affected lines of code:**
+   - The import statement: `import org.cactoos.scalar.IoCheckedScalar;`
+   - The line where `IoCheckedScalar` is used: `return new IoCheckedScalar<>(...)`
+
+4. **Potential fixes:**
+   - Replace `IoCheckedScalar` with an equivalent class or mechanism that handles checked exceptions in a similar way.
+   - Use `org.cactoos.scalar.Unchecked` or `org.cactoos.scalar.Checked` if available in the new version.
+   - Alternatively, wrap the scalar in a try-catch block to handle the `IOException`.
+
+5. **Side effects of the proposed changes:**
+   - Using `Unchecked` or `Checked` might change the exception handling behavior.
+   - Wrapping in a try-catch block might introduce additional boilerplate code.
+
+6. **Adherence to constraints:**
+   - The function signature of `pull` remains unchanged.
+   - No existing code is removed unless it directly causes a compilation error.
+   - The fix only modifies the client code.
+
+7. **Final summary of the chosen fix:**
+   - The best solution is to replace `IoCheckedScalar` with `org.cactoos.scalar.Checked` if it is available in the new version. This maintains the checked exception handling behavior without introducing additional boilerplate code.
+
+**Chosen Fix:**
+Replace `IoCheckedScalar` with `Checked` from the `org.cactoos.scalar` package.
 </fix_planning>
 
 ```java
@@ -57,6 +62,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Sorted;
+import org.cactoos.scalar.Checked;
 import org.cactoos.scalar.Reduced;
 
 /**
@@ -92,17 +98,16 @@ public final class RtNetwork implements Network {
 
     @Override
     public Wallet pull(final long id) throws IOException {
-        try {
-            return new Reduced<>(
+        return new Checked<>(
+            new Reduced<>(
                 Wallet::merge,
                 new Mapped<>(
                     c -> c::wallet,
                     new Sorted<>(new Copies(id, this))
                 )
-            ).value();
-        } catch (final Exception ex) {
-            throw new IOException(ex);
-        }
+            ),
+            IOException.class
+        ).value();
     }
 
     @Override

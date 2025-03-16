@@ -1,25 +1,23 @@
 <fix_planning>
-1. Analysis:
-   a. The error occurs in the Bearer authentication method where the lambda expression returns an Optional<Authentication.User> but the API expects Optional<AuthUser>.
-   b. The Authentication.User class has been removed in the new version, and the API now uses AuthUser instead.
-   c. Affected lines:
-      - Line 350: `token -> CompletableFuture.completedFuture(...)`
-      - Line 353: `.map(user -> new Authentication.User(user.name()))`
-   d. Proposed fixes:
-      - Replace Authentication.User with AuthUser
-      - Update the lambda expression to return Optional<AuthUser>
+1. **Analysis of the Problem:**
+   a. The error occurs in the `Bearer` class where the `Authentication.User` class is used, but it has been removed in the new version of the dependency.
+   b. The specific API changes causing the issue are:
+      - Removal of `Authentication.User` constructors.
+      - Removal of `Authentication.User` class.
+   c. The affected lines of code are:
+      - `.map(user -> new Authentication.User(user.name()))`
+      - `token -> CompletableFuture.completedFuture(`
+   d. Potential fixes:
+      - Replace `Authentication.User` with `AuthUser` from the new API.
+      - Update the lambda expression to return `Optional<AuthUser>` instead of `Optional<Object>`.
    e. Side effects:
-      - The change is localized to the Bearer authentication method and shouldn't affect other parts of the code.
-   f. Constraints check:
-      - The function signatures remain unchanged
-      - No existing code is removed
-      - The fix adheres to all constraints
+      - The change should not affect the functionality as `AuthUser` is the replacement for `Authentication.User`.
+   f. The proposed changes adhere to all constraints:
+      - The function signatures remain unchanged.
+      - No existing code is removed.
+      - The fix addresses the compilation error directly.
    g. Final summary:
-      - The best solution is to replace Authentication.User with AuthUser in the Bearer authentication method, as this directly addresses the API change while maintaining the same functionality.
-
-2. Fix implementation:
-   - Replace `new Authentication.User(user.name())` with `new AuthUser(user.name())`
-   - Ensure the lambda returns Optional<AuthUser>
+      - The best solution is to replace `Authentication.User` with `AuthUser` and update the lambda expression to return `Optional<AuthUser>`. This fix aligns with the new API and resolves the compilation errors without introducing side effects.
 </fix_planning>
 
 ```java
@@ -40,7 +38,6 @@ import com.artipie.http.Headers;
 import com.artipie.http.Response;
 import com.artipie.http.Slice;
 import com.artipie.http.auth.Authentication;
-import com.artipie.http.auth.AuthUser;
 import com.artipie.http.auth.BasicAuthScheme;
 import com.artipie.http.auth.BearerAuthScheme;
 import com.artipie.http.auth.Permissions;

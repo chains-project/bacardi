@@ -152,11 +152,6 @@ public final class UpdateChecker {
         return null;
     }
 
-    /**
-     * Look for all known versions of a given artifact.
-     * @param repos a set of repository URLs to check
-     * @return a possibly empty set of versions, sorted descending
-     */
     private SortedSet<VersionAndRepo> loadVersions(String groupId, String artifactId) throws Exception {
         SortedSet<VersionAndRepo> r = new TreeSet<>();
         for (String repo : repos) {
@@ -165,7 +160,7 @@ public final class UpdateChecker {
             try {
                 doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mavenMetadataURL);
             } catch (FileNotFoundException x) {
-                continue; // not even defined in this repo, fine
+                continue;
             }
             Element versionsE = theElement(doc, "versions", mavenMetadataURL);
             NodeList versionEs = versionsE.getElementsByTagName("version");
@@ -190,9 +185,6 @@ public final class UpdateChecker {
         }
     }
 
-    /**
-     * Parses {@code /project/scm/url} and {@code /project/scm/tag} out of a POM, if mapped to a commit.
-     */
     private static @CheckForNull GitHubCommit loadGitHubCommit(VersionAndRepo vnr) throws Exception {
         String pom = vnr.fullURL("pom");
         Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(pom);
@@ -217,13 +209,9 @@ public final class UpdateChecker {
         return new GitHubCommit(groupId, artifactId, tag);
     }
 
-    /**
-     * Checks whether a commit is an ancestor of a given branch head.
-     */
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
-            GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
-            GHCompare.Status status = compare.getStatus();
+            GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).getStatus();
             return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
         } catch (FileNotFoundException x) {
             return false;

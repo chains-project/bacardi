@@ -85,6 +85,6 @@ public class Detection implements Serializable {
   }
 
   static Detection fromPb(DetectedLanguage detectionPb) {
-    return new Detection(detectionPb.getLanguageCode(), detectionPb.getConfidence());
+    return new Detection(detectionPb.getLanguage(), detectionPb.getConfidence());
   }
 }

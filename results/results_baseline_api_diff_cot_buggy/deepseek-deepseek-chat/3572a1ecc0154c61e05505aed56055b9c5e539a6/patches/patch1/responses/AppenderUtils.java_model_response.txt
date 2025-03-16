@@ -1,29 +1,35 @@
 <fix_planning>
-1. Analysis:
-   a. The error occurs because `TFastFramedTransport` has been moved to a different package and its constructors have changed.
-   b. The specific API changes causing the issue are:
-      - `org.apache.thrift.transport.TFastFramedTransport` has been removed
-      - The constructors of `TFastFramedTransport` have been removed
-      - New interface `org.apache.thrift.transport.layered.TFastFramedTransport` has been added
-   c. Affected lines:
-      - Line 30: `import org.apache.thrift.transport.TFastFramedTransport;`
-      - Line 63: `framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);`
-   d. Potential fixes:
-      - Update the import statement to use the new package
-      - Use the new constructor signature for `TFastFramedTransport`
-   e. Side effects:
-      - The new implementation might have different behavior, but it should be compatible with the existing code
-   f. Constraints check:
-      - The function signatures remain unchanged
-      - No existing code is removed
-      - The fix addresses the compilation error
-   g. Final summary:
-      - The best solution is to update the import statement and use the new constructor from the layered package
-      - This maintains the same functionality while being compatible with the new API
+1. **Analysis of the Problem:**
+   - The error messages indicate that the class `TFastFramedTransport` cannot be found. This is because the class has been moved to a different package (`org.apache.thrift.transport.layered`) in the new version of the dependency.
+   - The constructor `TFastFramedTransport(TTransport, int)` has been removed, and new constructors have been added in the `org.apache.thrift.transport.layered` package.
 
-2. Proposed changes:
-   - Update import statement to use the new package
-   - Use the new constructor signature for `TFastFramedTransport`
+2. **Relevant Code and API Changes:**
+   - **Code:** 
+     ```java
+     framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);
+     ```
+   - **API Changes:**
+     - `Class org.apache.thrift.transport.TFastFramedTransport` has been removed.
+     - `Construct org.apache.thrift.transport.layered.TFastFramedTransport(org.apache.thrift.transport.TTransport,int)` has been added.
+
+3. **Affected Lines of Code:**
+   - Line 63: `framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);`
+   - Line 30: `import org.apache.thrift.transport.TFastFramedTransport;`
+
+4. **Proposed Fixes:**
+   - Update the import statement to use the new package: `import org.apache.thrift.transport.layered.TFastFramedTransport;`
+   - Update the instantiation of `TFastFramedTransport` to use the new constructor.
+
+5. **Potential Side Effects:**
+   - The new constructor might have different behavior or requirements, but since the method signature is similar, it should work as expected.
+
+6. **Adherence to Constraints:**
+   - The function signatures remain unchanged.
+   - No existing code is removed.
+   - The correct package is used for the import.
+
+7. **Final Summary:**
+   - The best solution is to update the import statement and use the new constructor from the `org.apache.thrift.transport.layered` package. This adheres to all constraints and fixes the compilation error.
 </fix_planning>
 
 ```java
@@ -90,7 +96,7 @@ public class AppenderUtils {
       // log.
       final int bufferCapacity = 10;
       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
-          bufferCapacity, bufferCapacity);
+          bufferCapacity);
       protocol = new TBinaryProtocol(framedTransport);
     }
 

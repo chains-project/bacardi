@@ -6,9 +6,7 @@ import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.mvc.UriRef;
-import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.binding.MvcBinding;
-import jakarta.mvc.binding.ParamError;
 import jakarta.mvc.security.CsrfProtected;
 import javax.validation.constraints.NotBlank;
 import javax.ws.rs.FormParam;
@@ -24,9 +22,6 @@ import javax.ws.rs.Path;
 @Controller
 @RequestScoped
 public class CsrfController {
-
-    @Inject
-    BindingResult bindingResult;
 
     @Inject
     Models models;
@@ -48,9 +43,9 @@ public class CsrfController {
             @FormParam("greeting")
             @MvcBinding
             @NotBlank String greeting) {
-        if (bindingResult.isFailed()) {
+        if (models.get("errors") != null) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            bindingResult.getAllErrors()
+            models.get("errors")
                     .stream()
                     .forEach((ParamError t) -> {
                         alert.addError(t.getParamName(), "", t.getMessage());

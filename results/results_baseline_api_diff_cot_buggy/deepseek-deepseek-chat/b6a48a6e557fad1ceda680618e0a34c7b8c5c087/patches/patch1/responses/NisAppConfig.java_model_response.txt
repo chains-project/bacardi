@@ -1,49 +1,51 @@
 <fix_planning>
 1. Analysis:
-   a. Relevant API changes:
-      - Flyway() constructor removed
-      - setDataSource(DataSource) removed
-      - setClassLoader(ClassLoader) removed
-      - setValidateOnMigrate(boolean) removed
-      - setLocations(String) removed
-      - New ClassicConfiguration class introduced
-      - New Flyway(Configuration) constructor added
-
-   b. Specific API changes causing issues:
-      - Direct Flyway instantiation and configuration methods are deprecated
-      - Need to use ClassicConfiguration for configuration
-
+   a. The code uses Flyway's deprecated methods and constructor:
+      - `new Flyway()`
+      - `flyway.setLocations()`
+      - `flyway.setValidateOnMigrate()`
+      - `flyway.setClassLoader()`
+      - `flyway.setDataSource()`
+   
+   b. API changes causing issues:
+      - Constructor `Flyway()` removed, replaced with `Flyway(Configuration)`
+      - Direct setter methods removed, moved to `ClassicConfiguration`
+      - Locations now require `Location[]` instead of `String`
+   
    c. Affected lines:
-      - Line 108: final org.flywaydb.core.Flyway flyway = new Flyway();
-      - Line 109: flyway.setDataSource(this.dataSource());
-      - Line 110: flyway.setClassLoader(NisAppConfig.class.getClassLoader());
-      - Line 111: flyway.setLocations(prop.getProperty("flyway.locations"));
-      - Line 112: flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-
+      - Line 108: `final org.flywaydb.core.Flyway flyway = new Flyway();`
+      - Line 109: `flyway.setDataSource(this.dataSource());`
+      - Line 110: `flyway.setClassLoader(NisAppConfig.class.getClassLoader());`
+      - Line 111: `flyway.setLocations(prop.getProperty("flyway.locations"));`
+      - Line 112: `flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));`
+   
    d. Proposed fixes:
-      - Create ClassicConfiguration instance
-      - Configure ClassicConfiguration with required settings
-      - Create Flyway instance with configured ClassicConfiguration
-
+      - Use `Flyway.configure()` to create configuration
+      - Convert string locations to Location array
+      - Apply configuration to Flyway instance
+   
    e. Potential side effects:
-      - None, as we're using the new recommended API
-      - Configuration behavior remains the same
-
+      - Need to ensure location string parsing is correct
+      - Configuration object needs to be properly initialized
+   
    f. Constraints check:
       - Method signature remains unchanged
       - No existing code removed
-      - No functionality changed
-      - New variables introduced for clarity
-      - All constraints satisfied
-
-   g. Final summary:
-      The best solution is to use the new ClassicConfiguration API to configure Flyway, as it's the recommended approach in the new version. This maintains all functionality while using the updated API correctly.
+      - All required imports are included
+   
+   g. Final solution:
+      - Use Flyway's new configuration approach
+      - Convert locations string to array
+      - Create Flyway instance with configuration
+      - This maintains functionality while using the new API
 </fix_planning>
 
 ```java
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -148,10 +150,10 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final org.flywaydb.core.api.configuration.ClassicConfiguration configuration = new org.flywaydb.core.api.configuration.ClassicConfiguration();
+		final ClassicConfiguration configuration = new ClassicConfiguration();
 		configuration.setDataSource(this.dataSource());
 		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
-		configuration.setLocations(org.flywaydb.core.api.Location.parse(prop.getProperty("flyway.locations")));
+		configuration.setLocations(new Location[] { new Location(prop.getProperty("flyway.locations")) });
 		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 		return new Flyway(configuration);
 	}
@@ -267,7 +269,7 @@ public class NisAppConfig {
 
 	@Bean
 	public SynchronizedPoxFacade poxFacade() {
-		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
+		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
 	}
 
 	@Bean

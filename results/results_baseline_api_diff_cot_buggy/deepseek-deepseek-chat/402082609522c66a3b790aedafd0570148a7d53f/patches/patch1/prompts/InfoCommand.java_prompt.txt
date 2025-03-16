@@ -1,0 +1,536 @@
+You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+
+Here is the Java code that is failing:
+
+```java
+package com.github.games647.changeskin.sponge.command;
+
+import com.github.games647.changeskin.core.model.UserPreference;
+import com.github.games647.changeskin.core.model.skin.SkinModel;
+import com.github.games647.changeskin.core.shared.SkinFormatter;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.github.games647.changeskin.sponge.PomData;
+import com.google.inject.Inject;
+
+import java.util.Optional;
+import java.util.UUID;
+
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandException;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.spec.CommandExecutor;
+import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.serializer.TextSerializers;
+
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+
+    @Inject
+    private ChangeSkinSponge plugin;
+
+    @Inject
+    private SkinFormatter formatter;
+
+
+    @Override
+    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+        if (!(src instanceof Player)) {
+            plugin.sendMessage(src, "no-console");
+            return CommandResult.empty();
+        }
+
+        UUID uniqueId = ((Player) src).getUniqueId();
+        Task.builder().async()
+                .execute(() -> {
+                    UserPreference preferences = plugin.getCore().getStorage().getPreferences(uniqueId);
+                    Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).submit(plugin);
+                })
+                .submit(plugin);
+
+        return CommandResult.success();
+    }
+
+    @Override
+    public CommandSpec buildSpec() {
+        return CommandSpec.builder()
+                .executor(this)
+                .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
+                .build();
+    }
+
+    private void sendSkinDetails(UUID uuid, UserPreference preference) {
+        Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
+        if (optPlayer.isPresent()) {
+            Player player = optPlayer.get();
+
+            Optional<SkinModel> optSkin = preference.getTargetSkin();
+            if (optSkin.isPresent()) {
+                String template = plugin.getCore().getMessage("skin-info");
+                String formatted = formatter.apply(template, optSkin.get());
+
+                Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
+                player.sendMessage(text);
+            } else {
+                plugin.sendMessage(player, "skin-not-found");
+            }
+        }
+    }
+}
+
+```
+
+The errors are triggered in the following specific lines:
+
+<error_lines>
+```java
+public CommandSpec buildSpec() {
+```
+```java
+public CommandSpec buildSpec() {
+```
+```java
+public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+import org.spongepowered.api.command.spec.CommandExecutor;
+```
+```java
+public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+import org.spongepowered.api.text.Text;
+```
+```java
+import org.spongepowered.api.command.CommandSource;
+```
+```java
+public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+```
+```java
+public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+public CommandSpec buildSpec() {
+```
+```java
+public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+```
+```java
+public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+public CommandSpec buildSpec() {
+```
+```java
+import org.spongepowered.api.command.CommandException;
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+public CommandSpec buildSpec() {
+```
+```java
+public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+```
+```java
+import org.spongepowered.api.command.spec.CommandSpec;
+```
+```java
+import org.spongepowered.api.command.args.CommandContext;
+```
+```java
+public CommandSpec buildSpec() {
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+import org.spongepowered.api.text.serializer.TextSerializers;
+```
+</error_lines>
+
+The API of the dependency has changed. Here are the relevant changes:
+
+     Method org.spongepowered.api.command.spec.CommandSpec$Builder.permission(java.lang.String) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.command.Command$Builder.permission(java.lang.String) has been added in the new version of the dependency.
+     Method org.spongepowered.api.text.channel.MessageChannel.permission(java.lang.String) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.command.Command$Builder.permission(org.spongepowered.api.service.permission.PermissionDescription) has been added in the new version of the dependency.
+     Method org.spongepowered.api.text.Text.builder(org.spongepowered.api.text.Text,org.spongepowered.api.scoreboard.Score) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.WaterLily.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.Text.builder(org.spongepowered.api.scoreboard.Score) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.command.parameter.Parameter.builder(java.lang.Class) has been added in the new version of the dependency.
+     Method org.spongepowered.api.util.transformation.Transformation.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.tag.TagTemplate.builder(org.spongepowered.api.registry.DefaultedRegistryReference) has been added in the new version of the dependency.
+     Method org.spongepowered.api.entity.ai.task.builtin.creature.AttackLivingAITask.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.Lake.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.event.EventContext.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.Pumpkin.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.title.Title.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.tag.TagTemplate.builder(org.spongepowered.api.tag.TagType) has been added in the new version of the dependency.
+     Method org.spongepowered.api.event.EventListenerRegistration$Factory.builder(io.leangen.geantyref.TypeToken) has been added in the new version of the dependency.
+     Method org.spongepowered.api.data.DataManager.builder(java.lang.Class) has been added in the new version of the dependency.
+     Method org.spongepowered.api.entity.ai.task.builtin.creature.RangeAgentAITask.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.entity.ai.goal.builtin.creature.horse.RunAroundLikeCrazyGoal.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.data.KeyValueMatcher.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.text.selector.Selector.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.ResourceKey.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.WorldBorder.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.Text.builder(org.spongepowered.api.text.Text,org.spongepowered.api.text.translation.Translation,java.lang.Object[]) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.entity.ai.goal.builtin.SwimGoal.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.generation.config.FlatGeneratorConfig.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.entity.ai.task.builtin.WatchClosestAITask.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.biome.BiomeGenerationSettings.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.biome.provider.EndStyleBiomeConfig.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.entity.ai.task.builtin.creature.horse.RunAroundLikeCrazyAITask.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.biome.provider.LayeredBiomeConfig.builder() has been added in the new version of the dependency.
+     METHOD_NEW_STATIC_ADDED_TO_INTERFACE org.spongepowered.api.event.cause.entity.damage.DamageType.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.IceSpike.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.tag.TagTemplate$Factory.builder(org.spongepowered.api.tag.TagType) has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.biome.VirtualBiomeType.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.command.parameter.Parameter.builder(org.spongepowered.api.command.parameter.Parameter$Key) has been added in the new version of the dependency.
+     Method org.spongepowered.api.event.cause.Cause.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.placeholder.PlaceholderText.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.command.parameter.managed.Flag.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.RandomObject.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.entity.ai.task.builtin.creature.AvoidEntityAITask.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.Shrub.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.command.spec.CommandSpec.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.event.cause.entity.health.HealthModifier.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.command.parameter.Parameter.builder(java.lang.Class,org.spongepowered.api.registry.DefaultedRegistryReference) has been added in the new version of the dependency.
+     Method org.spongepowered.api.entity.ai.task.builtin.SwimmingAITask.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.EndIsland.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.data.Key.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.text.Text.builder(org.spongepowered.api.text.Text,org.spongepowered.api.text.selector.Selector) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.IcePath.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.command.parameter.Parameter.builder(io.leangen.geantyref.TypeToken,java.util.function.Supplier) has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.Ore.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.data.persistence.DataStore.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.volume.stream.StreamOptions.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.Melon.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.BigMushroom.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.border.WorldBorder.builder() has been added in the new version of the dependency.
+     METHOD_NEW_STATIC_ADDED_TO_INTERFACE org.spongepowered.api.world.schematic.PaletteType.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.item.inventory.query.Query.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.item.inventory.InventoryArchetype.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.advancement.AdvancementTree.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.event.cause.entity.health.source.EntityHealingSource.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.SeaFloor.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.service.ban.Ban.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.entity.ai.task.builtin.creature.target.FindNearestAttackableTargetAITask.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.ChorusFlower.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.block.tileentity.TileEntityArchetype.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.map.decoration.MapDecoration.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.util.ban.Ban.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.command.parameter.Parameter.builder(io.leangen.geantyref.TypeToken,org.spongepowered.api.command.parameter.managed.ValueParameter) has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.server.WorldTemplate.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.map.color.MapColor.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.placeholder.PlaceholderComponent.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.item.recipe.single.StoneCutterRecipe.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.generation.config.WorldGenerationConfig$Mutable.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.event.cause.entity.health.source.BlockHealingSource.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.Glowstone.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.command.Command.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.text.Text.builder(org.spongepowered.api.text.Text,org.spongepowered.api.text.translation.Translatable,java.lang.Object[]) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.event.cause.EventContext.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.entity.ai.goal.builtin.creature.AvoidLivingGoal.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.event.Cause.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.extra.fluid.FluidStackSnapshot.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.Mushroom.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.DesertWell.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.fluid.FluidState.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.Flower.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.placeholder.PlaceholderParser.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.Cactus.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.Text.builder(java.lang.String) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.Text.builder(org.spongepowered.api.text.selector.Selector) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.DoublePlant.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.Reed.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.WorldTypeTemplate.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.generation.config.noise.NoiseConfig.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.item.recipe.cooking.CookingRecipe.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.item.inventory.InventoryTransformation.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.event.cause.entity.health.source.HealingSource.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.entity.ai.goal.builtin.creature.AttackLivingGoal.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.event.cause.entity.health.HealthModifier$Builder.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.entity.attribute.AttributeModifier.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.entity.ai.goal.builtin.creature.target.FindNearestAttackableTargetGoal.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.BlockBlob.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.WorldArchetype.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.event.cause.entity.health.source.IndirectEntityHealingSource.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.entity.ai.goal.builtin.creature.RangedAttackAgainstAgentGoal.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.entity.ai.goal.builtin.LookAtGoal.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.item.recipe.crafting.SpecialCraftingRecipe.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.text.Text.builder(char) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.entity.ai.goal.builtin.creature.RandomWalkingGoal.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.event.EventListenerRegistration.builder(java.lang.Class) has been added in the new version of the dependency.
+     Method org.spongepowered.api.placeholder.PlaceholderParser.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.fluid.FluidStackSnapshot.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.boss.ServerBossBar.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.Text.builder(org.spongepowered.api.text.Text,java.lang.String) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.event.EventContextKey.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.text.Text.builder(org.spongepowered.api.text.translation.Translation,java.lang.Object[]) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.Dungeon.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.fluid.FluidStack.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.data.key.Key.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.command.parameter.Parameter.builder(java.lang.Class,org.spongepowered.api.command.parameter.managed.ValueParameter) has been added in the new version of the dependency.
+     Method org.spongepowered.api.text.Text.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.entity.ai.goal.builtin.LookRandomlyGoal.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.biome.provider.MultiNoiseBiomeConfig.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.Fossil.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.RandomBlock.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.DeadBush.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.event.EventListenerRegistration.builder(io.leangen.geantyref.TypeToken) has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.biome.provider.CheckerboardBiomeConfig.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.entity.ai.task.builtin.LookIdleAITask.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.NetherFire.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.command.parameter.Parameter.builder(io.leangen.geantyref.TypeToken) has been added in the new version of the dependency.
+     Method org.spongepowered.api.item.recipe.smelting.SmeltingRecipe.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.placeholder.PlaceholderContext.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.Text.builder(org.spongepowered.api.text.translation.Translatable,java.lang.Object[]) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.event.cause.EventContextKey.builder(java.lang.Class) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.item.inventory.type.ViewableInventory.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.generation.config.NoiseGeneratorConfig.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.block.entity.BlockEntityArchetype.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.map.MapCanvas.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.data.DataRegistration$Builder.builder(org.spongepowered.api.data.manipulator.DataManipulatorBuilder) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.BookView.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.Forest.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.command.selector.Selector.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.extra.fluid.FluidStack.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.placeholder.PlaceholderContext.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.generation.config.structure.StructureGenerationConfig.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.gen.populator.Vine.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.item.recipe.smithing.SmithingRecipe.builder() has been added in the new version of the dependency.
+     Method org.spongepowered.api.entity.ai.task.builtin.creature.WanderAITask.builder() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.item.inventory.ItemStack$Factory.empty() has been added in the new version of the dependency.
+     Method org.spongepowered.api.event.cause.EventContext.empty() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.volume.block.BlockVolume$Mutable.empty(org.spongepowered.math.vector.Vector3i,org.spongepowered.math.vector.Vector3i) has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.volume.biome.BiomeVolumeFactory.empty(org.spongepowered.api.world.schematic.Palette,org.spongepowered.api.registry.RegistryReference,org.spongepowered.math.vector.Vector3i,org.spongepowered.math.vector.Vector3i) has been added in the new version of the dependency.
+     Method org.spongepowered.api.command.CommandResult.empty() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.volume.entity.EntityVolume$EntityVolumeFactory.empty(org.spongepowered.math.vector.Vector3i,org.spongepowered.math.vector.Vector3i) has been added in the new version of the dependency.
+     Method org.spongepowered.api.advancement.criteria.AdvancementCriterion$Factory.empty() has been added in the new version of the dependency.
+     Method org.spongepowered.api.event.EventContext.empty() has been added in the new version of the dependency.
+     Method org.spongepowered.api.item.inventory.ItemStackSnapshot$Factory.empty() has been added in the new version of the dependency.
+     Method org.spongepowered.api.item.recipe.crafting.Ingredient$Factory.empty() has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.volume.entity.EntityVolume$Mutable.empty(org.spongepowered.math.vector.Vector3i,org.spongepowered.math.vector.Vector3i) has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.volume.biome.BiomeVolumeFactory.empty(org.spongepowered.math.vector.Vector3i,org.spongepowered.math.vector.Vector3i) has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.volume.block.BlockVolume$Mutable.empty(org.spongepowered.api.world.schematic.Palette,org.spongepowered.api.registry.RegistryReference,org.spongepowered.math.vector.Vector3i,org.spongepowered.math.vector.Vector3i) has been added in the new version of the dependency.
+     METHOD_NEW_STATIC_ADDED_TO_INTERFACE org.spongepowered.api.block.BlockSnapshot.empty() has been added in the new version of the dependency.
+     METHOD_NEW_STATIC_ADDED_TO_INTERFACE org.spongepowered.api.item.inventory.ItemStackSnapshot.empty() has been added in the new version of the dependency.
+     METHOD_NEW_STATIC_ADDED_TO_INTERFACE org.spongepowered.api.item.recipe.crafting.Ingredient.empty() has been added in the new version of the dependency.
+     Method org.spongepowered.api.block.BlockSnapshot$Factory.empty() has been added in the new version of the dependency.
+     Method org.spongepowered.api.world.volume.block.BlockVolumeFactory.empty(org.spongepowered.api.world.schematic.Palette,org.spongepowered.api.registry.RegistryReference,org.spongepowered.math.vector.Vector3i,org.spongepowered.math.vector.Vector3i) has been added in the new version of the dependency.
+     METHOD_NEW_STATIC_ADDED_TO_INTERFACE org.spongepowered.api.advancement.criteria.AdvancementCriterion.empty() has been added in the new version of the dependency.
+     Class org.spongepowered.api.command.CommandException has been removed in the new version of the dependency.
+     Type reference org.spongepowered.api.command.exception.CommandException(net.kyori.adventure.text.Component,boolean) has been added in the new version of the dependency.
+     Constructor org.spongepowered.api.command.CommandException(org.spongepowered.api.text.Text,boolean) has been removed in the new version of the dependency.
+     Type reference org.spongepowered.api.command.exception.CommandException(net.kyori.adventure.text.Component,java.lang.Throwable) has been added in the new version of the dependency.
+     Constructor org.spongepowered.api.command.CommandException(org.spongepowered.api.text.Text,java.lang.Throwable,boolean) has been removed in the new version of the dependency.
+     Type reference org.spongepowered.api.command.exception.CommandException(net.kyori.adventure.text.Component,java.lang.Throwable,boolean) has been added in the new version of the dependency.
+     Type reference org.spongepowered.api.command.exception.CommandException(net.kyori.adventure.text.Component) has been added in the new version of the dependency.
+     Constructor org.spongepowered.api.command.CommandException(org.spongepowered.api.text.Text,java.lang.Throwable) has been removed in the new version of the dependency.
+     Constructor org.spongepowered.api.command.CommandException(org.spongepowered.api.text.Text) has been removed in the new version of the dependency.
+     Class org.spongepowered.api.command.CommandSource has been removed in the new version of the dependency.
+     Class org.spongepowered.api.command.CommandExecutor has been added in the new version of the dependency.
+     Class org.spongepowered.api.command.spec.CommandExecutor has been removed in the new version of the dependency.
+     Method org.spongepowered.api.scheduler.Task$Builder.async() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.Game.getServer() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.Sponge.getServer() has been removed in the new version of the dependency.
+     Class org.spongepowered.api.text.serializer.TextSerializers has been removed in the new version of the dependency.
+     Class org.spongepowered.api.command.CommandResult has been removed in the new version of the dependency.
+     Class org.spongepowered.api.text.Text has been removed in the new version of the dependency.
+     Method org.spongepowered.api.util.Identifiable.getUniqueId() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.storage.WorldProperties.getUniqueId() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.World.getUniqueId() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.network.channel.ChannelBuf.getUniqueId(int) has been added in the new version of the dependency.
+     Method org.spongepowered.api.entity.EntitySnapshot.getUniqueId() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.action.HoverAction$ShowEntity$Ref.getUniqueId() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.network.ChannelBuf.getUniqueId(int) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.entity.living.player.tab.TabList.getPlayer() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.event.entity.living.humanoid.player.ResourcePackStatusEvent.getPlayer() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.network.PlayerConnection.getPlayer() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.entity.living.player.User.getPlayer() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.event.sound.PlaySoundEvent$AtEntity.getPlayer() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.Server.getPlayer(java.lang.String) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.Server.getPlayer(java.util.UUID) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.data.persistence.DataStore.deserialize(org.spongepowered.api.data.persistence.DataView) has been added in the new version of the dependency.
+     Method org.spongepowered.api.data.DataManager.deserialize(java.lang.Class,org.spongepowered.api.data.persistence.DataView) has been added in the new version of the dependency.
+     Method org.spongepowered.api.data.persistence.DataStore.deserialize(org.spongepowered.api.data.DataManipulator$Mutable,org.spongepowered.api.data.persistence.DataView) has been added in the new version of the dependency.
+     Method org.spongepowered.api.text.serializer.TextFormatConfigSerializer.deserialize(com.google.common.reflect.TypeToken,ninja.leaping.configurate.ConfigurationNode) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.serializer.SafeTextSerializer.deserialize(java.lang.String) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.data.DataManager.deserialize(java.lang.Class,org.spongepowered.api.data.DataView) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.serializer.TextConfigSerializer.deserialize(com.google.common.reflect.TypeToken,ninja.leaping.configurate.ConfigurationNode) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.serializer.TextTemplateConfigSerializer.deserialize(com.google.common.reflect.TypeToken,ninja.leaping.configurate.ConfigurationNode) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.serializer.TextSerializer.deserialize(java.lang.String) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.serializer.BookViewDataBuilder.deserialize(com.google.common.reflect.TypeToken,ninja.leaping.configurate.ConfigurationNode) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.command.Command$Builder.executor(org.spongepowered.api.command.CommandExecutor) has been added in the new version of the dependency.
+     Method org.spongepowered.api.scheduler.Scheduler.executor(org.spongepowered.plugin.PluginContainer) has been added in the new version of the dependency.
+     Method org.spongepowered.api.command.spec.CommandSpec$Builder.executor(org.spongepowered.api.command.spec.CommandExecutor) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.entity.ai.goal.AbstractGoal.executor() has been added in the new version of the dependency.
+     Method org.spongepowered.api.entity.ai.goal.Goal.executor() has been added in the new version of the dependency.
+     Method org.spongepowered.api.command.Command$Parameterized.executor() has been added in the new version of the dependency.
+     Method org.spongepowered.api.scheduler.Scheduler.submit(org.spongepowered.api.scheduler.Task,java.lang.String) has been added in the new version of the dependency.
+     Method org.spongepowered.api.scheduler.Task$Builder.submit(java.lang.Object) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.scheduler.TaskExecutorService.submit(java.util.concurrent.Callable) has been added in the new version of the dependency.
+     Method org.spongepowered.api.scheduler.TaskExecutorService.submit(java.lang.Runnable) has been added in the new version of the dependency.
+     Method org.spongepowered.api.scheduler.TaskExecutorService.submit(java.lang.Runnable,java.lang.Object) has been added in the new version of the dependency.
+     Method org.spongepowered.api.scheduler.Scheduler.submit(org.spongepowered.api.scheduler.Task) has been added in the new version of the dependency.
+     Class org.spongepowered.api.command.args.CommandContext has been removed in the new version of the dependency.
+     Interface org.spongepowered.api.command.parameter.CommandContext has been added in the new version of the dependency.
+     Constructor org.spongepowered.api.command.args.CommandContext() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.command.CommandCause.sendMessage(net.kyori.adventure.identity.Identity,net.kyori.adventure.text.Component) has been added in the new version of the dependency.
+     Method org.spongepowered.api.command.parameter.CommandContext.sendMessage(net.kyori.adventure.identity.Identified,net.kyori.adventure.text.Component) has been added in the new version of the dependency.
+     Method org.spongepowered.api.text.channel.MessageReceiver.sendMessage(org.spongepowered.api.text.Text) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.channel.MessageReceiver.sendMessage(org.spongepowered.api.text.TextTemplate,java.util.Map) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.command.CommandCause.sendMessage(net.kyori.adventure.identity.Identified,net.kyori.adventure.text.Component) has been added in the new version of the dependency.
+     Method org.spongepowered.api.text.channel.ChatTypeMessageReceiver.sendMessage(org.spongepowered.api.text.chat.ChatType,org.spongepowered.api.text.TextTemplate,java.util.Map) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.channel.ChatTypeMessageReceiver.sendMessage(org.spongepowered.api.text.chat.ChatType,org.spongepowered.api.text.Text) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.channel.ChatTypeMessageReceiver.sendMessage(org.spongepowered.api.text.chat.ChatType,org.spongepowered.api.text.TextTemplate) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.channel.MessageReceiver.sendMessage(org.spongepowered.api.text.TextTemplate) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.command.parameter.CommandContext.sendMessage(net.kyori.adventure.identity.Identity,net.kyori.adventure.text.Component) has been added in the new version of the dependency.
+     Interface org.spongepowered.api.scheduler.Task$Builder has been removed in the new version of the dependency.
+     Class org.spongepowered.api.command.spec.CommandSpec$Builder has been removed in the new version of the dependency.
+     Class org.spongepowered.api.command.spec.CommandSpec has been removed in the new version of the dependency.
+     Class org.spongepowered.api.text.channel.MessageReceiver has been removed in the new version of the dependency.
+     Class org.spongepowered.api.text.serializer.SafeTextSerializer has been removed in the new version of the dependency.
+
+Additional error information:
+
+<error_information>
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/InfoCommand.java:[53,12] cannot find symbol
+  symbol:   class CommandSpec
+  location: class com.github.games647.changeskin.sponge.command.InfoCommand
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/InfoCommand.java:[35,34] cannot find symbol
+  symbol:   class CommandSource
+  location: class com.github.games647.changeskin.sponge.command.InfoCommand
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/InfoCommand.java:[25,37] cannot find symbol
+  symbol: class CommandExecutor
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/InfoCommand.java:[18,42] package org.spongepowered.api.command.spec does not exist
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/InfoCommand.java:[22,34] package org.spongepowered.api.text does not exist
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/InfoCommand.java:[16,37] cannot find symbol
+  symbol:   class CommandSource
+  location: package org.spongepowered.api.command
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/InfoCommand.java:[14,37] cannot find symbol
+  symbol:   class CommandException
+  location: package org.spongepowered.api.command
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/InfoCommand.java:[19,42] package org.spongepowered.api.command.spec does not exist
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/InfoCommand.java:[17,42] package org.spongepowered.api.command.args does not exist
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/InfoCommand.java:[23,45] package org.spongepowered.api.text.serializer does not exist
+</error_information>
+
+Your task is to fix the issue by modifying only the client code. Follow these steps:
+
+1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
+   a. Quote relevant parts of the code and API changes
+   b. Identify the specific API changes causing the issue
+   c. List the affected lines of code
+   d. Propose potential fixes for each affected line
+   e. Consider any potential side effects of the proposed changes
+   f. Explicitly check if the proposed changes adhere to all the given constraints
+   g. Provide a final summary of the chosen fix and why it's the best solution
+
+2. Apply the fix to the Java code.
+
+3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
+
+Constraints:
+1. Do not change the function signature of any method.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error.
+6. Include all code, even unchanged portions, in your final output.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+
+Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
+
+Example output structure:
+
+```java
+[Complete, fixed Java class]
+```
+
+Please proceed with your analysis and solution.

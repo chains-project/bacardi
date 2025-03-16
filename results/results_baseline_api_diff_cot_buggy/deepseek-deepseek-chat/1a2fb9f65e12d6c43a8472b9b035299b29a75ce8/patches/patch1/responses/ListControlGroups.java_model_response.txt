@@ -1,30 +1,40 @@
 <fix_planning>
 1. Analysis:
-   a. The code uses classes and interfaces from the `javax.validation` package which have been moved to `jakarta.validation` in the new version.
-   b. Specific API changes causing issues:
-      - `javax.validation.constraints.*` → `jakarta.validation.constraints.*`
-      - `javax.validation.metadata.*` → `jakarta.validation.metadata.*`
-      - `javax.validation.Validator` → `jakarta.validation.Validator`
+   a. The code uses javax.validation package which has been removed in the new version. The new version uses jakarta.validation package.
+   b. The specific API changes causing issues:
+      - javax.validation.Validator → jakarta.validation.Validator
+      - javax.validation.constraints.* → jakarta.validation.constraints.*
+      - javax.validation.metadata.* → jakarta.validation.metadata.*
+      - ConstraintDescriptor.getAnnotation() method signature change
    c. Affected lines:
-      - Import statements
-      - Usage of `Validator`, `BeanDescriptor`, `ElementDescriptor`, `ConstraintDescriptor`
-      - Usage of `NotNull`, `NotEmpty`, `NotBlank` annotations
+      - All import statements using javax.validation
+      - Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
+      - BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
+      - ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+      - Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
+      - constraint.getAnnotation() instanceof checks
    d. Proposed fixes:
-      - Update all import statements from `javax.validation` to `jakarta.validation`
-      - Keep all method signatures and functionality the same
+      - Replace all javax.validation imports with jakarta.validation
+      - Keep the validation logic but use the new jakarta.validation API
+      - Update the instanceof checks to use jakarta.validation constraints
    e. Potential side effects:
-      - None, as we're only changing package names to match the new API
+      - Need to ensure HibernateValidatorProperty.validatorFactory is compatible with jakarta.validation
+      - The validation behavior should remain the same
    f. Constraints check:
       - No method signatures changed
-      - No code removed
-      - Only package names updated
-      - All code included
+      - No code removed except for direct compilation errors
+      - All existing functionality preserved
+      - New imports added as needed
    g. Final summary:
-      - The best solution is to update all import statements to use `jakarta.validation` instead of `javax.validation` since this is a direct package migration with no functional changes required.
+      - The best solution is to migrate from javax.validation to jakarta.validation package
+      - This maintains all functionality while fixing compilation errors
+      - The changes are minimal and focused only on package names
+      - The solution adheres to all constraints
 
-2. Fix implementation:
-   - Replace all `javax.validation` imports with `jakarta.validation` equivalents
-   - Keep all other code exactly the same
+2. Implementation:
+   - Replace all javax.validation imports with jakarta.validation
+   - Keep the validation logic intact but use the new package names
+   - Update the instanceof checks to use jakarta.validation constraints
 </fix_planning>
 
 ```java
@@ -93,7 +103,7 @@ public abstract class ListControlGroups<T> extends Panel {
 	@SuppressWarnings("rawtypes")
 	private final Map<Class<?>, Class<? extends AbstractControlGroup>> typesControlGroups = new HashMap<Class<?>, Class<? extends AbstractControlGroup>>();
 
-	private List<ObjectProperties极 objectProperties;
+	private List<ObjectProperties> objectProperties;
 	private CrudifierEntitySettings entitySettings;
 	private Map<Class<?>, IObjectRenderer<?>> renderers;
 
@@ -108,7 +118,7 @@ public abstract class ListControlGroups<T> extends Panel {
 		typesControlGroups.put(int.class, TextFieldControlGroup.class);
 		typesControlGroups.put(Long.class, TextFieldControlGroup.class);
 		typesControlGroups.put(long.class, TextFieldControlGroup.class);
-		typesControlGroups.put(Double.class, Text极ControlGroup.class);
+		typesControlGroups.put(Double.class, TextFieldControlGroup.class);
 		typesControlGroups.put(double.class, TextFieldControlGroup.class);
 		typesControlGroups.put(BigDecimal.class, TextFieldControlGroup.class);
 		typesControlGroups.put(BigInteger.class, TextFieldControlGroup.class);
@@ -180,7 +190,7 @@ public abstract class ListControlGroups<T> extends Panel {
 				AbstractControlGroup<?> controlGroup;
 				if(!controlGroupProviders.containsKey(objectProperty.type)) {
 					Constructor<?> constructor;
-					Class<? extends Panel> typesControlGroup = getControlGroup极Type(objectProperty.type);
+					Class<? extends Panel> typesControlGroup = getControlGroupByType(objectProperty.type);
 					if(typesControlGroup==null){
 						if(objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
 						else typesControlGroup = ObjectChoiceControlGroup.class;

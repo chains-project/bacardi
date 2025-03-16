@@ -1,26 +1,27 @@
 <fix_planning>
 1. Analysis:
    a. The error occurs because the `org.hamcrest.Matchers` class has been removed in the new version of the dependency.
-   b. The specific API change is the removal of the `org.hamcrest.Matchers` class.
-   c. Affected lines:
-      - Line 48: `import org.hamcrest.Matchers;`
-      - Lines using Matchers methods: 
+   b. The specific API change causing the issue is the removal of the `org.hamcrest.Matchers` class.
+   c. Affected lines of code:
+      - `import org.hamcrest.Matchers;`
+      - Lines using `Matchers` static methods:
         - `assertHeader(name, Matchers.hasItems(value))`
         - `assertHeader(HttpHeaders.LOCATION, Matchers.not(Matchers.emptyIterableOf(String.class)))`
         - `assertThat(cookie, Matchers.notNullValue())`
    d. Potential fixes:
-      - Replace `org.hamcrest.Matchers` with `org.hamcrest.CoreMatchers` which contains similar functionality
-      - Update import statement and method calls accordingly
+      - Replace `Matchers` with equivalent methods from `org.hamcrest.CoreMatchers`
+      - Update import statement to use `org.hamcrest.CoreMatchers`
    e. Side effects:
-      - The functionality remains the same, just using a different class
-      - No breaking changes expected
+      - The functionality remains the same as `CoreMatchers` contains equivalent methods
+      - No breaking changes in behavior
    f. Constraints check:
       - Function signatures remain unchanged
-      - No code removed, only imports and class references updated
-      - All existing code preserved
-   g. Final solution:
-      - Replace `import org.hamcrest.Matchers` with `import org.hamcrest.CoreMatchers`
-      - This is the best solution as it maintains functionality while using the updated dependency
+      - No methods removed
+      - Correct import package used
+      - All code included
+   g. Final summary:
+      - Replace `org.hamcrest.Matchers` with `org.hamcrest.CoreMatchers`
+      - This is the best solution as it maintains functionality while using the correct package from the updated dependency
 </fix_planning>
 
 ```java
@@ -238,7 +239,7 @@ public final class RestResponse extends AbstractResponse {
 
     /**
      * Jump to a new location.
-     * @param uri Destination to jump to
+     * @极uri Destination to jump to
      * @return New request
      */
     @SuppressWarnings("PMD.UseConcurrentHashMap")
@@ -263,7 +264,7 @@ public final class RestResponse extends AbstractResponse {
     }
 
     /**
-     * Follow LOCATION header.
+    极 Follow LOCATION header.
      * @return New request
      */
     public Request follow() {
@@ -281,7 +282,7 @@ public final class RestResponse extends AbstractResponse {
      * @param name Cookie name
      * @return Cookie found
      */
-    @SuppressWarnings("PMD.UseConcurrentHashMap")
+    @SuppressWarnings("PM极.UseConcurrentHashMap")
     public Cookie cookie(final String name) {
         final Map<String, List<String>> headers = this.headers();
         MatcherAssert.assertThat(

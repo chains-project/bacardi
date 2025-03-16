@@ -1,17 +1,20 @@
-108,112c108,113
+108,112c108,116
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
 <                 flyway.setLocations(prop.getProperty("flyway.locations"));
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 ---
->                 final Flyway flyway = Flyway.configure()
->                         .dataSource(this.dataSource())
->                         .classLoader(NisAppConfig.class.getClassLoader())
->                         .locations(prop.getProperty("flyway.locations"))
->                         .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
->                         .load();
-246c247
+>                 final org.flywaydb.core.api.configuration.ClassicConfiguration configuration = new org.flywaydb.core.api.configuration.ClassicConfiguration();
+>                 configuration.setDataSource(this.dataSource());
+>                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+>                 configuration.setLocations(new org.flywaydb.core.api.Location[] {
+>                         new org.flywaydb.core.api.Location(prop.getProperty("flyway.locations"))
+>                 });
+>                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 
+>                 final org.flywaydb.core.Flyway flyway = new Flyway(configuration);
+246c250
 <                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
 ---
 >                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions);

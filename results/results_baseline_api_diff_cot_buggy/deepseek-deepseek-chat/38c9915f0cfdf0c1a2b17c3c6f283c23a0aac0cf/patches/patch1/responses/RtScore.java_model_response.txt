@@ -1,27 +1,26 @@
 <fix_planning>
 1. **Analysis of the Problem:**
-   - The error occurs because the class `org.cactoos.iterable.LengthOf` has been removed in the new version of the dependency.
-   - The API changes indicate that `org.cactoos.scalar.LengthOf` is now available and can be used with an `Iterable` as a parameter.
+   - **Relevant Code:** The issue is in the import statement `import org.cactoos.iterable.LengthOf;` and the usage of `LengthOf` in the `compareTo` method.
+   - **API Changes:** The class `org.cactoos.iterable.LengthOf` has been removed in the new version of the dependency. Instead, a new type reference `org.cactoos.scalar.LengthOf(java.lang.Iterable)` has been added.
+   - **Affected Lines:**
+     - `import org.cactoos.iterable.LengthOf;`
+     - `new LengthOf(other.suffixes()).intValue()`
+     - `new LengthOf(this.sfxs).intValue()`
+   - **Proposed Fixes:**
+     - Replace the import statement with `import org.cactoos.scalar.LengthOf;`.
+     - Update the usage of `LengthOf` to use the new scalar version.
+   - **Potential Side Effects:**
+     - The functionality should remain the same since the new `LengthOf` scalar class provides the same functionality but in a different package.
+   - **Adherence to Constraints:**
+     - The function signatures remain unchanged.
+     - No existing code is removed.
+     - The correct import is used according to the new dependency version.
+   - **Final Summary:**
+     - The best solution is to update the import statement and use the new `LengthOf` scalar class from `org.cactoos.scalar`. This adheres to all constraints and fixes the compilation error without altering the functionality.
 
-2. **Affected Lines:**
-   - The import statement: `import org.cactoos.iterable.LengthOf;`
-   - The usage of `LengthOf` in the `compareTo` method: `new LengthOf(other.suffixes()).intValue()` and `new LengthOf(this.sfxs).intValue()`
-
-3. **Proposed Fixes:**
-   - Replace the import statement with `import org.cactoos.scalar.LengthOf;`
-   - Update the usage of `LengthOf` in the `compareTo` method to use the new `org.cactoos.scalar.LengthOf` class.
-
-4. **Potential Side Effects:**
-   - The functionality of the `LengthOf` class might have changed, but since it still provides the `intValue()` method, the behavior should remain the same.
-
-5. **Adherence to Constraints:**
-   - The function signatures remain unchanged.
-   - No existing code is removed.
-   - The correct package is used for the import.
-   - The `@Override` annotations are retained as the methods still override their respective interfaces.
-
-6. **Final Summary:**
-   - The best solution is to update the import statement and the usage of `LengthOf` to match the new API. This fix adheres to all constraints and should resolve the compilation error without introducing new issues.
+2. **Application of the Fix:**
+   - Replace the import statement with `import org.cactoos.scalar.LengthOf;`.
+   - No changes are needed in the usage of `LengthOf` since the constructor signature remains compatible with the new scalar version.
 </fix_planning>
 
 ```java

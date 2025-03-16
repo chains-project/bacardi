@@ -1,25 +1,25 @@
 <fix_planning>
 1. Analysis:
-   a. The error occurs because the package `net.lingala.zip4j.core` no longer exists in the new version of the dependency.
-   b. The specific API change causing the issue is the removal of the `net.lingala.zip4j.core.ZipFile` class and its constructors.
-   c. The affected line is:
-      ```java
-      import net.lingala.zip4j.core.ZipFile;
-      ```
+   a. The error occurs because the package `net.lingala.zip4j.core` no longer exists in the new version of the dependency. The class `ZipFile` has been moved to `net.lingala.zip4j.ZipFile`.
+   b. The specific API changes causing the issue are:
+      - Class `net.lingala.zip4j.core.ZipFile` has been removed
+      - Interface `net.lingala.zip4j.ZipFile` has been added
+   c. Affected lines of code:
+      - Import statement: `import net.lingala.zip4j.core.ZipFile;`
+      - Usage in `unpack` method: `final ZipFile zipFile = new ZipFile(file);`
    d. Potential fixes:
-      - Replace the import with `import net.lingala.zip4j.ZipFile;`
-      - Update the code to use the new `ZipFile` class from the `net.lingala.zip4j` package.
+      - Change import to: `import net.lingala.zip4j.ZipFile;`
+      - Modify the instantiation of ZipFile to use the new API
    e. Side effects:
-      - The new `ZipFile` class has different constructors, but the usage in the code remains compatible.
+      - The new ZipFile API might have different behavior, but the basic functionality of extracting files should remain the same
    f. Constraints check:
-      - The function signatures remain unchanged.
-      - No existing code is removed.
-      - The correct package is used in the import.
+      - The fix adheres to all constraints as it only changes the import and instantiation without modifying method signatures or removing existing code
    g. Final summary:
-      - The best solution is to update the import statement to use the new package `net.lingala.zip4j.ZipFile`. This change adheres to all constraints and resolves the compilation error.
+      - The best solution is to update the import statement and modify the ZipFile instantiation to use the new package and API
 
-2. Apply the fix:
-   - Replace the import statement with `import net.lingala.zip4j.ZipFile;`
+2. Proposed changes:
+   - Update import statement to use new package
+   - Modify ZipFile instantiation to use new API
 </fix_planning>
 
 ```java
@@ -180,7 +180,7 @@ public class AllureCommandline {
                 new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
         buildingRequest.setResolveDependencies(false);
 
-        final Dependency cliDep = new Dependency();
+        final Dependency cliDep = new Dependency;
         cliDep.setGroupId("io.qameta.allure");
         cliDep.setArtifactId("allure-commandline");
         cliDep.setVersion(version);

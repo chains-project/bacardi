@@ -8,33 +8,53 @@
    flyway.setLocations(prop.getProperty("flyway.locations"));
    flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
    ```
+   
    b. API changes causing issues:
    - Flyway() constructor removed
-   - setDataSource(DataSource) removed
-   - setClassLoader(ClassLoader) removed
-   - setLocations(String) removed
-   - setValidateOnMigrate(Boolean) removed
-   c. Affected lines: 108-112
+   - setClassLoader() method removed
+   - setLocations() method removed
+   - setValidateOnMigrate() method removed
+   - setDataSource() method removed
+   
+   c. Affected lines:
+   - Line 108: Flyway instantiation
+   - Line 109: setDataSource()
+   - Line 110: setClassLoader()
+   - Line 111: setLocations()
+   - Line 112: setValidateOnMigrate()
+   
    d. Proposed fixes:
-   - Use Flyway.configure() to create configuration
-   - Use ClassicConfiguration methods for setting properties
-   - Create Flyway instance with configuration
-   e. Side effects:
-   - New approach uses configuration pattern instead of direct method calls
-   - No functional changes expected
+   - Use ClassicConfiguration to configure Flyway
+   - Create ClassicConfiguration instance
+   - Set properties on ClassicConfiguration
+   - Pass configuration to Flyway constructor
+   
+   e. Potential side effects:
+   - Need to ensure all configuration properties are properly set
+   - Need to handle location string conversion to array
+   
    f. Constraints check:
-   - Method signature remains unchanged
+   - Function signature remains unchanged
    - No existing code removed
-   - All required imports maintained
-   g. Final solution:
-   - Use Flyway.configure() pattern to create and configure Flyway instance
-   - This is the recommended approach in newer Flyway versions
-   - Maintains all functionality while adhering to new API
+   - New variables created for configuration
+   - All required imports included
+   
+   g. Final summary:
+   The best solution is to use ClassicConfiguration to configure Flyway properties before instantiation, as this aligns with the new API while maintaining all existing functionality.
 
-2. Fix implementation:
-   - Replace direct Flyway instantiation with configuration pattern
-   - Use ClassicConfiguration methods for property setting
-   - Maintain all existing functionality
+2. Required imports:
+   ```java
+   import org.flywaydb.core.api.configuration.ClassicConfiguration;
+   import org.flywaydb.core.api.Location;
+   ```
+
+3. Implementation plan:
+   - Create ClassicConfiguration instance
+   - Set dataSource on configuration
+   - Set classLoader on configuration
+   - Convert locations string to Location array
+   - Set validateOnMigrate on configuration
+   - Create Flyway instance with configuration
 </fix_planning>
 
 ```java
@@ -145,13 +165,12 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final Flyway flyway = Flyway.configure()
-			.dataSource(this.dataSource())
-			.classLoader(NisAppConfig.class.getClassLoader())
-			.locations(prop.getProperty("flyway.locations"))
-			.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
-			.load();
-		return flyway;
+		final ClassicConfiguration configuration = new ClassicConfiguration();
+		configuration.setDataSource(this.dataSource());
+		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+		configuration.setLocations(Location.parse(prop.getProperty("flyway.locations")));
+		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		return new Flyway(configuration);
 	}
 
 	@Bean
@@ -265,7 +284,7 @@ public class NisAppConfig {
 
 	@Bean
 	public SynchronizedPoxFacade poxFacade() {
-		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
+		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
 	}
 
 	@Bean

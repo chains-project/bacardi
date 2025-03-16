@@ -1,35 +1,30 @@
 <fix_planning>
-1. **Analyze the problem and propose changes:**
-   a. **Relevant parts of the code and API changes:**
-      - The code uses `javax.mvc.MvcContext` which has been removed in the new version of the dependency.
-      - The error occurs at the line `private MvcContext mvcContext;` because the class `MvcContext` is no longer available.
-   
-   b. **Identify the specific API changes causing the issue:**
-      - The class `javax.mvc.MvcContext` has been removed, which is directly used in the code.
+1. **Relevant parts of the code and API changes:**
+   - The code uses `javax.mvc.MvcContext` which has been removed in the new version of the dependency.
+   - The error occurs in the line: `private MvcContext mvcContext;`
 
-   c. **List the affected lines of code:**
-      - `private MvcContext mvcContext;`
-      - `mvcContext.getLocale()` in the `get` method.
+2. **Specific API changes causing the issue:**
+   - The class `javax.mvc.MvcContext` has been removed.
 
-   d. **Propose potential fixes for each affected line:**
-      - Replace `javax.mvc.MvcContext` with a suitable alternative that provides the locale information. One possible alternative is `javax.faces.context.FacesContext` which is commonly used in Java EE applications to access the locale.
-      - Update the import statement to use the new class.
-      - Modify the `get` method to use `FacesContext.getCurrentInstance().getViewRoot().getLocale()` to retrieve the locale.
+3. **Affected lines of code:**
+   - `private MvcContext mvcContext;`
+   - `@Inject private MvcContext mvcContext;`
 
-   e. **Consider any potential side effects of the proposed changes:**
-      - The change from `MvcContext` to `FacesContext` might introduce a dependency on the JSF (JavaServer Faces) API, which may not be desirable if the application does not use JSF.
-      - Ensure that the application context supports the use of `FacesContext`.
+4. **Potential fixes for each affected line:**
+   - Replace `javax.mvc.MvcContext` with a suitable alternative that provides similar functionality, such as `jakarta.mvc.MvcContext` if available.
+   - Alternatively, use `Locale` directly from `java.util.Locale` if the locale resolution can be handled differently.
 
-   f. **Explicitly check if the proposed changes adhere to all the given constraints:**
-      - The function signature of the `get` method remains unchanged.
-      - No variables are created unnecessarily.
-      - No `@Override` annotations are present to remove.
-      - The import statement is updated to use the correct package.
-      - No existing code is removed unless it directly causes a compilation error.
-      - All code, including unchanged portions, is included in the final output.
+5. **Consider any potential side effects of the proposed changes:**
+   - Changing the class to `jakarta.mvc.MvcContext` might require updating other parts of the code that interact with `mvcContext`.
+   - Using `Locale` directly might require changes in how the locale is resolved.
 
-   g. **Final summary of the chosen fix and why it's the best solution:**
-      - The best solution is to replace `MvcContext` with `FacesContext` because it provides a similar functionality for retrieving the locale and is a standard part of Java EE. This change adheres to all constraints and maintains the functionality of the code.
+6. **Explicitly check if the proposed changes adhere to all the given constraints:**
+   - The function signature of `get` method remains unchanged.
+   - No existing code is removed unless it directly causes a compilation error.
+   - All code, even unchanged portions, is included in the final output.
+
+7. **Final summary of the chosen fix and why it's the best solution:**
+   - The best solution is to replace `javax.mvc.MvcContext` with `jakarta.mvc.MvcContext` as it is the most straightforward replacement and maintains the intended functionality with minimal changes.
 </fix_planning>
 
 ```java
@@ -37,14 +32,15 @@ import java.util.ResourceBundle;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.faces.context.FacesContext;
+import jakarta.mvc.MvcContext;
 
 /**
- * Provides I18n messages for the UI per request. To get the correct locale, the method {@link FacesContext#getViewRoot()}
- * is used. This method uses the built-in {@link javax.faces.context.FacesContext} of the used JSF Implementation.
+ * Provides I18n messages for the UI per request. To get the correct locale, the method {@link MvcContext#getLocale()}
+ * is used. This method uses the built-in {@link javax.mvc.locale.LocaleResolver} of the used MVC Implementation.
  *
  * @author Tobias Erdle
- * @see FacesContext#getViewRoot()
+ * @see MvcContext#getLocale()
+ * @see javax.mvc.locale.LocaleResolver
  */
 @RequestScoped
 @Named("msg")
@@ -53,7 +49,7 @@ public class Messages {
     private static final String BASE_NAME = "messages";
 
     @Inject
-    private FacesContext facesContext;
+    private MvcContext mvcContext;
 
     /**
      * Get the assigned message to some key based on the {@link java.util.Locale} of the current request.
@@ -63,7 +59,7 @@ public class Messages {
      * placeholder for unknown keys.
      */
     public final String get(final String key) {
-        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, facesContext.getViewRoot().getLocale());
+        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
 
         return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);
     }

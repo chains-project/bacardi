@@ -1,48 +1,37 @@
 <fix_planning>
 1. Analysis:
-   a. The main issue is that several Hazelcast classes and interfaces have been moved or renamed in the new version:
-      - `com.hazelcast.core.Cluster` -> `com.hazelcast.cluster.Cluster`
-      - `com.hazelcast.core.Member` -> `com.hazelcast.cluster.Member`
-      - `com.hazelcast.core.MembershipListener` -> `com.hazelcast.cluster.MembershipListener`
-      - `com.hazelcast.core.MembershipEvent` -> `com.hazelcast.cluster.MembershipEvent`
-      - `com.hazelcast.core.MemberAttributeEvent` -> Removed (no direct replacement)
-      - `com.hazelcast.core.LifecycleListener` remains but needs to be imported from the correct package
-
+   a. The errors indicate that several classes and interfaces from com.hazelcast.core have been removed or moved to com.hazelcast.cluster in the new version.
    b. Specific API changes causing issues:
-      - Class and interface removals/renames
-      - Method signature changes (e.g., getClusterTime() moved to different classes)
-
+      - com.hazelcast.core.MembershipEvent → com.hazelcast.cluster.MembershipEvent
+      - com.hazelcast.core.Member → com.hazelcast.cluster.Member
+      - com.hazelcast.core.MembershipListener → com.hazelcast.cluster.MembershipListener
+      - com.hazelcast.core.Cluster → com.hazelcast.cluster.Cluster
+      - com.hazelcast.core.MemberAttributeEvent → com.hazelcast.cluster.MemberAttributeEvent
    c. Affected lines:
       - Import statements
-      - Class declaration (implements)
-      - Field declarations
-      - Method parameters
-      - Method calls using removed/renamed classes
-
+      - Class declaration implementing MembershipListener and LifecycleListener
+      - Method parameters using MembershipEvent and MemberAttributeEvent
+      - Cluster type field and constructor parameter
    d. Proposed fixes:
-      - Update import statements to use new package locations
-      - Replace removed classes with their new equivalents
-      - Remove MemberAttributeEvent related code as it has no direct replacement
-      - Update method calls to use new class names
-
+      - Update import statements to use com.hazelcast.cluster instead of com.hazelcast.core
+      - Keep the same method signatures but use the new types
+      - Update the class declaration to use the new interface names
    e. Potential side effects:
-      - Removal of MemberAttributeEvent handling might affect some functionality
-      - Need to verify all method calls still work with new class versions
-
+      - The functionality should remain the same as the new interfaces/classes are equivalent
+      - Need to ensure all method calls still work with the new types
    f. Constraints check:
-      - Function signatures remain unchanged
-      - No code removed except for MemberAttributeEvent handling
-      - All necessary imports are updated
-      - Complete code is included
-
+      - All constraints are adhered to:
+        - Method signatures remain unchanged
+        - No code is removed
+        - Only imports are updated
+        - All code is included
    g. Final summary:
-      The best solution is to update all imports and class references to use the new Hazelcast package structure, remove unsupported MemberAttributeEvent handling, and ensure all method calls use the correct new class versions. This maintains functionality while adhering to the new API.
+      - The best solution is to update the import statements and class declaration to use the new package names while keeping all method signatures and implementations the same.
 
 2. Fix implementation:
-   - Update imports
-   - Replace class references
-   - Remove MemberAttributeEvent related code
-   - Update method calls
+   - Update import statements
+   - Keep all method implementations unchanged
+   - Update class declaration to use new interface names
 </fix_planning>
 
 ```java
@@ -64,13 +53,14 @@
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.cluster.Cluster;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MembershipEvent;
+import com.hazelcast.cluster.MemberAttributeEvent;
+import com.hazelcast.cluster.MembershipListener;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.LifecycleEvent;
 import com.hazelcast.core.LifecycleEvent.LifecycleState;
 import com.hazelcast.core.LifecycleListener;
-import com.hazelcast.cluster.Member;
-import com.hazelcast.cluster.MembershipEvent;
-import com.hazelcast.cluster.MembershipListener;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterManager;
 import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
@@ -120,6 +110,7 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
     private boolean isSenior;
 
     ClusterListener(final Cluster cluster) {
+
         this.cluster = cluster;
         for (final Member member : cluster.getMembers()) {
             clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(member),
@@ -236,6 +227,16 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
                 new HazelcastClusterNodeInfo(event.getMember(), cluster.getClusterTime()));
     }
 
+    /**
+     * Blocks the current thread until the cluster cache is guaranteed to support clustering. This is especially useful
+     * for executing cluster tasks immediately after joining. If this wait is not performed, the cache factory may still
+     * be using the 'default' strategy instead of the 'hazelcast' strategy, which leads to cluster tasks being silently
+     * discarded.
+     *
+     * The method will keep trying this for 10 minutes. After that the thread is released regardless of the result.
+     *
+     * @return Boolean indicating whether the clustered cache was actually observed to be installed.
+     */
     private boolean waitForClusterCacheToBeInstalled() {
         boolean failed = false;
         if (!ClusteredCacheFactory.PLUGIN_NAME.equals(CacheFactory.getPluginName())) {
@@ -301,6 +302,15 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         } else if (event.getState().equals(LifecycleState.STARTED)) {
             joinCluster();
         }
+    }
+
+    @Override
+    public void memberAttributeChanged(final MemberAttributeEvent event) {
+        logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
+        isSenior = isSeniorClusterMember();
+        final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
+        clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(event.getMember()),
+                new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
     }
 
     boolean isClusterMember() {

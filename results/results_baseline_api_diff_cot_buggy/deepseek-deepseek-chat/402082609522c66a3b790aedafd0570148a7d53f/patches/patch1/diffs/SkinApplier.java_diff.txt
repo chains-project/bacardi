@@ -1,0 +1,33 @@
+3c3,4
+< import com.flowpowered.math.vector.Vector3d;
+---
+> import org.spongepowered.api.util.Identifiable;
+> import org.spongepowered.api.command.source.CommandSubject;
+12,13d12
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.data.key.Keys;
+18a18,20
+> import org.spongepowered.api.data.manipulator.mutable.entity.VisibilityData;
+> import org.spongepowered.api.util.Transform;
+> import org.spongepowered.api.util.Axis;
+23c25
+<     private final CommandSource invoker;
+---
+>     private final CommandSubject invoker;
+26c28
+<     public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
+---
+>     public SkinApplier(ChangeSkinSponge plugin, CommandSubject invoker, Player receiver, SkinModel targetSkin
+84,85c86,90
+<         receiver.offer(Keys.VANISH, true);
+<         receiver.offer(Keys.VANISH, false);
+---
+>         VisibilityData visibility = receiver.getOrCreate(VisibilityData.class).get();
+>         visibility.vanish().set(true);
+>         receiver.offer(visibility);
+>         visibility.vanish().set(false);
+>         receiver.offer(visibility);
+99c104
+<         Vector3d rotation = receiver.getRotation();
+---
+>         Transform rotation = receiver.getTransform();

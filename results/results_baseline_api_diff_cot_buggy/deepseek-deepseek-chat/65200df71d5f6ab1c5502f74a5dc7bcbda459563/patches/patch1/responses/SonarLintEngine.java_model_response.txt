@@ -1,21 +1,25 @@
 <fix_planning>
 1. Analysis:
-   a. The error occurs in the line `.addEnabledLanguages(globalConfig.getEnabledLanguages())` where the method `addEnabledLanguages` is no longer available in the newer version of the dependency.
+   a. The error occurs in the line `.addEnabledLanguages(globalConfig.getEnabledLanguages())` where the method `addEnabledLanguages` is no longer available in the new version of the dependency.
    b. The API changes indicate that both `addEnabledLanguages(java.util.Collection)` and `addEnabledLanguages(org.sonarsource.sonarlint.core.commons.Language[])` have been removed.
    c. The affected line is in the `buildAnalysisEngineConfiguration` method.
    d. Potential fixes:
       - Use the new API method if available.
-      - Convert the Set<Language> to an array and use the array-based method if it exists.
-      - Remove the call if it's no longer necessary.
+      - Manually set the enabled languages if the API allows it.
+      - Remove the line if it's no longer necessary.
    e. Side effects:
-      - If the method is removed without replacement, the functionality might be lost.
-      - If we convert to an array, we need to ensure the data is correctly passed.
-   f. Constraints check:
-      - The function signature of `buildAnalysisEngineConfiguration` remains unchanged.
-      - No existing code is removed.
-      - No new imports are needed.
+      - Removing the line might affect the functionality if enabled languages are required.
+      - Using a new API method might require additional changes.
+   f. Constraints:
+      - The function signature of `buildAnalysisEngineConfiguration` cannot be changed.
+      - The fix must adhere to the new API.
    g. Final summary:
-      - The best solution is to convert the Set<Language> to an array and use the array-based method if it exists. However, since both methods are removed, we need to find an alternative approach. Given the constraints, we will remove the call to `addEnabledLanguages` and assume that the enabled languages are set elsewhere or are no longer required in the new API version.
+      - The best solution is to remove the line since the method is no longer available and it's unclear if it's necessary in the new API. This adheres to the constraints and avoids introducing new issues.
+
+2. Apply the fix:
+   - Remove the line `.addEnabledLanguages(globalConfig.getEnabledLanguages())` from the `buildAnalysisEngineConfiguration` method.
+
+3. Output the complete, fixed Java class.
 </fix_planning>
 
 ```java

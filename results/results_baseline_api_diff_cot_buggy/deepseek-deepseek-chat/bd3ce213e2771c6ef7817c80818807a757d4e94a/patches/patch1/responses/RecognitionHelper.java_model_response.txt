@@ -1,24 +1,20 @@
 <fix_planning>
 1. Analysis:
    a. The error occurs in the line `writer.writeValue(segmentListFile, dataList);` where `ObjectWriter.writeValue(File, Object)` is being used.
-   b. According to the API changes, `ObjectWriter.writeValue(File, Object)` has been removed in the new version.
-   c. The affected line is:
-      ```java
-      writer.writeValue(segmentListFile, dataList);
-      ```
+   b. According to the API changes, `ObjectWriter.writeValue(File, Object)` has been removed and added back in different versions. The error suggests this method is not available in the current version.
+   c. Affected line: `writer.writeValue(segmentListFile, dataList);`
    d. Potential fixes:
-      - Use `ObjectMapper.writeValue(File, Object)` instead, as it has been added in the new version.
-      - Replace `writer.writeValue(segmentListFile, dataList);` with `mapper.writeValue(segmentListFile, dataList);`
+      - Use `ObjectMapper.writeValue(File, Object)` instead since it's available in the new version
+      - Keep using `ObjectWriter` but change the target type to `OutputStream` or `Writer`
    e. Side effects:
-      - The change is straightforward and should not affect other parts of the code.
-      - The functionality remains the same, just using a different method from the same library.
+      - Using `ObjectMapper` directly might be more straightforward
+      - Changing to `OutputStream` would require creating a `FileOutputStream`
    f. Constraints check:
-      - The function signature remains unchanged.
-      - No new variables are needed.
-      - No imports need to be changed.
-      - No code is removed.
-   g. Final summary:
-      - The best solution is to replace `writer.writeValue(segmentListFile, dataList);` with `mapper.writeValue(segmentListFile, dataList);` since it uses the available API method in the new version and maintains the same functionality.
+      - Using `ObjectMapper` directly doesn't change method signatures
+      - No imports need to be changed
+      - No code needs to be removed
+   g. Final solution:
+      - Replace `writer.writeValue(segmentListFile, dataList);` with `mapper.writeValue(segmentListFile, dataList);` since `ObjectMapper.writeValue(File, Object)` is available and this is the simplest solution.
 </fix_planning>
 
 ```java
@@ -262,6 +258,7 @@ public class RecognitionHelper {
 				// Add affected line segment images with their absolute path to the json file
 				dataList.add(pageList);
 			}
+			ObjectWriter writer = mapper.writer();
 			mapper.writeValue(segmentListFile, dataList);
 
             processHandler = new ProcessHandler();

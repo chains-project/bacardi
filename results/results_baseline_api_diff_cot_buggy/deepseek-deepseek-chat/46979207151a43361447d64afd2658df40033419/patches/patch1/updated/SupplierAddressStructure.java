@@ -35,7 +35,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PostalCode"/&gt;
  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Region" minOccurs="0"/&gt;
  *         &lt;element name="Country" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierCountry"/&gt;
- *       &lt;/sequence&gt;
+ *       &lt;sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
@@ -148,7 +148,7 @@ public class SupplierAddressStructure implements ToString2
      * 
      * @return
      *     possible object is
-    极     {@link String }
+     *     {@link String }
      *     
      */
     public String getCity() {
@@ -175,7 +175,7 @@ public class SupplierAddressStructure implements ToString2
      *     {@link String }
      *     
      */
-   极 public String getPostalCode() {
+    public String getPostalCode() {
         return postalCode;
     }
 
@@ -241,7 +241,7 @@ public class SupplierAddressStructure implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
+        final ToStringStrategy2 strategy = new org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -250,7 +250,7 @@ public class SupplierAddressStructure implements ToString2
     @Override
     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         strategy.appendStart(locator, this, buffer);
-        appendFields(l极ocator, buffer, strategy);
+        appendFields(locator, buffer, strategy);
         strategy.appendEnd(locator, this, buffer);
         return buffer;
     }

@@ -27,10 +27,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.IterableOf;
 import org.cactoos.iterable.Joined;
 import org.cactoos.iterable.Mapped;
@@ -201,14 +198,11 @@ public interface Wallet {
             try {
                 return Long.parseUnsignedLong(
                     new ListOf<>(
-                        Arrays.asList(
-                            new TextOf(this.path).asString().split("\n")
-                        )
+                        new TextOf(this.path).asString().split("\n")
                     ).get(2),
-                    // @checkstyle MagicNumber (1 line)
                     16
                 );
-            } catch (final Exception e) {
+            } catch (NumberFormatException e) {
                 throw new IOException(e);
             }
         }
@@ -221,15 +215,6 @@ public interface Wallet {
             }
         }
 
-        // @todo #16:30min Following transactions should be ignored according
-        //  to the whitepaper:
-        //  a) If the transaction is negative and its signature is not valid,
-        //  it is ignored;
-        //  b) If the transaction makes the balance of the wallet negative,
-        //  it is ignored;
-        //  c) If the transaction is positive and it’s absent in the paying
-        //  wallet (which exists at the node), it is ignored; If the paying
-        //  wallet doesn’t exist at the node, the transaction is ignored;
         @Override
         public Wallet merge(final Wallet other) throws IOException {
             if (other.id() != this.id()) {
@@ -244,18 +229,20 @@ public interface Wallet {
                 );
             }
             final Iterable<Transaction> ledger = this.ledger();
-            final Iterable<Transaction> candidates = StreamSupport.stream(other.ledger().spliterator(), false)
-                .filter(incoming -> StreamSupport.stream(ledger.spliterator(), false)
-                    .noneMatch(origin -> new Or(
+            final Iterable<Transaction> candidates = new Filtered<>(
+                incoming -> new Filtered<>(
+                    origin -> new Or(
                         () -> incoming.equals(origin),
                         () -> incoming.id() == origin.id()
                             && incoming.bnf().equals(origin.bnf()),
                         () -> incoming.id() == origin.id()
                             && incoming.amount() < 0L,
                         () -> incoming.prefix().equals(origin.prefix())
-                    ).value())
-                )
-                .collect(Collectors.toList());
+                    ).value(),
+                    ledger
+                ).isEmpty(),
+                other.ledger()
+            );
             return new Wallet.Fake(
                 this.id(),
                 new Joined<Transaction>(ledger, candidates)
@@ -265,22 +252,16 @@ public interface Wallet {
         @Override
         public Iterable<Transaction> ledger() {
             return new Mapped<>(
-                txt -> new RtTransaction(txt.asString()),
+                txt -> new RtTransaction(txt),
                 new Skipped<>(
                     new ListOf<>(
-                        Arrays.asList(
-                            new TextOf(this.path).asString().split("\\n")
-                        )
+                        new TextOf(this.path).asString().split("\\n")
                     ),
-                    // @checkstyle MagicNumberCheck (1 line)
                     5
                 )
             );
         }
 
-        // @todo #54:30min Implement key method. This should return the
-        //  public RSA key of the wallet owner in Base64. Also add a unit test
-        //  to replace WalletTest.keyIsNotYetImplemented().
         @Override
         public String key() {
             throw new UnsupportedOperationException(

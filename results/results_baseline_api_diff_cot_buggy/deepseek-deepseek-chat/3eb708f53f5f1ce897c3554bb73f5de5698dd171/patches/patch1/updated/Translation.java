@@ -34,10 +34,10 @@ import java.util.Objects;
 public class Translation implements Serializable {
 
   private static final long serialVersionUID = 2556017420486245581L;
-  static final Function<Translation, Translation> FROM_PB_FUNCTION =
-      new Function<Translation, Translation>() {
+  static final Function<com.google.api.services.translate.v3.model.Translation, Translation> FROM_PB_FUNCTION =
+      new Function<com.google.api.services.translate.v3.model.Translation, Translation>() {
         @Override
-        public Translation apply(Translation translationPb) {
+        public Translation apply(com.google.api.services.translate.v3.model.Translation translationPb) {
           return Translation.fromPb(translationPb);
         }
       };
@@ -103,10 +103,10 @@ public class Translation implements Serializable {
         && Objects.equals(sourceLanguage, other.sourceLanguage);
   }
 
-  static Translation fromPb(Translation translationPb) {
+  static Translation fromPb(com.google.api.services.translate.v3.model.Translation translationPb) {
     return new Translation(
         translationPb.getTranslatedText(),
-        translationPb.getDetectedSourceLanguage(),
+        translationPb.getDetectedLanguage(),
         translationPb.getModel());
   }
 }

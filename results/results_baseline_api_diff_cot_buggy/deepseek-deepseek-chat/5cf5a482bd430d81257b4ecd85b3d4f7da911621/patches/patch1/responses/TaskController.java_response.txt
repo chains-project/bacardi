@@ -12,7 +12,6 @@ import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.mvc.View;
-import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.security.CsrfProtected;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -40,9 +39,6 @@ public class TaskController {
     private Models models;
 
     @Inject
-    private BindingResult validationResult;
-
-    @Inject
     TaskRepository taskRepository;
 
     @Inject
@@ -62,7 +58,6 @@ public class TaskController {
         models.put("todotasks", todotasks);
         models.put("doingtasks", doingtasks);
         models.put("donetasks", donetasks);
-
     }
 
     @GET
@@ -88,18 +83,6 @@ public class TaskController {
     @CsrfProtected
     public Response save(@Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "saving new task @{0}", form);
-
-        if (validationResult.isFailed()) {
-            AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            validationResult.getAllErrors()
-                    .stream()
-                    .forEach((ParamError t) -> {
-                        alert.addError(t.getParamName(), "", t.getMessage());
-                    });
-            models.put("errors", alert);
-            models.put("task", form);
-            return Response.status(BAD_REQUEST).entity("add.xhtml").build();
-        }
 
         Task task = new Task();
         task.setName(form.getName());
@@ -132,18 +115,6 @@ public class TaskController {
     @CsrfProtected
     public Response update(@PathParam(value = "id") Long id, @Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "updating existed task@id:{0}, form data:{1}", new Object[]{id, form});
-
-        if (validationResult.isFailed()) {
-            AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            validationResult.getAllErrors()
-                    .stream()
-                    .forEach((ParamError t) -> {
-                        alert.addError(t.getParamName(), "", t.getMessage());
-                    });
-            models.put("errors", alert);
-            models.put("task", form);
-            return Response.status(BAD_REQUEST).entity("edit.xhtml").build();
-        }
 
         Task task = taskRepository.findById(id);
 

@@ -1,24 +1,23 @@
 <fix_planning>
 1. Analysis:
-   a. The error occurs because the `ch.qos.logback.classic.Logger` class has been removed in the new version of the dependency.
-   b. The specific API change causing the issue is the removal of the `ch.qos.logback.classic.Logger` class.
-   c. Affected line of code:
-      ```java
-      Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
-      logger.setLevel(Level.INFO);
-      ```
+   a. The error occurs because the `ch.qos.logback.classic.Logger` interface has been removed in the new version of the dependency.
+   b. The specific API change causing the issue is the removal of the `Logger` interface from `ch.qos.logback.classic`.
+   c. Affected line: `logger.setLevel(Level.INFO);`
    d. Potential fixes:
       - Use `org.slf4j.Logger` instead of `ch.qos.logback.classic.Logger`
-      - Remove the logging level setting since it's not essential for the test
+      - Modify the logging setup to use SLF4J's API directly
    e. Side effects:
-      - Removing the logging level setting might affect test output visibility
-      - Using `org.slf4j.Logger` might require different logging configuration
+      - The change to SLF4J's API might affect how logging is configured and handled
+      - The logging level setting might behave differently
    f. Constraints check:
-      - The fix adheres to all constraints
-      - No function signatures are changed
-      - No code is removed except for the problematic line
+      - The proposed change adheres to all constraints
+      - No method signatures are changed
+      - No existing code is removed
+      - The fix uses the correct package from the newer dependency version
    g. Final summary:
-      The best solution is to use `org.slf4j.Logger` and remove the logging level setting since it's not critical for the test functionality and avoids dependency on removed classes.
+      - The best solution is to use `org.slf4j.Logger` instead of the removed `ch.qos.logback.classic.Logger`
+      - This maintains the same functionality while being compatible with the new dependency version
+      - The change is minimal and focused on the specific issue
 </fix_planning>
 
 ```java
@@ -65,7 +64,7 @@ import java.util.Set;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers nullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.atMostOnce;
@@ -133,6 +132,7 @@ class EventMessageHandlerTest {
         );
 
         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
+        logger.setLevel(Level.INFO);
         logger.addAppender(mockLogAppender);
     }
 
@@ -144,7 +144,7 @@ class EventMessageHandlerTest {
                 .withParentResourceExternalId("456")
                 .build();
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+        when(mockLedgerService.getTransaction(transaction.getTransactionId()))).thenReturn(Optional.of(transaction));
         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
 
         var mockQueueMessage = mock(QueueMessage.class);
@@ -333,7 +333,7 @@ class EventMessageHandlerTest {
     }
 
     @Test
-    void shouldNotCallNotificationServiceWhenTransactionDoesNotExist() throws QueueException {
+    void shouldNotCallNotificationServiceWhenTransactionDoesNotExist) throws QueueException {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())

@@ -1,37 +1,39 @@
 <fix_planning>
 1. **Analysis of the Problem:**
-   - The class `PublishMetadata` has been removed, causing compilation errors wherever it is referenced.
-   - The `PartitionPublisherFactory` interface has been removed, causing issues with the `setPublisherFactory` method.
-   - The `setContext` method has been removed from `SinglePartitionPublisherBuilder`.
+   - The `PartitionPublisherFactory` interface has been removed, causing the `setPublisherFactory` method to fail.
+   - The `PublishMetadata` class has been removed, leading to compilation errors where it is referenced.
+   - The `setContext` method has been removed from various builder classes, including `SinglePartitionPublisherBuilder`.
 
-2. **Affected Lines:**
+2. **Specific API Changes Causing the Issue:**
+   - Removal of `PartitionPublisherFactory` interface.
+   - Removal of `PublishMetadata` class.
+   - Removal of `setContext` method in builder classes.
+
+3. **Affected Lines of Code:**
+   - `builder.setPublisherFactory(...)`
+   - `public Publisher<PublishMetadata> newPublisher(Map<String, String> params)`
    - `import com.google.cloud.pubsublite.PublishMetadata;`
-   - `public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {`
-   - `builder.setPublisherFactory(`
-   - `SinglePartitionPublisherBuilder.newBuilder().setContext(PubsubContext.of(FRAMEWORK))`
 
-3. **Proposed Fixes:**
-   - Remove the import of `PublishMetadata` since it no longer exists.
-   - Replace `PublishMetadata` with a suitable alternative, such as `MessageMetadata` if available, or remove the generic type if not needed.
-   - Replace the `setPublisherFactory` method with a compatible alternative, such as directly setting the publisher.
-   - Remove the `setContext` call from `SinglePartitionPublisherBuilder`.
+4. **Proposed Fixes:**
+   - Replace `PublishMetadata` with a suitable alternative if available, or remove it if not needed.
+   - Update the `setPublisherFactory` method to use a new approach or alternative API.
+   - Remove the `setContext` method call from the `SinglePartitionPublisherBuilder`.
 
-4. **Potential Side Effects:**
-   - Removing the generic type might affect type safety.
-   - Changing the publisher factory setup might affect the publisher's behavior.
+5. **Potential Side Effects:**
+   - The functionality of the publisher might change if `PublishMetadata` is removed or replaced.
+   - The removal of `setContext` might affect the context handling in the publisher.
 
-5. **Adherence to Constraints:**
-   - The function signature remains unchanged.
+6. **Adherence to Constraints:**
+   - The function signature of `newPublisher` remains unchanged.
    - No existing code is removed unless it directly causes a compilation error.
    - The fix addresses the missing imports and API changes.
 
-6. **Final Summary:**
-   - The best solution is to remove the `PublishMetadata` references and adjust the publisher setup to match the new API. This ensures compatibility with the updated dependency while maintaining the functionality of the code.
+7. **Final Summary of the Chosen Fix:**
+   - Remove the `PublishMetadata` class reference and update the `Publisher` type to use a different metadata class if available.
+   - Replace the `setPublisherFactory` method with a new approach that does not rely on the removed `PartitionPublisherFactory` interface.
+   - Remove the `setContext` method call from the `SinglePartitionPublisherBuilder`.
 
-**Chosen Fix:**
-- Remove the `PublishMetadata` import and references.
-- Adjust the `setPublisherFactory` method to use a compatible approach.
-- Remove the `setContext` call from `SinglePartitionPublisherBuilder`.
+The chosen fix is the best solution because it directly addresses the API changes while adhering to the constraints and maintaining the functionality of the code.
 </fix_planning>
 
 ```java
@@ -81,12 +83,10 @@ class PublisherFactoryImpl implements PublisherFactory {
             .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
             .build();
     builder.setTopic(topic);
-    builder.setPublisherFactory(
-        partition ->
-            SinglePartitionPublisherBuilder.newBuilder()
-                .setTopic(topic)
-                .setPartition(partition)
-                .build());
+    builder.setPublisher(
+        SinglePartitionPublisherBuilder.newBuilder()
+            .setTopic(topic)
+            .build());
     return builder.build();
   }
 }

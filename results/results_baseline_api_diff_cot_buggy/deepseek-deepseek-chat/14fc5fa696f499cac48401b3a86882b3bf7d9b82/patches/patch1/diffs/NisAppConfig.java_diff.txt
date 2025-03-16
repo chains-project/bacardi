@@ -1,21 +1,19 @@
-108,112c108,113
+108,113c108,114
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
 <                 flyway.setLocations(prop.getProperty("flyway.locations"));
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+<                 return flyway;
 ---
->                 final Flyway flyway = Flyway.configure()
->                         .dataSource(this.dataSource())
->                         .classLoader(NisAppConfig.class.getClassLoader())
->                         .locations(prop.getProperty("flyway.locations").split(","))
->                         .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
->                         .load();
-250c251
-<                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
+>                 final org.flywaydb.core.api.configuration.ClassicConfiguration configuration = Flyway.configure()
+>                                 .dataSource(this.dataSource())
+>                                 .classLoader(NisAppConfig.class.getClassLoader())
+>                                 .locations(prop.getProperty("flyway.locations"))
+>                                 .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+> 
+>                 return new Flyway(configuration);
+227c228
+<                 return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
 ---
->                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions);
-274c275
-<         private static org.nem.nis.pox.poi.PoiOptions getBlockDependentPoiOptions(final BlockHeight height) {
----
->         private static org.nem.nis.pox.poi.PoiOptions getBlockDependentPoiOptions final BlockHeight height) {
+>                 return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());

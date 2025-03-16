@@ -19,8 +19,6 @@ package org.jivesoftware.openfire.plugin.util.cache;
 import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.MapConfig;
-import com.hazelcast.config.EvictionConfig;
-import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.MemberAttributeConfig;
 import com.hazelcast.config.MemcacheProtocolConfig;
 import com.hazelcast.config.NetworkConfig;
@@ -94,7 +92,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         .setDynamic(true)
         .setPlugin(HazelcastPlugin.PLUGIN_NAME)
         .build();
-    private static final SystemProperty<Duration> CLUSTER_STARTUP_RETRY_TIME = SystemProperty.Builder.ofType(Duration.class)
+    private static final SystemProperty<Duration] CLUSTER_STARTUP_RETRY_TIME = SystemProperty.Builder.ofType(Duration.class)
         .setKey("hazelcast.startup.retry.seconds")
         .setDefaultValue(Duration.ofSeconds(10))
         .setChronoUnit(ChronoUnit.SECONDS)
@@ -144,7 +142,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
     /**
      * Storage for cache statistics
      */
-    private static Map<String, Map<String, long[]]] cacheStats;
+    private static Map<String, Map<String, long[]>> cacheStats;
 
     private static HazelcastInstance hazelcast = null;
     private static Cluster cluster = null;
@@ -269,7 +267,6 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
             try {
                 Thread.sleep(250);
             } catch (final InterruptedException e) {
-                // Ignore
             }
         }
         if (state == State.stopped) {
@@ -286,10 +283,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         if (staticConfig == null) {
             final MapConfig dynamicConfig = new MapConfig(name);
             dynamicConfig.setTimeToLiveSeconds(hazelcastLifetimeInSeconds);
-            EvictionConfig evictionConfig = new EvictionConfig()
-                .setSize(hazelcastMaxCacheSizeInMegaBytes)
-                .setEvictionPolicy(EvictionPolicy.LRU);
-            dynamicConfig.setEvictionConfig(evictionConfig);
+            dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
             logger.debug("Creating dynamic map config for cache={}, dynamicConfig={}", name, dynamicConfig);
             hazelcast.getConfig().addMapConfig(dynamicConfig);
         } else {
@@ -379,6 +373,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
             }
         }
 
+
         if (!members.isEmpty()) {
             // Asynchronously execute the task on the other cluster members
             logger.debug("Executing asynchronous MultiTask: " + task.getClass().getName());
@@ -430,7 +425,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
                 members.add(member);
             }
         }
-        final Collection<T> result = new ArrayList<>();
+        final Collection<T] result = new ArrayList<>();
         if (!members.isEmpty()) {
             // Asynchronously execute the task on the other cluster members
             try {
@@ -656,7 +651,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
     }
 
     public static NodeID getNodeID(final Member member) {
-        return NodeID.getInstance(member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).toString().getBytes(StandardCharsets.UTF_8));
+        return NodeID.getInstance(member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
     }
 
     static void fireLeftClusterAndWaitToComplete(final Duration timeout) {
@@ -696,3 +691,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         } catch (final Exception e) {
             logger.error("Unexpected exception waiting for clustering to shut down", e);
         } finally
+            ClusterManager.removeListener(clusterEventListener);
+        }
+    }
+}

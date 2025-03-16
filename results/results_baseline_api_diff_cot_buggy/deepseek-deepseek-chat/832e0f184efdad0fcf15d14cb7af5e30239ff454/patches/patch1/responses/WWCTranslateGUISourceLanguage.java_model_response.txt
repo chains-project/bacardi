@@ -7,17 +7,17 @@
       - Line 76: `currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);`
       - Line 122: `skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);`
       - Line 125: `skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);`
-   d. Proposed fixes:
-      - Replace `parseEnchantment()` with `getEnchant()` which is the new method in the updated API
-   e. Potential side effects:
-      - The new method might return a different type or have different behavior, but since it's the official replacement, it should work as intended
+   d. Potential fixes:
+      - Replace `parseEnchantment()` with `getEnchant()` which is the new method in the updated API.
+   e. Side effects:
+      - The new method `getEnchant()` should return the same type of object as `parseEnchantment()` did, so no functionality should be affected.
    f. Constraints check:
-      - Function signatures remain unchanged
-      - No imports need to be added
-      - No code is removed
-      - All code is included in the final output
+      - The fix adheres to all constraints: no method signatures are changed, no code is removed, and the fix is minimal.
    g. Final summary:
-      - The best solution is to replace `parseEnchantment()` with `getEnchant()` as it's the direct replacement in the new API version and maintains the same functionality
+      - The best solution is to replace `parseEnchantment()` with `getEnchant()` as it's the direct replacement in the new API version and maintains the same functionality.
+
+2. Fix application:
+   - Replace all instances of `parseEnchantment()` with `getEnchant()` in the affected lines.
 </fix_planning>
 
 ```java
@@ -133,7 +133,7 @@ public class WWCTranslateGUISourceLanguage implements InventoryProvider {
 			/* Bottom Middle Option: Auto-detect Source Language */
 			/* Disabled for Amazon Translate */
 			if (!main.getTranslatorName().equalsIgnoreCase("Amazon Translate")) {
-				ItemStack skipSourceButton = XMaterial.BOOKSHELF.parseItem();
+				ItemStack skipSourceButton = XMaterial.BOOKShelf.parseItem();
 				ItemMeta skipSourceMeta = skipSourceButton.getItemMeta();
 				skipSourceMeta.setDisplayName(ChatColor.YELLOW
 						+ CommonDefinitions.getMessage("wwctGUIAutoDetectButton"));

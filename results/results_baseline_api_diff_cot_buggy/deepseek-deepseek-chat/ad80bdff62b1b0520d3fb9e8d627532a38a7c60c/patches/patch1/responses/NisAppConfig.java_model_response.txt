@@ -1,46 +1,48 @@
 <fix_planning>
 1. Analysis:
-   a. Relevant API changes:
+   a. Relevant code:
+      ```java
+      final org.flywaydb.core.Flyway flyway = new Flyway();
+      flyway.setDataSource(this.dataSource());
+      flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+      flyway.setLocations(prop.getProperty("flyway.locations"));
+      flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+      ```
+   b. API changes causing issues:
       - Flyway() constructor removed
       - setDataSource(DataSource) removed
       - setClassLoader(ClassLoader) removed
       - setLocations(String) removed
-      - setValidateOnMigrate(Boolean) removed
-      - New configuration-based methods added in ClassicConfiguration
+      - setValidateOnMigrate(boolean) removed
+      - New configuration-based approach required
 
-   b. Specific API changes causing issues:
-      - Direct Flyway configuration methods replaced with configuration-based approach
-      - Need to use ClassicConfiguration to configure Flyway
-
-   c. Affected lines:
-      - Line 108: final org.flywaydb.core.Flyway flyway = new Flyway();
-      - Line 109: flyway.setDataSource(this.dataSource());
-      - Line 110: flyway.setClassLoader(NisAppConfig.class.getClassLoader());
-      - Line 111: flyway.setLocations(prop.getProperty("flyway.locations"));
-      - Line 112: flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+   c. Affected lines: 108-112
 
    d. Proposed fixes:
-      - Create ClassicConfiguration object
-      - Use configuration object to set properties
-      - Create Flyway instance with configuration
-      - Convert locations string to array
-      - Use proper Boolean value for validateOnMigrate
+      - Use ClassicConfiguration to configure Flyway
+      - Create configuration object first
+      - Set properties on configuration
+      - Pass configuration to Flyway constructor
 
    e. Potential side effects:
-      - Configuration approach is more verbose but more flexible
-      - No functional changes expected
-      - Better alignment with new Flyway API
+      - Need to ensure all configuration properties are properly set
+      - Location format might need adjustment
+      - Validation behavior should remain consistent
 
    f. Constraints check:
       - Method signature remains unchanged
       - No existing code removed
-      - All imports remain valid
-      - New variables introduced for clarity
+      - Only client code modified
+      - All required imports included
 
-   g. Final solution:
-      - Use ClassicConfiguration to configure Flyway properties
-      - Create Flyway instance with configuration
-      - Maintain same functionality with updated API
+   g. Final summary:
+      The best solution is to use the new configuration-based approach by creating a ClassicConfiguration object, setting all required properties on it, and then passing it to the Flyway constructor. This adheres to the new API while maintaining the same functionality.
+
+2. Fix implementation:
+   - Import org.flywaydb.core.api.configuration.ClassicConfiguration
+   - Create ClassicConfiguration object
+   - Set properties on configuration
+   - Pass configuration to Flyway constructor
 </fix_planning>
 
 ```java
@@ -154,7 +156,7 @@ public class NisAppConfig {
 		final org.flywaydb.core.api.configuration.ClassicConfiguration configuration = new org.flywaydb.core.api.configuration.ClassicConfiguration();
 		configuration.setDataSource(this.dataSource());
 		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
-		configuration.setLocations(org.flywaydb.core.api.Location.parse(prop.getProperty("flyway.locations")));
+		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
 		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 		return new Flyway(configuration);
 	}
@@ -270,7 +272,7 @@ public class NisAppConfig {
 
 	@Bean
 	public SynchronizedPoxFacade poxFacade() {
-		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
+		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
 	}
 
 	@Bean

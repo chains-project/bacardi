@@ -214,8 +214,8 @@ class ModelRepresenter extends Representer {
   /*
    * Change the default order. Important data goes first.
    */
-  protected Set<Property> getProperties(Class<? extends Object> type)
-          throws IntrospectionException {
+  @Override
+  protected Set<Property> getProperties(Class<? extends Object> type) {
     if (type.isAssignableFrom(Model.class)) {
       return sortTypeWithOrder(type, ORDER_MODEL);
     } else if (type.isAssignableFrom(Developer.class)) {
@@ -231,12 +231,15 @@ class ModelRepresenter extends Representer {
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
-          throws IntrospectionException {
-      Set<Property> standard = super.getProperties(type);
-      Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
-      sorted.addAll(standard);
-      return sorted;
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+      try {
+          Set<Property> standard = super.getProperties(type);
+          Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
+          sorted.addAll(standard);
+          return sorted;
+      } catch (Exception e) {
+          throw new RuntimeException("Failed to get properties for type: " + type, e);
+      }
   }
 
   private class ModelPropertyComparator implements Comparator<Property> {

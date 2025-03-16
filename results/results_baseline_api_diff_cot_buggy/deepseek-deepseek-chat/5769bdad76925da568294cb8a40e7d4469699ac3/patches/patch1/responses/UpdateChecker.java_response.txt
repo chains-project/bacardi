@@ -160,7 +160,7 @@ public final class UpdateChecker {
             try {
                 doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mavenMetadataURL);
             } catch (FileNotFoundException x) {
-                continue; // not even defined in this repo, fine
+                continue;
             }
             Element versionsE = theElement(doc, "versions", mavenMetadataURL);
             NodeList versionEs = versionsE.getElementsByTagName("version");

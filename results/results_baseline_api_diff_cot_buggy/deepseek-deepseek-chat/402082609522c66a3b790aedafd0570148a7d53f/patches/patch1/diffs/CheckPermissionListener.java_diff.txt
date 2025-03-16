@@ -1,0 +1,30 @@
+17,20c17,20
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelBuf;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.network.RawDataListener;
+---
+> import org.spongepowered.api.network.channel.raw.play.RawPlayChannelListener;
+> import org.spongepowered.api.network.channel.ChannelBuf;
+> import org.spongepowered.api.network.channel.ChannelManager;
+> import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
+26c26
+< public class CheckPermissionListener implements RawDataListener {
+---
+> public class CheckPermissionListener implements RawPlayChannelListener {
+29c29
+<     private final RawDataChannel permissionsResultChannel;
+---
+>     private final RawPlayDataChannel permissionsResultChannel;
+32c32
+<     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+---
+>     CheckPermissionListener(ChangeSkinSponge plugin, ChannelManager channelManager) {
+36c36
+<         permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
+---
+>         permissionsResultChannel = channelManager.play().raw().getOrCreate(plugin, combinedName);
+39d38
+<     @Override
+41d39
+< 

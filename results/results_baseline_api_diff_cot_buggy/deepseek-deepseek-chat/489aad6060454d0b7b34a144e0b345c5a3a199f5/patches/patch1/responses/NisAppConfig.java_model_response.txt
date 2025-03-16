@@ -1,42 +1,46 @@
 <fix_planning>
 1. Analysis:
-   a. Relevant API changes:
-      - Constructor `Flyway()` removed, new constructor `Flyway(Configuration)` added
-      - Methods `setLocations(String[])`, `setDataSource(DataSource)`, `setValidateOnMigrate(boolean)`, and `setClassLoader(ClassLoader)` removed
-      - New configuration methods added in `ClassicConfiguration` and `FlywayModel` classes
+   a. Relevant code:
+      ```java
+      final org.flywaydb.core.Flyway flyway = new Flyway();
+      flyway.setDataSource(this.dataSource());
+      flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+      flyway.setLocations(prop.getProperty("flyway.locations"));
+      flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+      ```
+   b. API changes causing issues:
+      - Flyway() constructor removed
+      - setDataSource(DataSource) removed
+      - setClassLoader(ClassLoader) removed
+      - setLocations(String) removed
+      - setValidateOnMigrate(boolean) removed
+      - New configuration-based approach required
 
-   b. Specific API changes causing issues:
-      - Direct instantiation of Flyway with no-arg constructor
-      - Direct method calls to removed methods
-
-   c. Affected lines:
-      - Line 108: `final org.flywaydb.core.Flyway flyway = new Flyway();`
-      - Line 109: `flyway.setDataSource(this.dataSource());`
-      - Line 110: `flyway.setClassLoader(NisAppConfig.class.getClassLoader());`
-      - Line 111: `flyway.setLocations(prop.getProperty("flyway.locations"));`
-      - Line 112: `flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));`
+   c. Affected lines: 108-112
 
    d. Proposed fixes:
-      - Use `Flyway.configure()` to create a configuration object
-      - Set properties through the configuration object
+      - Use Flyway.configure() to create a configuration
+      - Set properties through the configuration
       - Create Flyway instance with configuration
+      - Convert locations string to array
+      - Use new API methods
 
    e. Potential side effects:
-      - None expected as the new API provides equivalent functionality
-      - Configuration approach is more flexible and future-proof
+      - Configuration approach might behave differently
+      - Location parsing needs to handle multiple locations
+      - Validation behavior might change slightly
 
    f. Constraints check:
       - Function signatures remain unchanged
       - No existing code removed
-      - No unnecessary imports added
+      - Only client code modified
       - All constraints satisfied
 
-   g. Final summary:
-      The best solution is to use the new configuration-based approach, which is the recommended way in the updated Flyway API. This maintains functionality while adhering to the new API design.
-
-2. Fix implementation:
-   - Replace direct Flyway instantiation with configuration-based approach
-   - Use `Flyway.configure()` to create and configure the instance
+   g. Final solution:
+      - Use new configuration-based approach
+      - Convert locations string to array
+      - Maintain same functionality with new API
+      - Best solution as it follows new API design
 </fix_planning>
 
 ```java
@@ -150,7 +154,7 @@ public class NisAppConfig {
 		final Flyway flyway = Flyway.configure()
 			.dataSource(this.dataSource())
 			.classLoader(NisAppConfig.class.getClassLoader())
-			.locations(prop.getProperty("flyway.locations"))
+			.locations(prop.getProperty("flyway.locations").split(","))
 			.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
 			.load();
 		return flyway;
@@ -267,7 +271,7 @@ public class NisAppConfig {
 
 	@Bean
 	public SynchronizedPoxFacade poxFacade() {
-		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
+		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
 	}
 
 	@Bean

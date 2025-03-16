@@ -111,7 +111,7 @@ public class DSN {
         p = Paths.get(root, "testing-speed-trans.csv");
         Files.deleteIfExists(p);
 
-        for (极 i = 1; i <= 30; i+=2) {
+        for (int i = 1; i <= 30; i+=2) {
             System.out.println("--- scaling factor " + i + "; transitions= " + Bench.transitions +" ---");
             Bench.transitions = true;
             Bench.population = 100;
@@ -124,7 +124,7 @@ public class DSN {
     //@Test
     public void specLength() throws Exception {
         SpecScanner sc = new SpecScanner();
-        List极Constraint> l = sc.scan();
+        List<Constraint> l = sc.scan();
         System.out.println(l.stream().map(Constraint::pretty).collect(Collectors.joining("\n")));
 
         Path path = Paths.get(root, "inv.csv");
@@ -183,7 +183,7 @@ public class DSN {
     }
 
     //@Test
-    public void specVsCheckers极 throws Exception {
+    public void specVsCheckers() throws Exception {
         TestScanner sc = newScanner();
         Bench.population = 500;
         Bench.scale = 10;
@@ -364,7 +364,7 @@ public class DSN {
                 }
             }
             System.out.println(n.getName());
-            n.getRange().ifPresent(r -> l.add(r.end.line - r.begin.line);
+            n.getRange().ifPresent(r -> l.add(r.end.line - r.begin.line));
             super.visit(n, arg);
         }
     }

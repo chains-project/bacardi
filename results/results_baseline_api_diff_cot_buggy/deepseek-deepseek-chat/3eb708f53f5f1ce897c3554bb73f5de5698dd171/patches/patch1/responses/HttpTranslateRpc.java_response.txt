@@ -65,58 +65,50 @@ public class HttpTranslateRpc implements TranslateRpc {
     return genericUrl;
   }
 
-  @Override
-  public List<List<DetectLanguageResponse>> detect(List<String> texts) {
+  public List<List<Map<String, String>>> detect(List<String> texts) {
     try {
-      List<List<DetectLanguageResponse>> detections =
-          translate.projects().locations().detectLanguage("projects/" + options.getProjectId(), texts)
-              .setKey(options.getApiKey()).execute().getDetections();
-      return detections != null ? detections : ImmutableList.<List<DetectLanguageResponse>>of();
+      DetectLanguageResponse response = translate.projects().locations()
+          .detectLanguage("projects/" + options.getProjectId(), texts)
+          .execute();
+      return response.getDetections() != null ? response.getDetections() : ImmutableList.of();
     } catch (IOException ex) {
       throw translate(ex);
     }
   }
 
-  @Override
-  public List<SupportedLanguages> listSupportedLanguages(Map<Option, ?> optionMap) {
+  public List<Map<String, String>> listSupportedLanguages(Map<Option, ?> optionMap) {
     try {
-      List<SupportedLanguages> languages =
-          translate.projects().locations().getSupportedLanguages("projects/" + options.getProjectId())
-              .setKey(options.getApiKey())
-              .setLanguageCode(
-                  firstNonNull(
-                      Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
-              .execute()
-              .getLanguages();
-      return languages != null ? languages : ImmutableList.<SupportedLanguages>of();
+      SupportedLanguages response = translate.projects().locations()
+          .getSupportedLanguages("projects/" + options.getProjectId())
+          .setTargetLanguage(firstNonNull(
+              Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
+          .execute();
+      return response.getLanguages() != null ? response.getLanguages() : ImmutableList.of();
     } catch (IOException ex) {
       throw translate(ex);
     }
   }
 
-  @Override
-  public List<Translation> translate(List<String> texts, Map<Option, ?> optionMap) {
+  public List<Map<String, String>> translate(List<String> texts, Map<Option, ?> optionMap) {
     try {
       String targetLanguage =
           firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
       final String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
-      List<Translation> translations =
-          translate.projects().locations().translateText("projects/" + options.getProjectId(), texts, targetLanguage)
-              .setSourceLanguageCode(sourceLanguage)
-              .setKey(options.getApiKey())
-              .setModel(Option.MODEL.getString(optionMap))
-              .setFormat(Option.FORMAT.getString(optionMap))
-              .execute()
-              .getTranslations();
+      
+      List<Translation> translations = translate.projects().locations()
+          .translateText("projects/" + options.getProjectId(), texts)
+          .setTargetLanguageCode(targetLanguage)
+          .setSourceLanguageCode(sourceLanguage)
+          .setModel(Option.MODEL.getString(optionMap))
+          .setFormat(Option.FORMAT.getString(optionMap))
+          .execute()
+          .getTranslations();
+      
       return Lists.transform(
           translations != null ? translations : ImmutableList.<Translation>of(),
-          new Function<Translation, Translation>() {
-            @Override
-            public Translation apply(Translation translation) {
-              if (translation.getDetectedLanguageCode() == null) {
-                translation.setDetectedLanguageCode(sourceLanguage);
-              }
-              return translation;
+          new Function<Translation, Map<String, String>>() {
+            public Map<String, String> apply(Translation translation) {
+              return translation.getModel();
             }
           });
     } catch (IOException ex) {

@@ -1,29 +1,32 @@
 <fix_planning>
-1. **Relevant parts of the code and API changes:**
-   - The code uses `org.cactoos.collection.CollectionOf` to compare the size of ledgers in two wallets.
-   - The API changes indicate that the `CollectionOf` class and its constructors have been removed.
+1. **Analysis of the Problem:**
+   - The error occurs because the `CollectionOf` class from the `org.cactoos.collection` package has been removed in the new version of the dependency.
+   - The affected line is:
+     ```java
+     import org.cactoos.collection.CollectionOf;
+     ```
+   - The `CollectionOf` class is used in the `equalWallets` method to compare the sizes of the ledgers of two wallets:
+     ```java
+     return first.id() == second.id() && new CollectionOf<>(
+         first.ledger()
+     ).size() == new CollectionOf<>(second.ledger()).size();
+     ```
 
-2. **Specific API changes causing the issue:**
-   - The `CollectionOf` class has been removed entirely, causing a compilation error.
+2. **Proposed Fixes:**
+   - Since `CollectionOf` has been removed, we can replace it with a standard Java collection, such as `ArrayList`, to achieve the same functionality.
+   - The fix involves converting the iterable returned by `first.ledger()` and `second.ledger()` into a list and then comparing their sizes.
 
-3. **Affected lines of code:**
-   - The line `import org.cactoos.collection.CollectionOf;`
-   - The line `new CollectionOf<>(first.ledger()).size() == new CollectionOf<>(second.ledger()).size();`
+3. **Potential Side Effects:**
+   - The change from `CollectionOf` to `ArrayList` should not have any significant side effects, as both are used to store and manipulate collections of objects.
+   - The functionality of comparing the sizes of the ledgers remains the same.
 
-4. **Proposed fixes:**
-   - Replace the use of `CollectionOf` with a standard Java collection, such as `ArrayList`, to achieve the same functionality.
-   - Modify the `equalWallets` method to use `ArrayList` instead of `CollectionOf`.
-
-5. **Potential side effects:**
-   - The change from `CollectionOf` to `ArrayList` should not have any significant side effects since both are used to determine the size of the ledger.
-
-6. **Adherence to constraints:**
+4. **Adherence to Constraints:**
    - The function signature of `equalWallets` remains unchanged.
-   - No existing code is removed.
-   - The fix only modifies the implementation of the `equalWallets` method.
+   - No existing code is removed, only replaced.
+   - The fix does not require any additional imports beyond what is already present.
 
-7. **Final summary:**
-   - The best solution is to replace `CollectionOf` with `ArrayList` since it provides the same functionality and adheres to all constraints.
+5. **Final Summary:**
+   - The best solution is to replace `CollectionOf` with `ArrayList` to maintain the same functionality without relying on the removed class. This adheres to all constraints and ensures the code compiles and runs correctly.
 </fix_planning>
 
 ```java
@@ -92,7 +95,7 @@ public final class Copies extends IterableEnvelope<Copy> {
             boolean updated = false;
             for (int idx = 0; idx < copies.size(); idx += 1) {
                 final Copy copy = copies.get(idx);
-                if (Copies.equalWallets(copies.get(idx).wallet(), wallet) {
+                if (Copies.equalWallets(copies.get(idx).wallet(), wallet)) {
                     copies.set(idx, copy.with(remote));
                     updated = true;
                 }

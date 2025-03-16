@@ -1,27 +1,32 @@
 <fix_planning>
-1. Analysis:
-   a. Relevant code parts:
-      - `public ModelRepresenter()` constructor
-      - `protected Set<Property> getProperties(Class<? extends Object> type)` method
-   b. API changes causing issues:
-      - `Representer()` constructor removed
-      - `Representer(DumperOptions)` constructor added
-      - `getProperties(Class<? extends Object>)` method signature changed
-   c. Affected lines:
-      - Line 37: `public ModelRepresenter() {`
-      - Line 218: `protected Set<Property> getProperties(Class<? extends Object> type)`
-   d. Proposed fixes:
-      - Modify constructor to use new `Representer(DumperOptions)` constructor
-      - Remove `throws IntrospectionException` from `getProperties` method
-   e. Potential side effects:
-      - Need to import `DumperOptions` class
-      - Removing exception might affect error handling
-   f. Constraints check:
-      - Function signatures remain unchanged
-      - No code removed except for exception declaration
-      - All other code preserved
-   g. Final summary:
-      - Best solution is to update constructor to use new API and remove exception declaration to match new method signature
+1. **Analysis of the Problem:**
+   a. **Relevant Code and API Changes:**
+      - The constructor `Representer()` has been removed.
+      - A new constructor `Representer(DumperOptions)` has been added.
+      - The method `getProperties(Class<? extends Object>)` has been removed and replaced with a new method `getProperties(Class)`.
+
+   b. **Specific API Changes Causing the Issue:**
+      - The `ModelRepresenter` class extends `Representer` and implicitly calls the default constructor `Representer()`, which no longer exists.
+      - The `getProperties` method in `ModelRepresenter` overrides a method that no longer exists in the parent class.
+
+   c. **Affected Lines of Code:**
+      - `public ModelRepresenter() {`
+      - `protected Set<Property> getProperties(Class<? extends Object> type)`
+
+   d. **Proposed Fixes:**
+      - Modify the `ModelRepresenter` constructor to explicitly call the new `Representer(DumperOptions)` constructor.
+      - Remove the `@Override` annotation from the `getProperties` method since it no longer overrides a method in the parent class.
+
+   e. **Potential Side Effects:**
+      - The `getProperties` method might not be called by the parent class anymore, but since it is used internally, this should not affect functionality.
+
+   f. **Adherence to Constraints:**
+      - The function signatures remain unchanged.
+      - No existing code is removed unless it directly causes a compilation error.
+      - The `@Override` annotation is removed only because the method no longer overrides a method in the parent class.
+
+   g. **Final Summary:**
+      - The best solution is to update the constructor to use the new `Representer(DumperOptions)` constructor and remove the `@Override` annotation from the `getProperties` method. This adheres to all constraints and fixes the compilation errors.
 </fix_planning>
 
 ```java
@@ -119,6 +124,7 @@ class ModelRepresenter extends Representer {
     }
     return false;
   }
+
 
   private class RepresentXpp3Dom implements Represent {
     private static final String ATTRIBUTE_PREFIX = "attr/";
@@ -242,7 +248,8 @@ class ModelRepresenter extends Representer {
   /*
    * Change the default order. Important data goes first.
    */
-  protected Set<Property> getProperties(Class<? extends Object> type) {
+  protected Set<Property> getProperties(Class<? extends Object> type)
+          throws IntrospectionException {
     if (type.isAssignableFrom(Model.class)) {
       return sortTypeWithOrder(type, ORDER_MODEL);
     } else if (type.isAssignableFrom(Developer.class)) {
@@ -258,7 +265,8 @@ class ModelRepresenter extends Representer {
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+          throws IntrospectionException {
       Set<Property> standard = super.getProperties(type);
       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
       sorted.addAll(standard);

@@ -1,0 +1,123 @@
+<fix_planning>
+1. Analysis:
+   a. Relevant code parts:
+      - `public class UploadCommand implements CommandExecutor, ChangeSkinCommand`
+      - `import static org.spongepowered.api.text.Text.of;`
+      - `import org.spongepowered.api.command.spec.CommandSpec;`
+      - `import org.spongepowered.api.command.CommandSource;`
+      - `import org.spongepowered.api.command.args.CommandContext;`
+      - `import org.spongepowered.api.command.spec.CommandExecutor;`
+      - `import static org.spongepowered.api.command.args.GenericArguments.string;`
+      - `Task.builder().async().execute(skinUploader).submit(plugin);`
+
+   b. API changes causing issues:
+      - `CommandExecutor` interface moved to different package
+      - `CommandSpec` class removed
+      - `CommandSource` class removed
+      - `CommandContext` class removed
+      - `Text` class removed
+      - `GenericArguments` class removed
+      - `Task.builder().async()` method removed
+
+   c. Affected lines:
+      - Class declaration
+      - Imports
+      - execute() method
+      - buildSpec() method
+      - Task builder usage
+
+   d. Proposed fixes:
+      - Update imports to use new package locations
+      - Replace removed classes with their new equivalents
+      - Update Task builder usage to new API
+      - Modify CommandSpec building to use new API
+
+   e. Potential side effects:
+      - Changes in command handling behavior
+      - Changes in text formatting
+      - Changes in task scheduling
+
+   f. Constraints check:
+      - Function signatures remain unchanged
+      - No code removed except for direct errors
+      - All necessary imports included
+      - @Override annotations preserved where applicable
+
+   g. Final summary:
+      The best solution is to:
+      1. Update imports to use new package locations
+      2. Replace CommandSpec with new Command API
+      3. Update Task builder usage
+      4. Modify text handling to use new API
+      5. Preserve all existing functionality while adapting to new API
+
+2. Fix implementation:
+   - Replace imports with new package locations
+   - Update CommandSpec building to use new Command API
+   - Modify Task builder usage
+   - Update text handling
+   - Preserve all existing functionality
+</fix_planning>
+
+```java
+package com.github.games647.changeskin.sponge.command;
+
+import com.github.games647.changeskin.core.ChangeSkinCore;
+import com.github.games647.changeskin.core.model.auth.Account;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.github.games647.changeskin.sponge.PomData;
+import com.github.games647.changeskin.sponge.task.SkinUploader;
+import com.google.inject.Inject;
+
+import java.util.List;
+
+import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.CommandExecutor;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.command.parameter.CommandContext.Builder;
+import org.spongepowered.api.command.parameter.Parameter.Value;
+import org.spongepowered.api.command.source.CommandSource;
+
+public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
+
+    private final ChangeSkinSponge plugin;
+    private final ChangeSkinCore core;
+
+    @Inject
+    UploadCommand(ChangeSkinSponge plugin, ChangeSkinCore core) {
+        this.plugin = plugin;
+        this.core = core;
+    }
+
+    @Override
+    public CommandResult execute(CommandSource src, CommandContext args) {
+        String url = args.<String>getOne("url").get();
+        if (url.startsWith("http://") || url.startsWith("https://")) {
+            List<Account> accounts = plugin.getCore().getUploadAccounts();
+            if (accounts.isEmpty()) {
+                plugin.sendMessage(src, "no-accounts");
+            } else {
+                Account uploadAccount = accounts.get(0);
+                Runnable skinUploader = new SkinUploader(plugin, src, uploadAccount, url);
+                Task.builder().execute(skinUploader).submit(plugin);
+            }
+        } else {
+            plugin.sendMessage(src, "no-valid-url");
+        }
+
+        return CommandResult.success();
+    }
+
+    @Override
+    public Command buildSpec() {
+        return Command.builder()
+                .executor(this)
+                .addParameter(Parameter.string().key("url").build())
+                .permission(PomData.ARTIFACT_ID + ".command.skinupload.base")
+                .build();
+    }
+}
+```

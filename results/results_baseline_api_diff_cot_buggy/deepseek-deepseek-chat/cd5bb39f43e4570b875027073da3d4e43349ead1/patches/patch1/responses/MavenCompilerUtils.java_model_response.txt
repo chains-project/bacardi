@@ -1,33 +1,33 @@
 <fix_planning>
 1. Analysis:
-   a. The error messages indicate that the `Xpp3Dom` class and its methods (`getChild`, `getValue`) are no longer available in the updated dependency version.
+   a. The error occurs because the `Xpp3Dom` class and its methods have been removed in the new version of the dependency.
    b. The specific API changes causing the issue are:
       - Removal of `Xpp3Dom` class
-      - Removal of `getChild` and `getValue` methods
-   c. Affected lines of code:
-      - Line 21: `import org.codehaus.plexus.util.xml.Xpp3Dom;`
-      - Line 99: `private static String extractChildValue(Xpp3Dom node, String name) {`
-      - Usage of `Xpp3Dom` in `extractAnnotationProcessors` method
+      - Removal of `getChild(String)` method
+      - Removal of `getValue()` method
+   c. Affected lines:
+      - `import org.codehaus.plexus.util.xml.Xpp3Dom;`
+      - `private static String extractChildValue(Xpp3Dom node, String name)`
+      - `final Xpp3Dom child = node.getChild(name);`
+      - `return child == null ? "" : child.getValue();`
    d. Potential fixes:
-      - Replace `Xpp3Dom` with an equivalent XML processing class from a different library
-      - Use Maven's built-in `org.apache.maven.model.Configuration` class for plugin configuration
-      - Implement custom XML parsing if necessary
+      - Replace `Xpp3Dom` with an equivalent XML parsing class from a different library
+      - Use Maven's built-in `org.apache.maven.plugins.plugin.descriptor.PluginDescriptor` for configuration parsing
+      - Implement custom XML parsing logic
    e. Side effects:
-      - Changes to XML processing logic might affect how configuration is parsed
-      - Need to ensure compatibility with Maven's plugin configuration format
+      - Changing the XML parsing mechanism might affect other parts of the code that rely on the same configuration
+      - Using a different library might require additional dependencies
    f. Constraints check:
-      - Function signatures remain unchanged
+      - The function signature remains unchanged
       - No existing code is removed
-      - Only client code is modified
+      - All code is included in the final output
    g. Chosen fix:
-      - Replace `Xpp3Dom` with Maven's `org.apache.maven.model.Configuration` class
-      - Use `org.apache.maven.model.PluginConfiguration` for accessing configuration values
-      - This solution adheres to constraints and maintains compatibility with Maven's plugin system
+      - Replace `Xpp3Dom` with `org.apache.maven.shared.utils.xml.Xpp3Dom` from the `maven-shared-utils` library, which provides similar functionality
+      - This is the best solution because it maintains compatibility with Maven's ecosystem and requires minimal code changes
 
 2. Implementation:
-   - Replace `Xpp3Dom` import with Maven's configuration classes
-   - Modify `extractChildValue` method to work with Maven's configuration model
-   - Update `extractAnnotationProcessors` method to use new configuration handling
+   - Replace the import statement
+   - Keep the existing code structure but use the new `Xpp3Dom` class
 </fix_planning>
 
 ```java
@@ -51,8 +51,7 @@ package org.simplify4u.plugins.utils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.repository.RepositorySystem;
-import org.apache.maven.model.Configuration;
-import org.apache.maven.model.PluginConfiguration;
+import org.apache.maven.shared.utils.xml.Xpp3Dom;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -101,20 +100,24 @@ public final class MavenCompilerUtils {
         if (config == null) {
             return emptySet();
         }
-        if (config instanceof Configuration) {
-            PluginConfiguration pluginConfig = new PluginConfiguration((Configuration) config);
-            return stream(pluginConfig.getChildren("annotationProcessorPaths"))
+        if (config instanceof Xpp3Dom) {
+            return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
                     .flatMap(aggregate -> stream(aggregate.getChildren("path")))
                     .map(processor -> system.createArtifact(
                             extractChildValue(processor, "groupId"),
                             extractChildValue(processor, "artifactId"),
                             extractChildValue(processor, "version"),
                             PACKAGING))
+                    // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
+                    // therefore there is little use in logging incomplete paths that are filtered out.
                     .filter(a -> !a.getGroupId().isEmpty())
                     .filter(a -> !a.getArtifactId().isEmpty())
                     .filter(a -> !a.getVersion().isEmpty())
                     .collect(Collectors.toSet());
         }
+        // It is expected that this will never occur due to all Configuration instances of all plugins being provided as
+        // XML document. If this happens to occur on very old plugin versions, we can safely add the type support and
+        // simply return an empty set.
         throw new UnsupportedOperationException("Please report that an unsupported type of configuration container" +
                 " was encountered: " + config.getClass());
     }
@@ -126,8 +129,8 @@ public final class MavenCompilerUtils {
      * @param name the child node name
      * @return Returns child value if child node present or otherwise empty string.
      */
-    private static String extractChildValue(PluginConfiguration node, String name) {
-        final PluginConfiguration child = node.getChild(name);
+    private static String extractChildValue(Xpp3Dom node, String name) {
+        final Xpp3Dom child = node.getChild(name);
         return child == null ? "" : child.getValue();
     }
 }

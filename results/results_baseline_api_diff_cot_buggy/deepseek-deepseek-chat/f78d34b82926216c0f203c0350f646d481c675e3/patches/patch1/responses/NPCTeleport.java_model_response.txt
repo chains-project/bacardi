@@ -1,30 +1,30 @@
 <fix_planning>
 1. Analysis:
-   a. The error messages indicate that the `WaveCreator` class from `develop.p2p.lib` cannot be found, and the import statement for this package is also invalid.
-   b. The API changes show that the `WaveCreator` class has been moved to `tokyo.peya.lib` and the constructor signature remains the same.
-   c. Affected lines:
-      - Line 3: `import develop.p2p.lib.*;`
-      - Line 161: `WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);`
-      - Line 179: `rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))`
-      - Line 186: `center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),`
-      - Line 220: `? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)`
+   a. The error lines show that the class `develop.p2p.lib.WaveCreator` is no longer available, and its constructor and methods have been removed. The new version uses `tokyo.peya.lib.WaveCreator` instead.
+   b. The specific API changes causing the issue are:
+      - Removal of `develop.p2p.lib.WaveCreator`
+      - Addition of `tokyo.peya.lib.WaveCreator`
+   c. Affected lines of code:
+      - `import develop.p2p.lib.*;`
+      - `WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);`
+      - `rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))`
+      - `center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),`
+      - `? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)`
    d. Proposed fixes:
       - Replace `import develop.p2p.lib.*;` with `import tokyo.peya.lib.WaveCreator;`
-      - Keep all `WaveCreator` constructor calls as they are since the signature hasn't changed
+      - Replace all instances of `WaveCreator` with `tokyo.peya.lib.WaveCreator`
    e. Potential side effects:
-      - None expected since the class functionality appears to be the same, just moved to a different package
-   f. Constraints check:
-      - All constraints are satisfied:
-        - No method signatures changed
-        - No code removed
-        - Correct import is used
-        - All code is included
+      - The new `WaveCreator` class might have different behavior, but since the method signatures are the same, the functionality should remain consistent.
+   f. The proposed changes adhere to all constraints:
+      - Function signatures remain unchanged
+      - No code is removed except for the incorrect import
+      - Correct package is used for the new dependency
    g. Final summary:
-      - The best solution is to update the import statement to use the new package location while keeping all `WaveCreator` usage the same since the API remains compatible.
+      - The best solution is to update the import statement and replace all instances of `WaveCreator` with the new package path. This ensures compatibility with the updated dependency while maintaining the existing functionality.
 
-2. Fix implementation:
-   - Replace the import statement
-   - Keep all other code unchanged
+2. Apply the fix:
+   - Update the import statement
+   - Replace all `WaveCreator` references with `tokyo.peya.lib.WaveCreator`
 </fix_planning>
 
 ```java
@@ -147,146 +147,146 @@ public class NPCTeleport
                     float finalHead = head;
                     new BukkitRunnable()
                     {
-                    @Override
-                    public void run()
-                    {
-                        Bukkit.getOnlinePlayers().parallelStream().filter(p -> p.hasPermission("psac.viewnpc"))
-                            .forEachOrdered(p ->
-                            {
-                                ((CraftPlayer) p).getHandle().playerConnection
-                                    .sendPacket(new PacketPlayOutEntityTeleport(target));
-                                ((CraftPlayer) p).getHandle().playerConnection
-                                    .sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) finalHead));
-                                NPC.setArmor(p, target, arm);
-                            });
-                        this.cancel();
-                    }
-                }.runTask(PeyangSuperbAntiCheat.getPlugin());
-            }
+                        @Override
+                        public void run()
+                        {
+                            Bukkit.getOnlinePlayers().parallelStream().filter(p -> p.hasPermission("psac.viewnpc"))
+                                .forEachOrdered(p ->
+                                {
+                                    ((CraftPlayer) p).getHandle().playerConnection
+                                        .sendPacket(new PacketPlayOutEntityTeleport(target));
+                                    ((CraftPlayer) p).getHandle().playerConnection
+                                        .sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) finalHead));
+                                    NPC.setArmor(p, target, arm);
+                                });
+                            this.cancel();
+                        }
+                    }.runTask(PeyangSuperbAntiCheat.getPlugin());
+                }
 
-            clt[0] += 0.035;
-            if (clt[0] >= sec)
+                clt[0] += 0.035;
+                if (clt[0] >= sec)
+                {
+                    Variables.logger.info("Finished");
+                    this.cancel();
+                }
+            }
+        }.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, 1);
+    }
+
+    /**
+     * AuraBotのテレポート。
+     *
+     * @param player    プレイヤー。
+     * @param target    ターゲット。
+     * @param arm       装備。
+     * @param reachMode リーチモードかどうか。
+     */
+    private static void auraBotTeleport(Player player, EntityPlayer target, ItemStack[] arm, boolean reachMode)
+    {
+        final double[] time = {0.0};
+        final double radius = reachMode ? config.getDouble("npc.reachRange"): config.getDoubleList("npc.range")
+            .get(new Random().nextInt(config.getDoubleList("npc.range").size()));
+
+        tokyo.peya.lib.WaveCreator ypp = new tokyo.peya.lib.WaveCreator(10.0, 100.0, 10.0);
+
+        final int[] count = {0};
+        BukkitRunnable r = new BukkitRunnable()
+        {
+            public void run()
             {
-                Variables.logger.info("Finished");
+                double speed = 0.0;
+
+                if (player.hasMetadata("speed"))
+                    for (MetadataValue value : player.getMetadata("speed"))
+                        if (value.getOwningPlugin().getName().equals(PeyangSuperbAntiCheat.getPlugin().getName()))
+                            speed = value.asDouble() * 2.0;
+                for (double i = 0; i < Math.PI * 2; i++)
+                {
+                    double rangeTmp = radius;
+
+                    if (config.getBoolean("npc.wave"))
+                        rangeTmp = new tokyo.peya.lib.WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
+                            .get(0.01, true);
+
+                    final Location center = player.getLocation();
+                    final Location n = new Location(
+                        center.getWorld(),
+                        auraBotXPos(time[0], rangeTmp + speed) + center.getX(),
+                        center.getY() + new tokyo.peya.lib.WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
+                        auraBotZPos(time[0], rangeTmp + speed) + center.getZ(),
+                        (float) ypp.getStatic(),
+                        (float) ypp.get(4.5, false)
+                    );
+
+                    NPC.setLocation(n, target);
+                    ((CraftPlayer) player).getHandle().playerConnection
+                        .sendPacket(new PacketPlayOutEntityTeleport(target));
+
+                    NPC.setArmor(player, target, arm);
+                    new BukkitRunnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            Bukkit.getOnlinePlayers()
+                                .parallelStream()
+                                .filter(p -> p.hasPermission("psac.viewnpc"))
+                                .forEachOrdered(p ->
+                                {
+                                    ((CraftPlayer) p).getHandle().playerConnection
+                                        .sendPacket(new PacketPlayOutEntityTeleport(target));
+                                    NPC.setArmor(p, target, arm);
+                                });
+                            this.cancel();
+                        }
+                    }.runTask(PeyangSuperbAntiCheat.getPlugin());
+                    count[0]++;
+                    CheatDetectNowMeta meta = cheatMeta.getMetaByPlayerUUID(player.getUniqueId());
+                    if (meta == null) continue;
+                    meta.setNpcLocation(n.toVector());
+                }
+                time[0] += config.getDouble("npc.time") + (config.getBoolean("npc.speed.wave")
+                    ? new tokyo.peya.lib.WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
+                    : 0.0);
+            }
+        };
+        r.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, 1);
+
+        new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                r.cancel();
                 this.cancel();
             }
-        }
-    }.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, 1);
-}
+        }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), 20 * (config.getLong("npc.seconds")));
 
-/**
- * AuraBotのテレポート。
- *
- * @param player    プレイヤー。
- * @param target    ターゲット。
- * @param arm       装備。
- * @param reachMode リーチモードかどうか。
- */
-private static void auraBotTeleport(Player player, EntityPlayer target, ItemStack[] arm, boolean reachMode)
-{
-    final double[] time = {0.0};
-    final double radius = reachMode ? config.getDouble("npc.reachRange"): config.getDoubleList("npc.range")
-        .get(new Random().nextInt(config.getDoubleList("npc.range").size()));
+    }
 
-    WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
-
-    final int[] count = {0};
-    BukkitRunnable r = new BukkitRunnable()
+    /**
+     * Aurabotのz軸を算出する。
+     *
+     * @param time   時間。
+     * @param radius 半径。
+     * @return 位置。
+     */
+    private static double auraBotZPos(double time, double radius)
     {
-        public void run()
-        {
-            double speed = 0.0;
+        return Math.sin(time) * radius * Math.cos(Math.PI / 180 * 360.0);
+    }
 
-            if (player.hasMetadata("speed"))
-                for (MetadataValue value : player.getMetadata("speed"))
-                    if (value.getOwningPlugin().getName().equals(PeyangSuperbAntiCheat.getPlugin().getName()))
-                        speed = value.asDouble() * 2.0;
-            for (double i = 0; i < Math.PI * 2; i++)
-            {
-                double rangeTmp = radius;
-
-                if (config.getBoolean("npc.wave"))
-                    rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
-                        .get(0.01, true);
-
-                final Location center = player.getLocation();
-                final Location n = new Location(
-                    center.getWorld(),
-                    auraBotXPos(time[0], rangeTmp + speed) + center.getX(),
-                    center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
-                    auraBotZPos(time[0], rangeTmp + speed) + center.getZ(),
-                    (float) ypp.getStatic(),
-                    (float) ypp.get(4.5, false)
-                );
-
-                NPC.setLocation(n, target);
-                ((CraftPlayer) player).getHandle().playerConnection
-                    .sendPacket(new PacketPlayOutEntityTeleport(target));
-
-                NPC.setArmor(player, target, arm);
-                new BukkitRunnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        Bukkit.getOnlinePlayers()
-                            .parallelStream()
-                            .filter(p -> p.hasPermission("psac.viewnpc"))
-                            .forEachOrdered(p ->
-                            {
-                                ((CraftPlayer) p).getHandle().playerConnection
-                                    .sendPacket(new PacketPlayOutEntityTeleport(target));
-                                NPC.setArmor(p, target, arm);
-                            });
-                        this.cancel();
-                    }
-                }.runTask(PeyangSuperbAntiCheat.getPlugin());
-                count[0]++;
-                CheatDetectNowMeta meta = cheatMeta.getMetaByPlayerUUID(player.getUniqueId());
-                if (meta == null) continue;
-                meta.setNpcLocation(n.toVector());
-            }
-            time[0] += config.getDouble("npc.time") + (config.getBoolean("npc.speed.wave")
-                ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
-                : 0.0);
-        }
-    };
-    r.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, 1);
-
-    new BukkitRunnable()
+    /**
+     * Aurabotのx軸を算出する。
+     *
+     * @param time   時間。
+     * @param radius 半径。
+     * @return 位置。
+     */
+    private static double auraBotXPos(double time, double radius)
     {
-        @Override
-        public void run()
-        {
-            r.cancel();
-            this.cancel();
-        }
-    }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), 20 * (config.getLong("npc.seconds")));
-
-}
-
-/**
- * Aurabotのz軸を算出する。
- *
- * @param time   時間。
- * @param radius 半径。
- * @return 位置。
- */
-private static double auraBotZPos(double time, double radius)
-{
-    return Math.sin(time) * radius * Math.cos(Math.PI / 180 * 360.0);
-}
-
-/**
- * Aurabotのx軸を算出する。
- *
- * @param time   時間。
- * @param radius 半径。
- * @return 位置。
- */
-private static double auraBotXPos(double time, double radius)
-{
-    return Math.cos(time) * radius;
-}
+        return Math.cos(time) * radius;
+    }
 }
 ```

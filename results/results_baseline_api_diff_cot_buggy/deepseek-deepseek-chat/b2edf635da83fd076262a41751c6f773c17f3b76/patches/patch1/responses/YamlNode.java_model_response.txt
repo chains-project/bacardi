@@ -1,25 +1,22 @@
 <fix_planning>
 1. Analysis:
    a. The error occurs in the line: `return (YamlNode) new Yaml(new Constructor(YamlNode.class)).load(in);`
-   b. The API changes indicate that all Constructor constructors have been removed, including `Constructor(Class)`
-   c. Affected line: `return (YamlNode) new Yaml(new Constructor(YamlNode.class)).load(in);`
+   b. The API changes indicate that all Constructor class constructors have been removed in the new version of the dependency.
+   c. The affected line is: `return (YamlNode) new Yaml(new Constructor(YamlNode.class)).load(in);`
    d. Potential fixes:
-      - Use the new Yaml constructor that takes LoaderOptions
-      - Create a TypeDescription for YamlNode and use it with the new Yaml constructor
+      - Use the default Yaml constructor without specifying a custom Constructor
+      - Use the new API for loading YAML documents with the appropriate LoaderOptions
    e. Side effects:
-      - The new approach might require additional imports
-      - The behavior should remain the same as it's just a different way to achieve the same result
+      - Using the default Yaml constructor might affect how custom types are handled
+      - The fix should maintain the same functionality while adapting to the new API
    f. Constraints check:
-      - Function signature remains unchanged
-      - No code is removed
-      - Only the necessary changes are made
-   g. Chosen fix:
-      - Use the new Yaml constructor with LoaderOptions and create a TypeDescription for YamlNode
-      - This is the most straightforward solution that aligns with the new API
+      - The function signature remains unchanged
+      - No existing code is removed
+      - The fix adheres to all constraints
+   g. Final summary:
+      - The best solution is to use the default Yaml constructor since the Constructor class has been removed. This maintains functionality while adapting to the new API.
 
-2. Required changes:
-   - Import org.yaml.snakeyaml.TypeDescription
-   - Modify the line to use TypeDescription and LoaderOptions
+2. The fix will modify the line to use the default Yaml constructor.
 </fix_planning>
 
 ```java
@@ -51,9 +48,7 @@ import org.jclouds.byon.Node;
 import org.jclouds.util.Closeables2;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.LoaderOptions;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
@@ -138,9 +133,7 @@ public class YamlNode {
          InputStream in = null;
          try {
             in = byteSource.openStream();
-            TypeDescription typeDescription = new TypeDescription(YamlNode.class);
-            LoaderOptions loaderOptions = new LoaderOptions();
-            return (YamlNode) new Yaml(new Constructor(typeDescription, loaderOptions)).load(in);
+            return (YamlNode) new Yaml().load(in);
          } catch (IOException ioe) {
             throw Throwables.propagate(ioe);
          } finally {
@@ -153,7 +146,7 @@ public class YamlNode {
       return byteSourceToYamlNode.apply(in);
    }
 
-   public static final Function<YamlNode, ByteSource> yamlNodeToByteSource = new Function<YamlNode, ByteSource>() {
+   public static final Function<YamlNode, ByteSource) yamlNodeToByteSource = new Function<YamlNode, ByteSource>() {
       @Override
       public ByteSource apply(YamlNode in) {
          if (in == null)

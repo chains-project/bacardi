@@ -25,7 +25,7 @@
 package io.zold.api;
 
 import org.cactoos.iterable.Repeated;
-import java.util.Random;
+import org.cactoos.text.TextOf;
 
 /**
  * Remote node.
@@ -68,7 +68,7 @@ public interface Remote {
          */
         public Fake(final int val) {
             this(new RtScore(
-                new Repeated<>(val, generateRandomText())
+                new Repeated<>(val, new TextOf("random"))
             ));
         }
 
@@ -93,20 +93,6 @@ public interface Remote {
         @Override
         public Wallet pull(final long id) {
             return new Wallet.Fake(id);
-        }
-
-        /**
-         * Generates random text.
-         * @return Random text
-         */
-        private static String generateRandomText() {
-            Random random = new Random();
-            int length = 10;
-            StringBuilder sb = new StringBuilder(length);
-            for (int i = 0; i < length; i++) {
-                sb.append((char) (random.nextInt(26) + 'a'));
-            }
-            return sb.toString();
         }
     }
 }

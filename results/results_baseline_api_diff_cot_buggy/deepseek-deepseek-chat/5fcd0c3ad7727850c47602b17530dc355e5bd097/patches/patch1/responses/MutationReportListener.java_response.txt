@@ -29,7 +29,7 @@ public class MutationReportListener implements MutationResultListener {
   private static final String HTML_PAGE = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n"
     + "<head>\n"
     + "  <meta charset=\"UTF-8\">\n"
-    + "  <meta name=\"viewport" content="width=device-width, initial-scale=1.0">\n"
+    + "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
     + "  <script src=\"mutation-test-elements.js\"></script>\n"
     + "</head>\n"
     + "<body>\n"
@@ -102,7 +102,7 @@ public class MutationReportListener implements MutationResultListener {
   private MutationTestSummaryData createSummaryData(
       final CoverageDatabase coverage, final ClassMutationResults data) {
     return new MutationTestSummaryData(data.getFileName(),
-        data.getMutations(), coverage.getClassInfo(data.getMutatedClass()));
+        data.getMutations(), coverage.getClassInfo(data.getMutatedClass().asInternalName()));
   }
 
   private void updatePackageSummary(

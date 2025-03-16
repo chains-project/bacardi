@@ -1,48 +1,44 @@
 <fix_planning>
-1. **Analysis of the Problem:**
-   - The issue stems from the removal of several pipeline-related interfaces in the newer version of the Jedis dependency. The affected interfaces include:
-     - `MultiKeyBinaryRedisPipeline`
-     - `BinaryScriptingCommandsPipeline`
-     - `MultiKeyCommandsPipeline`
-     - `BinaryRedisPipeline`
-     - `BasicRedisPipeline`
-     - `RedisPipeline`
-     - `ScriptingCommandsPipeline`
-     - `ClusterPipeline`
-   - The error messages indicate that these classes cannot be found, leading to compilation errors.
+1. Analysis:
+   a. The error messages indicate that several classes from the `redis.clients.jedis.commands` package cannot be found. The API changes show that these classes have been removed in the new version of the dependency.
+   b. The specific API changes causing the issue are:
+      - `BinaryRedisPipeline` removed
+      - `BinaryScriptingCommandsPipeline` removed
+      - `RedisPipeline` removed
+      - `BasicRedisPipeline` removed
+      - `MultiKeyCommandsPipeline` removed
+      - `ClusterPipeline` removed (replaced by an interface)
+      - `MultiKeyBinaryRedisPipeline` removed
+      - `ScriptingCommandsPipeline` removed
+   c. Affected lines of code:
+      - Import statements for the removed classes
+      - Interface inheritance list where these classes are referenced
+   d. Potential fixes:
+      - Remove the import statements for the removed classes
+      - Remove the interface inheritance of the removed classes
+      - Keep only the essential interfaces that are still available
+   e. Side effects:
+      - The interface may lose some functionality if the removed interfaces provided methods that are not available in the remaining interfaces
+      - Need to ensure that the remaining interfaces provide all necessary methods
+   f. Constraints check:
+      - The fix adheres to all constraints:
+        - No method signatures are changed
+        - No existing code is removed except for the problematic imports and interface inheritance
+        - All other code remains unchanged
+   g. Final summary:
+      - The best solution is to remove the problematic imports and interface inheritance, keeping only the essential interfaces that are still available in the new version of the dependency. This maintains the core functionality while fixing the compilation errors.
 
-2. **Affected Lines of Code:**
-   - The import statements for the removed interfaces.
-   - The interface declaration where these interfaces are extended.
-
-3. **Proposed Fixes:**
-   - Remove the import statements for the removed interfaces.
-   - Update the interface declaration to extend only the necessary interfaces that are still available or have been replaced in the new version.
-   - Since the `ClusterPipeline` interface has been moved to a different package (`redis.clients.jedis`), update the import statement accordingly.
-
-4. **Potential Side Effects:**
-   - The removal of these interfaces might affect the functionality of the `RedisGraphPipeline` interface if it relies on methods defined in the removed interfaces. However, since the method signatures are not being changed, the impact should be minimal.
-
-5. **Adherence to Constraints:**
-   - The proposed changes adhere to all constraints:
-     - No method signatures are changed.
-     - No existing code is removed unless it directly causes a compilation error.
-     - Missing imports are addressed by updating the import statements.
-
-6. **Final Summary:**
-   - The best solution is to remove the import statements for the removed interfaces and update the interface declaration to extend only the necessary interfaces. This ensures that the code compiles without errors while maintaining the existing functionality.
-
-**Chosen Fix:**
-- Remove the import statements for the removed interfaces.
-- Update the interface declaration to extend only the necessary interfaces.
-- Update the import statement for `ClusterPipeline` to reflect its new package location.
+2. Proposed changes:
+   - Remove all import statements for the removed classes
+   - Remove the interface inheritance of the removed classes
+   - Keep only the `Closeable` interface in the inheritance list
 </fix_planning>
 
 ```java
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
-import redis.clients.jedis.ClusterPipeline;
+
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;

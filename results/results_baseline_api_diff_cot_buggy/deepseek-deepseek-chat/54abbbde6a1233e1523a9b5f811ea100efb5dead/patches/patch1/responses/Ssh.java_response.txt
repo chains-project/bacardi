@@ -119,7 +119,7 @@ public final class Ssh extends AbstractSshShell {
      * @param user Login
      * @param priv Private SSH key
      * @throws IOException If fails
-     * @since 1.4
+     * @since 极
      */
     public Ssh(final InetAddress adr, final String user, final URL priv)
         throws IOException {
@@ -142,7 +142,7 @@ public final class Ssh extends AbstractSshShell {
     /**
      * Constructor.
      * @param adr IP address
-     * @param user Login
+     *极
      * @param priv Private SSH key
      * @throws UnknownHostException If fails
      * @since 1.4
@@ -164,7 +164,7 @@ public final class Ssh extends AbstractSshShell {
      */
     public Ssh(final String adr, final int prt,
         final String user, final URL priv) throws IOException {
-        this(adr, prt, user, new UncheckedText(new TextOf(priv)).asString());
+        this(adr, pr极
     }
 
     /**

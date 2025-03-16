@@ -1,29 +1,24 @@
 <fix_planning>
 1. Analysis:
-   a. The error messages indicate that several classes from `com.google.api.services.cloudresourcemanager.model` package are no longer available in the new version of the dependency.
-   b. The specific API changes causing the issue are:
-      - Removal of `OrgPolicy`, `Policy`, `Project`, and `Constraint` classes from `com.google.api.services.cloudresourcemanager.model`
-      - Addition of new classes in `com.google.api.services.cloudresourcemanager.v3.model` package
-   c. Affected lines of code:
-      - All lines referencing `OrgPolicy`, `Policy`, `Project`, and `Constraint` classes
-      - Import statements for the removed classes
-   d. Proposed fixes:
-      - Update import statements to use the new package path `com.google.api.services.cloudresourcemanager.v3.model`
-      - Keep all method signatures unchanged
-   e. Potential side effects:
-      - The new classes in v3 package might have different implementations or methods
+   a. The error messages indicate that several classes from `com.google.api.services.cloudresourcemanager.model` package no longer exist in the new version of the dependency.
+   b. The API changes show that classes like `OrgPolicy`, `Policy`, `Project`, and `Constraint` have been removed and replaced with their v3 counterparts in `com.google.api.services.cloudresourcemanager.v3.model`.
+   c. Affected lines include all imports and method signatures using these removed classes.
+   d. Potential fixes:
+      - Update imports to use the v3 package
+      - Replace class references in method signatures with their v3 equivalents
+   e. Side effects:
+      - The v3 classes might have different method signatures or behaviors
       - Need to ensure compatibility with existing code
    f. Constraints check:
-      - No method signatures are changed
-      - Only import statements are modified
-      - All existing code is preserved
+      - Function signatures remain unchanged
+      - Only imports are modified
+      - No code is removed
    g. Final summary:
-      - The best solution is to update the import statements to use the new package path while keeping all method signatures unchanged
-      - This adheres to all constraints and should resolve the compilation errors
+      - The best solution is to update the imports to use the v3 package while keeping all method signatures unchanged. This adheres to all constraints and fixes the compilation errors.
 
-2. Fix implementation:
-   - Replace all import statements from `com.google.api.services.cloudresourcemanager.model` to `com.google.api.services.cloudresourcemanager.v3.model`
-   - Keep all method signatures and implementations unchanged
+2. Specific changes:
+   - Update imports from `com.google.api.services.cloudresourcemanager.model` to `com.google.api.services.cloudresourcemanager.v3.model`
+   - Keep all method signatures unchanged
 </fix_planning>
 
 ```java

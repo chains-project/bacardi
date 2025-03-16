@@ -1,26 +1,29 @@
 <fix_planning>
 1. Analysis:
-   a. The error occurs in the `getProperties` method, which is overridden from the `Representer` class. The error message indicates that the `IntrospectionException` is not compatible with the throws clause in the parent class's method.
-   b. The API changes show that the `getProperties` method in `Representer` has been removed in the new version, and a new method with a different signature has been added.
-   c. The affected line is:
+   a. Relevant code:
       ```java
+      @Override
       protected Set<Property> getProperties(Class<? extends Object> type)
+              throws IntrospectionException {
       ```
+   b. API changes:
+      - Method `org.yaml.snakeyaml.representer.Representer.getProperties(java.lang.Class)` has been removed
+      - New method `org.yaml.snakeyaml.representer.Representer.getProperties(java.lang.Class)` has been added
+      - The error indicates an incompatible throws clause with `IntrospectionException`
+   c. Affected lines:
+      - The `getProperties` method declaration
    d. Potential fixes:
-      - Remove the `@Override` annotation since the method no longer overrides a parent method.
-      - Remove the `throws IntrospectionException` clause since it's not compatible with the new API.
+      - Remove the `throws IntrospectionException` clause since it's no longer compatible with the new API
+      - Keep the `@Override` annotation as the method still overrides a parent method
    e. Side effects:
-      - Removing the `throws` clause might require handling `IntrospectionException` within the method.
-   f. The proposed changes adhere to the constraints:
-      - The function signature remains unchanged.
-      - No existing code is removed.
-      - The `@Override` annotation is removed only because the method no longer overrides a parent method.
-   g. Final summary:
-      The best solution is to remove the `@Override` annotation and the `throws IntrospectionException` clause, as the method no longer overrides a parent method and the exception handling can be managed internally.
-
-2. Apply the fix:
-   - Remove the `@Override` annotation.
-   - Remove the `throws IntrospectionException` clause.
+      - Any code relying on catching `IntrospectionException` from this method will need to be updated
+   f. Constraints check:
+      - The function signature is not changed except for the throws clause
+      - No imports need to be added
+      - No code is removed
+   g. Final solution:
+      - Remove the `throws IntrospectionException` clause while keeping the rest of the method signature intact
+      - This is the minimal change needed to fix the compilation error while maintaining functionality
 </fix_planning>
 
 ```java
@@ -240,6 +243,7 @@ class ModelRepresenter extends Representer {
   /*
    * Change the default order. Important data goes first.
    */
+  @Override
   protected Set<Property> getProperties(Class<? extends Object> type) {
     if (type.isAssignableFrom(Model.class)) {
       return sortTypeWithOrder(type, ORDER_MODEL);
@@ -256,7 +260,8 @@ class ModelRepresenter extends Representer {
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+          throws IntrospectionException {
       Set<Property> standard = super.getProperties(type);
       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
       sorted.addAll(standard);

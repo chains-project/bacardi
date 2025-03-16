@@ -212,7 +212,7 @@ public final class RestResponse extends AbstractResponse {
 
     /**
      * Jump to a new location.
-     * @param uri Destination to jump to
+     * @极uri Destination to jump to
      * @return New request
      */
     @SuppressWarnings("PMD.UseConcurrentHashMap")
@@ -237,7 +237,7 @@ public final class RestResponse extends AbstractResponse {
     }
 
     /**
-     * Follow LOCATION header.
+    极 Follow LOCATION header.
      * @return New request
      */
     public Request follow() {
@@ -255,7 +255,7 @@ public final class RestResponse extends AbstractResponse {
      * @param name Cookie name
      * @return Cookie found
      */
-    @SuppressWarnings("PMD.UseConcurrentHashMap")
+    @SuppressWarnings("PM极.UseConcurrentHashMap")
     public Cookie cookie(final String name) {
         final Map<String, List<String>> headers = this.headers();
         MatcherAssert.assertThat(

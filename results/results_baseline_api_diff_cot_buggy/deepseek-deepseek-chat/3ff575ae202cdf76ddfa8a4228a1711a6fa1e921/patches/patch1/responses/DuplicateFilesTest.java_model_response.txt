@@ -2,16 +2,23 @@
 1. Analysis:
    a. The error occurs in the line `getContainer().getLoggerManager().setThreshold( Logger.LEVEL_DEBUG );`
    b. The API change is that `getLoggerManager()` method has been removed from `PlexusContainer` interface
-   c. Affected line: Line 37 in the `setUp()` method
+   c. Affected line: Line 37 in `setUp()` method
    d. Potential fixes:
-      - Remove the logging threshold setting entirely since the method is no longer available
-      - Find an alternative way to set the logging threshold using the new API (but no information is provided about replacement methods)
+      - Directly set the logger level using a different approach if available
+      - Remove the logging configuration if it's not critical
+      - Use a different logging mechanism if required
    e. Side effects:
-      - Removing the logging threshold setting might affect logging behavior, but the test functionality itself should remain intact
+      - Removing logging configuration might affect debugging capabilities
+      - Using a different approach might require additional dependencies
    f. Constraints check:
-      - Removing the line adheres to all constraints as it doesn't change method signatures, doesn't remove other code, and fixes the compilation error
-   g. Final solution:
-      - Remove the line since the method is no longer available and there's no clear replacement in the new API
+      - Not changing method signatures
+      - Not removing existing code unless it causes errors
+      - Maintaining all other functionality
+   g. Chosen fix:
+      - Remove the logging configuration line since it's not critical for test functionality
+      - This is the simplest solution that adheres to all constraints
+
+2. The fix will be to remove the problematic line from the `setUp()` method
 </fix_planning>
 
 ```java

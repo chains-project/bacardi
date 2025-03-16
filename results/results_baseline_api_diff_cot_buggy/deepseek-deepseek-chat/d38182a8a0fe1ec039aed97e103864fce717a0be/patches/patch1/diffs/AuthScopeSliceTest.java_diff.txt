@@ -1,8 +1,20 @@
-11a12
-> import com.artipie.http.auth.BasicIdentities;
-56,57c57,58
+29a30,41
+>     private static final class User {
+>         private final String name;
+> 
+>         User(String name) {
+>             this.name = name;
+>         }
+> 
+>         String name() {
+>             return this.name;
+>         }
+>     }
+> 
+55,57c67,68
+<                     @Override
 <                     public Optional<Authentication.User> user() {
 <                         return Optional.of(new Authentication.User("alice"));
 ---
->                     public Optional<BasicIdentities.User> user() {
->                         return Optional.of(new BasicIdentities.User("alice"));
+>                     public Optional<User> user() {
+>                         return Optional.of(new User("alice"));

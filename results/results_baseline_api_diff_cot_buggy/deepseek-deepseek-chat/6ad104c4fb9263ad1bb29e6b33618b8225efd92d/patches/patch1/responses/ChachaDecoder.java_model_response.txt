@@ -1,30 +1,28 @@
 <fix_planning>
-1. **Analysis of the Problem:**
-   - The code uses classes `TlsFatalAlert` and `AlertDescription` from the `org.bouncycastle.crypto.tls` package, which have been removed in the new version of the dependency.
-   - The specific API changes causing the issue are:
-     - Removal of `TlsFatalAlert` class.
-     - Removal of `AlertDescription` class.
-   - Affected lines of code:
-     - `import org.bouncycastle.crypto.tls.TlsFatalAlert;`
-     - `import org.bouncycastle.crypto.tls.AlertDescription;`
-     - `throw new TlsFatalAlert(AlertDescription.bad_record_mac);`
-
-2. **Proposed Fixes:**
-   - Replace `TlsFatalAlert` with a custom exception or a more general exception like `IOException`.
-   - Replace `AlertDescription.bad_record_mac` with a custom error code or a descriptive message.
-   - Remove the imports for `TlsFatalAlert` and `AlertDescription`.
-
-3. **Potential Side Effects:**
-   - The change from `TlsFatalAlert` to `IOException` might affect error handling in the calling code, but since `TlsFatalAlert` was already extending `IOException`, this should be minimal.
-   - The error message might be less specific, but it will still indicate a failure in the MAC verification.
-
-4. **Adherence to Constraints:**
-   - The function signatures remain unchanged.
-   - No existing code is removed except for the problematic imports.
-   - The fix addresses the missing imports by removing them and replacing the functionality with standard Java exceptions.
-
-5. **Final Summary:**
-   - The best solution is to replace `TlsFatalAlert` with `IOException` and use a descriptive error message. This adheres to all constraints and maintains the functionality of the code.
+1. Analysis:
+   a. The code uses `TlsFatalAlert` and `AlertDescription` from `org.bouncycastle.crypto.tls` package, which have been removed in the new version.
+   b. The specific API changes causing the issue are:
+      - Removal of `TlsFatalAlert` class
+      - Removal of `AlertDescription` class
+   c. Affected lines:
+      - `import org.bouncycastle.crypto.tls.TlsFatalAlert;`
+      - `import org.bouncycastle.crypto.tls.AlertDescription;`
+      - `throw new TlsFatalAlert(AlertDescription.bad_record_mac);`
+   d. Potential fixes:
+      - Replace `TlsFatalAlert` with a custom exception
+      - Replace `AlertDescription.bad_record_mac` with a constant value
+   e. Side effects:
+      - The custom exception might need to be handled differently by calling code
+      - The error handling behavior should remain consistent
+   f. Constraints check:
+      - Function signatures remain unchanged
+      - No existing code is removed
+      - Missing imports are addressed
+   g. Final summary:
+      - Create a custom exception class `ChachaDecoderException`
+      - Replace `TlsFatalAlert` with `ChachaDecoderException`
+      - Use a constant value for the error code
+      - This solution adheres to all constraints and maintains functionality
 </fix_planning>
 
 ```java
@@ -56,7 +54,7 @@ public class ChachaDecoder {
     byte[] calculatedMAC = PolyKeyCreator.create(macKey, additionalData, ciphertext);
 
     if (!Arrays.constantTimeAreEqual(calculatedMAC, receivedMAC)) {
-      throw new IOException("Bad record MAC");
+      throw new ChachaDecoderException("Bad record MAC");
     }
 
     byte[] output = new byte[ciphertext.length];
@@ -78,6 +76,12 @@ public class ChachaDecoder {
     KeyParameter macKey = new KeyParameter(firstBlock, 16, 32);
     Poly1305KeyGenerator.clamp(macKey.getKey());
     return macKey;
+  }
+
+  private static class ChachaDecoderException extends IOException {
+    public ChachaDecoderException(String message) {
+      super(message);
+    }
   }
 }
 ```

@@ -1,29 +1,31 @@
 <fix_planning>
-1. Analyze the problem and propose changes:
-   a. Relevant parts of the code and API changes:
+1. **Analysis of the Problem:**
+   a. **Relevant Code and API Changes:**
       - `setContext(PubsubContext.of(FRAMEWORK))` is causing an error because `setContext` method has been removed.
       - `PublishMetadata` class has been removed, causing import and usage errors.
-   b. Specific API changes causing the issue:
-      - Removal of `setContext` method in `SinglePartitionPublisherBuilder.Builder`.
-      - Removal of `PublishMetadata` class.
-   c. Affected lines of code:
+   b. **Specific API Changes:**
+      - `setContext` method removed from `SinglePartitionPublisherBuilder.Builder`.
+      - `PublishMetadata` class removed from `com.google.cloud.pubsublite`.
+   c. **Affected Lines of Code:**
       - `.setContext(PubsubContext.of(FRAMEWORK))`
       - `public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {`
       - `import com.google.cloud.pubsublite.PublishMetadata;`
-   d. Propose potential fixes for each affected line:
+   d. **Proposed Fixes:**
       - Remove the `setContext` method call since it's no longer needed.
-      - Replace `PublishMetadata` with a suitable alternative or remove it if not required.
-   e. Consider any potential side effects of the proposed changes:
-      - Removing `setContext` might affect the context setting, but if the method is removed, it's likely handled internally now.
-      - Removing `PublishMetadata` might require changes in how metadata is handled, but if the class is removed, it's likely no longer needed.
-   f. Explicitly check if the proposed changes adhere to all the given constraints:
+      - Replace `PublishMetadata` with a suitable alternative if available, or remove it if not needed.
+   e. **Potential Side Effects:**
+      - Removing `setContext` might affect the context setup, but since the method is removed, it's likely handled internally now.
+      - Removing `PublishMetadata` might require changes in how metadata is handled, but since the class is removed, it's likely no longer needed.
+   f. **Adherence to Constraints:**
       - The function signature remains unchanged.
       - No unnecessary code is removed.
-      - No placeholder comments are used.
-   g. Final summary of the chosen fix and why it's the best solution:
-      - Remove the `setContext` method call as it's no longer supported.
-      - Remove the `PublishMetadata` class import and usage since it's no longer available.
-      - These changes adhere to the constraints and fix the compilation errors.
+      - Imports are adjusted according to the new dependency version.
+   g. **Final Summary:**
+      - The best solution is to remove the `setContext` method call and remove the `PublishMetadata` import and usage since they are no longer part of the API.
+
+2. **Apply the Fix:**
+   - Remove the `setContext` method call.
+   - Remove the `PublishMetadata` import and adjust the method signature to use a suitable alternative if available.
 </fix_planning>
 
 ```java

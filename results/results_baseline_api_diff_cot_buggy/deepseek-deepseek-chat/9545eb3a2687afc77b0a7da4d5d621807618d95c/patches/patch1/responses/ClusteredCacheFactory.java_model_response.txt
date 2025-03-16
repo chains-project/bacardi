@@ -1,48 +1,52 @@
 <fix_planning>
 1. Analysis:
-   a. The main issues stem from the removal of classes and methods in the new Hazelcast version:
-      - com.hazelcast.core.Cluster removed
-      - com.hazelcast.core.Member removed
-      - com.hazelcast.config.MaxSizeConfig removed
-      - Member.getStringAttribute() method removed
-
+   a. The main issue is that several Hazelcast classes have been moved or renamed in the new version:
+      - com.hazelcast.core.Member → com.hazelcast.cluster.Member
+      - com.hazelcast.core.Cluster → com.hazelcast.cluster.Cluster
+      - com.hazelcast.config.MaxSizeConfig has been removed entirely
    b. Specific API changes causing issues:
-      - Cluster and Member classes moved to com.hazelcast.cluster package
-      - MaxSizeConfig replaced with EvictionConfig
-      - Member attributes now accessed through getAttribute() method
-
+      - Member.getStringAttribute() method removed
+      - Cluster class moved to different package
+      - MaxSizeConfig class removed
    c. Affected lines:
-      - Import statements for Cluster, Member, and MaxSizeConfig
-      - getMember() method using Member class
-      - getNodeID() method using Member.getStringAttribute()
-      - MapConfig creation using MaxSizeConfig
-
+      - Import statements for Member, Cluster, MaxSizeConfig
+      - Method getNodeID() using Member.getStringAttribute()
+      - Field declaration for Cluster
+      - Usage of MaxSizeConfig in createCache()
    d. Proposed fixes:
       - Update import statements to use new package locations
-      - Replace MaxSizeConfig with EvictionConfig
-      - Update Member attribute access to use getAttribute()
-      - Keep method signatures unchanged
-
+      - Replace Member.getStringAttribute() with attribute access through new API
+      - Replace MaxSizeConfig with equivalent configuration using new API
    e. Potential side effects:
-      - Need to verify compatibility with other parts of the code
-      - Ensure new API methods provide equivalent functionality
-
+      - Need to ensure new attribute access method provides same functionality
+      - Need to verify MaxSizeConfig replacement maintains same cache behavior
    f. Constraints check:
-      - Method signatures remain unchanged
-      - Only necessary changes made to fix compilation errors
-      - All existing code preserved except for direct error causes
-
+      - Function signatures remain unchanged
+      - No code removed except for direct compilation errors
+      - All existing functionality preserved
    g. Final solution:
       - Update imports to use new package locations
-      - Replace MaxSizeConfig with EvictionConfig
-      - Modify Member attribute access
-      - Keep all other code intact
+      - Replace Member.getStringAttribute() with attribute access through new API
+      - Replace MaxSizeConfig with equivalent configuration using new API
+      - This solution maintains all functionality while adapting to new API
 
-2. Fix implementation:
-   - Update imports
-   - Modify getNodeID() to use getAttribute()
-   - Replace MaxSizeConfig with EvictionConfig
-   - Keep all other code unchanged
+2. Specific changes:
+   - Update imports:
+     ```java
+     import com.hazelcast.cluster.Member;
+     import com.hazelcast.cluster.Cluster;
+     ```
+   - Modify getNodeID() to use new attribute access:
+     ```java
+     public static NodeID getNodeID(final Member member) {
+         return NodeID.getInstance(member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
+     }
+     ```
+   - Replace MaxSizeConfig with new configuration:
+     ```java
+     dynamicConfig.getEvictionConfig().setSize(hazelcastMaxCacheSizeInMegaBytes);
+     dynamicConfig.getEvictionConfig().setMaxSizePolicy(MaxSizePolicy.PER_NODE);
+     ```
 </fix_planning>
 
 ```java
@@ -67,7 +71,6 @@ package org.jivesoftware.openfire.plugin.util.cache;
 import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.MapConfig;
-import com.hazelcast.config.EvictionConfig;
 import com.hazelcast.config.MemberAttributeConfig;
 import com.hazelcast.config.MemcacheProtocolConfig;
 import com.hazelcast.config.NetworkConfig;
@@ -141,7 +144,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         .setDynamic(true)
         .setPlugin(HazelcastPlugin.PLUGIN_NAME)
         .build();
-    private static final SystemProperty<Duration> CLUSTER_STARTUP_RETRY_TIME = SystemProperty.Builder.ofType(Duration.class)
+    private static final SystemProperty<Duration] CLUSTER_STARTUP_RETRY_TIME = SystemProperty.Builder.ofType(Duration.class)
         .setKey("hazelcast.startup.retry.seconds")
         .setDefaultValue(Duration.ofSeconds(10))
         .setChronoUnit(ChronoUnit.SECONDS)
@@ -333,9 +336,8 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         if (staticConfig == null) {
             final MapConfig dynamicConfig = new MapConfig(name);
             dynamicConfig.setTimeToLiveSeconds(hazelcastLifetimeInSeconds);
-            EvictionConfig evictionConfig = new EvictionConfig();
-            evictionConfig.setSize(hazelcastMaxCacheSizeInMegaBytes);
-            dynamicConfig.setEvictionConfig(evictionConfig);
+            dynamicConfig.getEvictionConfig().setSize(hazelcastMaxCacheSizeInMegaBytes);
+            dynamicConfig.getEvictionConfig().setMaxSizePolicy(MaxSizePolicy.PER_NODE);
             logger.debug("Creating dynamic map config for cache={}, dynamicConfig={}", name, dynamicConfig);
             hazelcast.getConfig().addMapConfig(dynamicConfig);
         } else {
@@ -484,7 +486,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
                 checkForPluginClassLoader(task);
                 final Map<Member, ? extends Future<T>> futures = hazelcast.getExecutorService(HAZELCAST_EXECUTOR_SERVICE_NAME.getValue()).submitToMembers(new CallableTask<>(task), members);
                 long nanosLeft = TimeUnit.SECONDS.toNanos(MAX_CLUSTER_EXECUTION_TIME.getValue().getSeconds() * members.size());
-                for (final Future<T> future : futures.values()) {
+                for (final Future<T] future : futures.values()) {
                     final long start = System.nanoTime();
                     result.add(future.get(nanosLeft, TimeUnit.NANOSECONDS));
                     nanosLeft = nanosLeft - (System.nanoTime() - start);
@@ -702,7 +704,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
     }
 
     public static NodeID getNodeID(final Member member) {
-        return NodeID.getInstance(member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).toString().getBytes(StandardCharsets.UTF_8));
+        return NodeID.getInstance(member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
     }
 
     static void fireLeftClusterAndWaitToComplete(final Duration timeout) {

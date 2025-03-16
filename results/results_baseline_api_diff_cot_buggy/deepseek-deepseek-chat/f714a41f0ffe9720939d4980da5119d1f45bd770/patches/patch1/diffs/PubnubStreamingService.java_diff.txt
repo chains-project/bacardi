@@ -1,27 +1,61 @@
-13a14
-> import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
-15,17c16,18
+11,17d10
+< import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
+< import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
+< import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
+< import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
 < import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
 < import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
 < import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
----
-> import com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult;
-> import com.pubnub.api.models.consumer.objects_api.space.PNSpaceResult;
-> import com.pubnub.api.models.consumer.objects_api.user.PNUserResult;
-40,41c41
+40,41c33
 <     PNConfiguration pnConfiguration = new PNConfiguration();
 <     pnConfiguration.setSubscribeKey(publicKey);
 ---
 >     PNConfiguration pnConfiguration = new PNConfiguration(publicKey);
-93d92
+65,67c57,58
 <                 @Override
-98d96
+<                 public void message(PubNub pubNub, PNMessageResult pnMessageResult) {
+<                   String channelName = pnMessageResult.getChannel();
+---
+>                 public void message(PubNub pubNub, Object pnMessageResult) {
+>                   String channelName = ((com.pubnub.api.models.consumer.pubsub.BasePubSubResult) pnMessageResult).getChannel();
+73c64
+<                       jsonMessage = mapper.readTree(pnMessageResult.getMessage().toString());
+---
+>                       jsonMessage = mapper.readTree(pnMessageResult.toString());
+83,84c74
 <                 @Override
-103d100
+<                 public void presence(PubNub pubNub, PNPresenceEventResult pnPresenceEventResult) {
+---
+>                 public void presence(PubNub pubNub, Object pnPresenceEventResult) {
+88,89c78
 <                 @Override
-111a109,113
+<                 public void signal(PubNub pubnub, PNSignalResult pnSignalResult) {
+---
+>                 public void signal(PubNub pubnub, Object pnSignalResult) {
+93,94c82
+<                 @Override
+<                 public void user(PubNub pubnub, PNUserResult pnUserResult) {
+---
+>                 public void user(PubNub pubnub, Object pnUserResult) {
+98,99c86
+<                 @Override
+<                 public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
+---
+>                 public void space(PubNub pubnub, Object pnSpaceResult) {
+103,104c90
+<                 @Override
+<                 public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
+---
+>                 public void membership(PubNub pubnub, Object pnMembershipResult) {
+108,110c94
+<                 @Override
+<                 public void messageAction(
+<                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
+---
+>                 public void messageAction(PubNub pubnub, Object pnMessageActionResult) {
+111a96,100
 >                 }
 > 
 >                 @Override
->                 public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
->                   LOG.debug("PubNub file event: {}", pnFileEventResult.toString());
+>                 public void file(PubNub pubnub, Object pnFileEventResult) {
+>                   LOG.debug("PubNub file: {}", pnFileEventResult.toString());

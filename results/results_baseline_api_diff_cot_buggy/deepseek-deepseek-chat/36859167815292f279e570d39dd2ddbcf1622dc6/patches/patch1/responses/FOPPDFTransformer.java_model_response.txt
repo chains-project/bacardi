@@ -1,24 +1,24 @@
 <fix_planning>
 1. Analysis:
    a. The error occurs in the line `FopFactory fopFactory = FopFactory.newInstance();` because the `newInstance()` method without arguments has been removed in the new version of the dependency.
-   b. The API changes show that `FopFactory.newInstance()` has been removed and replaced with several overloaded methods that require parameters.
+   b. The API changes show that `FopFactory.newInstance()` has been removed and replaced with several overloaded methods that require arguments.
    c. Affected line: `FopFactory fopFactory = FopFactory.newInstance();`
    d. Potential fixes:
-      - Use `FopFactory.newInstance(new File(".").toURI())` to create an instance with a default URI.
-      - Use `FopFactory.newInstance((URI) null)` to create an instance with a null URI.
-      - Use `FopFactory.newInstance(new FopFactoryConfig())` if a configuration object is available.
+      - Use `FopFactory.newInstance(new URI(""))` to create a default instance
+      - Use `FopFactory.newInstance(new File(""))` if a configuration file is available
+      - Use `FopFactory.newInstance(new FopFactoryConfig())` if a configuration object is available
    e. Side effects:
-      - Using a null URI might cause issues if the FOP factory requires a valid URI for configuration.
-      - Using a default URI (like the current directory) should work in most cases.
-   f. Constraints:
-      - The function signature of `transformToStream` cannot be changed.
-      - No existing code can be removed unless it causes a compilation error.
-      - The fix must work with the new API.
-   g. Final summary:
-      - The best solution is to use `FopFactory.newInstance(new File(".").toURI())` as it provides a valid URI and adheres to the new API requirements.
+      - Using an empty URI or File might not provide the desired configuration
+      - Need to ensure the default configuration is sufficient for the application
+   f. Constraints check:
+      - The fix adheres to all constraints as it only modifies the instantiation of FopFactory
+      - No method signatures are changed
+      - No existing code is removed
+   g. Chosen fix:
+      - Use `FopFactory.newInstance(new URI(""))` as it provides a simple way to create a default instance without requiring additional configuration files or objects
 
-2. Fix:
-   Replace `FopFactory fopFactory = FopFactory.newInstance();` with `FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());`
+2. Fix implementation:
+   Replace `FopFactory fopFactory = FopFactory.newInstance();` with `FopFactory fopFactory = FopFactory.newInstance(new URI(""));`
 </fix_planning>
 
 ```java
@@ -136,7 +136,7 @@ public abstract class FOPPDFTransformer {
         StreamSource transformSource = new StreamSource(templateStream);
 
         // create an instance of fop factory
-        FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
+        FopFactory fopFactory = FopFactory.newInstance(new URI(""));
         // a user agent is needed for transformation
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
         // to store output

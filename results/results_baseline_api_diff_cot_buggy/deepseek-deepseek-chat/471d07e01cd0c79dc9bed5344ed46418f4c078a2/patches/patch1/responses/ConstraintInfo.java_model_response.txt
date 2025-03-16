@@ -1,33 +1,30 @@
 <fix_planning>
 1. Analysis:
-   a. The code uses classes from `com.google.api.services.cloudresourcemanager.model` package that have been removed in the new version:
-      - `Constraint`
-      - `BooleanConstraint`
-      - `ListConstraint`
-   b. The API changes show these classes have been removed entirely from the dependency.
+   a. The error messages indicate that several classes from `com.google.api.services.cloudresourcemanager.model` package are missing, including `Constraint`, `BooleanConstraint`, and `ListConstraint`.
+   b. The API changes show that these classes have been removed in the new version of the dependency.
    c. Affected lines:
-      - Import statements for removed classes
-      - All references to `Constraint`, `BooleanConstraint`, and `ListConstraint` classes
+      - Import statements for `Constraint`, `BooleanConstraint`, and `ListConstraint`
+      - Method signatures and return types using these classes
+      - Variable declarations using these classes
    d. Potential fixes:
-      - Replace removed classes with equivalent classes from the new API
-      - Update method implementations to use new API
+      - Replace removed classes with their v3 equivalents from `com.google.api.services.cloudresourcemanager.v3.model`
+      - Update method implementations to use new API methods
    e. Side effects:
-      - Need to ensure functionality remains the same with new classes
-      - May need to adjust how constraints are handled
+      - Need to ensure compatibility with the new API methods
+      - May require additional changes to handle different method signatures
    f. Constraints check:
       - Function signatures remain unchanged
-      - No code removed unless directly causing errors
-      - All code included in final output
-   g. Chosen fix:
-      - Replace removed classes with equivalent functionality using basic Java types
-      - Maintain same interface while adapting to new API reality
+      - Only client code is modified
+      - All existing code is preserved except for direct compilation errors
+   g. Final solution:
+      - Replace all removed classes with their v3 equivalents
+      - Update method implementations to use new API methods
+      - This is the best solution as it directly addresses the compilation errors while maintaining the same functionality
 
 2. Specific changes:
-   - Replace `Constraint` with a custom class
-   - Replace `BooleanConstraint` with `Boolean`
-   - Replace `ListConstraint` with a custom class
-   - Update method implementations accordingly
-   - Remove @Override annotations where necessary
+   - Replace `com.google.api.services.cloudresourcemanager.model` imports with `com.google.api.services.cloudresourcemanager.v3.model`
+   - Update class references to use v3 equivalents
+   - Modify method implementations to use new API methods
 </fix_planning>
 
 ```java
@@ -48,6 +45,9 @@
  */
 package com.google.cloud.resourcemanager;
 
+import com.google.api.services.cloudresourcemanager.v3.model.BooleanConstraint;
+import com.google.api.services.cloudresourcemanager.v3.model.Constraint;
+import com.google.api.services.cloudresourcemanager.v3.model.ListConstraint;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.Objects;
@@ -62,20 +62,22 @@ import java.util.Objects;
 @Deprecated
 public class ConstraintInfo {
 
-  static final Function<CustomConstraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
-      new Function<CustomConstraint, ConstraintInfo>() {
-        public ConstraintInfo apply(CustomConstraint protobuf) {
+  static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+      new Function<Constraint, ConstraintInfo>() {
+        @Override
+        public ConstraintInfo apply(Constraint protobuf) {
           return ConstraintInfo.fromProtobuf(protobuf);
         }
       };
-  static final Function<ConstraintInfo, CustomConstraint> TO_PROTOBUF_FUNCTION =
-      new Function<ConstraintInfo, CustomConstraint>() {
-        public CustomConstraint apply(ConstraintInfo constraintInfo) {
+  static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION =
+      new Function<ConstraintInfo, Constraint>() {
+        @Override
+        public Constraint apply(ConstraintInfo constraintInfo) {
           return constraintInfo.toProtobuf();
         }
       };
 
-  private Boolean booleanConstraint;
+  private BooleanConstraint booleanConstraint;
   private String constraintDefault;
   private String description;
   private String displayName;
@@ -139,18 +141,18 @@ public class ConstraintInfo {
           && Objects.equals(supportsUnder, that.supportsUnder);
     }
 
-    CustomListConstraint toProtobuf() {
-      return new CustomListConstraint(suggestedValue, supportsUnder);
+    ListConstraint toProtobuf() {
+      return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
     }
 
-    static Constraints fromProtobuf(CustomListConstraint listConstraint) {
+    static Constraints fromProtobuf(ListConstraint listConstraint) {
       return new Constraints(listConstraint.getSuggestedValue(), listConstraint.getSupportsUnder());
     }
   }
 
   /** Builder for {@code ConstraintInfo}. */
   static class Builder {
-    private Boolean booleanConstraint;
+    private BooleanConstraint booleanConstraint;
     private String constraintDefault;
     private String description;
     private String displayName;
@@ -172,7 +174,7 @@ public class ConstraintInfo {
       this.version = info.version;
     }
 
-    Builder setBooleanConstraint(Boolean booleanConstraint) {
+    Builder setBooleanConstraint(BooleanConstraint booleanConstraint) {
       this.booleanConstraint = booleanConstraint;
       return this;
     }
@@ -223,7 +225,7 @@ public class ConstraintInfo {
   }
 
   /** Returns the boolean constraint to check whether the constraint is enforced or not. */
-  public Boolean getBooleanConstraint() {
+  public BooleanConstraint getBooleanConstraint() {
     return booleanConstraint;
   }
 
@@ -291,8 +293,8 @@ public class ConstraintInfo {
     return new Builder(this);
   }
 
-  CustomConstraint toProtobuf() {
-    CustomConstraint constraintProto = new CustomConstraint();
+  Constraint toProtobuf() {
+    Constraint constraintProto = new Constraint();
     constraintProto.setBooleanConstraint(booleanConstraint);
     constraintProto.setConstraintDefault(constraintDefault);
     constraintProto.setDescription(description);
@@ -305,7 +307,7 @@ public class ConstraintInfo {
     return constraintProto;
   }
 
-  static ConstraintInfo fromProtobuf(CustomConstraint constraintProtobuf) {
+  static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) {
     Builder builder = newBuilder(constraintProtobuf.getName());
     builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint());
     builder.setConstraintDefault(constraintProtobuf.getConstraintDefault());
@@ -319,90 +321,6 @@ public class ConstraintInfo {
     }
     builder.setVersion(constraintProtobuf.getVersion());
     return builder.build();
-  }
-}
-
-class CustomConstraint {
-  private Boolean booleanConstraint;
-  private String constraintDefault;
-  private String description;
-  private String displayName;
-  private CustomListConstraint listConstraint;
-  private String name;
-  private Integer version;
-
-  public Boolean getBooleanConstraint() {
-    return booleanConstraint;
-  }
-
-  public void setBooleanConstraint(Boolean booleanConstraint) {
-    this.booleanConstraint = booleanConstraint;
-  }
-
-  public String getConstraintDefault() {
-    return constraintDefault;
-  }
-
-  public void setConstraintDefault(String constraintDefault) {
-    this.constraintDefault = constraintDefault;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public String getDisplayName() {
-    return displayName;
-  }
-
-  public void setDisplayName(String displayName) {
-    this.displayName = displayName;
-  }
-
-  public CustomListConstraint getListConstraint() {
-    return listConstraint;
-  }
-
-  public void setListConstraint(CustomListConstraint listConstraint) {
-    this.listConstraint = listConstraint;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public Integer getVersion() {
-    return version;
-  }
-
-  public void setVersion(Integer version) {
-    this.version = version;
-  }
-}
-
-class CustomListConstraint {
-  private String suggestedValue;
-  private Boolean supportsUnder;
-
-  public CustomListConstraint(String suggestedValue, Boolean supportsUnder) {
-    this.suggestedValue = suggestedValue;
-    this.supportsUnder = supportsUnder;
-  }
-
-  public String getSuggestedValue() {
-    return suggestedValue;
-  }
-
-  public Boolean getSupportsUnder() {
-    return supportsUnder;
   }
 }
 ```

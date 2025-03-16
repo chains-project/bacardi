@@ -110,7 +110,7 @@ public class WWCTranslateGUISourceLanguage implements InventoryProvider {
 			/* Bottom Middle Option: Auto-detect Source Language */
 			/* Disabled for Amazon Translate */
 			if (!main.getTranslatorName().equalsIgnoreCase("Amazon Translate")) {
-				ItemStack skipSourceButton = XMaterial.BOOKSHELF.parseItem();
+				ItemStack skipSourceButton = XMaterial.BOOKShelf.parseItem();
 				ItemMeta skipSourceMeta = skipSourceButton.getItemMeta();
 				skipSourceMeta.setDisplayName(ChatColor.YELLOW
 						+ CommonDefinitions.getMessage("wwctGUIAutoDetectButton"));

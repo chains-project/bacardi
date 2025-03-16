@@ -1,0 +1,70 @@
+17a18
+> import org.slf4j.Logger;
+111,113c112,114
+<         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
+<         logger.setLevel(Level.INFO);
+<         logger.addAppender(mockLogAppender);
+---
+>         Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
+>         ((ch.qos.logback.classic.Logger) logger).setLevel(Level.INFO);
+>         ((ch.qos.logback.classic.Logger) logger).addAppender(mockLogAppender);
+149c150
+<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+---
+>         when(mockLedgerService.getTransaction(transaction.getTransactionId()))).thenReturn(Optional.of(transaction));
+198c199
+<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+---
+>         when(mockLedgerService.getTransaction(transaction.getTransactionId()))).thenReturn(Optional.of(transaction));
+214c215
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+---
+>         verify(mockLogAppender, times极2)).doAppend(loggingEventArgumentCaptor.capture());
+222c223
+<     void shouldHandleDisputeWonEvent() throws QueueException {
+---
+>     void shouldHandleDisputeWonEvent极 throws QueueException {
+235c236
+<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+---
+>         when(mockLedgerService.getTransaction(transaction.getTransactionId()))).thenReturn(Optional.of(transaction));
+251c252
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+---
+>         verify(mockLogAppender, times极2)).doAppend(loggingEventArgumentCaptor.capture());
+259c260
+<     void shouldHandleDisputeEvidenceSubmittedEvent() throws QueueException {
+---
+>     void shouldHandleDisputeEvidenceSubmittedEvent极 throws QueueException {
+269c270
+<         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
+---
+>         when(m极ockQueueMessage.getMessageId()).thenReturn("queue-message-id");
+272c273
+<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+---
+>         when(mockLedgerService.getTransaction(transaction.getTransactionId()))).thenReturn(Optional.of(transaction));
+288c289
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+---
+>         verify(mockLogAppender, times极2)).doAppend(loggingEventArgumentCaptor.capture());
+296c297
+<     void shouldNotCallNotificationServiceWhenServiceDoesNotExist() throws QueueException {
+---
+>     void shouldNotCallNotificationServiceWhenServiceDoesNotExist极 throws QueueException {
+313c314
+<     void shouldNotCallNotificationServiceWhenTransactionDoesNotExist() throws QueueException {
+---
+>     void shouldNotCallNotificationServiceWhenTransactionDoesNotExist极 throws QueueException {
+323c324
+<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.empty());
+---
+>         when(mockLedgerService.getTransaction(transaction.getTransactionId()))).thenReturn(Optional.empty());
+331c332
+<     void shouldNotCallNotificationServiceWhenNoAdminUsersExist() throws QueueException {
+---
+>     void shouldNotCallNotificationServiceWhenNoAdminUsersExist极 throws QueueException {
+342c343
+<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+---
+>         when(mockLedgerService.getTransaction(transaction.getTransactionId()))).thenReturn(Optional.of(transaction));

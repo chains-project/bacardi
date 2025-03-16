@@ -63,7 +63,7 @@ public final class Copies extends IterableEnvelope<Copy> {
             boolean updated = false;
             for (int idx = 0; idx < copies.size(); idx += 1) {
                 final Copy copy = copies.get(idx);
-                if (Copies.equalWallets(copies.get(idx).wallet(), wallet) {
+                if (Copies.equalWallets(copies.get(idx).wallet(), wallet)) {
                     copies.set(idx, copy.with(remote));
                     updated = true;
                 }

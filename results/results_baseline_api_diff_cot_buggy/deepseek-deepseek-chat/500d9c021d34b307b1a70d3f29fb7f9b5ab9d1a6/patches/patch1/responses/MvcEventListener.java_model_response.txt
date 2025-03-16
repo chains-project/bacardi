@@ -1,27 +1,31 @@
 <fix_planning>
-1. **Analysis of the Problem:**
-   - The errors are caused by the migration from `javax.mvc.event` to `jakarta.mvc.event` package.
-   - The classes `AfterControllerEvent`, `BeforeControllerEvent`, `BeforeProcessViewEvent`, `ControllerRedirectEvent`, and `AfterProcessViewEvent` have been moved from `javax.mvc.event` to `jakarta.mvc.event`.
-   - The method `getEngine()` has been moved to the new package as well.
+1. Analysis:
+   a. The code uses classes from the `javax.mvc.event` package, which have been removed in the new version of the dependency. These classes have been replaced by interfaces in the `jakarta.mvc.event` package.
+   b. The specific API changes causing the issue are:
+      - `javax.mvc.event.AfterProcessViewEvent` → `jakarta.mvc.event.AfterProcessViewEvent`
+      - `javax.mvc.event.BeforeControllerEvent` → `jakarta.mvc.event.BeforeControllerEvent`
+      - `javax.mvc.event.AfterControllerEvent` → `jakarta.mvc.event.AfterControllerEvent`
+      - `javax.mvc.event.BeforeProcessViewEvent` → `jakarta.mvc.event.BeforeProcessViewEvent`
+      - `javax.mvc.event.ControllerRedirectEvent` → `jakarta.mvc.event.ControllerRedirectEvent`
+   c. Affected lines of code:
+      - Import statements for `javax.mvc.event.*`
+      - Method parameters using `javax.mvc.event.*` classes
+   d. Proposed fixes:
+      - Replace all `javax.mvc.event` imports with `jakarta.mvc.event`
+      - No changes needed to method signatures as the new interfaces are compatible
+   e. Potential side effects:
+      - None, as the new interfaces are drop-in replacements
+   f. Constraints check:
+      - No function signatures changed
+      - No variables created
+      - No @Override annotations to remove
+      - Missing imports addressed correctly
+      - No code removed unnecessarily
+   g. Final summary:
+      - The best solution is to update the import statements to use the new `jakarta.mvc.event` package, as this directly addresses the compilation errors while maintaining all functionality.
 
-2. **Affected Lines of Code:**
-   - Import statements for `javax.mvc.event` classes.
-   - Method signatures using `javax.mvc.event` classes.
-
-3. **Proposed Fixes:**
-   - Replace all `javax.mvc.event` imports with `jakarta.mvc.event`.
-   - Ensure that the method signatures remain unchanged, only updating the import statements.
-
-4. **Potential Side Effects:**
-   - None, as the functionality remains the same, only the package names have changed.
-
-5. **Adherence to Constraints:**
-   - The function signatures remain unchanged.
-   - No code is removed, only imports are updated.
-   - All constraints are adhered to.
-
-6. **Final Summary:**
-   - The best solution is to update the import statements to use the new `jakarta.mvc.event` package. This fixes the compilation errors without altering the functionality or violating any constraints.
+2. Fix:
+   - Replace all `javax.mvc.event` imports with `jakarta.mvc.event`
 </fix_planning>
 
 ```java

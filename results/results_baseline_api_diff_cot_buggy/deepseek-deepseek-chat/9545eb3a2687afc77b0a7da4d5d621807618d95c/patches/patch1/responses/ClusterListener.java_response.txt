@@ -16,13 +16,14 @@
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.cluster.Cluster;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MembershipEvent;
+import com.hazelcast.cluster.MemberAttributeEvent;
+import com.hazelcast.cluster.MembershipListener;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.LifecycleEvent;
 import com.hazelcast.core.LifecycleEvent.LifecycleState;
 import com.hazelcast.core.LifecycleListener;
-import com.hazelcast.cluster.Member;
-import com.hazelcast.cluster.MembershipEvent;
-import com.hazelcast.cluster.MembershipListener;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterManager;
 import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
@@ -72,6 +73,7 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
     private boolean isSenior;
 
     ClusterListener(final Cluster cluster) {
+
         this.cluster = cluster;
         for (final Member member : cluster.getMembers()) {
             clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(member),
@@ -188,6 +190,16 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
                 new HazelcastClusterNodeInfo(event.getMember(), cluster.getClusterTime()));
     }
 
+    /**
+     * Blocks the current thread until the cluster cache is guaranteed to support clustering. This is especially useful
+     * for executing cluster tasks immediately after joining. If this wait is not performed, the cache factory may still
+     * be using the 'default' strategy instead of the 'hazelcast' strategy, which leads to cluster tasks being silently
+     * discarded.
+     *
+     * The method will keep trying this for 10 minutes. After that the thread is released regardless of the result.
+     *
+     * @return Boolean indicating whether the clustered cache was actually observed to be installed.
+     */
     private boolean waitForClusterCacheToBeInstalled() {
         boolean failed = false;
         if (!ClusteredCacheFactory.PLUGIN_NAME.equals(CacheFactory.getPluginName())) {
@@ -253,6 +265,15 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         } else if (event.getState().equals(LifecycleState.STARTED)) {
             joinCluster();
         }
+    }
+
+    @Override
+    public void memberAttributeChanged(final MemberAttributeEvent event) {
+        logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
+        isSenior = isSeniorClusterMember();
+        final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
+        clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(event.getMember()),
+                new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
     }
 
     boolean isClusterMember() {

@@ -1,42 +1,49 @@
 <fix_planning>
 1. Analysis:
-   a. Relevant code parts:
-      - `this.httpConnector = new SelectChannelConnector();`
-      - `this.httpConnector.setPort(port);`
-      - `return httpConnector.getLocalPort();`
-      - `this.server.setSendServerVersion(false);`
-      - `this.server.setSendDateHeader(true);`
-   
-   b. API changes causing issues:
-      - `SelectChannelConnector` class removed
-      - `Connector` class removed
-      - `Server.setSendServerVersion()` removed
-      - `Server.setSendDateHeader()` removed
-      - `Connector.getLocalPort()` removed
-   
+   a. Relevant code and API changes:
+      - `SelectChannelConnector` class and its constructor have been removed
+      - `Connector` class has been removed
+      - `Server.setSendServerVersion(boolean)` and `Server.setSendDateHeader(boolean)` have been removed
+      - `HttpConfiguration.setSendServerVersion(boolean)` and `HttpConfiguration.setSendDateHeader(boolean)` have been added
+      - `AbstractNetworkConnector.setPort(int)` has been added
+      - `NetworkConnector.getLocalPort()` has been added
+
+   b. Specific API changes causing issues:
+      - Use of removed classes and methods (`SelectChannelConnector`, `Connector`, `Server` methods)
+      - Need to use new classes and methods (`ServerConnector`, `HttpConfiguration`, `NetworkConnector`)
+
    c. Affected lines:
-      - Lines using removed classes/methods
-   
+      - Line 14: `import org.eclipse.jetty.server.nio.SelectChannelConnector;`
+      - Line 33: `this.server.setSendServerVersion(false);`
+      - Line 34: `this.server.setSendDateHeader(true);`
+      - Line 36: `this.httpConnector = new SelectChannelConnector();`
+      - Line 37: `this.httpConnector.setPort(port);`
+      - Line 80: `return httpConnector.getLocalPort();`
+
    d. Proposed fixes:
       - Replace `SelectChannelConnector` with `ServerConnector`
-      - Use `HttpConfiguration` for server version and date header settings
+      - Create `HttpConfiguration` object to handle server version and date header settings
+      - Use `NetworkConnector` interface for port-related operations
       - Update imports accordingly
-   
+
    e. Potential side effects:
-      - Need to ensure new classes are compatible with existing functionality
-      - May need to adjust connector configuration
-   
+      - New Jetty version might have different behavior for server configuration
+      - Need to ensure compatibility with other parts of the code
+
    f. Constraints check:
       - Function signatures remain unchanged
-      - Only client code modified
-      - All necessary imports included
-      - No code removed unless causing errors
-   
-   g. Final solution:
-      - Use `ServerConnector` instead of `SelectChannelConnector`
-      - Configure server settings through `HttpConfiguration`
-      - Update imports to match new API
-      - This solution best addresses all breaking changes while maintaining functionality
+      - New variables are created for configuration
+      - Imports are updated correctly
+      - No code is removed unnecessarily
+
+   g. Final summary:
+      The best solution is to update the code to use the new Jetty API classes and methods while maintaining the same functionality. This involves replacing the removed classes with their newer equivalents and using the new configuration approach.
+
+2. Fix implementation:
+   - Replace `SelectChannelConnector` with `ServerConnector`
+   - Create `HttpConfiguration` object
+   - Update imports
+   - Modify connector setup and port handling
 </fix_planning>
 
 ```java
@@ -63,7 +70,7 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
     private final Server server;
-    private final ServerConnector httpConnector;
+    private final NetworkConnector httpConnector;
 
     public JettyStubHttpServer() {
         this(0);
@@ -72,6 +79,7 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
+        
         HttpConfiguration httpConfig = new HttpConfiguration();
         httpConfig.setSendServerVersion(false);
         httpConfig.setSendDateHeader(true);

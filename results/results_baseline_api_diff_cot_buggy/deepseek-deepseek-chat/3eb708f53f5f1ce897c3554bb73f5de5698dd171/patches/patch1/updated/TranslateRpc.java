@@ -53,7 +53,7 @@ public interface TranslateRpc extends ServiceRpc {
    *
    * @param optionMap options to listing language translations
    */
-  List<Map<String, Object>> listSupportedLanguages(Map<Option, ?> optionMap);
+  List<Map<String, String>> listSupportedLanguages(Map<Option, ?> optionMap);
 
   /**
    * Detects the language of the provided texts.
@@ -61,7 +61,7 @@ public interface TranslateRpc extends ServiceRpc {
    * @param texts the texts to translate
    * @return a list of lists of detections, one list of detections for each provided text, in order
    */
-  List<List<Map<String, Object>>> detect(List<String> texts);
+  List<List<Map<String, String>>> detect(List<String> texts);
 
   /**
    * Translates the provided texts.
@@ -71,5 +71,5 @@ public interface TranslateRpc extends ServiceRpc {
    * @return a list of resources containing translation information, in the same order of the
    *     provided texts
    */
-  List<Map<String, Object>> translate(List<String> texts, Map<Option, ?> optionMap);
+  List<Map<String, String>> translate(List<String> texts, Map<Option, ?> optionMap);
 }

@@ -1,39 +1,30 @@
 <fix_planning>
-1. Analyze the problem and propose changes:
-   a. Relevant parts of the code and API changes:
-      - The code uses `@Priority(100)` and imports `javax.annotation.Priority`.
-      - The API changes indicate that `javax.annotation.Priority` has been removed and replaced with `jakarta.annotation.Priority`.
-
-   b. Specific API changes causing the issue:
-      - The removal of `javax.annotation.Priority` and its replacement with `jakarta.annotation.Priority`.
-
-   c. Affected lines of code:
-      - `import javax.annotation.Priority;`
-      - `@Priority(100)`
-
-   d. Propose potential fixes for each affected line:
-      - Replace `import javax.annotation.Priority;` with `import jakarta.annotation.Priority;`.
-      - Keep `@Priority(100)` unchanged as the annotation itself remains the same, only the package has changed.
-
-   e. Consider any potential side effects of the proposed changes:
-      - The change in import statement should not have any side effects as long as the new package `jakarta.annotation.Priority` is available in the classpath.
-
-   f. Explicitly check if the proposed changes adhere to all the given constraints:
-      - The function signature of any method is not changed.
-      - No variables are created.
-      - No `@Override` annotations are removed.
-      - The correct package is used in accordance with the newer dependency version.
-      - No existing code is removed unless it directly causes a compilation or functionality error.
-      - All code, even unchanged portions, is included in the final output.
-
-   g. Final summary of the chosen fix and why it's the best solution:
-      - The best solution is to update the import statement to use the new package `jakarta.annotation.Priority`. This change directly addresses the compilation error caused by the missing `javax.annotation.Priority` class and adheres to all constraints.
-
-2. Apply the fix to the Java code:
-   - Replace `import javax.annotation.Priority;` with `import jakarta.annotation.Priority;`.
-   - Keep `@Priority(100)` unchanged.
-
-3. Output the complete, fixed Java class in a fenced code block.
+1. Analysis:
+   a. Relevant code parts:
+      ```java
+      @Priority(100)
+      import javax.annotation.Priority;
+      ```
+   b. API changes:
+      - Class `javax.annotation.Priority` has been removed
+      - Interface `jakarta.annotation.Priority` has been added
+   c. Affected lines:
+      - Line with `@Priority(100)` annotation
+      - Import statement `import javax.annotation.Priority;`
+   d. Proposed fixes:
+      - Replace `javax.annotation.Priority` with `jakarta.annotation.Priority` in the import statement
+      - Keep the `@Priority(100)` annotation as it's still valid, just from a different package
+   e. Side effects:
+      - No side effects expected as the functionality remains the same, only the package changes
+   f. Constraints check:
+      - No function signatures changed
+      - No variables created
+      - No @Override annotations removed
+      - Correct package used for import
+      - No existing code removed
+      - All code included
+   g. Final summary:
+      - The best solution is to update the import statement to use the new `jakarta.annotation.Priority` package while keeping the annotation itself unchanged
 </fix_planning>
 
 ```java

@@ -108,7 +108,7 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
+        org.slf4j.Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
         logger.addAppender(mockLogAppender);
     }
 
@@ -327,7 +327,7 @@ class EventMessageHandlerTest {
     }
 
     @Test
-    void shouldNotCallNotificationServiceWhenNoAdminUsersExist() throws QueueException {
+    void shouldNotCallNotificationServiceWhenNoAdminUsersExist) throws QueueException {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())

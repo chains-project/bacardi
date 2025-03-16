@@ -1,23 +1,34 @@
 <fix_planning>
-1. Analysis:
-   a. The code uses `com.hazelcast.core.Member` which has been removed in the new version. The new version introduces `com.hazelcast.cluster.Member`.
-   b. The method `getStringAttribute(String)` has been removed, and `getSocketAddress()` has been replaced with `getSocketAddress(EndpointQualifier)`.
-   c. Affected lines:
-      - `import com.hazelcast.core.Member;`
-      - `public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {`
-      - `this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";`
-   d. Proposed fixes:
-      - Replace `import com.hazelcast.core.Member;` with `import com.hazelcast.cluster.Member;`
-      - Replace `member.getStringAttribute(HOST_NAME_ATTRIBUTE)` with a different way to get the hostname, possibly using `member.getAddress().getHost()`
-      - Replace `member.getSocketAddress().getHostString()` with `member.getAddress().getHost()`
-   e. Potential side effects:
-      - The hostname format might change slightly due to the different method of obtaining it.
-   f. Constraints check:
-      - The function signature remains unchanged.
-      - No existing code is removed.
-      - The correct import is used.
-   g. Final summary:
-      - The best solution is to update the import and modify the hostname construction to use the new API methods. This adheres to all constraints and fixes the compilation errors.
+1. **Analysis of the Problem:**
+   - The error occurs because the `com.hazelcast.core.Member` class has been removed in the new version of the dependency.
+   - The new version introduces `com.hazelcast.cluster.Member` as a replacement.
+   - The method `getSocketAddress()` has been moved to `com.hazelcast.cluster.Member`.
+   - The method `getStringAttribute(String)` has been removed entirely.
+
+2. **Affected Lines:**
+   - `import com.hazelcast.core.Member;`
+   - `public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {`
+   - `this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";`
+
+3. **Proposed Fixes:**
+   - Replace `import com.hazelcast.core.Member;` with `import com.hazelcast.cluster.Member;`.
+   - Replace `member.getStringAttribute(HOST_NAME_ATTRIBUTE)` with a placeholder or alternative method since `getStringAttribute` is no longer available.
+   - Use `member.getSocketAddress()` directly since it is now available in `com.hazelcast.cluster.Member`.
+
+4. **Potential Side Effects:**
+   - The removal of `getStringAttribute` might affect the `hostname` construction. We need to ensure that the `hostname` is still meaningful.
+
+5. **Adherence to Constraints:**
+   - The function signature of `HazelcastClusterNodeInfo` remains unchanged.
+   - No existing code is removed unless it directly causes a compilation error.
+   - The fix addresses missing imports correctly.
+
+6. **Final Summary:**
+   - The best solution is to update the import statement and modify the `hostname` construction to use available methods. Since `getStringAttribute` is no longer available, we can use a placeholder or alternative method to construct the `hostname`.
+
+**Chosen Fix:**
+- Update the import statement to use `com.hazelcast.cluster.Member`.
+- Modify the `hostname` construction to use `member.getSocketAddress().getHostString()` directly, omitting the `getStringAttribute` part.
 </fix_planning>
 
 ```java
@@ -62,7 +73,7 @@ public class HazelcastClusterNodeInfo implements ClusterNodeInfo {
     private final boolean seniorMember;
 
     public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
-        this.hostname = member.getAddress().getHost() + " (" + member.getAddress().getHost() + ")";
+        this.hostname = member.getSocketAddress().getHostString();
         this.nodeID = ClusteredCacheFactory.getNodeID(member);
         this.joinedTime = joinedTime;
         this.seniorMember = ClusterManager.getSeniorClusterMember().equals(nodeID);

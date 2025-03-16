@@ -1,30 +1,26 @@
 <fix_planning>
 1. Analysis:
-   a. The error occurs in the line `logger.setLevel(Level.INFO);` where `Logger` is from `ch.qos.logback.classic.Logger`.
-   b. The API change indicates that `ch.qos.logback.classic.Logger` has been removed in the new version.
-   c. Affected line: `Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);` and `logger.setLevel(Level.INFO);`
+   a. The error occurs because the `ch.qos.logback.classic.Logger` class has been removed in the new version of the dependency.
+   b. The specific API change causing the issue is the removal of the `Logger` class from the `ch.qos.logback.classic` package.
+   c. The affected line is: `logger.setLevel(Level.INFO);`
    d. Potential fixes:
-      - Replace `ch.qos.logback.classic.Logger` with `org.slf4j.Logger`
-      - Use `org.slf4j.LoggerFactory` instead of `ch.qos.logback.classic.Logger`
-      - Change the level setting approach to use SLF4J's standard methods
+      - Use the `org.slf4j.Logger` interface instead of `ch.qos.logback.classic.Logger`.
+      - Use `LoggerFactory.getLogger()` to get the logger instance.
+      - Set the log level using the `org.slf4j.event.Level` enum.
    e. Side effects:
-      - The logging configuration might need to be adjusted in the logging framework configuration files
-      - The logging behavior might change slightly due to different implementation
-   f. Constraints check:
-      - The fix adheres to all constraints as it doesn't change method signatures
-      - It only modifies the logging setup code
-      - It uses the correct imports from the newer dependency version
-   g. Chosen fix:
-      - Replace `ch.qos.logback.classic.Logger` with `org.slf4j.Logger`
-      - Use `org.slf4j.LoggerFactory` to get the logger
-      - Remove the direct level setting as it's not supported in SLF4J's standard API
-      - This is the best solution as it moves to the standard SLF4J API which is more stable and widely supported
+      - The logging configuration might need to be adjusted to ensure the desired log level is applied.
+      - The logging behavior might change slightly due to the different logging framework.
+   f. The proposed changes adhere to all the given constraints:
+      - The function signatures remain unchanged.
+      - No existing code is removed.
+      - The correct package and class are used.
+   g. Final summary:
+      - The best solution is to use the `org.slf4j.Logger` interface and `LoggerFactory.getLogger()` to get the logger instance. This ensures compatibility with the new version of the dependency and maintains the desired logging functionality.
 
-2. Changes needed:
-   - Replace `ch.qos.logback.classic.Logger` with `org.slf4j.Logger`
-   - Remove the level setting line as it's not supported in SLF4J's standard API
-   - Update the logger type in the variable declaration
-   - Keep the appender setup as it's still valid
+2. Fix:
+   - Replace `ch.qos.logback.classic.Logger` with `org.slf4j.Logger`.
+   - Use `LoggerFactory.getLogger()` to get the logger instance.
+   - Set the log level using the `org.slf4j.event.Level` enum.
 </fix_planning>
 
 ```java
@@ -45,7 +41,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import uk.gov.pay.adminusers.client.ledger.model.LedgerTransaction;
 import uk.gov.pay.adminusers.client.ledger.service.LedgerService;
 import uk.gov.pay.adminusers.model.MerchantDetails;
@@ -139,7 +134,8 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
+        org.slf4j.Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
+        ((ch.qos.logback.classic.Logger) logger).setLevel(Level.INFO);
         ((ch.qos.logback.classic.Logger) logger).addAppender(mockLogAppender);
     }
 
@@ -176,7 +172,7 @@ class EventMessageHandlerTest {
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
 
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId()))).thenReturn(Optional.of(transaction));
+        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
 
         eventMessageHandler.processMessages();
@@ -225,7 +221,7 @@ class EventMessageHandlerTest {
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId()))).thenReturn(Optional.of(transaction));
+        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
 
         eventMessageHandler.processMessages();
@@ -262,7 +258,7 @@ class EventMessageHandlerTest {
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId()))).thenReturn(Optional.of(transaction));
+        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
 
         eventMessageHandler.processMessages();
@@ -297,84 +293,4 @@ class EventMessageHandlerTest {
                 .build();
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
-        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
-        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId()))).thenReturn(Optional.of(transaction));
-        when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
-
-        eventMessageHandler.processMessages();
-
-        verify(mockNotificationService, atMostOnce()).sendStripeDisputeEvidenceSubmittedEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
-
-        var emails = adminEmailsCaptor.getValue();
-        var personalisation = personalisationCaptor.getValue();
-
-        assertThat(emails.size(), is(2));
-        assertThat(emails, hasItems("admin1@service.gov.uk", "admin2@service.gov.uk"));
-        assertThat(personalisation.get("serviceName"), is(service.getName()));
-        assertThat(personalisation.get("serviceReference"), is("tx ref"));
-        assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
-
-        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-
-        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
-    }
-
-    @Test
-    void shouldNotCallNotificationServiceWhenServiceDoesNotExist() throws QueueException {
-        var mockQueueMessage = mock(QueueMessage.class);
-        disputeEvent = anEventFixture()
-                .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00Z", "gateway_account_id", gatewayAccountId)))
-                .withParentResourceExternalId("456")
-                .build();
-        var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
-        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
-        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.empty());
-
-        eventMessageHandler.processMessages();
-
-        verify(mockNotificationService, never()).sendStripeDisputeCreatedEmail(anySet(), anyMap());
-    }
-
-    @Test
-    void shouldNotCallNotificationServiceWhenTransactionDoesNotExist() throws QueueException {
-        var mockQueueMessage = mock(QueueMessage.class);
-        disputeEvent = anEventFixture()
-                .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
-                .withParentResourceExternalId("456")
-                .build();
-        var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
-        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
-        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId()))).thenReturn(Optional.empty());
-
-        eventMessageHandler.processMessages();
-
-        verify(mockNotificationService, never()).sendStripeDisputeCreatedEmail(anySet(), anyMap());
-    }
-
-    @Test
-    void shouldNotCallNotificationServiceWhenNoAdminUsersExist) throws QueueException {
-        var mockQueueMessage = mock(QueueMessage.class);
-        disputeEvent = anEventFixture()
-                .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_dueDate", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
-                .withParentResourceExternalId("456")
-                .build();
-        var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
-        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
-
-        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId()))).thenReturn(Optional.of(transaction));
-        when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(Collections.emptyList());
-
-        eventMessageHandler.processMessages();
-
-        verify(mockNotificationService, never()).sendStripeDisputeCreatedEmail(anySet(), anyMap());
-    }
-}
-```
+        when

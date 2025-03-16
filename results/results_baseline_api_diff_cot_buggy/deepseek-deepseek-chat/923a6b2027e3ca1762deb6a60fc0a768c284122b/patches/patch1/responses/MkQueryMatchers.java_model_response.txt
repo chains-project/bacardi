@@ -1,19 +1,26 @@
 <fix_planning>
 1. **Analysis of the Problem:**
-   - The error occurs because the `org.hamcrest.Matchers` class has been removed in the new version of the dependency.
-   - The affected line is the import statement: `import org.hamcrest.Matchers;`.
-   - The `Matchers` class was used in the `hasPath` and `hasQuery` methods to create matchers for URI properties.
+   a. The error occurs because the class `org.hamcrest.Matchers` has been removed in the new version of the dependency.
+   b. The specific API change causing the issue is the removal of the `Matchers` class.
+   c. The affected line of code is:
+      ```java
+      import org.hamcrest.Matchers;
+      ```
+   d. Potential fixes:
+      - Replace `Matchers` with the appropriate alternative class or method from the new version of the dependency.
+      - Since `Matchers` was commonly used for creating matchers, we can replace it with `CoreMatchers` or other specific matcher classes.
+   e. Side effects:
+      - The change should not affect the functionality of the code as long as the replacement provides the same matcher functionality.
+   f. The proposed changes adhere to all constraints:
+      - The function signatures remain unchanged.
+      - No existing code is removed.
+      - The fix only addresses the missing import.
+   g. Final summary:
+      - The best solution is to replace `Matchers` with `CoreMatchers` since it is a common replacement in newer versions of Hamcrest and provides similar functionality.
 
 2. **Proposed Fix:**
-   - Replace the import of `org.hamcrest.Matchers` with `org.hamcrest.CoreMatchers`, which is the recommended replacement in newer versions of Hamcrest.
-   - Update the usage of `Matchers` in the `hasPath` and `hasQuery` methods to use `CoreMatchers` instead.
-
-3. **Potential Side Effects:**
-   - The change should not affect the functionality of the code, as `CoreMatchers` provides the same functionality as `Matchers`.
-   - The fix adheres to all constraints, as it does not change method signatures, removes any code, or introduces new functionality.
-
-4. **Final Summary:**
-   - The best solution is to replace `org.hamcrest.Matchers` with `org.hamcrest.CoreMatchers` in both the import statement and the method implementations. This fix is straightforward, adheres to all constraints, and resolves the compilation error.
+   - Replace `import org.hamcrest.Matchers;` with `import org.hamcrest.CoreMatchers;`.
+   - Update the usage of `Matchers` in the code to `CoreMatchers`.
 </fix_planning>
 
 ```java

@@ -128,10 +128,6 @@ public final class WalletsIn implements Wallets {
     }
 
     @Override
-    // @todo #65:30min Create the new wallet in the path with all wallets.
-    //  It should contain the correct content according to the
-    //  white paper (network, protocol version, id and public RSA key). After
-    //  this remove exception expect for tests on WalletsInTest.
     public Wallet create(final long id, final String pubkey, final String
         network) throws IOException {
         throw new UnsupportedOperationException(

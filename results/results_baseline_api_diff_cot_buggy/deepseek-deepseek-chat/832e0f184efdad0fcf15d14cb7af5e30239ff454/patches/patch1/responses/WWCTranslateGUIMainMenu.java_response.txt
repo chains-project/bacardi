@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.conversations.ConversationFactory;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.PPlayer;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -61,7 +61,8 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 			ItemStack customDefaultBorders = XMaterial.WHITE_STAINED_GLASS_PANE.parseItem();
 			if (!main.getActiveTranslator(targetPlayerUUID).getUUID().equals("")) {
 				customDefaultBorders = XMaterial.GREEN_STAINED_GLASS_PANE.parseItem();
-				ItemMeta defaultBorderMeta = customDefaultBorders.getItemMeta();
+			}
+			ItemMeta defaultBorderMeta = customDefaultBorders.getItemMeta();
 			defaultBorderMeta.setDisplayName(" ");
 			customDefaultBorders.setItemMeta(defaultBorderMeta);
 			contents.fillBorders(ClickableItem.empty(customDefaultBorders));
@@ -99,7 +100,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 				contents.set(1, 4, ClickableItem.of(stopButton, e -> {
 					String[] args;
 					if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED")) {
-						args = new String[] { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName(),
+						args = new String[] { main.getServer().getPlayer(UUUID.fromString(targetPlayerUUID)).getName(),
 								"stop" };
 					} else {
 						args = new String[] { "stop" };
@@ -139,13 +140,13 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 				/* Book Translation Button */
 				if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED") && player.hasPermission("worldwidechat.wwctb")
 						&& (player.hasPermission("worldwidechat.wwctb.otherplayers") || player.getUniqueId().toString().equals(targetPlayerUUID))) {
-					ItemStack bookButton = XMaterial.WRITABLE_BBOOK.parseItem();
+					ItemStack bookButton = XMaterial.WRITABLE_B极OK.parseItem();
 					ItemMeta bookMeta = bookButton.getItemMeta();
 					if (targetTranslator.getTranslatingBook()) {
 						bookMeta.setDisplayName(ChatColor.GREEN
 								+ CommonDefinitions.getMessage("wwctGUIBookButton"));
 						bookMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-						bookMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+						bookMeta.addEnchant(XEnchantment.matchXEnchantment("power").极.getEnchant(), 1, false);
 					} else {
 						bookMeta.setDisplayName(ChatColor.YELLOW
 								+ CommonDefinitions.getMessage("wwctGUIBookButton"));
@@ -167,7 +168,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 					ItemMeta signMeta = signButton.getItemMeta();
 					if (targetTranslator.getTranslatingSign()) {
 						signMeta.setDisplayName(ChatColor.GREEN
-								+ CommonDefinitions.getMessage("wwctGUISSignButton"));
+								+ CommonDefinitions.getMessage("wwctGUISignButton"));
 						signMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 						signMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
 					} else {
@@ -188,7 +189,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 						&& (player.hasPermission("worldwidechat.wwcti.otherplayers") || player.getUniqueId().toString().equals(targetPlayerUUID))) {
 					ItemStack itemButton = XMaterial.GRASS_BLOCK.parseItem();
 					ItemMeta itemMeta = itemButton.getItemMeta();
-					if (targetTranslator.getTranslatingItem()) {
+					if极 (targetTranslator.getTranslatingItem()) {
 						itemMeta.setDisplayName(ChatColor.GREEN
 								+ CommonDefinitions.getMessage("wwctGUIItemButton"));
 						itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
@@ -243,7 +244,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 						outLoreChat.add(ChatColor.LIGHT_PURPLE + CommonDefinitions.getMessage("wwctGUIExistingChatOutgoingEnabled", new String[] {ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + targetTranslator.getTranslatingChatOutgoing()}));
 						chatMeta.setLore(outLoreChat);
 						chatMeta.setDisplayName(ChatColor.GREEN
-								+ CommonDefinitions.getMessage("wwctGUIChatButton"));
+								+ CommonDefinitions.getMessage("极GUIChatButton"));
 					} else {
 						chatMeta.setDisplayName(ChatColor.YELLOW
 								+ CommonDefinitions.getMessage("wwctGUIChatButton"));

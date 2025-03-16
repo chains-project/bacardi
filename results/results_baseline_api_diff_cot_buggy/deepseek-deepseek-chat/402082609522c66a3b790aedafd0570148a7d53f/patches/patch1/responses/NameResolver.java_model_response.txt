@@ -1,22 +1,42 @@
 <fix_planning>
-1. Analysis:
-   a. The error is caused by the removal of the `CommandSource` class in the new version of the dependency.
-   b. The specific API change is the removal of `org.spongepowered.api.command.CommandSource`.
-   c. Affected lines:
-      - `private final CommandSource invoker;`
-      - `import org.spongepowered.api.command.CommandSource;`
-      - `public NameResolver(ChangeSkinSponge plugin, CommandSource invoker, String targetName, Player receiver, boolean keepSkin)`
-   d. Potential fixes:
-      - Replace `CommandSource` with a suitable alternative class that provides similar functionality. Based on the Sponge API documentation, `CommandCause` or `Subject` could be potential replacements.
-      - Update the import statement to use the new class.
-   e. Side effects:
-      - The new class might have different methods or behavior, which could require additional changes in the code that uses `invoker`.
-   f. Constraints adherence:
-      - The function signature of `NameResolver` constructor is not changed.
-      - No existing code is removed.
-      - The fix only modifies the client code.
-   g. Final summary:
-      - The best solution is to replace `CommandSource` with `Subject` since it is a more general and commonly used class in the Sponge API for command-related functionality.
+1. Analyze the problem and propose changes:
+   a. Relevant parts of the code and API changes:
+      - The class `org.spongepowered.api.command.CommandSource` has been removed in the new version of the dependency.
+      - The affected lines are:
+        ```java
+        import org.spongepowered.api.command.CommandSource;
+        private final CommandSource invoker;
+        public NameResolver(ChangeSkinSponge plugin, CommandSource invoker, String targetName, Player receiver, boolean keepSkin)
+        ```
+
+   b. Specific API changes causing the issue:
+      - The `CommandSource` class has been removed, which is used in the `NameResolver` class.
+
+   c. Affected lines of code:
+      - Import statement: `import org.spongepowered.api.command.CommandSource;`
+      - Field declaration: `private final CommandSource invoker;`
+      - Constructor parameter: `public NameResolver(ChangeSkinSponge plugin, CommandSource invoker, String targetName, Player receiver, boolean keepSkin)`
+
+   d. Propose potential fixes for each affected line:
+      - Replace `CommandSource` with a suitable alternative, such as `org.spongepowered.api.command.source.CommandSource` or `org.spongepowered.api.command.CommandCause` if available in the new API.
+      - Update the import statement to reflect the new class.
+
+   e. Consider any potential side effects of the proposed changes:
+      - The new class might have different methods or behavior, which could affect the functionality of the `sendMessageInvoker` method.
+
+   f. Explicitly check if the proposed changes adhere to all the given constraints:
+      - The function signature of the constructor is not changed.
+      - No existing code is removed unless it directly causes a compilation error.
+      - The correct package or class is used in accordance with the newer dependency version.
+
+   g. Final summary of the chosen fix and why it's the best solution:
+      - Replace `CommandSource` with `org.spongepowered.api.command.source.CommandSource` as it is the most likely replacement in the new API. This change adheres to all constraints and should resolve the compilation errors.
+
+2. Apply the fix to the Java code:
+   - Update the import statement to use the new class.
+   - Update the field declaration and constructor parameter to use the new class.
+
+3. Output the complete, fixed Java class in a fenced code block.
 </fix_planning>
 
 ```java
@@ -27,17 +47,17 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.UUID;
 
-import org.spongepowered.api.service.permission.Subject;
+import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 
 public class NameResolver extends SharedNameResolver {
 
     private final ChangeSkinSponge plugin;
-    private final Subject invoker;
+    private final CommandSource invoker;
     private final Player receiver;
     private final boolean keepSkin;
 
-    public NameResolver(ChangeSkinSponge plugin, Subject invoker, String targetName, Player receiver
+    public NameResolver(ChangeSkinSponge plugin, CommandSource invoker, String targetName, Player receiver
             , boolean keepSkin) {
         super(plugin.getCore(), targetName, keepSkin);
 

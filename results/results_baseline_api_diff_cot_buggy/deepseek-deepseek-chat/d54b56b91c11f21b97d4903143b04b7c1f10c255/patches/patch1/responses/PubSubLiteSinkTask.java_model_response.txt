@@ -1,26 +1,21 @@
 <fix_planning>
 1. Analysis:
-   a. The error occurs because the `PublishMetadata` class has been removed in the new version of the dependency.
-   b. The specific API change is the removal of the `PublishMetadata` class.
+   a. The error occurs because the class `PublishMetadata` has been removed in the new version of the dependency.
+   b. The specific API change causing the issue is the removal of `com.google.cloud.pubsublite.PublishMetadata`.
    c. Affected lines:
-      - `private @Nullable Publisher<PublishMetadata> publisher;`
       - `import com.google.cloud.pubsublite.PublishMetadata;`
+      - `private @Nullable Publisher<PublishMetadata> publisher;`
    d. Potential fixes:
-      - Since `PublishMetadata` is no longer available, we need to determine what it was used for and find an alternative.
-      - Looking at the code, `PublishMetadata` was used as a type parameter for the `Publisher` class. We need to find out if `Publisher` now uses a different type parameter or if it can be used without a type parameter.
-      - If `Publisher` can be used without a type parameter, we can remove the type parameter.
+      - Remove the import statement for `PublishMetadata`.
+      - Change the type of `publisher` to use a different type that is compatible with the new API.
    e. Side effects:
-      - Removing the type parameter might affect type safety, but since `PublishMetadata` is no longer available, this is the only option.
-   f. Constraints:
+      - The change might affect how the publisher is used in the code, but since the functionality of `Publisher` is still required, we need to find a suitable replacement type.
+   f. Constraints adherence:
       - The function signatures remain unchanged.
-      - No existing code is removed except for the problematic parts.
-      - The fix adheres to all constraints.
+      - No existing code is removed unless it directly causes a compilation error.
+      - The fix addresses the missing import and the type change.
    g. Final summary:
-      - The best solution is to remove the type parameter from the `Publisher` declaration since `PublishMetadata` is no longer available. This change is minimal and adheres to all constraints.
-
-2. Fix:
-   - Remove the type parameter from the `Publisher` declaration.
-   - Remove the import for `PublishMetadata`.
+      - The best solution is to remove the import for `PublishMetadata` and change the type of `publisher` to `Publisher<?>` since the specific type `PublishMetadata` is no longer available. This change adheres to the constraints and maintains the functionality of the code.
 </fix_planning>
 
 ```java
@@ -65,7 +60,7 @@ import org.apache.kafka.connect.sink.SinkTask;
 public class PubSubLiteSinkTask extends SinkTask {
 
   private final PublisherFactory factory;
-  private @Nullable Publisher publisher;
+  private @Nullable Publisher<?> publisher;
 
   @VisibleForTesting
   PubSubLiteSinkTask(PublisherFactory factory) {

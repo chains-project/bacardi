@@ -1,24 +1,35 @@
 <fix_planning>
-1. Analysis:
-   a. The error occurs in the `getProperties` method of `ModelRepresenter` class, which overrides a method from `Representer` class.
-   b. The API changes indicate that `Representer.getProperties(Class)` has been removed and replaced with `PropertyUtils.getProperties(Class)`.
-   c. Affected lines:
-      - Line 218: `protected Set<Property> getProperties(Class<? extends Object> type)`
-   d. Potential fixes:
-      - Remove the `@Override` annotation since the method no longer overrides a parent method
-      - Modify the method to use `PropertyUtils` instead of `super.getProperties()`
-   e. Side effects:
-      - The change might affect the order of properties in the YAML output
-   f. Constraints check:
-      - The function signature remains unchanged
-      - No existing code is removed
-      - The fix adheres to all constraints
-   g. Final solution:
-      - Remove the `@Override` annotation and modify the method to use `PropertyUtils`
+1. **Analysis of the Problem:**
+   - The error occurs in the `getProperties` method of the `ModelRepresenter` class.
+   - The API changes indicate that the `getProperties(Class<? extends Object>)` method in `Representer` has been removed and replaced with a new method that does not throw `IntrospectionException`.
+   - The current implementation of `getProperties` in `ModelRepresenter` throws `IntrospectionException`, which is no longer compatible with the updated API.
 
-2. The fix will involve:
-   - Removing the `@Override` annotation
-   - Modifying the method to use `PropertyUtils` instead of `super.getProperties()`
+2. **Relevant Code and API Changes:**
+   - **Code:** 
+     ```java
+     protected Set<Property> getProperties(Class<? extends Object> type)
+         throws IntrospectionException {
+     ```
+   - **API Changes:** 
+     - `Method org.yaml.snakeyaml.representer.Representer.getProperties(java.lang.Class) has been removed in the new version of the dependency.`
+     - `Method org.yaml.snakeyaml.representer.Representer.getProperties(java.lang.Class) has been added in the new version of the dependency.`
+
+3. **Affected Lines of Code:**
+   - The `getProperties` method in `ModelRepresenter` is affected.
+
+4. **Proposed Fixes:**
+   - Remove the `throws IntrospectionException` clause from the `getProperties` method since the new API does not allow it.
+   - Handle any potential `IntrospectionException` internally within the method.
+
+5. **Potential Side Effects:**
+   - Removing the `throws` clause might affect any code that relies on catching `IntrospectionException` from this method. However, since the new API does not allow this exception, it is necessary to remove it.
+
+6. **Adherence to Constraints:**
+   - The function signature remains unchanged except for the removal of the `throws` clause.
+   - No existing code is removed, and the fix adheres to all constraints.
+
+7. **Final Summary:**
+   - The best solution is to remove the `throws IntrospectionException` clause from the `getProperties` method to align with the updated API. This change ensures compatibility with the new version of the dependency without altering the method's functionality.
 </fix_planning>
 
 ```java
@@ -238,8 +249,8 @@ class ModelRepresenter extends Representer {
   /*
    * Change the default order. Important data goes first.
    */
-  protected Set<Property> getProperties(Class<? extends Object> type)
-          throws IntrospectionException {
+  @Override
+  protected Set<Property> getProperties(Class<? extends Object> type) {
     if (type.isAssignableFrom(Model.class)) {
       return sortTypeWithOrder(type, ORDER_MODEL);
     } else if (type.isAssignableFrom(Developer.class)) {
@@ -255,12 +266,15 @@ class ModelRepresenter extends Representer {
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
-          throws IntrospectionException {
-      Set<Property> standard = super.getProperties(type);
-      Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
-      sorted.addAll(standard);
-      return sorted;
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+      try {
+          Set<Property> standard = super.getProperties(type);
+          Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
+          sorted.addAll(standard);
+          return sorted;
+      } catch (Exception e) {
+          throw new RuntimeException("Failed to get properties for type: " + type, e);
+      }
   }
 
   private class ModelPropertyComparator implements Comparator<Property> {

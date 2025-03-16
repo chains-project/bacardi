@@ -1,29 +1,25 @@
 <fix_planning>
 1. Analysis:
-   a. The error occurs because the Logger interface from ch.qos.logback.classic package has been removed in the new version
-   b. The specific API change is the removal of Logger interface and its setLevel() method
-   c. Affected line:
-      - ((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);
+   a. The error occurs because the Logger interface from ch.qos.logback.classic.Logger has been removed in the new version.
+   b. The specific API change is the removal of Logger.ROOT_LOGGER_NAME and the setLevel() method from the Logger interface.
+   c. Affected line: ((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);
    d. Potential fixes:
-      - Use org.slf4j.Logger instead of ch.qos.logback.classic.Logger
-      - Use org.slf4j.LoggerFactory instead of ch.qos.logback.classic.LoggerFactory
-      - Use org.slf4j.event.Level instead of ch.qos.logback.classic.Level
+      - Use org.slf4j.LoggerFactory directly with the root logger name as a string
+      - Update the logging configuration to use the new API
    e. Side effects:
-      - The logging level setting might behave differently with SLF4J API
-      - Need to ensure the underlying logging implementation supports TRACE level
+      - The change might affect logging behavior if the new API works differently
+      - Need to ensure the logging level is still set correctly
    f. Constraints check:
-      - The fix adheres to all constraints as it only changes the logging initialization
-      - No method signatures are changed
-      - No code is removed
+      - The proposed change doesn't modify method signatures
+      - It maintains the same functionality
+      - It uses the correct package from the newer dependency version
    g. Final solution:
-      - Replace ch.qos.logback.classic.Logger with org.slf4j.Logger
-      - Replace ch.qos.logback.classic.Level with org.slf4j.event.Level
-      - This is the best solution as it uses the standard SLF4J API which is more stable and widely supported
+      - Replace the Logger.ROOT_LOGGER_NAME with the string "ROOT" and use LoggerFactory directly
+      - This is the best solution as it uses the current API while maintaining the same functionality
 
-2. Changes needed:
-   - Replace Logger import from ch.qos.logback.classic to org.slf4j
-   - Replace Level import from ch.qos.logback.classic to org.slf4j.event
-   - Modify the logging initialization line to use SLF4J API
+2. The fix will be to modify the line to use the string "ROOT" instead of Logger.ROOT_LOGGER_NAME
+
+3. The complete fixed Java class will be output with this change.
 </fix_planning>
 
 ```java
@@ -44,14 +40,13 @@
  */
 package com.feedzai.commons.sql.abstraction.engine.impl.abs;
 
-import org.slf4j.event.Level;
-import org.slf4j.Logger;
+import ch.qos.logback.classic.Level;
 import com.feedzai.commons.sql.abstraction.ddl.AlterColumn;
 import com.feedzai.commons.sql.abstraction.ddl.DbColumn;
 import com.feedzai.commons.sql.abstraction.ddl.DbColumnConstraint;
 import com.feedzai.commons.sql.abstraction.ddl.DbColumnType;
 import com.feedzai.commons.sql.abstraction.ddl.DbEntity;
-import com.feedzai.commons.sql.abstraction.ddl.Rename;
+import com.f feedzai.commons.sql.abstraction.ddl.Rename;
 import com.feedzai.commons.sql.abstraction.dml.Expression;
 import com.feedzai.commons.sql.abstraction.dml.K;
 import com.feedzai.commons.sql.abstraction.dml.Query;
@@ -77,7 +72,7 @@ import com.feedzai.commons.sql.abstraction.engine.OperationNotSupportedRuntimeEx
 import com.feedzai.commons.sql.abstraction.engine.impl.cockroach.SkipTestCockroachDB;
 import com.feedzai.commons.sql.abstraction.engine.testconfig.BlobTest;
 import com.feedzai.commons.sql.abstraction.engine.testconfig.DatabaseConfiguration;
-import com feedzai.commons.sql.abstraction.engine.testconfig.DatabaseTestUtil;
+import com.feedzai.commons.sql.abstraction.engine.testconfig.DatabaseTestUtil;
 import com.feedzai.commons.sql.abstraction.entry.EntityEntry;
 import com.google.common.collect.ImmutableSet;
 import java.sql.SQLException;
@@ -207,7 +202,7 @@ public class EngineGeneralTest {
 
     @BeforeClass
     public static void initStatic() {
-        LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME).atLevel(Level.TRACE);
+        ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger("ROOT")).setLevel(Level.TRACE);
     }
 
     @Before
@@ -411,5 +406,32 @@ public class EngineGeneralTest {
                 engine.rollback();
             }
         }
+
+        List<Map<String, ResultColumn>> query = engine.query(select(all()).from(table("TEST")));
+
+        assertTrue("COL1 exists", query.get(0).containsKey("COL1");
+        assertEquals("COL1 ok?", 2, (int) query.get(0).get("COL1").toInt());
+
+        assertTrue("COL2 exists", query.get(0).containsKey("COL2");
+        assertFalse("COL2 ok?", query.get(0).get("COL2").toBoolean());
+
+        assertTrue("COL3 exists", query.get(0).containsKey("COL3");
+        assertEquals("COL3 ok?", 2D, query.get(0).get("COL3").toDouble(), 0);
+
+        assertTrue("COL4 exists", query.get(0).containsKey("COL4");
+        assertEquals("COL4 ok?", 3L, (long) query.get(0).get("COL4").toLong());
+
+        assertTrue("COL5 exists", query.get(0).containsKey("COL5");
+        assertEquals("COL5  ok?", "ADEUS", query.get(0).get("COL5").toString());
+    }
+
+    @Test
+    public void insertWithAutoCommitTest() throws Exception {
+        create5ColumnsEntity();
+
+        EntityEntry entry = entry().set("COL1", 2).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS")
+                .build();
+
+        engine.persist("TEST", entry);
 
         List

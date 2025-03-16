@@ -1,46 +1,38 @@
 <fix_planning>
 1. Analysis:
-   a. The main issue is that several Hazelcast classes have been moved or renamed in the new version:
-      - com.hazelcast.core.Cluster → com.hazelcast.cluster.Cluster
-      - com.hazelcast.core.MembershipEvent → com.hazelcast.cluster.MembershipEvent
-      - com.hazelcast.core.Member → com.hazelcast.cluster.Member
-      - com.hazelcast.core.MembershipListener → com.hazelcast.cluster.MembershipListener
-      - com.hazelcast.core.MemberAttributeEvent → com.hazelcast.cluster.MemberAttributeEvent
-      - com.hazelcast.core.LifecycleListener → com.hazelcast.lifecycle.LifecycleListener
+   a. The main issue is that several Hazelcast core classes have been moved to the `com.hazelcast.cluster` package in the new version:
+      - `MembershipEvent` moved to `com.hazelcast.cluster.MembershipEvent`
+      - `MembershipListener` moved to `com.hazelcast.cluster.MembershipListener`
+      - `MemberAttributeEvent` moved to `com.hazelcast.cluster.MemberAttributeEvent`
+      - `Member` moved to `com.hazelcast.cluster.Member`
+      - `Cluster` moved to `com.hazelcast.cluster.Cluster`
 
-   b. The specific API changes causing the issues are:
-      - Removal of classes from com.hazelcast.core package
-      - Migration of these classes to new packages
+   b. Affected lines:
+      - Import statements for the moved classes
+      - Class declaration implementing MembershipListener
+      - Constructor parameter using Cluster
+      - Method parameters using MembershipEvent and MemberAttributeEvent
+      - Field declaration using Cluster
 
-   c. Affected lines:
-      - Import statements
-      - Class declaration implementing MembershipListener and LifecycleListener
-      - Method signatures using MembershipEvent and MemberAttributeEvent
-      - Cluster type usage
-
-   d. Proposed fixes:
+   c. Proposed fixes:
       - Update import statements to use new package locations
-      - Update class declaration to use new interface locations
-      - Keep method signatures the same as they still match the new interfaces
-      - Update Cluster type to use new package
+      - Keep all method signatures the same
+      - No need to remove @Override annotations as the methods still override interfaces
+      - No functionality changes needed, just package updates
 
-   e. Potential side effects:
-      - None expected as the interfaces and classes have the same functionality, just moved packages
-      - Method signatures remain compatible
+   d. Side effects:
+      - None expected as this is just a package relocation
+      - All functionality remains the same
 
-   f. Constraints check:
-      - Function signatures remain unchanged
-      - No code removed
-      - All imports updated correctly
-      - @Override annotations remain as methods still override parent interfaces
+   e. Constraints check:
+      - All constraints are satisfied:
+        * No method signatures changed
+        * No code removed
+        * Only package updates for imports
+        * All code included in final output
 
-   g. Final summary:
-      The best solution is to update the import statements and class declaration to use the new package locations while keeping all other code unchanged. This maintains functionality while fixing the compilation errors.
-
-2. Fix implementation:
-   - Update import statements
-   - Update class declaration
-   - Keep all other code unchanged
+2. Final solution:
+   Update import statements to use new package locations while keeping all other code exactly the same. This is the most straightforward fix that maintains all functionality while resolving the compilation errors.
 </fix_planning>
 
 ```java
@@ -62,13 +54,14 @@
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.cluster.Cluster;
-import com.hazelcast.cluster.Member;
-import com.hazelcast.cluster.MembershipEvent;
-import com.hazelcast.cluster.MembershipListener;
-import com.hazelcast.cluster.MemberAttributeEvent;
+import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.LifecycleEvent;
 import com.hazelcast.core.LifecycleEvent.LifecycleState;
 import com.hazelcast.core.LifecycleListener;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MemberAttributeEvent;
+import com.hazelcast.cluster.MembershipEvent;
+import com.hazelcast.cluster.MembershipListener;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterManager;
 import org.jivesoftware.openfire.cluster.ClusterNodeInfo;

@@ -11,7 +11,7 @@
 >                         .locations(prop.getProperty("flyway.locations").split(","))
 >                         .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
 >                         .load();
-250c251
-<                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
+227c228
+<                 return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
 ---
->                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions);
+>                 return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
