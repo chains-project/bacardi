@@ -11,7 +11,6 @@ import java.util.UUID;
 
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
-import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
 import org.spongepowered.api.profile.GameProfile;
@@ -45,7 +44,7 @@ public class LoginListener extends SharedListener {
             plugin.getApi().applyProperties(profile, targetSkin);
             save(preferences);
         } else {
-            String playerName = profile.getName().get();
+            String playerName = profile.getName().orElse("Unknown");
             if (!core.getConfig().getBoolean("restoreSkins") || !refetchSkin(playerName, preferences)) {
                 setDefaultSkin(preferences, profile);
             }
@@ -61,7 +60,8 @@ public class LoginListener extends SharedListener {
         }
     }
 
-    public void save(final UserPreference preferences) {
+    @Override
+    protected void save(final UserPreference preferences) {
         Task.builder()
                 .async()
                 .execute(() -> {

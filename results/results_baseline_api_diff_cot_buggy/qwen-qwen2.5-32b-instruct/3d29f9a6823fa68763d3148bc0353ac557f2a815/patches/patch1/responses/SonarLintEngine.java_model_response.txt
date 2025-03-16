@@ -1,34 +1,3 @@
-<fix_planning>
-### Analysis
-
-#### Relevant Parts of the Code and API Changes
-The error is triggered by the following line:
-```java
-.addEnabledLanguages(globalConfig.getEnabledLanguages())
-```
-The API changes indicate that the method `addEnabledLanguages` with a `Collection` or `Language[]` parameter has been removed.
-
-#### Affected Lines of Code
-- Line 163: `.addEnabledLanguages(globalConfig.getEnabledLanguages())`
-
-#### Proposed Fixes
-Since the `addEnabledLanguages` method has been removed, we need to find an alternative way to configure the enabled languages. The new API might require a different method or configuration approach.
-
-#### Potential Fixes
-1. **Check for New Method**: Look for a new method in the updated API that replaces `addEnabledLanguages`.
-2. **Configuration Change**: If there is no direct replacement, we might need to configure the languages in a different part of the configuration process.
-
-#### Side Effects
-- If the new method or configuration approach is not found, the languages might not be correctly configured, leading to potential runtime issues.
-
-#### Constraints Adherence
-- The proposed changes will not alter the function signatures.
-- The changes will be minimal, only affecting the configuration part of the code.
-
-#### Summary
-The best solution is to find a new method or configuration approach that replaces `addEnabledLanguages`. If no direct replacement is found, we will need to explore other configuration methods provided by the updated API.
-</fix_planning>
-
 ```java
 package sorald.sonar;
 
@@ -63,6 +32,7 @@ import org.sonarsource.sonarlint.core.analysis.api.AnalysisResults;
 import org.sonarsource.sonarlint.core.analysis.command.AnalyzeCommand;
 import org.sonarsource.sonarlint.core.client.api.common.PluginDetails;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.DefaultClientIssue;
+import org.sonarsource.sonarlint.core.client.api.common.analysis.IssueListener;
 import org.sonarsource.sonarlint.core.client.api.exceptions.SonarLintWrappedException;
 import org.sonarsource.sonarlint.core.commons.Language;
 import org.sonarsource.sonarlint.core.commons.RuleKey;
@@ -94,15 +64,123 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     // The only instance of this class
     private static SonarLintEngine theOnlyInstance;
 
-    // We need to reinitialise the analysis engine as it is stopped after each analysis executed by {@link
-    // SonarStaticAnalyzer}.
-    public void recreateAnalysisEngine() {
+    // We need to reinitialise it before starting analysis of any source files on any rules.
+    private AnalysisEngine analysisEngine;
+
+    private SonarLintEngine() {
+        super(null);
+        setLogging(null);
+
         this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, logOutput);
     }
 
-    @Override
-    public AnalysisEngine getAnalysisEngine() {
-        return analysisEngine;
+    private static SonarJavaJarHolder getOrDownloadSonarJavaPlugin() {
+        File cacheDirectory = FileUtils.getCacheDir();
+        String sonarJavaPluginFileName =
+                cacheDirectory + System.getProperty("file.separator") + SONAR_JAVA_PLUGIN_JAR_NAME;
+        File sonarJavaPlugin = new File(sonarJavaPluginFileName);
+        if (sonarJavaPlugin.exists()) {
+            return new SonarJavaJarHolder(sonarJavaPlugin.toPath(), false);
+        }
+
+        try {
+            InputStream inputStream = new URL(ConfigLoader.getSonarJavaPluginUrl()).openStream();
+            Files.copy(
+                    inputStream,
+                    Paths.get(sonarJavaPluginFileName),
+                    StandardCopyOption.REPLACE_EXISTING);
+            return new SonarJavaJarHolder(new File(sonarJavaPluginFileName).toPath(), true);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not download Sonar Java plugin", e); // NOSONAR:S112
+        }
+    }
+
+    /** Store the path to SonarJava plugin and if it is downloaded or fetched from cache. */
+    public static class SonarJavaJarHolder {
+        private final Path path;
+        private final boolean downloaded;
+
+        SonarJavaJarHolder(Path path, boolean downloaded) {
+            this.path = path;
+            this.downloaded = downloaded;
+        }
+
+        public Path getPath() {
+            return path;
+        }
+
+        public boolean isDownloaded() {
+            return downloaded;
+        }
+    }
+
+    private static StandaloneGlobalConfiguration buildGlobalConfig() {
+        return StandaloneGlobalConfiguration.builder()
+                .addPlugin(sonarJavaPlugin)
+                .addEnabledLanguage(Language.JAVA)
+                .build();
+    }
+
+    private static LoadedPluginsThatDoesNotCloseLoader getLoadedPlugins() {
+        var config =
+                new Configuration(
+                        globalConfig.getPluginPaths(),
+                        globalConfig.getEnabledLanguages(),
+                        Optional.ofNullable(globalConfig.getNodeJsVersion()));
+
+        PluginsLoadResult loadedResult = new PluginsLoader().load(config);
+        // Default loaded result stops the loader. The following code prevents that.
+
+        Map<String, PluginRequirementsCheckResult> pluginCheckResultByKeys =
+                loadedResult.getPluginCheckResultByKeys();
+        Collection<PluginInfo> allPlugins = getAllPlugins(pluginCheckResultByKeys);
+
+        // We do not want this loader to close.
+        PluginInstancesLoader instancesLoader = new PluginInstancesLoader();
+        Map<String, Plugin> pluginInstancesByKeys =
+                instancesLoader.instantiatePluginClasses(allPlugins);
+
+        return new LoadedPluginsThatDoesNotCloseLoader(
+                pluginInstancesByKeys, pluginInstancesLoader);
+    }
+
+    private static Collection<PluginInfo> getAllPlugins(
+            Map<String, PluginRequirementsCheckResult> pluginCheckResultByKeys) {
+        return pluginCheckResultByKeys.values().stream()
+                .map(PluginRequirementsCheckResult::getPlugin)
+                .collect(toList());
+    }
+
+    private static Map<String, SonarLintRuleDefinition> computeAllRulesDefinitionsByKey() {
+        return loadPluginMetadata(loadedPlugins, globalConfig.getEnabledLanguages(), false, false);
+    }
+
+    private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
+        return AnalysisEngineConfiguration.builder()
+                .setLanguages(globalConfig.getEnabledLanguages())
+                .setClientPid(globalConfig.getClientPid())
+                .setExtraProperties(globalConfig.extraProperties())
+                .setWorkDir(globalConfig.getWorkDir())
+                .setModulesProvider(globalConfig.getModulesProvider())
+                .build();
+    }
+
+    /** Get or creates the one and only instance of this class. */
+    public static SonarLintEngine getInstance() {
+        if (theOnlyInstance == null) {
+            theOnlyInstance = new SonarLintEngine();
+        } else {
+            theOnlyInstance.recreateAnalysisEngine();
+        }
+        return theOnlyInstance;
+    }
+
+    /**
+     * Recreates the analysis engine as it is stopped after each analysis executed by {@link
+     * SonarStaticAnalyzer}.
+     */
+    public void recreateAnalysisEngine() {
+        this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, logOutput);
     }
 
     public AnalysisResults analyze(
@@ -133,8 +211,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                                                             new DefaultClientIssue(
                                                                     i,
                                                                     allRulesDefinitionsByKey.get(
-                                                                            i.getRuleKey())),
-                                            logOutput),
+                                                                            i.getRuleKey()))),
                                     new ProgressMonitor(monitor))
                             .get();
             return analysisResults == null ? new AnalysisResults() : analysisResults;
@@ -188,285 +265,6 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
      * Overriding this class to ensure that plugin instance loader never closes throughout the
      * lifecycle of JVM.
      */
-    public static class LoadedPluginsThatDoesNotCloseLoader extends LoadedPlugins {
-
-        public LoadedPluginsThatDoesNotCloseLoader(
-                Map<String, Plugin> pluginInstancesByKeys,
-                PluginInstancesLoader pluginInstancesLoader) {
-            super(pluginInstancesByKeys, pluginInstancesLoader);
-        }
-
-        @Override
-        public void unload() {
-            // Prevent closing of `pluginInstancesLoader`
-        }
-    }
-
-    private static StandaloneGlobalConfiguration buildGlobalConfig() {
-        return StandaloneGlobalConfiguration.builder()
-                .addPlugin(sonarJavaPlugin)
-                .addEnabledLanguage(Language.JAVA)
-                .build();
-    }
-
-    private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
-        return AnalysisEngineConfiguration.builder()
-                .setClientPid(globalConfig.getClientPid())
-                .setExtraProperties(globalConfig.extraProperties())
-                .setWorkDir(globalConfig.getWorkDir())
-                .setModulesProvider(globalConfig.getModulesProvider())
-                .build();
-    }
-
-    private static SonarJavaJarHolder getOrDownloadSonarJavaPlugin() {
-        File cacheDirectory = FileUtils.getCacheDir();
-        String sonarJavaPluginFileName =
-                cacheDirectory + System.getProperty("file.separator") + SONAR_JAVA_PLUGIN_JAR_NAME;
-        File sonarJavaPlugin = new File(sonarJavaPluginFileName);
-        if (sonarJavaPlugin.exists()) {
-            return new SonarJavaJarHolder(sonarJavaPlugin.toPath(), false);
-        }
-
-        try {
-            InputStream inputStream = new URL(ConfigLoader.getSonarJavaPluginUrl()).openStream();
-            Files.copy(
-                    inputStream,
-                    Paths.get(sonarJavaPluginFileName),
-                    StandardCopyOption.REPLACE_EXISTING);
-            return new SonarJavaJarHolder(new File(sonarJavaPluginFileName).toPath(), true);
-        } catch (IOException e) {
-            throw new RuntimeException("Could not download Sonar Java plugin", e); // NOSONAR:S112
-        }
-    }
-
-    public static class SonarJavaJarHolder {
-        private final Path path;
-        private final boolean downloaded;
-
-        SonarJavaJarHolder(Path path, boolean downloaded) {
-            this.path = path;
-            this.downloaded = downloaded;
-        }
-
-        public Path getPath() {
-            return path;
-        }
-
-        public boolean isDownloaded() {
-            return downloaded;
-        }
-    }
-
-    private static LoadedPluginsThatDoesNotCloseLoader getLoadedPlugins() {
-        var config =
-                new Configuration(
-                        globalConfig.getPluginPaths(),
-                        globalConfig.getEnabledLanguages(),
-                        Optional.ofNullable(globalConfig.getNodeJsVersion()));
-
-        PluginsLoadResult loadedResult = new PluginsLoader().load(config);
-        // Default loaded result stops the loader.
-        Map<String, PluginRequirementsCheckResult> pluginCheckResultByKeys =
-                loadedResult.getPluginCheckResultByKeys();
-        Collection<PluginInfo> allPlugins = getAllPlugins(pluginCheckResultByKeys);
-
-        return new LoadedPluginsThatDoesNotCloseLoader(
-                pluginCheckResultByKeys.keySet().stream()
-                        .map(loadedResult::getPluginInstance)
-                        .collect(Collectors.toMap(
-                                Plugin::getKey,
-                                plugin -> plugin));
-    }
-
-    private static Collection<PluginInfo> getAllPlugins(
-            Map<String, PluginRequirementsCheckResult> pluginCheckResultByKeys) {
-        return pluginCheckResultByKeys.values().stream()
-                .map(PluginRequirementsCheckResult::getPlugin)
-                .collect(toList());
-    }
-
-    private static Map<String, SonarLintRuleDefinition> computeAllRulesDefinitionsByKey() {
-        return loadPluginMetadata(loadedPlugins, globalConfig.getEnabledLanguages(), false, false);
-    }
-
-    private static StandaloneGlobalConfiguration buildGlobalConfig() {
-        return StandaloneGlobalConfiguration.builder()
-                .addPlugin(sonarJavaPlugin)
-                .addEnabledLanguage(Language.JAVA)
-                .build();
-    }
-
-    private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
-        return AnalysisEngineConfiguration.builder()
-                .setClientPid(globalConfig.getClientPid())
-                .setExtraProperties(globalConfig.extraProperties())
-                .setWorkDir(globalConfig.getWorkDir())
-                .setModulesProvider(globalConfig.getModulesProvider())
-                .build();
-    }
-
-    private static SonarJavaJarHolder getOrDownloadSonarJavaPlugin() {
-        File cacheDirectory = FileUtils.getCacheDir();
-        String sonarJavaPluginFileName =
-                cacheDirectory + System.getProperty("file.separator") + SONAR_JAVA_PLUGIN_JAR_NAME;
-        File sonarJavaPlugin = new File(sonarJavaPluginFileName);
-        if (sonarJavaPlugin.exists()) {
-            return new SonarJavaJarHolder(sonarJavaPlugin.toPath(), false);
-        }
-
-        try {
-            InputStream inputStream = new URL(ConfigLoader.getSonarJavaPluginUrl()).openStream();
-            Files.copy(
-                    inputStream,
-                    Paths.get(sonarJavaPluginFileName),
-                    StandardCopyOption.REPLACE_EXISTING);
-            return new SonarJavaJarHolder(new File(sonarJavaPluginFileName).toPath(), true);
-        } catch (IOException e) {
-            throw new RuntimeException("Could not download Sonar Java plugin", e); // NOSONAR:S112
-        }
-    }
-
-    public static class SonarJavaJarHolder {
-        private final Path path;
-        private final boolean downloaded;
-
-        SonarJavaJarHolder(Path path, boolean downloaded) {
-            this.path = path;
-            this.downloaded = downloaded;
-        }
-
-        public Path getPath() {
-            return path;
-        }
-
-        public boolean isDownloaded() {
-            return downloaded;
-        }
-    }
-
-    private static LoadedPluginsThatDoesNotCloseLoader getLoadedPlugins() {
-        var config =
-                new Configuration(
-                        globalConfig.getPluginPaths(),
-                        globalConfig.getEnabledLanguages(),
-                        Optional.ofNullable(globalConfig.getNodeJsVersion()));
-
-        PluginsLoadResult loadedResult = new PluginsLoader().load(config);
-        // Default loaded result stops the loader.
-        Map<String, PluginRequirementsCheckResult> pluginCheckResultByKeys =
-                loadedResult.getPluginCheckResultByKeys();
-        Collection<PluginInfo> allPlugins = getAllPlugins(pluginCheckResultByKeys);
-
-        return new LoadedPluginsThatDoesNotCloseLoader(
-                pluginCheckResultByKeys.keySet().stream()
-                        .map(loadedResult::getPluginInstance)
-                        .collect(Collectors.toMap(
-                                Plugin::getKey,
-                                plugin -> plugin));
-    }
-
-    private static Collection<PluginInfo> getAllPlugins(
-            Map<String, PluginRequirementsCheckResult> pluginCheckResultByKeys) {
-        return pluginCheckResultByKeys.values().stream()
-                .map(PluginRequirementsCheckResult::getPlugin)
-                .collect(toList());
-    }
-
-    private static Map<String, SonarLintRuleDefinition> computeAllRulesDefinitionsByKey() {
-        return loadPluginMetadata(loadedPlugins, globalConfig.getEnabledLanguages(), false, false);
-    }
-
-    private static StandaloneGlobalConfiguration buildGlobalConfig() {
-        return StandaloneGlobalConfiguration.builder()
-                .addPlugin(sonarJavaPlugin)
-                .addEnabledLanguage(Language.JAVA)
-                .build();
-    }
-
-    private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
-        return AnalysisEngineConfiguration.builder()
-                .setClientPid(globalConfig.getClientPid())
-                .setExtraProperties(globalConfig.extraProperties())
-                .setWorkDir(globalConfig.getWorkDir())
-                .setModulesProvider(globalConfig.getModulesProvider())
-                .build();
-    }
-
-    // The only instance of this class
-    private static SonarLintEngine theOnlyInstance;
-
-    // We need to reinitialise it before starting analysis of any source files on any rules.
-    private AnalysisEngine analysisEngine;
-
-    private SonarLintEngine() {
-        super(null);
-        setLogging(null);
-
-        this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, null);
-    }
-
-    public static SonarLintEngine getInstance() {
-        if (theOnlyInstance == null) {
-            theOnlyInstance = new SonarLintEngine();
-        } else {
-            theOnlyInstance.recreateAnalysisEngine();
-        }
-        return theOnlyInstance;
-    }
-
-    public void recreateAnalysisEngine() {
-        this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, logOutput);
-    }
-
-    public AnalysisResults analyze(
-            StandaloneAnalysisConfiguration configuration,
-            IssueListener issueListener,
-            @Nullable ClientLogOutput logOutput,
-            @Nullable ClientProgressMonitor monitor) {
-        requireNonNull(configuration);
-        requireNonNull(issueListener);
-        setLogging(logOutput);
-
-        var analysisConfig =
-                AnalysisConfiguration.builder()
-                        .addInputFiles(configuration.inputFiles())
-                        .putAllExtraProperties(configuration.extraProperties())
-                        .addActiveRules(identifyActiveRules(configuration))
-                        .setBaseDir(configuration.baseDir())
-                        .build();
-        try {
-            var analysisResults =
-                    analysisEngine
-                            .post(
-                                    new AnalyzeCommand(
-                                            configuration.moduleKey(),
-                                            analysisConfig,
-                                            i ->
-                                                    issueListener.handle(
-                                                            new DefaultClientIssue(
-                                                                    i,
-                                                                    allRulesDefinitionsByKey.get(
-                                                                            i.getRuleKey())),
-                                            logOutput),
-                                    new ProgressMonitor(monitor))
-                            .get();
-            return analysisResults == null ? new AnalysisResults() : analysisResults;
-        } catch (ExecutionException e) {
-            throw SonarLintWrappedException.wrap(e);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw SonarLintWrappedException.wrap(e);
-        }
-    }
-
-    public void stop() {
-        analysisEngine.stop();
-    }
-
-    public List<PluginDetails> getPluginDetails() {
-        throw new RuntimeException("Not implemented"); // NOSONAR:S112
-    }
-
     public static class LoadedPluginsThatDoesNotCloseLoader extends LoadedPlugins {
 
         public LoadedPluginsThatDoesNotCloseLoader(

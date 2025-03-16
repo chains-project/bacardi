@@ -64,13 +64,7 @@ The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
-throw new TlsFatalAlert(AlertDescription.bad_record_mac);
-```
-```java
 import org.bouncycastle.crypto.tls.AlertDescription;
-```
-```java
-throw new TlsFatalAlert(AlertDescription.bad_record_mac);
 ```
 ```java
 throw new TlsFatalAlert(AlertDescription.bad_record_mac);
@@ -78,34 +72,32 @@ throw new TlsFatalAlert(AlertDescription.bad_record_mac);
 ```java
 import org.bouncycastle.crypto.tls.TlsFatalAlert;
 ```
+```java
+throw new TlsFatalAlert(AlertDescription.bad_record_mac);
+```
+```java
+throw new TlsFatalAlert(AlertDescription.bad_record_mac);
+```
 </error_lines>
 
 The API of the dependency has changed. Here are the relevant changes:
 
-     Constructor org.bouncycastle.crypto.tls.TlsFatalAlert(short) has been removed in the new version of the dependency.
-     Class org.bouncycastle.crypto.tls.TlsFatalAlert has been removed in the new version of the dependency.
      Constructor org.bouncycastle.crypto.tls.AlertDescription() has been removed in the new version of the dependency.
      Class org.bouncycastle.crypto.tls.AlertDescription has been removed in the new version of the dependency.
+     Constructor org.bouncycastle.crypto.tls.TlsFatalAlert(short) has been removed in the new version of the dependency.
+     Class org.bouncycastle.crypto.tls.TlsFatalAlert has been removed in the new version of the dependency.
 
 Additional error information:
 
 <error_information>
-[ERROR] /HAP-Java/src/main/java/io/github/hapjava/server/impl/crypto/ChachaDecoder.java:[31,17] cannot find symbol
-  symbol:   class TlsFatalAlert
-  location: class io.github.hapjava.server.impl.crypto.ChachaDecoder
-
 [ERROR] /HAP-Java/src/main/java/io/github/hapjava/server/impl/crypto/ChachaDecoder.java:[8,35] package org.bouncycastle.crypto.tls does not exist
 
 [ERROR] /HAP-Java/src/main/java/io/github/hapjava/server/impl/crypto/ChachaDecoder.java:[31,17] cannot find symbol
   symbol:   class TlsFatalAlert
   location: class io.github.hapjava.server.impl.crypto.ChachaDecoder
 
-[ERROR] /HAP-Java/src/main/java/io/github/hapjava/server/impl/crypto/ChachaDecoder.java:[31,17] cannot find symbol
-  symbol:   class TlsFatalAlert
-  location: class io.github.hapjava.server.impl.crypto.ChachaDecoder
-
 [ERROR] /HAP-Java/src/main/java/io/github/hapjava/server/impl/crypto/ChachaDecoder.java:[9,35] package org.bouncycastle.crypto.tls does not exist
-<error_information>
+</error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:
 

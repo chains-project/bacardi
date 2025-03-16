@@ -19,7 +19,6 @@ import com.artipie.http.auth.BasicAuthScheme;
 import com.artipie.http.auth.BearerAuthScheme;
 import com.artipie.http.auth.Permissions;
 import com.artipie.http.headers.Authorization;
-import com.artipie.http.headers.Header;
 import com.artipie.http.hm.ResponseMatcher;
 import com.artipie.http.hm.RsHasStatus;
 import com.artipie.http.rq.RequestLine;
@@ -193,23 +192,7 @@ public final class AuthTest {
         );
     }
 
-    /**
-     * Create manifest content.
-     *
-     * @return Manifest content.
-     */
-    private Flowable<ByteBuffer> manifest() {
-        final byte[] content = "config".getBytes();
-        final Blob config = this.docker.repo(new RepoName.Valid("my-alpine")).layers()
-            .put(new TrustedBlobSource(content))
-            .toCompletableFuture().join();
-        final byte[] data = String.format(
-            "{\"config\":{\"digest\":\"%s\"},\"layers\":[],\"mediaType\":\"my-type\"}",
-            config.digest().string()
-        ).getBytes();
-        return Flowable.just(ByteBuffer.wrap(data));
-    }
-
+    @SuppressWarnings("PMD.AvoidDuplicateLiterals")
     private static Stream<Arguments> setups() {
         return Stream.of(
             Arguments.of(
@@ -258,6 +241,7 @@ public final class AuthTest {
             this(new AstoDocker(new InMemoryStorage()));
         }
 
+        @Override
         public Slice slice(final String action) {
             return new DockerSlice(
                 this.docker,
@@ -266,6 +250,7 @@ public final class AuthTest {
             );
         }
 
+        @Override
         public Headers headers(final TestAuthentication.User user) {
             return user.headers();
         }
@@ -283,6 +268,7 @@ public final class AuthTest {
      */
     private static final class Bearer implements Method {
 
+        @Override
         public Slice slice(final String action) {
             return new DockerSlice(
                 new AstoDocker(new InMemoryStorage()),
@@ -292,22 +278,17 @@ public final class AuthTest {
                         Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
                             .filter(user -> token.equals(token(user)))
                             .findFirst()
-                            .map(user -> new Authentication.User(user.name(), user.permissions()))
                     ),
                     ""
                 )
             );
         }
 
+        @Override
         public Headers headers(final TestAuthentication.User user) {
             return new Headers.From(
                 new Authorization.Bearer(token(user))
             );
-        }
-
-        @Override
-        public String toString() {
-            return "Bearer";
         }
 
         private static String token(final TestAuthentication.User user) {

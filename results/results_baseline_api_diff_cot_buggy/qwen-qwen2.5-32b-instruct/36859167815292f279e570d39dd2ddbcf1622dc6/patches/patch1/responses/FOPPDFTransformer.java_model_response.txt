@@ -112,11 +112,9 @@ public abstract class FOPPDFTransformer {
         // creation of transform source
         StreamSource transformSource = new StreamSource(templateStream);
 
-        // create an instance of fop factory
-        FopFactory fopFactory = FopFactory.newInstance(new FopFactoryConfig());
         // a user agent is needed for transformation
+        FopFactory fopFactory = FopFactory.newInstance(new FopFactoryBuilder().build());
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
-        // to store output
 
         Optional<Node<String, String>> qrCodeString = documentParams
             .getRoot()

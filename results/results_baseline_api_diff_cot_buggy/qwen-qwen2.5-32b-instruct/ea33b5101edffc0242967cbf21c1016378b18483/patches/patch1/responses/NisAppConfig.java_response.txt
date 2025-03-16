@@ -103,11 +103,15 @@ public class NisAppConfig {
 
 	@Bean
 	public Flyway flyway() throws IOException {
+		final Properties prop = new Properties();
+		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+
 		final ClassicConfiguration configuration = new ClassicConfiguration();
 		configuration.setDataSource(this.dataSource());
-		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
 		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
 		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+
 		return new Flyway(configuration);
 	}
 
@@ -191,6 +195,8 @@ public class NisAppConfig {
 	}
 
 	// endregion
+
+	// region other beans
 
 	@Bean
 	public Harvester harvester() {
@@ -309,7 +315,7 @@ public class NisAppConfig {
 					() -> this.blockChainLastBlockLayer.getLastBlockHeight().next(), new BlockHeight[]{
 							new BlockHeight(BlockMarkerConstants.FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24)),
 							new BlockHeight(
-									BlockMarkerConstants.SECOND_FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24))
+									(BlockMarkerConstants.SECOND_FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24))
 					}));
 		}
 

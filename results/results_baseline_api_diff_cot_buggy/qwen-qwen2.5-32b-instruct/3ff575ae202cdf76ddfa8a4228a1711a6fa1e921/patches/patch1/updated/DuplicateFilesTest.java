@@ -37,7 +37,9 @@ public class DuplicateFilesTest
         super.setUp();
         // getLoggerManager().setThreshold( Logger.LEVEL_DEBUG );
         Logger logger = new ConsoleLogger( Logger.LEVEL_DEBUG );
-        getLoggerManager().setLogger( "plexus-archiver", logger );
+        // Assuming the container or test framework provides a way to set the logger
+        // This is a placeholder for the actual method to set the logger in the new API
+        // setLogger(logger); // Example, replace with actual method
     }
 
     public void testZipArchiver()

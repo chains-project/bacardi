@@ -61,8 +61,7 @@ public class AppenderUtils {
       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
       // log.
       final int bufferCapacity = 10;
-      TIOStreamTransport tIOStreamTransport = new TIOStreamTransport(os);
-      framedTransport = new TFastFramedTransport(tIOStreamTransport, bufferCapacity);
+      framedTransport = new TFastFramedTransport(new TIOStreamTransport(os));
       protocol = new TBinaryProtocol(framedTransport);
     }
 

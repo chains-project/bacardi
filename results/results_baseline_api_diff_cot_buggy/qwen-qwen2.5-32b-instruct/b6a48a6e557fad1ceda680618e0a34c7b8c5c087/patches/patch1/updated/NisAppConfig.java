@@ -101,7 +101,7 @@ public class NisAppConfig {
 		return dataSource;
 	}
 
-	@Bean(initMethod = "migrate")
+	@Bean
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
@@ -116,6 +116,7 @@ public class NisAppConfig {
 	}
 
 	@Bean
+	@DependsOn("flyway")
 	public SessionFactory sessionFactory() throws IOException {
 		return SessionFactoryLoader.load(this.dataSource());
 	}
@@ -236,3 +237,4 @@ public class NisAppConfig {
 
 		NemNamespaceEntry.setDefault(mosaicRedefinitionForkHeight);
 		return new SynchronizedNamespaceCache(new DefaultNamespaceCache(mosaicR鳡
+

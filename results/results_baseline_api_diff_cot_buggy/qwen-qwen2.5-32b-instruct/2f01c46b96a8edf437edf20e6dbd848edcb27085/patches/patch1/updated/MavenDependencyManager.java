@@ -66,6 +66,7 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
     this.model = buildModel(project);
   }
 
+  @Override
   public LogWrapper getLog() {
     return new LogWrapper() {
       @Override
@@ -85,14 +86,17 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
     };
   }
 
+  @Override
   public boolean isMaven() {
     return true;
   }
 
+  @Override
   public boolean isPackagingPom() {
     return project.getPackaging().equals("pom");
   }
 
+  @Override
   @SneakyThrows
   public DependencyGraph dependencyGraph() {
     ProjectBuildingRequest buildingRequest = new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
@@ -101,10 +105,12 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
     return new MavenDependencyGraph(project, model, rootNode);
   }
 
+  @Override
   public Set<Path> getOutputDirectories() {
     return Set.of(Paths.get(project.getBuild().getOutputDirectory()));
   }
 
+  @Override
   public Set<Path> getTestOutputDirectories() {
     return Set.of(Paths.get(project.getBuild().getTestOutputDirectory()));
   }
@@ -127,6 +133,27 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
     return model;
   }
 
+  /**
+   * Maven processors are defined like this.
+   * <pre>{@code
+   *       <plugin>
+   *         <groupId>org.bsc.maven</groupId>
+   *         <artifactId>maven-processor-plugin</artifactId>
+   *         <executions>
+   *           <execution>
+   *             <id>process</id>
+   *             [...]
+   *             <configuration>
+   *               <processors>
+   *                 <processor>XXXProcessor</processor>
+   *               </processors>
+   *             </configuration>
+   *           </execution>
+   *         </executions>
+   *       </plugin>
+   * }</pre>
+   */
+  @Override
   public Set<String> collectUsedClassesFromProcessors() {
     getLog().debug("# collectUsedClassesFromProcessors()");
     return Optional.ofNullable(project.getPlugin("org.bsc.maven:maven-processor-plugin"))
@@ -134,15 +161,17 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
         .map(exec -> exec.getConfiguration())
         .map(config -> config.getChild("processors"))
         .map(processors -> processors.getChildren("processor"))
-        .map(arr -> arr.stream().map(Xpp3Dom::getValue).collect(Collectors.toSet()))
+        .map(children -> children.stream().map(child -> child.getValue()).collect(Collectors.toSet()))
         .orElse(of());
   }
 
+  @Override
   public Path getDependenciesDirectory() {
     String dependencyDirectoryName = project.getBuild().getDirectory() + "/" + DIRECTORY_TO_COPY_DEPENDENCIES;
     return new File(dependencyDirectoryName).toPath();
   }
 
+  @Override
   public Set<String> collectUsedClassesFromSource(Path sourceDirectory, Path testSourceDirectory) {
     Set<String> allImports = new HashSet<>();
     ImportsAnalyzer importsInSourceFolder = new ImportsAnalyzer(sourceDirectory);
@@ -154,6 +183,7 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
     return allImports;
   }
 
+  @Override
   public AbstractDebloater<? extends Serializable> getDebloater(ProjectDependencyAnalysis analysis) {
     return new MavenDebloater(
         analysis,
@@ -162,19 +192,28 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
     );
   }
 
+  @Override
   public Path getBuildDirectory() {
     return Paths.get(project.getBuild().getDirectory());
   }
 
+  @Override
   public Path getSourceDirectory() {
     return new File(project.getBuild().getSourceDirectory()).toPath();
   }
 
+  @Override
   public Path getTestDirectory() {
     return new File(project.getBuild().getTestSourceDirectory()).toPath();
   }
 
+  @Override
+  public void generateDependencyTree(File treeFile) throws IOException, InterruptedException {
+    MavenInvoker.runCommand("mvn dependency:tree -DoutputFile=" + treeFile + " -Dverbose=true", null);
+  }
+
   @SneakyThrows
+  @Override
   public String getTreeAsJson(
       File treeFile, ProjectDependencyAnalysis analysis, File classUsageFile, boolean createCallGraphCsv) {
     return new ParsedDependencies(
@@ -183,10 +222,5 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
         classUsageFile,
         createCallGraphCsv
     ).parseTreeToJson();
-  }
-
-  @Override
-  public void generateDependencyTree(File treeFile) throws IOException, InterruptedException {
-    MavenInvoker.runCommand("mvn dependency:tree -DoutputFile=" + treeFile + " -Dverbose=true", null);
   }
 }

@@ -14,7 +14,6 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.yaml.snakeyaml.error.YAMLException;
-import org.yaml.snakeyaml.introspector.BeanAccess;
 import org.yaml.snakeyaml.introspector.Property;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
@@ -60,7 +59,7 @@ class ModelRepresenter extends Representer {
       } else if (type.isAssignableFrom(Plugin.class)) {
         return sortTypeWithOrder(type, ORDER_PLUGIN);
       } else {
-        return PropertyUtils.getProperties(type, BeanAccess.FIELD);
+        return super.getProperties(type);
       }
     } catch (IntrospectionException e) {
       throw new YAMLException(e);
@@ -69,7 +68,7 @@ class ModelRepresenter extends Representer {
 
   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
           throws IntrospectionException {
-    Set<Property> standard = PropertyUtils.getProperties(type, BeanAccess.FIELD);
+    Set<Property> standard = super.getProperties(type);
     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));
     sorted.addAll(standard);
     return sorted;

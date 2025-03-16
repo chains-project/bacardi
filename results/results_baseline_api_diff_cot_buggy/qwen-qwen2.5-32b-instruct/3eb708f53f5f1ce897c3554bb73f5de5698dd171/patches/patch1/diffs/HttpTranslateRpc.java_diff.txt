@@ -1,0 +1,112 @@
+25,28d24
+< import com.google.api.services.translate.Translate;
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
+31a28,44
+> import com.google.cloud.translate.v3.TranslateClient;
+> import com.google.cloud.translate.v3.TranslateTextResponse;
+> import com.google.cloud.translate.v3.Translation;
+> import com.google.cloud.translate.v3.TranslationServiceClient;
+> import com.google.cloud.translate.v3.TranslateTextRequest;
+> import com.google.cloud.translate.v3.DetectLanguageRequest;
+> import com.google.cloud.translate.v3.DetectLanguageResponse;
+> import com.google.cloud.translate.v3.ListGlossariesRequest;
+> import com.google.cloud.translate.v3.ListGlossariesResponse;
+> import com.google.cloud.translate.v3.ListSupportedLanguagesRequest;
+> import com.google.cloud.translate.v3.ListSupportedLanguagesResponse;
+> import com.google.cloud.translate.v3.LocationName;
+> import com.google.cloud.translate.v3.LocationName;
+> import com.google.cloud.translate.v3.TranslateTextRequest;
+> import com.google.cloud.translate.v3.TranslateTextResponse;
+> import com.google.cloud.translate.v3.Translation;
+> import com.google.cloud.translate.v3.TranslationServiceClient;
+42c55
+<   private final Translate translate;
+---
+>   private final TranslateClient translate;
+49,53c62
+<     translate =
+<         new Translate.Builder(transport, new JacksonFactory(), initializer)
+<             .setRootUrl(options.getHost())
+<             .setApplicationName(options.getApplicationName())
+<             .build();
+---
+>     translate = TranslateClient.create(transport, new JacksonFactory(), initializer);
+69,73c78,85
+<   public List<List<DetectionsResourceItems>> detect(List<String> texts) {
+<     try {
+<       List<List<DetectionsResourceItems>> detections =
+<           translate.detections().list(texts).setKey(options.getApiKey()).execute().getDetections();
+<       return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
+---
+>   public List<Translation> detect(List<String> texts) {
+>     try (TranslationServiceClient client = TranslationServiceClient.create()) {
+>       DetectLanguageRequest request = DetectLanguageRequest.newBuilder()
+>           .addAllContent(texts)
+>           .setParent(LocationName.of(options.getProjectId(), options.getLocation()).toString())
+>           .build();
+>       DetectLanguageResponse response = client.detectLanguage(request);
+>       return response.getLanguagesList();
+80,92c92,98
+<   public List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
+<     try {
+<       List<LanguagesResource> languages =
+<           translate
+<               .languages()
+<               .list()
+<               .setKey(options.getApiKey())
+<               .setTarget(
+<                   firstNonNull(
+<                       Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
+<               .execute()
+<               .getLanguages();
+<       return languages != null ? languages : ImmutableList.<LanguagesResource>of();
+---
+>   public List<String> listSupportedLanguages(Map<Option, ?> optionMap) {
+>     try (TranslationServiceClient client = TranslationServiceClient.create()) {
+>       ListSupportedLanguagesRequest request = ListSupportedLanguagesRequest.newBuilder()
+>           .setParent(LocationName.of(options.getProjectId(), options.getLocation()).toString())
+>           .build();
+>       ListSupportedLanguagesResponse response = client.listSupportedLanguages(request);
+>       return response.getLanguagesList().stream().map(lang -> lang.getCode()).toList();
+99,100c105,106
+<   public List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap) {
+<     try {
+---
+>   public List<Translation> translate(List<String> texts, Map<Option, ?> optionMap) {
+>     try (TranslationServiceClient client = TranslationServiceClient.create()) {
+103,109c109,113
+<       final String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
+<       List<TranslationsResource> translations =
+<           translate
+<               .translations()
+<               .list(texts, targetLanguage)
+<               .setSource(sourceLanguage)
+<               .setKey(options.getApiKey())
+---
+>       String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
+>       TranslateTextRequest request = TranslateTextRequest.newBuilder()
+>           .addAllContents(texts)
+>           .setTargetLanguageCode(targetLanguage)
+>           .setSourceLanguageCode(sourceLanguage)
+111,124c115,118
+<               .setFormat(Option.FORMAT.getString(optionMap))
+<               .execute()
+<               .getTranslations();
+<       return Lists.transform(
+<           translations != null ? translations : ImmutableList.<TranslationsResource>of(),
+<           new Function<TranslationsResource, TranslationsResource>() {
+<             @Override
+<             public TranslationsResource apply(TranslationsResource translationsResource) {
+<               if (translationsResource.getDetectedSourceLanguage() == null) {
+<                 translationsResource.setDetectedSourceLanguage(sourceLanguage);
+<               }
+<               return translationsResource;
+<             }
+<           });
+---
+>           .setMimeType(Option.FORMAT.getString(optionMap))
+>           .build();
+>       TranslateTextResponse response = client.translateText(request);
+>       return response.getTranslationsList();

@@ -4,7 +4,6 @@ import static com.google.cloud.RetryHelper.runWithRetries;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.api.services.translate.Translate;
 import com.google.cloud.BaseService;
 import com.google.cloud.RetryHelper.RetryHelperException;
 import com.google.cloud.translate.spi.v2.TranslateRpc;

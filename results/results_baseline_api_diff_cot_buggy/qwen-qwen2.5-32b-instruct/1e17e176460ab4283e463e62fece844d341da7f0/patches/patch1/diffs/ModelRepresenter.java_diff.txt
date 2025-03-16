@@ -1,10 +1,8 @@
-16a17
-> import org.yaml.snakeyaml.introspector.BeanAccess;
-22a24
+22a23
 > import org.yaml.snakeyaml.DumperOptions;
-37a40
+37a39
 >     super(new DumperOptions());
-47,219c50,51
+47,219c49,50
 <   protected NodeTuple representJavaBeanProperty(Object javaBean, Property property,
 <                                                 Object propertyValue, Tag customTag) {
 <     if (property != null && property.getName().equals("pomFile")) {
@@ -181,20 +179,15 @@
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) throws IntrospectionException {
 >     try {
-231c63,66
-<       return super.getProperties(type);
----
->         return PropertyUtils.getProperties(type, BeanAccess.FIELD);
->       }
+232a64,66
 >     } catch (IntrospectionException e) {
 >       throw new YAMLException(e);
-237,238c72,73
-<       Set<Property> standard = super.getProperties(type);
+>     }
+238c72
 <       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
 ---
->     Set<Property> standard = PropertyUtils.getProperties(type, BeanAccess.FIELD);
 >     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));
-251c86
+251c85
 <       // important go first
 ---
 >       // important properties go first

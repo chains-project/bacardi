@@ -1,16 +1,18 @@
-2a3,4
+2a3,5
 > import org.pitest.classinfo.ClassInfoVisitor;
 > import org.pitest.classinfo.ClassName;
-103c105,106
+> import org.pitest.classinfo.ClassInfo;
+103c106,108
 <       final CoverageDatabase coverage, final ClassMutationResults data) {
 ---
 >       final ClassMutationResults data) {
 >     ClassName className = ClassName.fromString(data.getMutatedClass());
-105c108
+>     ClassInfoVisitor visitor = coverage.getClassInfo(className);
+105c110
 <         data.getMutations(), coverage.getClassInfo(Collections.singleton(data.getMutatedClass())));
 ---
->         data.getMutations(), coverage.getClassInfo(className));
-113c116
+>         data.getMutations(), visitor);
+113c118
 <         createSummaryData(this.coverage, mutationMetaData));
 ---
 >         createSummaryData(mutationMetaData));

@@ -3,40 +3,26 @@
 < import ch.qos.logback.classic.Logger;
 ---
 > import ch.qos.logback.classic.LoggerContext;
-16a16
+15a15
+> import org.mockito.Mockito;
+16a17
 > import org.slf4j.Logger;
+44d44
+< import static org.hamcrest.Matchers.nullValue;
 52d51
 < import static org.mockito.Mockito.when;
 58d56
 < import static uk.gov.pay.adminusers.service.UserServicesTest.aUserEntityWithRoleForService;
-111,113c109,112
-<         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
+112c110,111
 <         logger.setLevel(Level.INFO);
-<         logger.addAppender(mockLogAppender);
 ---
->         Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
 >         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
->         loggerContext.getLogger(EventMessageHandler.class.getName()).setLevel(ch.qos.logback.classic.Level.INFO);
->         loggerContext.getLogger(EventMessageHandler.class.getName()).addAppender(mockLogAppender);
-122a122,123
->         var eventMessage = EventMessage.of(disputeEvent, mock(QueueMessage.class));
->         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
-127,130d127
-<         var mockQueueMessage = mock(QueueMessage.class);
-<         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
-<         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+>         logger.setLevel(loggerContext.getLevel("INFO"));
+147d145
 < 
-133c130
-<         verify(mockEventSubscriberQueue).markMessageAsProcessed(mockQueueMessage);
----
->         verify(mockEventSubscriberQueue).markMessageAsProcessed(mock(QueueMessage.class));
-141c138
-<                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId, "reason", "fraudulent")))
----
->                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
-162d158
+162d159
 <         assertThat(personalisation.get("paymentExternalId"), is("456"));
-164,175c160
+164,175c161
 <         assertThat(personalisation.get("sendEvidenceToPayDueDate"), is("4 March 2022"));
 <         assertThat(personalisation.get("disputedAmount"), is("210.00"));
 < 
@@ -51,19 +37,26 @@
 <         assertThat(personalisation.get("disputeEvidenceDueDate"), is(nullValue()));
 ---
 >         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
-189c174
+189c175
 <                 .withEventDetails(objectMapper.valueToTree(Map.of("net_amount", -4000L, "fee", 1500L, "amount", 2500L, "gateway_account_id", gatewayAccountId)))
 ---
 >                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
-191,192d175
+191,192d176
 <                 .withServiceId(service.getExternalId())
 <                 .withLive(true)
-196a180
-> 
-228,229d211
+222,295d205
+<     void shouldHandleDisputeWonEvent() throws QueueException {
+<         var mockQueueMessage = mock(QueueMessage.class);
+<         disputeEvent = anEventFixture()
+<                 .withEventType(EventType.DISPUTE_WON.name())
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("gateway_account_id", gatewayAccountId)))
+<                 .withParentResourceExternalId("456")
 <                 .withServiceId(service.getExternalId())
 <                 .withLive(true)
-234,256d215
+<                 .build();
+<         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
+<         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
+<         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
 <         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
 <         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
 <         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
@@ -87,7 +80,7 @@
 <         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
 <         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
 <     }
-258,270d216
+< 
 <     @Test
 <     void shouldHandleDisputeEvidenceSubmittedEvent() throws QueueException {
 <         var mockQueueMessage = mock(QueueMessage.class);
@@ -101,27 +94,38 @@
 <         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
 <         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
 <         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
-277c223
+<         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
+<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+<         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
+< 
+<         eventMessageHandler.processMessages();
+< 
 <         verify(mockNotificationService, atMostOnce()).sendStripeDisputeEvidenceSubmittedEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
----
->         verify(mockNotificationService, atMostOnce()).sendStripeDisputeWonEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
-279c225
+< 
 <         var emails = adminEmailsCaptor.getValue();
----
->         var emails = adminEmailCaptor.getValue();
-300c246
+<         var personalisation = personalisationCaptor.getValue();
+< 
+<         assertThat(emails.size(), is(2));
+<         assertThat(emails, hasItems("admin1@service.gov.uk", "admin2@service.gov.uk"));
+<         assertThat(personalisation.get("serviceName"), is(service.getName()));
+<         assertThat(personalisation.get("serviceReference"), is("tx ref"));
+<         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
+< 
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+< 
+<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+<         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+<         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
+<     }
+< 
+<     @Test
+300c210
 <                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00Z", "gateway_account_id", gatewayAccountId)))
 ---
->                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId))
-304a251
+>                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
+304a215
 > 
-317c264
-<                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
----
->                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId))
-321a269
+321a233
 > 
-335c283
-<                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
----
->                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId))
+338a251
+>         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");

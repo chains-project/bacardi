@@ -15,35 +15,26 @@ import java.util.UUID;
 
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.network.channel.packet.Packet;
-import org.spongepowered.api.network.channel.packet.PacketHandler;
-import org.spongepowered.api.network.channel.packet.PacketChannel;
-import org.spongepowered.api.network.channel.packet.PacketChannelManager;
-import org.spongepowered.api.network.channel.packet.RequestPacket;
-import org.spongepowered.api.network.channel.packet.TransactionalPacketDispatcher;
+import org.spongepowered.api.network.channel.raw.handshake.RawHandshakeDataChannel;
+import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
+import org.spongepowered.api.network.channel.ChannelRegistrar;
+import org.spongepowered.api.network.channel.packet.PacketDispatcher;
 
-public class CheckPermissionListener implements PacketHandler {
+public class CheckPermissionListener {
 
     private final ChangeSkinSponge plugin;
-    private final PacketChannel permissionsResultChannel;
+    private final RawHandshakeDataChannel permissionsResultChannel;
 
     @Inject
-    CheckPermissionListener(ChangeSkinSponge plugin, PacketChannelManager channelManager) {
+    CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
         this.plugin = plugin;
 
         String combinedName = new NamespaceKey(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL).getCombinedName();
-        this.permissionsResultChannel = channelManager.createChannel(combinedName);
+        permissionsResultChannel = channelRegistrar.createRawChannel(combinedName);
     }
 
-    @Override
-    public void handle(Packet packet, RemoteConnection connection) {
-        ChannelBuf data = (ChannelBuf) packet;
-        handlePayload(data, connection, Type.SERVER);
-    }
-
-    private void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
-
-        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+    public void handlePayload(byte[] data, RemoteConnection connection, Type side) {
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data);
         CheckPermMessage checkMessage = new CheckPermMessage();
         checkMessage.readFrom(dataInput);
 
@@ -72,7 +63,13 @@ public class CheckPermissionListener implements PacketHandler {
     }
 
     private boolean checkPerm(Player invoker, String node, boolean skinPerm, UUID targetUUID) {
-        return invoker.hasPermission(plugin.getName().toLowerCase() + '.' + node);
+        String pluginName = plugin.getName().toLowerCase();
+        boolean hasCommandPerm = invoker.hasPermission(pluginName +  '.' + node);
+        if (skinPerm) {
+            return hasCommandPerm && plugin.hasSkinPermission(invoker, targetUUID, false);
+        }
+
+        return hasCommandPerm;
     }
 
     private void sendResultMessage(Player receiver, PermResultMessage resultMessage) {

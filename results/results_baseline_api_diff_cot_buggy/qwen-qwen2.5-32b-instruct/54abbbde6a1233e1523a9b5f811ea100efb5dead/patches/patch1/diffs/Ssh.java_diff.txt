@@ -1,45 +1,45 @@
-33d32
+33,37d32
 < import com.jcabi.aspects.Tv;
-52d50
+< import com.jcabi.log.Logger;
+< import com.jcraft.jsch.JSch;
+< import com.jcraft.jsch.JSchException;
+< import com.jcraft.jsch.Session;
+52d46
 < import org.cactoos.scalar.Unchecked;
-74c72
+74c68
 <  * {@link Ssh#exec(String, InputStream, OutputStream, OutputStream)},
 ---
 >  * {@link #exec(String, InputStream, OutputStream, OutputStream)},
-82c80
+82c76
 <  *  encrypted/unencrypted private key.
 ---
 >  *  encrypted/unencrypted priv. key.
-86c84
+86c80
 < @SuppressWarnings("PMD.TooManyMethods")
 ---
 > @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
-127c125
+127c121
 <         this(adr, Ssh.PORT, user, priv);
 ---
 >         this(adr.getCanonicalHostName(), Ssh.PORT, user, priv);
-140c138
-<         this(adr, Ssh.PORT, user, priv);
----
->         this(adr, Ssh.PORT, user, priv, null);
-227d224
+227d220
 <     @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
-233d229
+233d225
 <     @Override
-235c231
+235c227
 <         attempts = Tv.SEVEN,
 ---
 >         attempts = 7,
-270,271c266
+270,271c262
 <                 this.getLogin(), this.getAddr(), this.getPort(),
 <                 file.length()
 ---
 >                 this.getLogin(), this.getAddr(), this.getPort(), file.length()
-292c287
+292c283
 <         session.setTimeout((int) TimeUnit.MINUTES.toMillis(1L));
 ---
 >         session.setTimeout((int) TimeUnit.SECONDS.toMillis(10L));
-294c289
+294c285
 <         session.setServerAliveCountMax(Tv.MILLION);
 ---
 >         session.setServerAliveCountMax(1000000);

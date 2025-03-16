@@ -8,28 +8,28 @@ import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
 import org.nem.core.node.NodeFeature;
 import org.nem.core.time.TimeProvider;
-import org.nem.deploy.*;
-import org.nem.nis.*;
-import org.nem.nis.audit.AuditCollection;
-import org.nem.nis.boot.*;
-import org.nem.nis.cache.*;
-import org.nem.nis.connect.*;
-import org.nem.nis.controller.interceptors.LocalHostDetector;
-import org.nem.nis.dao.*;
-import org.nem.nis.harvesting.*;
-import org.nem.nis.mappers.*;
-import org.nem.nis.pox.ImportanceCalculator;
-import org.nem.nis.pox.poi.*;
-import org.nem.nis.pox.pos.PosImportanceCalculator;
-import org.nem.nis.secret.*;
-import org.nem.nis.service.BlockChainLastBlockLayer;
-import org.nem.nis.state.*;
-import org.nem.nis.sync.*;
-import org.nem.nis.validators.*;
-import org.nem.peer.connect.CommunicationMode;
-import org.nem.peer.node.*;
-import org.nem.peer.services.ChainServices;
-import org.nem.peer.trust.*;
+import org.nis.deploy.*;
+import org.nis.nis.*;
+import org.nis.nis.audit.AuditCollection;
+import org.nis.nis.boot.*;
+import org.nis.nis.cache.*;
+import org.nis.nis.connect.*;
+import org.nis.nis.controller.interceptors.LocalHostDetector;
+import org.nis.nis.dao.*;
+import org.nis.nis.harvesting.*;
+import org.nis.nis.mappers.*;
+import org.nis.nis.pox.ImportanceCalculator;
+import org.nis.nis.pox.poi.*;
+import org.nis.nis.pox.pos.PosImportanceCalculator;
+import org.nis.nis.secret.*;
+import org.nis.nis.service.BlockChainLastBlockLayer;
+import org.nis.nis.state.*;
+import org.nis.nis.sync.*;
+import org.nis.nis.validators.*;
+import org.nis.peer.connect.CommunicationMode;
+import org.nis.peer.node.*;
+import org.nis.peer.services.ChainServices;
+import org.nis.peer.trust.*;
 import org.nem.specific.deploy.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.*;
@@ -44,11 +44,11 @@ import java.util.function.*;
 
 @Configuration
 @ComponentScan(basePackages = {
-		"org.nem.nis"
+		"org.nis.nis"
 }, excludeFilters = {
 		@ComponentScan.Filter(type = FilterType.ANNOTATION, value = org.springframework.stereotype.Controller.class),
 		@ComponentScan.Filter(type = FilterType.REGEX, pattern = {
-				"org.nem.nis.websocket.*"
+				"org.nis.nis.websocket.*"
 		})
 })
 @EnableTransactionManagement
@@ -197,7 +197,7 @@ public class NisAppConfig {
 
 	// endregion
 
-	// region mappers
+	// region harvester
 
 	@Bean
 	public Harvester harvester() {
@@ -272,7 +272,7 @@ public class NisAppConfig {
 		return getBlockDependentPoiOptions(height).getMinHarvesterBalance();
 	}
 
-	private static org.nem.nis.pox.poi.PoiOptions getBlockDependentPoiOptions(final BlockHeight height) {
+	private static org.nis.nis.pox.poi.PoiOptions getBlockDependentPoiOptions(final BlockHeight height) {
 		return new PoiOptionsBuilder(height).create();
 	}
 

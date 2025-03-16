@@ -23,11 +23,8 @@
  */
 package io.zold.api;
 
-import org.cactoos.scalar.LengthOf;
 import org.cactoos.Text;
-import org.cactoos.scalar.Sum;
-
-import java.util.stream.Collectors;
+import org.cactoos.scalar.LengthOf;
 
 /**
  * Default implementation for {@link Score}.
@@ -52,16 +49,8 @@ public final class RtScore implements Score {
 
     @Override
     public int compareTo(final Score other) {
-        return new Sum(
-            new LengthOf(
-                other.suffixes().stream().map(Text::asString).collect(Collectors.toList())
-            )
-        ).intValue()
-            - new Sum(
-                new LengthOf(
-                    this.sfxs.stream().map(Text::asString).collect(Collectors.toList())
-                )
-            ).intValue();
+        return new LengthOf<>(other.suffixes()).intValue()
+            - new LengthOf<>(this.sfxs).intValue();
     }
 
     @Override

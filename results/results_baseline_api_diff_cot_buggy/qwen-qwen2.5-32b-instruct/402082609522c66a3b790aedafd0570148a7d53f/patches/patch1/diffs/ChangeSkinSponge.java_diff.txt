@@ -1,77 +1,38 @@
-23,25d22
-< import org.spongepowered.api.command.CommandManager;
-< import org.spongepowered.api.command.CommandSource;
-< import org.spongepowered.api.config.ConfigDir;
-27,28c24
+27,28c27
 < import org.spongepowered.api.event.game.state.GameInitializationEvent;
 < import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 ---
 > import org.spongepowered.api.event.game.state.GameStartingServerEvent;
-30,32c26,29
+30,32c29,31
 < import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
 < import org.spongepowered.api.network.ChannelRegistrar;
 < import org.spongepowered.api.plugin.Plugin;
 ---
-> import org.spongepowered.api.network.channel.packet.PacketChannel;
-> import org.spongepowered.api.network.channel.packet.PacketChannelManager;
+> import org.spongepowered.api.network.ChannelBinding;
+> import org.spongepowered.api.network.ChannelBinding.ChannelBuilder;
 > import org.spongepowered.api.plugin.PluginContainer;
-> import org.spongepowered.api.text.Text;
-40,42c37
+40,41d38
 < @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
 <         url = PomData.URL, description = PomData.DESCRIPTION)
-< public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
----
-> public class ChangeSkinSponge implements PlatformPlugin {
-62c57
+62c59
 <     public void onPreInit(GamePreInitializationEvent preInitEvent) {
 ---
 >     public void onPreInit(GameStartingServerEvent preInitEvent) {
-73c68
+73c70
 <     public void onInit(GameInitializationEvent initEvent) {
 ---
 >     public void onInit(GameStartingServerEvent initEvent) {
-77c72,77
-<         CommandManager cmdManager = Sponge.getCommandManager();
----
->         PluginContainer pluginContainer = Sponge.getPluginManager().fromInstance(this).get();
->         Sponge.getCommandManager().register(pluginContainer, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
->         Sponge.getCommandManager().register(pluginContainer, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
->         Sponge.getCommandManager().register(pluginContainer, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
->         Sponge.getCommandManager().register(pluginContainer, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
->         Sponge.getCommandManager().register(pluginContainer, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
-79,87c79
-<         //command and event register
-<         cmdManager.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
-<         cmdManager.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
-<         cmdManager.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
-<         cmdManager.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
-<         cmdManager.register(this, injector.getInstance(InvalidateCommand.class)
-<                 .buildSpec(), "skininvalidate", "skin-invalidate");
-< 
-<         Sponge.getEventManager().registerListeners(this, injector.getInstance(LoginListener.class));
----
->         Sponge.getEventManager().registerListeners(pluginContainer, injector.getInstance(LoginListener.class));
-90c82
+90c87
 <         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
 ---
->         PacketChannelManager channelReg = Sponge.getPacketChannelManager();
-93,96c85,88
+>         ChannelBuilder channelBuilder = Sponge.getNetworkManager().createChannelBuilder();
+93,96c90,93
 <         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
 <         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
 <         updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
 <         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
 ---
->         PacketChannel updateChannel = channelReg.createChannel(updateChannelName);
->         PacketChannel permChannel = channelReg.createChannel(permissionChannelName);
+>         ChannelBinding<ByteBuf> updateChannel = channelBuilder.createChannel(updateChannelName);
+>         ChannelBinding<ByteBuf> permChannel = channelBuilder.createChannel(permissionChannelName);
 >         updateChannel.registerListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
->         permChannel.registerListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
-108d99
-<     @Override
-126d116
-<     @Override
-131d120
-<     @Override
-136d124
-<     @Override
-141d128
-<     @Override
+>         permChannel.registerListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class);

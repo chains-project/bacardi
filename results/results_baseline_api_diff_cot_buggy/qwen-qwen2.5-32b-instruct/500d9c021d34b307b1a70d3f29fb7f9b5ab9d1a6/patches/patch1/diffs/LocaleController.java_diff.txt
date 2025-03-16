@@ -1,24 +1,10 @@
-5,11c5,9
-< import javax.enterprise.context.RequestScoped;
-< import javax.inject.Inject;
+7,11c7,9
 < import javax.mvc.Controller;
 < import javax.mvc.Models;
 < import javax.mvc.MvcContext;
 < import javax.ws.rs.GET;
 < import javax.ws.rs.Path;
 ---
-> import jakarta.enterprise.context.RequestScoped;
-> import jakarta.inject.Inject;
 > import jakarta.mvc.Controller;
 > import jakarta.mvc.Models;
-> import jakarta.mvc.annotation.MvcContext;
-23,25c21
-<     MvcContext mvc;
-< 
-<     @Inject
----
->     @MvcContext
-33c29
-<         Locale locale = mvc.getLocale();
----
->         Locale locale = Locale.getDefault(); // Assuming default locale as MvcContext is no longer available
+> import jakarta.mvc.MvcContext;

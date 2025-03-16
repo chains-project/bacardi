@@ -18,7 +18,6 @@ package com.pinterest.singer.utils;
 import com.pinterest.singer.thrift.LogFile;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.thrift.TBase;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TIOStreamTransport;
@@ -123,6 +122,10 @@ public final class SimpleThriftLogger<T extends TBase> implements Closeable {
   public LogFile getLogFile() throws IOException {
     long inode = SingerUtils.getFileInode(FileSystems.getDefault().getPath(fileName));
     return new LogFile(inode);
+  }
+
+  public long getByteOffset() {
+    return transport.getByteOffset();
   }
 
   public void close() throws IOException {

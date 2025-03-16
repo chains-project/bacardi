@@ -4,19 +4,22 @@ import com.github.games647.changeskin.core.model.auth.Account;
 import com.github.games647.changeskin.core.shared.task.SharedSkinChanger;
 import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
-import java.util.function.Consumer;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.serializer.TextSerializers;
+import org.spongepowered.api.command.source.CommandSource;
 
 public class SkinChanger extends SharedSkinChanger {
 
-    private final Consumer<String> messageSender;
+    private final CommandSource invoker;
 
-    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, Consumer<String> messageSender) {
+    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker) {
         super(plugin.getCore(), owner, url, oldSkinUrl);
 
-        this.messageSender = messageSender;
+        this.invoker = invoker;
     }
 
     protected void sendMessageInvoker(String localeMessage) {
-        messageSender.accept(localeMessage);
+        invoker.sendMessage(Text.of(TextColors.RED, localeMessage));
     }
 }

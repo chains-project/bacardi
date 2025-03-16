@@ -44,6 +44,10 @@ import javax.ws.rs.core.HttpHeaders;
 import lombok.EqualsAndHashCode;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.IsEqual;
+import org.hamcrest.core.IsNot;
+import org.hamcrest.core.StringContains;
+import org.hamcrest.core.StringStartsWith;
 
 /**
  * REST response.
@@ -55,8 +59,8 @@ import org.hamcrest.MatcherAssert;
  *   .fetch()
  *   .as(RestResponse.class)
  *   .assertStatus(200)
- *   .assertBody(Matchers.containsString("hello, world!"))
- *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
+ *   .assertBody(new StringContains("hello, world!"))
+ *   .assertHeader("Content-Type", new IsEqual<>(Collections.singletonList("text/plain")))
  *   .jump(URI.create("/users"))
  *   .fetch();</pre>
  *
@@ -84,10 +88,7 @@ public final class RestResponse extends AbstractResponse {
      */
     public RestResponse assertThat(final Matcher<Response> matcher) {
         MatcherAssert.assertThat(
-            String.format(
-                "HTTP response is not valid: %s",
-                this
-            ),
+            String.format("HTTP response is not valid: %s", this),
             this,
             matcher
         );
@@ -109,7 +110,7 @@ public final class RestResponse extends AbstractResponse {
                 "HTTP response status is not equal to %d:%n%s",
                 status, this
             ),
-            this.status(), Matchers.equalTo(status)
+            this.status(), new IsEqual<>(status)
         );
         return this;
     }
@@ -204,7 +205,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, org.hamcrest.Matchers.hasItems(value));
+        return this.assertHeader(name, new IsEqual<>(Collections.singletonList(value)));
     }
 
     /**
@@ -240,7 +241,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            org.hamcrest.Matchers.not(org.hamcrest.Matchers.emptyIterable())
+            new IsNot<>(new IsEqual<>(Collections.emptyList()))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -278,7 +279,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            org.hamcrest.Matchers.notNull()
+            new IsEqual<>(Matchers.notNullValue())
         );
         assert cookie != null;
         return cookie;

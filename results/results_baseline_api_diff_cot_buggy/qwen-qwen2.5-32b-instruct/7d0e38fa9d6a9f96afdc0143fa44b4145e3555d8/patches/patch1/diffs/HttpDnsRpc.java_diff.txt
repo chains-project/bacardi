@@ -56,40 +56,34 @@
 211c210
 <         .create(this.options.getProjectId(), zone)
 ---
->         .create(this.options.getProjectId(), zone.getName(), zone)
+>         .create(this.options.getProjectId(), this.options.getLocation(), zone)
 232,233c231,232
 <         .get(this.options.getProjectId(), zoneName)
 <         .setFields(Option.FIELDS.getString(options));
 ---
->         .get(this.options.getProjectId(), zoneName, zoneName)
+>         .get(this.options.getProjectId(), this.options.getLocation(), zoneName)
 >         .setFields(Option.FIELDS.getString(options);
 249c248
 <         .list(this.options.getProjectId())
 ---
->         .list(this.options.getProjectId(), this.options.getProjectId())
-252,253c251,252
+>         .list(this.options.getProjectId(), this.options.getLocation())
+252d250
 <         .setDnsName(Option.DNS_NAME.getString(options))
-<         .setPageToken(Option.PAGE_TOKEN.getString(options));
----
->         .setPageToken(Option.PAGE_TOKEN.getString(options))
->         .setDnsName(Option.DNS_NAME.getString(options));
-265a265
+265a264
 >       // the zone does not exist, so throw an exception
-271c271,272
+271c270,271
 <     return dns.managedZones().delete(this.options.getProjectId(), zoneName);
 ---
 >     return dns.managedZones()
->         .delete(this.options.getProjectId(), zoneName, zoneName);
-287d287
-<     // options are fields, page token, dns name, type
+>         .delete(this.options.getProjectId(), this.options.getLocation(), zoneName);
 289c289
 <         .list(this.options.getProjectId(), zoneName)
 ---
->         .list(this.options.getProjectId(), zoneName, zoneName)
+>         .list(this.options.getProjectId(), this.options.getLocation(), zoneName)
 308c308
 <         .get(this.options.getProjectId())
 ---
->         .get(this.options.getProjectId(), this.options.getProjectId())
+>         .get(this.options.getProjectId(), this.options.getLocation())
 322,323c322,323
 <   private Dns.Changes.Create applyChangeRequestCall(
 <       String zoneName, Change changeRequest, Map<Option, ?> options) throws IOException {
@@ -100,7 +94,7 @@
 <         .create(this.options.getProjectId(), zoneName, changeRequest)
 <         .setFields(Option.FIELDS.getString(options));
 ---
->         .create(this.options.getProjectId(), zoneName, zoneName, changeRequest)
+>         .create(this.options.getProjectId(), this.options.getLocation(), zoneName, changeRequest)
 >         .setFields(Option.FIELDS.getString(options);
 349,350c349,350
 <   private Dns.Changes.Get getChangeRequestCall(
@@ -112,11 +106,9 @@
 <         .get(this.options.getProjectId(), zoneName, changeRequestId)
 <         .setFields(Option.FIELDS.getString(options));
 ---
->         .get(this.options.getProjectId(), zoneName, changeRequestId, changeRequestId)
+>         .get(this.options.getProjectId(), this.options.getLocation(), zoneName, changeRequestId)
 >         .setFields(Option.FIELDS.getString(options);
-369d368
-<     // options are fields, page token, page size, sort order
-372c371
+372c372
 <             .list(this.options.getProjectId(), zoneName)
 ---
->             .list(this.options.getProjectId(), zoneName, zoneName)
+>             .list(this.options.getProjectId(), this.options.getLocation(), zoneName)

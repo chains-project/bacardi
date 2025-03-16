@@ -18,6 +18,8 @@ package org.simplify4u.plugins.utils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.repository.RepositorySystem;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -66,19 +68,20 @@ public final class MavenCompilerUtils {
         if (config == null) {
             return emptySet();
         }
-        // Since Xpp3Dom and its methods are removed, we need to handle the configuration differently.
-        // Assuming the configuration is now a Map<String, Object> for simplicity.
-        if (config instanceof Map) {
-            Map<String, Object> configMap = (Map<String, Object>) config;
-            return configMap.entrySet().stream()
-                    .filter(entry -> "annotationProcessorPaths".equals(entry.getKey()))
-                    .flatMap(entry -> ((List<Map<String, Object>>) entry.getValue()).stream())
-                    .flatMap(path -> ((List<Map<String, Object>>) path.get("path")).stream())
-                    .map(processor -> system.createArtifact(
-                            (String) processor.get("groupId"),
-                            (String) processor.get("artifactId"),
-                            (String) processor.get("version"),
-                            PACKAGING))
+        if (config instanceof Element) {
+            final Element configElement = (Element) config;
+            final NodeList annotationProcessorPaths = configElement.getElementsByTagName("annotationProcessorPaths");
+            return stream(0, annotationProcessorPaths.getLength())
+                    .flatMap(i -> stream(0, annotationProcessorPaths.item(i).getChildNodes().getLength())
+                            .mapToObj(annotationProcessorPaths.item(i).getChildNodes()::item)
+                            .filter(node -> "path".equals(node.getNodeName()))
+                            .flatMap(path -> stream(0, path.getChildNodes().getLength())
+                                    .mapToObj(path.getChildNodes()::item)
+                                    .filter(child -> child.getNodeName().equals("groupId") || child.getNodeName().equals("artifactId") || child.getNodeName().equals("version"))
+                                    .map(node -> node.getTextContent())
+                                    .collect(Collectors.toList())
+                                    .toArray(new String[0])))
+                    .map(nodes -> system.createArtifact(nodes[0], nodes[1], nodes[2], PACKAGING))
                     .filter(a -> !a.getGroupId().isEmpty())
                     .filter(a -> !a.getArtifactId().isEmpty())
                     .filter(a -> !a.getVersion().isEmpty())

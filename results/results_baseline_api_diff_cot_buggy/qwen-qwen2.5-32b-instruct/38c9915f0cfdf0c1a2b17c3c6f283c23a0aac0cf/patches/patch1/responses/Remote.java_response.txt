@@ -25,6 +25,7 @@
 package io.zold.api;
 
 import org.cactoos.iterable.Repeated;
+import java.util.Random;
 
 /**
  * Remote node.
@@ -67,7 +68,7 @@ public interface Remote {
          */
         public Fake(final int val) {
             this(new RtScore(
-                new Repeated<>(val)
+                new Repeated<>(val, new Random())
             ));
         }
 

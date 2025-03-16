@@ -1,6 +1,7 @@
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -105,15 +106,22 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final Flyway flyway = Flyway.configure().dataSource(this.dataSource()).load();
-		flyway.configure().locations(prop.getProperty("flyway.locations").split(",")).load();
-		flyway.configure().validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate"))).load();
+		final ClassicConfiguration configuration = new ClassicConfiguration();
+		configuration.setDataSource(this.dataSource());
+		configuration.setLocations(new Location[]{new Location(prop.getProperty("flyway.locations"))});
+		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
 
-		return flyway;
+		return new Flyway(configuration);
+	}
+
+	@Bean(initMethod = "migrate")
+	public Flyway flywayInstance() throws IOException {
+		return flyway();
 	}
 
 	@Bean
-	protected SessionFactory sessionFactory() throws IOException {
+	public SessionFactory sessionFactory() throws IOException {
 		return SessionFactoryLoader.load(this.dataSource());
 	}
 
@@ -124,8 +132,8 @@ public class NisAppConfig {
 
 	@Bean
 	public BlockChainServices blockChainServices() {
-		return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
-				this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+		return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
+				this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
 	}
 
 	@Bean
@@ -192,6 +200,20 @@ public class NisAppConfig {
 
 	// endregion
 
+	// region mappers
+
+	@Bean
+	public BlockChainUpdater blockChainUpdater() {
+		return new BlockChainUpdater(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainContextFactory(),
+				this.unconfirmedTransactions(), this.nisConfiguration());
+	}
+
+	@Bean
+	public BlockChainContextFactory blockChainContextFactory() {
+		return new BlockChainContextFactory(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainServices(),
+				this.unconfirmedTransactions());
+	}
+
 	@Bean
 	public Harvester harvester() {
 		final NewBlockTransactionsProvider transactionsProvider = new DefaultNewBlockTransactionsProvider(this.nisCache(),
@@ -252,6 +274,12 @@ public class NisAppConfig {
 
 	@Bean
 	public UnlockedAccounts unlockedAccounts() {
+		final NewBlockTransactionsProvider transactionsProvider = new DefaultNewBlockTransactionsProvider(this.nisCache(),
+				this.transactionValidatorFactory(), this.blockValidatorFactory(), this.blockTransactionObserverFactory(),
+				this.unconfirmedTransactionsFilter(), this.nisConfiguration().getForkConfiguration());
+
+		final BlockGenerator generator = new BlockGenerator(this.nisCache(), transactionsProvider, this.blockDao,
+				new BlockScorer(this.accountStateCache()), this.blockValidatorFactory().create(this.nisCache()));
 		return new UnlockedAccounts(this.accountCache(), this.accountStateCache(), this.blockChainLastBlockLayer,
 				this.canHarvestPredicate(), this.nisConfiguration().getUnlockedLimit());
 	}
@@ -309,7 +337,7 @@ public class NisAppConfig {
 					() -> this.blockChainLastBlockLayer.getLastBlockHeight().next(), new BlockHeight[]{
 							new BlockHeight(BlockMarkerConstants.FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24)),
 							new BlockHeight(
-									BlockMarkerConstants.SECOND_FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24))
+									BlockMarkerConstants.SECOND_FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24)
 					}));
 		}
 

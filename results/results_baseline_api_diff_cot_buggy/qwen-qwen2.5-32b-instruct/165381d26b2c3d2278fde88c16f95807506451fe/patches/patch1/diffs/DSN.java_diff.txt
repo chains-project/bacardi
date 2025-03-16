@@ -2,7 +2,19 @@
 < import com.github.javaparser.printer.PrettyPrinterConfiguration;
 ---
 > import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration; // Updated import
-57,77d56
+23,27d22
+< import org.btrplace.safeplace.testing.reporting.CSVReport;
+< import org.btrplace.safeplace.testing.reporting.StoredReport;
+< import org.btrplace.safeplace.testing.verification.Verifier;
+< import org.btrplace.safeplace.testing.verification.btrplace.CheckerVerifier;
+< import org.btrplace.safeplace.testing.verification.spec.SpecVerifier;
+41d35
+< import java.util.stream.Collectors;
+43,45d36
+< /**
+<  * @author Fabien Hermenier
+<  */
+57,77d47
 <     ////@Test
 <     public void fuzzingSizing() throws Exception {
 <         TestScanner sc = newScanner();
@@ -24,11 +36,11 @@
 <         }
 <     }
 < 
-79c58
+79c49
 <     public void fuzzingScalability() throws Exception {
 ---
 >     public void fuzzingSizing() throws Exception {
-81,89d59
+81,89d50
 < 
 <         //Warm-up
 <         Bench.transitions = true;
@@ -38,7 +50,7 @@
 < 
 <      /*   for (int i = 10; i <= 30; i+=2) {
 <             Bench.transitions = false;
-91,99c61,62
+91,99c52,53
 <             Bench.scale = i;
 <             System.out.println("--- scaling factor " + i + "; transitions= " + Bench.transitions +" ---");
 <             Bench.report = new CSVReport(p,"");
@@ -51,16 +63,13 @@
 ---
 >         Bench.scale = 10;
 >         Path p = Paths.get(root, "fuzz.csv");
-101,182c64
+101,102c55,56
 <         Bench.mode = Bench.Mode.DEFAULT;
 <         for (int i = 1; i <= 30; i += 2) {
-<             Bench.transitions = false;
-<             Bench.population = 100;
-<             Bench.scale = i;
-<             System.out.println("--- scaling factor " + i + "; transitions= " + Bench.transitions + " ---");
-<             Bench.report = new CSVReport(p, "");
-<             sc.test(Bench.class).forEach(c -> System.out.println(c.go().toString()));
-<         }
+---
+> 
+>         for (int i = 10; i <= 30; i+=2) {
+110,149d63
 < 
 <         p = Paths.get(root, "testing-speed-trans.csv");
 <         Files.deleteIfExists(p);
@@ -101,56 +110,27 @@
 <                         .map(c -> Integer.toString(c))
 <                         .collect(Collectors.joining("\n"));
 <         Files.write(path, out.getBytes());
+182,232d95
+< 
 <     }
 < 
 <     //@Test
-<     public void funcFrequency() throws Exception {
-<         SpecScanner sc = new SpecScanner();
-<         List<Constraint> l = sc.scan();
-<         Pattern p = Pattern.compile("([a-zA-Z]+\\()+");
-<         Map<String, Integer> map = new HashMap<>();
-<         for (Constraint c : l) {
-<             String prop = c.proposition().toString();
-<             Matcher m = p.matcher(prop);
-<             System.out.println(prop);
-<             int start = 0;
-<             while (m.find(start)) {
-<                 String name = prop.substring(m.start(), m.end() - 1);
-<                 if (Character.isLowerCase(name.charAt(0))) {
-<                     if (!map.containsKey(name)) {
-<                         map.put(name, 1);
-<                     } else {
-<                         map.put(name, map.get(name) + 1);
-<                     }
-<                 }
-<                 System.out.println("\t" + prop.substring(m.start(), m.end() - 1));
-<                 start = m.end();
-<             }
-<         }
-<         System.out.println(map);
-<         Path out = Paths.get(root, "func-freq.csv");
-<         Files.deleteIfExists(out);
-<         String cnt = "name;freq\n" +
-<                     map.entrySet().stream().map(e -> e.getKey()+";" + e.getValue() + "\n").collect(Collectors.joining());
-<         Files.write(out, cnt.getBytes());
-< 
----
->         sc.testGroups("sides").forEach(x -> System.out.println(x.go().toString()));
-186c68
 <     public void specVsCheckers() throws Exception {
----
->     public void fuzzingScalability() throws Exception {
-188c70
+<         TestScanner sc = newScanner();
 <         Bench.population = 500;
----
->         Bench.population = 100;
-190c72
+<         Bench.scale = 10;
 <         Path p = Paths.get(root, "verifier_stable.csv");
----
->         Path p = Paths.get(root, "scalability.csv");
-200d81
+<         Files.deleteIfExists(p);
+<         boolean first = true;
+<         for (Verifier v : new Verifier[]{new SpecVerifier(), new CheckerVerifier()}) {
+<             if (first) {
+<                 Bench.mode = Bench.Mode.SAVE;
+<                 first = !first;
+<             } else {
+<                 Bench.mode = Bench.Mode.REPLAY;
+<             }
 <             System.out.println("--- Verifier: " + v.getClass() + " ---");
-202,228c83,85
+<             Bench.report = new CSVReport(p, v.id());
 <             sc.test(Bench.class).forEach(c -> {
 <                 c.verifyWith(v);
 <                 System.out.println(c.go().toString());
@@ -178,55 +158,27 @@
 <             sc.testGroups("bi").forEach(x -> {
 <                 Bench.restrictions = EnumSet.of(r);
 <                 System.out.println(x.go());
----
->             sc.test(Bench.class).forEach(x -> {
->                 x.verifyWith(v);
->                 System.out.println(x.go().toString());
-231,232d87
+<             });
+<         }
 <         //restore
 <         Bench.restrictions = EnumSet.allOf(Restriction.class);
-236c91
-<     public void repairVsRebuild() throws Exception {
----
->     public void specVsCheckers() throws Exception {
-238c93
-<         Bench.population = 500;
----
->         Bench.population = 100;
-240,241c95,96
-<         Path path = Paths.get(root, "mode_stable.csv");
-<         Files.deleteIfExists(path);
----
->         Path p = Paths.get(root, "verifier_stable.csv");
->         Files.deleteIfExists(p);
-243c98
-<         for (boolean repair : new boolean[]{false, true}) {
----
->         for (Verifier v : new Verifier[]{new SpecVerifier(), new CheckerVerifier()}) {
-250,251c105
-<             System.out.println("--- Repair: " + repair + "; replay= " + first + " ---");
-<             Bench.report = new CSVReport(path, repair ? "enabled" : "disabled");
----
->             Bench.report = new CSVReport(p, v.id());
-253,254c107,108
-<                 x.schedulerParams().doRepair(true);
-<                 System.out.println(x.go());
----
->                 x.verifyWith(v);
->                 System.out.println(x.go().toString());
-262,265c116,117
+259,313d121
+<     //@Test
+<     public void errors() throws Exception {
+<         TestScanner sc = newScanner();
 <         Bench.source = "xp-dsn";
 <         Bench.mode = Bench.Mode.REPLAY;
 <         Bench.population = 1000;
 <         Bench.scale = 5;
----
->         Bench.population = 100;
->         Bench.scale = 10;
-269c121
+<         Path p = Paths.get(root, "errors.csv");
+<         Files.deleteIfExists(p);
+<         Bench.report = new CSVReport(p, "");
 <         sc.test(Bench.class).stream().forEach(x -> System.out.println(x.go()));
----
->         sc.test(Bench.class).forEach(x -> System.out.println(x.go().toString()));
-275,282c127,132
+<     }
+< 
+<     //@Test
+<     public void prettyErrors() throws Exception {
+<         TestScanner sc = newScanner();
 <         Bench.mode = Bench.Mode.REPLAY;
 <         Bench.population = 1000;
 <         Bench.scale = 5;
@@ -235,16 +187,10 @@
 <             x.reportTo(new StoredReport(Paths.get("xp-dsn", "errors.txt"), r -> !r.result().equals(Result.SUCCESS)));
 <             System.out.println(x.go());
 <         });
----
->         Bench.population = 100;
->         Bench.scale = 10;
->         Path p = Paths.get(root, "errors.txt");
->         Files.deleteIfExists(p);
->         Bench.report = new StoredReport(p);
->         sc.test(Bench.class).forEach(x -> System.out.println(x.go().toString()));
-285d134
+<     }
 < 
-287,295c136,148
+< 
+<     //@Test
 <     //Extract the number of line of codes of tests
 <     public void testSloc() throws Exception {
 <         //Parse the legacy unit tests
@@ -254,24 +200,8 @@
 <             try (InputStream in = Files.newInputStream(p)){
 <                 ParseResult<CompilationUnit> cu = new JavaParser().parse(in);
 <                 new UnitTestsVisitor(unitTests).visit(cu.getResult().get(), null);
----
->     public void repairVsRebuild() throws Exception {
->         TestScanner sc = newScanner();
->         Bench.population = 100;
->         Bench.scale = 10;
->         Path p = Paths.get(root, "mode_stable.csv");
->         Files.deleteIfExists(p);
->         boolean first = true;
->         for (boolean repair : new boolean[]{false, true}) {
->             if (first) {
->                 Bench.mode = Bench.Mode.SAVE;
->                 first = !first;
->             } else {
->                 Bench.mode = Bench.Mode.REPLAY;
-296a150,151
->             Bench.report = new CSVReport(p, repair ? "enabled" : "disabled");
->             sc.test(Bench.class).forEach(x -> System.out.println(x.go().toString()));
-298,311d152
+<             }
+<         }
 < 
 <         //Parse the new unit tests
 <         List<Integer> safeTests = new ArrayList<>();
@@ -286,7 +216,13 @@
 <                 safeTests.stream().map(i -> "safePlace;" + i).collect(Collectors.joining("\n", "", "\n"));
 <         Path path = Paths.get(root, "sloc.csv");
 <         Files.write(path, sb.getBytes());
-335c176
+<     }
+< 
+335c143
 <       private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
 ---
->         private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false); // Updated line
+>         private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false); // Updated instantiation
+344c152
+<             if (n.toString(noComments).contains("solve")) {
+---
+>             if (n.toString(noComments).getPrinterConfiguration()).contains("solve")) { // Updated method call

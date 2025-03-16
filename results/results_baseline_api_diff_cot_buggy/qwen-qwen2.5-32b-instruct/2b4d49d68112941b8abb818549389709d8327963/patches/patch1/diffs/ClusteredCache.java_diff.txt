@@ -1,55 +1,97 @@
-1,15d0
-< /*
-<  * Copyright (C) 1999-2009 Jive Software. All rights reserved.
-<  *
-<  * Licensed under the Apache License, Version 2.0 (the "License");
-<  * you may not use this file except in compliance with the License.
-<  * You may obtain a copy of the License at
-<  *
-<  *     http://www.apache.org/licenses/LICENSE-2.0
-<  *
-<  * Unless required by applicable law or agreed to in writing, software
-<  * distributed under the License is distributed on an "AS IS" BASIS,
-<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-<  * See the License for the specific language governing permissions and
-<  * limitations under the License.
-<  */
-19,23c4,9
-< import com.hazelcast.core.EntryListener;
+20,23c20,23
 < import com.hazelcast.core.IMap;
 < import com.hazelcast.core.MapEvent;
 < import com.hazelcast.map.listener.MapListener;
 < import com.hazelcast.monitor.LocalMapStats;
 ---
-> import com.hazelcast.map.EntryListener;
 > import com.hazelcast.map.IMap;
 > import com.hazelcast.map.LocalMapStats;
 > import com.hazelcast.map.MapEvent;
 > import com.hazelcast.map.MapListener;
-> import com.hazelcast.cluster.Member;
-47d32
-<  *
-63,68d47
+63,68d62
 <      * Used to limit the amount of duplicate warnings logged.
 <      */
 <     private Instant lastPluginClassLoaderWarning = Instant.EPOCH;
 <     private final Duration pluginClassLoaderWarningSupression = Duration.ofHours(1);
 < 
 <     /**
-85,87c64,65
+85,87c79,80
 <     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode)
 <     {
 <         final EntryListener<K, V> listener = new EntryListener<K, V>() {
 ---
 >     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode) {
 >         final MapListener<K, V> listener = new MapListener<K, V>() {
-267,271d244
+92c85
+<                     logger.trace("Processing map evicted event of node '{}'", eventNodeId);
+---
+>                     logger.trace("Processing map evicted event of node '{}' for key '{}'", eventNodeId, event.getKey());
+211,285d203
+<     @Override
+<     public boolean isEmpty() {
+<         return map.isEmpty();
+<     }
+< 
+<     @Override
+<     public Set<K> keySet() {
+<         return map.keySet();
+<     }
+< 
+<     @Override
+<     public void putAll(final Map<? extends K, ? extends V> entries) {
+<         map.putAll(entries);
+< 
+<         // Instances are likely all loaded by the same class loader. For resource usage optimization, let's test just one, not all.
+<         entries.entrySet().stream().findAny().ifPresent(
+<             e -> {
+<                 checkForPluginClassLoader(e.getKey());
+<                 checkForPluginClassLoader(e.getValue());
+<             }
+<         );
+<     }
+< 
+<     @Override
+<     public Collection<V> values() {
+<         return map.values();
+<     }
+< 
+<     @Override
+<     public long getCacheHits() {
+<         return map.getLocalMapStats().getHits();
+<     }
+< 
+<     @Override
+<     public long getCacheMisses() {
+<         final long hits = map.getLocalMapStats().getHits();
+<         return numberOfGets > hits ? numberOfGets - hits : 0;
+<     }
+< 
+<     @Override
+<     public int getCacheSize() {
+<         return (int) getLongCacheSize();
+<     }
+< 
+<     @Override
+<     public long getLongCacheSize() {
+<         final LocalMapStats stats = map.getLocalMapStats();
+<         return stats.getOwnedEntryMemoryCost() + stats.getBackupEntryMemoryCost();
+<     }
+< 
+<     @Override
+<     public long getMaxCacheSize() {
+<         return CacheFactory.getMaxCacheSize(getName());
+<     }
+< 
+<     @Override
 <     public void setMaxCacheSize(int i) {
 <         setMaxCacheSize((long) i);
 <     }
 < 
 <     @Override
-276,285d248
+<     public void setMaxCacheSize(final long maxSize) {
+<         CacheFactory.setMaxSizeProperty(getName(), maxSize);
+<     }
+< 
 <     @Override
 <     public long getMaxLifetime() {
 <         return CacheFactory.getMaxCacheLifetime(getName());
@@ -60,11 +102,16 @@
 <         CacheFactory.setMaxLifetimeProperty(getName(), maxLifetime);
 <     }
 < 
-318,320c281
-<      * issues related to class loading when the providing plugin is reloaded. This method verifies if an instance is
-<      * loaded by a plugin class loader, and logs a warning to the log files when it is. The amount of warnings logged is
-<      * limited by a time interval.
+308,315d225
+<     void unlock(final K key) {
+<         try {
+<             map.unlock(key);
+<         } catch (final IllegalMonitorStateException e) {
+<             logger.error("Failed to release cluster lock", e);
+<         }
+<     }
+< 
+329c239
+<             // Try to determine what plugin loaded the offending class.
 ---
->      * issues when reloading the plugin that provides this class. The plugin implementation should be modified.
-323d283
-<      * @see <a href="https://github.com/igniterealtime/openfire-hazelcast-plugin/issues/74">Issue #74: Warn against usage of plugin-provided classes in Hazelcast</a>
+>             // Try to determine what plugin class loader loaded the offending class.

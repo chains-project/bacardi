@@ -102,15 +102,13 @@ public final class RestResponse extends AbstractResponse {
      * @return This object
      */
     public RestResponse assertStatus(final int status) {
-        final String message = String.format(
-            "HTTP response with status %d", status
-        );
         MatcherAssert.assertThat(
             String.format(
                 "HTTP response status is not equal to %d:%n%s",
                 status, this
             ),
-            this.status(), new IsEqual<>(status)
+            this.status(),
+            new IsEqual<>(status)
         );
         return this;
     }
@@ -280,7 +278,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            new IsNull<>()
+            new IsNull<>(false)
         );
         assert cookie != null;
         return cookie;

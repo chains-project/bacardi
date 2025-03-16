@@ -14,48 +14,39 @@
 <  * See the License for the specific language governing permissions and
 <  * limitations under the License.
 <  */
-19,23c4,7
-< import com.hazelcast.core.EntryListener;
+20,23c5,7
 < import com.hazelcast.core.IMap;
 < import com.hazelcast.core.MapEvent;
 < import com.hazelcast.map.listener.MapListener;
 < import com.hazelcast.monitor.LocalMapStats;
 ---
-> import com.hazelcast.map.EntryListener;
 > import com.hazelcast.map.IMap;
-> import com.hazelcast.map.MapEvent;
 > import com.hazelcast.map.LocalMapStats;
-43d26
-< import java.util.concurrent.TimeUnit;
-47d29
+> import com.hazelcast.map.MapEvent;
+47d30
 <  *
-63,68d44
+63,68d45
 <      * Used to limit the amount of duplicate warnings logged.
 <      */
 <     private Instant lastPluginClassLoaderWarning = Instant.EPOCH;
 <     private final Duration pluginClassLoaderWarningSupression = Duration.ofHours(1);
 < 
 <     /**
-80c56
-<     void addEntryListener(final MapListener listener) {
+87c64
+<         final EntryListener<K, V> listener = new EntryListener<K, V>() {
 ---
->     void addEntryListener(final EntryListener<K, V> listener) {
-85,86c61
-<     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode)
-<     {
----
->     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode) {
-92c67
+>         final MapListener<K, V> listener = new MapListener<K, V>() {
+92c69
 <                     logger.trace("Processing map evicted event of node '{}'", eventNodeId);
 ---
 >                     logger.trace("Processing map evicted event of node '{}' for key '{}'", eventNodeId, event.getKey());
-267,271d241
+267,271d243
 <     public void setMaxCacheSize(int i) {
 <         setMaxCacheSize((long) i);
 <     }
 < 
 <     @Override
-276,285d245
+276,285d247
 <     @Override
 <     public long getMaxLifetime() {
 <         return CacheFactory.getMaxCacheLifetime(getName());
@@ -66,19 +57,15 @@
 <         CacheFactory.setMaxLifetimeProperty(getName(), maxLifetime);
 <     }
 < 
-299c259
-<                 result = map.tryLock(key, timeout, TimeUnit.MILLISECONDS);
----
->                 result = map.tryLock(key, timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
-318,320c278
+318,320c280
 <      * issues related to class loading when the providing plugin is reloaded. This method verifies if an instance is
 <      * loaded by a plugin class loader, and logs a warning to the log files when it is. The amount of warnings logged is
 <      * limited by a time interval.
 ---
 >      * issues when reloading the plugin that provides this class. The plugin implementation should be modified.
-323d280
+323d282
 <      * @see <a href="https://github.com/igniterealtime/openfire-hazelcast-plugin/issues/74">Issue #74: Warn against usage of plugin-provided classes in Hazelcast</a>
-327,329c284,286
+327,329c286,288
 <             && lastPluginClassLoaderWarning.isBefore(Instant.now().minus(pluginClassLoaderWarningSupression)) )
 <         {
 <             // Try to determine what plugin loaded the offending class.

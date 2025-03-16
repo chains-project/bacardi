@@ -4,7 +4,6 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import jakarta.mvc.annotation.Controller;
-import jakarta.mvc.annotation.InitParam;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**

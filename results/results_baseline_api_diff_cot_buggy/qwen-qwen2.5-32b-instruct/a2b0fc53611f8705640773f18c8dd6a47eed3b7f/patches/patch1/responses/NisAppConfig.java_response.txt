@@ -106,12 +106,12 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final ClassicConfiguration configuration = new ClassicConfiguration();
-		configuration.setDataSource(this.dataSource());
-		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
-		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-
-		return new Flyway(configuration);
+		final ClassicConfiguration config = new ClassicConfiguration();
+		config.setDataSource(this.dataSource());
+		config.setLocations(prop.getProperty("flyway.locations").split(","));
+		config.setClassLoader(NisAppConfig.class.getClassLoader());
+		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		return new Flyway(config);
 	}
 
 	@Bean(initMethod = "migrate")
@@ -119,12 +119,12 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final ClassicConfiguration configuration = new ClassicConfiguration();
-		configuration.setDataSource(this.dataSource());
-		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
-		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-
-		return new Flyway(configuration);
+		final ClassicConfiguration config = new ClassicConfiguration();
+		config.setDataSource(this.dataSource());
+		config.setLocations(prop.getProperty("flyway.locations").split(","));
+		config.setClassLoader(NisAppConfig.class.getClassLoader());
+		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		return new Flyway(config);
 	}
 
 	@Bean
@@ -209,7 +209,7 @@ public class NisAppConfig {
 
 	// endregion
 
-	// region mappers
+	// region harvester
 
 	@Bean
 	public Harvester harvester() {

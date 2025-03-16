@@ -76,7 +76,7 @@ public class WWCInventoryManager extends InventoryManager {
 			pageMeta.setDisplayName(ChatColor.AQUA
 					+ CommonDefinitions.getMessage("wwcGUIPageNumber", args));
 			if (args[0].equals("1")) {
-				pageMeta.addEnchant(XEnchantment.POWER, 1, false);
+				pageMeta.addEnchant(XEnchantment.matchXEnchantment("power").get(), 1, false);
 			}
 		} else {
 			pageMeta.setDisplayName(ChatColor.RED + "Not a valid button! This is a bug, please report it.");

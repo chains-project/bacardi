@@ -27,6 +27,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
+import org.cactoos.Func;
+import org.cactoos.FuncAsScalar;
+import org.cactoos.FuncOf;
+import org.cactoos.Scalar;
 import org.cactoos.collection.Filtered;
 import org.cactoos.iterable.IterableOf;
 import org.cactoos.iterable.Joined;
@@ -41,10 +45,8 @@ import org.cactoos.text.UncheckedText;
 /**
  * Wallet.
  * @since 0.1
- * @todo #16:30min Merge method should update transactions
- *  in wallet's file and return concrete implementation not a fake one.
- *  Beware that tests should be refactored to take care of file cleanup
- *  after each case that merges wallets.
+ * @todo #16:30min Merge method should update transactions in wallet's file and return concrete implementation not a fake one.
+ * @todo #65:30min Implement key method. This should return the public RSA key of the wallet owner in Base64. Also add a unit test to replace WalletTest.keyIsNotYetImplemented().
  */
 @SuppressWarnings({"PMD.ShortMethodName", "PMD.TooManyMethods",
     "PMD.UnusedFormalParameter"})
@@ -64,7 +66,7 @@ public interface Wallet {
      * @param bnf Wallet ID of beneficiary
      * @throws IOException If an IO error occurs
      */
-    void pay(long amt, long bnf) throws IOException;
+    void pay(long amt, final long bnf) throws IOException;
 
     /**
      * Merge both {@code this} and {@code other}. Fails if they are not the
@@ -90,7 +92,7 @@ public interface Wallet {
     /**
      * A Fake {@link Wallet}.
      * @since 1.0
-     * @todo #65:30min Implement key method. This should return the public RSA key of the wallet owner in Base64. Also add a unit test to replace WalletTest.keyIsNotYetImplemented().
+     * @todo #65:30min Complete Wallet implementations with id, public RSA key and network id. Also add a unit test to replace WalletTest.keyIsNotYetImplemented().
      */
     final class Fake implements Wallet {
 
@@ -122,7 +124,7 @@ public interface Wallet {
         }
 
         /**
-         * Constructor.
+         * Ctor.
          * @param id The wallet id.
          * @param pubkey The public RSA key of the wallet owner.
          * @param network The network the walet belongs to.
@@ -130,6 +132,16 @@ public interface Wallet {
          */
         public Fake(final long id, final String pubkey, final String network) {
             this(id);
+        }
+
+        /**
+         * Ctor.
+         * @param id The wallet id.
+         * @param transactions Transactions.
+         */
+        public Fake(final long id, final Iterable<Transaction> transactions) {
+            this.id = id;
+            this.transactions = transactions;
         }
 
         @Override
@@ -147,7 +159,7 @@ public interface Wallet {
             if (other.id() != this.id()) {
                 throw new IOException(
                     new UncheckedText(
-                        new FormattedText(
+                        (new FormattedText(
                             "Wallet ID mismatch, ours is %d, theirs is %d",
                             other.id(),
                             this.id()
@@ -156,18 +168,24 @@ public interface Wallet {
                 );
             }
             final Iterable<Transaction> ledger = this.ledger();
-            final Iterable<Transaction> candidates = new org.cactoos.iterable.Filtered<>(
-                origin -> new org.cactoos.iterable.Filtered<>(
-                    incoming -> !incoming.equals(origin)
-                        && incoming.id() != origin.id()
-                        && incoming.amount() >= 0L
-                        && !incoming.prefix().equals(origin.prefix()),
+            final Iterable<Transaction> candidates = new Filtered<>(
+                incoming -> new Filtered<>(
+                    origin -> new FuncAsScalar<>(
+                        new FuncOf<>(
+                            () -> incoming.equals(origin)
+                                || (incoming.id() == origin.id()
+                                    && incoming.bnf().equals(origin.bnf()))
+                                || (incoming.id() == origin.id()
+                                    && incoming.amount() < 0L)
+                                || incoming.prefix().equals(origin.prefix())
+                        )
+                    ).value(),
                     ledger
                 ).isEmpty(),
                 other.ledger()
             );
             return new Wallet.Fake(
-                (this.id(),
+                this.id(),
                 new Joined<Transaction>(ledger, candidates)
             );
         }
@@ -189,7 +207,7 @@ public interface Wallet {
             );
         }
 
-        // @todo #54:30min Implement key method. This should return the public RSA key of the wallet owner in Base64. Also add a unit test to replace WalletTest.keyIsNotYetImplemented().
+        // @todo #65:30min Implement key method. This should return the public RSA key of the wallet owner in Base64. Also add a unit test to replace WalletTest.keyIsNotYetImplemented().
         @Override
         public String key() {
             throw new UnsupportedOperationException(

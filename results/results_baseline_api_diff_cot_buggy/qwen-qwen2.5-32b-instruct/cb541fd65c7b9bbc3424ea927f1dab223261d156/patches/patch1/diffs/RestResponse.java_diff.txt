@@ -21,37 +21,42 @@
 <      * @return The same object
 ---
 >      * @return This object
-114,115c113
+106,108d104
+<         final String message = String.format(
+<             "HTTP response with status %d", status
+<         );
+114,115c110,111
 <             this,
 <             new RestResponse.StatusMatch(message, status)
 ---
->             this.status(), new IsEqual<>(status)
-123c121
+>             this.status(),
+>             new IsEqual<>(status)
+123c119
 <      * @param matcher Matcher to validate status code
 ---
 >      * @param matcher The matcher to use
-210c208
+210c206
 <         return this.assertHeader(name, Matchers.hasItems(value));
 ---
 >         return this.assertHeader(name, new IsEqual<>(Collections.singletonList(value)));
-226c224
+226c222
 <                 for (final HttpCookie cookie : HttpCookie.parse(header)) {
 ---
 >                 for (final HttpCookie candidate : HttpCookie.parse(header)) {
-230c228
+230c226
 <                             "%s=%s", cookie.getName(), cookie.getValue()
 ---
 >                             "%s=%s", candidate.getName(), candidate.getValue()
-246c244
+246c242
 <             Matchers.not(Matchers.emptyIterableOf(String.class))
 ---
 >             new IsNot<>(new IsNull<>())
-263c261,262
+263c259,260
 <             headers.containsKey(HttpHeaders.SET_COOKIE)
 ---
 >             headers.containsKey(HttpHeaders.SET_COOKIE),
 >             new IsEqual<>(true)
-284c283
+284c281
 <             Matchers.notNullValue()
 ---
->             new IsNull<>()
+>             new IsNull<>(false)

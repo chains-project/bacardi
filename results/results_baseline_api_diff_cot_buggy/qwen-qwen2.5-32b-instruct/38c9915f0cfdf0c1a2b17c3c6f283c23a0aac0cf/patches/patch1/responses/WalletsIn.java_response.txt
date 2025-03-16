@@ -29,13 +29,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Random;
-import org.cactoos.Func;
-import org.cactoos.Text;
+import org.cactoos.Scalar;
+import org.cactoos.func.IoCheckedFunc;
 import org.cactoos.io.Directory;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.Mapped;
-import org.cactoos.scalar.CheckedScalar;
-import org.cactoos.scalar.ScalarOf;
 import org.cactoos.text.FormattedText;
 import org.cactoos.text.UncheckedText;
 
@@ -49,12 +47,12 @@ public final class WalletsIn implements Wallets {
     /**
      * Path containing wallets.
      */
-    private final CheckedScalar<Path> path;
+    private final Path path;
 
     /**
      * Filter for matching file extensions.
      */
-    private final Func<Path, Boolean> filter;
+    private final IoCheckedFunc<Path, Boolean> filter;
 
     /**
      * Wallets file extension.
@@ -72,7 +70,7 @@ public final class WalletsIn implements Wallets {
      */
     public WalletsIn(final Path pth) {
         this(
-            () -> pth,
+            pth,
             "z",
             new Random()
         );
@@ -85,7 +83,7 @@ public final class WalletsIn implements Wallets {
      */
     public WalletsIn(final Path pth, final Random random) {
         this(
-            () -> pth,
+            pth,
             "z",
             random
         );
@@ -97,22 +95,21 @@ public final class WalletsIn implements Wallets {
      * @param ext Wallets file extension
      * @param random Randomizer
      */
-    public WalletsIn(final Scalar<Path> pth, final String ext,
-        final Random random) {
-        this.path = new CheckedScalar<>(
-            new ScalarOf<>(pth)
+    public WalletsIn(final Path pth, final String ext, final Random random) {
+        this.path = pth;
+        this.filter = new IoCheckedFunc<Path, Boolean>(
+            (file) -> file.toFile().isFile()
+                && FileSystems.getDefault()
+                .getPathMatcher(String.format("glob:**.%s", ext))
+                .matches(file)
         );
-        this.filter = (file) -> file.toFile().isFile()
-            && FileSystems.getDefault()
-            .getPathMatcher(String.format("glob:**.%s", ext))
-            .matches(file);
         this.ext = ext;
         this.random = random;
     }
 
     @Override
     public Wallet create() throws IOException {
-        final Path wpth = this.path.value().resolve(
+        final Path wpth = this.path.resolve(
             new FormattedText(
                 "%s.%s",
                 Long.toHexString(this.random.nextLong()),
@@ -135,8 +132,7 @@ public final class WalletsIn implements Wallets {
 
     @Override
     // @todo #65:30min Create the new wallet in the path with all wallets.
-    //  It should contain the correct content according to the
-    //  white paper (network, protocol version, id and public RSA key). After
+    //  It should contain the correct content according to the white paper (network, protocol version, id and public RSA key). After
     //  this remove exception expect for tests on WalletsInTest.
     public Wallet create(final long id, final String pubkey, final String
         network) throws IOException {
@@ -150,7 +146,7 @@ public final class WalletsIn implements Wallets {
         try {
             return new Mapped<Path, Wallet>(
                 (pth) -> new Wallet.File(pth),
-                new Filtered<>(this.filter, new Directory(this.path.value()))
+                new Filtered<>(this.filter, new Directory(this.path))
             ).iterator();
         } catch (final IOException ex) {
             throw new IllegalStateException(ex);
