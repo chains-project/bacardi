@@ -1,6 +1,6 @@
 3a4,5
 > import org.flywaydb.core.api.configuration.ClassicConfiguration;
-> import org.flywaydb.core.api.configuration.Configuration;
+> import org.flywaydb.core.api.Location;
 108,113c110,116
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
@@ -12,11 +12,11 @@
 >                 final ClassicConfiguration configuration = new ClassicConfiguration();
 >                 configuration.setDataSource(this.dataSource());
 >                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
->                 configuration.setLocations(prop.getProperty("flyway.locations").split(","));
+>                 configuration.setLocations(new Location[]{new Location(prop.getProperty("flyway.locations"))});
 >                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 > 
 >                 return new Flyway(configuration);
-227c230
-<                 return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
+250c253
+<                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
 ---
->                 return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
+>                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions);

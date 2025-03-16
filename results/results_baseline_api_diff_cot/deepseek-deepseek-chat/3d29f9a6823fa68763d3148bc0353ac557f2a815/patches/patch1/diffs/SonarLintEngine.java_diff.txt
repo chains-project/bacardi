@@ -1,16 +1,2 @@
-162,163c162
-<         return AnalysisEngineConfiguration.builder()
+163d162
 <                 .addEnabledLanguages(globalConfig.getEnabledLanguages())
----
->         AnalysisEngineConfiguration.Builder builder = AnalysisEngineConfiguration.builder()
-167,168c166,172
-<                 .setModulesProvider(globalConfig.getModulesProvider())
-<                 .build();
----
->                 .setModulesProvider(globalConfig.getModulesProvider());
-> 
->         for (Language language : globalConfig.getEnabledLanguages()) {
->             builder.addEnabledLanguage(language);
->         }
-> 
->         return builder.build();

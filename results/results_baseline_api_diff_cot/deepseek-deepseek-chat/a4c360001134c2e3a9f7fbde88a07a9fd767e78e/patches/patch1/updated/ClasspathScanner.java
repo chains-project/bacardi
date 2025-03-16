@@ -19,7 +19,6 @@ import org.reflections.vfs.ZipDir;
 import java.io.File;
 import java.net.URL;
 import java.util.jar.JarFile;
-import java.util.function.Predicate;
 
 import static com.thoughtworks.gauge.GaugeConstant.PACKAGE_TO_SCAN;
 
@@ -62,14 +61,12 @@ public class ClasspathScanner {
     private boolean shouldScan(String s) {
         final String packagesToScan = System.getenv(PACKAGE_TO_SCAN);
         if (packagesToScan == null || packagesToScan.isEmpty()) {
-            Predicate<String> filter = new FilterBuilder().include(".+\\.class");
-            return filter.test(s);
+            return s.matches(".+\\.class");
         }
         final String[] packages = packagesToScan.split(",");
         for (String packageToScan : packages) {
             String regex = String.format(".?\\.??%s\\..+\\.class", packageToScan);
-            Predicate<String> filter = new FilterBuilder().include(regex);
-            if (filter.test(s)) {
+            if (s.matches(regex)) {
                 return true;
             }
         }

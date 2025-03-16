@@ -22,202 +22,125 @@ import org.slf4j.Logger;
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandCause;
-import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
 import org.spongepowered.api.event.lifecycle.RegisterChannelEvent;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.Result;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
-import org.spongepowered.api.event.lifecycle.RegisterBuilderEvent.BuilderStep;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent.CommandStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle.RegisterRegistryValueEvent.RegistryStep;
-import org.spongepowered.api.event.lifecycle RegisterDataEvent.DataStep;
-import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent.DataPackStep;
-import org.spongepowered.api.event.lifecycle.RegisterFactoryEvent.FactoryStep;
+import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
+import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
+import org.spongepowered.api.network.channel.raw.RawDataChannel;
+import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
+import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
+import static com.github.games647.changeskin.core.message.SkinUpdateMessage.UPDATE_SKIN_CHANNEL;
+import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
+
+@Singleton
+@org.spongepowered.plugin.Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+        url = PomData.URL, description = PomData.DESCRIPTION)
+public class ChangeSkinSponge implements PlatformPlugin<CommandCause> {
+
+    private final Path dataFolder;
+    private final Logger logger;
+    private final Injector injector;
+
+    private final ChangeSkinCore core = new ChangeSkinCore(this);
+    private final SpongeSkinAPI api = new SpongeSkinAPI(this);
+
+    private boolean initialized;
+
+    //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
+    @Inject
+    ChangeSkinSponge(Logger logger, @org.spongepowered.api.config.ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
+        this.dataFolder = dataFolder;
+        this.logger = logger;
+        this.injector = injector.createChildInjector(binder -> binder.bind(ChangeSkinCore.class).toInstance(core));
+    }
+
+    @Listener
+    public void onPreInit(StartedEngineEvent<org.spongepowered.api.Server> preInitEvent) {
+        //load config and database
+        try {
+            core.load(true);
+            initialized = true;
+        } catch (Exception ex) {
+            logger.error("Error initializing plugin. Disabling...", ex);
+        }
+    }
+
+    @Listener
+    public void onInit(RegisterCommandEvent<CommandCause> initEvent) {
+        if (!initialized)
+            return;
+
+        PluginContainer plugin = Sponge.pluginManager().plugin(ARTIFACT_ID).orElseThrow(() -> new IllegalStateException("Plugin not found"));
+
+        //command and event register
+        initEvent.register(plugin, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+        initEvent.register(plugin, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+        initEvent.register(plugin, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+        initEvent.register(plugin, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+        initEvent.register(plugin, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
+
+        Sponge.eventManager().registerListeners(plugin, injector.getInstance(LoginListener.class));
+
+        //incoming channel
+        String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
+        String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
+        RawDataChannel updateChannel = Sponge.channelManager().ofType(RawDataChannel.class, updateChannelName);
+        RawDataChannel permChannel = Sponge.channelManager().ofType(RawDataChannel.class, permissionChannelName);
+        updateChannel.addListener(injector.getInstance(UpdateSkinListener.class));
+        permChannel.addListener(injector.getInstance(CheckPermissionListener.class));
+    }
+
+    @Listener
+    public void onShutdown(StoppingEngineEvent<org.spongepowered.api.Server> stoppingServerEvent) {
+        core.close();
+    }
+
+    public ChangeSkinCore getCore() {
+        return core;
+    }
+
+    @Override
+    public boolean hasSkinPermission(CommandCause invoker, UUID uuid, boolean sendMessage) {
+        if (invoker.hasPermission(PomData.ARTIFACT_ID + ".skin.whitelist." + uuid)) {
+            return true;
+        }
+
+        //disallow - not whitelisted or blacklisted
+        if (sendMessage) {
+            sendMessage(invoker, "no-permission");
+        }
+
+        return false;
+    }
+
+    public SpongeSkinAPI getApi() {
+        return api;
+    }
+
+    @Override
+    public String getName() {
+        return PomData.NAME;
+    }
+
+    @Override
+    public Path getPluginFolder() {
+        return dataFolder;
+    }
+
+    @Override
+    public Logger getLog() {
+        return logger;
+    }
+
+    @Override
+    public void sendMessage(CommandCause receiver, String key) {
+        String message = core.getMessage(key);
+        if (message != null && receiver != null) {
+            receiver.sendMessage(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacyAmpersand().deserialize(message));
+        }
+    }
+}
+```

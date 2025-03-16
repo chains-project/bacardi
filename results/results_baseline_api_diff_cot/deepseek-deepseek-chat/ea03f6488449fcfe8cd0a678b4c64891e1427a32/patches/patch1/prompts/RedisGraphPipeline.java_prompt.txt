@@ -3,35 +3,30 @@ First, review the following information:
 
 1. The client code that is failing:
 ```java
-package com.redislabs.redisgraph.impl.api;
+package com.redislabs.redisgraph;
 
-import com.redislabs.redisgraph.RedisGraph;
-import com.redislabs.redisgraph.ResultSet;
-import com.redislabs.redisgraph.impl.Utils;
-import com.redislabs.redisgraph.impl.graph_cache.RedisGraphCaches;
-import com.redislabs.redisgraph.impl.resultset.ResultSetImpl;
-import redis.clients.jedis.Builder;
-import redis.clients.jedis.BuilderFactory;
-import redis.clients.jedis.Client;
-import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
+import redis.clients.jedis.commands.BasicRedisPipeline;
+import redis.clients.jedis.commands.BinaryRedisPipeline;
+import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
+import redis.clients.jedis.commands.ClusterPipeline;
+import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;
+import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
+import redis.clients.jedis.commands.RedisPipeline;
+import redis.clients.jedis.commands.ScriptingCommandsPipeline;
 
+import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
 
 /**
- * This class is extending Jedis Pipeline
+ * An interface which aligned to Jedis Pipeline interface
  */
-public class RedisGraphPipeline extends Pipeline implements com.redislabs.redisgraph.RedisGraphPipeline, RedisGraphCacheHolder {
-
-    private final RedisGraph redisGraph;
-    private RedisGraphCaches caches;
-
-
-    public RedisGraphPipeline(Client client, RedisGraph redisGraph){
-        super.setClient(client);
-        this.redisGraph = redisGraph;
-    }
+public interface RedisGraphPipeline extends
+        MultiKeyBinaryRedisPipeline,
+        MultiKeyCommandsPipeline, ClusterPipeline,
+        BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
+        BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
 
     /**
      * Execute a Cypher query.
@@ -39,79 +34,33 @@ public class RedisGraphPipeline extends Pipeline implements com.redislabs.redisg
      * @param query Cypher query
      * @return a response which builds the result set with the query answer.
      */
-    @Override
-    public Response<ResultSet> query(String graphId, String query) {
-        client.sendCommand(RedisGraphCommand.QUERY, graphId, query, Utils.COMPACT_STRING);
-        return getResponse(new Builder<ResultSet>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public ResultSet build(Object o) {
-                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
-            }
-        });
-    }
+    Response<ResultSet> query(String graphId, String query);
 
     /**
-     * Execute a Cypher read-oly query.
+     * Execute a Cypher read-only query.
      * @param graphId a graph to perform the query on
      * @param query Cypher query
      * @return a response which builds the result set with the query answer.
      */
-    @Override
-    public Response<ResultSet> readOnlyQuery(String graphId, String query) {
-        client.sendCommand(RedisGraphCommand.RO_QUERY, graphId, query, Utils.COMPACT_STRING);
-        return getResponse(new Builder<ResultSet>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public ResultSet build(Object o) {
-                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
-            }
-        });
-    }
+    Response<ResultSet> readOnlyQuery(String graphId, String query);
 
     /**
      * Execute a Cypher query with timeout.
-     *
-     * NOTE: timeout is simply sent to DB. Socket timeout will not be changed.
      * @param graphId a graph to perform the query on
      * @param query Cypher query
      * @param timeout
      * @return a response which builds the result set with the query answer.
      */
-    @Override
-    public Response<ResultSet> query(String graphId, String query, long timeout) {
-        client.sendCommand(RedisGraphCommand.QUERY, graphId, query, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING,
-                Long.toString(timeout));
-        return getResponse(new Builder<ResultSet>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public ResultSet build(Object o) {
-                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
-            }
-        });
-    }
+    Response<ResultSet> query(String graphId, String query, long timeout);
 
     /**
      * Execute a Cypher read-only query with timeout.
-     *
-     * NOTE: timeout is simply sent to DB. Socket timeout will not be changed.
      * @param graphId a graph to perform the query on
      * @param query Cypher query
      * @param timeout
      * @return a response which builds the result set with the query answer.
      */
-    @Override
-    public Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout) {
-        client.sendCommand(RedisGraphCommand.RO_QUERY, graphId, query, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING,
-                Long.toString(timeout));
-        return getResponse(new Builder<ResultSet>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public ResultSet build(Object o) {
-                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
-            }
-        });
-    }
+    Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout);
 
     /**
      * Executes a cypher query with parameters.
@@ -120,18 +69,7 @@ public class RedisGraphPipeline extends Pipeline implements com.redislabs.redisg
      * @param params parameters map.
      * @return  a response which builds the result set with the query answer.
      */
-    @Override
-    public Response<ResultSet> query(String graphId, String query, Map<String, Object> params) {
-        String preparedQuery = Utils.prepareQuery(query, params);
-        client.sendCommand(RedisGraphCommand.QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
-        return getResponse(new Builder<ResultSet>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public ResultSet build(Object o) {
-                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
-            }
-        });
-    }
+    Response<ResultSet> query(String graphId, String query, Map<String, Object> params);
 
     /**
      * Executes a cypher read-only query with parameters.
@@ -140,91 +78,44 @@ public class RedisGraphPipeline extends Pipeline implements com.redislabs.redisg
      * @param params parameters map.
      * @return  a response which builds the result set with the query answer.
      */
-    @Override
-    public Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params) {
-        String preparedQuery = Utils.prepareQuery(query, params);
-        client.sendCommand(RedisGraphCommand.RO_QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
-        return getResponse(new Builder<ResultSet>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public ResultSet build(Object o) {
-                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
-            }
-        });
-    }
+    Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params);
 
     /**
      * Executes a cypher query with parameters and timeout.
-     *
-     * NOTE: timeout is simply sent to DB. Socket timeout will not be changed.
-     * timeout.
      * @param graphId a graph to perform the query on.
      * @param query Cypher query.
      * @param params parameters map.
      * @param timeout
      * @return  a response which builds the result set with the query answer.
      */
-    @Override
-    public Response<ResultSet> query(String graphId, String query, Map<String, Object> params, long timeout) {
-        String preparedQuery = Utils.prepareQuery(query, params);
-        client.sendCommand(RedisGraphCommand.QUERY, graphId, preparedQuery, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING,
-                Long.toString(timeout));
-        return getResponse(new Builder<ResultSet>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public ResultSet build(Object o) {
-                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
-            }
-        });
-    }
+    Response<ResultSet> query(String graphId, String query, Map<String, Object> params, long timeout);
 
     /**
      * Executes a cypher read-only query with parameters and timeout.
-     *
-     * NOTE: timeout is simply sent to DB. Socket timeout will not be changed.
-     * timeout.
      * @param graphId a graph to perform the query on.
      * @param query Cypher query.
      * @param params parameters map.
      * @param timeout
      * @return  a response which builds the result set with the query answer.
      */
-    @Override
-    public Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params, long timeout) {
-        String preparedQuery = Utils.prepareQuery(query, params);
-        client.sendCommand(RedisGraphCommand.RO_QUERY, graphId, preparedQuery, Utils.COMPACT_STRING,
-                Utils.TIMEOUT_STRING,
-                Long.toString(timeout));
-        return getResponse(new Builder<ResultSet>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public ResultSet build(Object o) {
-                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
-            }
-        });
-    }
+    Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params, long timeout);
 
     /**
      * Invokes stored procedures without arguments
      * @param graphId a graph to perform the query on
      * @param procedure procedure name to invoke
-     * @return response with result set with the procedure data
+     * @return a response which builds result set with the procedure data
      */
-    public Response<ResultSet> callProcedure(String graphId, String procedure){
-        return callProcedure(graphId, procedure, Utils.DUMMY_LIST, Utils.DUMMY_MAP);
-    }
+    Response<ResultSet> callProcedure(String graphId, String procedure);
 
     /**
      * Invokes stored procedure with arguments
      * @param graphId a graph to perform the query on
      * @param procedure procedure name to invoke
      * @param args procedure arguments
-     * @return response with result set with the procedure data
+     * @return a response which builds result set with the procedure data
      */
-    public Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args  ){
-        return callProcedure(graphId, procedure, args, Utils.DUMMY_MAP);
-    }
-
+    Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args);
 
     /**
      * Invoke a stored procedure
@@ -232,392 +123,112 @@ public class RedisGraphPipeline extends Pipeline implements com.redislabs.redisg
      * @param procedure - procedure to execute
      * @param args - procedure arguments
      * @param kwargs - procedure output arguments
-     * @return response with result set with the procedure data
+     * @return a response which builds result set with the procedure data
      */
-    public Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args,
-                                                  Map<String, List<String>> kwargs) {
-        String preparedProcedure = Utils.prepareProcedure(procedure, args, kwargs);
-        return query(graphId, preparedProcedure);
-    }
-
+    Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args  , Map<String, List<String>> kwargs);
 
     /**
      * Deletes the entire graph
      * @param graphId graph to delete
-     * @return response with the deletion running time statistics
+     * @return a response which builds the delete running time statistics
      */
-    public Response<String> deleteGraph(String graphId){
+    Response<String> deleteGraph(String graphId);
 
-        client.sendCommand(RedisGraphCommand.DELETE, graphId);
-        Response<String> response =  getResponse(BuilderFactory.STRING);
-        caches.removeGraphCache(graphId);
-        return response;
-    }
-
-    @Override
-    public void setRedisGraphCaches(RedisGraphCaches caches) {
-        this.caches = caches;
-    }
+    
+    /**
+     * Synchronize pipeline by reading all responses. This operation close the pipeline. Whenever
+     * possible try to avoid using this version and use Pipeline.sync() as it won't go through all the
+     * responses and generate the right response type (usually it is a waste of time).
+     * @return A list of all the responses in the order you executed them.
+     */
+    List<Object> syncAndReturnAll();
+    
+    /**
+     * Synchronize pipeline by reading all responses. This operation close the pipeline. In order to
+     * get return values from pipelined commands, capture the different Response&lt;?&gt; of the
+     * commands you execute.
+     */
+    public void sync();
+    
+    
+    /**
+     * Blocks until all the previous write commands are successfully transferred and acknowledged by
+     * at least the specified number of replicas. If the timeout, specified in milliseconds, is
+     * reached, the command returns even if the specified number of replicas were not yet reached.
+     * @param replicas successfully transferred and acknowledged by at least the specified number of
+     *          replicas
+     * @param timeout the time to block in milliseconds, a timeout of 0 means to block forever
+     * @return the number of replicas reached by all the writes performed in the context of the
+     *         current connection
+     */
+    public Response<Long> waitReplicas(int replicas, long timeout);
 }
 
 ```
 
 2. The error information:
 <error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[246,9] cannot find symbol
-</error_information>
-  symbol:   variable client
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[11,36] cannot find symbol
+  symbol:   class ScriptingCommandsPipeline
+  location: package redis.clients.jedis.commands
 
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[122,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[10,36] cannot find symbol
+  symbol:   class RedisPipeline
+  location: package redis.clients.jedis.commands
 
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[102,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[22,9] cannot find symbol
+  symbol: class MultiKeyCommandsPipeline
 
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[165,9] cannot find symbol
-</error_information>
-  symbol:   variable client
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[8,36] cannot find symbol
+  symbol:   class MultiKeyBinaryRedisPipeline
+  location: package redis.clients.jedis.commands
 
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[58,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[21,9] cannot find symbol
+  symbol: class MultiKeyBinaryRedisPipeline
 
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[247,38] cannot find symbol
-</error_information>
-  symbol:   method getResponse(redis.clients.jedis.Builder<java.lang.String>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[24,9] cannot find symbol
+  symbol: class BasicRedisPipeline
 
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[165,9] cannot find symbol
-</error_information>
-  symbol:   variable client
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[5,36] cannot find symbol
+  symbol:   class BinaryRedisPipeline
+  location: package redis.clients.jedis.commands
 
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[142,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[4,36] cannot find symbol
+  symbol:   class BasicRedisPipeline
+  location: package redis.clients.jedis.commands
 
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[80,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[23,9] cannot find symbol
+  symbol: class BinaryScriptingCommandsPipeline
 
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[58,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[9,36] cannot find symbol
+  symbol:   class MultiKeyCommandsPipeline
+  location: package redis.clients.jedis.commands
 
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[190,9] cannot find symbol
-</error_information>
-  symbol:   variable client
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[6,36] cannot find symbol
+  symbol:   class BinaryScriptingCommandsPipeline
+  location: package redis.clients.jedis.commands
 
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[246,9] cannot find symbol
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[7,36] cannot find symbol
+  symbol:   class ClusterPipeline
+  location: package redis.clients.jedis.commands
 </error_information>
-  symbol:   variable client
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[193,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[102,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[40,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[167,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[80,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[247,38] cannot find symbol
-</error_information>
-  symbol:   method getResponse(redis.clients.jedis.Builder<java.lang.String>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[78,9] cannot find symbol
-</error_information>
-  symbol:   variable client
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[142,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[57,9] cannot find symbol
-</error_information>
-  symbol:   variable client
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[247,38] cannot find symbol
-</error_information>
-  symbol:   method getResponse(redis.clients.jedis.Builder<java.lang.String>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[193,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[167,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[10,27] cannot find symbol
-</error_information>
-  symbol:   class Client
-  location: package redis.clients.jedis
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[80,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[121,9] cannot find symbol
-</error_information>
-  symbol:   variable client
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[39,9] cannot find symbol
-</error_information>
-  symbol:   variable client
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[57,9] cannot find symbol
-</error_information>
-  symbol:   variable client
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[142,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[121,9] cannot find symbol
-</error_information>
-  symbol:   variable client
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[141,9] cannot find symbol
-</error_information>
-  symbol:   variable client
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[40,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[26,31] cannot find symbol
-</error_information>
-  symbol:   class Client
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[78,9] cannot find symbol
-</error_information>
-  symbol:   variable client
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[100,9] cannot find symbol
-</error_information>
-  symbol:   variable client
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[122,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[102,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[193,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[40,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[122,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[26,31] cannot find symbol
-</error_information>
-  symbol:   class Client
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[58,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[167,16] cannot find symbol
-</error_information>
-  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[26,31] cannot find symbol
-</error_information>
-  symbol:   class Client
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[39,9] cannot find symbol
-</error_information>
-  symbol:   variable client
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[100,9] cannot find symbol
-</error_information>
-  symbol:   variable client
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[141,9] cannot find symbol
-</error_information>
-  symbol:   variable client
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[26,31] cannot find symbol
-</error_information>
-  symbol:   class Client
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
-<error_information>
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphPipeline.java:[190,9] cannot find symbol
-</error_information>
-  symbol:   variable client
-  location: class com.redislabs.redisgraph.impl.api.RedisGraphPipeline
-
 
 3. The changes in the API of the dependency:
 <api_changes>
-     Class redis.clients.jedis.MultiKeyPipelineBase has been removed in the new version of the dependency.
-     Constructor redis.clients.jedis.MultiKeyPipelineBase() has been removed in the new version of the dependency.
-     Method redis.clients.jedis.Pipeline.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
-     Method redis.clients.jedis.Queable.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
-     Interface redis.clients.jedis.Response has been removed in the new version of the dependency.
-     Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
-     Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
-     Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
-     Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
-     Method redis.clients.jedis.JedisCluster.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
-     Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
-     Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
-     Method redis.clients.jedis.BinaryJedisCluster.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
-     Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
-     Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
-     Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
-     Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
-     Method redis.clients.jedis.UnifiedJedis.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
-     Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
-     Method redis.clients.jedis.PipelineBase.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
-     Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
-     Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
-     Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
-     Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.commands.ProtocolCommand,redis.clients.jedis.args.Rawable) has been added in the new version of the dependency.
-     Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
-     Method redis.clients.jedis.UnifiedJedis.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
-     Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
-     Method redis.clients.jedis.ShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
-     Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
-     Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
-     Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
-     Method redis.clients.jedis.PipelineBase.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
-     Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
-     Constructor redis.clients.jedis.Pipeline() has been removed in the new version of the dependency.
-     Method redis.clients.jedis.Pipeline has been removed in the new version of the dependency.
-     Type reference redis.clients.jedis.Pipeline(redis.clients.jedis.Connection) has been added in the new version of the dependency.
-     Type reference redis.clients.jedis.Pipeline(redis.clients.jedis.Jedis) has been added in the new version of the dependency.
-     Constructor redis.clients.jedis.Client(java.lang.String,int,boolean) has been removed in the new version of the dependency.
-     Class redis.clients.jedis.Client has been removed in the new version of the dependency.
-     Constructor redis.clients.jedis.Client() has been removed in the new version of the dependency.
-     Constructor redis.clients.jedis.Client(redis.clients.jedis.JedisSocketFactory) has been removed in the new version of the dependency.
-     Constructor redis.clients.jedis.Client(java.lang.String,int,boolean,javax.net.ssl.SSLSocketFactory,javax.net.ssl.SSLParameters,javax.net.ssl.HostnameVerifier) has been removed in the new version of the dependency.
-     Constructor redis.clients.jedis.Client(java.lang.String,int) has been removed in the new version of the dependency.
-     Constructor redis.clients.jedis.Client(redis.clients.jedis.HostAndPort,redis.clients.jedis.JedisClientConfig) has been removed in the new version of the dependency.
-     Constructor redis.clients.jedis.Client(java.lang.String) has been removed in the new version of the dependency.
-     Method redis.clients.jedis.Transaction.setClient(redis.clients.jedis.Client) has been removed in the new version of the dependency.
-     Method redis.clients.jedis.Pipeline.setClient(redis.clients.jedis.Client) has been removed in the new version of the dependency.
-     Constructor redis.clients.jedis.Pipeline(redis.clients.jedis.Connection) has been added in the new version of the dependency.
-     Constructor redis.clients.jedis.Pipeline(redis.clients.jedis.Jedis) has been added in the new version of the dependency.
+     Class redis.clients.jedis.commands.ScriptingCommandsPipeline has been removed in the new version of the dependency.
+     Class redis.clients.jedis.commands.RedisPipeline has been removed in the new version of the dependency.
+     Type reference redis.clients.jedis.ClusterPipeline(redis.clients.jedis.providers.ClusterConnectionProvider) has been added in the new version of the dependency.
+     Type reference redis.clients.jedis.ClusterPipeline(java.util.Set,redis.clients.jedis.JedisClientConfig) has been added in the new version of the dependency.
+     Class redis.clients.jedis.commands.ClusterPipeline has been removed in the new version of the dependency.
+     Type reference redis.clients.jedis.ClusterPipeline(java.util.Set,redis.clients.jedis.JedisClientConfig,org.apache.commons.pool2.impl.GenericObjectPoolConfig) has been added in the new version of the dependency.
+     Interface redis.clients.jedis.ClusterPipeline has been added in the new version of the dependency.
+     Class redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline has been removed in the new version of the dependency.
+     Class redis.clients.jedis.commands.MultiKeyCommandsPipeline has been removed in the new version of the dependency.
+     Class redis.clients.jedis.commands.BinaryRedisPipeline has been removed in the new version of the dependency.
+     Class redis.clients.jedis.commands.BasicRedisPipeline has been removed in the new version of the dependency.
+     Class redis.clients.jedis.commands.BinaryScriptingCommandsPipeline has been removed in the new version of the dependency.
 
 </api_changes>
-
 
 
 Before proposing a fix, please analyze the situation and plan your approach within <repair_strategy> tags:

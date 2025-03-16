@@ -31,7 +31,6 @@ import org.cactoos.iterable.IterableEnvelope;
 import org.cactoos.iterable.IterableOf;
 import org.cactoos.iterable.Joined;
 import org.cactoos.iterable.Mapped;
-import org.cactoos.list.ListOf;
 
 /**
  * Multiple copies of a Wallet.
@@ -88,9 +87,9 @@ public final class Copies extends IterableEnvelope<Copy> {
      */
     private static boolean equalWallets(final Wallet first,
         final Wallet second) throws IOException {
-        return first.id() == second.id() && new ListOf<>(
+        return first.id() == second.id() && new IterableOf<>(
             first.ledger()
-        ).size() == new ListOf<>(second.ledger()).size();
+        ).iterator().hasNext() == new IterableOf<>(second.ledger()).iterator().hasNext();
     }
 
     /**

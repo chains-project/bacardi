@@ -328,4 +328,66 @@ public class OrgPolicyInfo {
   public boolean equals(Object o) {
     if (this == o) {
       return true;
-     
+      }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    OrgPolicyInfo policyInfo = (OrgPolicyInfo) o;
+    return Objects.equals(boolPolicy, policyInfo.boolPolicy)
+        && Objects.equals(constraint, policyInfo.constraint)
+        && Objects.equals(etag, policyInfo.etag)
+        && Objects.equals(policies, policyInfo.policies)
+        && Objects.equals(restoreDefault, policyInfo.restoreDefault)
+        && Objects.equals(updateTime, policyInfo.updateTime)
+        && Objects.equals(version, policyInfo.version);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        boolPolicy, constraint, etag, policies, restoreDefault, updateTime, version);
+  }
+
+  /** Returns a builder for the {@link OrgPolicyInfo} object. */
+  public static Builder newBuilder() {
+    return new Builder();
+  }
+
+  /** Returns a builder for the {@link OrgPolicyInfo} object. */
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
+
+  Policy toProtobuf() {
+    Policy policyProto = new Policy();
+    if (boolPolicy != null) {
+      policyProto.setBooleanPolicy(boolPolicy.toProtobuf());
+    }
+    policyProto.setConstraint(constraint);
+    if (policies != null) {
+      policyProto.setListPolicy(policies.toProtobuf());
+    }
+    policyProto.setRestoreDefault(restoreDefault);
+    policyProto.setEtag(etag);
+    policyProto.setUpdateTime(updateTime);
+    policyProto.setVersion(version);
+    return policyProto;
+  }
+
+  static OrgPolicyInfo fromProtobuf(Policy policyProtobuf) {
+    Builder builder = newBuilder();
+    if (policyProtobuf.getBooleanPolicy() != null) {
+      builder.setBoolPolicy(BoolPolicy.fromProtobuf(policyProtobuf.getBooleanPolicy()));
+    }
+    builder.setConstraint(policyProtobuf.getConstraint());
+    if (policyProtobuf.getListPolicy() != null) {
+      builder.setListPolicy(Policies.fromProtobuf(policyProtobuf.getListPolicy()));
+    }
+    builder.setRestoreDefault(policyProtobuf.getRestoreDefault());
+    builder.setEtag(policyProtobuf.getEtag());
+    builder.setUpdateTime(policyProtobuf.getUpdateTime());
+    builder.setVersion(policyProtobuf.getVersion());
+    return builder.build();
+  }
+}
+```

@@ -438,4 +438,49 @@ public class MarcFactory {
         try {
           marc4jRecord.setLeader(new LeaderImpl(line.getContent()));
         } catch (StringIndexOutOfBoundsException e) {
-          logger.severe("Error at creating leader:
+          logger.severe("Error at creating leader: " + e.getMessage());
+        }
+      } else if (line.isNumericTag()) {
+        if (line.isControlField()) {
+          marc4jRecord.addVariableField(new ControlFieldImpl(line.getTag(), line.getContent()));
+        } else {
+          var df = new DataFieldImpl(line.getTag(), line.getInd1().charAt(0), line.getInd2().charAt(0));
+          for (String[] pair : line.parseSubfields()) {
+            if (pair.length == 2 && pair[0] != null && pair[1] != null) {
+              df.addSubfield(new SubfieldImpl(pair[0].charAt(0), pair[1));
+            } else {
+              logger.warning(String.format(
+                "parse error in record #%s) tag %s: '%s'",
+                line.getRecordID(), line.getTag(), line.getRawContent()
+              ));
+            }
+          }
+          marc4jRecord.addVariableField(df);
+        }
+      }
+    }
+    return marc4jRecord;
+  }
+
+  public static Record createRecordFromPica(List<PicaLine> lines,
+                                            String idField,
+                                            String idCode,
+                                            PicaSchemaManager schema) {
+    Record marc4jRecord = new RecordImpl();
+    String id = null;
+    for (PicaLine line : lines) {
+      // String tag = schema.containsKey(line.getQualifiedTag()) ? line.getQualifiedTag() : line.getTag();
+      DataFieldImpl df = new DataFieldImpl(line.getQualifiedTag(), ' ', ' ');
+      for (PicaSubfield picaSubfield : line.getSubfields()) {
+        df.addSubfield(new SubfieldImpl(picaSubfield.getCode().charAt(0), picaSubfield.getValue()));
+        if (line.getTag().equals(idField) && picaSubfield.getCode().equals(idCode))
+          id = picaSubfield.getValue();
+      }
+      marc4jRecord.addVariableField(df);
+    }
+    if (id != null)
+      marc4jRecord.addVariableField(new ControlFieldImpl("001", id));
+    return marc4jRecord;
+  }
+}
+```

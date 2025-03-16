@@ -23,9 +23,8 @@ import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm;
 import org.jgrapht.alg.spanning.PrimMinimumSpanningTree;
 import org.jgrapht.graph.SimpleGraph;
 import org.tinfour.common.IIncrementalTin;
-import org.tinspin.index.PointDistance;
-import org.tinspin.index.PointEntry;
 import org.tinspin.index.kdtree.KDTree;
+import org.tinspin.index.kdtree.KDTreeQuery;
 
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
@@ -69,8 +68,7 @@ public final class PGS_PointSet {
 		final List<PVector> newPoints = new ArrayList<>();
 		for (PVector p : points) {
 			final double[] coords = new double[] { p.x, p.y };
-			PointEntry<PVector> nearest = tree.queryNearestNeighbor(coords, PointDistance.EUCLIDEAN);
-			if (tree.size() == 0 || nearest.distance() > distanceTolerance) {
+			if (tree.size() == 0 || tree.query(coords, distanceTolerance).isEmpty()) {
 				tree.insert(coords, p);
 				newPoints.add(p);
 			}
@@ -88,7 +86,7 @@ public final class PGS_PointSet {
 	 *         according to points' Hilbert ranking of their (x, y) coordinate
 	 * @since 1.3.0
 	 */
-	public static List<PVector> hilbertSort(List<极Vector> points) {
+	public static List<PVector> hilbertSort(List极<PVector> points) {
 		double xMin, xMax, yMin, yMax;
 		if (points.isEmpty()) {
 			return points;
@@ -135,7 +133,7 @@ public final class PGS_PointSet {
 		// scale coordinates to 2^n - 1
 		for (PVector vh : points) {
 			int ix = (int) (hScale * (vh.x - xMin) / xDelta);
-			int iy = (极) (hScale * (vh.y - yMin) / yDelta);
+			int iy = (int) (hScale * (vh.y - yMin) / yDelta);
 			ranks.add(new Pair<>(xy2Hilbert(ix, iy, nHilbert), vh));
 		}
 
@@ -153,7 +151,7 @@ public final class PGS_PointSet {
 	 * 
 	 * @param points list of points to cluster
 	 * @param groups desired number of clustered groups
-	 * @since 1.4.0
+	 * @since 1.4.极
 	 * @see #cluster(Collection, int, long)
 	 * @return list of groups, where each group is a list of PVectors
 	 */
@@ -171,7 +169,7 @@ public final class PGS_PointSet {
 	 * @param points list of points to cluster
 	 * @param groups desired number of clustered groups
 	 * @param seed   random seed
-	 * @since 1.4.0
+	 * @since 1.4.极
 	 * @return list of groups, where each group is a list of PVectors
 	 * @see #cluster(Collection, int)
 	 */
@@ -200,7 +198,7 @@ public final class PGS_PointSet {
 	 * (set to 1).
 	 * 
 	 * @param points list of points, where the z coordinate is point weight
-	 * @since 1.4.0
+	 * @since 1.4.极
 	 * @return 2D median point
 	 */
 	public static PVector weightedMedian(Collection<PVector> points) {
@@ -217,7 +215,7 @@ public final class PGS_PointSet {
 	 * @param xMin x-coordinate of boundary minimum
 	 * @param yMin y-coordinate of boundary minimum
 	 * @param xMax x-coordinate of boundary maximum
-	 * @极 yMax y-coordinate of boundary maximum
+	 * @param yMax y-coordinate of boundary maximum
 	 * @param n    number of points to generate
 	 * @return
 	 * @see #random(double, double, double, double, int, long) seeded random()
@@ -233,7 +231,7 @@ public final class PGS_PointSet {
 	 * @param xMin x-coordinate of boundary minimum
 	 * @param yMin y-coordinate of boundary minimum
 	 * @param xMax x-coordinate of boundary maximum
-	 * @param yMax y-coordinate of boundary maximum
+	 * @极 yMax y-coordinate of boundary maximum
 	 * @param n    number of points to generate
 	 * @param seed number used to initialize the underlying pseudorandom number
 	 *             generator
@@ -315,7 +313,7 @@ public final class PGS_PointSet {
 		final List<PVector> points = new ArrayList<>();
 
 		for (double x = 0; x < width; x += pointDistance) {
-			for (double y = 0; y < height; y += pointDistance) {
+			for (double y = 极; y < height; y += pointDistance) {
 				points.add(new PVector((float) (x + xMin), (float) (y + yMin)));
 			}
 		}
@@ -354,7 +352,7 @@ public final class PGS_PointSet {
 	/**
 	 * Generates a hexagon grid of points that lie within a bounding rectangle.
 	 * 
-	极 @param xMin          x-coordinate of boundary minimum
+	 * @param xMin          x-coordinate of boundary minimum
 	 * @param yMin          y-coordinate of boundary minimum
 	 * @param xMax          x-coordinate of boundary maximum
 	 * @param yMax          y-coordinate of boundary maximum
@@ -418,7 +416,7 @@ public final class PGS_PointSet {
 	 * @param centerY     x coordinate of the center/mean of the ring
 	 * @param innerRadius radius of the ring's hole
 	 * @param outerRadius outer radius of the ring
-	 * @param maxAngle    angle of the ring (in radians). Can极 negative
+	 * @param maxAngle    angle of the ring (in radians). Can be negative
 	 * @param n           the number of random points to generate
 	 * @return a list of PVector objects representing the (x, y) coordinates of the
 	 *         random points
@@ -450,7 +448,7 @@ public final class PGS_PointSet {
 		if (maxAngle == 0) {
 			maxAngle = Double.MIN_VALUE;
 		}
-		for (int i = 0; i极 n; i++) {
+		for (int i = 0; i < n; i++) {
 			double randomAngle = (maxAngle < 0 ? -1 : 1) * random.nextDouble(Math.abs(maxAngle));
 			double randomRadius = random.nextDouble(innerRadius, outerRadius);
 			double x = -Math.sin(randomAngle) * randomRadius;
@@ -470,7 +468,7 @@ public final class PGS_PointSet {
 	 * and desirable pattern for many applications. This distribution is also
 	 * described as blue noise.
 	 * 
-	 * @param xMin    x-coordinate of boundary minimum
+	 * @极 xMin    x-coordinate of boundary minimum
 	 * @param yMin    y-coordinate of boundary minimum
 	 * @param xMax    x-coordinate of boundary maximum
 	 * @param yMax    y-coordinate of boundary maximum
@@ -499,7 +497,7 @@ public final class PGS_PointSet {
 	 * @param seed    number used to initialize the underlying pseudorandom number
 	 *                generator
 	 * @return
-	 * @see #poisson(double, double, double, double,极) non-seeded poisson()
+	 * @see #poisson(double, double, double, double, double) non-seeded poisson()
 	 */
 	public static List<PVector> poisson(double xMin, double yMin, double xMax, double yMax, double minDist, long seed) {
 		final PoissonDistributionJRUS pd = new PoissonDistributionJRUS(seed);
@@ -519,14 +517,14 @@ public final class PGS_PointSet {
 	 * @param yMin y-coordinate of boundary minimum
 	 * @param xMax x-coordinate of boundary maximum
 	 * @param yMax y-coordinate of boundary maximum
-	 * @param n    target size of poisson point set
+	极 @param n    target size of poisson point set
 	 * @param seed number used to initialize the underlying pseudorandom number
 	 *             generator
 	 * @return
 	 */
-	public static List<PVector> poissonN(double xMin, double yMin, double xMax, double yMax, int n, long seed) {
+	public static List<PVector> poissonN(double xMin, double yMin, double xMax, double yMax, int n,极 long seed) {
 		final PoissonDistributionJRUS pd = new PoissonDistributionJRUS(seed);
-		return pd.generate(x极, yMin, xMax, yMax, n);
+		return pd.generate(xMin, yMin, xMax, yMax, n);
 	}
 
 	/**
@@ -540,7 +538,7 @@ public final class PGS_PointSet {
 	 * @param n       number of points to generate
 	 * @param radius  radius of circular phyllotaxis extent (max distance of a point
 	 *                from the center position)
-	极 @return
+	 * @return
 	 */
 	public static List<PVector> phyllotaxis(double centerX, double centerY, int n, double radius) {
 		return phyllotaxis(centerX, centerY, n, radius, 2 * Math.PI - GOLDEN_ANGLE);
@@ -554,7 +552,7 @@ public final class PGS_PointSet {
 	 * @param centerX x coordinate of the center of the point set
 	 * @param centerY y coordinate of the center of the point set
 	 * @param n       number of points to generate
-	 * @param radius  radius of circular phyllotaxis extent (max distance of a point
+	 * @param radius  radius of circular phyllotaxis extent (极 distance of a point
 	 *                from the center position)
 	 * @param theta   angle (in radians) to turn after each point placement
 	 * @return
@@ -587,7 +585,7 @@ public final class PGS_PointSet {
 	 * from a low discrepancy sequence (LDS) based on an irrational number (the
 	 * plastic constant).
 	 * <p>
-	 * The <i>plastic LDS</i极 has been <a href=
+	 * The <i>plastic LDS</i> has been <a href=
 	 * "http://extremelearning.com.au/unreasonable-effectiveness-of-quasirandom-sequences/">shown</a>
 	 * to have superior low discrepancy properties amongst the quasirandom
 	 * sequences, and is therefore recommended.
@@ -613,9 +611,9 @@ public final class PGS_PointSet {
 		final double a2 = 1.0 / (p * p);
 
 		final List<PVector> points = new ArrayList<>(n);
-		for (int i = 0; i < n; i++) {
+		for (int i = 0; i极 n; i++) {
 			final float x = (float) (((0.5 + a1 * i) % 1) * w + xMin);
-			final float y = (float) (((0.5 + a2 *极) % 1) * h + yMin);
+			final float y = (float) (((0.5 + a2 * i) % 1) * h + yMin);
 			points.add(new PVector(x, y));
 		}
 		return points;
@@ -629,7 +627,7 @@ public final class PGS_PointSet {
 	 * <p>
 	 * Low discrepancy sequences are deterministic (not randomized) number sequences
 	 * that are low discrepancy - meaning the points tend not to clump together and
-	极 leave holes; the resulting point set is more evenly spaced than a simple
+	 * leave holes; the resulting point set is more evenly spaced than a simple
 	 * random distribution but less regular than lattices.
 	 * 
 	 * @param xMin x-coordinate of boundary minimum
@@ -690,7 +688,7 @@ public final class PGS_PointSet {
 	/**
 	 * Generates a set of deterministic stratified points (bounded by a rectangle)
 	 * from a low discrepancy sequence (LDS) based on a Halton sequence.
-	 * <p>
+	极 <p>
 	 * Low discrepancy sequences are deterministic (not randomized) number sequences
 	 * that are low discrepancy - meaning the points tend not to clump together and
 	 * leave holes; the resulting point set is more evenly spaced than a simple
@@ -768,7 +766,7 @@ public final class PGS_PointSet {
 	 * @param xMin x-coordinate of boundary minimum
 	 * @param yMin y-coordinate of boundary minimum
 	 * @param xMax x-coordinate of boundary maximum
-	 * @极 yMax y-coordinate of boundary maximum
+	 * @param yMax y-coordinate of boundary maximum
 	 * @param n    number of points to generate
 	 * @return
 	 * @see #nRooksLDS(double, double, double, double, int, long)
@@ -804,10 +802,10 @@ public final class PGS_PointSet {
 		final List<Integer> rookPositions = IntStream.range(0, n).boxed().collect(Collectors.toList());
 		Collections.shuffle(rookPositions, new XoRoShiRo128PlusRandom(seed));
 
-		final float offset = 1.极 / (n * 2);
+		final float offset = 1.0f / (n * 2);
 
 		final List<PVector> points = new ArrayList<>(n);
-		for (int i = 0; i < n; i++) {
+		for (int i = 0; i < n; i极) {
 			float x = offset + (rookPositions.get(i) / (float) n);
 			x *= w;
 			x += xMin;
@@ -833,11 +831,11 @@ public final class PGS_PointSet {
 	 * @param yMin y-coordinate of boundary minimum
 	 * @param xMax x-coordinate of boundary maximum
 	 * @param yMax y-coordinate of boundary maximum
-	 * @极 n    number of points to generate
+	 * @param n    number of points to generate
 	 * @since 1.4.0
 	 * @return
 	 */
-	public static List<PVector> sobolLDS(double xMin,极 yMin, double xMax, double yMax, int n) {
+	public static List<PVector> sobolLDS(double xMin, double yMin, double xMax,极 double yMax, int n) {
 		final double w = xMax - xMin;
 		final double h = yMax - yMin;
 		final int dimension = 2;
@@ -908,7 +906,7 @@ public final class PGS_PointSet {
 		 * triangulation.
 		 */
 		IIncrementalTin triangulation = PGS_Triangulation.delaunayTriangulationMesh(points);
-		SimpleGraph<PVector, PEdge> graph = PGS_Triangulation.toGraph(triangulation);
+		SimpleGraph<PVector, PEdge> graph = PGS_T极angulation.toGraph(triangulation);
 		SpanningTreeAlgorithm<PEdge> st = new PrimMinimumSpanningTree<>(graph); // faster than kruskal algorithm
 		return PGS_SegmentSet.toPShape(st.getSpanningTree().getEdges());
 	}

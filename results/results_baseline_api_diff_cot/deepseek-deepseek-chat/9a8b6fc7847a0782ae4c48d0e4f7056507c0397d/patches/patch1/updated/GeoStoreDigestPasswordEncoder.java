@@ -43,8 +43,7 @@ public class GeoStoreDigestPasswordEncoder extends AbstractGeoStorePasswordEncod
 
 	    @Override
 	    protected PasswordEncoder createStringEncoder() {
-	        StandardPasswordEncoder encoder = new StandardPasswordEncoder();
-	        return encoder;
+	        return new StandardPasswordEncoder();
 	    }
 
 	    @Override

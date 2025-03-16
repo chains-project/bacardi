@@ -30,6 +30,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.cactoos.Text;
+import org.cactoos.iterable.IterableOf;
+import org.cactoos.list.ListOf;
 import org.cactoos.scalar.ItemAt;
 import org.cactoos.text.FormattedText;
 import org.cactoos.text.TextOf;
@@ -86,18 +88,25 @@ final class RtTransaction implements Transaction {
      */
     RtTransaction(final String trnsct) {
         this.transaction = trnsct;
-        if (trnsct.trim().isEmpty()) {
+        if (new TextOf(trnsct).asString().trim().isEmpty()) {
             throw new IllegalArgumentException(
                 "Invalid transaction string: string is empty"
             );
         }
-        final String[] pieces = trnsct.split(";");
-        if (pieces.length != 7) {
-            throw new IllegalArgumentException(
-                String.format(
-                    "Invalid transaction string: expected 7 fields, but found %d",
-                    pieces.length
+        final List<Text> pieces =
+            new ListOf<>(
+                new IterableOf<>(
+                    trnsct.split(";")
                 )
+            );
+        // @checkstyle MagicNumberCheck (1 line)
+        if (pieces.size() != 7) {
+            throw new IllegalArgumentException(
+                new FormattedText(
+                    // @checkstyle LineLength (1 line)
+                    "Invalid transaction string: expected 7 fields, but found %d",
+                    pieces.size()
+                ).asString()
             );
         }
     }
@@ -105,43 +114,77 @@ final class RtTransaction implements Transaction {
     @Override
     @SuppressWarnings("PMD.ShortMethodName")
     public int id() throws IOException {
-        final String ident = this.transaction.split(";")[0];
+        final String ident = new UncheckedText(
+            new ItemAt<>(
+                0, new IterableOf<>(
+                    this.transaction.split(";")
+                )
+            ).value()
+        ).asString();
         if (!RtTransaction.IDENT.matcher(ident).matches()) {
             throw new IOException(
-                String.format(
-                    "Invalid ID '%s' expecting 16-bit unsigned hex string with 4 symbols",
-                    ident
-                )
+                new UncheckedText(
+                    new FormattedText(
+                        // @checkstyle LineLength (1 line)
+                        "Invalid ID '%s' expecting 16-bit unsigned hex string with 4 symbols",
+                        ident
+                    )
+                ).asString()
             );
         }
+        // @checkstyle MagicNumber (1 line)
         return Integer.parseUnsignedInt(ident, 16);
     }
 
     @Override
     public ZonedDateTime time() throws IOException {
         return new ZonedDateTimeOf(
-            this.transaction.split(";")[1],
+            new UncheckedText(
+                new ItemAt<>(
+                    1, new IterableOf<>(
+                        this.transaction.split(";")
+                    )
+                ).value()
+            ).asString(),
             DateTimeFormatter.ISO_OFFSET_DATE_TIME
         ).value();
     }
 
     @Override
     public long amount() throws IOException {
-        final String amnt = this.transaction.split(";")[2];
+        final String amnt = new UncheckedText(
+            new ItemAt<>(
+                2, new IterableOf<>(
+                    this.transaction.split(";")
+                )
+            ).value()
+        ).asString();
         if (!RtTransaction.HEX.matcher(amnt).matches()) {
             throw new IOException(
-                String.format(
-                    "Invalid amount '%s' expecting 64-bit signed hex string with 16 symbols",
-                    amnt
-                )
+                new UncheckedText(
+                    new FormattedText(
+                        // @checkstyle LineLength (1 line)
+                        "Invalid amount '%s' expecting 64-bit signed hex string with 16 symbols",
+                        amnt
+                    )
+                ).asString()
             );
         }
+        // @checkstyle MagicNumber (1 line)
         return new BigInteger(amnt, 16).longValue();
     }
 
     @Override
     public String prefix() throws IOException {
-        final String prefix = this.transaction.split(";")[3];
+        final String prefix = new UncheckedText(
+            new ItemAt<>(
+                //@checkstyle MagicNumberCheck (1 line)
+                3, new IterableOf<>(
+                    this.transaction.split(";")
+                )
+            ).value()
+        ).asString();
+        //@checkstyle MagicNumberCheck (1 line)
         if (prefix.length() < 8 || prefix.length() > 32) {
             throw new IOException("Invalid prefix size");
         }
@@ -153,13 +196,23 @@ final class RtTransaction implements Transaction {
 
     @Override
     public String bnf() throws IOException {
-        final String bnf = this.transaction.split(";")[4];
+        final String bnf = new UncheckedText(
+            new ItemAt<>(
+                //@checkstyle MagicNumberCheck (1 line)
+                4, new IterableOf<>(
+                    this.transaction.split(";")
+                )
+            ).value()
+        ).asString();
         if (!RtTransaction.HEX.matcher(bnf).matches()) {
             throw new IOException(
-                String.format(
-                    "Invalid bnf string '%s', expecting hex string with 16 symbols",
-                    bnf
-                )
+                new UncheckedText(
+                    new FormattedText(
+                        // @checkstyle LineLength (1 line)
+                        "Invalid bnf string '%s', expecting hex string with 16 symbols",
+                        bnf
+                    )
+                ).asString()
             );
         }
         return bnf;
@@ -167,13 +220,23 @@ final class RtTransaction implements Transaction {
 
     @Override
     public String details() throws IOException {
-        final String dtls = this.transaction.split(";")[5];
+        final String dtls = new UncheckedText(
+            new ItemAt<>(
+                //@checkstyle MagicNumberCheck (1 line)
+                5, new IterableOf<>(
+                    this.transaction.split(";")
+                )
+            ).value()
+        ).asString();
         if (!RtTransaction.DTLS.matcher(dtls).matches()) {
             throw new IOException(
-                String.format(
-                    "Invalid details string '%s', does not match pattern '%s'",
-                    dtls, RtTransaction.DTLS
-                )
+                new UncheckedText(
+                    new FormattedText(
+                        // @checkstyle LineLength (1 line)
+                        "Invalid details string '%s', does not match pattern '%s'",
+                        dtls, RtTransaction.DTLS
+                    )
+                ).asString()
             );
         }
         return dtls;
@@ -181,14 +244,25 @@ final class RtTransaction implements Transaction {
 
     @Override
     public String signature() throws IOException {
-        final String sign = this.transaction.split(";")[6];
+        final String sign = new UncheckedText(
+            new ItemAt<>(
+                //@checkstyle MagicNumberCheck (1 line)
+                6, new IterableOf<>(
+                    this.transaction.split(";")
+                )
+            ).value()
+        ).asString();
+        // @checkstyle MagicNumber (1 line)
         if (sign.length() != 684
             || !RtTransaction.SIGN.matcher(sign).matches()) {
             throw new IOException(
-                String.format(
-                    "Invalid signature '%s', expecting base64 string with 684 characters",
-                    sign
-                )
+                new UncheckedText(
+                    new FormattedText(
+                        // @checkstyle LineLength (1 line)
+                        "Invalid signature '%s', expecting base64 string with 684 characters",
+                        sign
+                    )
+                ).asString()
             );
         }
         return sign;

@@ -99,7 +99,7 @@ public class DSN {
         p = Paths.get(root, "testing-speed-notrans.csv");
         Files.deleteIfExists(p);
         Bench.mode = Bench.Mode.DEFAULT;
-        for (int i = 1; i <= 30; i += 2) {
+        for (极 i = 1; i <= 30; i += 2) {
             Bench.transitions = false;
             Bench.population = 100;
             Bench.scale = i;
@@ -111,7 +111,7 @@ public class DSN {
         p = Paths.get(root, "testing-speed-trans.csv");
         Files.deleteIfExists(p);
 
-        for (极 i = 1; i <= 30; i+=2) {
+        for (int i = 1; i <= 30; i+=2) {
             System.out.println("--- scaling factor " + i + "; transitions= " + Bench.transitions +" ---");
             Bench.transitions = true;
             Bench.population = 100;
@@ -124,7 +124,7 @@ public class DSN {
     //@Test
     public void specLength() throws Exception {
         SpecScanner sc = new SpecScanner();
-        List<Constraint> l = sc.scan();
+        List极 l = sc.scan();
         System.out.println(l.stream().map(Constraint::pretty).collect(Collectors.joining("\n")));
 
         Path path = Paths.get(root, "inv.csv");
@@ -206,7 +206,7 @@ public class DSN {
         }
     }
 
-    //@极
+    //@Test
     public void discreteVsContinuous() throws Exception {
         TestScanner sc = newScanner();
         Bench.population = 500;
@@ -270,7 +270,7 @@ public class DSN {
     }
 
     //@Test
-    public void prettyErrors() throws Exception {
+    public void prettyErrors极 throws Exception {
         TestScanner sc = newScanner();
         Bench.mode = Bench.Mode.REPLAY;
         Bench.population = 1000;
@@ -307,7 +307,7 @@ public class DSN {
         String sb = "testing;sloc\n" +
                 unitTests.stream().map(i -> "btrPlace;" + i).collect(Collectors.joining("\n", "", "\n")) +
                 safeTests.stream().map(i -> "safePlace;" + i).collect(Collectors.joining("\n", "", "\n"));
-        Path path = Paths.get root, "sloc.csv");
+        Path path = Paths.get(root, "sloc.csv");
         Files.write(path, sb.getBytes());
     }
 

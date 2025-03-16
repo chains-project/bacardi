@@ -203,7 +203,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                 AnalysisConfiguration.builder()
                         .addInputFiles(configuration.inputFiles())
                         .putAllExtraProperties(configuration.extraProperties())
-                        .addActiveRules(identifyActiveRules(configuration))
+                        .addActiveRules(identifyActiveRules(configuration)
                         .setBaseDir(configuration.baseDir())
                         .build();
         try {

@@ -159,17 +159,12 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     }
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
-        AnalysisEngineConfiguration.Builder builder = AnalysisEngineConfiguration.builder()
+        return AnalysisEngineConfiguration.builder()
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())
-                .setModulesProvider(globalConfig.getModulesProvider());
-
-        for (Language language : globalConfig.getEnabledLanguages()) {
-            builder.addEnabledLanguage(language);
-        }
-
-        return builder.build();
+                .setModulesProvider(globalConfig.getModulesProvider())
+                .build();
     }
 
     /** Get or creates the one and only instance of this class. */

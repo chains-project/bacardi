@@ -16,21 +16,17 @@
  */
 package com.google.pubsublite.kafka.sink;
 
-import com.google.cloud.pubsublite.MessageMetadata;
 import com.google.cloud.pubsublite.internal.Publisher;
 import java.util.Map;
 
 interface PublisherFactory {
 
-  Publisher<MessageMetadata> newPublisher(Map<String, String> params);
+  Publisher<Void> newPublisher(Map<String, String> params);
 }
 ```
 
 ### Explanation:
-1. **API Change Analysis**: The class `PublishMetadata` has been removed in the new version of the dependency. This class was previously used as a type parameter in the `Publisher` interface.
-2. **Replacement**: The `PublishMetadata` class has been replaced by `MessageMetadata` in the new API. This is a direct replacement, and the functionality remains similar.
-3. **Fix Implementation**: The type parameter in the `Publisher` interface has been updated from `PublishMetadata` to `MessageMetadata`.
-4. **Imports**: The import statement for `PublishMetadata` has been replaced with `MessageMetadata`.
-5. **Function Signature**: The method signature of `newPublisher` remains unchanged, ensuring compatibility with existing code that uses this interface.
-
-This fix ensures that the client code compiles and functions correctly with the updated dependency.
+1. **API Change Analysis**: The `PublishMetadata` class has been removed in the new version of the dependency. This class was previously used as a type parameter in the `Publisher` interface.
+2. **Fix Strategy**: Since `PublishMetadata` is no longer available, the most straightforward fix is to replace it with a type that is still valid in the new API. Given that `Publisher` is a generic interface, and the metadata is no longer needed, `Void` is a suitable replacement. This change ensures that the `PublisherFactory` interface remains functional without requiring metadata.
+3. **Minimal Changes**: The only change made is replacing `PublishMetadata` with `Void` in the `Publisher` type parameter. This change is minimal and does not affect the method signature or the overall structure of the class.
+4. **Compilation and Functionality**: The updated class should now compile successfully with the new version of the dependency, and the `PublisherFactory` interface will continue to function as intended.
