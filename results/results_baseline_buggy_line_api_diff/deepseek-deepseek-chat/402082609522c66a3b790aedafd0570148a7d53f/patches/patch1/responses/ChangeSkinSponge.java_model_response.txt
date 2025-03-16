@@ -21,19 +21,15 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.Command;
-import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
-import org.spongepowered.api.event.lifecycle.RegisterChannelEvent;
-import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
+import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
-import org.spongepowered.api.network.channel.Channel;
-import org.spongepowered.api.network.channel.ChannelManager;
+import org.spongepowered.api.network.channel.packet.PacketChannel;
+import org.spongepowered.api.network.channel.packet.PacketRegistry;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.serializer.TextSerializer;
+import org.spongepowered.api.service.permission.Subject;
 
 import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
 import static com.github.games647.changeskin.core.message.SkinUpdateMessage.UPDATE_SKIN_CHANNEL;
@@ -42,7 +38,7 @@ import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 @Singleton
 @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
         url = PomData.URL, description = PomData.DESCRIPTION)
-public class ChangeSkinSponge implements PlatformPlugin<CommandContext> {
+public class ChangeSkinSponge implements PlatformPlugin<Subject> {
 
     private final Path dataFolder;
     private final Logger logger;
@@ -61,7 +57,7 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandContext> {
     }
 
     @Listener
-    public void onPreInit(StartingEngineEvent<?> preInitEvent) {
+    public void onPreInit(StartedEngineEvent<?> preInitEvent) {
         try {
             core.load(true);
             initialized = true;
@@ -71,30 +67,27 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandContext> {
     }
 
     @Listener
-    public void onInit(RegisterCommandEvent<Command.Parameterized> initEvent) {
+    public void onInit(RegisterCommandEvent<CommandContext> initEvent) {
         if (!initialized)
             return;
 
-        PluginContainer pluginContainer = Sponge.pluginManager().plugin(ARTIFACT_ID).orElseThrow(() -> new IllegalStateException("Plugin not found"));
+        PluginContainer plugin = Sponge.pluginManager().plugin(ARTIFACT_ID).orElseThrow(() -> new IllegalStateException("Plugin not found"));
 
-        initEvent.register(pluginContainer, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
-        initEvent.register(pluginContainer, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
-        initEvent.register(pluginContainer, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
-        initEvent.register(pluginContainer, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
-        initEvent.register(pluginContainer, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
+        initEvent.register(plugin, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+        initEvent.register(plugin, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+        initEvent.register(plugin, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+        initEvent.register(plugin, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+        initEvent.register(plugin, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
 
-        Sponge.eventManager().registerListeners(pluginContainer, injector.getInstance(LoginListener.class));
-    }
+        Sponge.eventManager().registerListeners(plugin, injector.getInstance(LoginListener.class));
 
-    @Listener
-    public void onRegisterChannels(RegisterChannelEvent event) {
-        ChannelManager channelManager = Sponge.channelManager();
+        PacketRegistry packetRegistry = Sponge.channelManager().packetRegistry();
         String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
         String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
-        Channel updateChannel = channelManager.ofType(updateChannelName, Channel.class);
-        Channel permChannel = channelManager.ofType(permissionChannelName, Channel.class);
-        updateChannel.play().addHandler(injector.getInstance(UpdateSkinListener.class));
-        permChannel.play().addHandler(injector.getInstance(CheckPermissionListener.class));
+        PacketChannel updateChannel = packetRegistry.createChannel(plugin, updateChannelName);
+        PacketChannel permChannel = packetRegistry.createChannel(plugin, permissionChannelName);
+        updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+        permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
     }
 
     @Listener
@@ -106,8 +99,8 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandContext> {
         return core;
     }
 
-    public boolean hasSkinPermission(CommandContext invoker, UUID uuid, boolean sendMessage) {
-        if (invoker.cause().hasPermission(PomData.ARTIFACT_ID + ".skin.whitelist." + uuid)) {
+    public boolean hasSkinPermission(Subject invoker, UUID uuid, boolean sendMessage) {
+        if (invoker.hasPermission(PomData.ARTIFACT_ID + ".skin.whitelist." + uuid)) {
             return true;
         }
 
@@ -134,10 +127,10 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandContext> {
         return logger;
     }
 
-    public void sendMessage(CommandContext receiver, String key) {
+    public void sendMessage(Subject receiver, String key) {
         String message = core.getMessage(key);
         if (message != null && receiver != null) {
-            receiver.sendMessage(Text.of(message));
+            receiver.sendMessage(net.kyori.adventure.text.Component.text(message));
         }
     }
 }

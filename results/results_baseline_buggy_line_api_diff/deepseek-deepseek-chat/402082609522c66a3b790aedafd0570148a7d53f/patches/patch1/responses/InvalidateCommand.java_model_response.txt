@@ -9,6 +9,7 @@ import com.google.inject.Inject;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
@@ -29,15 +30,16 @@ public class InvalidateCommand implements Command, ChangeSkinCommand {
         }
 
         Player receiver = (Player) context.cause().root();
-        Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+        Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
         return CommandResult.success();
     }
 
     @Override
-    public Command.Builder buildSpec() {
+    public Command buildSpec() {
         return Command.builder()
                 .executor(this)
-                .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base");
+                .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base")
+                .build();
     }
 }
 ```

@@ -5,19 +5,9 @@
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.parameter.Parameter;
-> import org.spongepowered.api.command.CommandExecutor;
-> import org.spongepowered.api.command.parameter.Parameterized;
+> import org.spongepowered.api.command.parameter.managed.Flag;
+> import org.spongepowered.api.command.parameter.managed.ValueParameter;
 16c17
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 ---
 > import static org.spongepowered.api.command.parameter.Parameter.string;
-49,50c50,51
-<     public CommandSpec buildSpec() {
-<         return CommandSpec.builder()
----
->     public Parameterized buildSpec() {
->         return Parameterized.builder()
-52c53
-<                 .arguments(string(of("skinName")))
----
->                 .addParameter(string(of("skinName")))

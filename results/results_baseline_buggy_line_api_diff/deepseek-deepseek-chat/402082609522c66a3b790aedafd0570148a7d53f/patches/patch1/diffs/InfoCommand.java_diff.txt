@@ -1,53 +1,69 @@
 14c14
 < import org.spongepowered.api.command.CommandException;
 ---
-> import org.spongepowered.api.command.exception.CommandException;
-16,19c16,18
+> import org.spongepowered.api.command.Command;
+16,19c16,17
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
-> import org.spongepowered.api.command.CommandExecutor;
 > import org.spongepowered.api.command.parameter.Parameter;
-22,23c21,22
+22,23c20,21
 < import org.spongepowered.api.text.Text;
 < import org.spongepowered.api.text.serializer.TextSerializers;
 ---
-> import net.kyori.adventure.text.TextComponent;
+> import net.kyori.adventure.text.Component;
 > import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-33d31
+25c23
+< public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class InfoCommand implements Command, ChangeSkinCommand {
+33d30
 < 
-35,38c33,36
+35,38c32,36
 <     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 <         if (!(src instanceof Player)) {
 <             plugin.sendMessage(src, "no-console");
 <             return CommandResult.empty();
 ---
->     public CommandResult execute(org.spongepowered.api.command.CommandCause src, CommandContext args) throws CommandException {
->         if (!(src.subject() instanceof Player)) {
->             plugin.sendMessage(src.subject(), "no-console");
->             return CommandResult.builder().build();
-41c39
+>     public CommandResult execute(CommandContext context) {
+>         Optional<Player> optPlayer = context.cause().first(Player.class);
+>         if (!optPlayer.isPresent()) {
+>             plugin.sendMessage(context.cause().audience(), "no-console");
+>             return CommandResult.success();
+41,43c39,41
 <         UUID uniqueId = ((Player) src).getUniqueId();
+<         Task.builder().async()
+<                 .execute(() -> {
 ---
->         UUID uniqueId = ((Player) src.subject()).uniqueId();
-49c47
-<         return CommandResult.success();
+>         Player player = optPlayer.get();
+>         UUID uniqueId = player.uniqueId();
+>         Task.builder().execute(() -> {
+45,47c43,44
+<                     Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).submit(plugin);
+<                 })
+<                 .submit(plugin);
 ---
->         return CommandResult.builder().build();
-53,54c51,52
+>             sendSkinDetails(uniqueId, preferences);
+>         }).submit(plugin);
+53,57c50,53
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
+<                 .executor(this)
+<                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
+<                 .build();
 ---
->     public org.spongepowered.api.command.Command.Parameterized buildSpec() {
->         return org.spongepowered.api.command.Command.builder()
-61c59
+>     public Command.Builder buildSpec() {
+>         return Command.builder()
+>                 .executionRequirements(cause -> cause.hasPermission(PomData.ARTIFACT_ID + ".command.skininfo.base"))
+>                 .executor(this);
+61c57
 <         Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
 ---
 >         Optional<Player> optPlayer = Sponge.server().player(uuid);
-70c68
+70c66
 <                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
 ---
->                 TextComponent text = LegacyComponentSerializer.legacyAmpersand().deserialize(formatted);
+>                 Component text = LegacyComponentSerializer.legacySection().deserialize(formatted);

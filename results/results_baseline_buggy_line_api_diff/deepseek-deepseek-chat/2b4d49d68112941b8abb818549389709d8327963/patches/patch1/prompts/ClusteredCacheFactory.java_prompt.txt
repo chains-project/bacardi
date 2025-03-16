@@ -711,10 +711,19 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
 the error is triggered in the following specific lines in the previous code:
 
 ```java
-public static NodeID getNodeID(final Member member) {
+private Member getMember(final byte[] nodeID) {
+```
+```java
+private static Cluster cluster = null;
 ```
 ```java
 private Member getMember(final byte[] nodeID) {
+```
+```java
+import com.hazelcast.core.Member;
+```
+```java
+import com.hazelcast.core.Cluster;
 ```
 ```java
 import com.hazelcast.config.MaxSizeConfig;
@@ -723,37 +732,16 @@ import com.hazelcast.config.MaxSizeConfig;
 public static NodeID getNodeID(final Member member) {
 ```
 ```java
-private static Cluster cluster = null;
-```
-```java
-import com.hazelcast.core.Member;
+public static NodeID getNodeID(final Member member) {
 ```
 ```java
 private Member getMember(final byte[] nodeID) {
-```
-```java
-private Member getMember(final byte[] nodeID) {
-```
-```java
-import com.hazelcast.core.Cluster;
 ```
 
 
 
  with the following error information:
-[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusteredCacheFactory.java:[655,42] cannot find symbol
-  symbol:   class Member
-  location: class org.jivesoftware.openfire.plugin.util.cache.ClusteredCacheFactory
-
 [ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusteredCacheFactory.java:[501,13] cannot find symbol
-  symbol:   class Member
-  location: class org.jivesoftware.openfire.plugin.util.cache.ClusteredCacheFactory
-
-[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusteredCacheFactory.java:[22,28] cannot find symbol
-  symbol:   class MaxSizeConfig
-  location: package com.hazelcast.config
-
-[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusteredCacheFactory.java:[655,42] cannot find symbol
   symbol:   class Member
   location: class org.jivesoftware.openfire.plugin.util.cache.ClusteredCacheFactory
 
@@ -765,49 +753,49 @@ import com.hazelcast.core.Cluster;
   symbol:   class Member
   location: package com.hazelcast.core
 
-[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusteredCacheFactory.java:[501,13] cannot find symbol
-  symbol:   class Member
-  location: class org.jivesoftware.openfire.plugin.util.cache.ClusteredCacheFactory
-
-[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusteredCacheFactory.java:[501,13] cannot find symbol
-  symbol:   class Member
-  location: class org.jivesoftware.openfire.plugin.util.cache.ClusteredCacheFactory
-
 [ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusteredCacheFactory.java:[27,26] cannot find symbol
   symbol:   class Cluster
   location: package com.hazelcast.core
 
+[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusteredCacheFactory.java:[22,28] cannot find symbol
+  symbol:   class MaxSizeConfig
+  location: package com.hazelcast.config
+
+[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusteredCacheFactory.java:[655,42] cannot find symbol
+  symbol:   class Member
+  location: class org.jivesoftware.openfire.plugin.util.cache.ClusteredCacheFactory
+
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
-     Interface com.hazelcast.cluster.Member has been added in the new version of the dependency.
-     Class com.hazelcast.core.Member has been removed in the new version of the dependency.
-     Method com.hazelcast.internal.cluster.impl.TcpIpJoiner.getMembers() has been added in the new version of the dependency.
+     Class com.hazelcast.core.Cluster has been removed in the new version of the dependency.
      Method com.hazelcast.core.InitialMembershipEvent.getMembers() has been removed in the new version of the dependency.
-     Method com.hazelcast.cluster.MembershipEvent.getMembers() has been added in the new version of the dependency.
+     Method com.hazelcast.internal.cluster.ClusterService.getMembers(com.hazelcast.cluster.MemberSelector) has been added in the new version of the dependency.
+     Method com.hazelcast.client.impl.spi.impl.ClientClusterServiceImpl.getMembers(com.hazelcast.cluster.MemberSelector) has been added in the new version of the dependency.
+     Method com.hazelcast.cluster.impl.TcpIpJoiner.getMembers() has been removed in the new version of the dependency.
+     Method com.hazelcast.internal.cluster.impl.ClusterServiceImpl.getMembers(com.hazelcast.core.MemberSelector) has been removed in the new version of the dependency.
+     Method com.hazelcast.core.MembershipEvent.getMembers() has been removed in the new version of the dependency.
+     Method com.hazelcast.internal.cluster.impl.TcpIpJoiner.getMembers() has been added in the new version of the dependency.
+     Method com.hazelcast.core.Cluster.getMembers() has been removed in the new version of the dependency.
      Method com.hazelcast.client.util.AbstractLoadBalancer.getMembers() has been added in the new version of the dependency.
+     Method com.hazelcast.internal.cluster.impl.ClusterServiceImpl.getMembers(com.hazelcast.cluster.MemberSelector) has been added in the new version of the dependency.
+     Method com.hazelcast.partition.membergroup.DefaultMemberGroup.getMembers() has been removed in the new version of the dependency.
+     Method com.hazelcast.cluster.Cluster.getMembers() has been added in the new version of the dependency.
+     Method com.hazelcast.cluster.InitialMembershipEvent.getMembers() has been added in the new version of the dependency.
+     Method com.hazelcast.client.impl.spi.ClientClusterService.getMembers(com.hazelcast.cluster.MemberSelector) has been added in the new version of the dependency.
+     Method com.hazelcast.internal.cluster.ClusterService.getMembers(com.hazelcast.core.MemberSelector) has been removed in the new version of the dependency.
+     Method com.hazelcast.cluster.MembershipEvent.getMembers() has been added in the new version of the dependency.
      Method com.hazelcast.internal.partition.membergroup.DefaultMemberGroup.getMembers() has been added in the new version of the dependency.
      Method com.hazelcast.client.impl.proxy.ClientClusterProxy.getMembers() has been added in the new version of the dependency.
-     Method com.hazelcast.internal.cluster.ClusterService.getMembers(com.hazelcast.core.MemberSelector) has been removed in the new version of the dependency.
-     Method com.hazelcast.client.impl.spi.ClientClusterService.getMembers(com.hazelcast.cluster.MemberSelector) has been added in the new version of the dependency.
-     Method com.hazelcast.internal.cluster.impl.ClusterServiceImpl.getMembers(com.hazelcast.cluster.MemberSelector) has been added in the new version of the dependency.
-     Method com.hazelcast.core.MembershipEvent.getMembers() has been removed in the new version of the dependency.
-     Method com.hazelcast.cluster.impl.TcpIpJoiner.getMembers() has been removed in the new version of the dependency.
-     Method com.hazelcast.cluster.Cluster.getMembers() has been added in the new version of the dependency.
-     Method com.hazelcast.partition.membergroup.DefaultMemberGroup.getMembers() has been removed in the new version of the dependency.
-     Method com.hazelcast.internal.cluster.ClusterService.getMembers(com.hazelcast.cluster.MemberSelector) has been added in the new version of the dependency.
-     Method com.hazelcast.internal.cluster.impl.ClusterServiceImpl.getMembers(com.hazelcast.core.MemberSelector) has been removed in the new version of the dependency.
-     Method com.hazelcast.client.impl.spi.impl.ClientClusterServiceImpl.getMembers(com.hazelcast.cluster.MemberSelector) has been added in the new version of the dependency.
-     Method com.hazelcast.core.Cluster.getMembers() has been removed in the new version of the dependency.
-     Method com.hazelcast.cluster.InitialMembershipEvent.getMembers() has been added in the new version of the dependency.
-     Constructor com.hazelcast.config.MaxSizeConfig() has been removed in the new version of the dependency.
-     Constructor com.hazelcast.config.MaxSizeConfig(com.hazelcast.config.MaxSizeConfig) has been removed in the new version of the dependency.
+     Class com.hazelcast.core.Member has been removed in the new version of the dependency.
+     Interface com.hazelcast.cluster.Member has been added in the new version of the dependency.
      Class com.hazelcast.config.MaxSizeConfig has been removed in the new version of the dependency.
      Constructor com.hazelcast.config.MaxSizeConfig(int,com.hazelcast.config.MaxSizeConfig$MaxSizePolicy) has been removed in the new version of the dependency.
+     Constructor com.hazelcast.config.MaxSizeConfig(com.hazelcast.config.MaxSizeConfig) has been removed in the new version of the dependency.
+     Constructor com.hazelcast.config.MaxSizeConfig() has been removed in the new version of the dependency.
      Method com.hazelcast.client.impl.MemberImpl.getStringAttribute(java.lang.String) has been removed in the new version of the dependency.
      Method com.hazelcast.core.Member.getStringAttribute(java.lang.String) has been removed in the new version of the dependency.
-     Method com.hazelcast.config.MemberAttributeConfig.getStringAttribute(java.lang.String) has been removed in the new version of the dependency.
      Method com.hazelcast.instance.MemberImpl.getStringAttribute(java.lang.String) has been removed in the new version of the dependency.
-     Class com.hazelcast.core.Cluster has been removed in the new version of the dependency.
+     Method com.hazelcast.config.MemberAttributeConfig.getStringAttribute(java.lang.String) has been removed in the new version of the dependency.
 
 
 

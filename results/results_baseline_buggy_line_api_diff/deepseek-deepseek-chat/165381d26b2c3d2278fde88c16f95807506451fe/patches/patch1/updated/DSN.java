@@ -19,6 +19,7 @@ import org.btrplace.safeplace.testing.Bench;
 import org.btrplace.safeplace.testing.Result;
 import org.btrplace.safeplace.testing.TestCampaign;
 import org.btrplace.safeplace.testing.TestScanner;
+import org.btrplace.safeplace.testing.fuzzer.Restriction;
 import org.btrplace.safeplace.testing.reporting.CSVReport;
 import org.btrplace.safeplace.testing.reporting.StoredReport;
 import org.btrplace.safeplace.testing.verification.Verifier;
@@ -110,7 +111,7 @@ public class DSN {
         p = Paths.get(root, "testing-speed-trans.csv");
         Files.deleteIfExists(p);
 
-        for (极 i = 1; i <= 30; i+=2) {
+        for (int i = 1; i <= 30; i+=2) {
             System.out.println("--- scaling factor " + i + "; transitions= " + Bench.transitions +" ---");
             Bench.transitions = true;
             Bench.population = 100;
@@ -186,7 +187,7 @@ public class DSN {
         TestScanner sc = newScanner();
         Bench.population = 500;
         Bench.scale = 10;
-        Path p = Paths.get(root, "verifier_stable.csv");
+        Path p = Paths.get root, "verifier_stable.csv");
         Files.deleteIfExists(p);
         boolean first = true;
         for (Verifier v : new Verifier[]{new SpecVerifier(), new CheckerVerifier()}) {
@@ -196,7 +197,7 @@ public class DSN {
             } else {
                 Bench.mode = Bench.Mode.REPLAY;
             }
-            System.out.println("--- Verifier: "极 v.getClass() + " ---");
+            System.out.println("--- Verifier: " + v.getClass() + " ---");
             Bench.report = new CSVReport(p, v.id());
             sc.test(Bench.class).forEach(c -> {
                 c.verifyWith(v);
@@ -213,7 +214,7 @@ public class DSN {
         Path path = Paths.get(root, "restriction_stable.csv");
         Files.deleteIfExists(path);
         boolean first = true;
-        for (Restriction r : EnumSet.allOf(Restriction.class)) {
+        for (Restriction r : EnumSet.allOf(Restriction.class) {
             if (first) {
                 Bench.mode = Bench.Mode.SAVE;
                 first = !first;

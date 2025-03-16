@@ -1,8 +1,6 @@
 43d42
 <   @Override
-45c44,46
+45c44
 <     return new Timestamp(super.between(from, to).getTime());
 ---
->     Timestamp fromTimestamp = new Timestamp(from.getTime());
->     Timestamp toTimestamp = new Timestamp(to.getTime());
->     return super.between(fromTimestamp, toTimestamp);
+>     return new Timestamp(super.between(new Timestamp(from.getTime()), new Timestamp(to.getTime())).getTime());

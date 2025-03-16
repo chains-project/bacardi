@@ -90,10 +90,10 @@ the error is triggered in the following specific lines in the previous code:
 filter("/*").through(StrutsPrepareAndExecuteFilter.class);
 ```
 ```java
-import org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter;
+bind(StrutsPrepareAndExecuteFilter.class)
 ```
 ```java
-bind(StrutsPrepareAndExecuteFilter.class)
+import org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter;
 ```
 
 
@@ -101,9 +101,9 @@ bind(StrutsPrepareAndExecuteFilter.class)
  with the following error information:
 [ERROR] /guice/extensions/struts2/test/com/google/inject/struts2/Struts2FactoryTest.java:[57,35] error: cannot find symbol
 
-[ERROR] /guice/extensions/struts2/test/com/google/inject/struts2/Struts2FactoryTest.java:[19,46] error: package org.apache.struts2.dispatcher.ng.filter does not exist
-
 [ERROR] /guice/extensions/struts2/test/com/google/inject/struts2/Struts2FactoryTest.java:[55,19] error: cannot find symbol
+
+[ERROR] /guice/extensions/struts2/test/com/google/inject/struts2/Struts2FactoryTest.java:[19,46] error: package org.apache.struts2.dispatcher.ng.filter does not exist
 
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:

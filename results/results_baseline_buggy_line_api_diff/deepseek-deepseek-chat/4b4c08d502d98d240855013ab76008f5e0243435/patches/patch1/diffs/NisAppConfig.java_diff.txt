@@ -1,6 +1,7 @@
-3a4
+3a4,5
 > import org.flywaydb.core.api.configuration.ClassicConfiguration;
-108,113c109,114
+> import org.flywaydb.core.api.Location;
+108,113c110,115
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
@@ -8,17 +9,21 @@
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 <                 return flyway;
 ---
->                 final ClassicConfiguration configuration = new ClassicConfiguration();
+>                 ClassicConfiguration configuration = new ClassicConfiguration();
 >                 configuration.setDataSource(this.dataSource());
 >                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
->                 configuration.setLocations(prop.getProperty("flyway.locations").split(","));
+>                 configuration.setLocations(new Location[] { new Location(prop.getProperty("flyway.locations")) });
 >                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 >                 return new Flyway(configuration);
-309c310
-<                 } else {
+246c248
+<                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
 ---
->                  else {
-340c341
-<                 final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
+>                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions);
+270c272
+<         private static org.nem.nis.pox.poi.PoiOptions getBlockDependentPoiOptions(final BlockHeight height) {
 ---
->                 final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear;
+>         private static org.nem.nis.pox.poi.PoiOptions getBlockDependentPoiOptions final BlockHeight height) {
+361c363
+<                 return new NisPeerNetworkHost(this.nisCache(), synchronizer, scheduler, this.chainServices(), this.nodeCompatibilityChecker(),
+---
+>                 return new NisPeerNetworkHost this.nisCache(), synchronizer, scheduler, this.chainServices(), this.nodeCompatibilityChecker(),

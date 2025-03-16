@@ -223,28 +223,10 @@ public interface ResourceManagerRpc extends ServiceRpc {
 the error is triggered in the following specific lines in the previous code:
 
 ```java
-void clearOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
-```
-```java
 Project create(Project project);
 ```
 ```java
-OrgPolicy getOrgPolicy(String resource, String constraint) throws IOException;
-```
-```java
-import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
-```
-```java
 ListResult<Constraint> listAvailableOrgPolicyConstraints(String resource, Map<Option, ?> options)
-```
-```java
-Project get(String projectId, Map<Option, ?> options);
-```
-```java
-import com.google.api.services.cloudresourcemanager.model.Policy;
-```
-```java
-import com.google.api.services.cloudresourcemanager.model.Constraint;
 ```
 ```java
 Project replace(Project project);
@@ -253,52 +235,52 @@ Project replace(Project project);
 Tuple<String, Iterable<Project>> list(Map<Option, ?> options);
 ```
 ```java
-Policy getPolicy(String projectId);
+import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+```
+```java
+OrgPolicy getOrgPolicy(String resource, String constraint) throws IOException;
+```
+```java
+import com.google.api.services.cloudresourcemanager.model.Policy;
+```
+```java
+void clearOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
 ```
 ```java
 Policy replacePolicy(String projectId, Policy newPolicy);
 ```
 ```java
-import com.google.api.services.cloudresourcemanager.model.Project;
+OrgPolicy replaceOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
 ```
 ```java
-OrgPolicy replaceOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
+import com.google.api.services.cloudresourcemanager.model.Constraint;
 ```
 ```java
 OrgPolicy getEffectiveOrgPolicy(String resource, String constraint) throws IOException;
 ```
 ```java
+Project get(String projectId, Map<Option, ?> options);
+```
+```java
+Policy getPolicy(String projectId);
+```
+```java
 ListResult<OrgPolicy> listOrgPolicies(String resource, Map<Option, ?> options) throws IOException;
+```
+```java
+import com.google.api.services.cloudresourcemanager.model.Project;
 ```
 
 
 
  with the following error information:
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[167,40] cannot find symbol
-  symbol:   class OrgPolicy
-  location: interface com.google.cloud.resourcemanager.spi.v1beta1.ResourceManagerRpc
-
 [ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[92,18] cannot find symbol
   symbol:   class Project
   location: interface com.google.cloud.resourcemanager.spi.v1beta1.ResourceManagerRpc
 
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[189,3] cannot find symbol
-  symbol:   class OrgPolicy
-  location: interface com.google.cloud.resourcemanager.spi.v1beta1.ResourceManagerRpc
-
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[20,58] package com.google.api.services.cloudresourcemanager.model does not exist
-
 [ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[196,14] cannot find symbol
   symbol:   class Constraint
   location: interface com.google.cloud.resourcemanager.spi.v1beta1.ResourceManagerRpc
-
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[107,3] cannot find symbol
-  symbol:   class Project
-  location: interface com.google.cloud.resourcemanager.spi.v1beta1.ResourceManagerRpc
-
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[21,58] package com.google.api.services.cloudresourcemanager.model does not exist
-
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[19,58] package com.google.api.services.cloudresourcemanager.model does not exist
 
 [ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[131,19] cannot find symbol
   symbol:   class Project
@@ -308,40 +290,58 @@ ListResult<OrgPolicy> listOrgPolicies(String resource, Map<Option, ?> options) t
   symbol:   class Project
   location: interface com.google.cloud.resourcemanager.spi.v1beta1.ResourceManagerRpc
 
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[138,3] cannot find symbol
-  symbol:   class Policy
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[20,58] package com.google.api.services.cloudresourcemanager.model does not exist
+
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[189,3] cannot find symbol
+  symbol:   class OrgPolicy
+  location: interface com.google.cloud.resourcemanager.spi.v1beta1.ResourceManagerRpc
+
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[21,58] package com.google.api.services.cloudresourcemanager.model does not exist
+
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[167,40] cannot find symbol
+  symbol:   class OrgPolicy
   location: interface com.google.cloud.resourcemanager.spi.v1beta1.ResourceManagerRpc
 
 [ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[145,42] cannot find symbol
   symbol:   class Policy
   location: interface com.google.cloud.resourcemanager.spi.v1beta1.ResourceManagerRpc
 
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[22,58] package com.google.api.services.cloudresourcemanager.model does not exist
-
 [ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[214,47] cannot find symbol
   symbol:   class OrgPolicy
   location: interface com.google.cloud.resourcemanager.spi.v1beta1.ResourceManagerRpc
 
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[19,58] package com.google.api.services.cloudresourcemanager.model does not exist
+
 [ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[178,3] cannot find symbol
   symbol:   class OrgPolicy
+  location: interface com.google.cloud.resourcemanager.spi.v1beta1.ResourceManagerRpc
+
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[107,3] cannot find symbol
+  symbol:   class Project
+  location: interface com.google.cloud.resourcemanager.spi.v1beta1.ResourceManagerRpc
+
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[138,3] cannot find symbol
+  symbol:   class Policy
   location: interface com.google.cloud.resourcemanager.spi.v1beta1.ResourceManagerRpc
 
 [ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[204,14] cannot find symbol
   symbol:   class OrgPolicy
   location: interface com.google.cloud.resourcemanager.spi.v1beta1.ResourceManagerRpc
 
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/spi/v1beta1/ResourceManagerRpc.java:[22,58] package com.google.api.services.cloudresourcemanager.model does not exist
+
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
+     Constructor com.google.api.services.cloudresourcemanager.model.Project() has been removed in the new version of the dependency.
+     Class com.google.api.services.cloudresourcemanager.model.Project has been removed in the new version of the dependency.
+     Type reference com.google.api.services.cloudresourcemanager.v3.model.Project() has been added in the new version of the dependency.
+     Class com.google.api.services.cloudresourcemanager.model.Constraint has been removed in the new version of the dependency.
+     Constructor com.google.api.services.cloudresourcemanager.model.Constraint() has been removed in the new version of the dependency.
      Class com.google.api.services.cloudresourcemanager.model.OrgPolicy has been removed in the new version of the dependency.
      Constructor com.google.api.services.cloudresourcemanager.model.OrgPolicy() has been removed in the new version of the dependency.
-     Type reference com.google.api.services.cloudresourcemanager.v3.model.Project() has been added in the new version of the dependency.
-     Class com.google.api.services.cloudresourcemanager.model.Project has been removed in the new version of the dependency.
-     Constructor com.google.api.services.cloudresourcemanager.model.Project() has been removed in the new version of the dependency.
-     Constructor com.google.api.services.cloudresourcemanager.model.Constraint() has been removed in the new version of the dependency.
-     Class com.google.api.services.cloudresourcemanager.model.Constraint has been removed in the new version of the dependency.
+     Constructor com.google.api.services.cloudresourcemanager.model.Policy() has been removed in the new version of the dependency.
      Type reference com.google.api.services.cloudresourcemanager.v3.model.Policy() has been added in the new version of the dependency.
      Class com.google.api.services.cloudresourcemanager.model.Policy has been removed in the new version of the dependency.
-     Constructor com.google.api.services.cloudresourcemanager.model.Policy() has been removed in the new version of the dependency.
 
 
 

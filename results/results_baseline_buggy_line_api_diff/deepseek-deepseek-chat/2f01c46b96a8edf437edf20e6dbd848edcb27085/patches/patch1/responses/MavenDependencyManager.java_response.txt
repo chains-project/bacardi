@@ -24,8 +24,8 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
-import org.apache.maven.plugin.Plugin;
-import org.apache.maven.plugin.PluginExecution;
+import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.PluginParameterExpressionEvaluator.PluginParameterExpressionEvaluatorException;
 import se.kth.depclean.core.AbstractDebloater;
 import se.kth.depclean.core.analysis.graph.DependencyGraph;
 import se.kth.depclean.core.analysis.model.ProjectDependencyAnalysis;
@@ -159,11 +159,16 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
   public Set<String> collectUsedClassesFromProcessors() {
     getLog().debug("# collectUsedClassesFromProcessors()");
     return Optional.ofNullable(project.getPlugin("org.bsc.maven:maven-processor-plugin"))
-        .map(Plugin::getExecutions)
-        .flatMap(executions -> executions.stream().filter(exec -> exec.getId().equals("process")).findFirst())
-        .map(PluginExecution::getConfiguration)
+        .map(plugin -> plugin.getExecutionsAsMap().get("process"))
+        .map(exec -> {
+          try {
+            return new PluginParameterExpressionEvaluator(exec.getConfiguration()).evaluate();
+          } catch (PluginParameterExpressionEvaluatorException e) {
+            throw new RuntimeException(e);
+          }
+        })
         .map(config -> config.getChild("processors"))
-        .map(processors -> Arrays.stream(processors.getChildren()).map(processor -> processor.getValue()).collect(Collectors.toSet()))
+        .map(arr -> Arrays.stream(arr).map(Object::toString).collect(Collectors.toSet()))
         .orElse(of());
   }
 

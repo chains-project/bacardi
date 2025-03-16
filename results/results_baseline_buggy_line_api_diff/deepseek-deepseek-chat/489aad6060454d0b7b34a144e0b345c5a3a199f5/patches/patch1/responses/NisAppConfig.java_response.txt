@@ -106,7 +106,7 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final ClassicConfiguration configuration = new ClassicConfiguration();
+		ClassicConfiguration configuration = new ClassicConfiguration();
 		configuration.setDataSource(this.dataSource());
 		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
 		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
@@ -226,7 +226,7 @@ public class NisAppConfig {
 
 	@Bean
 	public SynchronizedPoxFacade poxFacade() {
-		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
+		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
 	}
 
 	@Bean
@@ -249,7 +249,7 @@ public class NisAppConfig {
 		final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<ImportanceCalculator>>() {
 			{
 				this.put(BlockChainFeature.PROOF_OF_IMPORTANCE,
-						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
+						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions);
 				this.put(BlockChainFeature.PROOF_OF_STAKE, PosImportanceCalculator::new);
 			}
 		};
@@ -273,7 +273,7 @@ public class NisAppConfig {
 		return getBlockDependentPoiOptions(height).getMinHarvesterBalance();
 	}
 
-	private static org.nem.nis.pox.poi.PoiOptions getBlockDependentPoiOptions(final BlockHeight height) {
+	private static org.nem.nis.pox.poi.PoiOptions getBlockDependentPoiOptions final BlockHeight height) {
 		return new PoiOptionsBuilder(height).create();
 	}
 

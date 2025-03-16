@@ -29,7 +29,6 @@ import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Sorted;
 import org.cactoos.scalar.Reduced;
 import org.cactoos.Scalar;
-import org.cactoos.func.IoCheckedFunc;
 
 /**
  * Network implementation.
@@ -64,16 +63,14 @@ public final class RtNetwork implements Network {
 
     @Override
     public Wallet pull(final long id) throws IOException {
-        return new IoCheckedFunc<>(
-            Scalar::value,
-            new Reduced<>(
-                Wallet::merge,
-                new Mapped<>(
-                    c -> c::wallet,
-                    new Sorted<>(new Copies(id, this))
-                )
+        Scalar<Wallet> scalar = new Reduced<>(
+            Wallet::merge,
+            new Mapped<>(
+                c -> c::wallet,
+                new Sorted<>(new Copies(id, this))
             )
-        ).apply(true);
+        );
+        return scalar.value();
     }
 
     @Override

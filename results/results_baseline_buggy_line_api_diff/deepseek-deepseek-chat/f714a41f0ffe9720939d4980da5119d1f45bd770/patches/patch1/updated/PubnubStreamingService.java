@@ -15,7 +15,6 @@ import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResu
 import com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult;
 import com.pubnub.api.models.consumer.objects_api.user.PNUserResult;
 import com.pubnub.api.models.consumer.objects_api.space.PNSpaceResult;
-import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -38,8 +37,7 @@ public class PubnubStreamingService {
   public PubnubStreamingService(String publicKey) {
     mapper = new ObjectMapper();
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    PNConfiguration pnConfiguration = new PNConfiguration(new com.pubnub.api.UserId("userId"));
-    pnConfiguration.setSubscribeKey(publicKey);
+    PNConfiguration pnConfiguration = new PNConfiguration(publicKey);
     pubnub = new PubNub(pnConfiguration);
     pnStatusCategory = PNStatusCategory.PNDisconnectedCategory;
   }
@@ -110,7 +108,7 @@ public class PubnubStreamingService {
                 }
 
                 @Override
-                public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
+                public void file(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult pnFileEventResult) {
                   LOG.debug("PubNub file: {}", pnFileEventResult.toString());
                 }
               });

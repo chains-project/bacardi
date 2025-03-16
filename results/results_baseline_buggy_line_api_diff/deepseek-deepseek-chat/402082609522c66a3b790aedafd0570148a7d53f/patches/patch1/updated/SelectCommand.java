@@ -9,8 +9,8 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
-import org.spongepowered.api.command.CommandExecutor;
-import org.spongepowered.api.command.parameter.Parameterized;
+import org.spongepowered.api.command.parameter.managed.Flag;
+import org.spongepowered.api.command.parameter.managed.ValueParameter;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
@@ -47,10 +47,10 @@ public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
     }
 
     @Override
-    public Parameterized buildSpec() {
-        return Parameterized.builder()
+    public CommandSpec buildSpec() {
+        return CommandSpec.builder()
                 .executor(this)
-                .addParameter(string(of("skinName")))
+                .arguments(string(of("skinName")))
                 .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
                 .build();
     }

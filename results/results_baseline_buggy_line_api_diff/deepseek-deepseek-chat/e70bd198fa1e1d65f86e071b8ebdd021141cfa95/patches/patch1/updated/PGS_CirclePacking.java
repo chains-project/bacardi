@@ -104,27 +104,37 @@ public final class PGS_CirclePacking {
 		float largestR = 0;
 
 		for (PVector p : steinerPoints) {
-			PVector nearest = null;
-			double minDistance = Double.MAX_VALUE;
-
-			for (PVector v : vertices) {
-				double dx = p.x - v.x;
-				double dy = p.y - v.y;
-				double distance = Math.sqrt(dx * dx + dy * dy) - v.z;
-				if (distance < minDistance) {
-					minDistance = distance;
-					nearest = v;
+			PVector nearest = findNearestCircle(p, vertices, largestR);
+			if (nearest != null) {
+				final float dx = p.x - nearest.x;
+				final float dy = p.y - nearest.y;
+				final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nearest.z);
+				if (radius > minRadius) {
+					largestR = (radius >= largestR) ? radius : largestR;
+					p.z = radius;
+					vertices.add(p);
+					out.add(p);
 				}
-			}
-
-			final float radius = (float) minDistance;
-			if (radius > minRadius) {
-				largestR = (radius >= largestR) ? radius : largestR;
-				p.z = radius;
-				out.add(p);
 			}
 		}
 		return out;
+	}
+
+	private static PVector findNearestCircle(PVector p, List<PVector> circles, float largestR) {
+		PVector nearest = null;
+		double minDistance = Double.MAX_VALUE;
+
+		for (PVector circle : circles) {
+			double dx = p.x - circle.x;
+			double dy = p.y - circle.y;
+			double distance = Math.sqrt(dx * dx + dy * dy) - circle.z;
+
+			if (distance < minDistance) {
+				minDistance = distance;
+				nearest = circle;
+			}
+		}
+		return nearest;
 	}
 
 	public static List<PVector> frontChainPack(PShape shape, double radiusMin, double radiusMax) {

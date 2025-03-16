@@ -93,10 +93,10 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
 the error is triggered in the following specific lines in the previous code:
 
 ```java
-import liquibase.util.StringUtils;
+if (StringUtils.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
 ```
 ```java
-if (StringUtils.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
+import liquibase.util.StringUtils;
 ```
 ```java
 if (StringUtils.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
@@ -105,26 +105,22 @@ if (StringUtils.trimToNull(statement.getTablespace()) != null && database.suppor
 
 
  with the following error information:
+[ERROR] /liquibase-mssql/src/java/liquibase/ext/mssql/sqlgenerator/AddPrimaryKeyGeneratorMSSQL.java:[67,9] cannot find symbol
+  symbol:   variable StringUtils
+  location: class liquibase.ext.mssql.sqlgenerator.AddPrimaryKeyGeneratorMSSQL
+
 [ERROR] /liquibase-mssql/src/java/liquibase/ext/mssql/sqlgenerator/AddPrimaryKeyGeneratorMSSQL.java:[12,22] cannot find symbol
   symbol:   class StringUtils
   location: package liquibase.util
 
-[ERROR] /liquibase-mssql/src/java/liquibase/ext/mssql/sqlgenerator/AddPrimaryKeyGeneratorMSSQL.java:[67,9] cannot find symbol
-  symbol:   variable StringUtils
-  location: class liquibase.ext.mssql.sqlgenerator.AddPrimaryKeyGeneratorMSSQL
-
-[ERROR] /liquibase-mssql/src/java/liquibase/ext/mssql/sqlgenerator/AddPrimaryKeyGeneratorMSSQL.java:[67,9] cannot find symbol
-  symbol:   variable StringUtils
-  location: class liquibase.ext.mssql.sqlgenerator.AddPrimaryKeyGeneratorMSSQL
-
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
-     Type reference liquibase.repackaged.org.apache.commons.lang3.StringUtils() has been added in the new version of the dependency.
-     Class liquibase.util.StringUtils has been removed in the new version of the dependency.
-     Constructor liquibase.util.StringUtils() has been removed in the new version of the dependency.
-     Method liquibase.repackaged.org.apache.commons.lang3.StringUtils.trimToNull(java.lang.String) has been added in the new version of the dependency.
-     Method liquibase.util.StringUtil.trimToNull(java.lang.String) has been added in the new version of the dependency.
      Method liquibase.util.StringUtils.trimToNull(java.lang.String) has been removed in the new version of the dependency.
+     Method liquibase.util.StringUtil.trimToNull(java.lang.String) has been added in the new version of the dependency.
+     Method liquibase.repackaged.org.apache.commons.lang3.StringUtils.trimToNull(java.lang.String) has been added in the new version of the dependency.
+     Class liquibase.util.StringUtils has been removed in the new version of the dependency.
+     Type reference liquibase.repackaged.org.apache.commons.lang3.StringUtils() has been added in the new version of the dependency.
+     Constructor liquibase.util.StringUtils() has been removed in the new version of the dependency.
 
 
 

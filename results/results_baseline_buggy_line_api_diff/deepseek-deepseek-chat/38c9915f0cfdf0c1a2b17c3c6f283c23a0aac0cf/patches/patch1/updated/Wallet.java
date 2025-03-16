@@ -201,6 +201,7 @@ public interface Wallet {
                 new ListOf<>(
                     new TextOf(this.path).asString().split("\n")
                 ).get(2),
+                // @checkstyle MagicNumber (1 line)
                 16
             );
         }
@@ -227,7 +228,7 @@ public interface Wallet {
                 );
             }
             final Iterable<Transaction> ledger = this.ledger();
-            final List<Transaction> candidates = StreamSupport.stream(other.ledger().spliterator(), false)
+            final Iterable<Transaction> candidates = StreamSupport.stream(other.ledger().spliterator(), false)
                 .filter(incoming -> StreamSupport.stream(ledger.spliterator(), false)
                     .noneMatch(origin -> incoming.equals(origin)
                         || (incoming.id() == origin.id() && incoming.bnf().equals(origin.bnf()))
@@ -250,6 +251,7 @@ public interface Wallet {
                     new ListOf<>(
                         new TextOf(this.path).asString().split("\\n")
                     ),
+                    // @checkstyle MagicNumberCheck (1 line)
                     5
                 )
             );

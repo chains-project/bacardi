@@ -60,7 +60,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
   private static final int PARTITIONS_REFRESH_INTERVAL_IN_SECONDS = 30;
 
   /**
-   *  When sender send audit events to Kafka,  it chooses a random partition and if it fails, it
+   *  When sender send audit events to Kafka, it chooses a random partition and if it fails, it
    *  will choose another GOOD partition, this retry will happen at most numOfPartitionsToTrySending
    *  times before dropping the event. Note that, this is different from the retry handled by
    *  kafka client
@@ -97,7 +97,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
 
   /**
    * host name
-   */
+ */
   private final String host;
 
   /**
@@ -239,7 +239,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
           currentPartitionId = randomPartition;
           OpenTsdbMetricConverter.incr(
               LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_CURRENT_PARTITION_RESET, 1,
-              "host=" + host, "stage=" = stage.toString());
+              "host=" + host, "stage=" + stage.toString());
           return;
         }
       }

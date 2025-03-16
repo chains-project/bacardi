@@ -1,6 +1,6 @@
 1d0
 < 
-6,15c5,9
+6,15c5,6
 < import javax.mvc.MvcContext;
 < //https://www.mvc-spec.org/learn/cookbook/multilang_en.html
 < /**
@@ -12,19 +12,9 @@
 <  * @see javax.mvc.locale.LocaleResolver
 <  */
 ---
-> import javax.mvc.locale.LocaleResolver;
-> import javax.mvc.locale.LocaleResolverContext;
-> import javax.ws.rs.core.Configuration;
-> import javax.ws.rs.core.Context;
+> import jakarta.mvc.MvcContext;
 > 
-23c17,20
-<     private MvcContext mvcContext;
----
->     private LocaleResolver localeResolver;
-> 
->     @Context
->     private Configuration configuration;
-25,31d21
+25,31d15
 <     /**
 <      * Get the assigned message to some key based on the {@link java.util.Locale} of the current request.
 <      *
@@ -32,13 +22,3 @@
 <      * @return the correct translation assigned to the key for the request locale, a fallback translation or a
 <      * placeholder for unknown keys.
 <      */
-33c23,29
-<         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
----
->         LocaleResolverContext context = new LocaleResolverContext() {
->             @Override
->             public Configuration getConfiguration() {
->                 return configuration;
->             }
->         };
->         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, localeResolver.resolveLocale(context));

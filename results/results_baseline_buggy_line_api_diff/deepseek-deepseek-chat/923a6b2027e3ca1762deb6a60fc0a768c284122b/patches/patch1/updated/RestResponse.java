@@ -45,10 +45,8 @@ import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.core.IsCollectionContaining;
-import org.hamcrest.core.IsEqual;
-import org.hamcrest.core.IsNot;
 import org.hamcrest.core.IsNull;
+import org.hamcrest.core.IsCollectionContaining;
 import org.hamcrest.core.StringContains;
 
 /**
@@ -247,7 +245,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            IsNot.not(IsCollectionContaining.emptyIterable())
+            IsCollectionContaining.not(Collections.<String>emptyList())
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -266,7 +264,7 @@ public final class RestResponse extends AbstractResponse {
             "cookies should be set in HTTP header",
             headers.containsKey(HttpHeaders.SET_COOKIE)
         );
-        final List<String] cookies = headers.get(HttpHeaders.SET_COOKIE);
+        final List<String> cookies = headers.get(HttpHeaders.SET_COOKIE);
         final Iterator<String> iterator = cookies.iterator();
         Cookie cookie = null;
         while (iterator.hasNext()) {

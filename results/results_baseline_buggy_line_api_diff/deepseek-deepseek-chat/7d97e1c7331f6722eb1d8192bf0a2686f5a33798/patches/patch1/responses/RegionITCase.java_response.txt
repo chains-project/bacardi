@@ -56,12 +56,12 @@ final class RegionITCase {
         System.getProperty("failsafe.sdb.secret");
 
     /**
-     * Constant for the number ten.
+     * Constant for ten.
      */
     private static final int TEN = 10;
 
     /**
-     * Constant for the number eight.
+     * Constant for eight.
      */
     private static final int EIGHT = 8;
 

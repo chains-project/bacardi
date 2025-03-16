@@ -231,7 +231,7 @@ public class VavrAssumptions {
         Class<?> assumptionClass = getAssumptionClass("org.junit.AssumptionViolatedException");
         if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
 
-        assumptionClass = getAssumptionClass("org.opentest4j.TestAbortedException");
+        assumptionClass = getAssumptionClass("org.openttest4j.TestAbortedException");
         if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
 
         assumptionClass = getAssumptionClass("org.testng.SkipException");

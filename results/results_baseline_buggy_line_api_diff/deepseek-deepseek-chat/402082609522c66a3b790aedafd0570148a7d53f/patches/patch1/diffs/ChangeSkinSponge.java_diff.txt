@@ -1,12 +1,10 @@
-23,25c23,25
+23,25c23
 < import org.spongepowered.api.command.CommandManager;
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.config.ConfigDir;
 ---
-> import org.spongepowered.api.command.Command;
-> import org.spongepowered.api.command.CommandResult;
 > import org.spongepowered.api.command.parameter.CommandContext;
-27,33c27,35
+27,33c25,31
 < import org.spongepowered.api.event.game.state.GameInitializationEvent;
 < import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 < import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
@@ -16,34 +14,32 @@
 < import org.spongepowered.api.text.serializer.TextSerializers;
 ---
 > import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
-> import org.spongepowered.api.event.lifecycle.RegisterChannelEvent;
-> import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
+> import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 > import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
-> import org.spongepowered.api.network.channel.Channel;
-> import org.spongepowered.api.network.channel.ChannelManager;
+> import org.spongepowered.api.network.channel.packet.PacketChannel;
+> import org.spongepowered.api.network.channel.packet.PacketRegistry;
 > import org.spongepowered.api.plugin.PluginContainer;
-> import org.spongepowered.api.text.Text;
-> import org.spongepowered.api.text.serializer.TextSerializer;
-42c44
+> import org.spongepowered.api.service.permission.Subject;
+42c40
 < public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
 ---
-> public class ChangeSkinSponge implements PlatformPlugin<CommandContext> {
-53d54
+> public class ChangeSkinSponge implements PlatformPlugin<Subject> {
+53d50
 <     //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
-62,63c63
+62,63c59
 <     public void onPreInit(GamePreInitializationEvent preInitEvent) {
 <         //load config and database
 ---
->     public void onPreInit(StartingEngineEvent<?> preInitEvent) {
-73c73
+>     public void onPreInit(StartedEngineEvent<?> preInitEvent) {
+73c69
 <     public void onInit(GameInitializationEvent initEvent) {
 ---
->     public void onInit(RegisterCommandEvent<Command.Parameterized> initEvent) {
-77c77
+>     public void onInit(RegisterCommandEvent<CommandContext> initEvent) {
+77c73
 <         CommandManager cmdManager = Sponge.getCommandManager();
 ---
->         PluginContainer pluginContainer = Sponge.pluginManager().plugin(ARTIFACT_ID).orElseThrow(() -> new IllegalStateException("Plugin not found"));
-79,85c79,83
+>         PluginContainer plugin = Sponge.pluginManager().plugin(ARTIFACT_ID).orElseThrow(() -> new IllegalStateException("Plugin not found"));
+79,85c75,79
 <         //command and event register
 <         cmdManager.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
 <         cmdManager.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
@@ -52,58 +48,49 @@
 <         cmdManager.register(this, injector.getInstance(InvalidateCommand.class)
 <                 .buildSpec(), "skininvalidate", "skin-invalidate");
 ---
->         initEvent.register(pluginContainer, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
->         initEvent.register(pluginContainer, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
->         initEvent.register(pluginContainer, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
->         initEvent.register(pluginContainer, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
->         initEvent.register(pluginContainer, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
-87c85,86
+>         initEvent.register(plugin, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+>         initEvent.register(plugin, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+>         initEvent.register(plugin, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+>         initEvent.register(plugin, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+>         initEvent.register(plugin, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
+87c81
 <         Sponge.getEventManager().registerListeners(this, injector.getInstance(LoginListener.class));
 ---
->         Sponge.eventManager().registerListeners(pluginContainer, injector.getInstance(LoginListener.class));
->     }
-89,90c88,90
+>         Sponge.eventManager().registerListeners(plugin, injector.getInstance(LoginListener.class));
+89,90c83
 <         //incoming channel
 <         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
 ---
->     @Listener
->     public void onRegisterChannels(RegisterChannelEvent event) {
->         ChannelManager channelManager = Sponge.channelManager();
-93,96c93,96
+>         PacketRegistry packetRegistry = Sponge.channelManager().packetRegistry();
+93,94c86,87
 <         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
 <         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
-<         updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
-<         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
 ---
->         Channel updateChannel = channelManager.ofType(updateChannelName, Channel.class);
->         Channel permChannel = channelManager.ofType(permissionChannelName, Channel.class);
->         updateChannel.play().addHandler(injector.getInstance(UpdateSkinListener.class));
->         permChannel.play().addHandler(injector.getInstance(CheckPermissionListener.class));
-100c100
+>         PacketChannel updateChannel = packetRegistry.createChannel(plugin, updateChannelName);
+>         PacketChannel permChannel = packetRegistry.createChannel(plugin, permissionChannelName);
+100c93
 <     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
 ---
 >     public void onShutdown(StoppingEngineEvent<?> stoppingServerEvent) {
-108,110c108,109
+108,109c101
 <     @Override
 <     public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
-<         if (invoker.hasPermission(PomData.ARTIFACT_ID + ".skin.whitelist." + uuid)) {
 ---
->     public boolean hasSkinPermission(CommandContext invoker, UUID uuid, boolean sendMessage) {
->         if (invoker.cause().hasPermission(PomData.ARTIFACT_ID + ".skin.whitelist." + uuid)) {
-114d112
+>     public boolean hasSkinPermission(Subject invoker, UUID uuid, boolean sendMessage) {
+114d105
 <         //disallow - not whitelisted or blacklisted
-126d123
+126d116
 <     @Override
-131d127
+131d120
 <     @Override
-136d131
+136d124
 <     @Override
-141,142c136
+141,142c129
 <     @Override
 <     public void sendMessage(CommandSource receiver, String key) {
 ---
->     public void sendMessage(CommandContext receiver, String key) {
-145c139
+>     public void sendMessage(Subject receiver, String key) {
+145c132
 <             receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
 ---
->             receiver.sendMessage(Text.of(message));
+>             receiver.sendMessage(net.kyori.adventure.text.Component.text(message));

@@ -133,12 +133,9 @@
 <                 float largestR = 0; // the radius of the largest circle in the tree
 ---
 >                 float largestR = 0;
-226c107,108
+226,235c107,111
 <                         final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
----
->                         PVector nearest = null;
->                         double minDistance = Double.MAX_VALUE;
-228,235c110,120
+< 
 <                         /*
 <                          * nn.dist() does not return the radius (since it's a distance metric used to
 <                          * find nearest circle), so calculate maximum radius for candidate circle using
@@ -148,20 +145,18 @@
 <                         final float dy = p.y - nn.value().y;
 <                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
 ---
->                         for (PVector v : vertices) {
->                                 double dx = p.x - v.x;
->                                 double dy = p.y - v.y;
->                                 double distance = Math.sqrt(dx * dx + dy * dy) - v.z;
->                                 if (distance < minDistance) {
->                                         minDistance = distance;
->                                         nearest = v;
->                                 }
->                         }
-> 
->                         final float radius = (float) minDistance;
-239d123
+>                         PVector nearest = findNearestCircle(p, vertices, largestR);
+>                         if (nearest != null) {
+>                                 final float dx = p.x - nearest.x;
+>                                 final float dy = p.y - nearest.y;
+>                                 final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nearest.z);
+239c115
 <                                 tree.insert(new double[] { p.x, p.y, radius }, p); // insert circle into tree
-246,260d129
+---
+>                                         vertices.add(p);
+242a119
+>                 }
+246,260c123,139
 <         /**
 <          * Generates a random circle packing of tangential circles with varying radii
 <          * that overlap the given shape. The method name references the packing
@@ -177,29 +172,47 @@
 <          * @return A list of PVectors, each representing one circle: (.x, .y) represent
 <          *         the center point and .z represents radius.
 <          */
-262,263c131,132
+---
+>         private static PVector findNearestCircle(PVector p, List<PVector> circles, float largestR) {
+>                 PVector nearest = null;
+>                 double minDistance = Double.MAX_VALUE;
+> 
+>                 for (PVector circle : circles) {
+>                         double dx = p.x - circle.x;
+>                         double dy = p.y - circle.y;
+>                         double distance = Math.sqrt(dx * dx + dy * dy) - circle.z;
+> 
+>                         if (distance < minDistance) {
+>                                 minDistance = distance;
+>                                 nearest = circle;
+>                         }
+>                 }
+>                 return nearest;
+>         }
+> 
+262,263c141,142
 <                 radiusMin = Math.max(1f, Math.min(radiusMin, radiusMax)); // choose min and constrain
 <                 radiusMax = Math.max(1f, Math.max(radiusMin, radiusMax)); // choose max and constrain
 ---
 >                 radiusMin = Math.max(1f, Math.min(radiusMin, radiusMax));
 >                 radiusMax = Math.max(1f, Math.max(radiusMin, radiusMax));
-272d140
+272d150
 <                         // if every circle same radius, use faster contains check
-279c147
+279c157
 <                         circleFactory.setNumPoints(8); // approximate circles using octagon for intersects check
 ---
 >                         circleFactory.setNumPoints(8);
-281d148
+281d158
 <                                 // first test whether shape contains circle center point (somewhat faster)
-285,287d151
+285,287d161
 < 
 <                                 // if center point not in circle, check whether circle overlaps with shape using
 <                                 // intersects() (somewhat slower)
-289c153
+289c163
 <                                 circleFactory.setSize(p.z * 2); // set diameter
 ---
 >                                 circleFactory.setSize(p.z * 2);
-297,312d160
+297,312d170
 <         /**
 <          * Packs a specified number of maximum inscribed circles within the given shape
 <          * using the Largest Empty Circle (LEC) algorithm.
@@ -216,7 +229,7 @@
 <          * @return A list of PVector objects representing the centers (.x, .y) and radii
 <          *         (.z) of the maximum inscribed circles.
 <          */
-326,341d173
+326,341d183
 <         /**
 <          * Packs maximum inscribed circles within the given shape using the Largest
 <          * Empty Circle (LEC) algorithm.
@@ -233,7 +246,7 @@
 <          * @return A list of PVector objects representing the centers (.x, .y) and radii
 <          *         (.z) of the maximum inscribed circles.
 <          */
-359,374d190
+359,374d200
 <         /**
 <          * Generates a circle packing having a pattern of tangencies specified by a
 <          * triangulation.
@@ -250,7 +263,7 @@
 <          * @return A list of PVectors, each representing one circle: (.x, .y) represent
 <          *         the center point and .z represents radius.
 <          */
-380,399d195
+380,399d205
 <         /**
 <          * Generates a circle packing having a pattern of tangencies specified by a
 <          * triangulation.
@@ -271,7 +284,7 @@
 <          *         (0, 0) by default.
 <          * @since 1.3.0
 <          */
-405,424d200
+405,424d210
 <         /**
 <          * Generates a random circle packing of circles with varying radii that overlap
 <          * the given shape.
@@ -292,25 +305,25 @@
 <          * @since 1.3.0
 <          * @see #repulsionPack(PShape, List)
 <          */
-426,427c202,203
+426,427c212,213
 <                 final double rMinA = Math.max(1f, Math.min(radiusMin, radiusMax)); // actual min
 <                 final double rMaxA = Math.max(1f, Math.max(radiusMin, radiusMax)); // actual max
 ---
 >                 final double rMinA = Math.max(1f, Math.min(radiusMin, radiusMax));
 >                 final double rMaxA = Math.max(1f, Math.max(radiusMin, radiusMax));
-431,435d206
+431,435d216
 <                 /*
 <                  * We want spawn N circles, such that there are enough to (theoretically) cover
 <                  * the envelope exactly without any overlap, assuming a packing efficiency of
 <                  * ~85% (close to optimum).
 <                  */
-437,441d207
+437,441d217
 <                 /*
 <                  * Average area is not a simple mean since circle area is quadratic with regards
 <                  * to radius. The actual average area of circles with radii a...b is an integral
 <                  * of: pi*r^2 dr from r=a to b.
 <                  */
-454,476d219
+454,476d229
 <         /**
 <          * Generates a circle packing of a shape using a given collection of
 <          * (overlapping) circles.
@@ -334,15 +347,15 @@
 <          * @since 1.3.0
 <          * @see #repulsionPack(PShape, double, double, long)
 <          */
-491c234
+491c244
 <                 final List<PVector> packing = packer.getPacking(); // packing result
 ---
 >                 final List<PVector> packing = packer.getPacking();
-495d237
+495d247
 <                         // if every circle same radius, use faster contains check
-502d243
+502d253
 <                                 // first test whether shape contains circle center point (somewhat faster)
-513,524d253
+513,524d263
 <         /**
 <          * Generates a tiled circle packing consisting of equal-sized circles arranged
 <          * in a square lattice (or grid) bounded by the input shape.
@@ -355,10 +368,10 @@
 <          *         the center point and .z represents radius.
 <          * @see #hexLatticePack(PShape, double)
 <          */
-531,532d259
+531,532d269
 <                 // buffer the geometry to use InAreaLocator to test circles for overlap (this
 <                 // works because all circles have the same diameter)
-549,560d275
+549,560d285
 <         /**
 <          * Generates a tiled circle packing consisting of equal-sized circles arranged
 <          * in a hexagonal lattice bounded by the input shape.
@@ -371,16 +384,16 @@
 <          *         the center point and .z represents radius.
 <          * @see #squareLatticePack(PShape, double)
 <          */
-567,570d281
+567,570d291
 <                 /*
 <                  * Buffer the geometry to use InAreaLocator to test circles for overlap (this
 <                  * works because all circles have the same diameter).
 <                  */
-577c288
+577c298
 <                 final double z = radius * Math.sqrt(3); // hex distance between successive columns
 ---
 >                 final double z = radius * Math.sqrt(3);
-590,597d300
+590,597d310
 <         /**
 <          * Computes the incircle of a triangle; the largest circle contained in a given
 <          * triangle.
@@ -389,11 +402,11 @@
 <          * @return PVector, where x & y represent incenter coordinates, and z represents
 <          *         incircle radius.
 <          */
-608c311
+608c321
 <                 final double s = (a + b + c) / 2; // semiPerimeter
 ---
 >                 final double s = (a + b + c) / 2;
-626,659d328
+626,659d338
 <         /**
 <          * Calculate the distance between two points in 3D space, where each point
 <          * represents a circle with (x, y, r) coordinates. This custom metric considers

@@ -68,13 +68,13 @@ the error is triggered in the following specific lines in the previous code:
 public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
 ```
 ```java
+public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
+```
+```java
 import com.google.cloud.pubsublite.PublishMetadata;
 ```
 ```java
 .setContext(PubsubContext.of(FRAMEWORK))
-```
-```java
-public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
 ```
 
 
@@ -92,17 +92,13 @@ public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
   symbol:   method setContext(com.google.cloud.pubsublite.internal.wire.PubsubContext)
   location: class com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder.Builder
 
-[ERROR] /java-pubsub-group-kafka-connector/src/main/java/com/google/pubsublite/kafka/sink/PublisherFactoryImpl.java:[36,20] cannot find symbol
-  symbol:   class PublishMetadata
-  location: class com.google.pubsublite.kafka.sink.PublisherFactoryImpl
-
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
-     Constructor com.google.cloud.pubsublite.PublishMetadata() has been removed in the new version of the dependency.
-     Class com.google.cloud.pubsublite.PublishMetadata has been removed in the new version of the dependency.
      Method com.google.cloud.pubsublite.internal.wire.SubscriberBuilder$Builder.setContext(com.google.cloud.pubsublite.internal.wire.PubsubContext) has been removed in the new version of the dependency.
      Method com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder$Builder.setContext(com.google.cloud.pubsublite.internal.wire.PubsubContext) has been removed in the new version of the dependency.
      Method com.google.cloud.pubsublite.internal.wire.PublisherBuilder$Builder.setContext(com.google.cloud.pubsublite.internal.wire.PubsubContext) has been removed in the new version of the dependency.
+     Class com.google.cloud.pubsublite.PublishMetadata has been removed in the new version of the dependency.
+     Constructor com.google.cloud.pubsublite.PublishMetadata() has been removed in the new version of the dependency.
 
 
 

@@ -86,13 +86,7 @@ public interface TranslateRpc extends ServiceRpc {
 the error is triggered in the following specific lines in the previous code:
 
 ```java
-List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap);
-```
-```java
-List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap);
-```
-```java
-import com.google.api.services.translate.model.TranslationsResource;
+List<List<DetectionsResourceItems>> detect(List<String> texts);
 ```
 ```java
 import com.google.api.services.translate.model.LanguagesResource;
@@ -101,38 +95,44 @@ import com.google.api.services.translate.model.LanguagesResource;
 import com.google.api.services.translate.model.DetectionsResourceItems;
 ```
 ```java
-List<List<DetectionsResourceItems>> detect(List<String> texts);
+List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap);
+```
+```java
+List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap);
+```
+```java
+import com.google.api.services.translate.model.TranslationsResource;
 ```
 
 
 
  with the following error information:
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/TranslateRpc.java:[77,8] cannot find symbol
-  symbol:   class TranslationsResource
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/TranslateRpc.java:[67,13] cannot find symbol
+  symbol:   class DetectionsResourceItems
   location: interface com.google.cloud.translate.spi.v2.TranslateRpc
-
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/TranslateRpc.java:[59,8] cannot find symbol
-  symbol:   class LanguagesResource
-  location: interface com.google.cloud.translate.spi.v2.TranslateRpc
-
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/TranslateRpc.java:[21,47] package com.google.api.services.translate.model does not exist
 
 [ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/TranslateRpc.java:[20,47] package com.google.api.services.translate.model does not exist
 
 [ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/TranslateRpc.java:[19,47] package com.google.api.services.translate.model does not exist
 
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/TranslateRpc.java:[67,13] cannot find symbol
-  symbol:   class DetectionsResourceItems
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/TranslateRpc.java:[59,8] cannot find symbol
+  symbol:   class LanguagesResource
   location: interface com.google.cloud.translate.spi.v2.TranslateRpc
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/TranslateRpc.java:[77,8] cannot find symbol
+  symbol:   class TranslationsResource
+  location: interface com.google.cloud.translate.spi.v2.TranslateRpc
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/TranslateRpc.java:[21,47] package com.google.api.services.translate.model does not exist
 
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
-     Class com.google.api.services.translate.model.TranslationsResource has been removed in the new version of the dependency.
-     Constructor com.google.api.services.translate.model.TranslationsResource() has been removed in the new version of the dependency.
+     Class com.google.api.services.translate.model.DetectionsResourceItems has been removed in the new version of the dependency.
+     Constructor com.google.api.services.translate.model.DetectionsResourceItems() has been removed in the new version of the dependency.
      Class com.google.api.services.translate.model.LanguagesResource has been removed in the new version of the dependency.
      Constructor com.google.api.services.translate.model.LanguagesResource() has been removed in the new version of the dependency.
-     Constructor com.google.api.services.translate.model.DetectionsResourceItems() has been removed in the new version of the dependency.
-     Class com.google.api.services.translate.model.DetectionsResourceItems has been removed in the new version of the dependency.
+     Constructor com.google.api.services.translate.model.TranslationsResource() has been removed in the new version of the dependency.
+     Class com.google.api.services.translate.model.TranslationsResource has been removed in the new version of the dependency.
 
 
 

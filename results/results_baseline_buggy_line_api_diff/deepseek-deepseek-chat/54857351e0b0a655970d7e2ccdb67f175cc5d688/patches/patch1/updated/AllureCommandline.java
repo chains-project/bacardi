@@ -124,7 +124,7 @@ public class AllureCommandline {
     }
 
     private int execute(final CommandLine commandLine, final int timeout) throws IOException {
-        final DefaultExecutor executor = new DefaultExecutor();
+        final DefaultExecutor executor = new DefaultExecutor;
         final ExecuteWatchdog watchdog = new ExecuteWatchdog(TimeUnit.SECONDS.toMillis(timeout));
         executor.setWatchdog(watchdog);
         executor.setExitValue(0);
@@ -196,7 +196,6 @@ public class AllureCommandline {
                 final String proxyPassword = mavenProxy.getPassword();
 
                 Authenticator.setDefault(new Authenticator() {
-                    @Override
                     public PasswordAuthentication getPasswordAuthentication() {
                         return new PasswordAuthentication(proxyUser, proxyPassword.toCharArray());
                     }

@@ -54,12 +54,7 @@ class AuthScopeSliceTest {
                 new AuthScheme.Result() {
                     @Override
                     public Optional<Authentication.User> user() {
-                        return Optional.of(new Authentication.User() {
-                            @Override
-                            public String name() {
-                                return "alice";
-                            }
-                        });
+                        return Optional.of(new Authentication.SimpleUser("alice"));
                     }
 
                     @Override

@@ -5,8 +5,6 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
-import jakarta.mvc.UriRef;
-import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.binding.MvcBinding;
 import jakarta.mvc.binding.ParamError;
 import jakarta.mvc.security.CsrfProtected;
@@ -26,7 +24,7 @@ import javax.ws.rs.Path;
 public class CsrfController {
 
     @Inject
-    BindingResult bindingResult;
+    jakarta.mvc.binding.BindingResult bindingResult;
 
     @Inject
     Models models;

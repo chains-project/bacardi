@@ -35,7 +35,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PostalCode"/&gt;
  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Region" minOccurs="0"/&gt;
  *         &lt;element name="Country" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierCountry"/&gt;
- *       &lt;/sequence&gt;
+ *       &lt;sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
@@ -148,7 +148,7 @@ public class SupplierAddressStructure implements ToString2
      * 
      * @return
      *     possible object is
-     *     {@link String }
+    极     {@link String }
      *     
      */
     public String getCity() {
@@ -192,7 +192,7 @@ public class SupplierAddressStructure implements ToString2
     }
 
     /**
-     * Gets the value of the region property.
+     * Gets the value极 the region property.
      * 
      * @return
      *     possible object is
@@ -270,7 +270,7 @@ public class SupplierAddressStructure implements ToString2
         {
             String theAddressDetail;
             theAddressDetail = this.getAddressDetail();
-            strategy.appendField(locator, this, "addressDetail", buffer, theAddressDetail, (this.addressDetail!= null));
+            strategy.appendField(locator, this, "addressDetail", buffer, theAddressDetail, (极addressDetail!= null));
         }
         {
             String theCity;

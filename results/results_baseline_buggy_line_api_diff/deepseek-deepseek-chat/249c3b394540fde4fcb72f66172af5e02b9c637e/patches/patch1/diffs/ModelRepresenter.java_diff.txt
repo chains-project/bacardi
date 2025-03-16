@@ -1,13 +1,61 @@
-94d93
+22a23
+> import org.yaml.snakeyaml.introspector.PropertyUtils;
+94d94
 < 
-217,219c216,217
+168,169d167
+<   // Model elements order {
+<   //TODO move to polyglot-common, or to org.apache.maven:maven-model
+198,199d195
+<           //"repositories",
+<           //"pluginRepositories",
+212d207
+<   //}
+214,219c209,210
+<   /*
+<    * Change the default order. Important data goes first.
+<    */
 <   @Override
 <   protected Set<Property> getProperties(Class<? extends Object> type)
 <           throws IntrospectionException {
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) {
->     try {
-232a231,233
->     } catch (IntrospectionException e) {
->       throw new RuntimeException(e);
->     }
+>     PropertyUtils propertyUtils = this.getPropertyUtils();
+221c212
+<       return sortTypeWithOrder(type, ORDER_MODEL);
+---
+>       return sortTypeWithOrder(type, ORDER_MODEL, propertyUtils);
+223c214
+<       return sortTypeWithOrder(type, ORDER_DEVELOPER);
+---
+>       return sortTypeWithOrder(type, ORDER_DEVELOPER, propertyUtils);
+225c216
+<       return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
+---
+>       return sortTypeWithOrder(type, ORDER_CONTRIBUTOR, propertyUtils);
+227c218
+<       return sortTypeWithOrder(type, ORDER_DEPENDENCY);
+---
+>       return sortTypeWithOrder(type, ORDER_DEPENDENCY, propertyUtils);
+229c220
+<       return sortTypeWithOrder(type, ORDER_PLUGIN);
+---
+>       return sortTypeWithOrder(type, ORDER_PLUGIN, propertyUtils);
+231c222
+<       return super.getProperties(type);
+---
+>       return propertyUtils.getProperties(type);
+235,237c226,227
+<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+<           throws IntrospectionException {
+<       Set<Property> standard = super.getProperties(type);
+---
+>   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order, PropertyUtils propertyUtils) {
+>       Set<Property> standard = propertyUtils.getProperties(type);
+251d240
+<       // important go first
+258d246
+<       // all the rest
+268c256
+<       return 0;// compare further
+---
+>       return 0;

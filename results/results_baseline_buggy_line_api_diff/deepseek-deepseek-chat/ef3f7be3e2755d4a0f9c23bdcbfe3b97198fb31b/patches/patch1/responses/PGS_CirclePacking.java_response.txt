@@ -23,6 +23,9 @@ import org.locationtech.jts.util.GeometricShapeFactory;
 import org.tinfour.common.IIncrementalTin;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
+import org.tinspin.index.PointDistance;
+import org.tinspin.index.PointIndex;
+import org.tinspin.index.covertree.CoverTree;
 
 import micycle.pgs.commons.FrontChainPacker;
 import micycle.pgs.commons.LargestEmptyCircles;
@@ -31,24 +34,6 @@ import micycle.pgs.commons.TangencyPack;
 import processing.core.PShape;
 import processing.core.PVector;
 
-/**
- * Circle packings of shapes, subject to varying constraints and patterns of
- * tangencies.
- * <p>
- * Each method produces a circle packing with different characteristics using a
- * different technique; for this reason input arguments vary across the methods.
- * <p>
- * The output of each method is a list of PVectors, each representing one
- * circle: (.x, .y) represent the center point and .z represents radius.
- * <p>
- * Where applicable, packings will include circles that overlap with the shape,
- * rather than only including those circles whose center point lies inside the
- * shape.
- * 
- * @author Michael Carleton
- * @since 1.1.0
- *
- */
 public final class PGS_CirclePacking {
 
 	private PGS_CirclePacking() {
@@ -89,6 +74,7 @@ public final class PGS_CirclePacking {
 	public static List<PVector> stochasticPack(final PShape shape, final int points, final double minRadius, boolean triangulatePoints,
 			long seed) {
 
+		final PointIndex<PVector> tree = CoverTree.create(3, 2, circleDistanceMetric);
 		final List<PVector> out = new ArrayList<>();
 
 		List<PVector> steinerPoints = PGS_Processing.generateRandomPoints(shape, points, seed);
@@ -100,37 +86,20 @@ public final class PGS_CirclePacking {
 
 		final List<PVector> vertices = PGS_Conversion.toPVector(shape);
 		Collections.shuffle(vertices);
+		vertices.forEach(p -> tree.insert(new double[] { p.x, p.y, 0 }, p));
 
 		float largestR = 0;
 
 		for (PVector p : steinerPoints) {
-			PVector nearest = null;
-			double minDistance = Double.MAX_VALUE;
+			final PointDistance<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR });
 
-			for (PVector v : vertices) {
-				double dx = p.x - v.x;
-				double dy = p.y - v.y;
-				double distance = Math.sqrt(dx * dx + dy * dy) - v.z;
-				if (distance < minDistance) {
-					minDistance = distance;
-					nearest = v;
-				}
-			}
-
-			for (PVector c : out) {
-				double dx = p.x - c.x;
-				double dy = p.y - c.y;
-				double distance = Math.sqrt(dx * dx + dy * dy) - c.z;
-				if (distance < minDistance) {
-					minDistance = distance;
-					nearest = c;
-				}
-			}
-
-			final float radius = (float) minDistance;
+			final float dx = p.x - nn.value().x;
+			final float dy = p.y - nn.value().y;
+			final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
 			if (radius > minRadius) {
 				largestR = (radius >= largestR) ? radius : largestR;
 				p.z = radius;
+				tree.insert(new double[] { p.x, p.y, radius }, p);
 				out.add(p);
 			}
 		}
@@ -336,8 +305,17 @@ public final class PGS_CirclePacking {
 		return new PVector((float) x, (float) y);
 	}
 
+	private static final PointDistance<PVector> circleDistanceMetric = (p1, p2) -> {
+		final double dx = p1[0] - p2[0];
+		final double dy = p1[1] - p2[1];
+		final double dz = p1[2] - p2[2];
+
+		double euclideanDistance = Math.sqrt(dx * dx + dy * dy);
+		double absZDifference = Math.abs(dz);
+		return euclideanDistance + absZDifference;
+	};
+
 	private static final Predicate<SimpleTriangle> filterBorderTriangles = t -> t.getContainingRegion() != null
 			&& !t.getEdgeA().isConstrainedRegionBorder() && !t.getEdgeB().isConstrainedRegionBorder()
 			&& !t.getEdgeC().isConstrainedRegionBorder();
-
 }

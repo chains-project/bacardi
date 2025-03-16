@@ -69,7 +69,7 @@ public interface Remote {
          */
         public Fake(final int val) {
             this(new RtScore(
-                new Repeated<>(val, new UncheckedText(new TextOf("random")))
+                new Repeated<>(val, new UncheckedText(new TextOf("random")).asString())
             ));
         }
 

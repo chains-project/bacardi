@@ -36,7 +36,6 @@ import org.cactoos.io.Directory;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.text.FormattedText;
-import org.cactoos.text.TextOf;
 import org.cactoos.text.UncheckedText;
 
 /**
@@ -113,9 +112,7 @@ public final class WalletsIn implements Wallets {
     @Override
     public Wallet create() throws IOException {
         final Path wpth = this.path.value().resolve(
-            new TextOf(
-                String.format("%s.%s", Long.toHexString(this.random.nextLong()), this.ext)
-            ).asString()
+            String.format("%s.%s", Long.toHexString(this.random.nextLong()), this.ext)
         );
         if (wpth.toFile().exists()) {
             throw new IOException(

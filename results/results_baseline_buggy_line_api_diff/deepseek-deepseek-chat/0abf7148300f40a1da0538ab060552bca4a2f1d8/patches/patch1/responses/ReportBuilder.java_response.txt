@@ -113,7 +113,6 @@ public class ReportBuilder
 	
 	private int calcMaxHeaderHeight()
 	{
-		
 		final JLabel lbl = new JLabel("a");
 		int maxHeight = 0;
 		
@@ -137,7 +136,6 @@ public class ReportBuilder
 	
 	private int calcMaxContentHeight()
 	{
-		
 		final JLabel lbl = new JLabel("a");
 		int maxHeight = 0;
 		
@@ -181,7 +179,6 @@ public class ReportBuilder
 						+ col.getContentColumn().getFieldName(),e);
 			}
 		}
-		
 	}
 
 	
@@ -275,7 +272,6 @@ public class ReportBuilder
 			
 			x += col.getWidth();
 		}
-		
 	}
 	
 	private void setStlyeForTextField(final JRDesignTextElement txtField, final ColumnStyle style)

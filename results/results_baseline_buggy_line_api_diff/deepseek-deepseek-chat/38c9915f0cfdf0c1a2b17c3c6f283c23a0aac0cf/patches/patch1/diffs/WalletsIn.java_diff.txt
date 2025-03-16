@@ -1,29 +1,27 @@
 37,38d36
 < import org.cactoos.scalar.IoCheckedScalar;
 < import org.cactoos.scalar.SolidScalar;
-40c38
+40d37
 < import org.cactoos.text.JoinedText;
----
-> import org.cactoos.text.TextOf;
-53c51
+53c50
 <     private final IoCheckedScalar<Path> path;
 ---
 >     private final Scalar<Path> path;
-103,105c101
+103,105c100
 <         this.path = new IoCheckedScalar<>(
 <             new SolidScalar<>(pth)
 <         );
 ---
 >         this.path = pth;
-119,122c115,116
+119,123c114
 <             new JoinedText(
 <                 ".",
 <                 Long.toHexString(this.random.nextLong()),
 <                 this.ext
+<             ).asString()
 ---
->             new TextOf(
->                 String.format("%s.%s", Long.toHexString(this.random.nextLong()), this.ext)
-140,143d133
+>             String.format("%s.%s", Long.toHexString(this.random.nextLong()), this.ext)
+140,143d130
 <     // @todo #65:30min Create the new wallet in the path with all wallets.
 <     //  It should contain the correct content according to the
 <     //  white paper (network, protocol version, id and public RSA key). After

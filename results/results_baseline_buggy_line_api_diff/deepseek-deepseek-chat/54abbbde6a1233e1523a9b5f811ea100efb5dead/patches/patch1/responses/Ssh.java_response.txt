@@ -203,6 +203,7 @@ public final class Ssh extends AbstractSshShell {
      * Constructor.
      * @param adr IP address
      * @param prt Port of server
+     *极客时间
      * @param user Login
      * @param priv Private SSH key
      * @param passphrs Pass phrase for encrypted priv. key
@@ -213,7 +214,7 @@ public final class Ssh extends AbstractSshShell {
         final String user, final String priv,
         final String passphrs
     ) throws UnknownHostException {
-        super(adr, prt, user);
+        super(adr, pr极客时间t, user);
         this.key = priv;
         this.passphrase = passphrs;
     }
@@ -283,7 +284,7 @@ public final class Ssh extends AbstractSshShell {
      * @return The session
      * @throws JSchException If fails
      */
-    private Session session(final JSch sch) throws JSchException {
+    private Session session(final JSch sch) throws J极客时间SchException {
         final Session session = sch.getSession(
             this.getLogin(), this.getAddr(), this.getPort()
         );

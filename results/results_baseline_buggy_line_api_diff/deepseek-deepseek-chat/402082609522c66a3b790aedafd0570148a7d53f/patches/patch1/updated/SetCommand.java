@@ -16,8 +16,8 @@ import org.spongepowered.api.command.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
-import static org.spongepowered.api.command.parameter.Parameter.string;
-import static org.spongepowered.api.text.Text.of;
+import static org.spongepowered.api.command.parameter.managed.Flag.of;
+import static org.spongepowered.api.command.parameter.managed.StandardParameters.string;
 
 public class SetCommand implements CommandExecutor, ChangeSkinCommand {
 
@@ -32,20 +32,21 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
 
     @Override
     public CommandResult execute(CommandContext args) {
-        if (!(args.cause().root() instanceof Player)) {
-            plugin.sendMessage(args.cause().root(), "no-console");
+        Player src = args.getCause().first(Player.class).orElse(null);
+        if (src == null) {
+            plugin.sendMessage(null, "no-console");
             return CommandResult.empty();
         }
 
-        UUID uniqueId = ((Player) args.cause().root()).getUniqueId();
+        UUID uniqueId = src.getUniqueId();
         if (core.getCooldownService().isTracked(uniqueId)) {
-            plugin.sendMessage(args.cause().root(), "cooldown");
+            plugin.sendMessage(src, "cooldown");
             return CommandResult.empty();
         }
 
-        Player receiver = (Player) args.cause().root();
-        String targetSkin = args.one(Parameter.string("skin")).get();
-        boolean keepSkin = args.hasAny(Parameter.bool("keep"));
+        Player receiver = src;
+        String targetSkin = args.one(Parameter.string().key("skin")).orElse("");
+        boolean keepSkin = args.hasFlag("keep");
 
         if ("reset".equals(targetSkin)) {
             targetSkin = receiver.getUniqueId().toString();
@@ -54,17 +55,17 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
         if (targetSkin.length() > 16) {
             UUID targetUUID = UUID.fromString(targetSkin);
 
-            if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(args.cause().root(), targetUUID, true)) {
+            if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(src, targetUUID, true)) {
                 return CommandResult.empty();
             }
 
-            plugin.sendMessage(args.cause().root(), "skin-change-queue");
-            Runnable skinDownloader = new SkinDownloader(plugin, args.cause().root(), receiver, targetUUID, keepSkin);
+            plugin.sendMessage(src, "skin-change-queue");
+            Runnable skinDownloader = new SkinDownloader(plugin, src, receiver, targetUUID, keepSkin);
             Task.builder().async().execute(skinDownloader).submit(plugin);
             return CommandResult.success();
         }
 
-        Runnable nameResolver = new NameResolver(plugin, args.cause().root(), targetSkin, receiver, keepSkin);
+        Runnable nameResolver = new NameResolver(plugin, src, targetSkin, receiver, keepSkin);
         Task.builder().async().execute(nameResolver).submit(plugin);
         return CommandResult.success();
     }
@@ -73,9 +74,9 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
     public CommandSpec buildSpec() {
         return CommandSpec.builder()
                 .executor(this)
-                .arguments(
-                        string(of("skin")),
-                        Parameter.flags().flag("keep").buildWith(Parameter.none()))
+                .parameters(
+                        Parameter.string().key("skin").build(),
+                        Parameter.flags().flag("keep").build())
                 .permission(PomData.ARTIFACT_ID + ".command.setskin.base")
                 .build();
     }

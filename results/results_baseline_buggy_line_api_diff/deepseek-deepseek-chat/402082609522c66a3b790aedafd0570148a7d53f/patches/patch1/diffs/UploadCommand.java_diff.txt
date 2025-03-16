@@ -1,23 +1,25 @@
-14,16c14,17
+11a12
+> import org.spongepowered.api.command.Command;
+13,16c14,16
+< import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
-> import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.parameter.Parameter;
-> import org.spongepowered.api.command.CommandExecutor;
-> import org.spongepowered.api.command.Command;
-19c20
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.managed.Flag;
+18,20c18
+< 
 < import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
 ---
-> import static org.spongepowered.api.command.parameter.Parameter.string;
-53,54c54,55
-<     public CommandSpec buildSpec() {
+> import org.spongepowered.api.text.Text;
+54c52
 <         return CommandSpec.builder()
 ---
->     public Command buildSpec() {
 >         return Command.builder()
-56c57
+56c54
 <                 .arguments(string(of("url")))
 ---
 >                 .addParameter(Parameter.string().key("url").build())

@@ -75,7 +75,7 @@ public final class SimpleThriftLogger<T extends TBase> implements Closeable {
 
   public SimpleThriftLogger(String filename) throws Exception {
     this.fileName = filename;
-    bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(fileName, true));
+    bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(filename, true));
     transport = new ByteOffsetTFramedTransport(new TIOStreamTransport(bufferedOutputStream));
     protocol = new TBinaryProtocol(transport);
   }

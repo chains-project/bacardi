@@ -21,7 +21,6 @@ public class SkinChanger extends SharedSkinChanger {
     }
 
     protected void sendMessageInvoker(String localeMessage) {
-        Text text = Text.of(localeMessage);
-        invoker.sendMessage(text);
+        invoker.sendMessage(Text.of(localeMessage));
     }
 }

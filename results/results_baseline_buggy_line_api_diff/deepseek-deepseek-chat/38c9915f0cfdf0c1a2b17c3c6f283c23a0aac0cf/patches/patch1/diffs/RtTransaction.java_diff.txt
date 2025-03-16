@@ -7,17 +7,14 @@
 < import org.cactoos.scalar.UncheckedScalar;
 40d35
 < import org.cactoos.text.SplitText;
-42d36
+42,43d36
 < import org.cactoos.text.TrimmedText;
-61c55
-<         "^([A-Za-z0-9+\\/]{4})*([A-Za-z0-9+\\/]{4}|[A-Za-z0-9+\\/]{3}=|[A-Za-z0-9+\\/]{2}==)$"
----
->         "^([A-Za-z0-9+\\/]{4})*([A-Za-z0-9+\\/]{4}|[A-Za-z0+\\/]{3}=|[A-Za-z0-9+\\/]{2}==)$"
-88c82
+< import org.cactoos.text.UncheckedText;
+88c81
 <     private final IoCheckedScalar<String> transaction;
 ---
 >     private final String transaction;
-95,103c89,91
+95,103c88,90
 <         this.transaction = new IoCheckedScalar<>(
 <             new StickyScalar<>(
 <                 () -> {
@@ -29,32 +26,30 @@
 <                         throw new IOException(
 ---
 >         this.transaction = trnsct;
->         if (trnsct.trim().isEmpty()) {
+>         if (new TextOf(trnsct).asString().trim().isEmpty()) {
 >             throw new IllegalArgumentException(
-107,115c95,98
+107,109c94,95
 <                     final List<Text> pieces =
 <                         new ListOf<>(
 <                             new SplitText(trnsct, ";")
-<                         );
+---
+>         final List<Text> pieces = new ListOf<>(
+>             new TextOf(trnsct).asString().split(";")
+111,113c97,98
 <                     // @checkstyle MagicNumberCheck (1 line)
 <                     if (new LengthOf(pieces).intValue() != 7) {
 <                         throw new IOException(
-<                             new FormattedText(
-<                                 // @checkstyle LineLength (1 line)
 ---
->         final List<String> pieces = List.of(trnsct.split(";"));
 >         if (pieces.size() != 7) {
 >             throw new IllegalArgumentException(
->                 String.format(
-118,122d100
-<                             ).asString()
-<                         );
-<                     }
+115d99
+<                                 // @checkstyle LineLength (1 line)
+121,124d104
 <                     return trnsct;
 <                 }
-125a104
->     }
-130,136c109
+<             )
+<         );
+130,136c110
 <         final String ident = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
@@ -64,18 +59,15 @@
 <         ).asString();
 ---
 >         final String ident = this.transaction.split(";")[0];
-139,141c112
+139d112
 <                 new UncheckedText(
-<                     new FormattedText(
+141d113
 <                         // @checkstyle LineLength (1 line)
----
->                 String.format(
-145d115
-<                 ).asString()
-148d117
+144d115
+<                     )
+148d118
 <         // @checkstyle MagicNumber (1 line)
-154,161c123,124
-<         return new ZonedDateTimeOf(
+155,161c125
 <             new UncheckedText(
 <                 new IoCheckedScalar<>(
 <                     new ItemAt<>(
@@ -84,13 +76,8 @@
 <                 ).value()
 <             ).asString(),
 ---
->         return ZonedDateTime.parse(
 >             this.transaction.split(";")[1],
-163c126
-<         ).value();
----
->         );
-168,174c131
+168,174c132
 <         final String amnt = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
@@ -100,17 +87,15 @@
 <         ).asString();
 ---
 >         final String amnt = this.transaction.split(";")[2];
-177,179c134
+177d134
 <                 new UncheckedText(
-<                     new FormattedText(
+179d135
 <                         // @checkstyle LineLength (1 line)
----
->                 String.format(
-183d137
-<                 ).asString()
-186d139
+182d137
+<                     )
+186d140
 <         // @checkstyle MagicNumber (1 line)
-192,200c145
+192,200c146
 <         final String prefix = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
@@ -122,7 +107,7 @@
 <         //@checkstyle MagicNumberCheck (1 line)
 ---
 >         final String prefix = this.transaction.split(";")[3];
-212,219c157
+212,219c158
 <         final String bnf = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
@@ -133,15 +118,13 @@
 <         ).asString();
 ---
 >         final String bnf = this.transaction.split(";")[4];
-222,224c160
+222d160
 <                 new UncheckedText(
-<                     new FormattedText(
+224d161
 <                         // @checkstyle LineLength (1 line)
----
->                 String.format(
-228d163
-<                 ).asString()
-236,243c171
+227d163
+<                     )
+236,243c172
 <         final String dtls = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
@@ -152,15 +135,13 @@
 <         ).asString();
 ---
 >         final String dtls = this.transaction.split(";")[5];
-246,248c174
+246d174
 <                 new UncheckedText(
-<                     new FormattedText(
+248d175
 <                         // @checkstyle LineLength (1 line)
----
->                 String.format(
-252d177
-<                 ).asString()
-260,270c185,186
+251d177
+<                     )
+260,270c186,187
 <         final String sign = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
@@ -175,15 +156,13 @@
 ---
 >         final String sign = this.transaction.split(";")[6];
 >         if (sign.length() != 684 || !RtTransaction.SIGN.matcher(sign).matches()) {
-272,274c188
+272d188
 <                 new UncheckedText(
-<                     new FormattedText(
+274d189
 <                         // @checkstyle LineLength (1 line)
----
->                 String.format(
-278d191
-<                 ).asString()
-286c199
+277d191
+<                     )
+286c200
 <         return new UncheckedScalar<>(this.transaction).value();
 ---
 >         return this.transaction;

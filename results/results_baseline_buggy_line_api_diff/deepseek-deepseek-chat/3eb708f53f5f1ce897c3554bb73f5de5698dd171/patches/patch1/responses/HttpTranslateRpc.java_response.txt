@@ -25,7 +25,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.translate.v3.Translate;
 import com.google.api.services.translate.v3.model.DetectLanguageResponse;
 import com.google.api.services.translate.v3.model.SupportedLanguages;
-import com.google.api.services.translate.v3.model.TranslateTextResponse;
+import com.google.api.services.translate.v3.model.Translation;
 import com.google.cloud.http.HttpTransportOptions;
 import com.google.cloud.translate.TranslateException;
 import com.google.cloud.translate.TranslateOptions;
@@ -58,17 +58,18 @@ public class HttpTranslateRpc implements TranslateRpc {
   }
 
   private GenericUrl buildTargetUrl(String path) {
-    GenericUrl genericUrl = new GenericUrl(translate.getBaseUrl() + "v3/" + path);
+    GenericUrl genericUrl = new GenericUrl(translate.getBaseUrl() + "v2/" + path);
     if (options.getApiKey() != null) {
       genericUrl.put("key", options.getApiKey());
     }
     return genericUrl;
   }
 
+  @Override
   public List<List<DetectLanguageResponse>> detect(List<String> texts) {
     try {
       List<List<DetectLanguageResponse>> detections =
-          translate.projects().locations().detectLanguage("projects/" + options.getProjectId(), texts)
+          translate.projects().locations().detectLanguage("projects/" + options.getProjectId())
               .setKey(options.getApiKey())
               .execute()
               .getDetections();
@@ -78,6 +79,7 @@ public class HttpTranslateRpc implements TranslateRpc {
     }
   }
 
+  @Override
   public List<SupportedLanguages> listSupportedLanguages(Map<Option, ?> optionMap) {
     try {
       List<SupportedLanguages> languages =
@@ -94,27 +96,30 @@ public class HttpTranslateRpc implements TranslateRpc {
     }
   }
 
-  public List<TranslateTextResponse> translate(List<String> texts, Map<Option, ?> optionMap) {
+  @Override
+  public List<Translation> translate(List<String> texts, Map<Option, ?> optionMap) {
     try {
       String targetLanguage =
           firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
       final String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
-      List<TranslateTextResponse> translations =
-          translate.projects().locations().translateText("projects/" + options.getProjectId(), texts, targetLanguage)
-              .setSource(sourceLanguage)
+      List<Translation> translations =
+          translate.projects().locations().translateText("projects/" + options.getProjectId())
               .setKey(options.getApiKey())
+              .setSourceLanguage(sourceLanguage)
+              .setTargetLanguage(targetLanguage)
               .setModel(Option.MODEL.getString(optionMap))
               .setFormat(Option.FORMAT.getString(optionMap))
               .execute()
               .getTranslations();
       return Lists.transform(
-          translations != null ? translations : ImmutableList.<TranslateTextResponse>of(),
-          new Function<TranslateTextResponse, TranslateTextResponse>() {
-            public TranslateTextResponse apply(TranslateTextResponse translationsResource) {
-              if (translationsResource.getDetectedSourceLanguage() == null) {
-                translationsResource.setDetectedSourceLanguage(sourceLanguage);
+          translations != null ? translations : ImmutableList.<Translation>of(),
+          new Function<Translation, Translation>() {
+            @Override
+            public Translation apply(Translation translation) {
+              if (translation.getDetectedSourceLanguage() == null) {
+                translation.setDetectedSourceLanguage(sourceLanguage);
               }
-              return translationsResource;
+              return translation;
             }
           });
     } catch (IOException ex) {

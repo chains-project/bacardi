@@ -1,2 +1,12 @@
-61d60
-<     @Override
+29c29
+<     public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
+---
+>     public void onPlayerPreLogin(ClientConnectionEvent.Join preLoginEvent) {
+31c31
+<         GameProfile profile = preLoginEvent.getProfile();
+---
+>         GameProfile profile = preLoginEvent.getTargetEntity().getProfile();
+45c45
+<             String playerName = profile.getName().get();
+---
+>             String playerName = profile.getName().orElse("Unknown");

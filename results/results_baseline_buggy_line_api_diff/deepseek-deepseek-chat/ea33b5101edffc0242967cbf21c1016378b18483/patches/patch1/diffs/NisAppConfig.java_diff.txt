@@ -1,6 +1,4 @@
-3a4
-> import org.flywaydb.core.api.configuration.ClassicConfiguration;
-108,113c109,114
+108,113c108,114
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
@@ -8,17 +6,26 @@
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 <                 return flyway;
 ---
->                 final ClassicConfiguration configuration = new ClassicConfiguration();
+>                 final org.flywaydb.core.api.configuration.ClassicConfiguration configuration = new org.flywaydb.core.api.configuration.ClassicConfiguration();
 >                 configuration.setDataSource(this.dataSource());
 >                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
 >                 configuration.setLocations(prop.getProperty("flyway.locations").split(","));
 >                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+> 
 >                 return new Flyway(configuration);
-226c227
-<                 return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
+246c247
+<                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
 ---
->                 return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
+>                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions);
+270c271
+<         private static org.nem.nis.pox.poi.PoiOptions getBlockDependentPoiOptions(final BlockHeight height) {
+---
+>         private static org.nem.nis.pox.poi.PoiOptions getBlockDependentPoiOptions final BlockHeight height) {
 340c341
 <                 final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
 ---
 >                 final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear;
+361c362
+<                 return new NisPeerNetworkHost(this.nisCache(), synchronizer, scheduler, this.chainServices(), this.nodeCompatibilityChecker(),
+---
+>                 return new NisPeerNetworkHost this.nisCache(), synchronizer, scheduler, this.chainServices(), this.nodeCompatibilityChecker(),

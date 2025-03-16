@@ -15,7 +15,7 @@
 >                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 > 
 >                 return new Flyway(configuration);
-227c229
-<                 return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
+250c252
+<                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
 ---
->                 return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
+>                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions);

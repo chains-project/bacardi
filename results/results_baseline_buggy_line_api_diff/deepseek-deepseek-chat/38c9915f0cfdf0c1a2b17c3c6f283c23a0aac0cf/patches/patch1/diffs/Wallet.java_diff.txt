@@ -15,23 +15,22 @@
 <                 () -> Long.parseUnsignedLong(
 ---
 >             return Long.parseUnsignedLong(
-204,209c202,203
+204,208c202,203
 <                         new SplitText(
 <                             new TextOf(this.path),
 <                             "\n"
 <                         )
 <                     ).get(2).asString(),
-<                     // @checkstyle MagicNumber (1 line)
 ---
 >                     new TextOf(this.path).asString().split("\n")
 >                 ).get(2),
-211,213c205
+211,213c206
 <                 ),
 <                 e -> new IOException(e)
 <             ).value();
 ---
 >             );
-224,232d215
+224,232d216
 <         // @todo #16:30min Following transactions should be ignored according
 <         //  to the whitepaper:
 <         //  a) If the transaction is negative and its signature is not valid,
@@ -41,7 +40,7 @@
 <         //  c) If the transaction is positive and it’s absent in the paying
 <         //  wallet (which exists at the node), it’s ignored; If the paying
 <         //  wallet doesn’t exist at the node, the transaction is ignored;
-247,256c230,235
+247,256c231,236
 <             final Iterable<Transaction> candidates = new Filtered<>(
 <                 incoming -> new Filtered<>(
 <                     origin -> new UncheckedScalar<>(
@@ -53,13 +52,13 @@
 <                                 && incoming.amount() < 0L,
 <                             () -> incoming.prefix().equals(origin.prefix())
 ---
->             final List<Transaction> candidates = StreamSupport.stream(other.ledger().spliterator(), false)
+>             final Iterable<Transaction> candidates = StreamSupport.stream(other.ledger().spliterator(), false)
 >                 .filter(incoming -> StreamSupport.stream(ledger.spliterator(), false)
 >                     .noneMatch(origin -> incoming.equals(origin)
 >                         || (incoming.id() == origin.id() && incoming.bnf().equals(origin.bnf()))
 >                         || (incoming.id() == origin.id() && incoming.amount() < 0L)
 >                         || incoming.prefix().equals(origin.prefix())
-258,262c237,238
+258,262c238,239
 <                     ).value(),
 <                     ledger
 <                 ).isEmpty(),
@@ -68,20 +67,18 @@
 ---
 >                 )
 >                 .collect(Collectors.toList());
-272c248
+272c249
 <                 txt -> new RtTransaction(txt.asString()),
 ---
 >                 txt -> new RtTransaction(txt),
-275,278c251
+275,278c252
 <                         new SplitText(
 <                             new TextOf(this.path),
 <                             "\\n"
 <                         )
 ---
 >                         new TextOf(this.path).asString().split("\\n")
-280d252
-<                     // @checkstyle MagicNumberCheck (1 line)
-286,288d257
+286,288d259
 <         // @todo #54:30min Implement key method. This should return the
 <         //  public RSA key of the wallet owner in Base64. Also add a unit test
 <         //  to replace WalletTest.keyIsNotYetImplemented().

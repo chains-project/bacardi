@@ -34,7 +34,6 @@ import org.cactoos.list.ListOf;
 import org.cactoos.scalar.ItemAt;
 import org.cactoos.text.FormattedText;
 import org.cactoos.text.TextOf;
-import org.cactoos.text.UncheckedText;
 import org.cactoos.time.ZonedDateTimeOf;
 
 /**
@@ -52,7 +51,7 @@ final class RtTransaction implements Transaction {
      */
     private static final Pattern PREFIX = Pattern.compile(
         //@checkstyle LineLengthCheck (1 line)
-        "^([A-Za-z0-9+\\/]{4})*([A-Za-z0-9+\\/]{4}|[A-Za-z0+\\/]{3}=|[A-Za-z0-9+\\/]{2}==)$"
+        "^([A-Za-z0-9+\\/]{4})*([A-Za-z0-9+\\/]{4}|[A-Za-z0-9+\\/]{3}=|[A-Za-z0-9+\\/]{2}==)$"
     );
 
     /**
@@ -87,18 +86,20 @@ final class RtTransaction implements Transaction {
      */
     RtTransaction(final String trnsct) {
         this.transaction = trnsct;
-        if (trnsct.trim().isEmpty()) {
+        if (new TextOf(trnsct).asString().trim().isEmpty()) {
             throw new IllegalArgumentException(
                 "Invalid transaction string: string is empty"
             );
         }
-        final List<String> pieces = List.of(trnsct.split(";"));
+        final List<Text> pieces = new ListOf<>(
+            new TextOf(trnsct).asString().split(";")
+        );
         if (pieces.size() != 7) {
             throw new IllegalArgumentException(
-                String.format(
+                new FormattedText(
                     "Invalid transaction string: expected 7 fields, but found %d",
                     pieces.size()
-                )
+                ).asString()
             );
         }
     }
@@ -109,10 +110,10 @@ final class RtTransaction implements Transaction {
         final String ident = this.transaction.split(";")[0];
         if (!RtTransaction.IDENT.matcher(ident).matches()) {
             throw new IOException(
-                String.format(
+                new FormattedText(
                     "Invalid ID '%s' expecting 16-bit unsigned hex string with 4 symbols",
                     ident
-                )
+                ).asString()
             );
         }
         return Integer.parseUnsignedInt(ident, 16);
@@ -120,10 +121,10 @@ final class RtTransaction implements Transaction {
 
     @Override
     public ZonedDateTime time() throws IOException {
-        return ZonedDateTime.parse(
+        return new ZonedDateTimeOf(
             this.transaction.split(";")[1],
             DateTimeFormatter.ISO_OFFSET_DATE_TIME
-        );
+        ).value();
     }
 
     @Override
@@ -131,10 +132,10 @@ final class RtTransaction implements Transaction {
         final String amnt = this.transaction.split(";")[2];
         if (!RtTransaction.HEX.matcher(amnt).matches()) {
             throw new IOException(
-                String.format(
+                new FormattedText(
                     "Invalid amount '%s' expecting 64-bit signed hex string with 16 symbols",
                     amnt
-                )
+                ).asString()
             );
         }
         return new BigInteger(amnt, 16).longValue();
@@ -157,10 +158,10 @@ final class RtTransaction implements Transaction {
         final String bnf = this.transaction.split(";")[4];
         if (!RtTransaction.HEX.matcher(bnf).matches()) {
             throw new IOException(
-                String.format(
+                new FormattedText(
                     "Invalid bnf string '%s', expecting hex string with 16 symbols",
                     bnf
-                )
+                ).asString()
             );
         }
         return bnf;
@@ -171,10 +172,10 @@ final class RtTransaction implements Transaction {
         final String dtls = this.transaction.split(";")[5];
         if (!RtTransaction.DTLS.matcher(dtls).matches()) {
             throw new IOException(
-                String.format(
+                new FormattedText(
                     "Invalid details string '%s', does not match pattern '%s'",
                     dtls, RtTransaction.DTLS
-                )
+                ).asString()
             );
         }
         return dtls;
@@ -185,10 +186,10 @@ final class RtTransaction implements Transaction {
         final String sign = this.transaction.split(";")[6];
         if (sign.length() != 684 || !RtTransaction.SIGN.matcher(sign).matches()) {
             throw new IOException(
-                String.format(
+                new FormattedText(
                     "Invalid signature '%s', expecting base64 string with 684 characters",
                     sign
-                )
+                ).asString()
             );
         }
         return sign;

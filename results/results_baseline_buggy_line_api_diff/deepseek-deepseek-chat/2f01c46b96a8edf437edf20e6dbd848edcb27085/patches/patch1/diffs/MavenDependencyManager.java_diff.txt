@@ -1,17 +1,20 @@
 27c27,28
 < import org.codehaus.plexus.util.xml.Xpp3Dom;
 ---
-> import org.apache.maven.plugin.Plugin;
-> import org.apache.maven.plugin.PluginExecution;
-161,162c162,164
-<         .map(plugin -> plugin.getExecutionsAsMap().get("process"))
+> import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
+> import org.apache.maven.plugin.PluginParameterExpressionEvaluator.PluginParameterExpressionEvaluatorException;
+162c163,169
 <         .map(exec -> (Xpp3Dom) exec.getConfiguration())
 ---
->         .map(Plugin::getExecutions)
->         .flatMap(executions -> executions.stream().filter(exec -> exec.getId().equals("process")).findFirst())
->         .map(PluginExecution::getConfiguration)
-164,165c166
+>         .map(exec -> {
+>           try {
+>             return new PluginParameterExpressionEvaluator(exec.getConfiguration()).evaluate();
+>           } catch (PluginParameterExpressionEvaluatorException e) {
+>             throw new RuntimeException(e);
+>           }
+>         })
+164,165c171
 <         .map(Xpp3Dom::getChildren)
 <         .map(arr -> Arrays.stream(arr).map(Xpp3Dom::getValue).collect(Collectors.toSet()))
 ---
->         .map(processors -> Arrays.stream(processors.getChildren()).map(processor -> processor.getValue()).collect(Collectors.toSet()))
+>         .map(arr -> Arrays.stream(arr).map(Object::toString).collect(Collectors.toSet()))

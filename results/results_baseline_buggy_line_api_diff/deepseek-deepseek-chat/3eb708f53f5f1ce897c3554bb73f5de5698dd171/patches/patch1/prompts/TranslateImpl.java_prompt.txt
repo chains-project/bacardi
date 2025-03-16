@@ -157,54 +157,74 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
 the error is triggered in the following specific lines in the previous code:
 
 ```java
+List<DetectionsResourceItems> detectionPb = detectionIterator.next();
+```
+```java
+new Callable<List<List<DetectionsResourceItems>>>() {
+```
+```java
+public List<LanguagesResource> call() {
+```
+```java
+new Callable<List<TranslationsResource>>() {
+```
+```java
+public Detection apply(List<DetectionsResourceItems> detectionPb) {
+```
+```java
+import com.google.api.services.translate.model.LanguagesResource;
+```
+```java
 public List<TranslationsResource> call() {
 ```
 ```java
 Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
 ```
 ```java
-public Detection apply(List<DetectionsResourceItems> detectionPb) {
+import com.google.api.services.translate.model.DetectionsResourceItems;
 ```
 ```java
 new Function<List<DetectionsResourceItems>, Detection>() {
 ```
 ```java
-import com.google.api.services.translate.model.TranslationsResource;
-```
-```java
-import com.google.api.services.translate.model.LanguagesResource;
-```
-```java
-private static final Function<List<DetectionsResourceItems>, Detection>
-```
-```java
 public List<List<DetectionsResourceItems>> call() {
-```
-```java
-List<List<DetectionsResourceItems>> detectionsPb =
-```
-```java
-import com.google.api.services.translate.model.DetectionsResourceItems;
-```
-```java
-List<DetectionsResourceItems> detectionPb = detectionIterator.next();
 ```
 ```java
 new Callable<List<LanguagesResource>>() {
 ```
 ```java
-new Callable<List<List<DetectionsResourceItems>>>() {
+import com.google.api.services.translate.model.TranslationsResource;
 ```
 ```java
-new Callable<List<TranslationsResource>>() {
+private static final Function<List<DetectionsResourceItems>, Detection>
 ```
 ```java
-public List<LanguagesResource> call() {
+List<List<DetectionsResourceItems>> detectionsPb =
 ```
 
 
 
  with the following error information:
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[94,14] cannot find symbol
+  symbol:   class DetectionsResourceItems
+  location: class com.google.cloud.translate.TranslateImpl
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[82,38] cannot find symbol
+  symbol:   class DetectionsResourceItems
+  location: class com.google.cloud.translate.TranslateImpl
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[64,29] cannot find symbol
+  symbol: class LanguagesResource
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[121,33] cannot find symbol
+  symbol:   class TranslationsResource
+  location: class com.google.cloud.translate.TranslateImpl
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[47,41] cannot find symbol
+  symbol: class DetectionsResourceItems
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[24,47] package com.google.api.services.translate.model does not exist
+
 [ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[123,29] cannot find symbol
   symbol: class TranslationsResource
 
@@ -212,57 +232,37 @@ public List<LanguagesResource> call() {
   symbol:   class DetectionsResourceItems
   location: class com.google.cloud.translate.TranslateImpl
 
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[47,41] cannot find symbol
-  symbol: class DetectionsResourceItems
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[23,47] package com.google.api.services.translate.model does not exist
 
 [ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[45,29] cannot find symbol
-  symbol:   class DetectionsResourceItems
-  location: class com.google.cloud.translate.TranslateImpl
-
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[25,47] package com.google.api.services.translate.model does not exist
-
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[24,47] package com.google.api.services.translate.model does not exist
-
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[43,38] cannot find symbol
   symbol:   class DetectionsResourceItems
   location: class com.google.cloud.translate.TranslateImpl
 
 [ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[84,34] cannot find symbol
   symbol: class DetectionsResourceItems
 
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[80,17] cannot find symbol
-  symbol:   class DetectionsResourceItems
-  location: class com.google.cloud.translate.TranslateImpl
-
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[23,47] package com.google.api.services.translate.model does not exist
-
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[94,14] cannot find symbol
-  symbol:   class DetectionsResourceItems
-  location: class com.google.cloud.translate.TranslateImpl
-
 [ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[62,33] cannot find symbol
   symbol:   class LanguagesResource
   location: class com.google.cloud.translate.TranslateImpl
 
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[82,38] cannot find symbol
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[25,47] package com.google.api.services.translate.model does not exist
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[43,38] cannot find symbol
   symbol:   class DetectionsResourceItems
   location: class com.google.cloud.translate.TranslateImpl
 
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[121,33] cannot find symbol
-  symbol:   class TranslationsResource
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[80,17] cannot find symbol
+  symbol:   class DetectionsResourceItems
   location: class com.google.cloud.translate.TranslateImpl
-
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[64,29] cannot find symbol
-  symbol: class LanguagesResource
 
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
-     Class com.google.api.services.translate.model.TranslationsResource has been removed in the new version of the dependency.
-     Constructor com.google.api.services.translate.model.TranslationsResource() has been removed in the new version of the dependency.
-     Constructor com.google.api.services.translate.model.DetectionsResourceItems() has been removed in the new version of the dependency.
      Class com.google.api.services.translate.model.DetectionsResourceItems has been removed in the new version of the dependency.
+     Constructor com.google.api.services.translate.model.DetectionsResourceItems() has been removed in the new version of the dependency.
      Class com.google.api.services.translate.model.LanguagesResource has been removed in the new version of the dependency.
      Constructor com.google.api.services.translate.model.LanguagesResource() has been removed in the new version of the dependency.
+     Constructor com.google.api.services.translate.model.TranslationsResource() has been removed in the new version of the dependency.
+     Class com.google.api.services.translate.model.TranslationsResource has been removed in the new version of the dependency.
 
 
 

@@ -3,6 +3,7 @@ package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.configuration.ClassicConfiguration;
+import org.flywaydb.core.api.Location;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -107,10 +108,10 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final ClassicConfiguration configuration = new ClassicConfiguration();
+		ClassicConfiguration configuration = new ClassicConfiguration();
 		configuration.setDataSource(this.dataSource());
 		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
-		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
+		configuration.setLocations(new Location[] { new Location(prop.getProperty("flyway.locations")) });
 		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 		return new Flyway(configuration);
 	}
@@ -245,7 +246,7 @@ public class NisAppConfig {
 		final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<ImportanceCalculator>>() {
 			{
 				this.put(BlockChainFeature.PROOF_OF_IMPORTANCE,
-						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
+						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions);
 				this.put(BlockChainFeature.PROOF_OF_STAKE, PosImportanceCalculator::new);
 			}
 		};
@@ -269,7 +270,7 @@ public class NisAppConfig {
 		return getBlockDependentPoiOptions(height).getMinHarvesterBalance();
 	}
 
-	private static org.nem.nis.pox.poi.PoiOptions getBlockDependentPoiOptions(final BlockHeight height) {
+	private static org.nem.nis.pox.poi.PoiOptions getBlockDependentPoiOptions final BlockHeight height) {
 		return new PoiOptionsBuilder(height).create();
 	}
 
@@ -308,7 +309,7 @@ public class NisAppConfig {
 		final NamespaceCacheLookupAdapters adapters = new NamespaceCacheLookupAdapters(this.namespaceCache());
 		if (this.nisConfiguration().ignoreFees()) {
 			NemGlobals.setTransactionFeeCalculator(new ZeroTransactionFeeCalculator());
-		 else {
+		} else {
 			NemGlobals.setTransactionFeeCalculator(new DefaultTransactionFeeCalculator(adapters.asMosaicFeeInformationLookup(),
 					() -> this.blockChainLastBlockLayer.getLastBlockHeight().next(), new BlockHeight[]{
 							new BlockHeight(BlockMarkerConstants.FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24)),
@@ -339,7 +340,7 @@ public class NisAppConfig {
 
 	@Bean
 	public BlockAnalyzer blockAnalyzer() {
-		final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear;
+		final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
 		return new BlockAnalyzer(this.blockDao, this.blockChainUpdater(), this.blockChainLastBlockLayer, this.nisMapperFactory(),
 				estimatedBlocksPerYear);
 	}
@@ -360,7 +361,7 @@ public class NisAppConfig {
 
 		final CountingBlockSynchronizer synchronizer = new CountingBlockSynchronizer(this.blockChain());
 
-		return new NisPeerNetworkHost(this.nisCache(), synchronizer, scheduler, this.chainServices(), this.nodeCompatibilityChecker(),
+		return new NisPeerNetworkHost this.nisCache(), synchronizer, scheduler, this.chainServices(), this.nodeCompatibilityChecker(),
 				this.nisConfiguration(), this.httpConnectorPool(), this.trustProvider(), this.incomingAudits(), this.outgoingAudits());
 	}
 

@@ -20,6 +20,7 @@ import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
+import org.yaml.snakeyaml.introspector.PropertyUtils;
 
 import java.beans.IntrospectionException;
 import java.util.*;
@@ -164,8 +165,6 @@ class ModelRepresenter extends Representer {
     }
   }
 
-  // Model elements order {
-  //TODO move to polyglot-common, or to org.apache.maven:maven-model
   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
 		  "modelEncoding",
           "modelVersion",
@@ -194,8 +193,6 @@ class ModelRepresenter extends Representer {
           "dependencyManagement",
           "dependencies",
           "distributionManagement",
-          //"repositories",
-          //"pluginRepositories",
           "build",
           "profiles",
           "reporting"
@@ -208,34 +205,26 @@ class ModelRepresenter extends Representer {
 		  "groupId", "artifactId", "version", "type", "classifier", "scope"));
   private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
 		  "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
-  //}
 
-  /*
-   * Change the default order. Important data goes first.
-   */
   protected Set<Property> getProperties(Class<? extends Object> type) {
-    try {
-      if (type.isAssignableFrom(Model.class)) {
-        return sortTypeWithOrder(type, ORDER_MODEL);
-      } else if (type.isAssignableFrom(Developer.class)) {
-        return sortTypeWithOrder(type, ORDER_DEVELOPER);
-      } else if (type.isAssignableFrom(Contributor.class)) {
-        return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-      }  else if (type.isAssignableFrom(Dependency.class)) {
-        return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-      }  else if (type.isAssignableFrom(Plugin.class)) {
-        return sortTypeWithOrder(type, ORDER_PLUGIN);
-      } else {
-        return super.getProperties(type);
-      }
-    } catch (IntrospectionException e) {
-      throw new RuntimeException(e);
+    PropertyUtils propertyUtils = this.getPropertyUtils();
+    if (type.isAssignableFrom(Model.class)) {
+      return sortTypeWithOrder(type, ORDER_MODEL, propertyUtils);
+    } else if (type.isAssignableFrom(Developer.class)) {
+      return sortTypeWithOrder(type, ORDER_DEVELOPER, propertyUtils);
+    } else if (type.isAssignableFrom(Contributor.class)) {
+      return sortTypeWithOrder(type, ORDER_CONTRIBUTOR, propertyUtils);
+    }  else if (type.isAssignableFrom(Dependency.class)) {
+      return sortTypeWithOrder(type, ORDER_DEPENDENCY, propertyUtils);
+    }  else if (type.isAssignableFrom(Plugin.class)) {
+      return sortTypeWithOrder(type, ORDER_PLUGIN, propertyUtils);
+    } else {
+      return propertyUtils.getProperties(type);
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
-          throws IntrospectionException {
-      Set<Property> standard = super.getProperties(type);
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order, PropertyUtils propertyUtils) {
+      Set<Property> standard = propertyUtils.getProperties(type);
       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
       sorted.addAll(standard);
       return sorted;
@@ -249,14 +238,12 @@ class ModelRepresenter extends Representer {
     }
 
     public int compare(Property o1, Property o2) {
-      // important go first
       for (String name : names) {
         int c = compareByName(o1, o2, name);
         if (c != 0) {
           return c;
         }
       }
-      // all the rest
       return o1.compareTo(o2);
     }
 
@@ -266,7 +253,7 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0;// compare further
+      return 0;
     }
   }
 }
