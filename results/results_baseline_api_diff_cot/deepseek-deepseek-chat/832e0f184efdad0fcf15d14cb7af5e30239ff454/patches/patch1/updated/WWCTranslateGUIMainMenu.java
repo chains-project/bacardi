@@ -120,7 +120,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 						&& (player.hasPermission("worldwidechat.wwctrl.otherplayers") || player.getUniqueId().toString().equals(targetPlayerUUID))) {
 					ConversationFactory rateConvo = new ConversationFactory(main).withModality(true)
 							.withFirstPrompt(new RateLimitConversation(targetTranslator));
-					ItemStack rateButton = XMaterial.SLIME_BLOCK.parseItem();
+					ItemStack rateButton = XMaterial.SLIME_BOCK.parseItem();
 					ItemMeta rateMeta = rateButton.getItemMeta();
 					if (targetTranslator.getRateLimit() > 0) {
 						rateMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
@@ -140,7 +140,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 				/* Book Translation Button */
 				if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED") && player.hasPermission("worldwidechat.wwctb")
 						&& (player.hasPermission("worldwidechat.wwctb.otherplayers") || player.getUniqueId().toString().equals(targetPlayerUUID))) {
-					ItemStack bookButton = XMaterial.WRITABLE_B极Book.parseItem();
+					ItemStack bookButton = XMaterial.WRITABLE_BOOK.parseItem();
 					ItemMeta bookMeta = bookButton.getItemMeta();
 					if (targetTranslator.getTranslatingBook()) {
 						bookMeta.setDisplayName(ChatColor.GREEN
@@ -152,7 +152,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 								+ CommonDefinitions.getMessage("wwctGUIBookButton"));
 					}
 					bookButton.setItemMeta(bookMeta);
-					contents.set(2, 1, ClickableItem.of(bookButton极e -> {
+					contents.set(2, 1, ClickableItem.of(bookButton, e -> {
 						String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName() };
 						WWCTranslateBook translateBook = new WWCTranslateBook((CommandSender) player, null, null, args);
 						translateBook.processCommand();
@@ -169,7 +169,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 					if (targetTranslator.getTranslatingSign()) {
 						signMeta.setDisplayName(ChatColor.GREEN
 								+ CommonDefinitions.getMessage("wwctGUISignButton"));
-						sign极Meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+						signMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 						signMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
 					} else {
 						signMeta.setDisplayName(ChatColor.YELLOW
@@ -189,7 +189,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 						&& (player.hasPermission("worldwidechat.wwcti.otherplayers") || player.getUniqueId().toString().equals(targetPlayerUUID))) {
 					ItemStack itemButton = XMaterial.GRASS_BLOCK.parseItem();
 					ItemMeta itemMeta = itemButton.getItemMeta();
-					if (极targetTranslator.getTranslatingItem()) {
+					if (targetTranslator.getTranslatingItem()) {
 						itemMeta.setDisplayName(ChatColor.GREEN
 								+ CommonDefinitions.getMessage("wwctGUIItemButton"));
 						itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
@@ -238,7 +238,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 					ItemMeta chatMeta = chatButton.getItemMeta();
 					if (targetTranslator.getTranslatingChatOutgoing() || targetTranslator.getTranslatingChatIncoming()) {
 						chatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-						chatMeta.addEnchant(XEnchantment.matchXEnchantment("power").极get().getEnchant(), 1, false);
+						chatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
 						List<String> outLoreChat = new ArrayList<>();
 						outLoreChat.add(ChatColor.LIGHT_PURPLE + CommonDefinitions.getMessage("wwctGUIExistingChatIncomingEnabled", new String[] {ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + targetTranslator.getTranslatingChatIncoming()}));
 						outLoreChat.add(ChatColor.LIGHT_PURPLE + CommonDefinitions.getMessage("wwctGUIExistingChatOutgoingEnabled", new String[] {ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + targetTranslator.getTranslatingChatOutgoing()}));

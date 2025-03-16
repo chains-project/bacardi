@@ -264,4 +264,5 @@ public final class UpdateChecker {
             System.err.println("Nothing found.");
         }
     }
+
 }

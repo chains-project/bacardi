@@ -26,7 +26,7 @@ public class ChachaDecoder {
     byte[] calculatedMAC = PolyKeyCreator.create(macKey, additionalData, ciphertext);
 
     if (!Arrays.constantTimeAreEqual(calculatedMAC, receivedMAC)) {
-      throw new IOException("Bad record MAC");
+      throw new RuntimeException("Bad record MAC");
     }
 
     byte[] output = new byte[ciphertext.length];

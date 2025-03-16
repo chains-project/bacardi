@@ -1,4 +1,4 @@
-24,33c24,33
+24,33c24,32
 < import org.assertj.core.internal.bytebuddy.ByteBuddy;
 < import org.assertj.core.internal.bytebuddy.TypeCache;
 < import org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey;
@@ -14,17 +14,16 @@
 > import net.bytebuddy.TypeCache;
 > import net.bytebuddy.TypeCache.SimpleKey;
 > import net.bytebuddy.dynamic.scaffold.TypeValidation;
-> import net.bytebuddy.implementation.Implementation;
 > import net.bytebuddy.implementation.MethodDelegation;
 > import net.bytebuddy.implementation.auxiliary.AuxiliaryType;
 > import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 > import net.bytebuddy.implementation.bind.annotation.SuperCall;
 > import net.bytebuddy.implementation.bind.annotation.This;
-40c40
+40c39
 < import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;
 ---
 > import static net.bytebuddy.matcher.ElementMatchers.any;
-234c234
-<         assumptionClass = getAssumptionClass("org.opentest4j.TestAbortedException");
+53c52
+<     private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
 ---
->         assumptionClass = getAssumptionClass("org.openttest4j.TestAbortedException");
+>     private static final MethodDelegation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);

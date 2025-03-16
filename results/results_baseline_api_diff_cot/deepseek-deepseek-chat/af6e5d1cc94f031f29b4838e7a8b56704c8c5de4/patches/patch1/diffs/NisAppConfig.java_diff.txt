@@ -1,8 +1,6 @@
-3a4,6
-> import org.flywaydb.core.api.configuration.ClassicConfiguration;
-> import org.flywaydb.core.api.configuration.Configuration;
-> import org.flywaydb.core.api.Location;
-108,113c111,116
+3a4
+> import org.flywaydb.core.api.configuration.FluentConfiguration;
+108,113c109,115
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
@@ -10,13 +8,14 @@
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 <                 return flyway;
 ---
->                 final ClassicConfiguration configuration = new ClassicConfiguration();
->                 configuration.setDataSource(this.dataSource());
->                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
->                 configuration.setLocations(new Location[] { new Location(prop.getProperty("flyway.locations")) });
->                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
->                 return new Flyway(configuration);
-227c230
+>                 final FluentConfiguration flywayConfig = Flyway.configure()
+>                                 .dataSource(this.dataSource())
+>                                 .classLoader(NisAppConfig.class.getClassLoader())
+>                                 .locations(prop.getProperty("flyway.locations"))
+>                                 .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+> 
+>                 return flywayConfig.load();
+227c229
 <                 return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
 ---
 >                 return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());

@@ -1,6 +1,4 @@
-3a4
-> import org.flywaydb.core.api.configuration.ClassicConfiguration;
-108,113c109,115
+108,113c108,113
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
@@ -8,18 +6,17 @@
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 <                 return flyway;
 ---
->                 final ClassicConfiguration configuration = new ClassicConfiguration();
+>                 final org.flywaydb.core.api.configuration.ClassicConfiguration configuration = new org.flywaydb.core.api.configuration.ClassicConfiguration();
 >                 configuration.setDataSource(this.dataSource());
 >                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
 >                 configuration.setLocations(prop.getProperty("flyway.locations").split(","));
 >                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-> 
 >                 return new Flyway(configuration);
-246c248
+226c226
+<                 return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
+---
+>                 return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
+246c246
 <                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
 ---
 >                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions);
-340c342
-<                 final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
----
->                 final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear;

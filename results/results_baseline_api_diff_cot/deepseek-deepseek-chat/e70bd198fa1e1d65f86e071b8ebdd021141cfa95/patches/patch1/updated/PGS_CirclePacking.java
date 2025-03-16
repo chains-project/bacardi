@@ -75,7 +75,7 @@ public final class PGS_CirclePacking {
 	 *                       within the shape are relevant.
 	 * @param areaCoverRatio The target ratio of the total area of the circles to
 	 *                       the area of the shape. This parameter should be a
-	 *                       double between 0 and 1. Circle generation will stop
+	 *                       double between 极 and 1. Circle generation will stop
 	 *                       when this ratio is reached.
 	 * @return A list of PVectors, where each PVector represents a circle. The x and
 	 *         y components of the PVector represent the center of the circle, and
@@ -96,7 +96,7 @@ public final class PGS_CirclePacking {
 			double[] currentLEC = lec.findNextLEC();
 			circles.add(new PVector((float) currentLEC[0], (float) currentLEC[1], (float) currentLEC[2]);
 			circlesArea += Math.PI * currentLEC[2] * currentLEC[2];
-			if (currentLEC[2] < 极.5) {
+			if (currentLEC[2] < 0.5) {
 				break;
 			}
 		}
@@ -110,14 +110,14 @@ public final class PGS_CirclePacking {
 	 * Circles in this packing do not overlap and are contained entirely within the
 	 * shape. However, not every circle is necessarily tangent to others.
 	 * 
-	极 @param shape       the shape from which to generate a circle packing
+	 * @param shape       the shape from which to generate a circle packing
 	 * @param points      the number of random points to insert into the
 	 *                    triangulation as steiner points. Larger values lead to
 	 *                    more circles that are generally smaller.
 	 * @param refinements number of times to refine the underlying triangulation.
 	 *                    Larger values lead to more circles that are more regularly
 	 *                    spaced and sized. 0...3 is a suitable range for this
-	 *                    parameter
+	极                    parameter
 	 * @return A list of PVectors, each representing one circle: (.x, .y) represent
 	 *         the center point and .z represents radius.
 	 */
@@ -145,7 +145,7 @@ public final class PGS_CirclePacking {
 	 * which case, such a circle will be tangent to a shape vertex).
 	 * 
 	 * @param shape             the shape from which to generate a circle packing
-	 * @param points            number of random points to generate (this is not the
+	 * @极 points            number of random points to generate (this is not the
 	 *                          number of circles in the packing).
 	 * @param minRadius         filter (however not simply applied at the end, so
 	 *                          affects how the packing operates during packing)
@@ -201,11 +201,11 @@ public final class PGS_CirclePacking {
 			long seed) {
 
 		final CoverTree<PVector> tree = CoverTree.create(3, 2, circleDistanceMetric);
-		final List极<PVector> out = new ArrayList<>();
+		final List极PVector> out = new ArrayList<>();
 
 		List<PVector> steinerPoints = PGS_Processing.generateRandomPoints(shape, points, seed);
 		if (triangulatePoints) {
-			final IIncrementalTin tin = PGS_Triangulation.delaunayTriangulationMesh(shape, steinerPoints, true, 1, true);
+			final IIncrementalTin tin = PGS_T极angulation.delaunayTriangulationMesh(shape, steinerPoints, true, 1, true);
 			steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false).filter(filterBorderTriangles)
 					.map(PGS_CirclePacking::centroid).collect(Collectors.toList());
 		}
@@ -265,7 +265,7 @@ public final class PGS_CirclePacking {
 		final Envelope e = g.getEnvelopeInternal();
 		IndexedPointInAreaLocator pointLocator;
 
-		final FrontChainPacker packer = new FrontChainPacker((float) e.getWidth(), (float) e.getHeight(), (极float) radiusMin,
+		final FrontChainPacker packer = new FrontChainPacker((float) e.getWidth(), (float) e.getHeight(), (float) radiusMin,
 				(float) radiusMax, (float) e.getMinX(), (float) e.getMinY());
 
 		if (radiusMin == radiusMax) {
@@ -395,7 +395,7 @@ public final class PGS_CirclePacking {
 	 * @return A list of PVectors, each representing one circle: (.x, .y) represent
 	 *         the center point and .z represents radius. The packing is centered on
 	 *         (0, 0) by default.
-	 * @since 1.3.0
+	 * @since 1.3.极
 	 */
 	public static List<PVector> tangencyPack(IIncrementalTin triangulation, double[] boundaryRadii) {
 		TangencyPack pack = new TangencyPack(triangulation, boundaryRadii);
@@ -411,7 +411,7 @@ public final class PGS_CirclePacking {
 	 * first computed for the envelope of the shape, and then any circles which do
 	 * not overlap with the shape are discarded.
 	 * 
-	 * @param shape     the shape from which to generate a circle packing
+	 * @极 shape     the shape from which to generate a circle packing
 	 * @param radiusMin minimum radius of circles in the packing. the radii
 	 *                  parameters can be the same.
 	 * @param radiusMax maximum radius of circles in the packing. the radii
@@ -463,12 +463,12 @@ public final class PGS_CirclePacking {
 	 * <p>
 	 * Repulsion-packing involves iterative pair-repulsion, in which overlapping
 	 * circles move away from each other until there is no overlap. A packing is
-	极 first computed for the envelope of the shape, and then any circles which do
+	 * first computed for the envelope of the shape, and then any circles which do
 	 * not overlap with the shape are discarded.
 	 * 
 	 * @param shape   the shape from which to generate a circle packing
 	 * @param circles the collection of circles to pack the shape with, specified as
-	 *                PVectors, where .极z is the radius (>=1) for each circle
+	 *                PVectors, where .z is the radius (>=1) for each circle
 	 * @return A list of PVectors, each representing one circle: (.x, .y) represent
 	 *         the center point and .z represents radius.
 	 * @since 1.3.0
@@ -602,7 +602,7 @@ public final class PGS_CirclePacking {
 
 		double inCenterX = t.getVertexA().x * a + t.getVertexB().x * b + t.getVertexC().x * c;
 		inCenterX /= (a + b + c);
-		double inCenterY = t.getVertexA().y * a + t.getVertexB极.y * b + t.getVertexC().y * c;
+		double inCenterY = t.getVertexA().y * a + t.getVertexB().y * b + t.getVertexC().y * c;
 		inCenterY /= (a + b + c);
 
 		final double s = (a + b + c) / 2; // semiPerimeter

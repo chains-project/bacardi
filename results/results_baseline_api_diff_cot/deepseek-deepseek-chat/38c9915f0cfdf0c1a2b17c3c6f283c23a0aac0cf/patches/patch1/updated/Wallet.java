@@ -33,9 +33,7 @@ import org.cactoos.iterable.Joined;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Skipped;
 import org.cactoos.list.ListOf;
-import org.cactoos.scalar.Checked;
 import org.cactoos.scalar.Or;
-import org.cactoos.scalar.Unchecked;
 import org.cactoos.text.FormattedText;
 import org.cactoos.text.TextOf;
 import org.cactoos.text.UncheckedText;
@@ -197,19 +195,16 @@ public interface Wallet {
 
         @Override
         public long id() throws IOException {
-            return new Checked<>(
-                () -> Long.parseUnsignedLong(
-                    new ListOf<>(
-                        new org.cactoos.text.Split(
-                            new TextOf(this.path),
-                            "\n"
-                        )
-                    ).get(2).asString(),
-                    // @checkstyle MagicNumber (1 line)
-                    16
-                ),
-                e -> new IOException(e)
-            ).value();
+            return Long.parseUnsignedLong(
+                new ListOf<>(
+                    new org.cactoos.text.Split(
+                        new TextOf(this.path),
+                        "\n"
+                    )
+                ).get(2).asString(),
+                // @checkstyle MagicNumber (1 line)
+                16
+            );
         }
 
         @Override
@@ -245,15 +240,13 @@ public interface Wallet {
             final Iterable<Transaction> ledger = this.ledger();
             final Iterable<Transaction> candidates = new Filtered<>(
                 incoming -> new Filtered<>(
-                    origin -> new Unchecked<>(
-                        new Or(
-                            () -> incoming.equals(origin),
-                            () -> incoming.id() == origin.id()
-                                && incoming.bnf().equals(origin.bnf()),
-                            () -> incoming.id() == origin.id()
-                                && incoming.amount() < 0L,
-                            () -> incoming.prefix().equals(origin.prefix())
-                        )
+                    origin -> new Or(
+                        () -> incoming.equals(origin),
+                        () -> incoming.id() == origin.id()
+                            && incoming.bnf().equals(origin.bnf()),
+                        () -> incoming.id() == origin.id()
+                            && incoming.amount() < 0L,
+                        () -> incoming.prefix().equals(origin.prefix())
                     ).value(),
                     ledger
                 ).isEmpty(),

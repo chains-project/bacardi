@@ -1,0 +1,22 @@
+22d21
+< import com.hazelcast.config.MaxSizeConfig;
+27c26
+< import com.hazelcast.core.Cluster;
+---
+> import com.hazelcast.cluster.Cluster;
+30c29
+< import com.hazelcast.core.Member;
+---
+> import com.hazelcast.cluster.Member;
+288c287
+<             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+---
+>             dynamicConfig.setMaxSizeConfig(new com.hazelcast.config.EvictionConfig().setSize(hazelcastMaxCacheSizeInMegaBytes).setMaxSizePolicy(com.hazelcast.config.MaxSizePolicy.USED_HEAP_SIZE));
+656c655
+<         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
+---
+>         return NodeID.getInstance(member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
+701,703d699
+< 
+< 
+< 

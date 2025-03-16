@@ -433,4 +433,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
             try {
                 logger.debug("Executing MultiTask: " + task.getClass().getName());
                 checkForPluginClassLoader(task);
-                final Map<Member, ? extends Future<T>
+                final Map<Member, ? extends Future<T>> futures = hazelcast.getExecutorService(HAZELCAST_EXECUTOR_SERVICE_NAME.getValue()).submitToMembers(new CallableTask<>(task), members);
+                long nanosLeft = TimeUnit.SECONDS.toNanos(MAX_CLUSTER_EXECUTION_TIME.getValue().getSeconds() * members.size());
+                for (final Future<T> future : futures.values()) {
+                    final long start = System.nano

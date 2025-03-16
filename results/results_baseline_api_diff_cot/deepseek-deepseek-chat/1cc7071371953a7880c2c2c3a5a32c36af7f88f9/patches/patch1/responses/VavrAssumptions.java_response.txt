@@ -25,7 +25,6 @@ import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.TypeCache;
 import net.bytebuddy.TypeCache.SimpleKey;
 import net.bytebuddy.dynamic.scaffold.TypeValidation;
-import net.bytebuddy.implementation.Implementation;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.implementation.auxiliary.AuxiliaryType;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
@@ -50,7 +49,7 @@ public class VavrAssumptions {
     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED)
             .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
 
-    private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
+    private static final MethodDelegation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
 
     private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
 
@@ -231,7 +230,7 @@ public class VavrAssumptions {
         Class<?> assumptionClass = getAssumptionClass("org.junit.AssumptionViolatedException");
         if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
 
-        assumptionClass = getAssumptionClass("org.openttest4j.TestAbortedException");
+        assumptionClass = getAssumptionClass("org.opentest4j.TestAbortedException");
         if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
 
         assumptionClass = getAssumptionClass("org.testng.SkipException");

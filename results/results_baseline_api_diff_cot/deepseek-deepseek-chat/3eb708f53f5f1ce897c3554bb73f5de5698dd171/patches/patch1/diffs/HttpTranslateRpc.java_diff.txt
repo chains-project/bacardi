@@ -6,7 +6,7 @@
 ---
 > import com.google.api.services.translate.v3.Translate;
 > import com.google.api.services.translate.v3.model.DetectLanguageResponse;
-> import com.google.api.services.translate.v3.model.SupportedLanguages;
+> import com.google.api.services.translate.v3.model.Language;
 > import com.google.api.services.translate.v3.model.Translation;
 69c69
 <   public List<List<DetectionsResourceItems>> detect(List<String> texts) {
@@ -26,19 +26,19 @@
 80c83
 <   public List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
 ---
->   public List<SupportedLanguages> listSupportedLanguages(Map<Option, ?> optionMap) {
+>   public List<Language> listSupportedLanguages(Map<Option, ?> optionMap) {
 82,85c85,86
 <       List<LanguagesResource> languages =
 <           translate
 <               .languages()
 <               .list()
 ---
->       List<SupportedLanguages> languages =
+>       List<Language> languages =
 >           translate.projects().locations().getSupportedLanguages("projects/" + options.getProjectId())
 92c93
 <       return languages != null ? languages : ImmutableList.<LanguagesResource>of();
 ---
->       return languages != null ? languages : ImmutableList.<SupportedLanguages>of();
+>       return languages != null ? languages : ImmutableList.<Language>of();
 99c100
 <   public List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap) {
 ---

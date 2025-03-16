@@ -60,7 +60,7 @@ public class SnmpmanAgent extends BaseAgent {
     /**
      * The list of managed object groups.
      */
-    private final List<ManagedObject<?>> groups = new ArrayList<>();
+    private final List<ManagedObject> groups = new ArrayList<>();
 
     /**
      * Initializes a new instance of an SNMP agent.
@@ -117,8 +117,8 @@ public class SnmpmanAgent extends BaseAgent {
             return URLEncoder.encode(string, "UTF-8");
         } catch (final UnsupportedEncodingException e) {
             log.error("UTF-8 encoding is unsupported");
+            return string;
         }
-        return string;
     }
 
     /**
@@ -219,4 +219,28 @@ public class SnmpmanAgent extends BaseAgent {
         this.loadConfig(ImportMode.REPLACE_CREATE);
         this.addShutdownHook();
         this.getServer().addContext(new OctetString("public"));
-        this.getServer().
+        this.getServer().addContext(new OctetString(""));
+        // configure community index contexts
+        for (final Long vlan : configuration.getDevice().getVlans()) {
+            this.getServer().addContext(new OctetString(String.valueOf(vlan)));
+        }
+
+        this.finishInit();
+        this.run();
+        this.sendColdStartNotification();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    protected void initTransportMappings() {
+        log.trace("starting to initialize transport mappings for agent \"{}\"", configuration.getName());
+        transportMappings = new TransportMapping[1];
+        TransportMapping tm = TransportMappings.getInstance().createTransportMapping(configuration.getAddress());
+        transportMappings[0] = tm;
+    }
+
+    @Override
+    protected void registerManagedObjects() {
+        unregisterDefaultManagedObjects(null);
+        unregisterDefaultManagedObjects(new OctetString());
+        final List<Long

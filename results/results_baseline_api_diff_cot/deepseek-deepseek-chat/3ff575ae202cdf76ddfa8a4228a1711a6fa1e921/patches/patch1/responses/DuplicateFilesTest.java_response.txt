@@ -34,7 +34,6 @@ public class DuplicateFilesTest
         throws Exception
     {
         super.setUp();
-        // The getLoggerManager() method has been removed, so we need to set the threshold directly on the logger
         Logger logger = getContainer().getLogger();
         logger.setThreshold( Logger.LEVEL_DEBUG );
     }
