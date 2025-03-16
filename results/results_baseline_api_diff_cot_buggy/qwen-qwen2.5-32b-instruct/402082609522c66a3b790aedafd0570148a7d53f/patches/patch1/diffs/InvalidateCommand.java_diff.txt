@@ -1,27 +1,29 @@
-10,12c10,12
+10,12c10,15
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.parameter.Parameter;
+> import org.spongepowered.api.command.parameter.managed.Flag;
+> import org.spongepowered.api.command.parameter.managed.ValueParameter;
+> import org.spongepowered.api.command.parameter.managed.ValueParameter.Type;
+> import org.spongepowered.api.command.parameter.managed.ValueParameter.Value;
+13a17,19
 > import org.spongepowered.api.command.Command;
-16c16
+> import org.spongepowered.api.command.Command.Parameterized;
+> import org.spongepowered.api.command.Command.Parameterized.Builder;
+16c22
 < public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
 ---
-> public class InvalidateCommand implements Command {
-29c29
-<             return CommandResult.empty();
----
->             return CommandResult.success();
-33c33
+> public class InvalidateCommand implements Command.Parameterized {
+33c39
 <         Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
 ---
->         Task.builder().execute(() -> new SkinInvalidator(plugin, receiver).invalidateSkin()).submit(plugin);
-37,39c37,38
-<     @Override
+>         Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+38,39c44,45
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
 ---
->     public Command buildSpec() {
+>     public Command.Parameterized buildSpec() {
 >         return Command.builder()

@@ -71,6 +71,7 @@ public final class SshByPassword extends AbstractSshShell {
     }
 
     // @checkstyle ProtectedMethodInFinalClassCheck (10 lines)
+    @Override
     @RetryOnFailure(
         attempts = 7,
         delay = 1,

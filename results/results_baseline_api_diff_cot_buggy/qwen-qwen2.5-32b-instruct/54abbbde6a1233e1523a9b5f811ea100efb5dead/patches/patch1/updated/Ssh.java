@@ -30,10 +30,6 @@
 package com.jcabi.ssh;
 
 import com.jcabi.aspects.RetryOnFailure;
-import com.jcabi.log.Logger;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -135,7 +131,7 @@ public final class Ssh extends AbstractSshShell {
      */
     public Ssh(final String adr, final String user, final String priv)
         throws UnknownHostException {
-        this(adr, Ssh.PORT, user, priv, null);
+        this(adr, Ssh.PORT, user, priv);
     }
 
     /**

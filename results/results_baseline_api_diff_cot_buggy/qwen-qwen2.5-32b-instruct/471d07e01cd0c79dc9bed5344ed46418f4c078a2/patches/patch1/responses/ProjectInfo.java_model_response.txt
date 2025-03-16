@@ -108,7 +108,7 @@ public class ProjectInfo implements Serializable {
     }
 
     public static ResourceId of(String id, String type) {
-      return new ResourceId(checkNotNull(id), checkNotNull(type));
+      return new ResourceId(checkNotNull(id), type);
     }
 
     public String getId() {
@@ -143,22 +143,25 @@ public class ProjectInfo implements Serializable {
     }
   }
 
-  public static abstract class Builder {
+  /** Builder for {@code ProjectInfo}. */
+  public abstract static class Builder {
 
   {
     /**
      * Set the user-assigned name of the project.
      *
      * <p>This field is optional and can remain unset. Allowed characters are: lowercase and
-     * uppercase letters, digits, or hyphens. It must start with a letter. Trailing hyphens are
-     * prohibited. This field can be changed after the server creates the project.
+     * uppercase letters, digits, hyphen, single-quote, double-quote, space, and exclamation point.
+     * This field can be changed after project creation.
      */
     public abstract Builder setName(String name);
 
     /**
      * Set the unique, user-assigned ID of the project.
      *
-     * <p>This field cannot be changed after the server creates the project.
+     * <p>The ID must be 6 to 30 lowercase letters, digits, or hyphens. It must start with a
+     * letter. Trailing hyphens are prohibited. This field cannot be changed after the server
+     * creates the project.
      */
     public abstract Builder setProjectId(String projectId);
 
@@ -353,6 +356,19 @@ public class ProjectInfo implements Serializable {
     return createTimeMillis;
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    return obj == this
+        || obj != null
+            && obj.getClass().equals(ProjectInfo.class)
+            && Objects.equals(toPb(), ((ProjectInfo) obj).toPb());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, projectId, labels, projectNumber, state, createTimeMillis, parent);
+  }
+
   public static Builder newBuilder(String id) {
     return new BuilderImpl(id);
   }
@@ -373,8 +389,9 @@ public class ProjectInfo implements Serializable {
     }
     if (createTimeMillis != null) {
       projectPb.createTime =
-          DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(createTimeMillis));
-      );
+          DATE_TIME_FORMATTER
+              .parse(createTimeMillis.toString(), Instant.FROM)
+              .toEpochMilli();
     }
     if (parent != null) {
       projectPb.parent = parent.toPb();
@@ -392,7 +409,7 @@ public class ProjectInfo implements Serializable {
       builder.setLabels(projectPb.labels);
     }
     if (projectPb.lifecycleState != null) {
-      builder.setState(State.valueOf(projectPb.lifecycleState);
+      builder.setState(State.valueOf(projectPb.lifecycleState));
     }
     if (projectPb.createTime != null) {
       builder.setCreateTimeMillis(

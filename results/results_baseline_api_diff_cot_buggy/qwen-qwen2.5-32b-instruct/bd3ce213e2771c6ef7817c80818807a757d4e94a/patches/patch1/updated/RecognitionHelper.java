@@ -226,25 +226,20 @@ public class RecognitionHelper {
 			// Temp file in a temp folder named "skew-<random numbers>.json"
 			File segmentListFile = File.createTempFile("skew-",".json");
 			skewparams.add(segmentListFile.toString());
-			segmentListFile.deleteOnExit(); // Delete if OCR4all terminates
-			ObjectMapper mapper = new ObjectMapper();
-			ArrayNode dataList = mapper.createArrayNode();
-			for (String pageId : pageIds) {
-				ArrayNode pageList = mapper.createArrayNode();
-				pageList.add(projConf.getImageDirectoryByType(projectImageType) + pageId +
-						projConf.getImageExtensionByType(projectImageType));
-				final String pageXML = projConf.OCR_DIR + pageId + projConf.CONF_EXT;
-				pageList.add(pageXML);
+			skewparams.add("--data.output_dir");
+			skewparams.add(segmentListFile.getParent());
+			skewparams.add("--data.output_format");
+			skewparams.add("json");
+			skewparams.add("--data.output_file");
+			skewparams.add(segmentListFile.getName());
+			skewparams.add("--data.images");
+			skewparams.add(segmentListFile.toString());
+			skewparams.add("--data.gt");
+			skewparams.add(segmentListFile.toString());
 
-				// Add affected line segment images with their absolute path to the json file
-				dataList.add(pageList);
-			}
-			ObjectWriter writer = mapper.writer();
-			writer.writeValue(segmentListFile.toPath(), dataList);
-
-            processHandler = new ProcessHandler();
-            processHandler.setFetchProcessConsole(true);
-            processHandler.startProcess("ocr4all-helper-scripts", skewparams, false);
+			processHandler = new ProcessHandler();
+			processHandler.setFetchProcessConsole(true);
+			processHandler.startProcess("ocr4all-helper-scripts", skewparams, false);
 
         	cmdArgsWork.remove("--estimate_skew");
         }
@@ -265,12 +260,12 @@ public class RecognitionHelper {
 
         List<String> command = new ArrayList<>();
         // Ugly hack but helpers will be rewritten for the next release anyways. Don't use as basis for future code!
-        if(cmdArgsWork.contains("--data.output_glyphs")){
+        if(cmdArgsWork.contains("--data.output_glyphs")) {
             cmdArgsWork.remove("--data.output_glyphs");
             command.add("--data.output_glyphs");
             command.add("True");
         }
-        if(cmdArgsWork.contains("--data.output_confidences")){
+        if(cmdArgsWork.contains("--data.output_confidences")) {
             cmdArgsWork.remove("--data.output_confidences");
             command.add("--data.output_confidences");
             command.add("True");
@@ -280,43 +275,20 @@ public class RecognitionHelper {
         // Create temp json file with all segment images (to not overload parameter list)
 		// Temp file in a temp folder named "calamari-<random numbers>.json"
         File segmentListFile = File.createTempFile("calamari-",".files");
-        segmentListFile.deleteOnExit(); // Delete if OCR4all terminates
+        segmentListFile.deleteOnExit();
+
         List<String> content = new ArrayList<>();
         for (String pageId : pageIds) {
             // Add affected images with their absolute path to the file
             content.add(projConf.getImageDirectoryByType(projectImageType) + pageId +
-                                projConf.getImageExtensionByType(projectImageType));
+                    projConf.getImageExtensionByType(projectImageType));
         }
         Files.write(segmentListFile.toPath(), content, StandardOpenOption.APPEND);
-        command.add(segmentListFile.toString());
 
-        //Add checkpoints
-        Iterator<String> cmdArgsIterator = cmdArgsWork.iterator();
-        while (cmdArgsIterator.hasNext()) {
-            String arg = cmdArgsIterator.next();
-            command.add(arg);
-            if (arg.equals("--checkpoint") && cmdArgsIterator.hasNext()) {
-                command.addAll(extractModelsOfJoinedString(cmdArgsIterator.next()));
-            }
-        }
-
-        command.add("--data");
-        command.add("PageXML");
-        // Set output extension to input extension in order to overwrite the original file
-        // (default would've been .pred.xml)
-        command.add("--data.gt_extension");
-        command.add(".xml");
-        command.add("--data.pred_extension");
-        command.add(".xml");
-
-        command.add("--data.text_index");
-        command.add("1");
-
-        command.add("--verbose");
-        command.add("True");
-
-        command.add("--predictor.progress_bar");
-        command.add("False");
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectWriter writer = mapper.writer();
+        Path path = segmentListFile.toPath();
+        writer.writeValue(path, content);
 
         processHandler = new ProcessHandler();
         processHandler.setFetchProcessConsole(true);
@@ -444,8 +416,6 @@ public class RecognitionHelper {
      * Display: Baiter_000/Baiter
      * Example: /var/ocr4all/models/custom/Bibel/0/0.ckpt.json
      * Display: Bibel/0/0
-     * Example: /var/ocr4all/models/custom/Bibel/heading/0.ckpt.json
-     * Display: Bibel/heading/0
      *
      * The models need to be in the following structure:
      * ANY_PATH/{MODEL_NAME}/ANY_NAME.ckpt.json
@@ -461,18 +431,17 @@ public class RecognitionHelper {
             return models;
 
         // Add all models to map (follow symbolic links on the filesystem due to Docker container)
-        Files.walk(Paths.get(ProjectConfiguration.PROJ_MODEL_DIR), java.nio.file.FileVisitOption.FOLLOW_LINKS)
-        .map(Path::toFile)
-        .filter(fileEntry -> fileEntry.getName().endsWith(ProjectConfiguration.MODEL_EXT))
-        .forEach(
-            fileEntry -> {
-                // Remove OS path and model extension from display string (only display significant information)
-                String modelName = fileEntry.getAbsolutePath();
-                modelName = modelName.replace(ProjectConfiguration.PROJ_MODEL_DEFAULT_DIR, "");
-                modelName = modelName.replace(ProjectConfiguration.PROJ_MODEL_CUSTOM_DIR, "");
-                modelName = modelName.replace(ProjectConfiguration.MODEL_EXT, "");
-
-                models.put(modelName, fileEntry.getAbsolutePath());
+        Files.walkFileTree(Paths.get(ProjectConfiguration.PROJ_MODEL_DIR), new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                if (file.getFileName().toString().endsWith(ProjectConfiguration.MODEL_EXT)) {
+                    String modelName = file.toString().replace(ProjectConfiguration.PROJ_MODEL_DEFAULT_DIR, "");
+                    modelName = modelName.replace(ProjectConfiguration.PROJ_MODEL_CUSTOM_DIR, "");
+                    modelName = modelName.replace(ProjectConfiguration.MODEL_EXT, "");
+                    models.put(modelName, file.toString());
+                }
+                return FileVisitResult.CONTINUE;
+            }
         });
 
         return models;

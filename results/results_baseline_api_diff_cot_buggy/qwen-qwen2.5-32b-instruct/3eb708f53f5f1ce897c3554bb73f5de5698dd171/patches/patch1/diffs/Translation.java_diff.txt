@@ -1,0 +1,27 @@
+19c19
+< import com.google.api.services.translate.model.TranslationsResource;
+---
+> import com.google.cloud.translate.v3.Translation;
+37,38c37,38
+<   static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
+<       new Function<TranslationsResource, Translation>() {
+---
+>   static final Function<com.google.cloud.translate.v3.Translation, Translation> FROM_PB_FUNCTION =
+>       new Function<com.google.cloud.translate.v3.Translation, Translation>() {
+40c40
+<         public Translation apply(TranslationsResource translationPb) {
+---
+>         public Translation apply(com.google.cloud.translate.v3.Translation translationPb) {
+73,74c73
+<    * <p>Please note that you must be whitelisted to use the {@link
+<    * Translate.TranslateOption#model(String)} option, otherwise translation will fail.
+---
+>    * <p>Please note that you must be whitelisted to use the {@link Translate.TranslateOption#model(String)} option, otherwise translation will fail.
+106c105
+<   static Translation fromPb(TranslationsResource translationPb) {
+---
+>   static Translation fromPb(com.google.cloud.translate.v3.Translation translationPb) {
+109c108
+<         translationPb.getDetectedSourceLanguage(),
+---
+>         translationPb.getSourceLanguageCode(),

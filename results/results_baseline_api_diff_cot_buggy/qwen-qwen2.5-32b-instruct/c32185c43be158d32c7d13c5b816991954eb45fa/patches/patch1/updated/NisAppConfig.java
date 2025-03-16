@@ -1,7 +1,6 @@
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -91,7 +90,7 @@ public class NisAppConfig {
 
 		// replace url parameters with values from configuration
 		final String jdbcUrl = prop.getProperty("jdbc.url").replace("${nem.folder}", nemFolder).replace("${nem.network}",
-				configuration.getNetworkName());
+				configuration.getNetworkName()));
 
 		final DriverManagerDataSource dataSource = new DriverManagerDataSource();
 		dataSource.setDriverClassName(prop.getProperty("jdbc.driverClassName"));
@@ -106,17 +105,21 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final ClassicConfiguration configuration = new ClassicConfiguration();
-		configuration.setDataSource(this.dataSource());
-		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
-		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+		final org.flywaydb.core.Flyway flyway = new Flyway(new org.flywaydb.core.api.configuration.ClassicConfiguration());
+		flyway.getConfiguration().setDataSource(this.dataSource());
+		flyway.getConfiguration().setLocations(prop.getProperty("flyway.locations").split(","));
+		flyway.getConfiguration().setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		flyway.getConfiguration().setClassLoader(NisAppConfig.class.getClassLoader());
 
-		return new Flyway(configuration);
+		return flyway;
+	}
+
+	@Bean(initMethod = "migrate")
+	public Flyway flywayInit() throws IOException {
+		return flyway();
 	}
 
 	@Bean
-	@DependsOn("flyway")
 	public SessionFactory sessionFactory() throws IOException {
 		return SessionFactoryLoader.load(this.dataSource());
 	}
@@ -128,8 +131,8 @@ public class NisAppConfig {
 
 	@Bean
 	public BlockChainServices blockChainServices() {
-		return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
-				this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+		return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
+				this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
 	}
 
 	@Bean
@@ -292,56 +295,6 @@ public class NisAppConfig {
 	}
 
 	@Bean
-	@SuppressWarnings("serial")
-	public ImportanceCalculator importanceCalculator() {
-		final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<ImportanceCalculator>>() {
-			{
-				this.put(BlockChainFeature.PROOF_OF_IMPORTANCE,
-						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
-				this.put(BlockChainFeature.PROOF_OF_STAKE, PosImportanceCalculator::new);
-			}
-		};
-
-		return BlockChainFeatureDependentFactory.createObject(this.nisConfiguration().getBlockChainConfiguration(), "consensus algorithm",
-				featureSupplierMap);
-	}
-
-	@Bean
-	public UnlockedAccounts unlockedAccounts() {
-		return new UnlockedAccounts(this.accountCache(), this.accountStateCache(), this.blockChainLastBlockLayer,
-				this.canHarvestPredicate(), this.nisConfiguration().getUnlockedLimit());
-	}
-
-	@Bean
-	public CanHarvestPredicate canHarvestPredicate() {
-		return new CanHarvestPredicate(this::getBlockDependentMinHarvesterBalance);
-	}
-
-	private Amount getBlockDependentMinHarvesterBalance(final BlockHeight height) {
-		return getBlockDependentPoiOptions(height).getMinHarvesterBalance();
-	}
-
-	private static org.nem.nis.pox.poi.PoiOptions getBlockDependentPoiOptions(final BlockHeight height) {
-		return new PoiOptionsBuilder(height).create();
-	}
-
-	@Bean
-	public Supplier<BlockHeight> lastBlockHeight() {
-		return this.blockChainLastBlockLayer::getLastBlockHeight;
-	}
-
-	@Bean
-	public UnconfirmedTransactions unconfirmedTransactions() {
-		final BlockChainConfiguration blockChainConfiguration = this.nisConfiguration().getBlockChainConfiguration();
-		final UnconfirmedStateFactory unconfirmedStateFactory = new UnconfirmedStateFactory(this.transactionValidatorFactory(),
-				this.blockTransactionObserverFactory()::createExecuteCommitObserver, this.timeProvider(), this.lastBlockHeight(),
-				blockChainConfiguration.getMaxTransactionsPerBlock(), this.nisConfiguration().getForkConfiguration());
-		final UnconfirmedTransactions unconfirmedTransactions = new DefaultUnconfirmedTransactions(unconfirmedStateFactory,
-				this.nisCache());
-		return new SynchronizedUnconfirmedTransactions(unconfirmedTransactions);
-	}
-
-	@Bean
 	public UnconfirmedTransactionsFilter unconfirmedTransactionsFilter() {
 		return this.unconfirmedTransactions().asFilter();
 	}
@@ -365,7 +318,7 @@ public class NisAppConfig {
 					() -> this.blockChainLastBlockLayer.getLastBlockHeight().next(), new BlockHeight[]{
 							new BlockHeight(BlockMarkerConstants.FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24)),
 							new BlockHeight(
-									BlockMarkerConstants.SECOND_FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24))
+									(BlockMarkerConstants.SECOND_FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24))
 					}));
 		}
 
@@ -380,8 +333,8 @@ public class NisAppConfig {
 	private Supplier<WeightedBalances> weighedBalancesSupplier() {
 		final Map<BlockChainFeature, Supplier<Supplier<WeightedBalances>>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<WeightedBalances>>>() {
 			{
-				this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
-				this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
+				this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
+				this.put(BlockChainFeature.WB_IMMEDIATE_VESTINGING, () -> AlwaysVestedBalances::new);
 			}
 		};
 

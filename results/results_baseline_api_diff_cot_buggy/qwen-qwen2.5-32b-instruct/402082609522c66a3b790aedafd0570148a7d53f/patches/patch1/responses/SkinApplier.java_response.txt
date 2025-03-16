@@ -16,10 +16,10 @@ import org.spongepowered.api.world.World;
 public class SkinApplier extends SharedApplier {
 
     private final ChangeSkinSponge plugin;
-    private final Object invoker;
+    private final Player invoker;
     private final Player receiver;
 
-    public SkinApplier(ChangeSkinSponge plugin, Object invoker, Player receiver, SkinModel targetSkin
+    public SkinApplier(ChangeSkinSponge plugin, Player invoker, Player receiver, SkinModel targetSkin
             , boolean keepSkin) {
         super(plugin.getCore(), targetSkin, keepSkin);
 
@@ -35,8 +35,8 @@ public class SkinApplier extends SharedApplier {
         }
 
         //uuid was successful resolved, we could now make a cooldown check
-        if (invoker instanceof Player) {
-            UUID uniqueId = ((Player) invoker).getUniqueId();
+        if (invoker != null) {
+            UUID uniqueId = invoker.getUniqueId();
             core.getCooldownService().trackPlayer(uniqueId);
         }
 
@@ -77,16 +77,15 @@ public class SkinApplier extends SharedApplier {
         sendUpdateSelf();
 
         //triggers an update for others player to see the new skin
-        receiver.offer(Sponge.getRegistry().getType(org.spongepowered.api.data.key.Key.class, "vanish").get(), true);
-        receiver.offer(Sponge.getRegistry().getType(org.spongepowered.api.data.key.Key.class, "vanish").get(), false);
+        receiver.offer(Sponge.getDataManager().getRegistry().getValue("vanish", true));
+        receiver.offer(Sponge.getDataManager().getRegistry().getValue("vanish", false));
     }
 
     private void sendUpdateSelf() {
         receiver.getTabList().removeEntry(receiver.getUniqueId());
-        receiver.getTabList().addEntry(TabListEntry.builder()
-                .displayName(receiver.getName())
+        receiver.getTabList().addEntry(receiver.getTabList().builder()
+                .displayName(receiver.getDisplayName())
                 .latency(receiver.getConnection().getLatency())
-                .list(receiver.getTabList())
                 .gameMode(receiver.getGameMode())
                 .profile(receiver.getProfile())
                 .build());

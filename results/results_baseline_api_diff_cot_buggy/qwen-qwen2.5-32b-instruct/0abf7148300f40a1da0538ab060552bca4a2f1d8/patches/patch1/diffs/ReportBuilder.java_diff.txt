@@ -64,9 +64,16 @@
 <                                 // propertys of the Column
 ---
 >                                 // If this column has a header the JRDesignStaticText get the propertys of the Column
-303d242
-<                                         // Build label and set x / y
-369c308
+330,335d269
+<                         if(this.config.isBlankWhenNullValue())
+<                         {
+<                                 textField.setBlankWhenNull(true);
+<                         }
+<                         detailBand.addElement(textField);
+<                         
+369c303,305
 <                 textField.getLineBox().getPen().setLineWidth(border.getLineWidth());
 ---
->                 textField.getLineBox().getPen().setLineWidth(new Float(border.getLineWidth()));
+>                 // Convert int to float for lineWidth
+>                 float lineWidth = border.getLineWidth();
+>                 textField.getLineBox().getPen().setLineWidth(lineWidth);

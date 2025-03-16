@@ -1,18 +1,16 @@
-12a13,14
+12a13
 > import org.spongepowered.api.event.game.state.GameStartedServerEvent;
-> import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
-13a16
+13a15
 > import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
-29c32
+29c31
 <     public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
 ---
 >     public void onPlayerPreLogin(Join joinEvent) {
-31c34
+31c33
 <         GameProfile profile = preLoginEvent.getProfile();
 ---
 >         GameProfile profile = joinEvent.getProfile();
-61,62c64
-<     @Override
-<     protected void save(final UserPreference preferences) {
+45c47
+<             String playerName = profile.getName().get();
 ---
->     public void save(final UserPreference preferences) {
+>             String playerName = profile.getName().orElse("Unknown");

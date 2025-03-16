@@ -1,4 +1,4 @@
-14,17c14,15
+14,17c14,17
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.args.GenericArguments;
 < import org.spongepowered.api.command.spec.CommandExecutor;
@@ -6,19 +6,32 @@
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.parameter.CommandParameter;
-21,22c19,20
+> import org.spongepowered.api.command.parameter.managed.FlagParameter;
+> import org.spongepowered.api.command.parameter.managed.TextParameter;
+21,22d20
 < import static org.spongepowered.api.command.args.GenericArguments.flags;
 < import static org.spongepowered.api.command.args.GenericArguments.string;
+25c23
+< public class SetCommand implements CommandExecutor, ChangeSkinCommand {
 ---
-> import static org.spongepowered.api.command.parameter.Parameter.flags;
-> import static org.spongepowered.api.command.parameter.Parameter.string;
-51c49
+> public class SetCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
+50,51c48,49
+<         String targetSkin = args.<String>getOne("skin").get();
 <         boolean keepSkin = args.hasAny("keep");
 ---
->         boolean keepSkin = args.<Boolean>getOne("keep").isPresent();
-75d72
-<     @Override
-81c78
+>         String targetSkin = args.getOne(TextParameter.key("skin")).get();
+>         boolean keepSkin = args.getOne(FlagParameter.key("keep")).orElse(false);
+76,77c74,75
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public CommandParameter buildSpec() {
+>         return CommandParameter.builder()
+79,81c77,79
+<                 .arguments(
+<                         string(of("skin")),
 <                         flags().flag("keep").buildWith(GenericArguments.none()))
 ---
->                         flags().flag("keep").buildWith(CommandParameter.empty()))
+>                 .parameters(
+>                         TextParameter.of("skin"),
+>                         FlagParameter.of("keep"))

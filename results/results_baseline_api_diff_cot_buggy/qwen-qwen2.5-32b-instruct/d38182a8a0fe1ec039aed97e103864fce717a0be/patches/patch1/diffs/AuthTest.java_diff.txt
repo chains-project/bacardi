@@ -1,8 +1,10 @@
-52c52
+22d21
+< import com.artipie.http.headers.Header;
+52c51
 < @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 ---
 > @SuppressWarnings("PMD.UnusedPrivateMethod")
-69c69,73
+69c68,72
 <             method.slice("whatever").response(line.toString(), Headers.EMPTY, Content.EMPTY),
 ---
 >             method.slice("whatever").response(
@@ -10,21 +12,37 @@
 >                 Headers.EMPTY,
 >                 Content.EMPTY
 >             ),
-192,196d195
+192c195
 <     @SuppressWarnings("PMD.UnusedPrivateMethod")
-<     private static Stream<Arguments> setups() {
+---
+>     @SuppressWarnings("PMD.AvoidDuplicateLiterals")
+194,214d196
 <         return Stream.of(new Basic(), new Bearer()).flatMap(AuthTest::setups);
 <     }
 < 
-214c213
+<     /**
+<      * Create manifest content.
+<      *
+<      * @return Manifest content.
+<      */
+<     private Flowable<ByteBuffer> manifest() {
+<         final byte[] content = "config".getBytes();
+<         final Blob config = this.docker.repo(new RepoName.Valid("my-alpine")).layers()
+<             .put(new TrustedBlobSource(content))
+<             .toCompletableFuture().join();
+<         final byte[] data = String.format(
+<             "{\"config\":{\"digest\":\"%s\"},\"layers\":[],\"mediaType\":\"my-type\"}",
+<             config.digest().string()
+<         ).getBytes();
+<         return Flowable.just(ByteBuffer.wrap(data));
+<     }
+< 
 <     private static Stream<Arguments> setups(final Method method) {
----
->     private static Stream<Arguments> setups() {
-217c216
+217c199
 <                 method,
 ---
 >                 new Basic(),
-222,279c221,223
+222,279c204,206
 <                 method,
 <                 new RequestLine(RqMethod.HEAD, "/v2/my-alpine/manifests/1"),
 <                 "repository:my-alpine:pull"
@@ -87,15 +105,11 @@
 >                 new Bearer(),
 >                 new RequestLine(RqMethod.GET, "/v2/"),
 >                 "registry:base:*"
-317d260
-<         @Override
-326d268
-<         @Override
-344d285
-<         @Override
-353d293
+353d279
 <                             .map(user -> new Authentication.User(user.name()))
-354a295
->                             .map(user -> new Authentication.User(user.name(), user.permissions()))
-361d301
+366,370d291
+<         }
+< 
 <         @Override
+<         public String toString() {
+<             return "Bearer";

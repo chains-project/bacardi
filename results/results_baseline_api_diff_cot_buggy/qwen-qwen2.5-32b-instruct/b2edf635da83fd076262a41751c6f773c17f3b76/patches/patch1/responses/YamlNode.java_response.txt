@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.ImmutableMap.Builder;
+
 import com.google.common.io.ByteSource;
 
 /**
@@ -97,8 +98,8 @@ public class YamlNode {
          try {
             in = byteSource.openStream();
             LoaderOptions options = new LoaderOptions();
-            options.setAllowDuplicateKeys(false);
-            return new Yaml(new Constructor(YamlNode.class, options)).load(in);
+            options.setProperty("org.yaml.snakeyaml.constructor.Constructor", YamlNode.class);
+            return new Yaml(options).loadAs(in, YamlNode.class);
          } catch (IOException ioe) {
             throw Throwables.propagate(ioe);
          } finally {
@@ -188,7 +189,6 @@ public class YamlNode {
          DumperOptions options = new DumperOptions();
          options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
          return ByteSource.wrap(new Yaml(options).dump(prettier.build()).getBytes(Charsets.UTF_8));
-      }
    };
 
    public ByteSource toYaml() {

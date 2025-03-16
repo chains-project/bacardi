@@ -240,6 +240,7 @@ public class ReportBuilder
 				else
 				{
 					// an empty label must be added to complete the layout
+					// Build label and set x / y
 					emptyHeaderLabel = new JRDesignStaticText();
 					emptyHeaderLabel.setX(x);
 					emptyHeaderLabel.setWidth(col.getWidth());
@@ -265,12 +266,6 @@ public class ReportBuilder
 			textField.setExpression(this.buildExpression(contentColumn));
 			
 			textField.setPositionType(PositionTypeEnum.FLOAT);
-			
-			if(this.config.isBlankWhenNullValue())
-			{
-				textField.setBlankWhenNull(true);
-			}
-			detailBand.addElement(textField);
 			
 			x += col.getWidth();
 		}
@@ -305,7 +300,9 @@ public class ReportBuilder
 			return;
 		}
 		
-		textField.getLineBox().getPen().setLineWidth(new Float(border.getLineWidth()));
+		// Convert int to float for lineWidth
+		float lineWidth = border.getLineWidth();
+		textField.getLineBox().getPen().setLineWidth(lineWidth);
 		textField.getLineBox().getPen().setLineColor(border.getLineColor());
 		textField.getLineBox().getPen().setLineStyle(border.getLineStyle().getLineStyleEnum());
 	}

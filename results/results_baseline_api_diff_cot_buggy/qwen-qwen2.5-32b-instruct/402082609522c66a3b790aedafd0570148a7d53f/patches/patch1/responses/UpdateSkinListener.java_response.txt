@@ -11,17 +11,18 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 
 import org.spongepowered.api.Platform.Type;
-import org.spongepowered.api.network.channel.ChannelBuf;
-import org.spongepowered.api.network.channel.MessageChannel;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.network.message.MessageChannel;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.scheduler.TaskBuilder;
 
-public class UpdateSkinListener {
+public class UpdateSkinListener implements MessageChannel.MessageHandler {
 
     @Inject
     private ChangeSkinSponge plugin;
 
-    public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+    @Override
+    public void handleMessage(ByteBuffer data, RemoteConnection connection, Type side) {
         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
         SkinUpdateMessage updateMessage = new SkinUpdateMessage();
         updateMessage.readFrom(dataInput);

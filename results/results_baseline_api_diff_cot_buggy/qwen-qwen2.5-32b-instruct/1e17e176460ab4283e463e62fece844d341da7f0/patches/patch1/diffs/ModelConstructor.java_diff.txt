@@ -1,30 +1,25 @@
 16a17
 > import org.yaml.snakeyaml.LoaderOptions;
-43c44
+43,44c44
 <     super(Model.class);
----
->     super(Model.class, new LoaderOptions());
-55,66d55
-<     desc = new TypeDescription(Model.class);
-<     desc.putListPropertyType("licenses", License.class);
-<     desc.putListPropertyType("mailingLists", MailingList.class);
-<     desc.putListPropertyType("dependencies", Dependency.class);
-<     desc.putListPropertyType("modules", String.class);
-<     desc.putListPropertyType("profiles", Profile.class);
-<     desc.putListPropertyType("repositories", Repository.class);
-<     desc.putListPropertyType("pluginRepositories", Repository.class);
-<     desc.putListPropertyType("developers", Developer.class);
-<     desc.putListPropertyType("contributors", Contributor.class);
-<     addTypeDescription(desc);
 < 
-126,129d114
+---
+>     super(new LoaderOptions());
+126,129d125
 <     desc = new TypeDescription(MailingList.class);
 <     desc.putListPropertyType("otherArchives", String.class);
 <     addTypeDescription(desc);
 < 
-138d122
+133c129
+<     addTypeDescription(new TypeDescription(IssueManagement.class));
+---
+>     addTypeDescription(new TypeDescription(IssueManagement.class);
+138d133
 <   @Override
-148,240d131
+145,283d139
+<     }
+<   }
+< 
 <   private class ConstructXpp3Dom implements Construct {
 <     private static final String ATTRIBUTE_PREFIX = "attr/";
 < 
@@ -118,19 +113,46 @@
 <     }
 <   }
 < 
-242d132
+<   class MavenObjectConstruct extends Constructor.ConstructMapping {
 <     @Override
-246,247c136,137
+<     protected Object constructJavaBean2ndStep(MappingNode node, Object object) {
+<       Class<?> type = node.getType();
+< 
 <       List<Class> specialCases = Arrays.<Class>asList(Dependency.class, Model.class, Plugin.class, ReportPlugin.class);
 <       List<Class> configurationContainers = Arrays.<Class>asList(Plugin.class, PluginExecution.class,
----
->       List<Class> specialCases = Arrays.asList(Dependency.class, Model.class, Plugin.class, ReportPlugin.class);
->       List<Class> configurationContainers = Arrays.asList(Plugin.class, PluginExecution.class,
-252c142,144
+<           ReportPlugin.class, ReportSet.class);
+< 
+<       if (configurationContainers.contains(type)) {
+<         for (NodeTuple valueNode : node.getValue()) {
 <           Node keyNode = valueNode.getKeyNode();
----
->           ScalarNode keyNode = (ScalarNode) valueNode.getKeyNode();
->           String key = keyNode.getValue();
->           if ("configuration".equals(key)) {
-254d145
+<           Node childValueNode = valueNode.getValueNode();
 <           if (keyNode instanceof ScalarNode && "configuration".equals(((ScalarNode) keyNode).getValue())) {
+<             childValueNode.setTag(XPP3DOM_TAG);
+<           }
+<         }
+<       }
+< 
+<       if (specialCases.contains(type)) {
+<         String coordinate = removeId(node);
+<         if (coordinate == null) {
+<           return super.constructJavaBean2ndStep(node, object);
+<         }
+<         if (type.equals(Dependency.class)) {
+<           Dependency dep = (Dependency) super.constructJavaBean2ndStep(node, object);
+<           return ConstructDependency.createDependency(coordinate, dep);
+<         } else if (type.equals(Model.class)) {
+<           Coordinate coord = Coordinate.createCoordinate(coordinate);
+<           Model model = (Model) super.constructJavaBean2ndStep(node, object);
+<           return coord.mergeModel(model);
+<         } else if (type.equals(Plugin.class)) {
+<           Coordinate coord = Coordinate.createCoordinate(coordinate);
+<           Plugin plugin = (Plugin) super.constructJavaBean2ndStep(node, object);
+<           return coord.mergePlugin(plugin);
+<         } else if (type.equals(ReportPlugin.class)) {
+<           Coordinate coord = Coordinate.createCoordinate(coordinate);
+<           ReportPlugin plugin = (ReportPlugin) super.constructJavaBean2ndStep(node, object);
+<           return coord.mergeReportPlugin(plugin);
+<         }
+<       }
+<       // create JavaBean
+<       return super.constructJavaBean2ndStep(node, object);

@@ -2,9 +2,8 @@
 < import org.apache.thrift.transport.TFastFramedTransport;
 32a32
 > import org.apache.thrift.transport.layered.TFastFramedTransport;
-63,64c63,64
+63,64c63
 <       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
 <           bufferCapacity);
 ---
->       TIOStreamTransport tIOStreamTransport = new TIOStreamTransport(os);
->       framedTransport = new TFastFramedTransport(tIOStreamTransport, bufferCapacity);
+>       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os));

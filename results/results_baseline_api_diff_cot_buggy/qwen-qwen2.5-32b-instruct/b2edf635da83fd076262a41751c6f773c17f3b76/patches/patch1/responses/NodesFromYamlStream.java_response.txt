@@ -95,7 +95,7 @@ public class NodesFromYamlStream implements Function<ByteSource, LoadingCache<St
       InputStream in = null;
       try {
          in = source.openStream();
-         config = yaml.loadAs(in, Config.class);
+         config = (Config) yaml.load(in);
       } catch (IOException ioe) {
          throw propagate(ioe);
       } finally {

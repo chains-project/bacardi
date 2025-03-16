@@ -12,6 +12,8 @@ import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.mvc.View;
+import jakarta.mvc.binding.BindingResult;
+import jakarta.mvc.binding.ParamError;
 import jakarta.mvc.security.CsrfProtected;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -37,7 +39,7 @@ public class TaskController {
     private Models models;
 
     @Inject
-    private jakarta.mvc.binding.ValidationResult validationResult;
+    private BindingResult validationResult;
 
     @Inject
     TaskRepository taskRepository;
@@ -90,7 +92,7 @@ public class TaskController {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
             validationResult.getAllErrors()
                     .stream()
-                    .forEach((jakarta.mvc.binding.ParamError t) -> {
+                    .forEach((ParamError t) -> {
                         alert.addError(t.getParamName(), "", t.getMessage());
                     });
             models.put("errors", alert);
@@ -134,7 +136,7 @@ public class TaskController {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
             validationResult.getAllErrors()
                     .stream()
-                    .forEach((jakarta.mvc.binding.ParamError t) -> {
+                    .forEach((ParamError t) -> {
                         alert.addError(t.getParamName(), "", t.getMessage());
                     });
             models.put("errors", alert);
@@ -145,7 +147,7 @@ public class TaskController {
         Task task = taskRepository.findById(id);
 
         task.setName(form.getName());
-        task.description(form.getDescription());
+        task.setDescription(form.getDescription());
 
         taskRepository.update(task);
 

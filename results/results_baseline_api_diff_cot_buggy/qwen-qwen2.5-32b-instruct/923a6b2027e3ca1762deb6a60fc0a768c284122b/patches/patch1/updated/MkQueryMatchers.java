@@ -83,8 +83,8 @@ public final class MkQueryMatchers {
         return new MkQueryUriMatcher(
             new Matcher<URI>() {
                 @Override
-                public boolean matches(Object item) {
-                    return path.matches(((URI) item).getRawPath());
+                public boolean matchesSafely(URI item) {
+                    return path.matches(item.getRawPath());
                 }
             }
         );
@@ -100,8 +100,8 @@ public final class MkQueryMatchers {
         return new MkQueryUriMatcher(
             new Matcher<URI>() {
                 @Override
-                public boolean matches(Object item) {
-                    return query.matches(((URI) item).getRawQuery());
+                public boolean matchesSafely(URI item) {
+                    return query.matches(item.getRawQuery());
                 }
             }
         );

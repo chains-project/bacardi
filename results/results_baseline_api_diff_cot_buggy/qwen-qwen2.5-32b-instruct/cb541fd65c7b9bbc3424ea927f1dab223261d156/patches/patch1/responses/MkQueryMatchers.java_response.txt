@@ -81,7 +81,12 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasPath(final Matcher<String> path) {
         return new MkQueryUriMatcher(
-            org.hamcrest.core.IsEqual.equalTo(path)
+            new Matcher<URI>() {
+                @Override
+                public boolean matchesSafely(URI item) {
+                    return path.matches(item.getRawPath());
+                }
+            }
         );
     }
 
@@ -93,7 +98,12 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasQuery(final Matcher<String> query) {
         return new MkQueryUriMatcher(
-            org.hamcrest.core.IsEqual.equalTo(query)
+            new Matcher<URI>() {
+                @Override
+                public boolean matchesSafely(URI item) {
+                    return query.matches(item.getRawQuery());
+                }
+            }
         );
     }
 

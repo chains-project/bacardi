@@ -1,4 +1,4 @@
-4,11c4,5
+4,11c4,7
 < import redis.clients.jedis.commands.BasicRedisPipeline;
 < import redis.clients.jedis.commands.BinaryRedisPipeline;
 < import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
@@ -8,9 +8,11 @@
 < import redis.clients.jedis.commands.RedisPipeline;
 < import redis.clients.jedis.commands.ScriptingCommandsPipeline;
 ---
-> import redis.clients.jedis.Pipeline;
-> import redis.clients.jedis.Closeable;
-20,24c14
+> import redis.clients.jedis.exceptions.JedisException;
+> import redis.clients.jedis.params.ScanParams;
+> import redis.clients.jedis.resps.ScanResult;
+> import redis.clients.jedis.util.SafeEncoder;
+20,24c16
 < public interface RedisGraphPipeline extends
 <         MultiKeyBinaryRedisPipeline,
 <         MultiKeyCommandsPipeline, ClusterPipeline,
@@ -18,33 +20,33 @@
 <         BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
 ---
 > public interface RedisGraphPipeline extends Closeable {
-43,60d32
-<      * Execute a Cypher query with timeout.
+44,45c36,37
 <      * @param graphId a graph to perform the query on
 <      * @param query Cypher query
-<      * @param timeout
-<      * @return a response which builds the result set with the query answer.
-<      */
-<     Response<ResultSet> query(String graphId, String query, long timeout);
-< 
-<     /**
+---
+>      * @param graphId a graph to perform the query on.
+>      * @param query Cypher query.
+52,54c44,46
 <      * Execute a Cypher read-only query with timeout.
 <      * @param graphId a graph to perform the query on
 <      * @param query Cypher query
-<      * @param timeout
-<      * @return a response which builds the result set with the query answer.
-<      */
-<     Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout);
-< 
-<     /**
-132d103
+---
+>      * Executes a cypher read-only query with timeout.
+>      * @param graphId a graph to perform the query on.
+>      * @param query Cypher query.
+132d123
 <     
-146,147c117
+146,147c137
 <     public void sync();
 <     
 ---
 >     void sync();
-159c129
+151,152c141
+<      * at least the specified number of replicas. If the timeout, specified in milliseconds, is
+<      * reached, the command returns even if the specified number of replicas were not yet reached.
+---
+>      * at least the specified number of replicas.
+159c148
 <     public Response<Long> waitReplicas(int replicas, long timeout);
 ---
 >     Response<Long> waitReplicas(int replicas, long timeout);

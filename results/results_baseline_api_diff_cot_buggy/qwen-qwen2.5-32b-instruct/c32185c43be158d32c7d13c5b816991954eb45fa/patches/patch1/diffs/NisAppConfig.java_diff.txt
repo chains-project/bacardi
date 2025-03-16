@@ -1,75 +1,48 @@
-3a4
-> import org.flywaydb.core.api.configuration.ClassicConfiguration;
-103c104
+93c93
+<                                 configuration.getNetworkName());
+---
+>                                 configuration.getNetworkName()));
+103c103
 <         @Bean(initMethod = "migrate")
 ---
 >         @Bean
-108,113c109,115
+108,112c108,113
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
 <                 flyway.setLocations(prop.getProperty("flyway.locations"));
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-<                 return flyway;
 ---
->                 final ClassicConfiguration configuration = new ClassicConfiguration();
->                 configuration.setDataSource(this.dataSource());
->                 configuration.setLocations(prop.getProperty("flyway.locations").split(","));
->                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
->                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+>                 final org.flywaydb.core.Flyway flyway = new Flyway(new org.flywaydb.core.api.configuration.ClassicConfiguration());
+>                 flyway.getConfiguration().setDataSource(this.dataSource());
+>                 flyway.getConfiguration().setLocations(prop.getProperty("flyway.locations").split(","));
+>                 flyway.getConfiguration().setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 flyway.getConfiguration().setClassLoader(NisAppConfig.class.getClassLoader());
 > 
->                 return new Flyway(configuration);
-196a199,200
+115a117,121
+>         @Bean(initMethod = "migrate")
+>         public Flyway flywayInit() throws IOException {
+>                 return flyway();
+>         }
+> 
+117d122
+<         @DependsOn("flyway")
+129,130c134,135
+<                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
+<                                 this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+---
+>                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
+>                                 this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+196a202,203
 >         // region mappers
 > 
-290a295,344
->         @SuppressWarnings("serial")
->         public ImportanceCalculator importanceCalculator() {
->                 final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<ImportanceCalculator>>() {
->                         {
->                                 this.put(BlockChainFeature.PROOF_OF_IMPORTANCE,
->                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
->                                 this.put(BlockChainFeature.PROOF_OF_STAKE, PosImportanceCalculator::new);
->                         }
->                 };
-> 
->                 return BlockChainFeatureDependentFactory.createObject(this.nisConfiguration().getBlockChainConfiguration(), "consensus algorithm",
->                                 featureSupplierMap);
->         }
-> 
->         @Bean
->         public UnlockedAccounts unlockedAccounts() {
->                 return new UnlockedAccounts(this.accountCache(), this.accountStateCache(), this.blockChainLastBlockLayer,
->                                 this.canHarvestPredicate(), this.nisConfiguration().getUnlockedLimit());
->         }
-> 
->         @Bean
->         public CanHarvestPredicate canHarvestPredicate() {
->                 return new CanHarvestPredicate(this::getBlockDependentMinHarvesterBalance);
->         }
-> 
->         private Amount getBlockDependentMinHarvesterBalance(final BlockHeight height) {
->                 return getBlockDependentPoiOptions(height).getMinHarvesterBalance();
->         }
-> 
->         private static org.nem.nis.pox.poi.PoiOptions getBlockDependentPoiOptions(final BlockHeight height) {
->                 return new PoiOptionsBuilder(height).create();
->         }
-> 
->         @Bean
->         public Supplier<BlockHeight> lastBlockHeight() {
->                 return this.blockChainLastBlockLayer::getLastBlockHeight;
->         }
-> 
->         @Bean
->         public UnconfirmedTransactions unconfirmedTransactions() {
->                 final BlockChainConfiguration blockChainConfiguration = this.nisConfiguration().getBlockChainConfiguration();
->                 final UnconfirmedStateFactory unconfirmedStateFactory = new UnconfirmedStateFactory(this.transactionValidatorFactory(),
->                                 this.blockTransactionObserverFactory()::createExecuteCommitObserver, this.timeProvider(), this.lastBlockHeight(),
->                                 blockChainConfiguration.getMaxTransactionsPerBlock(), this.nisConfiguration().getForkConfiguration());
->                 final UnconfirmedTransactions unconfirmedTransactions = new DefaultUnconfirmedTransactions(unconfirmedStateFactory,
->                                 this.nisCache());
->                 return new SynchronizedUnconfirmedTransactions(unconfirmedTransactions);
->         }
-> 
->         @Bean
+314c321
+<                                                                         BlockMarkerConstants.SECOND_FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24))
+---
+>                                                                         (BlockMarkerConstants.SECOND_FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24))
+329,330c336,337
+<                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
+<                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
+---
+>                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
+>                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTINGING, () -> AlwaysVestedBalances::new);

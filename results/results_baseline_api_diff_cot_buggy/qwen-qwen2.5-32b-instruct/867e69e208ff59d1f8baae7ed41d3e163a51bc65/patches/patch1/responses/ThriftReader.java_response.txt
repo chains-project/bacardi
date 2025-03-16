@@ -22,7 +22,7 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.apache.thrift.transport.TTransport;
-import org.apache.thrift.transport.layered.TFramedTransport;
+import org.apache.thrift.transport.layered.TFramedTransport; // Updated import
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -61,7 +61,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
   private final ByteOffsetInputStream byteOffsetInputStream;
 
   // The framed framedTransport.
-  private final TFramedTransport framedTransport;
+  private final TFramedTransport framedTransport; // Updated type
 
   // TProtocol implementation.
   private final TProtocol protocol;
@@ -77,7 +77,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
 
     this.byteOffsetInputStream = new ByteOffsetInputStream(
         new RandomAccessFile(path, "r"), readBufferSize);
-    this.framedTransport = new TFramedTransport(new TIOStreamTransport(this.byteOffsetInputStream), maxMessageSize);
+    this.framedTransport = new TFramedTransport(new TIOStreamTransport(this.byteOffsetInputStream), maxMessageSize); // Updated constructor call
     this.baseFactory = Preconditions.checkNotNull(baseFactory);
     this.protocol = protocolFactory.get(this.framedTransport);
   }

@@ -1,42 +1,395 @@
-18,21c18,21
+18,21c18,20
 < import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
 < import com.google.api.services.cloudresourcemanager.model.ListPolicy;
 < import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
 < import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
 ---
 > import com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy;
-> import com.google.api.services.cloudresourcemanager.v3.model.ListPolicy;
-> import com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy;
-> import com.google.api.services.cloudresourcemanager.v3.model.RestoreDefault;
-37a38
-> {
-125c126
+> import com.google.api.services.cloudresourcemanager.v3.model.Policy;
+> import com.google.api.services.cloudresourcemanager.v3.model.Policy.ListPolicy;
+38,39c37,38
+<   static final Function<OrgPolicy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
+<       new Function<OrgPolicy, OrgPolicyInfo>() {
+---
+>   static final Function<Policy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
+>       new Function<Policy, OrgPolicyInfo>() {
+41c40
+<         public OrgPolicyInfo apply(OrgPolicy protobuf) {
+---
+>         public OrgPolicyInfo apply(Policy protobuf) {
+45,46c44,45
+<   static final Function<OrgPolicyInfo, OrgPolicy> TO_PROTOBUF_FUNCTION =
+<       new Function<OrgPolicyInfo, OrgPolicy>() {
+---
+>   static final Function<OrgPolicyInfo, Policy> TO_PROTOBUF_FUNCTION =
+>       new Function<OrgPolicyInfo, Policy>() {
+48c47
+<         public OrgPolicy apply(OrgPolicyInfo orgPolicyInfo) {
+---
+>         public Policy apply(OrgPolicyInfo orgPolicyInfo) {
+53c52
+<   private BoolPolicy boolPolicy;
+---
+>   private BooleanPolicy boolPolicy;
+56,57c55
+<   private Policies policies;
+<   private RestoreDefault restoreDefault;
+---
+>   private ListPolicy policies;
+61,218d58
+<   /** Used For boolean Constraints, whether to enforce the Constraint or not. */
+<   static class BoolPolicy {
+< 
+<     private final Boolean enforce;
+< 
+<     BoolPolicy(Boolean enforce) {
+<       this.enforce = enforce;
+<     }
+< 
+<     public boolean getEnforce() {
+<       return enforce;
+<     }
+< 
+<     @Override
+<     public String toString() {
+<       return MoreObjects.toStringHelper(this).add("enforce", getEnforce()).toString();
+<     }
+< 
+<     @Override
+<     public boolean equals(Object o) {
+<       if (this == o) {
+<         return true;
+<       }
+<       if (o == null || getClass() != o.getClass()) {
+<         return false;
+<       }
+<       BoolPolicy that = (BoolPolicy) o;
+<       return Objects.equals(enforce, that.enforce);
+<     }
+< 
+<     @Override
+<     public int hashCode() {
+<       return Objects.hash(enforce);
+<     }
+< 
+<     BooleanPolicy toProtobuf() {
+<       return new BooleanPolicy().setEnforced(enforce);
+<     }
+< 
+<     static BoolPolicy fromProtobuf(BooleanPolicy booleanPolicy) {
+<       return new BoolPolicy(booleanPolicy.getEnforced());
+<     }
+<   }
+< 
+<   /**
+<    * The organization ListPolicy object.
+<    *
+<    * <p>ListPolicy can define specific values and subtrees of Cloud Resource Manager resource
+<    * hierarchy (Organizations, Folders, Projects) that are allowed or denied by setting the
+<    * allowedValues and deniedValues fields. This is achieved by using the under: and optional is:
+<    * prefixes. The under: prefix denotes resource subtree values. The is: prefix is used to denote
+<    * specific values, and is required only if the value contains a ":". Values prefixed with "is:"
+<    * are treated the same as values with no prefix. Ancestry subtrees must be in one of the
+<    * following formats: - "projects/", e.g. "projects/tokyo-rain-123" - "folders/", e.g.
+<    * "folders/1234" - "organizations/", e.g. "organizations/1234" The supportsUnder field of the
+<    * associated Constraint defines whether ancestry prefixes can be used. You can set allowedValues
+<    * and deniedValues in the same Policy if allValues is ALL_VALUES_UNSPECIFIED. ALLOW or DENY are
+<    * used to allow or deny all values. If allValues is set to either ALLOW or DENY, allowedValues
+<    * and deniedValues must be unset.
+<    */
+<   static class Policies {
+< 
+<     private final String allValues;
+<     private final List<String> allowedValues;
 <     private final List<java.lang.String> deniedValues;
----
->     private final List<String> deniedValues;
-130c131
+<     private final Boolean inheritFromParent;
+<     private final String suggestedValue;
+< 
+<     Policies(
 <         String allValues,
----
->         (String allValues,
-197c198
+<         List<String> allowedValues,
+<         List<String> deniedValues,
+<         Boolean inheritFromParent,
+<         String suggestedValue) {
+<       this.allValues = allValues;
+<       this.allowedValues = allowedValues;
+<       this.deniedValues = deniedValues;
+<       this.inheritFromParent = inheritFromParent;
+<       this.suggestedValue = suggestedValue;
+<     }
+< 
+<     /** Returns all the Values state of this policy. */
+<     String getAllValues() {
+<       return allValues;
+<     }
+< 
+<     /** Returns the list of allowed values of this resource */
+<     List<String> getAllowedValues() {
+<       return allowedValues;
+<     }
+< 
+<     /** Returns the list of denied values of this resource. */
+<     List<String> getDeniedValues() {
+<       return deniedValues;
+<     }
+< 
+<     /** Returns the inheritance behavior for this Policy */
+<     Boolean getInheritFromParent() {
+<       return inheritFromParent;
+<     }
+< 
+<     /** Returns the suggested value of this policy. */
+<     String getSuggestedValue() {
+<       return suggestedValue;
+<     }
+< 
+<     @Override
+<     public String toString() {
+<       return MoreObjects.toStringHelper(this)
+<           .add("allValues", getAllValues())
+<           .add("allowedValues", getAllowedValues())
+<           .add("deniedValues", getDeniedValues())
+<           .add("inheritFromParent", getInheritFromParent())
+<           .add("suggestedValue", getSuggestedValue())
+<           .toString();
+<     }
+< 
+<     @Override
+<     public boolean equals(Object o) {
+<       if (this == o) {
+<         return true;
+<       }
+<       if (o == null || getClass() != o.getClass()) {
+<         return false;
+<       }
+<       Policies policies = (Policies) o;
+<       return Objects.equals(allValues, policies.allValues)
+<           && Objects.equals(allowedValues, policies.allowedValues)
+<           && Objects.equals(deniedValues, policies.deniedValues)
+<           && Objects.equals(inheritFromParent, policies.inheritFromParent)
+<           && Objects.equals(suggestedValue, policies.suggestedValue);
+<     }
+< 
+<     @Override
+<     public int hashCode() {
+<       return Objects.hash(
 <           allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
----
->           (allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
-211c212
+<     }
+< 
+<     ListPolicy toProtobuf() {
+<       return new ListPolicy()
+<           .setAllValues(allValues)
+<           .setAllowedValues(allowedValues)
+<           .setDeniedValues(deniedValues)
+<           .setInheritFromParent(inheritFromParent)
+<           .setSuggestedValue(suggestedValue);
+<     }
+< 
+<     static Policies fromProtobuf(ListPolicy listPolicy) {
+<       return new Policies(
 <           listPolicy.getAllValues(),
+<           listPolicy.getAllowedValues(),
+<           listPolicy.getDeniedValues(),
+<           listPolicy.getInheritFromParent(),
+<           listPolicy.getSuggestedValue());
+<     }
+<   }
+< 
+221c61
+<     private BoolPolicy boolPolicy;
 ---
->           (listPolicy.getAllValues(),
-346,347c347,348
-<     return Objects.hash(
+>     private BooleanPolicy boolPolicy;
+224,225c64
+<     private Policies policies;
+<     private RestoreDefault restoreDefault;
+---
+>     private ListPolicy policies;
+236d74
+<       this.restoreDefault = info.restoreDefault;
+241c79
+<     Builder setBoolPolicy(BoolPolicy boolPolicy) {
+---
+>     Builder setBoolPolicy(BooleanPolicy boolPolicy) {
+256c94
+<     Builder setListPolicy(Policies policies) {
+---
+>     Builder setListPolicy(ListPolicy policies) {
+261,265d98
+<     Builder setRestoreDefault(RestoreDefault restoreDefault) {
+<       this.restoreDefault = restoreDefault;
+<       return this;
+<     }
+< 
+286d118
+<     this.restoreDefault = builder.restoreDefault;
+292c124
+<   public BoolPolicy getBoolPolicy() {
+---
+>   public BooleanPolicy getBoolPolicy() {
+307c139
+<   public Policies getPolicies() {
+---
+>   public ListPolicy getPolicies() {
+311,315d142
+<   /** Restores the default behavior of the constraint. */
+<   public RestoreDefault getRestoreDefault() {
+<     return restoreDefault;
+<   }
+< 
+339d165
+<         && Objects.equals(restoreDefault, policyInfo.restoreDefault)
+347c173
 <         boolPolicy, constraint, etag, policies, restoreDefault, updateTime, version);
 ---
->     return Objects.hash
->         (boolPolicy, constraint, etag, policies, restoreDefault, updateTime, version);
-379c380
-<       builder.setBoolPolicy(BoolPolicy.fromProtobuf(orgPolicyProtobuf.getBooleanPolicy()));
+>         (boolPolicy, constraint, etag, policies, updateTime, version);
+360,361c186,187
+<   OrgPolicy toProtobuf() {
+<     OrgPolicy orgPolicyProto = new OrgPolicy();
 ---
->       builder.setBoolPolicy(BoolPolicy.fromProtobuf(orgPolicyProtobuf.getBooleanPolicy());
-383c384
-<       builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getListPolicy()));
+>   Policy toProtobuf() {
+>     Policy orgPolicyProto = new Policy();
+369d194
+<     orgPolicyProto.setRestoreDefault(restoreDefault);
+376c201
+<   static OrgPolicyInfo fromProtobuf(OrgPolicy orgPolicyProtobuf) {
 ---
->       builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getListPolicy());
+>   static OrgPolicyInfo fromProtobuf(Policy orgPolicyProtobuf) {
+385d209
+<     builder.setRestoreDefault(orgPolicyProtobuf.getRestoreDefault());
+389a214,349
+>   }
+> 
+>   static class BoolPolicy {
+> 
+>     private final Boolean enforce;
+> 
+>     BoolPolicy(Boolean enforce) {
+>       this.enforce = enforce;
+>     }
+> 
+>     public boolean getEnforce() {
+>       return enforce;
+>     }
+> 
+>     @Override
+>     public String toString() {
+>       return MoreObjects.toStringHelper(this).add("enforce", getEnforce()).toString();
+>     }
+> 
+>     @Override
+>     public boolean equals(Object o) {
+>       if (this == o) {
+>         return true;
+>       }
+>       if (o == null || getClass() != o.getClass()) {
+>         return false;
+>       }
+>       BoolPolicy that = (BoolPolicy) o;
+>       return Objects.equals(enforce, that.enforce);
+>     }
+> 
+>     @Override
+>     public int hashCode() {
+>       return Objects.hash(enforce);
+>     }
+> 
+>     com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy toProtobuf() {
+>       return new com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy().setEnforced(enforce);
+>     }
+> 
+>     static BoolPolicy fromProtobuf(com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy booleanPolicy) {
+>       return new BoolPolicy(booleanPolicy.getEnforced());
+>     }
+>   }
+> 
+>   static class Policies {
+> 
+>     private final String allValues;
+>     private final List<String> allowedValues;
+>     private final List<String> deniedValues;
+>     private final Boolean inheritFromParent;
+>     private final String suggestedValue;
+> 
+>     Policies(
+>         String allValues,
+>         List<String> allowedValues,
+>         List<String> deniedValues,
+>         Boolean inheritFromParent,
+>         String suggestedValue) {
+>       this.allValues = allValues;
+>       this.allowedValues = allowedValues;
+>       this.deniedValues = deniedValues;
+>       this.inheritFromParent = inheritFromParent;
+>       this.suggestedValue = suggestedValue;
+>     }
+> 
+>     String getAllValues() {
+>       return allValues;
+>     }
+> 
+>     List<String> getAllowedValues() {
+>       return allowedValues;
+>     }
+> 
+>     List<String> getDeniedValues() {
+>       return deniedValues;
+>     }
+> 
+>     Boolean getInheritFromParent() {
+>       return inheritFromParent;
+>     }
+> 
+>     String getSuggestedValue() {
+>       return suggestedValue;
+>     }
+> 
+>     @Override
+>     public String toString() {
+>       return MoreObjects.toStringHelper(this)
+>           .add("allValues", getAllValues())
+>           .add("allowedValues", getAllowedValues())
+>           .add("deniedValues", getDeniedValues())
+>           .add("inheritFromParent", getInheritFromParent())
+>           .add("suggestedValue", getSuggestedValue())
+>           .toString();
+>     }
+> 
+>     @Override
+>     public boolean equals(Object o) {
+>       if (this == o) {
+>         return true;
+>       }
+>       if (o == null || getClass() != o.getClass()) {
+>         return false;
+>       }
+>       Policies policies = (Policies) o;
+>       return Objects.equals(allValues, policies.allValues)
+>           && Objects.equals(allowedValues, policies.allowedValues)
+>           && Objects.equals(deniedValues, policies.deniedValues)
+>           && Objects.equals(inheritFromParent, policies.inheritFromParent)
+>           && Objects.equals(suggestedValue, policies.suggestedValue);
+>     }
+> 
+>     @Override
+>     public int hashCode() {
+>       return Objects.hash(
+>           allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
+>     }
+> 
+>     ListPolicy toProtobuf() {
+>       return new ListPolicy()
+>           .setAllValues(allValues)
+>           .setAllowedValues(allowedValues)
+>           .setDeniedValues(deniedValues)
+>           .setInheritFromParent(inheritFromParent)
+>           .setSuggestedValue(suggestedValue);
+>     }
+> 
+>     static Policies fromProtobuf(ListPolicy listPolicy) {
+>       return new Policies(
+>           listPolicy.getAllValues(),
+>           listPolicy.getAllowedValues(),
+>           listPolicy.getDeniedValues(),
+>           listPolicy.getInheritFromParent(),
+>           listPolicy.getSuggestedValue());
+>     }

@@ -65,8 +65,8 @@ public class Signer {
             signatureParameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_B);
         }
         // CertificationPermission.MINIMAL_CHANGES_PERMITTED is removed, so we need to find an alternative.
-        // Assuming the requirement is to allow minimal changes, we can set the permission to false for modification.
-        signatureParameters.setDocumentModified(false);
+        // Assuming the requirement is to allow minimal changes, we can set the permission to false for full document encryption.
+        signatureParameters.setDocumentTimestamp(false);
 
         // Create common certificate verifier
         CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
@@ -101,7 +101,7 @@ public class Signer {
             fieldParameters.setOriginY(params.getTop() * POINTS_PER_MM * 10f);
             fieldParameters.setWidth(params.getWidth() * POINTS_PER_MM * 10f);
 
-            // Get the SignedInfo segment that needs to be signed.
+            // Get the SignedInfo segment that need to be signed.
             // respect local timezone
             DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneId.systemDefault());
             // user-provided timezone, if any
@@ -123,9 +123,9 @@ public class Signer {
             log.debug("Visible signature parameters set");
         }
 
-        //https://gist.github.com/Manouchehri/fd754e40d303430243455713efada710
+        //https://gist.github.com/Manouchehri/fd754e402d98430243455713efada710
         //only use TSP source, if parameter is set
-        //if it is set to an url, use this
+        //if it is set to an url, us this
         //otherwise, default
         if (params.getUseTimestamp() || params.getTSA() != null) {
             CompositeTSPSource compositeTSPSource = new CompositeTSPSource();

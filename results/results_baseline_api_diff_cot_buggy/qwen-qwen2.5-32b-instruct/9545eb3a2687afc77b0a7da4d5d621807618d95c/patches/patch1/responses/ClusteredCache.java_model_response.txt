@@ -2,10 +2,10 @@
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.core.EntryEvent;
-import com.hazelcast.map.EntryListener;
+import com.hazelcast.core.EntryListener;
 import com.hazelcast.map.IMap;
-import com.hazelcast.map.MapEvent;
 import com.hazelcast.map.LocalMapStats;
+import com.hazelcast.map.MapEvent;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusteredCacheEntryListener;
 import org.jivesoftware.openfire.cluster.NodeID;
@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Clustered implementation of the Cache interface using Hazelcast.
@@ -54,13 +55,14 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
         logger = LoggerFactory.getLogger(ClusteredCache.class.getName() + "[cache: "+name+"]");
     }
 
-    void addEntryListener(final EntryListener<K, V> listener) {
+    void addEntryListener(final MapListener listener) {
         listeners.add(map.addEntryListener(listener, false));
     }
 
     @Override
-    public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode) {
-        final EntryListener<K, V> listener = new EntryListener<K, V>() {
+    public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode)
+    {
+        final MapListener<K, V> listener = new MapListener<K, V>() {
             @Override
             public void mapEvicted(MapEvent event) {
                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
@@ -257,7 +259,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
             result = map.tryLock(key);
         } else {
             try {
-                result = map.tryLock(key, timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
+                result = map.tryLock(key, timeout, TimeUnit.MILLISECONDS);
             } catch (final InterruptedException e) {
                 logger.error("Failed to get cluster lock", e);
                 result = false;

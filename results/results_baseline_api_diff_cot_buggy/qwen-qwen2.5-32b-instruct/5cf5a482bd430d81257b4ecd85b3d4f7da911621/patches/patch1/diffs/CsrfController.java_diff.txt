@@ -1,4 +1,4 @@
-4,17c4,15
+4,17c4,13
 < import javax.enterprise.context.RequestScoped;
 < import javax.inject.Inject;
 < import javax.mvc.Controller;
@@ -18,26 +18,21 @@
 > import jakarta.inject.Inject;
 > import jakarta.mvc.Controller;
 > import jakarta.mvc.Models;
-> import jakarta.mvc.binding.BindingResult;
-> import jakarta.mvc.binding.MvcBinding;
 > import jakarta.mvc.security.CsrfProtected;
 > import jakarta.validation.constraints.NotBlank;
 > import jakarta.ws.rs.FormParam;
 > import jakarta.ws.rs.GET;
 > import jakarta.ws.rs.POST;
 > import jakarta.ws.rs.Path;
-53,57c51,58
-<             bindingResult.getAllErrors()
-<                     .stream()
-<                     .forEach((ParamError t) -> {
-<                         alert.addError(t.getParamName(), "", t.getMessage());
-<                     });
+29c25
+<     BindingResult bindingResult;
 ---
->             // Assuming ParamError is no longer available, we need to find an alternative to get error messages.
->             // This part of the code might need to be refactored based on the new API documentation.
->             // For now, we will comment out the problematic part.
->             // bindingResult.getAllErrors()
->             //         .stream()
->             //         .forEach((ParamError t) -> {
->             //             alert.addError(t.getParamName(), "", t.getMessage());
->             //         });
+>     jakarta.mvc.binding.BindingResult bindingResult;
+49c45
+<             @MvcBinding
+---
+>             @jakarta.mvc.binding.MvcBinding
+55c51
+<                     .forEach((ParamError t) -> {
+---
+>                     .forEach((jakarta.mvc.binding.ParamError t) -> {

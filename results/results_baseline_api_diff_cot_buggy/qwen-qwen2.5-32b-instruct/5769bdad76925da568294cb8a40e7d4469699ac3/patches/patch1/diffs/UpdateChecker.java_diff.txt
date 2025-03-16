@@ -28,7 +28,9 @@
 ---
 > import org.kohsuke.github.GHCommit;
 > import org.kohsuke.github.GHRepository;
-63,99d39
+41a19
+> import org.kohsuke.github.GitHubException;
+63,99d40
 <     @FunctionalInterface
 <     public interface Log {
 <         void info(String message);
@@ -66,7 +68,7 @@
 <         }
 <     }
 < 
-123,161d62
+123,161d63
 <     private @CheckForNull VersionAndRepo doFind(String groupId, String artifactId, String currentVersion, String branch) throws Exception {
 <         ComparableVersion currentV = new ComparableVersion(currentVersion);
 <         log.info("Searching for updates to " + groupId + ":" + artifactId + ":" + currentV + " within " + branch);
@@ -106,7 +108,7 @@
 <         return null;
 <     }
 < 
-188,201d88
+188,201d89
 <     private static final class GitHubCommit {
 <         final String owner;
 <         final String repo;
@@ -121,10 +123,7 @@
 <         }
 <     }
 < 
-231,232d117
-<      * {@code curl -s -u … https://api.github.com/repos/<owner>/<repo>/compare/<branch>...<hash> | jq -r .status}
-<      * will return {@code identical} or {@code behind} if so, else {@code diverged} or {@code ahead}.
-239,240c124,127
+239,240c127,130
 <             GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
 <             return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
 ---
@@ -132,5 +131,5 @@
 >             GHCommit compareCommit = repo.getCommit(ghc.hash);
 >             GHCommit branchCommit = repo.getBranch(branch).getCommit();
 >             return compareCommit.isAncestorOf(branchCommit);
-279d165
+279d168
 < 

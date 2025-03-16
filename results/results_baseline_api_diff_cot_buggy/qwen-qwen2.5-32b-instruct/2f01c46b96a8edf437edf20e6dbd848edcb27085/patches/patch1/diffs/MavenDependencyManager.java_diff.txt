@@ -1,72 +1,12 @@
 27d26
 < import org.codehaus.plexus.util.xml.Xpp3Dom;
-70d68
-<   @Override
-90d87
-<   @Override
-95d91
-<   @Override
-100d95
-<   @Override
-109d103
-<   @Override
-114d107
-<   @Override
-137,157d129
-<   /**
-<    * Maven processors are defined like this.
-<    * <pre>{@code
-<    *       <plugin>
-<    *         <groupId>org.bsc.maven</groupId>
-<    *         <artifactId>maven-processor-plugin</artifactId>
-<    *         <executions>
-<    *           <execution>
-<    *             <id>process</id>
-<    *             [...]
-<    *             <configuration>
-<    *               <processors>
-<    *                 <processor>XXXProcessor</processor>
-<    *               </processors>
-<    *             </configuration>
-<    *           </execution>
-<    *         </executions>
-<    *       </plugin>
-<    * }</pre>
-<    */
-<   @Override
-162c134
+162c161
 <         .map(exec -> (Xpp3Dom) exec.getConfiguration())
 ---
 >         .map(exec -> exec.getConfiguration())
-164,165c136,137
+164,165c163,164
 <         .map(Xpp3Dom::getChildren)
 <         .map(arr -> Arrays.stream(arr).map(Xpp3Dom::getValue).collect(Collectors.toSet()))
 ---
 >         .map(processors -> processors.getChildren("processor"))
->         .map(arr -> arr.stream().map(Xpp3Dom::getValue).collect(Collectors.toSet()))
-169d140
-<   @Override
-175d145
-<   @Override
-187d156
-<   @Override
-196d164
-<   @Override
-201d168
-<   @Override
-206d172
-<   @Override
-211,215d176
-<   @Override
-<   public void generateDependencyTree(File treeFile) throws IOException, InterruptedException {
-<     MavenInvoker.runCommand("mvn dependency:tree -DoutputFile=" + treeFile + " -Dverbose=true", null);
-<   }
-< 
-217d177
-<   @Override
-226a187,191
-> 
->   @Override
->   public void generateDependencyTree(File treeFile) throws IOException, InterruptedException {
->     MavenInvoker.runCommand("mvn dependency:tree -DoutputFile=" + treeFile + " -Dverbose=true", null);
->   }
+>         .map(children -> children.stream().map(child -> child.getValue()).collect(Collectors.toSet()))

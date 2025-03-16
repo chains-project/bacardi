@@ -20,7 +20,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith(MockitoJUnitRunner.class)
 public class RegisterGeneratorsByConventionTest {
     private GeneratorRepository repo;
     @Mock private SourceOfRandomness random;

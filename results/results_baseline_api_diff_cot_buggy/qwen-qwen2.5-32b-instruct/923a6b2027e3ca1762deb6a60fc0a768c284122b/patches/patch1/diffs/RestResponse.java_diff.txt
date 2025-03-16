@@ -1,48 +1,52 @@
 45d44
 < import org.hamcrest.CustomMatcher;
-48d46
+48c47,50
 < import org.hamcrest.Matchers;
-65,67d62
+---
+> import org.hamcrest.core.IsEqual;
+> import org.hamcrest.core.IsNot;
+> import org.hamcrest.core.StringContains;
+> import org.hamcrest.core.StringStartsWith;
+60,61c62,63
+<  *   .assertBody(Matchers.containsString("hello, world!"))
+<  *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
+---
+>  *   .assertBody(new StringContains("hello, world!"))
+>  *   .assertHeader("Content-Type", new IsEqual<>(Collections.singletonList("text/plain")))
+65,67d66
 <  * <p>Method {@link #jump(URI)} creates a new instance of class
 <  * {@link Request} with all cookies transferred from the current one.
 <  *
-92c87,90
-<             String.format("HTTP response is not valid: %s", this),
----
->             String.format(
->                 "HTTP response is not valid: %s",
->                 this
->             ),
-103c101
+103c102
 <      * @return The same object
 ---
 >      * @return This object
-114,115c112
+114,115c113
 <             this,
 <             new RestResponse.StatusMatch(message, status)
 ---
->             this.status(), Matchers.equalTo(status)
-123c120
+>             this.status(), new IsEqual<>(status)
+123c121
 <      * @param matcher Matcher to validate status code
 ---
 >      * @param matcher The matcher to use
-210c207
+210c208
 <         return this.assertHeader(name, Matchers.hasItems(value));
 ---
->         return this.assertHeader(name, org.hamcrest.Matchers.hasItems(value));
-226c223
+>         return this.assertHeader(name, new IsEqual<>(Collections.singletonList(value)));
+226c224
 <                 for (final HttpCookie cookie : HttpCookie.parse(header)) {
 ---
 >                 for (final HttpCookie candidate : HttpCookie.parse(header)) {
-230c227
+230c228
 <                             "%s=%s", cookie.getName(), cookie.getValue()
 ---
 >                             "%s=%s", candidate.getName(), candidate.getValue()
-246c243
+246c244
 <             Matchers.not(Matchers.emptyIterableOf(String.class))
 ---
->             org.hamcrest.Matchers.not(org.hamcrest.Matchers.emptyIterable())
-284c281
+>             new IsNot<>(new IsEqual<>(Collections.emptyList()))
+284c282
 <             Matchers.notNullValue()
 ---
->             org.hamcrest.Matchers.notNull()
+>             new IsEqual<>(Matchers.notNullValue())

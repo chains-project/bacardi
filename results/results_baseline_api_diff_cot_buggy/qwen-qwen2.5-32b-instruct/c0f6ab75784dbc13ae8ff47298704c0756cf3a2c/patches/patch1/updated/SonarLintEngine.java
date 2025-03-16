@@ -35,7 +35,6 @@ import org.sonarsource.sonarlint.core.client.api.common.analysis.IssueListener;
 import org.sonarsource.sonarlint.core.client.api.exceptions.SonarLintWrappedException;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisConfiguration;
 import org.sonarsource.sonarlint.core.commons.Language;
-import org.sonarsource.sonarlint.core.commons.RuleKey;
 import org.sonarsource.sonarlint.core.commons.log.ClientLogOutput;
 import org.sonarsource.sonarlint.core.commons.progress.ClientProgressMonitor;
 import org.sonarsource.sonarlint.core.commons.progress.ProgressMonitor;
@@ -64,7 +63,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     // The only instance of this class
     private static SonarLintEngine theOnlyInstance;
 
-    // We need to reinitialize it before starting analysis of any source files on any rules.
+    // We need to reinitialise it before starting analysis of any source files on any rules.
     private AnalysisEngine analysisEngine;
 
     private SonarLintEngine() {
@@ -212,6 +211,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                                                                     i,
                                                                     allRulesDefinitionsByKey.get(
                                                                             i.getRuleKey()))),
+                                            logOutput),
                                     new ProgressMonitor(monitor))
                             .get();
             return analysisResults == null ? new AnalysisResults() : analysisResults;

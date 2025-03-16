@@ -58,10 +58,10 @@ public abstract class ListControlGroups<T> extends Panel {
 
 	private Map<String, AbstractControlGroup<?>> fieldComponents = new HashMap<String, AbstractControlGroup<?>>();
 
-	private Map<Class<?>, ControlGroupProvider<?>> controlGroupProviders = new HashMap<Class<?>, ControlGroupProvider<?>>();
+	private Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> controlGroupProviders = new HashMap<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>>();
 
 	@SuppressWarnings("rawtypes")
-	private final Map<Class<?>, Class<? extends AbstractControlGroup>> typesControlGroups = new HashMap<Class<?>, Class<? extends AbstractControlGroup>>();
+	private Map<Class<?>, Class<? extends AbstractControlGroup>> typesControlGroups = new HashMap<Class<?>, Class<? extends AbstractControlGroup>>();
 
 	private List<ObjectProperties> objectProperties;
 	private CrudifierEntitySettings entitySettings;
@@ -95,11 +95,11 @@ public abstract class ListControlGroups<T> extends Panel {
 		Set<String> properties = new LinkedHashSet<String>();
 
 		for(String property : entitySettings.getOrderOfFields()){
-			if(!entitySettings.hiddenFields().contains(property))
+			if(!entitySettings.getHiddenFields().contains(property))
 				properties.add(property);
 		}
 		for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
-			if(!entitySettings.hiddenFields().contains(descriptor.getName()) &&
+			if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
 			   !properties.contains(descriptor.getName()) &&
 			   !descriptor.getName().equals("class"))
 				properties.add(descriptor.getName());
@@ -110,12 +110,11 @@ public abstract class ListControlGroups<T> extends Panel {
 
 	protected abstract EntityProvider<?> getEntityProvider(String name);
 
+	@Override
 	protected void onInitialize() {
 		super.onInitialize();
 
 		Class<?> modelClass = getModel().getObject().getClass();
-
-		Set<String> properties = getPropertiesByOrder(modelClass);
 
 		Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
 		BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
@@ -132,15 +131,16 @@ public abstract class ListControlGroups<T> extends Panel {
 			ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
 			if(constraintDescriptor!=null){
 				Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
-			 for(ConstraintDescriptor<?> constraint : constraintsSet){
-				 if(constraint.getAnnotation() instanceof NotNull ||
-				 constraint.getAnnotation() instanceof NotEmpty ||
-				 constraint.getAnnotation() instanceof NotBlank)
-				 required = true;
-			 }
+				for(ConstraintDescriptor<?> constraint : constraintsSet){
+					if(constraint.getAnnotation() instanceof NotNull ||
+					   constraint.getAnnotation() instanceof NotEmpty ||
+					   constraint.getAnnotation() instanceof NotBlank)
+						required = true;
+				}
 			}
 
 			objectProperties.add(new ObjectProperties(descriptor, required));
+			);
 		}
 		
 		RepeatingView view = new RepeatingView("controlGroup");
@@ -149,7 +149,7 @@ public abstract class ListControlGroups<T> extends Panel {
 				AbstractControlGroup<?> controlGroup;
 				if(!controlGroupProviders.containsKey(objectProperty.type)) {
 					Constructor<?> constructor;
-					Class<? extends Panel> typesControlGroup = getControlGroupByType(objectProperty.type);
+					Class<? extends AbstractControlGroup> typesControlGroup = getControlGroupByType(objectProperty.type);
 					if(typesControlGroup==null){
 						if(objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
 						else typesControlGroup = ObjectChoiceControlGroup.class;
@@ -160,7 +160,6 @@ public abstract class ListControlGroups<T> extends Panel {
 					controlGroup = (AbstractControlGroup<?>) constructor.newInstance(view.newChildId(), new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name));
 					controlGroup.init(objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
 					controlGroup.setEnabled(objectProperty.enabled);
-
 					if(typesControlGroup==ObjectChoiceControlGroup.class){
 						IObjectRenderer<?> renderer = renderers.get(objectProperty.type);
 						if(renderer==null){
@@ -205,27 +204,25 @@ public abstract class ListControlGroups<T> extends Panel {
 		add(view);
 	}
 
-	@SuppressWarnings("unchecked")
-	public IModel<T> getModel(){
-		return (IModel<T>) getDefaultModel();
-	}
-
-	public Component getResourceBase(){
-		return this;
-	}
-
-	public Map<String, AbstractControlGroup<?>> getFieldsControlGroup(){
-		return Collections.unmodifiableMap(fieldComponents);
-	}
-	
 	@SuppressWarnings("rawtypes")
-	private Class<? extends AbstractControlGroup> getControlGroupByType(Class<?> type){
-		for(Class<?> mapType : typesControlGroups.keySet()){
-			if(type.isAssignableFrom(mapType)) return typesControlGroups.get(mapType);
+	private Set<String> getPropertiesByOrder(Class<?> modelClass) {
+		Set<String> properties = new LinkedHashSet<String>();
+
+		for(String property : entitySettings.getOrderOfFields()){
+			if(!entitySettings.getHiddenFields().contains(property))
+				properties.add(property);
 		}
-		return null;
+		for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
+			if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
+			   !properties.contains(descriptor.getName()) &&
+			   !descriptor.getName().equals("class"))
+				properties.add(descriptor.getName());
+		}
+
+		return properties;
 	}
 
+	@SuppressWarnings("rawtypes")
 	private static final class ObjectProperties implements Serializable {
 		private static final long serialVersionUID = 1747577998897955928L;
 		private String name;

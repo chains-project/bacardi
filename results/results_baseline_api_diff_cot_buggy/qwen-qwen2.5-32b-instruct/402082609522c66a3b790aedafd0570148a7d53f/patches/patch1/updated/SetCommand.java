@@ -13,14 +13,14 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.CommandParameter;
+import org.spongepowered.api.command.parameter.managed.FlagParameter;
+import org.spongepowered.api.command.parameter.managed.TextParameter;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
-import static org.spongepowered.api.command.parameter.Parameter.flags;
-import static org.spongepowered.api.command.parameter.Parameter.string;
 import static org.spongepowered.api.text.Text.of;
 
-public class SetCommand implements CommandExecutor, ChangeSkinCommand {
+public class SetCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
     private final ChangeSkinCore core;
@@ -45,8 +45,8 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
         }
 
         Player receiver = (Player) src;
-        String targetSkin = args.<String>getOne("skin").get();
-        boolean keepSkin = args.<Boolean>getOne("keep").isPresent();
+        String targetSkin = args.getOne(TextParameter.key("skin")).get();
+        boolean keepSkin = args.getOne(FlagParameter.key("keep")).orElse(false);
 
         if ("reset".equals(targetSkin)) {
             targetSkin = receiver.getUniqueId().toString();
@@ -70,12 +70,13 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
         return CommandResult.success();
     }
 
-    public CommandSpec buildSpec() {
-        return CommandSpec.builder()
+    @Override
+    public CommandParameter buildSpec() {
+        return CommandParameter.builder()
                 .executor(this)
-                .arguments(
-                        string(of("skin")),
-                        flags().flag("keep").buildWith(CommandParameter.empty()))
+                .parameters(
+                        TextParameter.of("skin"),
+                        FlagParameter.of("keep"))
                 .permission(PomData.ARTIFACT_ID + ".command.setskin.base")
                 .build();
     }

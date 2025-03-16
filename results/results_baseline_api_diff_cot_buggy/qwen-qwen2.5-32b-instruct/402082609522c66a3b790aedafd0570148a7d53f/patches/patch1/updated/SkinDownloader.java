@@ -6,8 +6,8 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.UUID;
 
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.text.Text;
 
 public class SkinDownloader extends SharedDownloader {
 
@@ -30,8 +30,7 @@ public class SkinDownloader extends SharedDownloader {
         Task.builder().execute(skinUpdater).submit(plugin);
     }
 
-    @Override
     public void sendMessageInvoker(String id) {
-        plugin.sendMessage(invoker, Text.of(id));
+        plugin.sendMessage(invoker, id);
     }
 }

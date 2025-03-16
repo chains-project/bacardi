@@ -1,5 +1,9 @@
 3a4
 > import org.flywaydb.core.api.configuration.ClassicConfiguration;
+103c104
+<         @Bean(initMethod = "migrate")
+---
+>         @Bean
 108,113c109,115
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
@@ -15,18 +19,16 @@
 >                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
 > 
 >                 return new Flyway(configuration);
-117d118
-<         @DependsOn("flyway")
-129,130c130,131
+129,130c131,132
 <                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
 <                                 this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
 ---
 >                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
 >                                 this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
-197a199,200
+197a200,201
 >         // region harvester
 > 
-235,448c238
+235,321c239
 <                 return new SynchronizedNamespaceCache(new DefaultNamespaceCache(mosaicRedefinitionForkHeight));
 <         }
 < 
@@ -114,7 +116,9 @@
 <                                                         nisConfiguration.getForkConfiguration().getFeeFork().getSecondHeight()
 <                                         }));
 <                 }
-< 
+---
+>                 return new SynchronizedNamespaceCache(new DefaultNamespaceCache(mosaicR鳡
+323,448d240
 <                 NemGlobals.setBlockChainConfiguration(nisConfiguration.getBlockChainConfiguration());
 <                 NemStateGlobals.setWeightedBalancesSupplier(this.weighedBalancesSupplier());
 < 
@@ -241,6 +245,3 @@
 <                 return new SynchronizedMosaicIdCache(new DefaultMosaicIdCache());
 <         }
 < }
----
->                 return new SynchronizedNamespaceCache(new DefaultNamespaceCache(mosaicR鳡
-\ No newline at end of file

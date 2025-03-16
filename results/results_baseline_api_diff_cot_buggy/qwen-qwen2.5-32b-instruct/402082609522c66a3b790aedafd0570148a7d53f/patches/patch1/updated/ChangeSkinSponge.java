@@ -20,13 +20,15 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandManager;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
-import org.spongepowered.api.network.channel.packet.PacketChannel;
-import org.spongepowered.api.network.channel.packet.PacketChannelManager;
+import org.spongepowered.api.network.ChannelBinding;
+import org.spongepowered.api.network.ChannelBinding.ChannelBuilder;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
 import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
@@ -34,7 +36,7 @@ import static com.github.games647.changeskin.core.message.SkinUpdateMessage.UPDA
 import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 
 @Singleton
-public class ChangeSkinSponge implements PlatformPlugin {
+public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
 
     private final Path dataFolder;
     private final Logger logger;
@@ -69,23 +71,26 @@ public class ChangeSkinSponge implements PlatformPlugin {
         if (!initialized)
             return;
 
-        PluginContainer pluginContainer = Sponge.getPluginManager().fromInstance(this).get();
-        Sponge.getCommandManager().register(pluginContainer, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
-        Sponge.getCommandManager().register(pluginContainer, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
-        Sponge.getCommandManager().register(pluginContainer, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
-        Sponge.getCommandManager().register(pluginContainer, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
-        Sponge.getCommandManager().register(pluginContainer, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
+        CommandManager cmdManager = Sponge.getCommandManager();
 
-        Sponge.getEventManager().registerListeners(pluginContainer, injector.getInstance(LoginListener.class));
+        //command and event register
+        cmdManager.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+        cmdManager.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+        cmdManager.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+        cmdManager.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+        cmdManager.register(this, injector.getInstance(InvalidateCommand.class)
+                .buildSpec(), "skininvalidate", "skin-invalidate");
+
+        Sponge.getEventManager().registerListeners(this, injector.getInstance(LoginListener.class));
 
         //incoming channel
-        PacketChannelManager channelReg = Sponge.getPacketChannelManager();
+        ChannelBuilder channelBuilder = Sponge.getNetworkManager().createChannelBuilder();
         String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
         String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
-        PacketChannel updateChannel = channelReg.createChannel(updateChannelName);
-        PacketChannel permChannel = channelReg.createChannel(permissionChannelName);
+        ChannelBinding<ByteBuf> updateChannel = channelBuilder.createChannel(updateChannelName);
+        ChannelBinding<ByteBuf> permChannel = channelBuilder.createChannel(permissionChannelName);
         updateChannel.registerListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
-        permChannel.registerListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
+        permChannel.registerListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class);
     }
 
     @Listener
@@ -97,6 +102,7 @@ public class ChangeSkinSponge implements PlatformPlugin {
         return core;
     }
 
+    @Override
     public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
         if (invoker.hasPermission(PomData.ARTIFACT_ID + ".skin.whitelist." + uuid)) {
             return true;
@@ -114,18 +120,22 @@ public class ChangeSkinSponge implements PlatformPlugin {
         return api;
     }
 
+    @Override
     public String getName() {
         return PomData.NAME;
     }
 
+    @Override
     public Path getPluginFolder() {
         return dataFolder;
     }
 
+    @Override
     public Logger getLog() {
         return logger;
     }
 
+    @Override
     public void sendMessage(CommandSource receiver, String key) {
         String message = core.getMessage(key);
         if (message != null && receiver != null) {

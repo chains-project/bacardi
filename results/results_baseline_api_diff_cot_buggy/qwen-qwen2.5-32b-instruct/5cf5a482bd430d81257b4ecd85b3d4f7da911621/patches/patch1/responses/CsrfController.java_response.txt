@@ -5,8 +5,6 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
-import jakarta.mvc.binding.BindingResult;
-import jakarta.mvc.binding.MvcBinding;
 import jakarta.mvc.security.CsrfProtected;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.FormParam;
@@ -24,7 +22,7 @@ import jakarta.ws.rs.Path;
 public class CsrfController {
 
     @Inject
-    BindingResult bindingResult;
+    jakarta.mvc.binding.BindingResult bindingResult;
 
     @Inject
     Models models;
@@ -44,18 +42,15 @@ public class CsrfController {
     @CsrfProtected
     public String post(
             @FormParam("greeting")
-            @MvcBinding
+            @jakarta.mvc.binding.MvcBinding
             @NotBlank String greeting) {
         if (bindingResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            // Assuming ParamError is no longer available, we need to find an alternative to get error messages.
-            // This part of the code might need to be refactored based on the new API documentation.
-            // For now, we will comment out the problematic part.
-            // bindingResult.getAllErrors()
-            //         .stream()
-            //         .forEach((ParamError t) -> {
-            //             alert.addError(t.getParamName(), "", t.getMessage());
-            //         });
+            bindingResult.getAllErrors()
+                    .stream()
+                    .forEach((jakarta.mvc.binding.ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
             models.put("errors", alert);
             log.info("mvc binding failed.");
             return "csrf.xhtml";

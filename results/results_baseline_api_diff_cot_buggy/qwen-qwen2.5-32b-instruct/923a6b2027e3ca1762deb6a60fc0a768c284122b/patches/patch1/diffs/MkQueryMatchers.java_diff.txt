@@ -5,8 +5,8 @@
 ---
 >             new Matcher<URI>() {
 >                 @Override
->                 public boolean matches(Object item) {
->                     return path.matches(((URI) item).getRawPath());
+>                 public boolean matchesSafely(URI item) {
+>                     return path.matches(item.getRawPath());
 >                 }
 >             }
 97c101,106
@@ -14,7 +14,7 @@
 ---
 >             new Matcher<URI>() {
 >                 @Override
->                 public boolean matches(Object item) {
->                     return query.matches(((URI) item).getRawQuery());
+>                 public boolean matchesSafely(URI item) {
+>                     return query.matches(item.getRawQuery());
 >                 }
 >             }

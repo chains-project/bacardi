@@ -1,3 +1,28 @@
+<fix_planning>
+a. Relevant parts of the code and API changes:
+   - The code imports `javax.interceptor.InterceptorBinding` and uses it as an annotation.
+   - The API change indicates that `javax.interceptor.InterceptorBinding` has been removed and replaced by `jakarta.interceptor.InterceptorBinding`.
+
+b. Specific API changes causing the issue:
+   - The removal of `javax.interceptor.InterceptorBinding` and the introduction of `jakarta.interceptor.InterceptorBinding` in the new version of the dependency.
+
+c. Affected lines of code:
+   - Line 5: `import javax.interceptor.InterceptorBinding;`
+   - Line 13: `@InterceptorBinding`
+
+d. Potential fixes for each affected line:
+   - Replace `javax.interceptor.InterceptorBinding` with `jakarta.interceptor.InterceptorBinding` in both the import statement and the annotation usage.
+
+e. Potential side effects of the proposed changes:
+   - No side effects are expected as the replacement is a direct mapping from the old API to the new API.
+
+f. Adherence to constraints:
+   - The changes do not alter function signatures, do not remove any existing code, and do not require the removal of the `@Override` annotation.
+
+g. Summary of the chosen fix:
+   - The fix involves updating the import statement and the annotation usage to reflect the new package name. This is the best solution as it directly addresses the API change without altering the functionality of the code.
+</fix_planning>
+
 ```java
 package de.hilling.junit.cdi.scope;
 

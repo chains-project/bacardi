@@ -8,22 +8,31 @@
 23c19
 <     private final CommandSource invoker;
 ---
->     private final Object invoker;
+>     private final Player invoker;
 26c22
 <     public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
 ---
->     public SkinApplier(ChangeSkinSponge plugin, Object invoker, Player receiver, SkinModel targetSkin
+>     public SkinApplier(ChangeSkinSponge plugin, Player invoker, Player receiver, SkinModel targetSkin
+42,43c38,39
+<         if (invoker instanceof Player) {
+<             UUID uniqueId = ((Player) invoker).getUniqueId();
+---
+>         if (invoker != null) {
+>             UUID uniqueId = invoker.getUniqueId();
 84,85c80,81
 <         receiver.offer(Keys.VANISH, true);
 <         receiver.offer(Keys.VANISH, false);
 ---
->         receiver.offer(Sponge.getRegistry().getType(org.spongepowered.api.data.key.Key.class, "vanish").get(), true);
->         receiver.offer(Sponge.getRegistry().getType(org.spongepowered.api.data.key.Key.class, "vanish").get(), false);
-91c87
+>         receiver.offer(Sponge.getDataManager().getRegistry().getValue("vanish", true));
+>         receiver.offer(Sponge.getDataManager().getRegistry().getValue("vanish", false));
+90,91c86,87
+<         receiver.getTabList().addEntry(TabListEntry.builder()
 <                 .displayName(receiver.getDisplayNameData().displayName().get())
 ---
->                 .displayName(receiver.getName())
-94c90
+>         receiver.getTabList().addEntry(receiver.getTabList().builder()
+>                 .displayName(receiver.getDisplayName())
+93,94c89
+<                 .list(receiver.getTabList())
 <                 .gameMode(receiver.getGameModeData().type().get())
 ---
 >                 .gameMode(receiver.getGameMode())

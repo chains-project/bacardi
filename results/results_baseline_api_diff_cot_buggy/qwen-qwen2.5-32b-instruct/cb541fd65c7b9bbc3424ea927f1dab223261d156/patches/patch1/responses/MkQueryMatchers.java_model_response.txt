@@ -82,7 +82,12 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasPath(final Matcher<String> path) {
         return new MkQueryUriMatcher(
-            org.hamcrest.core.IsEqual.equalTo(path)
+            new Matcher<URI>() {
+                @Override
+                public boolean matchesSafely(URI item) {
+                    return path.matches(item.getRawPath());
+                }
+            }
         );
     }
 
@@ -94,11 +99,16 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasQuery(final Matcher<String> query) {
         return new MkQueryUriMatcher(
-            org.hamcrest.core.IsEqual.equalTo(query)
+            new Matcher<URI>() {
+                @Override
+                public boolean matchesSafely(URI item) {
+                    return query.matches(item.getRawQuery());
+                }
+            }
         );
     }
 
 }
 ```
 
-In the provided solution, the `Matchers` class from the `org.hamcrest` package has been replaced with `org.hamcrest.core.IsEqual` to ensure the code compiles and functions correctly with the updated dependency. The `Matchers` class was removed in the new version of the dependency, and the `equalTo` method from `org.hamcrest.core.IsEqual` is used as a replacement for the `hasProperty` method that was previously used. This change adheres to the constraints provided, ensuring that the function signatures remain unchanged and no unnecessary code is removed.
+In the solution, the `Matchers` class from the `org.hamcrest` package has been removed, and the `hasPath` and `hasQuery` methods have been updated to directly implement the `Matcher` interface for `URI` to check the `rawPath` and `rawQuery` properties, respectively. This approach avoids the dependency on the removed `Matchers` class and ensures the code remains functional.

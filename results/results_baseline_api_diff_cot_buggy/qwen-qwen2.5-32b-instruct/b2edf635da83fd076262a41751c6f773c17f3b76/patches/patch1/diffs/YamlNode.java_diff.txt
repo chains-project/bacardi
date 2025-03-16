@@ -17,13 +17,15 @@
 <  */
 27a12
 > import org.yaml.snakeyaml.LoaderOptions;
-114c99,101
+38a24
+> 
+114c100,102
 <             return (YamlNode) new Yaml(new Constructor(YamlNode.class)).load(in);
 ---
 >             LoaderOptions options = new LoaderOptions();
->             options.setAllowDuplicateKeys(false);
->             return new Yaml(new Constructor(YamlNode.class, options)).load(in);
-126a114,145
+>             options.setProperty("org.yaml.snakeyaml.constructor.Constructor", YamlNode.class);
+>             return new Yaml(options).loadAs(in, YamlNode.class);
+126a115,146
 >    public static final Function<Node, YamlNode> nodeToYamlNode = new Function<Node, YamlNode>() {
 >       @Override
 >       public YamlNode apply(Node arg0) {
@@ -56,6 +58,8 @@
 >       return nodeToYamlNode.apply(in);
 >    }
 > 
+172d191
+<       }
 178,210d196
 < 
 <    public static YamlNode fromNode(Node in) {

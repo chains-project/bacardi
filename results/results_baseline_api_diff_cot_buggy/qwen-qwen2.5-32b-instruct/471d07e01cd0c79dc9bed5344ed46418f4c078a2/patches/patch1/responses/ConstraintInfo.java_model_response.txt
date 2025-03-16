@@ -16,8 +16,9 @@
  */
 package com.google.cloud.resourcemanager;
 
-import com.google.api.services.cloudresourcemanager.v3.model.Constraint as ConstraintV3;
-import com.google.api.services.cloudresourcemanager.v3.model.ListConstraint as ListConstraintV3;
+import com.google.api.services.cloudresourcemanager.v3.model.BooleanConstraint;
+import com.google.api.services.cloudresourcemanager.v3.model.ListConstraint;
+import com.google.api.services.cloudresourcemanager.v3.model.Constraint;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.Objects;
@@ -33,22 +34,22 @@ import java.util.Objects;
 public class ConstraintInfo {
 
 {
-  static final Function<ConstraintV3, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
-      new Function<ConstraintV3, ConstraintInfo>() {
+  static final Function<ConstraintInfo, Constraint> FROM_PROTOBUF_FUNCTION =
+      new Function<ConstraintInfo, Constraint>() {
         @Override
-        public ConstraintInfo apply(ConstraintV3 protobuf) {
-          return ConstraintInfo.fromProtobuf(protobuf);
-        }
-      };
-  static final Function<ConstraintInfo, ConstraintV3> TO_PROTOBUF_FUNCTION =
-      new Function<ConstraintInfo, ConstraintV3>() {
-        @Override
-        public ConstraintV3 apply(ConstraintInfo constraintInfo) {
+        public Constraint apply(ConstraintInfo constraintInfo) {
           return constraintInfo.toProtobuf();
         }
       };
+  static final Function<Constraint, ConstraintInfo> TO_PROTOBUF_FUNCTION =
+      new Function<Constraint, ConstraintInfo>() {
+        @Override
+        public ConstraintInfo apply(Constraint protobuf) {
+          return ConstraintInfo.fromProtobuf(protobuf);
+        }
+      };
 
-  private Boolean booleanConstraint;
+  private BooleanConstraint booleanConstraint;
   private String constraintDefault;
   private String description;
   private String displayName;
@@ -62,6 +63,7 @@ public class ConstraintInfo {
    */
   static class Constraints {
 
+  {
     private final String suggestedValue;
     private final Boolean supportsUnder;
 
@@ -83,7 +85,7 @@ public class ConstraintInfo {
      * Policy.allowed_values and Policy.denied_values.
      */
     Boolean getSupportsUnder() {
-      return supportsUnder;
+      return supportUnder;
     }
 
     @Override
@@ -96,7 +98,7 @@ public class ConstraintInfo {
 
     @Override
     public int hashCode() {
-      return Objects.hash(suggestedValue, supportsUnder);
+      return Objects.hash(suggestedValue, supportUnder);
     }
 
     @Override
@@ -109,23 +111,21 @@ public class ConstraintInfo {
       }
       Constraints that = (Constraints) o;
       return Objects.equals(suggestedValue, that.suggestedValue)
-          && Objects.equals(supportsUnder, that.supportsUnder);
+          && Objects.equals(supportUnder, that.supportUnder);
     }
 
-    ListConstraintV3 toProtobuf() {
-      ListConstraintV3 listConstraint = new ListConstraintV3();
-      listConstraint.setSuggestedValue(suggestedValue);
-      return listConstraint;
+    ListConstraint toProtobuf() {
+      return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportUnder);
     }
 
-    static Constraints fromProtobuf(ListConstraintV3 listConstraint) {
-      return new Constraints(listConstraint.getSuggestedValue(), null);
+    static Constraints fromProtobuf(ListConstraint listConstraint) {
+      return new Constraints(listConstraint.getSuggestedValue(), listConstraint.getSupportsUnder());
     }
   }
 
   /** Builder for {@code ConstraintInfo}. */
   static class Builder {
-    private Boolean booleanConstraint;
+    private BooleanConstraint booleanConstraint;
     private String constraintDefault;
     private String description;
     private String displayName;
@@ -147,7 +147,7 @@ public class ConstraintInfo {
       this.version = info.version;
     }
 
-    Builder setBooleanConstraint(Boolean booleanConstraint) {
+    Builder setBooleanConstraint(BooleanConstraint booleanConstraint) {
       this.booleanConstraint = booleanConstraint;
       return this;
     }
@@ -198,7 +198,7 @@ public class ConstraintInfo {
   }
 
   /** Returns the boolean constraint to check whether the constraint is enforced or not. */
-  public Boolean getBooleanConstraint() {
+  public BooleanConstraint getBooleanConstraint() {
     return booleanConstraint;
   }
 
@@ -266,23 +266,33 @@ public class ConstraintInfo {
     return new Builder(this);
   }
 
-  ConstraintV3 toProtobuf() {
-    ConstraintV3 constraintProto = new ConstraintV3();
+  Constraint toProtobuf() {
+    Constraint constraintProto = new Constraint();
     constraintProto.setBooleanConstraint(booleanConstraint);
+    constraintProto.setConstraintDefault(constraintDefault);
+    constraintProto.setDescription(description);
+    constraintProto.setDisplayName(displayName);
     if (constraints != null) {
       constraintProto.setListConstraint(constraints.toProtobuf());
     }
     constraintProto.setName(name);
+    constraintProto.setVersion(version);
     return constraintProto;
   }
 
-  static ConstraintInfo fromProtobuf(ConstraintV3 constraintProtobuf) {
+  static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) {
     Builder builder = newBuilder(constraintProtobuf.getName());
     builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint());
+    builder.setConstraintDefault(constraintProtobuf.getConstraintDefault());
+    builder.setDescription(constraintProtobuf.getDescription());
+    builder.setDisplayName(constraintProtobuf.getDisplayName());
     if (constraintProtobuf.getListConstraint() != null) {
       builder.setConstraints(Constraints.fromProtobuf(constraintProtobuf.getListConstraint()));
     }
-    builder.setName(constraintProtobuf.getName());
+    if (constraintProtobuf.getName() != null && !constraintProtobuf.getName().equals("Unnamed")) {
+      builder.setName(constraintProtobuf.getName());
+    }
+    builder.setVersion(constraintProtobuf.getVersion());
     return builder.build();
   }
 }

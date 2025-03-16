@@ -1,25 +1,33 @@
-14,16c14,18
+11a12,14
+> import net.kyori.adventure.text.Component;
+> import net.kyori.adventure.text.format.TextColor;
+> import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+14,15c17,20
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
-< import org.spongepowered.api.command.spec.CommandSpec;
 ---
-> import org.spongepowered.api.command.Command;
-> import org.spongepowered.api.command.CommandMapping;
-> import org.spongepowered.api.command.CommandSpec;
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.parameter.Parameter;
-19,22c21
+> import org.spongepowered.api.command.parameter.managed.Flag;
+> import org.spongepowered.api.command.parameter.managed.ValueParameter;
+19,20c24
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 < import static org.spongepowered.api.text.Text.of;
-< 
+---
+> public class UploadCommand {
+22c26
 < public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
 ---
-> public class UploadCommand implements Command {
-23a23
+>         implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
+23a28
 > {
-52d51
+35c40
+<         String url = args.<String>getOne("url").get();
+---
+>         String url = args.getOne("url").get();
+52d56
 <     @Override
-56c55
+56c60
 <                 .arguments(string(of("url")))
 ---
->                 .arguments(Parameter.string().key("url").build())
+>                 .arguments(Parameter.string().key(Flag.of("url")).build())
