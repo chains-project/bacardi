@@ -1,12 +1,53 @@
-18c18
+18d17
 < import org.junit.runner.RunWith;
----
-> import org.junit.jupiter.api.extension.ExtendWith;
-20c20
+20c19,20
 < import org.mockito.runners.MockitoJUnitRunner;
 ---
-> import org.mockito.junit.jupiter.MockitoExtension;
-22c22
+> import org.mockito.MockedStatic;
+> import org.mockito.Mockito;
+22d21
 < @RunWith(MockitoJUnitRunner.class)
----
-> @ExtendWith(MockitoExtension.class)
+34a34,41
+>         try (MockedStatic<ParameterTypeContext> theMock = Mockito.mockStatic(ParameterTypeContext.class)) {
+>             theMock.when(() -> ParameterTypeContext.forClass(Convention.class)).thenReturn(new ParameterTypeContext() {
+>                 @Override
+>                 public Class<?> getType() {
+>                     return Convention.class;
+>                 }
+>             });
+> 
+42a50
+>     }
+45a54,61
+>         try (MockedStatic<ParameterTypeContext> theMock = Mockito.mockStatic(ParameterTypeContext.class)) {
+>             theMock.when(() -> ParameterTypeContext.forClass(NotAGenerator.class)).thenReturn(new ParameterTypeContext() {
+>                 @Override
+>                 public Class<?> getType() {
+>                     return NotAGenerator.class;
+>                 }
+>             });
+> 
+47a64
+>     }
+50a68,75
+>         try (MockedStatic<ParameterTypeContext> theMock = Mockito.mockStatic(ParameterTypeContext.class)) {
+>             theMock.when(() -> ParameterTypeContext.forClass(GeneratesOtherTypes.class)).thenReturn(new ParameterTypeContext() {
+>                 @Override
+>                 public Class<?> getType() {
+>                     return GeneratesOtherTypes.class;
+>                 }
+>             });
+> 
+52a78
+>     }
+55a82,89
+>         try (MockedStatic<ParameterTypeContext> theMock = Mockito.mockStatic(ParameterTypeContext.class)) {
+>             theMock.when(() -> ParameterTypeContext.forClass(this.getClass())).thenReturn(new ParameterTypeContext() {
+>                 @Override
+>                 public Class<?> getType() {
+>                     return this.getClass();
+>                 }
+>             });
+> 
+57a92
+>     }

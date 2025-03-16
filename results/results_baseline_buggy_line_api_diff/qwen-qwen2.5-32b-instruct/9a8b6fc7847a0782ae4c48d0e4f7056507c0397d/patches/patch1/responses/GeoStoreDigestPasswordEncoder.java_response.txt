@@ -66,4 +66,8 @@ public class GeoStoreDigestPasswordEncoder extends AbstractGeoStorePasswordEncod
         return PasswordEncodingType.DIGEST;
     }
 
+    @Override
+    protected Object createStringEncoder() {
+        return new StrongPasswordEncryptor();
+    }
 }

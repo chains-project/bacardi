@@ -107,16 +107,17 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final ClassicConfiguration configuration = new ClassicConfiguration();
-		configuration.setDataSource(this.dataSource());
-		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
-		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+		final ClassicConfiguration config = new ClassicConfiguration();
+		config.setDataSource(this.dataSource());
+		config.setLocations(prop.getProperty("flyway.locations").split(","));
+		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		config.setClassLoader(NisAppConfig.class.getClassLoader());
 
-		return new Flyway(configuration);
+		return new Flyway(config);
 	}
 
 	@Bean
+	@DependsOn("flyway")
 	public SessionFactory sessionFactory() throws IOException {
 		return SessionFactoryLoader.load(this.dataSource());
 	}
@@ -343,6 +344,49 @@ public class NisAppConfig {
 	}
 
 	@Bean
+	public NisConfiguration nisConfiguration() {
+		return new NisConfiguration();
+	}
+
+	@Bean
+	public TimeProvider timeProvider() {
+		return CommonStarter.TIME_PROVIDER;
+	}
+
+	@Bean
+	public TrustProvider trustProvider() {
+		final int LOW_COMMUNICATION_NODE_WEIGHT = 30;
+		final int TRUST_CACHE_TIME = 15 * 60;
+		return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME,
+				this.timeProvider());
+	}
+
+	@Bean
+	public HttpConnectorPool httpConnectorPool() {
+		final CommunicationMode communicationMode = this.nisConfiguration().useBinaryTransport()
+				? CommunicationMode.BINARY
+				: CommunicationMode.JSON;
+		return new HttpConnectorPool(communicationMode, this.outgoingAudits());
+	}
+
+	@Bean
+	public NisPeerNetworkHost nisPeerNetworkHost() {
+		final HarvestingTask harvestingTask = new HarvestingTask(this.blockChain(), this.harvester(), this.unconfirmedTransactions());
+
+		final PeerNetworkScheduler scheduler = new PeerNetworkScheduler(this.timeProvider(), harvestingTask);
+
+		final CountingBlockSynchronizer synchronizer = new CountingBlockSynchronizer(this.blockChain());
+
+		return new NisPeerNetworkHost(this.nisCache(), synchronizer, scheduler, this.chainServices(), this.nodeCompatibilityChecker(),
+				this.nisConfiguration(), this.httpConnectorPool(), this.trustProvider(), this.incomingAudits(), this.outgoingAudits());
+	}
+
+	@Bean
+	public NetworkHostBootstrapper networkHostBootstrapper() {
+		return new HarvestAwareNetworkHostBootstrapper(this.nisPeerNetworkHost(), this.unlockedAccounts(), this.nisConfiguration());
+	}
+
+	@Bean
 	public Supplier<BlockHeight> lastBlockHeight() {
 		return this.blockChainLastBlockLayer::getLastBlockHeight;
 	}
@@ -438,54 +482,6 @@ public class NisAppConfig {
 	@Bean
 	public NetworkHostBootstrapper networkHostBootstrapper() {
 		return new HarvestAwareNetworkHostBootstrapper(this.nisPeerNetworkHost(), this.unlockedAccounts(), this.nisConfiguration());
-	}
-
-	@Bean
-	public NisConfiguration nisConfiguration() {
-		return new NisConfiguration();
-	}
-
-	@Bean
-	public TimeProvider timeProvider() {
-		return CommonStarter.TIME_PROVIDER;
-	}
-
-	@Bean
-	public TrustProvider trustProvider() {
-		final int LOW_COMMUNICATION_NODE_WEIGHT = 30;
-		final int TRUST_CACHE_TIME = 15 * 60;
-		return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME,
-				this.timeProvider());
-	}
-
-	@Bean
-	public NemConfigurationPolicy configurationPolicy() {
-		return new NisConfigurationPolicy();
-	}
-
-	@Bean
-	public ChainServices chainServices() {
-		return new DefaultChainServices(this.blockChainLastBlockLayer, this.httpConnectorPool());
-	}
-
-	@Bean
-	public CommonStarter commonStarter() {
-		return CommonStarter.INSTANCE;
-	}
-
-	@Bean
-	public ValidationState validationState() {
-		return NisCacheUtils.createValidationState(this.nisCache());
-	}
-
-	@Bean
-	public LocalHostDetector localHostDetector() {
-		return new LocalHostDetector(this.nisConfiguration().getAdditionalLocalIps());
-	}
-
-	@Bean
-	public NodeCompatibilityChecker nodeCompatibilityChecker() {
-		return new DefaultNodeCompatibilityChecker();
 	}
 
 	@Bean

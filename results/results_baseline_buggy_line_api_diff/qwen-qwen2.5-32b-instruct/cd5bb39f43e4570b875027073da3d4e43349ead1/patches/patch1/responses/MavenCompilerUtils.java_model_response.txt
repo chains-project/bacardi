@@ -19,8 +19,8 @@ package org.simplify4u.plugins.utils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.repository.RepositorySystem;
-import org.apache.maven.shared.utils.xml.Xpp3Dom;
-import org.apache.maven.shared.utils.xml.Xpp3DomBuilder;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -69,13 +69,13 @@ public final class MavenCompilerUtils {
         if (config == null) {
             return emptySet();
         }
-        if (config instanceof Xpp3Dom) {
-            return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
-                    .flatMap(aggregate -> stream(aggregate.getChildren("path")))
+        if (config instanceof Element) {
+            return stream(((Element) config).getElementsByTagName("annotationProcessorPaths"))
+                    .flatMap(aggregate -> stream(((Element) aggregate).getElementsByTagName("path")))
                     .map(processor -> system.createArtifact(
-                            extractChildValue(processor, "groupId"),
-                            extractChildValue(processor, "artifactId"),
-                            extractChildValue(processor, "version"),
+                            extractChildValue((Element) processor, "groupId"),
+                            extractChildValue((Element) processor, "artifactId"),
+                            extractChildValue((Element) processor, "version"),
                             PACKAGING))
                     // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
                     // therefore there is little use in logging incomplete paths that are filtered out.
@@ -98,9 +98,12 @@ public final class MavenCompilerUtils {
      * @param name the child node name
      * @return Returns child value if child node present or otherwise empty string.
      */
-    private static String extractChildValue(Xpp3Dom node, String name) {
-        final Xpp3Dom child = node.getChild(name);
-        return child == null ? "" : child.getValue();
+    private static String extractChildValue(Element node, String name) {
+        NodeList children = node.getElementsByTagName(name);
+        if (children.getLength() > 0) {
+            return children.item(0).getTextContent();
+        }
+        return "";
     }
 }
 ```

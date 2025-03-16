@@ -9,19 +9,30 @@
 < 
 ---
 >     super(new LoaderOptions());
-168c165
+126,130d122
+<     desc = new TypeDescription(MailingList.class);
+<     desc.putListPropertyType("otherArchives", String.class);
+<     addTypeDescription(desc);
+< 
+<     // Simple types
+168c160
 <           child = toDom(child, (Map) entryValue);
 ---
 >           toDom(child, (Map) entryValue);
-188c185
+188c180
 <           if (pair[1] != null && pair[1] instanceof Map)
 ---
 >           if (pair[1] instanceof Map)
-252c249,251
+247,258d238
+<       List<Class> configurationContainers = Arrays.<Class>asList(Plugin.class, PluginExecution.class,
+<           ReportPlugin.class, ReportSet.class);
+< 
+<       if (configurationContainers.contains(type)) {
+<         for (NodeTuple valueNode : node.getValue()) {
 <           Node keyNode = valueNode.getKeyNode();
----
->           ScalarNode keyNode = (ScalarNode) valueNode.getKeyNode();
->           String key = keyNode.getValue();
->           if ("configuration".equals(key)) {
-254d252
+<           Node childValueNode = valueNode.getValueNode();
 <           if (keyNode instanceof ScalarNode && "configuration".equals(((ScalarNode) keyNode).getValue())) {
+<             childValueNode.setTag(XPP3DOM_TAG);
+<           }
+<         }
+<       }

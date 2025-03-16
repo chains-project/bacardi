@@ -95,16 +95,16 @@ public class Language implements Serializable {
 the error is triggered in the following specific lines in the previous code:
 
 ```java
+static Language fromPb(LanguagesResource languagePb) {
+```
+```java
 public Language apply(LanguagesResource languagePb) {
 ```
 ```java
-new Function<LanguagesResource, Language>() {
-```
-```java
 static Language fromPb(LanguagesResource languagePb) {
 ```
 ```java
-static Language fromPb(LanguagesResource languagePb) {
+static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
 ```
 ```java
 static Language fromPb(LanguagesResource languagePb) {
@@ -113,34 +113,26 @@ static Language fromPb(LanguagesResource languagePb) {
 import com.google.api.services.translate.model.LanguagesResource;
 ```
 ```java
-static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
+new Function<LanguagesResource, Language>() {
 ```
 
 
 
  with the following error information:
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[84,26] cannot find symbol
+  symbol:   class LanguagesResource
+  location: class com.google.cloud.translate.Language
+
 [ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[39,31] cannot find symbol
   symbol: class LanguagesResource
 
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[37,20] cannot find symbol
-  symbol:   class LanguagesResource
-  location: class com.google.cloud.translate.Language
-
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[84,26] cannot find symbol
-  symbol:   class LanguagesResource
-  location: class com.google.cloud.translate.Language
-
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[84,26] cannot find symbol
-  symbol:   class LanguagesResource
-  location: class com.google.cloud.translate.Language
-
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[84,26] cannot find symbol
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[36,25] cannot find symbol
   symbol:   class LanguagesResource
   location: class com.google.cloud.translate.Language
 
 [ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[19,47] package com.google.api.services.translate.model does not exist
 
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[36,25] cannot find symbol
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[37,20] cannot find symbol
   symbol:   class LanguagesResource
   location: class com.google.cloud.translate.Language
 
@@ -148,26 +140,26 @@ static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
      Constructor com.google.api.services.translate.model.LanguagesResource() has been removed in the new version of the dependency.
      Class com.google.api.services.translate.model.LanguagesResource has been removed in the new version of the dependency.
-     Method com.google.api.services.translate.model.DetectionsResourceItems.getLanguage() has been removed in the new version of the dependency.
-     Method com.google.api.services.translate.model.LanguagesResource.getLanguage() has been removed in the new version of the dependency.
+     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Operations$Get.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Operations$List.getName() has been added in the new version of the dependency.
      Method com.google.api.services.translate.v3.Translate$Projects$Locations$Glossaries$Patch.getName() has been added in the new version of the dependency.
      Method com.google.api.services.translate.v3.Translate$Projects$Locations$Get.getName() has been added in the new version of the dependency.
-     Method com.google.api.services.translate.v3.Translate$Projects$Locations$List.getName() has been added in the new version of the dependency.
-     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Operations$List.getName() has been added in the new version of the dependency.
-     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Operations$Get.getName() has been added in the new version of the dependency.
-     Method com.google.api.services.translate.v3.model.Location.getName() has been added in the new version of the dependency.
-     Method com.google.api.services.translate.v3.model.Operation.getName() has been added in the new version of the dependency.
-     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Glossaries$Delete.getName() has been added in the new version of the dependency.
-     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Glossaries$GlossaryEntries$Get.getName() has been added in the new version of the dependency.
-     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Glossaries$Get.getName() has been added in the new version of the dependency.
      Method com.google.api.services.translate.v3.Translate$Projects$Locations$Glossaries$GlossaryEntries$Delete.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.model.Operation.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Glossaries$GlossaryEntries$Get.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Glossaries$Delete.getName() has been added in the new version of the dependency.
      Method com.google.api.services.translate.v3.Translate$Projects$Locations$Glossaries$GlossaryEntries$Patch.getName() has been added in the new version of the dependency.
      Method com.google.api.services.translate.v3.model.GlossaryEntry.getName() has been added in the new version of the dependency.
-     Method com.google.api.services.translate.v3.model.Glossary.getName() has been added in the new version of the dependency.
-     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Operations$Cancel.getName() has been added in the new version of the dependency.
-     Method com.google.api.services.translate.model.LanguagesResource.getName() has been removed in the new version of the dependency.
-     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Operations$Wait.getName() has been added in the new version of the dependency.
      Method com.google.api.services.translate.v3.Translate$Projects$Locations$Operations$Delete.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Glossaries$Get.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.model.LanguagesResource.getName() has been removed in the new version of the dependency.
+     Method com.google.api.services.translate.v3.model.Location.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.model.Glossary.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Operations$Wait.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.Translate$Projects$Locations$List.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Operations$Cancel.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.model.LanguagesResource.getLanguage() has been removed in the new version of the dependency.
+     Method com.google.api.services.translate.model.DetectionsResourceItems.getLanguage() has been removed in the new version of the dependency.
 
 
 

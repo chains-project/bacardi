@@ -3,12 +3,11 @@ import java.util.ResourceBundle;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import jakarta.mvc.annotation.Controller;
-import jakarta.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 
 @RequestScoped
 @Named("msg")
-@Controller
 public class Messages {
 
     private static final String BASE_NAME = "messages";
@@ -16,6 +15,13 @@ public class Messages {
     @Inject
     private HttpServletRequest request;
 
+    /**
+     * Get the assigned message to some key based on the {@link java.util.Locale} of the current request.
+     *
+     * @param key the message key to use
+     * @return the correct translation assigned to the key for the request locale, a fallback translation or a
+     * placeholder for unknown keys.
+     */
     public final String get(final String key) {
         final Locale locale = request.getLocale();
         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, locale);

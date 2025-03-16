@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-public class MockHttpSession implements HttpSession {
+public class MockHttpSession implements jakarta.servlet.http.HttpSession {
 
   private Map<String, Object> attributes = new HashMap<>();
 
@@ -61,7 +61,7 @@ public class MockHttpSession implements HttpSession {
 
   /** @deprecated */
   @Deprecated
-  public HttpSessionContext getSessionContext() {
+  public Object getSessionContext() {
     return null;
   }
 

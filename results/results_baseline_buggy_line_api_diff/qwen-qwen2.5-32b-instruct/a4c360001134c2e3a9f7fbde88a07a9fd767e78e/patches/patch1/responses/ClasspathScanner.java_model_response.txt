@@ -13,7 +13,6 @@ import org.reflections.scanners.MethodAnnotationsScanner;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
-import org.reflections.util.QueryFunction;
 import org.reflections.vfs.SystemDir;
 import org.reflections.vfs.Vfs;
 import org.reflections.vfs.ZipDir;
@@ -55,12 +54,7 @@ public class ClasspathScanner {
         Configuration config = new ConfigurationBuilder()
                 .setScanners(new MethodAnnotationsScanner(), new SubTypesScanner())
                 .addUrls(ClasspathHelper.getUrls())
-                .filterInputsBy(new QueryFunction<String>() {
-                    @Override
-                    public boolean apply(String input) {
-                        return shouldScan(input);
-                    }
-                });
+                .filterInputsBy(this::shouldScan);
 
         return new Reflections(config);
     }

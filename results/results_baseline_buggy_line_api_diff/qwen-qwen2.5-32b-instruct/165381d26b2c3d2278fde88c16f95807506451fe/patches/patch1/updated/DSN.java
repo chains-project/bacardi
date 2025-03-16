@@ -6,7 +6,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
-import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration; // Updated import
+import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration;
 import org.btrplace.safeplace.spec.Constraint;
 import org.btrplace.safeplace.spec.SpecScanner;
 import org.btrplace.safeplace.testing.Bench;
@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class DSN {
 
@@ -46,28 +47,11 @@ public class DSN {
 
     // ... (rest of the methods remain unchanged)
 
-    private static class FunctionVisitor extends VoidVisitorAdapter<Void> {
-
-        private final List<Integer> l;
-
-        FunctionVisitor(List<Integer> numbers) {
-            this.l = numbers;
-        }
-
-        @Override
-        public void visit(MethodDeclaration n, Void arg) {
-            if (n.getNameAsString().equals("eval")) {
-                n.getRange().ifPresent(r -> l.add(r.end.line - r.begin.line));
-            }
-            super.visit(n, arg);
-        }
-    }
-
     private static class UnitTestsVisitor extends VoidVisitorAdapter<Void> {
 
         private final List<Integer> l;
 
-        private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false); // Updated configuration
+        private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
 
         UnitTestsVisitor(List<Integer> numbers) {
             this.l = numbers;
@@ -76,7 +60,7 @@ public class DSN {
         @Override
         public void visit(MethodDeclaration n, Void arg) {
             System.out.println(n.getNameAsString());
-            if (n.toString(noComments).contains("solve")) { // Use the updated configuration
+            if (n.toString(noComments).contains("solve")) {
                 n.getRange().ifPresent(r -> l.add(r.end.line - r.begin.line));
             }
             super.visit(n, arg);

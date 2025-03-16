@@ -38,25 +38,37 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
 
   private static final int PARTITIONS_REFRESH_INTERVAL_IN_SECONDS = 30;
 
-  private String topic;
-  private LinkedBlockingDeque<LoggingAuditEvent> queue;
-  private LoggingAuditStage stage;
-  private String host;
-  private String name;
-  private int stopGracePeriodInSeconds = 300;
+  private final LoggingAuditStage stage;
+
+  private final String host;
+
+  private final LinkedBlockingDeque<LoggingAuditEvent> queue;
+
   private KafkaProducer<byte[], byte[]> kafkaProducer;
+
   private TSerializer serializer;
+
   private AtomicBoolean cancelled = new AtomicBoolean(false);
-  private List<PartitionInfo> partitionInfoList = new ArrayList<>();
-  private long lastTimeUpdate = -1;
-  private Set<Integer> badPartitions = ConcurrentHashMap.newKeySet();
-  private Map<LoggingAuditHeaders, Integer> eventTriedCount = new ConcurrentHashMap<>();
-  private int currentPartitionId = -1;
+
+  private String topic;
+
+  private String name;
+
   private Thread thread;
 
+  private List<PartitionInfo> partitionInfoList = new ArrayList<>();
+
+  private long lastTimeUpdate = -1;
+
+  private Set<Integer> badPartitions = ConcurrentHashMap.newKeySet();
+
+  private Map<LoggingAuditHeaders, Integer> eventTriedCount = new ConcurrentHashMap<>();
+
+  private int currentPartitionId = -1;
+
   public AuditEventKafkaSender(KafkaSenderConfig config,
-                              LinkedBlockingDeque<LoggingAuditEvent> queue,
-                              LoggingAuditStage stage, String host, String name) {
+                               LinkedBlockingDeque<LoggingAuditEvent> queue,
+                               LoggingAuditStage stage, String host, String name) {
     this.topic = config.getTopic();
     this.queue = queue;
     this.stage = stage;
@@ -65,7 +77,8 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
     this.stopGracePeriodInSeconds = config.getStopGracePeriodInSeconds();
     this.badPartitions.add(-1);
     try {
-      this.serializer = new TSerializer(new TBinaryProtocol.Factory());
+      TProtocolFactory protocolFactory = new TBinaryProtocol.Factory();
+      this.serializer = new TSerializer(protocolFactory);
     } catch (TTransportException e) {
       LOG.error("Failed to initialize TSerializer", e);
     }

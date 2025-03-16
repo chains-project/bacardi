@@ -12,23 +12,12 @@
 < import static org.mockito.Mockito.mock;
 52d50
 < import static org.mockito.Mockito.when;
-57,58d54
+55,58d52
+< import static uk.gov.pay.adminusers.fixtures.EventFixture.anEventFixture;
+< import static uk.gov.pay.adminusers.fixtures.LedgerTransactionFixture.aLedgerTransactionFixture;
 < import static uk.gov.pay.adminusers.model.Service.DEFAULT_NAME_VALUE;
 < import static uk.gov.pay.adminusers.service.UserServicesTest.aUserEntityWithRoleForService;
-64c60
-<     private EventSubscriberQueue mockEventSubscriberQueue;
----
->     private QueueMessage mockQueueMessage;
-83,84c79
-<     @Mock
-<     private Appender<ILoggingEvent> mockLogAppender;
----
-> 
-87a83,85
->     @Mock
->     private Appender<ILoggingEvent> mockLogAppender;
-> 
-111c109,120
+111c105,116
 <         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
 ---
 >         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
@@ -43,11 +32,11 @@
 >         consoleAppender.start();
 > 
 >         Logger logger = loggerContext.getLogger(EventMessageHandler.class);
-113c122
+113c118
 <         logger.addAppender(mockLogAppender);
 ---
 >         logger.addAppender(consoleAppender);
-118,133c127
+118,133c123
 <         disputeEvent = anEventFixture()
 <                 .withEventType(EventType.DISPUTE_CREATED.name())
 <                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
@@ -65,8 +54,8 @@
 < 
 <         verify(mockEventSubscriberQueue).markMessageAsProcessed(mockQueueMessage);
 ---
->         // ... (rest of the test method)
-138,181c132
+>         // ... (rest of the test method remains unchanged)
+138,181c128
 <         var mockQueueMessage = mock(QueueMessage.class);
 <         disputeEvent = anEventFixture()
 <                 .withEventType(EventType.DISPUTE_CREATED.name())
@@ -112,8 +101,8 @@
 <         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
 <         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
 ---
->         // ... (rest of the test method)
-186,255c137
+>         // ... (rest of the test method remains unchanged)
+186,255c133
 <         var mockQueueMessage = mock(QueueMessage.class);
 <         disputeEvent = anEventFixture()
 <                 .withEventType(EventType.DISPUTE_LOST.name())
@@ -185,8 +174,8 @@
 <         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
 <         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
 ---
->         // ... (rest of the test method)
-260,292c142
+>         // ... (rest of the test method remains unchanged)
+260,292c138
 <         var mockQueueMessage = mock(QueueMessage.class);
 <         disputeEvent = anEventFixture()
 <                 .withEventType(EventType.DISPUTE_EVIDENCE_SUBMITTED.name())
@@ -221,8 +210,8 @@
 <         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
 <         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
 ---
->         // ... (rest of the test method)
-297,309c147
+>         // ... (rest of the test method remains unchanged)
+297,309c143
 <         var mockQueueMessage = mock(QueueMessage.class);
 <         disputeEvent = anEventFixture()
 <                 .withEventType(EventType.DISPUTE_CREATED.name())
@@ -237,8 +226,8 @@
 < 
 <         verify(mockNotificationService, never()).sendStripeDisputeCreatedEmail(anySet(), anyMap());
 ---
->         // ... (rest of the test method)
-314,327c152
+>         // ... (rest of the test method remains unchanged)
+314,327c148
 <         var mockQueueMessage = mock(QueueMessage.class);
 <         disputeEvent = anEventFixture()
 <                 .withEventType(EventType.DISPUTE_CREATED.name())
@@ -254,8 +243,8 @@
 < 
 <         verify(mockNotificationService, never()).sendStripeDisputeCreatedEmail(anySet(), anyMap());
 ---
->         // ... (rest of the test method)
-332,347c157
+>         // ... (rest of the test method remains unchanged)
+332,347c153
 <         var mockQueueMessage = mock(QueueMessage.class);
 <         disputeEvent = anEventFixture()
 <                 .withEventType(EventType.DISPUTE_CREATED.name())
@@ -273,4 +262,4 @@
 < 
 <         verify(mockNotificationService, never()).sendStripeDisputeCreatedEmail(anySet(), anyMap());
 ---
->         // ... (rest of the test method)
+>         // ... (rest of the test method remains unchanged)

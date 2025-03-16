@@ -14,12 +14,20 @@
 ---
 >                 final ClassicConfiguration config = new ClassicConfiguration();
 >                 config.setDataSource(this.dataSource());
->                 config.setLocations(Arrays.asList(prop.getProperty("flyway.locations").split(",")));
+>                 config.setLocations(prop.getProperty("flyway.locations").split(","));
 >                 config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 >                 config.setClassLoader(NisAppConfig.class.getClassLoader());
 > 
 >                 return new Flyway(config);
-235,370d236
+117d118
+<         @DependsOn("flyway")
+129,130c130,131
+<                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
+<                                 this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+---
+>                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
+>                                 this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+235,300d235
 <         public ReadOnlyNisCache nisCache() {
 <                 return new DefaultNisCache(this.accountCache(), this.accountStateCache(), this.poxFacade(), this.transactionHashCache(),
 <                                 this.namespaceCache());
@@ -86,11 +94,7 @@
 <         }
 < 
 <         @Bean
-<         public NisMain nisMain() {
-<                 // initialize network info
-<                 NetworkInfos.setDefault(this.nisConfiguration().getNetworkInfo());
-< 
-<                 // initialize other globals
+306,350c241
 <                 final NamespaceCacheLookupAdapters adapters = new NamespaceCacheLookupAdapters(this.namespaceCache());
 <                 if (this.nisConfiguration().ignoreFees()) {
 <                         NemGlobals.setTransactionFeeCalculator(new ZeroTransactionFeeCalculator());
@@ -136,9 +140,9 @@
 <                                 ? CommunicationMode.BINARY
 <                                 : CommunicationMode.JSON;
 <                 return new HttpConnectorPool(communicationMode, this.outgoingAudits());
-<         }
-< 
-<         @Bean
+---
+>                 return new NisMain(this.blockChainLastBlockLayer, this.blockChainUpdater());
+354,440c245,246
 <         public NisPeerNetworkHost nisPeerNetworkHost() {
 <                 final HarvestingTask harvestingTask = new HarvestingTask(this.blockChain(), this.harvester(), this.unconfirmedTransactions());
 < 
@@ -156,7 +160,24 @@
 <         }
 < 
 <         @Bean
-389,436c255,257
+<         public NisConfiguration nisConfiguration() {
+<                 return new NisConfiguration();
+<         }
+< 
+<         @Bean
+<         public TimeProvider timeProvider() {
+<                 return CommonStarter.TIME_PROVIDER;
+<         }
+< 
+<         @Bean
+<         public TrustProvider trustProvider() {
+<                 final int LOW_COMMUNICATION_NODE_WEIGHT = 30;
+<                 final int TRUST_CACHE_TIME = 15 * 60;
+<                 return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME,
+<                                 this.timeProvider());
+<         }
+< 
+<         @Bean
 <         public NemConfigurationPolicy configurationPolicy() {
 <                 return new NisConfigurationPolicy();
 <         }
@@ -205,14 +226,10 @@
 <         public Function<Address, Collection<Address>> cosignatoryLookup() {
 <                 return a -> this.accountStateCache().findStateByAddress(a).getMultisigLinks().getCosignatories();
 <         }
----
->         public NisMain nisMain() {
->                 // initialize network info
->                 NetworkInfos.setDefault(this.nisConfiguration().getNetworkInfo());
-438,440c259,260
+< 
 <         @Bean
 <         public MosaicIdCache mosaicIdCache() {
 <                 return new SynchronizedMosaicIdCache(new DefaultMosaicIdCache());
 ---
->                 // initialize other globals
->                 return new NisMain(this.blockDao, this.blockChainLastBlockLayer, this.nisConfiguration());
+>         public HibernateTransactionManager transactionManager() throws IOException {
+>                 return new HibernateTransactionManager(this.sessionFactory());

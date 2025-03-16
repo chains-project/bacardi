@@ -3,6 +3,7 @@ package com.google.cloud.resourcemanager;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.api.client.util.Data;
 import com.google.api.core.ApiFunction;
 import com.google.cloud.StringEnumType;
 import com.google.cloud.StringEnumValue;
@@ -13,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import org.threeten.bp.Instant;
-import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
 /**
@@ -36,7 +37,7 @@ public class ProjectInfo implements Serializable {
   private final Long projectNumber;
   private final State state;
   private final Long createTimeMillis;
-  private final String parent;
+  private final ResourceId parent;
 
   /** The project lifecycle states. */
   public static final class State extends StringEnumValue {
@@ -128,13 +129,17 @@ public class ProjectInfo implements Serializable {
       return Objects.hash(id, type);
     }
 
-    String toPb() {
-      return id + "/" + type;
+    com.google.api.services.cloudresourcemanager.v3.model.ResourceId toPb() {
+      com.google.api.services.cloudresourcemanager.v3.model.ResourceId resourceIdPb =
+          new com.google.api.services.cloudresourcemanager.v3.model.ResourceId();
+      resourceIdPb.setId = id;
+      resourceIdPb.type = type.toLowerCase();
+      return resourceIdPb;
     }
 
-    static ResourceId fromPb(String resourceIdPb) {
-      String[] parts = resourceIdPb.split("/");
-      return new ResourceId(parts[0], parts[1]);
+    static ResourceId fromPb(
+        (com.google.api.services.cloudresourcemanager.v3.model.ResourceId resourceIdPb) {
+      return new ResourceId(resourceIdPb.id, resourceIdPb.type);
     }
   }
 
@@ -154,9 +159,9 @@ public class ProjectInfo implements Serializable {
     /**
      * Set the unique, user-assigned ID of the project.
      *
-     * <p>The ID must be 6 to 30 lowercase letters, digits, or hyphens. It must start with a
-     * letter. Trailing hyphens are prohibited. This field cannot be changed after the server
-     * creates the project.
+     * <p>The ID must be 6 to 30 lowercase letters, digits, or hyphens. It must start with a letter.
+     * Trailing hyphens are prohibited. This field cannot be changed after the server creates the
+     * project.
      */
     public abstract Builder setProjectId(String projectId);
 
@@ -190,12 +195,12 @@ public class ProjectInfo implements Serializable {
 
     abstract Builder setCreateTimeMillis(Long createTimeMillis);
 
-    public abstract Builder setParent(String parent);
+    public abstract Builder setParent(ResourceId parent);
 
     public abstract ProjectInfo build();
   }
 
-  static class BuilderImpl extends Builder
+  static class BuilderImpl extends Builder {
 
   {
     private String name;
@@ -204,7 +209,7 @@ public class ProjectInfo implements Serializable {
     private Long projectNumber;
     private State state;
     private Long createTimeMillis;
-    private String parent;
+    private ResourceId parent;
 
     BuilderImpl(String projectId) {
       this.projectId = projectId;
@@ -223,7 +228,6 @@ public class ProjectInfo implements Serializable {
     @Override
     public Builder setName(String name) {
       this.name = firstNonNull(name, Data.<String>nullOf(String.class));
-      );
       return this;
     }
 
@@ -276,7 +280,7 @@ public class ProjectInfo implements Serializable {
     }
 
     @Override
-    public Builder setParent(String parent) {
+    public Builder setParent(ResourceId parent) {
       this.parent = parent;
       return this;
     }
@@ -339,7 +343,7 @@ public class ProjectInfo implements Serializable {
     return state;
   }
 
-  String getParent() {
+  ResourceId getParent() {
     return parent;
   }
 
@@ -376,41 +380,40 @@ public class ProjectInfo implements Serializable {
   com.google.api.services.cloudresourcemanager.v3.model.Project toPb() {
     com.google.api.services.cloudresourcemanager.v3.model.Project projectPb =
         new com.google.api.services.cloudresourcemanager.v3.model.Project();
-    projectPb.setName(name);
-    projectPb.setProjectId(projectId);
-    projectPb.setLabels(labels);
-    projectPb.setProjectNumber(projectNumber);
+    projectPb.name = name;
+    projectPb.projectId = projectId;
+    projectPb.labels = labels;
+    projectPb.projectNumber = projectNumber;
     if (state != null) {
-      projectPb.setLifecycleState(state.toString());
+      projectPb.lifecycleState = state.toString();
     }
     if (createTimeMillis != null) {
-      projectPb.setCreateTime(
-          DATE_TIME_FORMATTER.parse(createTimeMillis.toString(), Instant.FROM).toEpochMilli());
+      projectPb.createTime = DATE_TIME_FORMATTER.format(ZonedDateTime.ofInstant(Instant.ofEpochMilli(createTimeMillis), ZoneOffset.UTC));
     }
     if (parent != null) {
-      projectPb.setParent(parent);
+      projectPb.parent = parent.toPb();
     }
     return projectPb;
   }
 
   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {
     Builder builder =
-        newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
-    if (projectPb.getName() != null && !projectPb.getName().equals("Unnamed")) {
-      builder.setName(projectPb.getName());
+        newBuilder(projectPb.projectId).setProjectNumber(projectPb.projectNumber);
+    if (projectPb.name != null && !projectPb.name.equals("Unnamed")) {
+      builder.setName(projectPb.name);
     }
-    if (projectPb.getLabels() != null) {
-      builder.setLabels(projectPb.getLabels());
+    if (projectPb.labels != null) {
+      builder.setLabels(projectPb.labels);
     }
-    if (projectPb.getLifecycleState() != null) {
-      builder.setState(State.valueOf(projectPb.getLifecycleState()));
+    if (projectPb.lifecycleState != null) {
+      builder.setState(State.valueOf(projectPb.lifecycleState));
     }
-    if (projectPb.getCreateTime() != null) {
+    if (projectPb.createTime != null) {
       builder.setCreateTimeMillis(
-          DATE_TIME_FORMATTER.parse(projectPb.getCreateTime(), Instant.FROM).toEpochMilli());
+          (DATE_TIME_FORMATTER.parse(projectPb.createTime, Instant.FROM).toEpochMilli());
     }
-    if (projectPb.getParent() != null) {
-      builder.setParent(projectPb.getParent());
+    if (projectPb.parent != null) {
+      builder.setParent(ResourceId.fromPb(projectPb.parent);
     }
     return builder.build();
   }

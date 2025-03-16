@@ -24,20 +24,16 @@
 > import com.hazelcast.map.LocalMapStats;
 > import com.hazelcast.map.MapEvent;
 > import com.hazelcast.map.MapListener;
-40d24
-< import java.util.Map;
-43d26
-< import java.util.concurrent.TimeUnit;
-45,48d27
+45,48d29
 < /**
 <  * Clustered implementation of the Cache interface using Hazelcast.
 <  *
 <  */
-55,57d33
+55,57d35
 <     /**
 <      * The map is used for distributed operations such as get, put, etc.
 <      */
-62,73d37
+62,73d39
 <     /**
 <      * Used to limit the amount of duplicate warnings logged.
 <      */
@@ -50,29 +46,22 @@
 <      * @param name a name for the cache, which should be unique per vm.
 <      * @param cache the cache implementation
 <      */
-85,87c49,50
+85,86c51
 <     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode)
 <     {
-<         final EntryListener<K, V> listener = new EntryListener<K, V>() {
 ---
 >     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode) {
->         final MapListener<K, V> listener = new MapListener<K, V>() {
-92c55
+92c57
 <                     logger.trace("Processing map evicted event of node '{}'", eventNodeId);
 ---
 >                     logger.trace("Processing map evicted event of node '{}' for key '{}'", eventNodeId, event.getKey());
-276,285d238
-<     @Override
-<     public long getMaxLifetime() {
-<         return CacheFactory.getMaxCacheLifetime(getName());
+267,271d231
+<     public void setMaxCacheSize(int i) {
+<         setMaxCacheSize((long) i);
 <     }
 < 
 <     @Override
-<     public void setMaxLifetime(final long maxLifetime) {
-<         CacheFactory.setMaxLifetimeProperty(getName(), maxLifetime);
-<     }
-< 
-316,324d268
+316,324d275
 <     /**
 <      * Clustered caches should not contain instances of classes that are provided by Openfire plugins. These will cause
 <      * issues related to class loading when the providing plugin is reloaded. This method verifies if an instance is
@@ -82,7 +71,7 @@
 <      * @param o the instance for which to verify the class loader
 <      * @see <a href="https://github.com/igniterealtime/openfire-hazelcast-plugin/issues/74">Issue #74: Warn against usage of plugin-provided classes in Hazelcast</a>
 <      */
-327,328c271,272
+327,328c278,279
 <             && lastPluginClassLoaderWarning.isBefore(Instant.now().minus(pluginClassLoaderWarningSupression)) )
 <         {
 ---

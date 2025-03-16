@@ -31,7 +31,7 @@
 <  *
 <  *  Each instance of this class should be executed in its own thread.
 <  */
-60,87c41,45
+60,93d40
 <   /**
 <    *  When sender send audit events to Kafka,  it chooses a random partition and if it fails, it
 <    *  will choose another GOOD partition, this retry will happen at most numOfPartitionsToTrySending
@@ -60,25 +60,17 @@
 <    *  when gracefully shutting down the Sender, this field specifies maximum time for main thread
 <    *  to wait, in order to let the sender send out audit events left in the queue if there are any.
 <    */
----
->   private String topic;
->   private LinkedBlockingDeque<LoggingAuditEvent> queue;
->   private LoggingAuditStage stage;
->   private String host;
->   private String name;
-89,115d46
+<   private int stopGracePeriodInSeconds = 300;
 < 
 < 
 <   /**
 <    * Logging audit stage, can be THRIFTLOGGER, SINGER, MERCED and so on
 <    */
-<   private final LoggingAuditStage stage;
-< 
+96,98d42
 <   /**
 <    * host name
 <    */
-<   private final String host;
-< 
+101,110d44
 <   /**
 <    *  LinkedBlockingDequeue to store the LoggingAuditEvents.  The max capacity is specified when
 <    *  creating this deque in the LoggingAuditClient.java
@@ -89,13 +81,11 @@
 <    *  and this is not the behavior we want.  That's we use LinkedBlockingDequeue,
 <    *  not ArrayBlockingQueue.
 <    */
-<   private final LinkedBlockingDeque<LoggingAuditEvent> queue;
-< 
+113,115d46
 <   /**
 <    * KafkaProducer instance to send audit events
 <    */
-117,125c48
-< 
+118,125c49,50
 <   /**
 <    * Serialize key and value to byte[]
 <    */
@@ -106,39 +96,33 @@
 <    */
 ---
 >   private TSerializer serializer;
-127,145d49
-< 
+> 
+128,130d52
 <   /**
 <    *  topic to store the audit events
 <    */
-<   private String topic;
-< 
+133,135d54
 <   /**
 <    *  name of this sender instance
 <    */
-<   private String name;
-< 
+138,140d56
 <   /**
 <    *  executing thread
 <    */
-<   private Thread thread;
-< 
+143,145d58
 <   /**
 <    *  List of PartitionInfo
 <    */
-147,150d50
-< 
+148,150d60
 <   /**
 <    *  last time when partition list was refreshed. we want to refresh partition list every 5 mins.
 <    */
-152,156d51
-< 
+153,156d62
 <   /**
 <    *  If sending out to one partition fails, this partition is added to set;
 <    *  If sending out to one partition succeeds, this partition is removed if it was added before.
 <    */
-158,165d52
-< 
+159,165d64
 <   /**
 <    * For each event (identified by LoggingAuditHeaders, key of the map), track the number of tries
 <    * for sending to Kafka. Each try will choose a different and partition that is not in the
@@ -146,17 +130,14 @@
 <    * this map is removed.
 <    */
 < 
-167,173d53
-< 
+168,173d66
 <   /**
 <    *  currentPartitionId specifies the partition of audit_event topic used to receive audit events.
 <    *  The currentPartitionId will be reset in resetCurrentPartitionIdIfNeeded() method. This reduces
 <    *  the number of TCP connections from audit client to the Kafka Cluster hosting the audit_event
 <    *  topic.
 <    */
-174a55
->   private Thread thread;
-186,424d66
+186,424d78
 <   }
 < 
 < 
@@ -396,16 +377,17 @@
 <     if (this.thread != null && thread.isAlive()) {
 <       thread.interrupt();
 <     }
-426,428c68,70
+426,428c80,83
 <       this.kafkaProducer.close();
 <     } catch (Throwable t) {
 <       LOG.warn("Exception is thrown while stopping {}.", name, t);
 ---
->       this.serializer = new TSerializer(new TBinaryProtocol.Factory());
+>       TProtocolFactory protocolFactory = new TBinaryProtocol.Factory();
+>       this.serializer = new TSerializer(protocolFactory);
 >     } catch (TTransportException e) {
 >       LOG.error("Failed to initialize TSerializer", e);
-430,431d71
+430,431d84
 <     LOG.warn("[{}] is stopped and the number of LoggingAuditEvents left in the queue is {}.", name,
 <         queue.size());
-433a74
+433a87
 >   // ... (rest of the class remains unchanged)

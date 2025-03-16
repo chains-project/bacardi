@@ -1,9 +1,7 @@
 package io.simplelocalize.cli.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import io.simplelocalize.cli.client.dto.DownloadRequest;
@@ -26,7 +24,6 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 public class SimpleLocalizeClient
 {
@@ -85,8 +82,7 @@ public class SimpleLocalizeClient
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
     throwOnError(httpResponse);
     String body = httpResponse.body();
-    ObjectReader objectReader = objectMapper.readerFor(ExportResponse.class);
-    ExportResponse exportResponse = objectReader.readValue(body);
+    ExportResponse exportResponse = objectMapper.readValue(body, new TypeReference<ExportResponse>() {});
     return exportResponse.getFiles();
   }
 
@@ -96,7 +92,6 @@ public class SimpleLocalizeClient
     String downloadPath = downloadPathTemplate
             .replace(NAMESPACE_TEMPLATE_KEY, optionalDownloadableFile.map(DownloadableFile::getNamespace).orElse(""))
             .replace(LANGUAGE_TEMPLATE_KEY, optionalDownloadableFile.map(DownloadableFile::getLanguage).orElse(""));
-
     String url = downloadableFile.getUrl();
     HttpRequest httpRequest = httpRequestFactory.createGetRequest(URI.create(url)).build();
     Path savePath = Path.of(downloadPath);

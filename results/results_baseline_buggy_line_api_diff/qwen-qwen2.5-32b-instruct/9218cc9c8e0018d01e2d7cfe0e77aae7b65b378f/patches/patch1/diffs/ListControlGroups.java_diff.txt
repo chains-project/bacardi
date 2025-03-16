@@ -31,18 +31,64 @@
 > import jakarta.validation.metadata.BeanDescriptor;
 > import jakarta.validation.metadata.ConstraintDescriptor;
 > import jakarta.validation.metadata.ElementDescriptor;
-98c80
-<                         if(!entitySettings.getHiddenFields().contains(property))
+46,49d27
+< import com.premiumminds.wicket.crudifier.IObjectRenderer;
+< import com.premiumminds.wicket.crudifier.form.CrudifierEntitySettings;
+< import com.premiumminds.wicket.crudifier.form.EntityProvider;
+< import org.apache.commons.beanutils.PropertyUtils;
+64c42
+<         private final Map<Class<?>, Class<? extends AbstractControlGroup>> typesControlGroups = new HashMap<Class<?>, Class<? extends AbstractControlGroup>>();
 ---
->                         if(!entitySettings.hiddenFields().contains(property))
-102c84
-<                         if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
+>         private Map<Class<?>, Class<? extends AbstractControlGroup>> typesControlGroups = new HashMap<Class<?>, Class<? extends AbstractControlGroup>>();
+85,86d62
+<                 typesControlGroups.put(Boolean.class, CheckboxControlGroup.class);
+<                 typesControlGroups.put(boolean.class, CheckboxControlGroup.class);
+111,112d86
+<         protected abstract EntityProvider<?> getEntityProvider(String name);
+< 
+119,120d92
+<                 Set<String> properties = getPropertiesByOrder(modelClass);
+< 
+123,133c95,96
+<                 for(String property : properties){
+<                         PropertyDescriptor descriptor;
+<                         try {
+<                                 descriptor = PropertyUtils.getPropertyDescriptor(getModel().getObject(), property);
+<                         } catch (Exception e) {
+<                                 throw new RuntimeException("error getting property "+property, e);
+<                         }
+< 
+<                         boolean required = false;
+< 
+<                         ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
 ---
->                         if(!entitySettings.hiddenFields().contains(descriptor.getName()) &&
-165d146
+>                 for(String property : getPropertiesByOrder(modelClass)){
+>                         ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(property);
+143,144d105
 < 
-178,181d158
-<                                         } else if(typesControlGroup==CollectionControlGroup.class){
-<                                                 ((CollectionControlGroup<?>) controlGroup).setConfiguration(getEntityProvider(objectProperty.name), renderers);
-<                                         }
+<                         objectProperties.add(new ObjectProperties(descriptor, required));
+165d125
 < 
+210c170
+<         @SuppressWarnings("unchecked")
+---
+>         @SuppressWarnings("rawtypes")
+224,228c184,185
+<         private Class<? extends AbstractControlGroup> getControlGroupByType(Class<?> type){
+<                 for(Class<?> mapType : typesControlGroups.keySet()){
+<                         if(type.isAssignableFrom(mapType)) return typesControlGroups.get(mapType);
+<                 }
+<                 return null;
+---
+>         private Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap(){
+>                 return typesControlGroups;
+245,253d201
+< 
+<         @SuppressWarnings("rawtypes")
+<         public Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap(){
+<                 return typesControlGroups;
+<         }
+<         
+<         public Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> getControlGroupProviders(){
+<                 return this.controlGroupProviders;
+<         }

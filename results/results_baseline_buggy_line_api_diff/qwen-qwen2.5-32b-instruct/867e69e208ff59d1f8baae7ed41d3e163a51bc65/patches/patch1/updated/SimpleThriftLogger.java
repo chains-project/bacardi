@@ -3,7 +3,6 @@ package com.pinterest.singer.utils;
 import com.pinterest.singer.thrift.LogFile;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.thrift.TBase;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TIOStreamTransport;
@@ -18,7 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 
-public final class SimpleThriftLogger<T extends TBase> implements Closeable {
+public final class SimpleThriftLogger<T extends TBase<?, ?>> implements Closeable {
 
   private static final class ByteOffsetTFramedTransport extends TFramedTransport {
 

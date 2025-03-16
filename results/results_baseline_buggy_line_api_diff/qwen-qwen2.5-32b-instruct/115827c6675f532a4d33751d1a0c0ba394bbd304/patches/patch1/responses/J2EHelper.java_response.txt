@@ -74,7 +74,7 @@ public final class J2EHelper {
         filter.setConfigOnly(config);
 
         final FilterRegistration.Dynamic filterRegistration = environment
-                .servlets().addFilter(filter.getClass().getName(), (javax.servlet.Filter) filter);
+                .servlets().addFilter(filter.getClass().getName(), filter);
 
         filterRegistration.addMappingForUrlPatterns(
                 EnumSet.of(DispatcherType.REQUEST), true, mapping);

@@ -1,38 +1,41 @@
-13,17c13,14
-< import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
-< import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
+12d11
+< import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
+15,17c14
 < import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
 < import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
 < import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
 ---
-> import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
-> import com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult;
+> import com.pubnub.api.models.objects_api.membership.PNMembershipResult;
 40,41c37
 <     PNConfiguration pnConfiguration = new PNConfiguration();
 <     pnConfiguration.setSubscribeKey(publicKey);
 ---
 >     PNConfiguration pnConfiguration = new PNConfiguration(publicKey);
-89c85
-<                 public void signal(PubNub pubnub, PNSignalResult pnSignalResult) {
----
->                 public void signal(PubNub pubnub, PNMessageResult pnSignalResult) {
-94c90
+84,88d79
+<                 public void presence(PubNub pubNub, PNPresenceEventResult pnPresenceEventResult) {
+<                   LOG.debug("PubNub presence: {}", pnPresenceEventResult.toString());
+<                 }
+< 
+<                 @Override
+94,111c85,86
 <                 public void user(PubNub pubnub, PNUserResult pnUserResult) {
----
->                 public void user(PubNub pubnub, PNMembershipResult pnUserResult) {
-99,103d94
+<                   LOG.debug("PubNub user: {}", pnUserResult.toString());
+<                 }
+< 
+<                 @Override
 <                 public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
 <                   LOG.debug("PubNub space: {}", pnSpaceResult.toString());
 <                 }
 < 
 <                 @Override
-110c101
+<                 public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
+<                   LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
+<                 }
+< 
+<                 @Override
+<                 public void messageAction(
 <                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
+<                   LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
 ---
->                     PubNub pubnub, PNMessageResult pnMessageActionResult) {
-112a104,108
-> 
->                 @Override
 >                 public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
 >                   LOG.debug("PubNub file: {}", pnFileEventResult.toString());
->                 }

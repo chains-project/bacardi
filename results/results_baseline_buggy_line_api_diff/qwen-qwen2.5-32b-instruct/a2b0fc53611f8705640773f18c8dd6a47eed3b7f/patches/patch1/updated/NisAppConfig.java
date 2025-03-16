@@ -334,12 +334,45 @@ public class NisAppConfig {
 		final Map<BlockChainFeature, Supplier<Supplier<WeightedBalances>>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<WeightedBalances>>>() {
 			{
 				this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
-				this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, AlwaysVestedBalances::new);
+				this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
 			}
 		};
 
 		return BlockChainFeatureDependentFactory.createObject(this.nisConfiguration().getBlockChainConfiguration(),
 				"weighted balance scheme", featureSupplierMap);
+	}
+
+	@Bean
+	public BlockAnalyzer blockAnalyzer() {
+		final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
+		final ForkConfiguration forkConfiguration = this.nisConfiguration().getForkConfiguration();
+		return new BlockAnalyzer(this.blockDao, this.blockChainUpdater(), this.blockChainLastBlockLayer, this.nisMapperFactory(),
+				estimatedBlocksPerYear, forkConfiguration);
+	}
+
+	@Bean
+	public HttpConnectorPool httpConnectorPool() {
+		final CommunicationMode communicationMode = this.nisConfiguration().useBinaryTransport()
+				? CommunicationMode.BINARY
+				: CommunicationMode.JSON;
+		return new HttpConnectorPool(communicationMode, this.outgoingAudits());
+	}
+
+	@Bean
+	public NisPeerNetworkHost nisPeerNetworkHost() {
+		final HarvestingTask harvestingTask = new HarvestingTask(this.blockChain(), this.harvester(), this.unconfirmedTransactions());
+
+		final PeerNetworkScheduler scheduler = new PeerNetworkScheduler(this.timeProvider(), harvestingTask);
+
+		final CountingBlockSynchronizer synchronizer = new CountingBlockSynchronizer(this.blockChain());
+
+		return new NisPeerNetworkHost(this.nisCache(), synchronizer, scheduler, this.chainServices(), this.nodeCompatibilityChecker(),
+				this.nisConfiguration(), this.httpConnectorPool(), this.trustProvider(), this.incomingAudits(), this.outgoingAudits());
+	}
+
+	@Bean
+	public NetworkHostBootstrapper networkHostBootstrapper() {
+		return new HarvestAwareNetworkHostBootstrapper(this.nisPeerNetworkHost(), this.unlockedAccounts(), this.nisConfiguration());
 	}
 
 	@Bean
@@ -361,45 +394,8 @@ public class NisAppConfig {
 	}
 
 	@Bean
-	public NisPeerNetworkHost nisPeerNetworkHost() {
-		final HarvestingTask harvestingTask = new HarvestingTask(this.blockChain(), this.harvester(), this.unconfirmedTransactions());
-
-		final BlockGenerator generator = new BlockGenerator(this.nisCache(), harvestingTask.getTransactionProvider(), this.blockDao,
-				new BlockScorer(this.accountStateCache()), this.blockValidatorFactory().create(this.nisCache()));
-		return new Harvester(this.timeProvider(), this.blockChainLastBlockLayer, this.unlockedAccounts(), this.nisDbModelToModelMapper(),
-				generator);
-	}
-
-	@Bean
-	public NetworkHostBootstrapper networkHostBootstrapper() {
-		return new HarvestAwareNetworkHostBootstrapper(this.nisPeerNetworkHost(), this.unlockedAccounts(), this.nisConfiguration());
-	}
-
-	@Bean
-	public HttpConnectorPool httpConnectorPool() {
-		final CommunicationMode communicationMode = this.nisConfiguration().useBinaryTransport()
-				? CommunicationMode.BINARY
-				: CommunicationMode.JSON;
-		return new HttpConnectorPool(communicationMode, this.outgoingAudits());
-	}
-
-	@Bean
-	public NisPeerNetworkHost nisPeerNetworkHost() {
-		final HarvestingTask harvestingTask = new HarvestingTask(this.blockChain(), this.harvester(), this.unconfirmedTransactions());
-
-		final BlockGenerator generator = new BlockGenerator(this.nisCache(), harvestingTask.getTransactionProvider(), this.blockDao,
-				new BlockScorer(this.accountStateCache()), this.blockValidatorFactory().create(this.nisCache()));
-		return new NisPeerNetworkHost(this.nisCache(), this.blockChainSynchronizer(), this.scheduler(), this.chainServices(),
-				this.nodeCompatibilityChecker(), this.nisConfiguration(), this.httpConnectorPool(), this.trustProvider(), this.incomingAudits(),
-				this.outgoingAudits());
-	}
-
-	@Bean
-	public BlockAnalyzer blockAnalyzer() {
-		final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
-		final ForkConfiguration forkConfiguration = this.nisConfiguration().getForkConfiguration();
-		return new BlockAnalyzer(this.blockDao, this.blockChainUpdater(), this.blockChainLastBlockLayer, this.nisMapperFactory(),
-				estimatedBlocksPerYear, forkConfiguration);
+	public NemConfigurationPolicy configurationPolicy() {
+		return new NisConfigurationPolicy();
 	}
 
 	@Bean

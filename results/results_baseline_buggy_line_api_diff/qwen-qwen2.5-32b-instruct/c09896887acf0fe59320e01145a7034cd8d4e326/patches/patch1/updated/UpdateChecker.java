@@ -16,7 +16,6 @@ import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.kohsuke.github.GHCommit;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
-import org.kohsuke.github.GitHubComparison;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -53,55 +52,58 @@ public final class UpdateChecker {
         return result;
     }
 
-    private SortedSet<VersionAndRepo> loadVersions(String groupId, String artifactId) throws Exception {
-        SortedSet<VersionAndRepo> r = new TreeSet<>();
-        for (String repo : repos) {
-            String mavenMetadataURL = repo + groupId.replace('.', '/') + '/' + artifactId + "/maven-metadata.xml";
-            Document doc;
-            try {
-                doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mavenMetadataURL);
-            } catch (FileNotFoundException x) {
-                continue;
+    private @CheckForNull VersionAndRepo doFind(String groupId, String artifactId, String currentVersion, String branch) throws Exception {
+        ComparableVersion currentV = new ComparableVersion(currentVersion);
+        log.info("Searching for updates to " + groupId + ":" + artifactId + ":" + currentV + " within " + branch);
+        SortedSet<VersionAndRepo> candidates = loadVersions(groupId, artifactId);
+        if (candidates.isEmpty()) {
+            log.info("Found no candidates");
+            return null;
+        }
+        log.info("Found " + candidates.size() + " candidates from " + candidates.first() + " down to " + candidates.last());
+        for (VersionAndRepo candidate : candidates) {
+            if (candidate.version.compareTo(currentV) <= 0) {
+                log.info("Stopping search at " + candidate + " since it is no newer than " + currentV);
+                return null;
             }
-            Element versionsE = theElement(doc, "versions", mavenMetadataURL);
-            NodeList versionEs = versionsE.getElementsByTagName("version");
-            for (int i = 0; i < versionEs.getLength(); i++) {
-                r.add(new VersionAndRepo(groupId, artifactId, new ComparableVersion(versionEs.item(i).getTextContent()), repo));
+            log.info("Considering " + candidate);
+            GitHubCommit ghc = loadGitHubCommit(candidate);
+            if (ghc != null) {
+                log.info("Mapped to: " + ghc);
+                if (isAncestor(ghc, branch)) {
+                    log.info("Seems to be within " + branch + ", so accepting");
+                    return candidate;
+                } else {
+                    log.info("Does not seem to be within " + branch);
+                }
+            } else {
+                log.info("Does not seem to be an incremental release, so accepting");
+                return candidate;
             }
         }
-        return r;
+        return null;
     }
 
-    private static GitHubCommit loadGitHubCommit(VersionAndRepo vnr) throws Exception {
-        String pom = vnr.fullURL("pom");
-        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(pom);
-        NodeList scmEs = doc.getElementsByTagName("scm");
-        if (scmEs.getLength() != 1) {
-            return null;
+    private static final class GitHubCommit {
+        final String owner;
+        final String repo;
+        final String hash;
+        GitHubCommit(String owner, String repo, String hash) {
+            this.owner = owner;
+            this.repo = repo;
+            this.hash = hash;
         }
-        Element scmE = (Element) scmEs.item(0);
-        Element urlE = theElement(scmE, "url", pom);
-        String url = urlE.getTextContent();
-        Matcher m = Pattern.compile("https?://github[.]com/([^/]+)/([^/]+?)([.]git)?(/.*)?").matcher(url);
-        if (!m.matches()) {
-            throw new Exception("Unexpected /project/scm/url " + url + " in " + pom + "; expecting https://github.com/owner/repo format");
+        @Override public String toString() {
+            return "https://github.com/" + owner + '/' + repo + "/commit/" + hash;
         }
-        Element tagE = theElement(scmE, "tag", pom);
-        String tag = tagE.getTextContent();
-        String groupId = m.group(1);
-        String artifactId = m.group(2).replace("${project.artifactId}", vnr.artifactId);
-        if (!tag.matches("[a-f0-9]{40}")) {
-            return null;
-        }
-        return new GitHubCommit(groupId, artifactId, tag);
     }
 
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
-            GitHub gh = GitHub.connect();
-            GHRepository repo = gh.getRepository(ghc.owner + '/' + ghc.repo);
-            GitHubComparison comparison = repo.compare(ghc.hash, branch);
-            return comparison.getStatus().equals(GitHubComparison.Status.BEHIND) || comparison.getStatus().equals(GitHubComparison.Status.EQUAL);
+            GHRepository repo = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo);
+            GHCommit commit = repo.getCommit(ghc.hash);
+            GHCommit branchCommit = repo.getBranch(branch).getCommit();
+            return commit.isAncestorOf(branchCommit);
         } catch (FileNotFoundException x) {
             return false;
         }
@@ -134,20 +136,6 @@ public final class UpdateChecker {
             System.err.println("Found: " + result);
         } else {
             System.err.println("Nothing found.");
-        }
-    }
-
-    public static final class GitHubCommit {
-        final String owner;
-        final String repo;
-        final String hash;
-        GitHubCommit(String owner, String repo, String hash) {
-            this.owner = owner;
-            this.repo = repo;
-            this.hash = hash;
-        }
-        @Override public String toString() {
-            return "https://github.com/" + owner + '/' + repo + "/commit/" + hash;
         }
     }
 

@@ -11,6 +11,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
+import jakarta.mvc.View;
 import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.binding.ParamError;
 import jakarta.mvc.security.CsrfProtected;
@@ -25,8 +26,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import org.eclipse.krazo.engine.Viewable;
 
 @Path("tasks")
 @Controller
@@ -98,7 +97,7 @@ public class TaskController {
                     });
             models.put("errors", alert);
             models.put("task", form);
-            return Response.status(BAD_REQUEST).entity("add.xhtml").build();
+            return Response.status(Response.Status.BAD_REQUEST).entity("add.xhtml").build();
         }
 
         Task task = new Task();
@@ -142,7 +141,7 @@ public class TaskController {
                     });
             models.put("errors", alert);
             models.put("task", form);
-            return Response.status(BAD_REQUEST).entity("edit.xhtml").build();
+            return Response.status(Response.Status.BAD_REQUEST).entity("edit.xhtml").build();
         }
 
         Task task = taskRepository.findById(id);
@@ -159,7 +158,6 @@ public class TaskController {
 
     @PUT
     @Path("{id}/status")
-    @CsrfProtected
     public Response updateStatus(@PathParam(value = "id") Long id, @NotNull @FormParam(value = "status") String status) {
         log.log(Level.INFO, "updating status of the existed task@id:{0}, status:{1}", new Object[]{id, status});
 

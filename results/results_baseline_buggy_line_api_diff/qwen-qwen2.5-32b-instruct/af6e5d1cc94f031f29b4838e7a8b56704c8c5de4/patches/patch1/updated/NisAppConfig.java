@@ -106,17 +106,16 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final ClassicConfiguration configuration = new ClassicConfiguration();
-		configuration.setDataSource(this.dataSource());
-		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
-		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
+		final ClassicConfiguration config = new ClassicConfiguration();
+		config.setDataSource(this.dataSource());
+		config.setLocations(new Location[]{new Location(prop.getProperty("flyway.locations"))});
+		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		config.setClassLoader(NisAppConfig.class.getClassLoader());
 
-		return new Flyway(configuration);
+		return new Flyway(config);
 	}
 
 	@Bean
-	@DependsOn("flyway")
 	public SessionFactory sessionFactory() throws IOException {
 		return SessionFactoryLoader.load(this.dataSource());
 	}
@@ -334,72 +333,7 @@ public class NisAppConfig {
 		final Map<BlockChainFeature, Supplier<Supplier<WeightedBalances>>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<WeightedBalances>>>() {
 			{
 				this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
-				this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, AlwaysVestedBalances::new);
-			}
-		};
-
-		return BlockChainFeatureDependentFactory.createObject(this.nisConfiguration().getBlockChainConfiguration(),
-				"weighted balance scheme", featureSupplierMap);
-	}
-
-	@Bean
-	public Supplier<BlockHeight> lastBlockHeight() {
-		return this.blockChainLastBlockLayer::getLastBlockHeight;
-	}
-
-	@Bean
-	public UnconfirmedTransactions unconfirmedTransactions() {
-		final BlockChainConfiguration blockChainConfiguration = this.nisConfiguration().getBlockChainConfiguration();
-		final UnconfirmedStateFactory unconfirmedStateFactory = new UnconfirmedStateFactory(this.transactionValidatorFactory(),
-				this.blockTransactionObserverFactory()::createExecuteCommitObserver, this.timeProvider(), this.lastBlockHeight(),
-				blockChainConfiguration.getMaxTransactionsPerBlock(), this.nisConfiguration().getForkConfiguration());
-		final UnconfirmedTransactions unconfirmedTransactions = new DefaultUnconfirmedTransactions(unconfirmedStateFactory,
-				this.nisCache());
-		return new SynchronizedUnconfirmedTransactions(unconfirmedTransactions);
-	}
-
-	@Bean
-	public UnconfirmedTransactionsFilter unconfirmedTransactionsFilter() {
-		return this.unconfirmedTransactions().asFilter();
-	}
-
-	@Bean
-	public HibernateTransactionManager transactionManager() throws IOException {
-		return new HibernateTransactionManager(this.sessionFactory());
-	}
-
-	@Bean
-	public NisMain nisMain() {
-		final NisConfiguration nisConfiguration = this.nisConfiguration();
-
-		// initialize network info
-		NetworkInfos.setDefault(nisConfiguration.getNetworkInfo());
-
-		// initialize other globals
-		final NamespaceCacheLookupAdapters adapters = new NamespaceCacheLookupAdapters(this.namespaceCache());
-		if (nisConfiguration.ignoreFees()) {
-			NemGlobals.setTransactionFeeCalculator(new ZeroTransactionFeeCalculator());
-		} else {
-			NemGlobals.setTransactionFeeCalculator(new DefaultTransactionFeeCalculator(adapters.asMosaicFeeInformationLookup(),
-					() -> this.blockChainLastBlockLayer.getLastBlockHeight().next(), new BlockHeight[]{
-							nisConfiguration.getForkConfiguration().getFeeFork().getFirstHeight(),
-							nisConfiguration.getForkConfiguration().getFeeFork().getSecondHeight()
-					}));
-		}
-
-		NemGlobals.setBlockChainConfiguration(nisConfiguration.getBlockChainConfiguration());
-		NemStateGlobals.setWeightedBalancesSupplier(this.weighedBalancesSupplier());
-
-		return new NisMain(this.blockDao, this.nisCache(), this.networkHostBootstrapper(), this.nisModelToDbModelMapper(), nisConfiguration,
-				this.blockAnalyzer(), System::exit);
-	}
-
-	@SuppressWarnings("serial")
-	private Supplier<WeightedBalances> weighedBalancesSupplier() {
-		final Map<BlockChainFeature, Supplier<Supplier<WeightedBalances>>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<WeightedBalances>>>() {
-			{
-				this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
-				this.put(BlockChainFeature.WB_IMMEDIATE_VESTINGING, AlwaysVestedBalances::new);
+				this.put(BlockChainFeature.WB_IMMEDIATE_VESTINGING, () -> AlwaysVestedBalances::new);
 			}
 		};
 

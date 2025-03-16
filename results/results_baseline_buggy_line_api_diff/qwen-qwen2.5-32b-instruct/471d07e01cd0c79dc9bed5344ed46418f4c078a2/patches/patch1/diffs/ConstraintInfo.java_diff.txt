@@ -14,36 +14,117 @@
 <  * See the License for the specific language governing permissions and
 <  * limitations under the License.
 <  */
-18,20c3,4
+18,20c3,5
 < import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
 < import com.google.api.services.cloudresourcemanager.model.Constraint;
 < import com.google.api.services.cloudresourcemanager.model.ListConstraint;
 ---
-> import com.google.api.services.cloudresourcemanager.v3.model.Constraint;
 > import com.google.api.services.cloudresourcemanager.v3.model.ListConstraint;
-34a19
-> {
-50c35
+> import com.google.api.services.cloudresourcemanager.v3.model.Constraint;
+> import com.google.api.services.cloudresourcemanager.v3.model.ListPolicy;
+35,50c20,21
+<   static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+<       new Function<Constraint, ConstraintInfo>() {
+<         @Override
+<         public ConstraintInfo apply(Constraint protobuf) {
+<           return ConstraintInfo.fromProtobuf(protobuf);
+<         }
+<       };
+<   static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION =
+<       new Function<ConstraintInfo, Constraint>() {
+<         @Override
+<         public Constraint apply(ConstraintInfo constraintInfo) {
+<           return constraintInfo.toProtobuf();
+<         }
+<       };
+< 
 <   private BooleanConstraint booleanConstraint;
 ---
+> {
 >   private Boolean booleanConstraint;
-115c100
-<       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
----
->       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder));
-125c110
+63a35
+>     {
+122a95,109
+>   static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+>       new Function<Constraint, ConstraintInfo>() {
+>         @Override
+>         public ConstraintInfo apply(Constraint protobuf) {
+>           return ConstraintInfo.fromProtobuf(protobuf);
+>         }
+>       };
+>   static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION =
+>       new Function<ConstraintInfo, Constraint>() {
+>         @Override
+>         public Constraint apply(ConstraintInfo constraintInfo) {
+>           return constraintInfo.toProtobuf();
+>         }
+>       };
+> 
+125c112
 <     private BooleanConstraint booleanConstraint;
 ---
 >     private Boolean booleanConstraint;
-147c132
+147c134
 <     Builder setBooleanConstraint(BooleanConstraint booleanConstraint) {
 ---
 >     Builder setBooleanConstraint(Boolean booleanConstraint) {
-198c183
+197,198c184,187
+<   /** Returns the boolean constraint to check whether the constraint is enforced or not. */
 <   public BooleanConstraint getBooleanConstraint() {
 ---
+>   /**
+>    * Returns the boolean constraint to check whether the constraint is enforced or not.
+>    */
 >   public Boolean getBooleanConstraint() {
-253c238
+202c191,193
+<   /** Returns the default behavior of the constraint. */
+---
+>   /**
+>    * Returns the default behavior of the constraint.
+>    */
+207c198,200
+<   /** Returns the detailed description of the constraint. */
+---
+>   /**
+>    * Returns the detailed description of the constraint.
+>    */
+212c205,207
+<   /** Returns the human readable name of the constraint. */
+---
+>   /**
+>    * Returns the human readable name of the constraint.
+>    */
+217c212,214
+<   /** Returns the listConstraintInfo. */
+---
+>   /**
+>    * Returns the listConstraintInfo.
+>    */
+222c219,221
+<   /** Returns the globally unique name of the constraint. */
+---
+>   /**
+>    * Returns the globally unique name of the constraint.
+>    */
+227c226,228
+<   /** Returns the version of the Constraint. Default version is 0. */
+---
+>   /**
+>    * Returns the version of the Constraint. Default version is 0.
+>    */
+253c254
 <         booleanConstraint, constraintDefault, description, displayName, constraints, name, version);
 ---
 >         (booleanConstraint, constraintDefault, description, displayName, constraints, name, version);
+256c257,259
+<   /** Returns a builder for the {@link ConstraintInfo} object. */
+---
+>   /**
+>    * Returns a builder for the {@link ConstraintInfo} object.
+>    */
+261c264,266
+<   /** Returns a builder for the {@link ConstraintInfo} object. */
+---
+>   /**
+>    * Returns a builder for the {@link ConstraintInfo} object.
+>    */

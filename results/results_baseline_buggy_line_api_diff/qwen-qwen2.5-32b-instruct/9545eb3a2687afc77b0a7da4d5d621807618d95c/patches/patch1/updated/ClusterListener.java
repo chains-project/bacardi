@@ -2,13 +2,12 @@ package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.cluster.Cluster;
 import com.hazelcast.cluster.Member;
-import com.hazelcast.cluster.MemberAttributeEvent;
 import com.hazelcast.cluster.MembershipEvent;
 import com.hazelcast.cluster.MembershipListener;
 import com.hazelcast.cluster.LifecycleEvent;
 import com.hazelcast.cluster.LifecycleListener;
-import com.hazelcast.cluster.LifecycleState;
-import org.jivesoftware.openfire.XMPPServer;
+import com.hazelcast.cluster.MemberAttributeEvent;
+import org.jivesoftware.openfire.XMppServer;
 import org.jivesoftware.openfire.cluster.ClusterManager;
 import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
 import org.jivesoftware.openfire.cluster.NodeID;
@@ -18,7 +17,7 @@ import org.jivesoftware.util.cache.Cache;
 import org.jivesoftware.util.cache.CacheFactory;
 import org.jivesoftware.util.cache.CacheWrapper;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactoryFactory;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.LocalTime;
@@ -40,7 +39,7 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
 
     private boolean seniorClusterMember = false;
 
-    private final Map<Cache<?,?>, EntryListener> entryListeners = new HashMap<>();
+    private final Map<Cache<?, ?>, EntryListener> entryListeners = new HashMap<>();
 
     private final Cluster cluster;
     private final Map<NodeID, ClusterNodeInfo> clusterNodesInfo = new ConcurrentHashMap<>();
@@ -60,7 +59,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
     ClusterListener(final Cluster cluster) {
 
     {
-
         this.cluster = cluster;
         for (final Member member : cluster.getMembers()) {
             clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(member),
@@ -70,9 +68,9 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
 
     private void addEntryListener(final Cache<?, ?> cache, final EntryListener listener) {
         if (cache instanceof CacheWrapper) {
-            final Cache wrapped = ((CacheWrapper)cache).getWrappedCache();
+            final Cache wrapped = ((CacheWrapper) cache).getWrappedCache();
             if (wrapped instanceof ClusteredCache) {
-                ((ClusteredCache)wrapped).addEntryListener(listener);
+                ((ClusteredCache) wrapped).addEntryListener(listener);
                 // Keep track of the listener that we added to the cache
                 entryListeners.put(cache, listener);
             }
@@ -106,7 +104,7 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         CacheFactory.doClusterTask(new NewClusterMemberJoinedTask());
 
         logger.info("Joined cluster. XMPPServer node={}, Hazelcast UUID={}, seniorClusterMember={}",
-            new Object[]{ClusteredCacheFactory.nodeID(cluster.getLocalMember()), cluster.localMember().getUuid(), seniorClusterMember});
+                new Object[]{ClusteredCacheFactory.nodeID(cluster.getLocalMember()), cluster.localMember().getUuid(), seniorClusterMember});
         done = false;
     }
 
@@ -128,13 +126,13 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         // again with local content.
         ClusterManager.fireLeftCluster();
 
-        if (!XMPPServer.getInstance().isShuttingDown()) {
+        if (!XmppServer.getInstance().isShuttingDown()) {
             // Remove traces of directed presences sent from local entities to handlers that no longer exist
             // At this point c2s sessions are gone from the routing table so we can identify expired sessions
-            XMPPServer.getInstance().getPresenceUpdateHandler().removedExpiredPresences();
+            XmppServer.getInstance().getPresenceUpdateHandler().removedExpiredPresences();
         }
         logger.info("Left cluster. XMPPServer node={}, Hazelcast UUID={}, wasSeniorClusterMember={}",
-            new Object[]{ClusteredCacheFactory.nodeID(cluster.localMember()), cluster.localMember().getUuid(), wasSeniorClusterMember});
+                new Object[]{ClusteredCacheFactory.nodeID(cluster.localMember()), cluster.localMember().getUuid(), wasSeniorClusterMember});
         done = true;
     }
 
@@ -233,7 +231,7 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
 
             // Remove traces of directed presences sent from local entities to handlers that no longer exist.
             // At this point c2s sessions are gone from the routing table so we can identify expired sessions
-            XMPPServer.getInstance().getPresenceUpdateHandler().removedExpiredPresences();
+            XmppServer.getInstance().getPresenceUpdateHandler().removedExpiredPresences();
         }
         // Delete nodeID instance (release from memory)
         NodeID.deleteInstance(nodeID.toByteArray());

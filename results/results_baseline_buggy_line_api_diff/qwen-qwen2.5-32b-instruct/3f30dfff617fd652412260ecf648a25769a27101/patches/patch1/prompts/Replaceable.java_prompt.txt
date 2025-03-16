@@ -26,19 +26,19 @@ public @interface Replaceable {
 the error is triggered in the following specific lines in the previous code:
 
 ```java
-@InterceptorBinding
+import javax.interceptor.InterceptorBinding;
 ```
 ```java
-import javax.interceptor.InterceptorBinding;
+@InterceptorBinding
 ```
 
 
 
  with the following error information:
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/Replaceable.java:[5,25] package javax.interceptor does not exist
+
 [ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/Replaceable.java:[13,2] cannot find symbol
   symbol: class InterceptorBinding
-
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/Replaceable.java:[5,25] package javax.interceptor does not exist
 
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:

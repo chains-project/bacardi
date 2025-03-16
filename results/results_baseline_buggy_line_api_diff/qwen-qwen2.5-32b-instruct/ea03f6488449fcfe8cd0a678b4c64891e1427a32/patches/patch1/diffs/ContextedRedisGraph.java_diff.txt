@@ -1,0 +1,80 @@
+12d11
+< import redis.clients.jedis.Client;
+13a13
+> import redis.clients.jedis.JedisClientConfig;
+15d14
+< import redis.clients.jedis.util.SafeEncoder;
+98,101c97,99
+<         } catch (JRedisGraphException rt) {
+<             throw rt;
+<         } catch (JedisDataException j) {
+<             throw new JRedisGraphException(j);
+---
+>         } catch (Exception e) {
+>             conn.close();
+>             throw e;
+128,163d125
+<      * @return Returns the instance Jedis connection.
+<      */
+<     @Override
+<     public Jedis getConnectionContext() {
+<         return this.connectionContext;
+<     }
+< 
+<     /**
+<      * Creates a new RedisGraphTransaction transactional object
+<      * @return new RedisGraphTransaction
+<      */
+<     @Override
+<     public RedisGraphTransaction multi() {
+<         Jedis jedis = getConnection();
+<         Client client = jedis.getClient();
+<         client.multi();
+<         client.getOne();
+<         RedisGraphTransaction transaction = new RedisGraphTransaction(client, this);
+<         transaction.setRedisGraphCaches(caches);
+<         return transaction;
+<     }
+< 
+<     /**
+<      * Creates a new RedisGraphPipeline pipeline object
+<      * @return new RedisGraphPipeline
+<      */
+<     @Override
+<     public RedisGraphPipeline pipelined() {
+<         Jedis jedis = getConnection();
+<         Client client = jedis.getClient();
+<         RedisGraphPipeline pipeline = new RedisGraphPipeline(client, this);
+<         pipeline.setRedisGraphCaches(caches);
+<         return pipeline;
+<     }
+< 
+<     /**
+208d169
+< 
+215a177,201
+>     /**
+>      * Creates a new RedisGraphTransaction transactional object
+>      * @return
+>      */
+>     @Override
+>     public RedisGraphTransaction multi() {
+>         Jedis jedis = getConnection();
+>         // Client client = jedis.getClient(); // Removed due to API changes
+>         RedisGraphTransaction transaction = new RedisGraphTransaction(jedis, this);
+>         transaction.setRedisGraphCaches(caches);
+>         return transaction;
+>     }
+> 
+>     /**
+>      * Creates a new RedisGraphPipeline pipeline object
+>      * @return
+>      */
+>     @Override
+>     public RedisGraphPipeline pipelined() {
+>         Jedis jedis = getConnection();
+>         // Client client = jedis.getClient(); // Removed due to API changes
+>         RedisGraphPipeline pipeline = new RedisGraphPipeline(jedis, this);
+>         pipeline.setRedisGraphCaches(caches);
+>         return pipeline;
+>     }

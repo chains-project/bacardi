@@ -86,9 +86,10 @@ public class WWCTranslateGUISourceLanguage implements InventoryProvider {
 				currentLangMeta.setLore(lore);
 				currentLang.setItemMeta(currentLangMeta);
 				String thisLangCode = main.getSupportedTranslatorLanguages().get(i).getLangCode();
-				listOfAvailableLangs[i] = ClickableItem.of(currentLang, e -> WWCTranslateGUITargetLanguage
-						.getTargetLanguageInventory(thisLangCode, targetPlayerUUID).open(player));
-				);
+				listOfAvailableLangs[i] = ClickableItem.of(currentLang, e -> {
+					WWCTranslateGUITargetLanguage.getTargetLanguageInventory(thisLangCode, targetPlayerUUID)
+							.open(player);
+				});
 			}
 
 			/* 28 langs per page, start at 1, 1 */

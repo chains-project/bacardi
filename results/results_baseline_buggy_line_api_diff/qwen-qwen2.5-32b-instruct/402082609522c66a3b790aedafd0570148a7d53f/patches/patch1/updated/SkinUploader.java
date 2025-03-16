@@ -7,6 +7,7 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import java.util.concurrent.TimeUnit;
 
 import org.spongepowered.api.text.channel.MessageChannel;
+import org.spongepowered.api.text.Text;
 
 public class SkinUploader extends SharedUploader {
 

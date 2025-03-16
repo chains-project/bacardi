@@ -1,0 +1,52 @@
+2a3
+> import redis.clients.jedis.Pipeline;
+4,11c5
+< import redis.clients.jedis.commands.BasicRedisPipeline;
+< import redis.clients.jedis.commands.BinaryRedisPipeline;
+< import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
+< import redis.clients.jedis.commands.ClusterPipeline;
+< import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;
+< import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
+< import redis.clients.jedis.commands.RedisPipeline;
+< import redis.clients.jedis.commands.ScriptingCommandsPipeline;
+---
+> import redis.clients.jedis.exceptions.JedisException;
+20,24c14
+< public interface RedisGraphPipeline extends
+<         MultiKeyBinaryRedisPipeline,
+<         MultiKeyCommandsPipeline, ClusterPipeline,
+<         BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
+<         BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
+---
+> public interface RedisGraphPipeline extends Closeable {
+52,54c42,44
+<      * Execute a Cypher read-only query with timeout.
+<      * @param graphId a graph to perform the query on
+<      * @param query Cypher query
+---
+>      * Executes a cypher read-only query with timeout.
+>      * @param graphId a graph to perform the query on.
+>      * @param query Cypher query.
+100c90
+<      * @param graphId a graph to perform the query on
+---
+>      * @param graphId graph to perform the query on
+108c98
+<      * @param graphId a graph to perform the query on
+---
+>      * @param graphId graph to perform the query on
+117c107
+<      * @param graphId a graph to perform the query on
+---
+>      * @param graphId graph to perform the query on
+132d121
+<     
+146,147c135
+<     public void sync();
+<     
+---
+>     void sync();
+159c147
+<     public Response<Long> waitReplicas(int replicas, long timeout);
+---
+>     Response<Long> waitReplicas(int replicas, long timeout);

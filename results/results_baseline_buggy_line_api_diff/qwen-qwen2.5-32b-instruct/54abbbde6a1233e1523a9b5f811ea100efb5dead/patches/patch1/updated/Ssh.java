@@ -15,6 +15,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.cactoos.io.TeeInput;
 import org.cactoos.scalar.LengthOf;
+import org.cactoos.scalar.Unchecked;
 import org.cactoos.text.TextOf;
 import org.cactoos.text.UncheckedText;
 
@@ -42,9 +43,7 @@ import org.cactoos.text.UncheckedText;
  *
  * @since 1.0
  * @see <a href="http://www.yegor256.com/2014/09/02/java-ssh-client.html">article by Yegor Bugayenko</a>
- * @todo #30:30min Refactor this class into smaller ones to avoid null
- *  checking of passphrase. There should probably be separate classes for
- *  encrypted/unencrypted priv. key.
+ * @checkstyle ParameterNumberCheck (6 lines)
  */
 @ToString
 @EqualsAndHashCode(of = "key", callSuper = true)
@@ -230,9 +229,8 @@ public final class Ssh extends AbstractSshShell {
             }
             Logger.debug(
                 this,
-                "Opening SSH session to %s@%s:%s (%d bytes in RSA key)...",
-                this.getLogin(), this.getAddr(), this.getPort(),
-                file.length()
+                "Opening SSH session to %s@%s:%s",
+                this.getLogin(), this.getAddr(), this.getPort()
             );
             return this.session(jsch);
         } catch (final JSchException ex) {

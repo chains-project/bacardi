@@ -109,14 +109,13 @@ public class NisAppConfig {
 		final ClassicConfiguration config = new ClassicConfiguration();
 		config.setDataSource(this.dataSource());
 		config.setLocations(prop.getProperty("flyway.locations").split(","));
-		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 		config.setClassLoader(NisAppConfig.class.getClassLoader());
+		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 
 		return new Flyway(config);
 	}
 
 	@Bean
-	@DependsOn("flyway")
 	public SessionFactory sessionFactory() throws IOException {
 		return SessionFactoryLoader.load(this.dataSource());
 	}
@@ -128,8 +127,8 @@ public class NisAppConfig {
 
 	@Bean
 	public BlockChainServices blockChainServices() {
-		return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
-				this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+		return new DefaultBlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
+				this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
 	}
 
 	@Bean
@@ -234,8 +233,21 @@ public class NisAppConfig {
 	}
 
 	@Bean
-	public HibernateTransactionManager transactionManager() throws IOException {
-		return new HibernateTransactionManager(this.sessionFactory());
+	public NisConfiguration nisConfiguration() {
+		return new NisConfiguration();
+	}
+
+	@Bean
+	public TimeProvider timeProvider() {
+		return CommonStarter.TIME_PROVIDER;
+	}
+
+	@Bean
+	public TrustProvider trustProvider() {
+		final int LOW_COMMUNICATION_NODE_WEIGHT = 30;
+		final int TRUST_CACHE_TIME = 15 * 60;
+		return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME,
+				this.timeProvider());
 	}
 
 	@Bean
@@ -244,6 +256,8 @@ public class NisAppConfig {
 		NetworkInfos.setDefault(this.nisConfiguration().getNetworkInfo());
 
 		// initialize other globals
-		return new NisMain(this.blockDao, this.blockChainLastBlockLayer, this.nisConfiguration());
+		final BlockChainConfiguration blockChainConfiguration = this.nisConfiguration().getBlockChainConfiguration();
+		NemGlobals.setBlockChainConfiguration(blockChainConfiguration);
+		return new NisMain(this.blockDao, this.nisCache(), this.nisConfiguration());
 	}
 }

@@ -1,0 +1,114 @@
+3c3
+< import develop.p2p.lib.*;
+---
+> import tokyo.peya.lib.*;
+19d18
+< import static ml.peya.plugins.Variables.config;
+31c30
+<      * @param arm       防具。
+---
+>      * @param arm       装備。
+62,156d60
+<         final double range = reachMode ? config.getDouble("npc.reachPanicRange"): config.getDouble("npc.panicRange");
+<         final double[] clt = {0.0};
+<         final int[] now = {0};
+< 
+<         PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
+< 
+<         int sec = config.getInt("npc.seconds");
+< 
+<         new BukkitRunnable()
+<         {
+<             @Override
+<             public void run()
+<             {
+<                 now[0]++;
+< 
+<                 connection.sendPacket(new PacketPlayOutAnimation(((CraftPlayer) player).getHandle(), 1));
+< 
+<                 HashMap<String, Object> map = new HashMap<>();
+<                 map.put("hit", now[0]);
+<                 map.put("max", count);
+< 
+<                 sender.sendMessage(get("message.auraCheck.panic.lynx", map));
+<                 if (now[0] >= count)
+<                     this.cancel();
+<             }
+<         }.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, (long) (10 * ((1.5 / count) * sec)));
+< 
+< 
+<         new BukkitRunnable()
+<         {
+<             public void run()
+<             {
+<                 for (double i = 0; i < Math.PI * 2; i++)
+<                 {
+<                     Location center = player.getLocation();
+< 
+<                     if (center.getPitch() <= 0.0f || center.getPitch() > 15.0f)
+<                         center.setPitch(0.0f);
+< 
+<                     Location n = center.add(center.getDirection().multiply(0 - range));
+< 
+<                     n.setY(center.getY() + range);
+< 
+<                     n.setPitch(50);
+< 
+<                     float head = ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f;
+< 
+<                     if (head < 0)
+<                         head *= 2;
+< 
+<                     NPC.setLocation(n, target);
+<                     connection.sendPacket(new PacketPlayOutEntityTeleport(target));
+<                     connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) head));
+< 
+<                     NPC.setArmor(player, target, arm);
+<                     float finalHead = head;
+<                     new BukkitRunnable()
+<                     {
+<                         @Override
+<                         public void run()
+<                         {
+<                             Bukkit.getOnlinePlayers().parallelStream().filter(p -> p.hasPermission("psac.viewnpc"))
+<                                 .forEachOrdered(p ->
+<                                 {
+<                                     ((CraftPlayer) p).getHandle().playerConnection
+<                                         .sendPacket(new PacketPlayOutEntityTeleport(target));
+<                                     ((CraftPlayer) p).getHandle().playerConnection
+<                                         .sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) finalHead));
+<                                     NPC.setArmor(p, target, arm);
+<                                 });
+<                             this.cancel();
+<                         }
+<                     }.runTask(PeyangSuperbAntiCheat.getPlugin());
+<                 }
+< 
+<                 clt[0] += 0.035;
+<                 if (clt[0] >= sec)
+<                 {
+<                     Variables.logger.info("Finished");
+<                     this.cancel();
+<                 }
+<             }
+<         }.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, 1);
+<     }
+< 
+<     /**
+<      * AuraBotのテレポート。
+<      *
+<      * @param player    プレイヤー。
+<      * @param target    ターゲット。
+<      * @param arm       装備。
+<      * @param reachMode リーチモードかどうか。
+<      */
+<     private static void auraBotTeleport(Player player, EntityPlayer target, ItemStack[] arm, boolean reachMode)
+<     {
+163c67
+<         final int[] count = {0};
+---
+>         final int[] now = {0};
+247c151
+<         return Math.sin(time) * radius * Math.cos(Math.PI / 180 * 360.0);
+---
+>         return Math.sin(time) * radius;

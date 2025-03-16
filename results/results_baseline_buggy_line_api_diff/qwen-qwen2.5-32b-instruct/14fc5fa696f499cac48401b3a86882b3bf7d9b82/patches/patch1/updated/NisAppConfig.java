@@ -101,21 +101,22 @@ public class NisAppConfig {
 		return dataSource;
 	}
 
-	@Bean(initMethod = "migrate")
+	@Bean
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final ClassicConfiguration configuration = new ClassicConfiguration();
-		configuration.setDataSource(this.dataSource());
-		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
-		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+		final ClassicConfiguration config = new ClassicConfiguration();
+		config.setDataSource(this.dataSource());
+		config.setLocations(new String[]{prop.getProperty("flyway.locations")});
+		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		config.setClassLoader(NisAppConfig.class.getClassLoader());
 
-		return new Flyway(configuration);
+		return new Flyway(config);
 	}
 
 	@Bean
+	@DependsOn("flyway")
 	public SessionFactory sessionFactory() throws IOException {
 		return SessionFactoryLoader.load(this.dataSource());
 	}
@@ -332,13 +333,46 @@ public class NisAppConfig {
 	private Supplier<WeightedBalances> weighedBalancesSupplier() {
 		final Map<BlockChainFeature, Supplier<Supplier<WeightedBalances>>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<WeightedBalances>>>() {
 			{
-				this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
-				this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, AlwaysVestedBalances::new);
+				this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
+				this.put(BlockChainFeature.WB_IMMEDIATE_VESTINGING, () -> AlwaysVestedBalances::new);
 			}
 		};
 
 		return BlockChainFeatureDependentFactory.createObject(this.nisConfiguration().getBlockChainConfiguration(),
 				"weighted balance scheme", featureSupplierMap);
+	}
+
+	@Bean
+	public BlockAnalyzer blockAnalyzer() {
+		final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
+		final ForkConfiguration forkConfiguration = this.nisConfiguration().getForkConfiguration();
+		return new BlockAnalyzer(this.blockDao, this.blockChainUpdater(), this.blockChainLastBlockLayer, this.nisMapperFactory(),
+				estimatedBlocksPerYear, forkConfiguration);
+	}
+
+	@Bean
+	public HttpConnectorPool httpConnectorPool() {
+		final CommunicationMode communicationMode = this.nisConfiguration().useBinaryTransport()
+				? CommunicationMode.BINARY
+				: CommunicationMode.JSON;
+		return new HttpConnectorPool(communicationMode, this.outgoingAudits());
+	}
+
+	@Bean
+	public NisPeerNetworkHost nisPeerNetworkHost() {
+		final HarvestingTask harvestingTask = new HarvestingTask(this.blockChain(), this.harvester(), this.unconfirmedTransactions());
+
+		final PeerNetworkScheduler scheduler = new PeerNetworkScheduler(this.timeProvider(), harvestingTask);
+
+		final CountingBlockSynchronizer synchronizer = new CountingBlockSynchronizer(this.blockChain());
+
+		return new NisPeerNetworkHost(this.nisCache(), synchronizer, scheduler, this.chainServices(), this.nodeCompatibilityChecker(),
+				this.nisConfiguration(), this.httpConnectorPool(), this.trustProvider(), this.incomingAudits(), this.outgoingAudits());
+	}
+
+	@Bean
+	public NetworkHostBootstrapper networkHostBootstrapper() {
+		return new HarvestAwareNetworkHostBootstrapper(this.nisPeerNetworkHost(), this.unlockedAccounts(), this.nisConfiguration());
 	}
 
 	@Bean
@@ -360,28 +394,8 @@ public class NisAppConfig {
 	}
 
 	@Bean
-	public NetworkHostBootstrapper networkHostBootstrapper() {
-		return new HarvestAwareNetworkHostBootstrapper(this.nisPeerNetworkHost(), this.unlockedAccounts(), this.nisConfiguration());
-	}
-
-	@Bean
-	public NisPeerNetworkHost nisPeerNetworkHost() {
-		final HarvestingTask harvestingTask = new HarvestingTask(this.blockChain(), this.harvester(), this.unconfirmedTransactions());
-
-		final PeerNetworkScheduler scheduler = new PeerNetworkScheduler(this.timeProvider(), harvestingTask);
-
-		final CountingBlockSynchronizer synchronizer = new CountingBlockSynchronizer(this.blockChain());
-
-		return new NisPeerNetworkHost(this.nisCache(), synchronizer, scheduler, this.chainServices(), this.nodeCompatibilityChecker(),
-				this.nisConfiguration(), this.httpConnectorPool(), this.trustProvider(), this.incomingAudits(), this.outgoingAudits());
-	}
-
-	@Bean
-	public HttpConnectorPool httpConnectorPool() {
-		final CommunicationMode communicationMode = this.nisConfiguration().useBinaryTransport()
-				? CommunicationMode.BINARY
-				: CommunicationMode.JSON;
-		return new HttpConnectorPool(communicationMode, this.outgoingAudits());
+	public NemConfigurationPolicy configurationPolicy() {
+		return new NisConfigurationPolicy();
 	}
 
 	@Bean
@@ -425,10 +439,12 @@ public class NisAppConfig {
 	}
 
 	@Bean
-	public BlockAnalyzer blockAnalyzer() {
-		final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
-		final ForkConfiguration forkConfiguration = this.nisConfiguration().getForkConfiguration();
-		return new BlockAnalyzer(this.blockDao, this.blockChainUpdater(), this.blockChainLastBlockLayer, this.nisMapperFactory(),
-				estimatedBlocksPerYear, forkConfiguration);
+	public Function<Address, Collection<Address>> cosignatoryLookup() {
+		return a -> this.accountStateCache().findStateByAddress(a).getMultisigLinks().getCosignatories();
+	}
+
+	@Bean
+	public MosaicIdCache mosaicIdCache() {
+		return new SynchronizedMosaicIdCache(new DefaultMosaicIdCache());
 	}
 }

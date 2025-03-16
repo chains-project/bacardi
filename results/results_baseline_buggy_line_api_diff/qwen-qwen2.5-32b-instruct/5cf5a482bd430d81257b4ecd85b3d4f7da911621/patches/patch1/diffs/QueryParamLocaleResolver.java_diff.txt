@@ -6,3 +6,9 @@
 > import jakarta.mvc.event.BeforeControllerEvent;
 > import jakarta.mvc.locale.LocaleResolver;
 > import jakarta.mvc.locale.LocaleResolverContext;
+41,42c41,42
+<     public Locale resolveLocale(final LocaleResolverContext context) {
+<         final String queryLang = context.getUriInfo()
+---
+>     public Locale resolveLocale(final BeforeControllerEvent event) {
+>         final String queryLang = event.getUriInfo()

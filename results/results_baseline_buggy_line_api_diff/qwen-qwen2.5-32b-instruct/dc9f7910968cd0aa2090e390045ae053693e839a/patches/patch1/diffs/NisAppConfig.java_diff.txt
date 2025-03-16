@@ -4,10 +4,7 @@
 <         @Bean(initMethod = "migrate")
 ---
 >         @Bean
-105,113c106,111
-<                 final Properties prop = new Properties();
-<                 prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
-< 
+108,113c109,115
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
@@ -20,26 +17,28 @@
 >                 config.setLocations(prop.getProperty("flyway.locations").split(","));
 >                 config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 >                 config.setClassLoader(NisAppConfig.class.getClassLoader());
+> 
 >                 return new Flyway(config);
-117d114
+117d118
 <         @DependsOn("flyway")
-129,130c126
+129,130c130,131
 <                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
 <                                 this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
 ---
->                 return new DefaultChainServices(this.blockChainLastBlockLayer, this.httpConnectorPool());
-189,192c185,186
+>                 return new DefaultBlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
+>                                 this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+189,192c190,191
 <         public SingleTransactionValidator transactionValidator() {
 <                 // this is only consumed by the TransactionController and used in transaction/prepare,
 <                 // which should propagate incomplete transactions
 <                 return this.transactionValidatorFactory().createIncompleteSingleBuilder(this.nisCache()).build();
 ---
 >         public Function<Address, Collection<Address>> cosignatoryLookup() {
->                 return a -> this.accountStateCache().findStateByAddress(a).getMultisigLinks().getCosignatories();
-195,196d188
+>                 return a -> this.accountCache().findStateByAddress(a).getMultisigLinks().getCosignatories();
+195,196d193
 <         // endregion
 < 
-233,441d224
+233,441d229
 < 
 <         @Bean
 <         public ReadOnlyNisCache nisCache() {

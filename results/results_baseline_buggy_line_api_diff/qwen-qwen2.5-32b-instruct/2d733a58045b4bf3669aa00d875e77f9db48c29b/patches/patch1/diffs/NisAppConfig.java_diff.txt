@@ -4,35 +4,30 @@
 <         @Bean(initMethod = "migrate")
 ---
 >         @Bean
-105,113c106,111
-<                 final Properties prop = new Properties();
-<                 prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
-< 
+108,112c109,116
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
 <                 flyway.setLocations(prop.getProperty("flyway.locations"));
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-<                 return flyway;
 ---
 >                 ClassicConfiguration config = new ClassicConfiguration();
 >                 config.setDataSource(this.dataSource());
 >                 config.setLocations(prop.getProperty("flyway.locations").split(","));
 >                 config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 >                 config.setClassLoader(NisAppConfig.class.getClassLoader());
->                 return new Flyway(config);
-117d114
+> 
+>                 Flyway flyway = new Flyway(config);
+>                 flyway.migrate();
+117d120
 <         @DependsOn("flyway")
-129,130c126,127
+129,130c132,133
 <                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
 <                                 this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
 ---
 >                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
 >                                 this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
-196a194,195
->         // region other beans
-> 
-235,370d233
+235,370d237
 <         public ReadOnlyNisCache nisCache() {
 <                 return new DefaultNisCache(this.accountCache(), this.accountStateCache(), this.poxFacade(), this.transactionHashCache(),
 <                                 this.namespaceCache());
@@ -169,11 +164,18 @@
 <         }
 < 
 <         @Bean
-389c252
+381,440c248,249
+<         public TrustProvider trustProvider() {
+<                 final int LOW_COMMUNICATION_NODE_WEIGHT = 30;
+<                 final int TRUST_CACHE_TIME = 15 * 60;
+<                 return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME,
+<                                 this.timeProvider());
+<         }
+< 
+<         @Bean
 <         public NemConfigurationPolicy configurationPolicy() {
----
->         public NisConfigurationPolicy configurationPolicy() {
-392,441d254
+<                 return new NisConfigurationPolicy();
+<         }
 < 
 <         @Bean
 <         public ChainServices chainServices() {
@@ -223,4 +225,6 @@
 <         @Bean
 <         public MosaicIdCache mosaicIdCache() {
 <                 return new SynchronizedMosaicIdCache(new DefaultMosaicIdCache());
-<         }
+---
+>         public HibernateTransactionManager transactionManager() throws IOException {
+>                 return new HibernateTransactionManager(this.sessionFactory());

@@ -22,8 +22,10 @@ import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class ClusteredCache<K extends Serializable, V extends Serializable> implements Cache<K, V> {
 
@@ -47,7 +49,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
 
     @Override
     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode) {
-        final MapListener<K, V> listener = new MapListener<K, V>() {
+        final EntryListener<K, V> listener = new EntryListener<K, V>() {
             @Override
             public void mapEvicted(MapEvent event) {
                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
@@ -227,13 +229,18 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     }
 
     @Override
-    public void setMaxCacheSize(int i) {
-        setMaxCacheSize((long) i);
+    public void setMaxCacheSize(final long maxSize) {
+        CacheFactory.setMaxSizeProperty(getName(), maxSize);
     }
 
     @Override
-    public void setMaxCacheSize(final long maxSize) {
-        CacheFactory.setMaxSizeProperty(getName(), maxSize);
+    public long getMaxLifetime() {
+        return CacheFactory.getMaxCacheLifetime(getName());
+    }
+
+    @Override
+    public void setMaxLifetime(final long maxLifetime) {
+        CacheFactory.setMaxLifetimeProperty(getName(), maxLifetime);
     }
 
     void destroy() {

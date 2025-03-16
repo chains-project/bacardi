@@ -2,139 +2,91 @@
 < 
 34d32
 < import net.sf.jasperreports.engine.JRLineBox;
-55a54
+42d39
+< import net.sf.jasperreports.engine.design.JRDesignTextElement;
+55a53
 > import xdev.tableexport.export.ExportException;
-59d57
+59d56
 < 
-75d72
+75d71
 <         
-81d77
+81d76
 <         
-91d86
+91d85
 <         
-101d95
+101d94
 <         
-121d114
+121d113
 <         
-155,159d147
+155,159d146
 <         
 <         /**
 <          * 
 <          * @return
 <          */
-162d149
+162d148
 <                 
-169,171c156,157
+169,171c155,156
 <                         final Font font = style.getFont();
 <                         lbl.setFont(font);
 <                         //get the normal height of the label
 ---
 >                         final Font f = style.getFont();
 >                         lbl.setFont(f);
-173c159
+173c158
 <                         //add the column border width
 ---
 >                         //Add border width
-189d174
+189d173
 <                 
-196,197c181,182
+196,197c180,181
 <                         final Font font = style.getFont();
 <                         lbl.setFont(font);
 ---
 >                         final Font f = style.getFont();
 >                         lbl.setFont(f);
-213d197
+213d196
 <         
-238d221
+238d220
 <         
-255d237
+255d236
 <         
-295d276
+268,269d248
+<                 final boolean createHeader = this.config.hasAnyHeader();
+<                 
+275c254
+<                         if(createHeader)
+---
+>                         if(this.config.hasAnyHeader())
+295d273
 <                                         
-330,333d310
+330,333d307
 <                         if(this.config.isBlankWhenNullValue())
 <                         {
 <                                 textField.setBlankWhenNull(true);
 <                         }
-353d329
+353d326
 <                 
-360d335
+360d332
 <         
-369c344
+369c341,342
 <                 textField.getLineBox().getPen().setLineWidth(border.getLineWidth());
 ---
->                 textField.getLineBox().getPen().setLineWidth((float)border.getLineWidth()); // Cast to float
-379d353
+>                 // Convert int to float for setLineWidth
+>                 textField.getLineBox().getPen().setLineWidth((float)border.getLineWidth());
+379d351
 <                 
-386d359
+386d357
 <         
-394d366
+394d364
 <         
-397,398c369,421
+397,401c367
 <          * Assemble and compile a {@link JasperReport} based on the information of
 <          * the {@link TemplateConfig} object.
----
->          * @return
->          */
->         private int calcMaxHeaderHeight()
->         {
->                 final JLabel lbl = new JLabel("a");
->                 int maxHeight = 0;
-> 
->                 for(final TemplateColumn col : this.config.getColumns())
->                 {
->                         final ColumnStyle style = col.getHeaderColumn().getStyle();
->                         final Font f = style.getFont();
->                         lbl.setFont(f);
->                         int lblHeigh = (int)lbl.getPreferredSize().getHeight();
->                         //Add border width
->                         lblHeigh+= style.getColBorder().getLineWidth()*2;
->                         //Add padding
->                         lblHeigh+= style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
-> 
->                         if(lblHeigh > maxHeight)
->                         {
->                                 maxHeight = lblHeigh;
->                         }
->                 }
-> 
->                 return maxHeight;
->         }
-> 
->         private int calcMaxContentHeight()
->         {
->                 final JLabel lbl = new JLabel("a");
->                 int maxHeight = 0;
-> 
->                 for(final TemplateColumn col : this.config.getColumns())
->                 {
->                         final ColumnStyle style = col.getContentColumn().getStyle();
->                         final Font f = style.getFont();
->                         lbl.setFont(f);
->                         int lblHeigh = (int)lbl.getPreferredSize().getHeight();
->                         //Add border width
->                         lblHeigh+= style.getColBorder().getLineWidth()*2;
->                         //Add padding
->                         lblHeigh+= style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
-> 
->                         if(lblHeigh > maxHeight)
->                         {
->                                 maxHeight = lblHeigh;
->                         }
->                 }
-> 
->                 return maxHeight;
->         }
-> 
->         /**
-400,401c423
+<          * 
 <          * @return the compiled {@link JasperReport}
 <          * @throws ExportException
 ---
 >          * @return
-403c425
-<         public JasperReport assembleReport() throws ExportException
----
->         private JasperReport assembleReport() throws ExportException
-428d449
+428d393
 <         

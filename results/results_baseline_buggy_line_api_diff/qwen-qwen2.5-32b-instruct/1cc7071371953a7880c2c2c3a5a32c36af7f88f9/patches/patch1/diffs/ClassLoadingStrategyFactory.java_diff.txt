@@ -1,0 +1,27 @@
+16,17c16,17
+< import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector;
+< import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+---
+> import net.bytebuddy.dynamic.loading.ClassInjector;
+> import net.bytebuddy.dynamic.load.ClassLoadingStrategy;
+23a24
+> {
+26,27c27,28
+<         () -> MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class)
+<     ).getOrElse((Method) null);
+---
+>         (() -> MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class))
+>         .getOrElse((Method) null);
+29c30,31
+<     static ClassLoadingStrategy<ClassLoader> classLoadingStrategy(Class<?> assertClass) {
+---
+>     static ClassLoadingStrategy<ClassLoadingStrategy<ClassLoader> classLoadingStrategy(Class<?> assertClass)
+>     {
+31c33
+<             return ClassLoadingStrategy.Default.INJECTION;
+---
+>             return ClassLoadingStrategy.Default.INjection;
+34a37
+>                 ));
+42d44
+< 

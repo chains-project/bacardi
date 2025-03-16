@@ -92,7 +92,8 @@ public class AlertMessage implements Serializable {
         private String message;
         private String field;
 
-        public Error() {}
+        public Error() {
+        }
 
         private Error(String field, String code, String message) {
             this.field = field;

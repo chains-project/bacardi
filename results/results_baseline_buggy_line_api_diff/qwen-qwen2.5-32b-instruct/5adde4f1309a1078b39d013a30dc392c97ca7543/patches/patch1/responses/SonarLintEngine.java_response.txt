@@ -158,7 +158,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
         return AnalysisEngineConfiguration.builder()
-                .addEnabledLanguage(Language.JAVA)
+                .addEnabledLanguages(globalConfig.getEnabledLanguages().toArray(new Language[0]))
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())
@@ -273,7 +273,6 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
      */
     public static class LoadedPluginsThatDoesNotCloseLoader extends LoadedPlugins {
 
-    {
         public LoadedPluginsThatDoesNotCloseLoader(
                 Map<String, Plugin> pluginInstancesByKeys,
                 PluginInstancesLoader pluginInstancesLoader) {

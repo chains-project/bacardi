@@ -2,8 +2,8 @@ package com.google.cloud.resourcemanager;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.api.services.cloudresourcemanager.v3.model.Project as V3Project;
 import com.google.cloud.Policy;
-import com.google.api.services.cloudresourcemanager.v3.model.Project; // Updated import for the new version
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.List;
@@ -179,16 +179,10 @@ public class Project extends ProjectInfo {
   }
 
   /**
-   * Returns the permissions that a caller has on this project. You typically don't call this method
-   * if you're using Google Cloud Platform directly to manage permissions. This method is intended
-   * for integration with your proprietary software, such as a customized graphical user interface.
-   * For example, the Cloud Platform Console tests IAM permissions internally to determine which UI
-   * should be available to the logged-in user. Each service that supports IAM lists the possible
-   * permissions; see the <i>Supported Cloud Platform services</i> page below for links to these
-   * lists.
+   * Returns a list of booleans representing whether the caller has the permissions specified (in
+   * the order of the given permissions).
    *
-   * @return a list of booleans representing whether the caller has the permissions specified (in
-   *     the order of the given permissions)
+   * @return a list of booleans representing whether the caller has the permissions specified
    * @throws ResourceManagerException upon failure
    */
   List<Boolean> testPermissions(List<String> permissions) {
@@ -224,7 +218,7 @@ public class Project extends ProjectInfo {
 
   static Project fromPb(
       ResourceManager resourceManager,
-      com.google.api.services.cloudresourcemanager.v3.model.Project answer) { // Updated reference to the new version
+      V3Project answer) {
     ProjectInfo info = ProjectInfo.fromPb(answer);
     return new Project(resourceManager, new ProjectInfo.BuilderImpl(info));
   }

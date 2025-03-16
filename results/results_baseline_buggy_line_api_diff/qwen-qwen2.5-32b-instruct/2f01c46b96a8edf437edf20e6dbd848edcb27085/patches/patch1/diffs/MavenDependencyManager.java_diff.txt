@@ -1,14 +1,39 @@
 21d20
 < import org.apache.maven.plugin.logging.Log;
-27d25
+24d22
+< import org.apache.maven.project.ProjectBuildingRequest;
+27d24
 < import org.codehaus.plexus.util.xml.Xpp3Dom;
-162c160
+137,156d133
+<   /**
+<    * Maven processors are defined like this.
+<    * <pre>{@code
+<    *       <plugin>
+<    *         <groupId>org.bsc.maven</groupId>
+<    *         <artifactId>maven-processor-plugin</artifactId>
+<    *         <executions>
+<    *           <execution>
+<    *             <id>process</id>
+<    *             [...]
+<    *             <configuration>
+<    *               <processors>
+<    *                 <processor>XXXProcessor</processor>
+<    *               </processors>
+<    *             </configuration>
+<    *           </execution>
+<    *         </executions>
+<    *       </plugin>
+<    * }</pre>
+<    */
+162c139
 <         .map(exec -> (Xpp3Dom) exec.getConfiguration())
 ---
 >         .map(exec -> (org.apache.maven.model.Configuration) exec.getConfiguration())
-164,165c162,163
+164,165c141,142
 <         .map(Xpp3Dom::getChildren)
 <         .map(arr -> Arrays.stream(arr).map(Xpp3Dom::getValue).collect(Collectors.toSet()))
 ---
->         .map(org.apache.maven.model.Configuration::getChildren)
->         .map(arr -> Arrays.stream(arr).map(org.apache.maven.model.Configuration::getValue).collect(Collectors.toSet()))
+>         .map(children -> children.getChildren())
+>         .map(arr -> Arrays.stream(arr).map(child -> child.getValue()).collect(Collectors.toSet()))
+210a188
+>   @SneakyThrows

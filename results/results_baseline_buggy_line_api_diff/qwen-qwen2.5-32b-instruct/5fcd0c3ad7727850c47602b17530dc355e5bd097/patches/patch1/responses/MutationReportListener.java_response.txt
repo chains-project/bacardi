@@ -25,7 +25,7 @@ public class MutationReportListener implements MutationResultListener {
 
   private final JsonParser jsonParser;
 
-  private final CoverageDatabase  coverage;
+  private final CoverageDatabase coverage;
   private final PackageSummaryMap packageSummaryData = new PackageSummaryMap();
 
   private static final String HTML_PAGE = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n"
@@ -103,18 +103,12 @@ public class MutationReportListener implements MutationResultListener {
 
   private MutationTestSummaryData createSummaryData(
       final CoverageDatabase coverage, final ClassMutationResults data) {
-    ClassName className = new ClassName(data.getMutatedClass());
-    byte[] classBytes = new byte[0]; // Replace with actual class bytes
-    long timestamp = 0L; // Replace with actual timestamp
-    ClassInfoVisitor visitor = new ClassInfoVisitor() {
-      @Override
-      public void visitClassInfo(ClassInfoVisitor.ClassInfo classInfo) {
-        // Implement as needed
-      }
-    };
-    coverage.getClassInfo(className, classBytes, timestamp, visitor);
+    // Assuming the new method signature requires a byte[] and long as additional parameters
+    // These parameters are placeholders and should be replaced with actual values
+    byte[] classBytes = new byte[0];
+    long timestamp = 0L;
     return new MutationTestSummaryData(data.getFileName(),
-        data.getMutations(), null); // Adjust as needed
+        data.getMutations(), coverage.getClassInfo(ClassName.fromString(data.getMutatedClass().getName()), classBytes, timestamp));
   }
 
   private void updatePackageSummary(

@@ -38,24 +38,24 @@ public @interface GlobalTestImplementation {
 the error is triggered in the following specific lines in the previous code:
 
 ```java
-@Priority(100)
+import javax.annotation.Priority;
 ```
 ```java
-import javax.annotation.Priority;
+@Priority(100)
 ```
 
 
 
  with the following error information:
+[ERROR] /cdi-test/cdi-test-api/src/main/java/de/hilling/junit/cdi/annotations/GlobalTestImplementation.java:[6,24] package javax.annotation does not exist
+
 [ERROR] /cdi-test/cdi-test-api/src/main/java/de/hilling/junit/cdi/annotations/GlobalTestImplementation.java:[27,2] cannot find symbol
   symbol: class Priority
 
-[ERROR] /cdi-test/cdi-test-api/src/main/java/de/hilling/junit/cdi/annotations/GlobalTestImplementation.java:[6,24] package javax.annotation does not exist
-
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
-     Interface jakarta.annotation.Priority has been added in the new version of the dependency.
      Class javax.annotation.Priority has been removed in the new version of the dependency.
+     Interface jakarta.annotation.Priority has been added in the new version of the dependency.
 
 
 

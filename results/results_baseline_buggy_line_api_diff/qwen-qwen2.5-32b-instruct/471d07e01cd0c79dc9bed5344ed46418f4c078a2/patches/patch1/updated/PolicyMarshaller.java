@@ -1,8 +1,8 @@
 package com.google.cloud.resourcemanager;
 
 import com.google.api.services.cloudresourcemanager.v3.model.Binding;
+import com.google.api.services.cloudresourcemanager.v3.model.Policy;
 import com.google.cloud.Identity;
-import com.google.cloud.Policy;
 import com.google.cloud.Policy.Marshaller;
 import com.google.cloud.Role;
 import com.google.common.base.Function;
