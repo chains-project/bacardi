@@ -14,11 +14,13 @@
 <  * See the License for the specific language governing permissions and
 <  * limitations under the License.
 <  */
-24d8
+21d5
+< import org.apache.thrift.TBase;
+24d7
 < import org.apache.thrift.transport.TFramedTransport;
-27a12
+27a11
 > import org.apache.thrift.transport.layered.TFramedTransport;
-36,42d20
+36,43c20
 < /**
 <  * Thrift Logger which is used to log thrift log messages into a log file.
 <  *
@@ -26,13 +28,16 @@
 <  * file. It provides APIs for client to control the flush behavior and log file rotation.
 <  */
 < @SuppressWarnings("rawtypes")
-85,89d62
+< public final class SimpleThriftLogger<T extends TBase> implements Closeable {
+---
+> public final class SimpleThriftLogger<T extends TBase<?, ?>> implements Closeable {
+85,89d61
 <   /**
 <    * Write a thrift message to log file.
 <    * @param message to be written
 <    * @throws Exception on write error.
 <    */
-96,99d68
+96,99d67
 <   /**
 <    * Simple implementation of log file rotation.
 <    * @throws java.io.IOException

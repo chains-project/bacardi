@@ -1,0 +1,25 @@
+1d0
+< 
+6,7c5,7
+< import javax.mvc.MvcContext;
+< //https://www.mvc-spec.org/learn/cookbook/multilang_en.html
+---
+> import jakarta.mvc.MvcContext;
+> import jakarta.mvc.locale.LocaleResolver;
+> 
+10c10
+<  * is used. This method uses the built-in {@link javax.mvc.locale.LocaleResolver} of the used MVC Implementation.
+---
+>  * is used. This method uses the built-in {@link LocaleResolver} of the used MVC Implementation.
+14c14
+<  * @see javax.mvc.locale.LocaleResolver
+---
+>  * @see LocaleResolver
+23c23
+<     private MvcContext mvcContext;
+---
+>     private LocaleResolver localeResolver;
+33c33
+<         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
+---
+>         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, localeResolver.resolveLocale());

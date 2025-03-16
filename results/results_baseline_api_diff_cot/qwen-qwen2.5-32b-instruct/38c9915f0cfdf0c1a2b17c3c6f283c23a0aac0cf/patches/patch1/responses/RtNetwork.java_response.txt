@@ -3,9 +3,9 @@ package io.zold.api;
 import java.io.IOException;
 import java.util.Iterator;
 import org.cactoos.Scalar;
-import org.cactoos.scalar.Reduced;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Sorted;
+import org.cactoos.scalar.Reduced;
 
 /**
  * Network implementation.

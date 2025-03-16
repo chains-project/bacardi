@@ -63,13 +63,13 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
 			}
 			
 			/* Outgoing Chat Button */
-			if ((player.getUniqueId().toString().equals(targetPlayerUUID) && player.hasPermission("worldwidechat.wwctco")) || (!player.getUniqueId().toString().equals(targetPlayerUUID)) && player.hasPermission("worldwidechat.wwctci.otherplayers")) {
+			if ((player.getUniqueId().toString().equals(targetPlayerUUID) && player.hasPermission("worldwidechat.wwctco")) || (!player.getUniqueId().toString().equals(targetPlayerUUID)) && player.hasPermission("worldwidechat.wwctco.otherplayers")) {
 				ItemStack outgoingChatButton = XMaterial.CHEST_MINECART.parseItem();
 				ItemMeta outgoingChatMeta = outgoingChatButton.getItemMeta();
 				if (targetTranslator.getTranslatingChatOutgoing()) {
 					outgoingChatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					// XEnchantment.parseEnchantment() is no longer available, so we use a different approach
-					outgoingChatMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+					// Use the new method to get the enchantment
+					outgoingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchantment(), 1, false);
 					outgoingChatMeta.setDisplayName(ChatColor.GREEN
 							+ CommonDefinitions.getMessage("wwctGUIChatOutgoingButton"));
 				} else {
@@ -91,8 +91,8 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
     			ItemMeta incomingChatMeta = incomingChatButton.getItemMeta();
     			if (targetTranslator.getTranslatingChatIncoming()) {
     				incomingChatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-    				// XEnchantment.parseEnchantment() is no longer available, so we use a different approach
-    				incomingChatMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+    				// Use the new method to get the enchantment
+    				incomingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchantment(), 1, false);
     				incomingChatMeta.setDisplayName(ChatColor.GREEN
     						+ CommonDefinitions.getMessage("wwctGUIChatIncomingButton"));
     			} else {

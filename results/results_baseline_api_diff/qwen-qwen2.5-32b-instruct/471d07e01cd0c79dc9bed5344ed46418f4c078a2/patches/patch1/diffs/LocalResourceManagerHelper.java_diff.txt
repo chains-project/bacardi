@@ -68,338 +68,209 @@
 <   private static final Set<Character> PERMISSIBLE_PROJECT_NAME_PUNCTUATION =
 <       ImmutableSet.of('-', '\'', '"', ' ', '!');
 < 
-171a125
->             ));
-183c137
-<       args.put("errors", ImmutableList.of(errors));
----
->       args.put("errors", ImmutableList.of(errors);
-187a142
->           );
-194d148
+194d146
 <       // see https://cloud.google.com/resource-manager/reference/rest/
-204c158
-<             response = delete(projectIdFromUri(path));
----
->             response = delete(projectIdFromUri(path);
-211c165
+211c163
 <               response = list(parseListOptions(exchange.getRequestURI().getQuery()));
 ---
 >               response = list(parseListOptions(exchange.getRequestURI().getQuery);
-216c170
+216c168
 <                 decodeContent(exchange.getRequestHeaders(), exchange.getRequestBody());
 ---
 >                 decodeContent(exchange.getRequestHeaders, exchange.getRequestBody);
-218c172
+218c170
 <                 replace(projectIdFromUri(path), jsonFactory.fromString(requestBody, Project.class));
 ---
 >                 replace(projectIdFromUri(path), jsonFactory.fromString(requestBody, Project.class);
-226c180
-<                         + path);
----
->                         + path;
-229c183
+229c181
 <         response = Error.BAD_REQUEST.response(e.getMessage());
 ---
->         response = Error.BAD_REQUEST.response(e.getMessage;
-236c190
+>         response = Error.BAD_REQUEST.response(e.getMessage);
+236c188
 <     String requestBody = decodeContent(exchange.getRequestHeaders(), exchange.getRequestBody());
 ---
 >     String requestBody = decodeContent(exchange.getRequestHeaders, exchange.getRequestBody);
-238c192
+238c190
 <       return create(jsonFactory.fromString(requestBody, Project.class));
 ---
 >       return create(jsonFactory.fromString(requestBody, Project.class);
-242c196
+242c194
 <           return undelete(projectIdFromUri(path));
 ---
 >           return undelete(projectIdFromUri(path);
-244c198
+244c196
 <           return getPolicy(projectIdFromUri(path));
 ---
 >           return getPolicy(projectIdFromUri(path);
-248c202
+248c200
 <               jsonFactory.fromString(requestBody, SetIamPolicyRequest.class).getPolicy());
 ---
 >               jsonFactory.fromString(requestBody, SetIamPolicyRequest.class).getPolicy);
-250c204
+250c202
 <           return testPermissions(
 ---
 >           return testPermissions
-254c208
+254c206
 <                   .getPermissions());
 ---
->                   .getPermissions;
-256,257c210,211
+>                   .getPermissions);
+256c208
 <           return Error.BAD_REQUEST.response(
-<               "The server could not understand the following request URI: POST " + path);
 ---
 >           return Error.BAD_REQUEST.response
->               "The server could not understand the following request URI: POST " + path;
-265d218
+265d216
 <       // see https://cloud.google.com/resource-manager/reference/rest/
-268c221
+268c219
 <         projectId = new URI(OPERATION_CONTEXT).relativize(exchange.getRequestURI()).getPath();
 ---
->         projectId = new URI(OPERATION_CONTEXT).relativize(exchange.getRequestURI).getPath;
-276c229
-<           Project project = projects.get(projectId);
+>         projectId = new URI(OPERATION_CONTEXT).relativize(exchange.getRequestURI()).getPath;
+273c224
+<       String requestMethod = exchange.getRequestMethod();
 ---
->           Project project = projects.get(projectId;
-285c238,239
+>       String requestMethod = exchange.getRequestMethod;
+283c234
+<                 new Response(
+---
+>                 new Response
+285c236,237
 <                     jsonFactory.toString(new Operation().setDone(true).setResponse(project)));
 ---
 >                     jsonFactory.toString(new Operation().setDone(true).setResponse(project));
 >                     );
-288,289c242,243
+288,289c240,241
 <                 Error.INTERNAL_ERROR.response(
 <                     "Error when serializing project " + project.getProjectId());
 ---
 >                 Error.INTERNAL_ERROR.response
->                     "Error when serializing project " + project.getProjectId;
-294c248
+>                     "Error when serializing project " + project.getProjectId);
+294c246
 <               Error.BAD_REQUEST.response(
 ---
 >               Error.BAD_REQUEST.response
-298c252
-<                       + projectId);
----
->                       + projectId;
-300c254
-<       writeResponse(exchange, response);
----
->       writeResponse(exchange, response;
-305,306c259,260
-<     exchange.getResponseHeaders().set("Content-type", "application/json; charset=UTF-8");
+306c258
 <     OutputStream outputStream = exchange.getResponseBody();
 ---
->     exchange.getResponseHeaders.set("Content-type", "application/json; charset=UTF-8";
 >     OutputStream outputStream = exchange.getResponseBody;
-308,310c262,264
-<       exchange.getResponseHeaders().add("Connection", "close");
+309,311c261,263
 <       exchange.sendResponseHeaders(response.code(), response.body().length());
 <       outputStream.write(response.body().getBytes(StandardCharsets.UTF_8));
+<       outputStream.close();
 ---
->       exchange.getResponseHeader.add("Connection", "close");
->       exchange.sendResponseHeaders(response.code, response.body.length;
->       outputStream.write(response.body.getBytes(StandardCharsets.UTF_8);
-313c267
+>       exchange.sendResponseHeaders(response.code, response.body.length);
+>       outputStream.write(response.body.getBytes(StandardCharsets.UTF_8));
+>       outputStream.close;
+313c265
 <       log.log(Level.WARNING, "IOException encountered when sending response.", e);
 ---
 >       log.log(Level.WARNINGING, "IOException encountered when sending response.", e);
-318c272
-<     List<String> contentEncoding = headers.get("Content-encoding");
----
->     List<String> contentEncoding = headers.get("Content-encoding";
-324c278
-<           input = new GZIPInputStream(inputStream);
----
->           input = new GZIPInputStream(inputStream;
-326,327c280,281
+326c278
 <           throw new IOException(
-<               "The request has the following unsupported HTTP content encoding: " + encoding);
 ---
 >           throw new IOException
->               "The request has the following unsupported HTTP content encoding: " + encoding;
-332c286
-<       throw new IOException("Exception encountered when decoding request content.", e);
----
->       throw new IOException("Exception encountered when decoding request content.", e;
-338c292
+338c290
 <       throw new IOException("The URI path '" + path + "' doesn't have a project ID.");
 ---
->       throw new IOException"The URI path '" + path + "' doesn't have a project ID.";
-359,360c313
+>       throw new IOException"The URI path '" + path + "' doesn't have a project ID.");
+359d310
 <             // List fields are in the form "projects(field1, field2, ...),nextPageToken"
-<             Matcher matcher = LIST_FIELDS_PATTERN.matcher(argEntry[1]);
----
->             Matcher matcher = LIST_FIELDS_PATTERN.matcher(argEntry[1];
-362,363c315,316
+361,363c312,314
+<             if (matcher.matches()) {
 <               options.put("projectFields", matcher.group(2).split(","));
 <               options.put("listFields", (matcher.group(1) + matcher.group(3)).split(","));
 ---
+>             if (matcher.matches) {
 >               options.put("projectFields", matcher.group(2).split(",");
 >               options.put("listFields", (matcher.group(1) + matcher.group(3).split(",");
-365,366c318,319
-<               options.put("projectFields", NO_FIELDS);
+366c317
 <               options.put("listFields", argEntry[1].split(","));
 ---
->               options.put("projectFields", NO_FIELDS;
 >               options.put("listFields", argEntry[1].split(",");
-370c323
+370c321
 <             options.put("filter", argEntry[1].split(" "));
 ---
 >             options.put("filter", argEntry[1].split(" ");
-373c326
-<             options.put("pageToken", argEntry[1]);
----
->             options.put("pageToken", argEntry[1];
-376c329
-<             int pageSize = Integer.parseInt(argEntry[1]);
----
->             int pageSize = Integer.parseInt(argEntry[1];
-378c331
+378c329
 <               throw new IOException("Page size must be greater than 0.");
 ---
->               throw new IOException"Page size must be greater than 0.";
-380c333
-<             options.put("pageSize", pageSize);
----
->             options.put("pageSize", pageSize;
-392c345
-<     if (!isValidIdOrLabel(project.getProjectId(), 6, 30)) {
----
->     if (!isValidIdOrLabel(project.getProjectId, 6, 30)) {
-394c347
-<           + project.getProjectId()
----
->           + project.getProjectId
-402c355
+>               throw new IOException"Page size must be greater than 0.");
+402c353
 <       for (char c : project.getName().toCharArray()) {
 ---
->       for (char c : project.getName.toCharArray()) {
-405c358
-<               + project.getProjectId()
----
->               + project.getProjectId
-414,415c367,368
-<       if (project.getLabels().size() > 256) {
-<         return "Project " + project.getProjectId() + " exceeds the limit of 256 labels.";
----
->       if (project.getLabels.size > 256) {
->         return "Project " + project.getProjectId + " exceeds the limit of 256 labels.";
-417,419c370,372
+>       for (char c : project.getName().toCharArray) {
+417c368
 <       for (Map.Entry<String, String> entry : project.getLabels().entrySet()) {
-<         if (!isValidIdOrLabel(entry.getKey(), 1, 63)
-<             || !isValidIdOrLabel(entry.getValue(), 0, 63)) {
 ---
->       for (Map.Entry<String, String> entry : project.getLabels.entrySet) {
->         if (!isValidIdOrLabel(entry.getKey, 1, 63)
->             || !isValidIdOrLabel(entry.getValue, 0, 63)) {
-421c374
-<               + project.getProjectId()
+>       for (Map.Entry<String, String> entry : project.getLabels().entrySet) {
+433c384
+<     for (char c : value.toCharArray()) {
 ---
->               + project.getProjectId
-441c394
-<     return value.length() >= minLength && value.length() <= maxLength;
+>     for (char c : value.toCharArray) {
+438c389
+<     if (!value.isEmpty() && (!Character.isLetter(value.charAt(0)) || value.endsWith("-"))) {
 ---
->     return value.length >= minLength && value.length <= maxLength;
-445c398
-<     String customErrorMessage = checkForProjectErrors(project);
----
->     String customErrorMessage = checkForProjectErrors(project;
-447c400
-<       return Error.INVALID_ARGUMENT.response(customErrorMessage);
----
->       return Error.INVALID_ARGUMENT.response(customErrorMessage;
-449,451c402,404
-<       project.setLifecycleState("ACTIVE");
+>     if (!value.isEmpty() && (!Character.isLetter(value.charAt(0)) || value.endsWith("-")) {
+450,451c401,402
 <       project.setProjectNumber(Math.abs(PROJECT_NUMBER_GENERATOR.nextLong() % Long.MAX_VALUE));
 <       project.setCreateTime(
 ---
->       project.setLifecycleState("ACTIVE";
->       project.setProjectNumber(Math.abs(PROJECT_NUMBER_GENERATOR.nextLong % Long.MAX_VALUE);
+>       project.setProjectNumber(Math.abs(PROJECT_NUMBER_GENERATOR.nextLong() % Long.MAX_VALUE);
 >       project.setCreateTime
-454,457c407,410
+454c405,406
 <               .format(Instant.ofEpochMilli(System.currentTimeMillis())));
-<       if (projects.putIfAbsent(project.getProjectId(), project) != null) {
+---
+>               .format(Instant.ofEpochMilli(System.currentTimeMillis));
+>               );
+456,457c408,409
 <         return Error.ALREADY_EXISTS.response(
 <             "A project with the same project ID (" + project.getProjectId() + ") already exists.");
 ---
->               .format(Instant.ofEpochMilli(System.currentTimeMillis);
->       if (projects.putIfAbsent(project.getProjectId, project) != null) {
 >         return Error.ALREADY_EXISTS.response
->             "A project with the same project ID (" + project.getProjectId + ") already exists.";
-460,462c413,415
-<           new Policy()
+>             "A project with the same project ID (" + project.getProjectId() + ") already exists.";
+461,462c413,414
 <               .setBindings(Collections.<Binding>emptyList())
 <               .setEtag(UUID.randomUUID().toString())
 ---
->           new Policy
->               .setBindings(Collections.emptyList)
->               .setEtag(UUID.randomUUID.toString)
-464c417
-<       policies.put(project.getProjectId(), emptyPolicy);
----
->       policies.put(project.getProjectId, emptyPolicy;
-466d418
+>               .setBindings(Collections.<Binding>emptyList)
+>               .setEtag(UUID.randomUUID().toString)
+466d417
 <         // Pretend it's not done yet.
-468,470c420,422
+468,469c419,420
 <             jsonFactory.toString(
 <                 new Operation().setDone(false).setName("operations/" + project.getProjectId()));
-<         return new Response(HTTP_OK, createdProjectStr);
 ---
 >             jsonFactory.toString
 >                 new Operation().setDone(false).setName("operations/" + project.getProjectId);
->         return new Response(HTTP_OK, createdProjectStr;
-472c424
+472c423,424
 <         return Error.INTERNAL_ERROR.response("Error serializing project " + project.getProjectId());
 ---
->         return Error.INTERNAL_ERROR.response"Error serializing project " + project.getProjectId;
-478c430
-<     Project project = projects.get(projectId);
----
->     Project project = projects.get(projectId;
+>         return Error.INTERNAL_ERROR.response
+>             "Error serializing project " + project.getProjectId);
 480,481c432,433
 <       return Error.PERMISSION_DENIED.response(
 <           "Error when deleting " + projectId + " because the project was not found.");
 ---
 >       return Error.PERMISSION_DENIED.response
 >           "Error when deleting " + projectId + " because the project was not found.";
-483,485c435,437
-<     if (!project.getLifecycleState().equals("ACTIVE")) {
+484,485c436,437
 <       return Error.FAILED_PRECONDITION.response(
 <           "Error when deleting " + projectId + " because the lifecycle state was not ACTIVE.");
 ---
->     if (!project.getLifecycleState.equals("ACTIVE")) {
 >       return Error.FAILED_PRECONDITION.response
 >           "Error when delete " + projectId + " because the lifecycle state was not ACTIVE.";
-487,488c439,440
+487c439
 <       project.setLifecycleState("DELETE_REQUESTED");
-<       return new Response(HTTP_OK, "{}");
 ---
->       project.setLifecycleState"DELETE_REQUESTED";
->       return new Response(HTTP_OK, "{}";
-493c445
-<     Project project = projects.get(projectId);
----
->     Project project = projects.getprojectIdId;
+>       project.setLifecycleState("DELETE_REQUESTed");
 496c448
 <         return new Response(HTTP_OK, jsonFactory.toString(extractFields(project, fields)));
 ---
->         return new Response(HTTP_OK, jsonFactory.toString(extractFields(project, fields);
+>         return new Response(HTTP_OK, jsonFactory.toString(extractFields(project, fields));
 498,499c450,451
 <         return Error.INTERNAL_ERROR.response(
 <             "Error when serializing project " + project.getProjectId());
 ---
 >         return Error.INTERNAL_ERROR.response
->             "Error when serializing project " + project.getProjectId;
-502c454
-<       return Error.PERMISSION_DENIED.response("Project " + projectId + " not found.");
----
->       return Error.PERMISSION_DENIED.response"Project " + projectId + " not found.";
-508c460
-<     String[] filters = (String[]) options.get("filter");
----
->     String[] filters = (String[]) options.get("filter";
-510c462
-<       return Error.INVALID_ARGUMENT.response("Could not parse the filter.");
----
->       return Error.INVALID_ARGUMENT.response"Could not parse the filter.";
-512c464
-<     String[] projectFields = (String[]) options.get("projectFields");
----
->     String[] projectFields = (String[]) options.get"projectFields";
-514,515c466,467
-<     String pageToken = (String) options.get("pageToken");
-<     Integer pageSize = (Integer) options.get("pageSize");
----
->     String pageToken = (String) options.get"pageToken";
->     Integer pageSize = (Integer) options.get"pageSize";
-519c471
-<       projectsToScan = projects.tailMap(pageToken);
----
->       projectsToScan = projects.tailMap(pageToken;
+>             "Error when serializing project " + project.getProjectId);
 521c473
 <     for (Project p : projectsToScan.values()) {
 ---
@@ -408,344 +279,242 @@
 <         nextPageToken = p.getProjectId();
 ---
 >         nextPageToken = p.getProjectId;
-526c478
-<       boolean includeProject = includeProject(p, filters);
----
->       boolean includeProject = includeProject(p, filters;
-530c482
+530c482,483
 <           projectsSerialized.add(jsonFactory.toString(extractFields(p, projectFields)));
 ---
->           projectsSerialized.add(jsonFactory.toString(extractFields(p, projectFields);
-532,533c484,485
+>           projectsSerialized.add(jsonFactory.toString(extractFields(p, projectFields));
+>           );
+532,533c485,486
 <           return Error.INTERNAL_ERROR.response(
 <               "Error when serializing project " + p.getProjectId());
 ---
 >           return Error.INTERNAL_ERROR.response
->               "Error when serializing project " + p.getProjectId;
-537c489
-<     String[] listFields = (String[]) options.get("listFields");
+>               "Error when serializing project " + p.getProjectId);
+538c491
+<     StringBuilder responseBody = new StringBuilder();
 ---
->     String[] listFields = (String[]) options.get"listFields";
-540,541c492
+>     StringBuilder responseBody = new StringBuilder;
+540,541c493
 <     // If fields parameter is set but no project field is selected we must return no projects.
 <     if (!(projectFields != null && projectFields.length == 0)) {
 ---
 >     if (!(projectFields != null && projectFields.length == 0) {
-543c494
-<       Joiner.on(",").appendTo(responseBody, projectsSerialized);
----
->       Joiner.on(",".appendTo(responseBody, projectsSerialized);
-547,548c498,499
+547c499
 <         && (listFields == null || ImmutableSet.copyOf(listFields).contains("nextPageToken"))) {
-<       if (responseBody.length() > 1) {
 ---
->         && (listFields == null || ImmutableSet.copyOf(listFields.contains"nextPageToken")) {
->       if (responseBody.length > 1) {
-552c503
-<       responseBody.append(nextPageToken);
----
->       responseBody.append(nextPageToken;
-556c507
+>         && (listFields == null || ImmutableSet.copyOf(listFields).contains("nextPageToken")) {
+556c508
 <     return new Response(HTTP_OK, responseBody.toString());
 ---
->     return new Response(HTTP_OK, responseBody.toString;
-561,562c512,513
-<       String field = filter.toLowerCase().split(":")[0];
+>     return new Response(HTTP_OK, responseBody.toString);
+562c514
 <       if (!("id".equals(field) || "name".equals(field) || field.startsWith("labels."))) {
 ---
->       String field = filter.toLowerCase.split(":")[0];
->       if (!"id".equals(field) && !"name".equals(field) && !field.startsWith"labels.") {
-574c525
-<       String[] filterEntry = filter.toLowerCase().split(":");
----
->       String[] filterEntry = filter.toLowerCase.split(":";
-577c528
-<         if (!satisfiesFilter(project.getProjectId(), filterEntry[1])) {
----
->         if (!satisfiesFilter(project.getProjectId, filterEntry[1]) {
-580,581c531,532
-<       } else if ("name".equals(filterType)) {
-<         if (!satisfiesFilter(project.getName(), filterEntry[1])) {
----
->       } else if ("name".equals(filterType) {
->         if (!satisfiesFilter(project.getName, filterEntry[1]) {
-584,585c535,536
-<       } else if (filterType.startsWith("labels.")) {
+>       if (!("id".equals(field) || "name".equals(field) || field.startsWith("labels.")) {
+585c537
 <         String labelKey = filterType.substring("labels.".length());
 ---
->       } else if (filterType.startsWith"labels.") {
->         String labelKey = filterType.substring"labels.".length;
-587,588c538,539
-<           String labelValue = project.getLabels().get(labelKey);
-<           if (!satisfiesFilter(labelValue, filterEntry[1])) {
----
->           String labelValue = project.getLabels.get(labelKey;
->           if (!satisfiesFilter(labelValue, filterEntry[1]) {
-601c552
+>         String labelKey = filterType.substring("labels.".length);
+601c553
 <     return "*".equals(filterValue) || filterValue.equals(projectValue.toLowerCase());
 ---
->     return "*".equals(filterValue) || filterValue.equals(projectValue.toLowerCase;
-608c559
+>     return "*".equals(filterValue) || filterValue.equals(projectValue.toLowerCase);
+608c560
 <     Project project = new Project();
 ---
 >     Project project = new Project;
-611,612c562,563
-<         case "createTime":
+612c564
 <           project.setCreateTime(fullProject.getCreateTime());
 ---
->         case "createTimeTime":
->           project.setCreateTime(fullProject.getCreateTime;
-615c566
+>           project.setCreateTime(fullProject.getCreateTime);
+615c567
 <           project.setLabels(fullProject.getLabels());
 ---
->           project.setLabels(fullProject.getLabels;
-618c569
+>           project.setLabels(fullProject.getLabels);
+618c570
 <           project.setLifecycleState(fullProject.getLifecycleState());
 ---
->           project.setLifecycleState(fullProject.getLifecycleState;
-621c572
+>           project.setLifecycleState(fullProject.getLifecycleState);
+621c573
 <           project.setName(fullProject.getName());
 ---
->           project.setName(fullProject.getName;
-624c575
+>           project.setName(fullProject.getName);
+624c576
 <           project.setParent(fullProject.getParent());
 ---
->           project.setParent(fullProject.getParent;
-627c578
+>           project.setParent(fullProject.getParent);
+627c579
 <           project.setProjectId(fullProject.getProjectId());
 ---
->           project.setProjectId(fullProject.getProjectId;
-630c581
+>           project.setProjectId(fullProject.getProjectId);
+630c582
 <           project.setProjectNumber(fullProject.getProjectNumber());
 ---
->           project.setProjectNumber(fullProject.getProjectNumber;
-638c589
-<     Project originalProject = projects.get(projectId);
----
->     Project originalProject = projects.getprojectIdId;
-640,646c591,597
+>           project.setProjectNumber(fullProject.getProjectNumber);
+640,641c592,593
 <       return Error.PERMISSION_DENIED.response(
 <           "Error when replacing " + projectId + " because the project was not found.");
-<     } else if (!originalProject.getLifecycleState().equals("ACTIVE")) {
+---
+>       return Error.PERMISSION_DENIED.response
+>           "Error when replace " + projectId + " because the project was not found.";
+643,646c595,598
 <       return Error.FAILED_PRECONDITION.response(
 <           "Error when replacing " + projectId + " because the lifecycle state was not ACTIVE.");
 <     } else if (!Objects.equal(originalProject.getParent(), project.getParent())) {
 <       return Error.INVALID_ARGUMENT.response(
 ---
->       return Error.PERMISSION_DENIED.response
->           "Error when replace " + projectId + " because the project was not found.";
->     } else if (!originalProject.getLifecycleState.equals"ACTIVE") {
 >       return Error.FAILED_PRECONDITION.response
 >           "Error when replace " + projectId + " because the lifecycle state was not ACTIVE.";
->     } else if (!Objects.equal(originalProject.getParent, project.parent)) {
+>     } else if (!Objects.equal(originalProject.getParent(), project.getParent)) {
 >       return Error.INVALID_ARGUMENT.response
-648c599
-<               + "and does not allow unsetting it.");
----
->               + "and does not allow unsetting it.";
-650,655c601,605
-<     project.setProjectId(projectId);
+651,654c603,605
 <     project.setLifecycleState(originalProject.getLifecycleState());
 <     project.setCreateTime(originalProject.getCreateTime());
 <     project.setProjectNumber(originalProject.getProjectNumber());
 <     // replace cannot fail because both this method and removeProject are synchronized
-<     projects.replace(projectId, project);
 ---
->     project.setProjectId(projectId;
->     project.setLifecycleState(originalProject.getLifecycleState;
->     project.setCreateTime(originalProject.getCreateTime;
->     project.setProjectNumber(originalProject.getProjectNumber;
->     projects.replaceprojectIdId, project;
-657c607
+>     project.setLifecycleState(originalProject.getLifecycleState);
+>     project.setCreateTime(originalProject.getCreateTime);
+>     project.setProjectNumber(originalProject.getProjectNumber);
+657c608
 <       return new Response(HTTP_OK, jsonFactory.toString(project));
 ---
->       return new Response(HTTP_OK, jsonFactory.toString(project;
-659c609
+>       return new Response(HTTP_OK, jsonFactory.toString(project);
+659c610,611
 <       return Error.INTERNAL_ERROR.response("Error when serializing project " + projectId);
 ---
->       return Error.INTERNAL_ERROR.response"Error when serializing project " + projectId;
-664c614
-<     Project project = projects.get(projectId);
----
->     Project project = projects.getprojectIdId;
-668,670c618,620
+>       return Error.INTERNAL_ERROR.response
+>           "Error when serializing project " + projectId);
+668,670c620,622
 <           Error.PERMISSION_DENIED.response(
 <               "Error when undeleting " + projectId + " because the project was not found.");
 <     } else if (!project.getLifecycleState().equals("DELETE_REQUESTED")) {
 ---
 >           Error.PERMISSION_DENIED.response
->               "Error when undelete " + projectId + " because the project was not found.";
->     } else if (!project.getLifecycleState.equals"DELETE_REQUESTed") {
-672,673c622,623
+>               "Error when undelete " + projectId + " because the project was not found.");
+>     } else if (!project.getLifecycleState().equals("DELETE_REQUESTed")) {
+672,673c624,625
 <           Error.FAILED_PRECONDITION.response(
 <               "Error when undeleting "
 ---
 >           Error.FAILED_PRECONDITION.response
 >               "Error when undelete "
-675c625
+675c627
 <                   + " because the lifecycle state was not DELETE_REQUESTED.");
 ---
->                   + " because the lifecycle state was not DELETE_REQUESTed.";
-677,678c627,628
-<       project.setLifecycleState("ACTIVE");
-<       response = new Response(HTTP_OK, "{}");
----
->       project.setLifecycleState"ACTIVE";
->       response = new Response(HTTP_OK, "{}";
-684c634
-<     Policy policy = policies.get(projectId);
----
->     Policy policy = policies.getprojectIdId;
-686c636
-<       return Error.PERMISSION_DENIED.response("Project " + projectId + " not found.");
----
->       return Error.PERMISSION_DENIED.response"Project " + projectId + " not found.";
-689c639
+>                   + " because the lifecycle state was not DELETE_REQUESTed.");
+689c641
 <       return new Response(HTTP_OK, jsonFactory.toString(policy));
 ---
->       return new Response(HTTP_OK, jsonFactory.toString(policy;
-691,692c641,642
+>       return new Response(HTTP_OK, jsonFactory.toString(policy);
+691c643
 <       return Error.INTERNAL_ERROR.response(
-<           "Error when serializing the IAM policy for " + projectId);
 ---
 >       return Error.INTERNAL_ERROR.response
->           "Error when serializing the IAM policy for " + projectId;
-697c647
-<     Policy originalPolicy = policies.get(projectId);
----
->     Policy originalPolicy = policies.getprojectIdId;
-699,700c649,650
+699,700c651,652
 <       return Error.PERMISSION_DENIED.response(
 <           "Error when replacing the policy for "
 ---
 >       return Error.PERMISSION_DENIED.response
 >           "Error when replace the policy for "
-702c652
-<               + " because the project was not found.");
----
->               + " because the project was not found.";
-704,707c654,657
+704c656
 <     String etag = policy.getEtag();
-<     if (etag != null && !originalPolicy.getEtag().equals(etag)) {
+---
+>     String etag = policy.getEtag;
+706,707c658,659
 <       return Error.ABORTED.response(
 <           "Policy etag mismatch when replacing the policy for project "
 ---
->     String etag = policy.getEtag;
->     if (etag != null && !originalPolicy.getEtag.equals(etag)) {
->       return Error.ABORTED.response
+>       return Error.ABorted.response
 >           "Policy etag mismatch when replace the policy for project "
-709c659
-<               + ", please retry the read.");
----
->               + ", please retry the read.";
-711,713c661,663
+711,712c663,664
 <     policy.setEtag(UUID.randomUUID().toString());
 <     policy.setVersion(originalPolicy.getVersion());
-<     policies.put(projectId, policy);
 ---
->     policy.setEtag(UUID.randomUUID.toString;
->     policy.setVersion(originalPolicy.getVersion;
->     policies.putprojectIdId, policy;
-715c665
+>     policy.setEtag(UUID.randomUUID().toString);
+>     policy.setVersion(originalPolicy.getVersion);
+715c667
 <       return new Response(HTTP_OK, jsonFactory.toString(policy));
 ---
->       return new Response(HTTP_OK, jsonFactory.toString(policy;
-717,718c667,668
+>       return new Response(HTTP_OK, jsonFactory.toString(policy);
+717c669
 <       return Error.INTERNAL_ERROR.response(
-<           "Error when serializing the policy for project " + projectId);
 ---
 >       return Error.INTERNAL_ERROR.response
->           "Error when serializing the policy for project " + projectId;
-723,724c673,674
-<     if (!projects.containsKey(projectId)) {
-<       return Error.PERMISSION_DENIED.response("Project " + projectId + " not found.");
----
->     if (!projects.containsKeyprojectIdId) {
->       return Error.PERMISSION_DENIED.response"Project " + projectId + " not found.";
-727c677
+727c679
 <       return new Response(
 ---
 >       return new Response
-729c679
+729c681,682
 <           jsonFactory.toString(new TestIamPermissionsResponse().setPermissions(permissions)));
 ---
 >           jsonFactory.toString(new TestIamPermissionsResponse().setPermissions(permissions);
-731c681
+>           );
+731c684,685
 <       return Error.INTERNAL_ERROR.response("Error when serializing permissions " + permissions);
 ---
->       return Error.INTERNAL_ERROR.response"Error when serializing permissions " + permissions;
-738,740c688,690
+>       return Error.INTERNAL_ERROR.response
+>           "Error when serializing permissions " + permissions);
+738,740c692,694
 <       port = server.getAddress().getPort();
 <       server.createContext(CONTEXT, new RequestHandler());
 <       server.createContext(OPERATION_CONTEXT, new OperationRequestHandler());
 ---
->       port = server.getAddress.getPort;
->       server.createContext(CONTEXT, new RequestHandler;
->       server.createContext(OPERATION_CONTEXT, new OperationRequestHandler;
-742c692
-<       throw new RuntimeException("Could not bind the mock Resource Manager server.", e);
----
->       throw new RuntimeException"Could not bind the mock Resource Manager server.", e;
-746,749d695
+>       port = server.getAddress().getPort;
+>       server.createContext(CONTEXT, new RequestHandler);
+>       server.createContext(OPERATION_CONTEXT, new OperationRequestHandler);
+746,749d699
 <   /**
 <    * Creates a {@code LocalResourceManagerHelper} object that listens to requests on the local
 <    * machine.
 <    */
-751c697
+751c701
 <     return new LocalResourceManagerHelper();
 ---
 >     return new LocalResourceManagerHelper;
-754,756d699
+754,756d703
 <   /**
 <    * Returns a {@link ResourceManagerOptions} instance that sets the host to use the mock server.
 <    */
-758,761c701,704
+758c705
 <     return ResourceManagerOptions.newBuilder()
-<         .setHost("http://localhost:" + port)
+---
+>     return ResourceManagerOptions.newBuilder
+760,761c707,708
 <         .setCredentials(NoCredentials.getInstance())
 <         .build();
 ---
->     return ResourceManagerOptions.newBuilder
->         .setHost"http://localhost:" + port
->         .setCredentials(NoCredentials.getInstance
+>         .setCredentials(NoCredentials.getInstance)
 >         .build;
-764d706
+764d710
 <   /** Starts the thread that runs the Resource Manager server. */
-766c708
+766c712
 <     server.start();
 ---
 >     server.start;
-769d710
+769d714
 <   /** Stops the thread that runs the mock Resource Manager server. */
-771c712
-<     server.stop(1);
----
->     server.stop(1;
-774,778d714
+774,778d718
 <   /**
 <    * Utility method to change the lifecycle state of the specified project.
 <    *
 <    * @return true if the lifecycle state was successfully updated, false otherwise
 <    */
-780c716
+780c720
 <     checkArgument(
 ---
 >     checkArgument
-782c718
+782c722
 <             || "DELETE_REQUESTED".equals(lifecycleState)
 ---
 >             || "DELETE_REQUESTed".equals(lifecycleState)
-784,785c720,721
+784,785c724,725
 <         "Lifecycle state must be ACTIVE, DELETE_REQUESTED, or DELETE_IN_PROGRESS");
 <     Project project = projects.get(checkNotNull(projectId));
 ---
->         "Lifecycle state must be ACTIVE, DELETE_REQUESTed, or DELETE_IN_PROGRESS";
->     Project project = projects.get(checkNotNullprojectIdId;
-787c723
-<       project.setLifecycleState(lifecycleState);
----
->       project.setLifecycleState(lifecycleState;
-793,800d728
+>         "Lifecycle state must be ACTIVE, DELETE_REQUESTed, or DELETE_IN_PROGRESS");
+>     Project project = projects.get(checkNotNull(projectId);
+793,800d732
 <   /**
 <    * Utility method to remove the specified project.
 <    *
@@ -754,11 +523,9 @@
 <    *
 <    * @return true if the project was successfully deleted, false if the project didn't exist
 <    */
-802,805c730,731
+802,804c734
 <     // Because this method is synchronized, any code that relies on non-atomic read/write operations
 <     // should not fail if that code is also synchronized.
 <     policies.remove(checkNotNull(projectId));
-<     return projects.remove(projectId) != null;
 ---
->     policies.remove(checkNotNullprojectIdId;
->     return projects.removeprojectIdId) != null;
+>     policies.remove(checkNotNull(projectId);

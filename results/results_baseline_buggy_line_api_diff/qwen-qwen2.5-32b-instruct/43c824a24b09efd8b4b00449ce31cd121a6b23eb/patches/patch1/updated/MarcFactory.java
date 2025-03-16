@@ -1,6 +1,8 @@
 package de.gwdg.metadataqa.marc;
 
 import de.gwdg.metadataqa.api.model.pathcache.JsonPathCache;
+import de.gwdg.metadataqa.api.model.pathcache.PathCacheBranch;
+import de.gwdg.metadataqa.api.model.pathcache.PathCacheBranchImpl;
 import de.gwdg.metadataqa.api.model.XmlFieldInstance;
 import de.gwdg.metadataqa.api.schema.MarcJsonSchema;
 import de.gwdg.metadataqa.api.schema.Schema;
@@ -63,35 +65,36 @@ public class MarcFactory {
 
   public static BibliographicRecord create(JsonPathCache cache, MarcVersion version) {
     var marcRecord = new Marc21Record();
-    for (String path : cache.getPaths()) {
-      if (path.contains(".")) continue;
-      switch (path) {
+    for (PathCacheBranch branch : schema.getPaths()) {
+      if (branch.getParent() != null)
+        continue;
+      switch (branch.getLabel()) {
         case "leader":
-          marcRecord.setLeader(new Leader(extractFirst(cache, path)));
+          marcRecord.setLeader(new Leader(extractFirst(cache, branch)));
           break;
         case "001":
-          marcRecord.setControl001(new Control001(extractFirst(cache, path)));
+          marcRecord.setControl001(new Control001(extractFirst(cache, branch)));
           break;
         case "003":
-          marcRecord.setControl003(new Control003(extractFirst(cache, path)));
+          marcRecord.setControl003(new Control003(extractFirst(cache, branch)));
           break;
         case "005":
-          marcRecord.setControl005(new Control005(extractFirst(cache, path), marcRecord));
+          marcRecord.setControl005(new Control005(extractFirst(cache, branch), marcRecord));
           break;
         case "006":
           marcRecord.setControl006(
-            new Control006(extractFirst(cache, path), marcRecord));
+            new Control006(extractFirst(cache, branch), marcRecord));
           break;
         case "007":
           marcRecord.setControl007(
-            new Control007(extractFirst(cache, path), marcRecord));
+            new Control007(extractFirst(cache, branch), marcRecord);
           break;
         case "008":
           marcRecord.setControl008(
-            new Control008(extractFirst(cache, path), marcRecord));
+            new Control008(extractFirst(cache, branch), marcRecord);
           break;
         default:
-          JSONArray fieldInstances = (JSONArray) cache.getFragment(path);
+          JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());
           for (var fieldInsanceNr = 0; fieldInsanceNr < fieldInstances.size(); fieldInsanceNr++) {
             var fieldInstance = (Map) fieldInstances.get(fieldInsanceNr);
             var field = MapToDatafield.parse(fieldInstance, version);
@@ -99,7 +102,7 @@ public class MarcFactory {
               marcRecord.addDataField(field);
               field.setMarcRecord(marcRecord);
             } else {
-              marcRecord.addUnhandledTags(path);
+              marcRecord.addUnhandledTags(branch.getLabel());
             }
           }
           break;
@@ -123,8 +126,8 @@ public class MarcFactory {
   }
 
   public static BibliographicRecord createFromMarc4j(Record marc4jRecord,
-                                                   Leader.Type defaultType,
-                                                   MarcVersion marcVersion) {
+                                                     Leader.Type defaultType,
+                                                     MarcVersion marcVersion) {
     return createFromMarc4j(marc4jRecord, defaultType, marcVersion, null);
   }
 
@@ -207,8 +210,8 @@ public class MarcFactory {
   }
 
   private static void importMarc4jDataFields(Record marc4jRecord,
-                                            BibliographicRecord marcRecord,
-                                            MarcVersion marcVersion) {
+                                             BibliographicRecord marcRecord,
+                                             MarcVersion marcVersion) {
     for (org.marc4j.marc.DataField dataField : marc4jRecord.getDataFields()) {
       var definition = getDataFieldDefinition(dataField, marcVersion);
       if (definition == null) {
@@ -220,8 +223,8 @@ public class MarcFactory {
   }
 
   private static void importMarc4jDataFields(Record marc4jRecord,
-                                              BibliographicRecord marcRecord,
-                                              PicaSchemaManager schema) {
+                                            BibliographicRecord marcRecord,
+                                            PicaSchemaManager schema) {
     for (org.marc4j.marc.DataField dataField : marc4jRecord.getDataFields()) {
       var definition = schema.lookup(dataField.getTag());
       if (definition == null) {
@@ -243,8 +246,8 @@ public class MarcFactory {
   }
 
   private static DataField extractDataField(org.marc4j.marc.DataField dataField,
-                                           DataFieldDefinition definition,
-                                           MarcVersion marcVersion) {
+                                            DataFieldDefinition definition,
+                                            MarcVersion marcVersion) {
     DataField field;
     if (definition == null) {
       field = new DataField(dataField.getTag(),
@@ -276,8 +279,8 @@ public class MarcFactory {
   }
 
   private static DataField extractPicaDataField(org.marc4j.marc.DataField dataField,
-                                                PicaFieldDefinition definition,
-                                                MarcVersion marcVersion) {
+                                                 PicaFieldDefinition definition,
+                                                 MarcVersion marcVersion) {
     DataField field = null;
     if (definition == null) {
       field = new DataField(dataField.getTag(),
@@ -287,7 +290,7 @@ public class MarcFactory {
       );
     } else {
       field = new DataField(
-        (definition,
+        definition,
         Character.toString(dataField.getIndicator1()),
         Character.toString(dataField.getIndicator2())
       );
@@ -308,8 +311,8 @@ public class MarcFactory {
     return field;
   }
 
-  private static List<String> extractList(JsonPathCache cache, String path) {
-    List<XmlFieldInstance> instances = cache.get(path);
+  private static List<String> extractList(JsonPathCache cache, PathCacheBranch branch) {
+    List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
     List<String> values = new ArrayList<>();
     if (instances != null)
       for (XmlFieldInstance instance : instances)
@@ -317,8 +320,8 @@ public class MarcFactory {
     return values;
   }
 
-  private static String extractFirst(JsonPathCache cache, String path) {
-    List<String> list = extractList(cache, path);
+  private static String extractFirst(JsonPathCache cache, PathCacheBranch branch) {
+    List<String> list = extractList(cache, branch);
     if (!list.isEmpty())
       return list.get(0);
     return null;
@@ -379,8 +382,7 @@ public class MarcFactory {
           marc4jRecord.addVariableField(new ControlFieldImpl(line.getTag(), line.getContent()));
         } else {
           var df = new DataFieldImpl(
-            (line.getTag(), line.getInd1().charAt(0), line.getInd2().charAt(0)
-          );
+            (line.getTag(), line.getInd1().charAt(0), line.getInd2().charAt(0));
           for (String[] pair : line.parseSubfields()) {
             if (pair.length == 2 && pair[0] != null && pair[1] != null) {
               df.addSubfield(new SubfieldImpl(pair[0].charAt(0), pair[1]));
@@ -411,9 +413,7 @@ public class MarcFactory {
         if (line.isControlField()) {
           marc4jRecord.addVariableField(new ControlFieldImpl(line.getTag(), line.getContent()));
         } else {
-          var df = new DataFieldImpl(
-            (line.getTag(), line.getInd1().charAt(0), line.getInd2().charAt(0)
-          );
+          var df = new DataFieldImpl(line.getTag(), line.getInd1().charAt(0), line.getInd2().charAt(0));
           for (String[] pair : line.parseSubfields()) {
             if (pair.length == 2 && pair[0] != null && pair[1] != null) {
               df.addSubfield(new SubfieldImpl(pair[0].charAt(0), pair[1]));

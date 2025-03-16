@@ -85,26 +85,54 @@ public final class UpdateChecker {
         return null;
     }
 
-    private static final class GitHubCommit {
-        final String owner;
-        final String repo;
-        final String hash;
-        GitHubCommit(String owner, String repo, String hash) {
-            this.owner = owner;
-            this.repo = repo;
-            this.hash = hash;
+    private SortedSet<VersionAndRepo> loadVersions(String groupId, String artifactId) throws Exception {
+        SortedSet<VersionAndRepo> r = new TreeSet<>();
+        for (String repo : repos) {
+            String mavenMetadataURL = repo + groupId.replace('.', '/') + '/' + artifactId + "/maven-metadata.xml";
+            Document doc;
+            try {
+                doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mavenMetadataURL);
+            } catch (FileNotFoundException x) {
+                continue;
+            }
+            Element versionsE = theElement(doc, "versions", mavenMetadataURL);
+            NodeList versionEs = versionsE.getElementsByTagName("version");
+            for (int i = 0; i < versionEs.getLength(); i++) {
+                r.add(new VersionAndRepo(groupId, artifactId, new ComparableVersion(versionEs.item(i).getTextContent()), repo));
+            }
         }
-        @Override public String toString() {
-            return "https://github.com/" + owner + '/' + repo + "/commit/" + hash;
+        return r;
+    }
+
+    private static GitHubCommit loadGitHubCommit(VersionAndRepo vnr) throws Exception {
+        String pom = vnr.fullURL("pom");
+        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(pom);
+        NodeList scmEs = doc.getElementsByTagName("scm");
+        if (scmEs.getLength() != 1) {
+            return null;
         }
+        Element scmE = (Element) scmEs.item(0);
+        Element urlE = theElement(scmE, "url", pom);
+        String url = urlE.getTextContent();
+        Matcher m = Pattern.compile("https?://github[.]com/([^/]+)/([^/]+?)([.]git)?(/.*)?").matcher(url);
+        if (!m.matches()) {
+            throw new Exception("Unexpected /project/scm/url " + url + " in " + pom + "; expecting https://github.com/owner/repo format");
+        }
+        Element tagE = theElement(scmE, "tag", pom);
+        String tag = tagE.getTextContent();
+        String groupId = m.group(1);
+        String artifactId = m.group(2).replace("${project.artifactId}", vnr.artifactId);
+        if (!tag.matches("[a-f0-9]{40}")) {
+            return null;
+        }
+        return new GitHubCommit(groupId, artifactId, tag);
     }
 
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
             GHRepository repo = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo);
             GHCommit commit = repo.getCommit(ghc.hash);
-            GHCommit branchCommit = repo.getBranch(branch).getCommit();
-            return commit.isAncestorOf(branchCommit);
+            return commit.getCompareTo(branch).isMerged();
         } catch (FileNotFoundException x) {
             return false;
         }
@@ -151,7 +179,7 @@ public final class UpdateChecker {
             this.version = version;
             this.repo = repo;
         }
-        @Override public int compareTo(VersionAndRepo o) {
+        public int compareTo(VersionAndRepo o) {
             assert o.groupId.equals(groupId) && o.artifactId.equals(artifactId);
             return o.version.compareTo(version);
         }
@@ -166,8 +194,18 @@ public final class UpdateChecker {
         }
     }
 
-    public interface Log {
-        void info(String message);
+    public static final class GitHubCommit {
+        final String owner;
+        final String repo;
+        final String hash;
+        GitHubCommit(String owner, String repo, String hash) {
+            this.owner = owner;
+            this.repo = repo;
+            this.hash = hash;
+        }
+        @Override public String toString() {
+            return "https://github.com/" + owner + '/' + repo + "/commit/" + hash;
+        }
     }
 }
 ```

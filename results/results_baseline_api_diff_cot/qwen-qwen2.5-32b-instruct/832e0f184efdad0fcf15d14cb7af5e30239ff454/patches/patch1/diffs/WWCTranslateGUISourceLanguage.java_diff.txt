@@ -1,14 +1,16 @@
-11d10
+5a6
+> import org.bukkit.enchantments.Enchantment;
+11d11
 < import com.cryptomorin.xseries.XEnchantment;
-73c72
+73c73
 <                                         currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
 ---
->                                         // Removed parseEnchantment() call
-76c75
+>                                         currentLangMeta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+76c76
 <                                         currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
 ---
->                                         // Removed parseEnchantment() call
-87,90c86,87
+>                                         currentLangMeta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+87,90c87,88
 <                                 listOfAvailableLangs[i] = ClickableItem.of(currentLang, e -> {
 <                                         WWCTranslateGUITargetLanguage.getTargetLanguageInventory(thisLangCode, targetPlayerUUID)
 <                                                         .open(player);
@@ -16,15 +18,24 @@
 ---
 >                                 listOfAvailableLangs[i] = ClickableItem.of(currentLang, e -> WWCTranslateGUITargetLanguage
 >                                                 .getTargetLanguageInventory(thisLangCode, targetPlayerUUID).open(player));
-119d115
-<                                 skipSourceMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-122c118
+122c120
 <                                         skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
 ---
->                                         // Removed parseEnchantment() call
-125c121
+>                                         skipSourceMeta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+125c123
 <                                         skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
 ---
->                                         // Removed parseEnchantment() call
-139d134
+>                                         skipSourceMeta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+130,139c128
+<                                                 .getTargetLanguageInventory("None", targetPlayerUUID).open(player)));
+<                         }
+< 
+<                         /* Bottom Right Option: Next Page */
+<                         if (!pagination.isLast()) {
+<                                 contents.set(5, 6, ClickableItem.of(WWCInventoryManager.getCommonButton("Next"), e -> {
+<                                         getSourceLanguageInventory(selectedSourceLanguage, targetPlayerUUID).open(player,
+<                                                         pagination.next().getPage());
+<                                 }));
 <                                 ;
+---
+>                                                 .getTargetLanguageInventory("None", targetPlayerUUID).open(player));

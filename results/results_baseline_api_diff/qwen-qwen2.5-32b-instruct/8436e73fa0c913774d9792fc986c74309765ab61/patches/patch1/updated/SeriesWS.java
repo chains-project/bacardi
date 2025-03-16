@@ -5,7 +5,7 @@ import jakarta.jws.WebMethod;
 import jakarta.jws.WebParam;
 import jakarta.jws.WebResult;
 import jakarta.jws.WebService;
-import javax.xml.bind.annotation.XmlSeeAlso;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 /**
@@ -117,7 +117,7 @@ public interface SeriesWS {
     @ResponseWrapper(localName = "consultarSeriesResponse", targetNamespace = "http://at.gov.pt/", className = "com.premiumminds.billy.portugal.webservices.series.ConsultarSeriesResponse")
     @Action(input = "http://at.gov.pt/SeriesWS/consultarSeriesRequest", output = "http://at.gov.pt/SeriesWS/consultarSeriesResponse")
     public ConsultSeriesResp consultarSeries(
-        (@WebParam(name = "serie", targetNamespace = "")
+        @WebParam(name = "serie", targetNamespace = "")
         String serie,
         @WebParam(name = "tipoSerie", targetNamespace = "")
         String tipoSerie,

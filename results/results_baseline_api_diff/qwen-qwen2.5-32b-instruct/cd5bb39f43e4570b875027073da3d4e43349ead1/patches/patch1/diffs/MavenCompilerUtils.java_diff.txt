@@ -3,24 +3,30 @@
 ---
 > import org.w3c.dom.Element;
 > import org.w3c.dom.NodeList;
-70,72c71,78
+70,72c71,73
 <         if (config instanceof Xpp3Dom) {
 <             return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
 <                     .flatMap(aggregate -> stream(aggregate.getChildren("path")))
 ---
 >         if (config instanceof Element) {
->             Element configElement = (Element) config;
->             NodeList annotationProcessorPaths = configElement.getElementsByTagName("annotationProcessorPaths");
->             return stream(0, annotationProcessorPaths.getLength())
->                     .flatMap(i -> stream(0, annotationProcessorPaths.item(i).getChildNodes().getLength())
->                             .mapToObj(j -> annotationProcessorPaths.item(i).getChildNodes().item(j))
->                             .filter(node -> "path".equals(node.getNodeName()))
->                             .map(node -> (Element) node))
-99,101c105,107
+>             return stream(((Element) config).getElementsByTagName("annotationProcessorPaths"))
+>                     .flatMap(aggregate -> stream(((NodeList) aggregate).item(0).getElementsByTagName("path")))
+74,76c75,77
+<                             extractChildValue(processor, "groupId"),
+<                             extractChildValue(processor, "artifactId"),
+<                             extractChildValue(processor, "version"),
+---
+>                             extractChildValue((Element) processor, "groupId"),
+>                             extractChildValue((Element) processor, "artifactId"),
+>                             extractChildValue((Element) processor, "version"),
+99,101c100,105
 <     private static String extractChildValue(Xpp3Dom node, String name) {
 <         final Xpp3Dom child = node.getChild(name);
 <         return child == null ? "" : child.getValue();
 ---
 >     private static String extractChildValue(Element node, String name) {
->         NodeList children = node.getElementsByTagName(name);
->         return children.getLength() > 0 ? children.item(0).getTextContent() : "";
+>         final NodeList childNodes = node.getElementsByTagName(name);
+>         if (childNodes.getLength() > 0) {
+>             return childNodes.item(0).getTextContent();
+>         }
+>         return "";

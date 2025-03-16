@@ -7,14 +7,14 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import java.util.concurrent.TimeUnit;
 
 import org.spongepowered.api.text.channel.MessageChannel;
-import org.spongepowered.api.text.channel.MessageReceiver;
+import org.spongepowered.api.scheduler.Task;
 
 public class SkinUploader extends SharedUploader {
 
     private final ChangeSkinSponge plugin;
-    private final MessageReceiver invoker;
+    private final MessageChannel.Target invoker;
 
-    public SkinUploader(ChangeSkinSponge plugin, MessageReceiver invoker, Account owner, String url) {
+    public SkinUploader(ChangeSkinSponge plugin, MessageChannel.Target invoker, Account owner, String url) {
         super(plugin.getCore(), owner, url);
 
         this.plugin = plugin;

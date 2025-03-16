@@ -1,15 +1,8 @@
 3a4
 > import org.flywaydb.core.api.configuration.ClassicConfiguration;
-105,106c106,110
-<                 final Properties prop = new Properties();
-<                 prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
----
->                 final ClassicConfiguration config = new ClassicConfiguration();
->                 config.setDataSource(this.dataSource());
->                 config.setLocations(prop.getProperty("flyway.locations"));
->                 config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
->                 config.setClassLoader(NisAppConfig.class.getClassLoader());
-108,113c112
+54a56
+> {
+108,113c110,116
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
@@ -17,10 +10,25 @@
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 <                 return flyway;
 ---
->                 return new Flyway(config);
-334,335c333,334
-<                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
+>                 final ClassicConfiguration flywayConfig = new ClassicConfiguration();
+>                 flywayConfig.setDataSource(this.dataSource());
+>                 flywayConfig.setLocations(prop.getProperty("flyway.locations"));
+>                 flywayConfig.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 flywayConfig.setClassLoader(NisAppConfig.class.getClassLoader());
+> 
+>                 return new Flyway(flywayConfig);
+117d119
+<         @DependsOn("flyway")
+129,130c131,132
+<                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
+<                                 this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+---
+>                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
+>                                 this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+197a200,201
+>         // region other beans
+> 
+335c339
 <                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
 ---
->                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
->                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTINGING, () -> AlwaysVestedBalances::new);
+>                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, AlwaysVestedBalances::new);

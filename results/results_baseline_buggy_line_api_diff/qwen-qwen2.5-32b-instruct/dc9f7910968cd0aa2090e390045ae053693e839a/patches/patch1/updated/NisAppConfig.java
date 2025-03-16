@@ -103,11 +103,15 @@ public class NisAppConfig {
 
 	@Bean
 	public Flyway flyway() throws IOException {
+		final Properties prop = new Properties();
+		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+
 		final ClassicConfiguration config = new ClassicConfiguration();
 		config.setDataSource(this.dataSource());
 		config.setLocations(prop.getProperty("flyway.locations").split(","));
 		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 		config.setClassLoader(NisAppConfig.class.getClassLoader());
+
 		return new Flyway(config);
 	}
 
@@ -123,7 +127,8 @@ public class NisAppConfig {
 
 	@Bean
 	public BlockChainServices blockChainServices() {
-		return new DefaultChainServices(this.blockChainLastBlockLayer, this.httpConnectorPool());
+		return new DefaultBlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
+				this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
 	}
 
 	@Bean
@@ -183,7 +188,7 @@ public class NisAppConfig {
 
 	@Bean
 	public Function<Address, Collection<Address>> cosignatoryLookup() {
-		return a -> this.accountStateCache().findStateByAddress(a).getMultisigLinks().getCosignatories();
+		return a -> this.accountCache().findStateByAddress(a).getMultisigLinks().getCosignatories();
 	}
 
 	@Bean

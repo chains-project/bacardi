@@ -70,7 +70,7 @@
 210c164
 <         return this.assertHeader(name, Matchers.hasItems(value));
 ---
->         return this.assertHeader(name, new IsEqual<>(Collections.singletonList(value)));
+>         return this.assertHeader(name, new IsEqual<>(List.of(value)));
 226c180
 <                 for (final HttpCookie cookie : HttpCookie.parse(header)) {
 ---
@@ -82,7 +82,7 @@
 246c200
 <             Matchers.not(Matchers.emptyIterableOf(String.class))
 ---
->             new IsEqual<>(Collections.singletonList("http://example.com"))
+>             new IsEqual<>(List.of())
 284c238
 <             Matchers.notNullValue()
 ---

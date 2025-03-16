@@ -30,8 +30,7 @@ public class UpdateSkinListener {
         Optional<Player> receiver = Sponge.server().getPlayer(playerName);
         if (receiver.isPresent()) {
             Runnable skinUpdater = new SkinApplier(plugin, connection, receiver.get(), null, false);
-            TaskExecutorService executorService = Sponge.server().scheduler().executorService();
-            executorService.submit(skinUpdater);
+            Task.builder().execute(skinUpdater).submit(plugin);
         }
     }
 }

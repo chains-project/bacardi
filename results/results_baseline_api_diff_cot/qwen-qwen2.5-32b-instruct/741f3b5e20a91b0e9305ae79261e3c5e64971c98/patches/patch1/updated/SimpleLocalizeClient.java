@@ -1,10 +1,8 @@
 package io.simplelocalize.cli.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import io.simplelocalize.cli.client.dto.DownloadRequest;
@@ -16,8 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -25,9 +21,11 @@ import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class SimpleLocalizeClient
 {
@@ -86,8 +84,9 @@ public class SimpleLocalizeClient
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
     throwOnError(httpResponse);
     String body = httpResponse.body();
-    JavaType type = objectMapper.getTypeFactory().constructCollectionType(List.class, DownloadableFile.class);
-    return objectMapper.readValue(body, type);
+    JsonNode jsonNode = objectMapper.readTree(body);
+    ExportResponse exportResponse = objectMapper.treeToValue(jsonNode, ExportResponse.class);
+    return exportResponse.getFiles();
   }
 
   public void downloadFile(DownloadableFile downloadableFile, String downloadPathTemplate)
@@ -126,9 +125,9 @@ public class SimpleLocalizeClient
     throwOnError(httpResponse);
     String json = httpResponse.body();
     JsonNode jsonNode = objectMapper.readTree(json);
-    Boolean passed = jsonNode.path("data").path("passed").asBoolean();
-    String message = jsonNode.path("data").path("message").asText();
-    int status = jsonNode.path("data").path("status").asInt();
+    Boolean passed = JsonPath.read(jsonNode.toString(), "$.data.passed");
+    String message = JsonPath.read(jsonNode.toString(), "$.data.message");
+    int status = JsonPath.read(jsonNode.toString(), "$.data.status");
     log.info("Gate result: {} (status: {}, message: {})", passed, status, message);
     return status;
   }
@@ -143,7 +142,7 @@ public class SimpleLocalizeClient
 
       Object responseBody = httpResponse.body();
       String stringBody = safeCastHttpBodyToString(responseBody);
-      String message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH);
+      String message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH));
       if (message == null)
       {
         message = "Unknown error, HTTP Status: " + httpResponse.statusCode();

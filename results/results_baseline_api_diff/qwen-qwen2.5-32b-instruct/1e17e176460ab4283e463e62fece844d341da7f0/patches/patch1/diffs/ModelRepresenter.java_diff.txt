@@ -4,45 +4,17 @@
 > import org.yaml.snakeyaml.introspector.BeanAccess;
 37a40
 >     super(new DumperOptions());
-46a50,76
->   protected Set<Property> getProperties(Class<? extends Object> type) {
->     try {
->       if (type.isAssignableFrom(Model.class)) {
->         return sortTypeWithOrder(type, ORDER_MODEL);
->       } else if (type.isAssignableFrom(Developer.class)) {
->         return sortTypeWithOrder(type, ORDER_DEVELOPER);
->       } else if (type.isAssignableFrom(Contributor.class)) {
->         return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
->       } else if (type.isAssignableFrom(Dependency.class)) {
->         return sortTypeWithOrder(type, ORDER_DEPENDENCY);
->       } else if (type.isAssignableFrom(Plugin.class)) {
->         return sortTypeWithOrder(type, ORDER_PLUGIN);
->       } else {
->         return super.getProperties(type);
->       }
->     } catch (IntrospectionException e) {
->       throw new RuntimeException(e);
->     }
->   }
-> 
->   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) throws IntrospectionException {
->     Set<Property> standard = PropertyUtils.getProperties(type, BeanAccess.FIELD);
->     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));
->     sorted.addAll(standard);
->     return sorted;
->   }
-> 
-94d123
+94d96
 < 
-108d136
+108d109
 <         String childName = child.getName();
-111,112c139,140
+111,112c112,113
 <         int childNameLength = childName.length();
 <         if ("reportPlugins".equals(childName)) {
 ---
 >         int childNameLength = child.getName().length();
 >         if ("reportPlugins".equals(child.getName())) {
-114,117c142,145
+114,117c115,118
 <         } else if (childNameLength > 3 && childName.endsWith("ies")) {
 <           singularName = childName.substring(0, childNameLength - 3);
 <         } else if (childNameLength > 1 && childName.endsWith("s")) {
@@ -52,60 +24,24 @@
 >           singularName = child.getName().substring(0, childNameLength - 3);
 >         } else if (childNameLength > 1 && child.getName().endsWith("s")) {
 >           singularName = child.getName().substring(0, childNameLength - 1);
-135c163
+123d123
+<           if (isList) { // check for eventual list construction
+128d127
+<           }
+135c134
 <         map.put(childName, childValue);
 ---
 >         map.put(child.getName(), childValue);
-168,170c196
-<   // Model elements order {
-<   //TODO move to polyglot-common, or to org.apache.maven:maven-model
-<   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
----
->   private static List<String> ORDER_MODEL = new ArrayList<>(Arrays.asList(
-204c230
-<   private static List<String> ORDER_DEVELOPER = new ArrayList<String>(Arrays.asList(
----
->   private static List<String> ORDER_DEVELOPER = new ArrayList<>(Arrays.asList(
-206c232
-<   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<String>(Arrays.asList(
----
->   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<>(Arrays.asList(
-208c234
-<   private static List<String> ORDER_DEPENDENCY = new ArrayList<String>(Arrays.asList(
----
->   private static List<String> ORDER_DEPENDENCY = new ArrayList<>(Arrays.asList(
-210c236
-<   private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
----
->   private static List<String> ORDER_PLUGIN = new ArrayList<>(Arrays.asList(
-212,232d237
-<   //}
-< 
+214,217d212
 <   /*
 <    * Change the default order. Important data goes first.
 <    */
 <   @Override
-<   protected Set<Property> getProperties(Class<? extends Object> type)
-<           throws IntrospectionException {
-<     if (type.isAssignableFrom(Model.class)) {
-<       return sortTypeWithOrder(type, ORDER_MODEL);
-<     } else if (type.isAssignableFrom(Developer.class)) {
-<       return sortTypeWithOrder(type, ORDER_DEVELOPER);
-<     } else if (type.isAssignableFrom(Contributor.class)) {
-<       return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-<     }  else if (type.isAssignableFrom(Dependency.class)) {
-<       return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-<     }  else if (type.isAssignableFrom(Plugin.class)) {
-<       return sortTypeWithOrder(type, ORDER_PLUGIN);
-<     } else {
+231c226
 <       return super.getProperties(type);
-<     }
-235,238c240,242
-<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
-<           throws IntrospectionException {
-<       Set<Property> standard = super.getProperties(type);
-<       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
 ---
->   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) throws IntrospectionException {
+>       return PropertyUtils.getProperties(type, BeanAccess.FIELD);
+237c232
+<       Set<Property> standard = super.getProperties(type);
+---
 >     Set<Property> standard = PropertyUtils.getProperties(type, BeanAccess.FIELD);
->     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));

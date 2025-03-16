@@ -12,32 +12,49 @@
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 <                 return flyway;
 ---
->                 final ClassicConfiguration configuration = new ClassicConfiguration();
->                 configuration.setDataSource(this.dataSource());
->                 configuration.setLocations(prop.getProperty("flyway.locations").split(","));
->                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
->                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+>                 final ClassicConfiguration config = new ClassicConfiguration();
+>                 config.setDataSource(this.dataSource());
+>                 config.setLocations(prop.getProperty("flyway.locations").split(","));
+>                 config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 config.setClassLoader(NisAppConfig.class.getClassLoader());
 > 
->                 return new Flyway(configuration);
-117d118
-<         @DependsOn("flyway")
-335c336,401
+>                 return new Flyway(config);
+335c337
 <                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
 ---
 >                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, AlwaysVestedBalances::new);
->                         }
->                 };
-> 
->                 return BlockChainFeatureDependentFactory.createObject(this.nisConfiguration().getBlockChainConfiguration(),
->                                 "weighted balance scheme", featureSupplierMap);
+344,348c346,360
+<         public BlockAnalyzer blockAnalyzer() {
+<                 final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
+<                 final ForkConfiguration forkConfiguration = this.nisConfiguration().getForkConfiguration();
+<                 return new BlockAnalyzer(this.blockDao, this.blockChainUpdater(), this.blockChainLastBlockLayer, this.nisMapperFactory(),
+<                                 estimatedBlocksPerYear, forkConfiguration);
+---
+>         public NisConfiguration nisConfiguration() {
+>                 return new NisConfiguration();
 >         }
 > 
 >         @Bean
+>         public TimeProvider timeProvider() {
+>                 return CommonStarter.TIME_PROVIDER;
+>         }
+> 
+>         @Bean
+>         public TrustProvider trustProvider() {
+>                 final int LOW_COMMUNICATION_NODE_WEIGHT = 30;
+>                 final int TRUST_CACHE_TIME = 15 * 60;
+>                 return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME,
+>                                 this.timeProvider());
+377,378c389,390
+<         public NisConfiguration nisConfiguration() {
+<                 return new NisConfiguration();
+---
 >         public Supplier<BlockHeight> lastBlockHeight() {
 >                 return this.blockChainLastBlockLayer::getLastBlockHeight;
->         }
-> 
->         @Bean
+382,383c394,401
+<         public TimeProvider timeProvider() {
+<                 return CommonStarter.TIME_PROVIDER;
+---
 >         public UnconfirmedTransactions unconfirmedTransactions() {
 >                 final BlockChainConfiguration blockChainConfiguration = this.nisConfiguration().getBlockChainConfiguration();
 >                 final UnconfirmedStateFactory unconfirmedStateFactory = new UnconfirmedStateFactory(this.transactionValidatorFactory(),
@@ -46,19 +63,25 @@
 >                 final UnconfirmedTransactions unconfirmedTransactions = new DefaultUnconfirmedTransactions(unconfirmedStateFactory,
 >                                 this.nisCache());
 >                 return new SynchronizedUnconfirmedTransactions(unconfirmedTransactions);
->         }
-> 
->         @Bean
+387,391c405,406
+<         public TrustProvider trustProvider() {
+<                 final int LOW_COMMUNICATION_NODE_WEIGHT = 30;
+<                 final int TRUST_CACHE_TIME = 15 * 60;
+<                 return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME,
+<                                 this.timeProvider());
+---
 >         public UnconfirmedTransactionsFilter unconfirmedTransactionsFilter() {
 >                 return this.unconfirmedTransactions().asFilter();
->         }
-> 
->         @Bean
+395,396c410,411
+<         public NemConfigurationPolicy configurationPolicy() {
+<                 return new NisConfigurationPolicy();
+---
 >         public HibernateTransactionManager transactionManager() throws IOException {
 >                 return new HibernateTransactionManager(this.sessionFactory());
->         }
-> 
->         @Bean
+400,401c415,450
+<         public ChainServices chainServices() {
+<                 return new DefaultChainServices(this.blockChainLastBlockLayer, this.httpConnectorPool());
+---
 >         public NisMain nisMain() {
 >                 final NisConfiguration nisConfiguration = this.nisConfiguration();
 > 
@@ -90,3 +113,45 @@
 >                         {
 >                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
 >                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, AlwaysVestedBalances::new);
+>                         }
+>                 };
+> 
+>                 return BlockChainFeatureDependentFactory.createObject(this.nisConfiguration().getBlockChainConfiguration(),
+>                                 "weighted balance scheme", featureSupplierMap);
+405,406c454,458
+<         public CommonStarter commonStarter() {
+<                 return CommonStarter.INSTANCE;
+---
+>         public BlockAnalyzer blockAnalyzer() {
+>                 final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
+>                 final ForkConfiguration forkConfiguration = this.nisConfiguration().getForkConfiguration();
+>                 return new BlockAnalyzer(this.blockDao, this.blockChainUpdater(), this.blockChainLastBlockLayer, this.nisMapperFactory(),
+>                                 estimatedBlocksPerYear, forkConfiguration);
+410,411c462,466
+<         public ValidationState validationState() {
+<                 return NisCacheUtils.createValidationState(this.nisCache());
+---
+>         public HttpConnectorPool httpConnectorPool() {
+>                 final CommunicationMode communicationMode = this.nisConfiguration().useBinaryTransport()
+>                                 ? CommunicationMode.BINARY
+>                                 : CommunicationMode.JSON;
+>                 return new HttpConnectorPool(communicationMode, this.outgoingAudits());
+415,416c470,478
+<         public LocalHostDetector localHostDetector() {
+<                 return new LocalHostDetector(this.nisConfiguration().getAdditionalLocalIps());
+---
+>         public NisPeerNetworkHost nisPeerNetworkHost() {
+>                 final HarvestingTask harvestingTask = new HarvestingTask(this.blockChain(), this.harvester(), this.unconfirmedTransactions());
+> 
+>                 final PeerNetworkScheduler scheduler = new PeerNetworkScheduler(this.timeProvider(), harvestingTask);
+> 
+>                 final CountingBlockSynchronizer synchronizer = new CountingBlockSynchronizer(this.blockChain());
+> 
+>                 return new NisPeerNetworkHost(this.nisCache(), synchronizer, scheduler, this.chainServices(), this.nodeCompatibilityChecker(),
+>                                 this.nisConfiguration(), this.httpConnectorPool(), this.trustProvider(), this.incomingAudits(), this.outgoingAudits());
+420,421c482,483
+<         public NodeCompatibilityChecker nodeCompatibilityChecker() {
+<                 return new DefaultNodeCompatibilityChecker();
+---
+>         public NetworkHostBootstrapper networkHostBootstrapper() {
+>                 return new HarvestAwareNetworkHostBootstrapper(this.nisPeerNetworkHost(), this.unlockedAccounts(), this.nisConfiguration());

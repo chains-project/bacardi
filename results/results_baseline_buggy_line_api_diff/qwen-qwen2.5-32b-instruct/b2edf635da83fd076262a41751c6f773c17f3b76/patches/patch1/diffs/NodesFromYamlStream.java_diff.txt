@@ -1,24 +1,7 @@
-34a35,38
-> import org.yaml.snakeyaml.introspector.BeanAccess;
-> import org.yaml.snakeyaml.introspector.Property;
-> import org.yaml.snakeyaml.nodes.Node;
-> import org.yaml.snakeyaml.nodes.Tag;
-83c87,102
+34a35
+> import org.yaml.snakeyaml.LoaderOptions;
+83c84,85
 <       Constructor constructor = new Constructor(Config.class);
 ---
->       Constructor constructor = new Constructor(Config.class) {
->          {
->             this.yamlConstructors.put(new Tag("tag:yaml.org,2002:org.jclouds.byon.functions.NodesFromYamlStream$Config"), this);
->             this.yamlConstructors.put(new Tag("tag:yaml.org,2002:org.jclouds.byon.domain.YamlNode"), this);
->          }
-> 
->          @Override
->          protected Object constructObject(Node node) {
->             if (node.getTag().getValue().equals("!Config")) {
->                return super.constructObject(node);
->             } else if (node.getTag().getValue().equals("!YamlNode")) {
->                return super.constructObject(node);
->             }
->             return super.constructObject(node);
->          }
->       };
+>       LoaderOptions options = new LoaderOptions();
+>       Constructor constructor = new Constructor(Config.class, options);

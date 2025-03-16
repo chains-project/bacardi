@@ -15,55 +15,74 @@
 <  * limitations under the License.
 <  */
 < 
-23,25d6
+23,25c7,9
 < import com.google.api.services.translate.model.DetectionsResourceItems;
 < import com.google.api.services.translate.model.LanguagesResource;
 < import com.google.api.services.translate.model.TranslationsResource;
-43c24
+---
+> import com.google.api.services.translate.model.DetectionsResource;
+> import com.google.api.services.translate.model.Languages;
+> import com.google.api.services.translate.model.Translations;
+43c27
 <   private static final Function<List<DetectionsResourceItems>, Detection>
 ---
->   private static final Function<List<Map<String, Object>>, Detection>
-45c26
+>   private static final Function<List<DetectionsResource.Detections>, Detection>
+45c29
 <           new Function<List<DetectionsResourceItems>, Detection>() {
 ---
->           new Function<List<Map<String, Object>>, Detection>() {
-47c28
+>           new Function<List<DetectionsResource.Detections>, Detection>() {
+47c31
 <             public Detection apply(List<DetectionsResourceItems> detectionPb) {
 ---
->             public Detection apply(List<Map<String, Object>> detectionPb) {
-62c43
+>             public Detection apply(List<DetectionsResource.Detections> detectionPb) {
+57d40
+<   @Override
+62c45
 <               new Callable<List<LanguagesResource>>() {
 ---
->               new Callable<List<Map<String, Object>>>() {
-64c45
+>               new Callable<List<Languages>>() {
+64c47
 <                 public List<LanguagesResource> call() {
 ---
->                 public List<Map<String, Object>> call() {
-80c61
+>                 public List<Languages> call() {
+77d59
+<   @Override
+80c62
 <       List<List<DetectionsResourceItems>> detectionsPb =
 ---
->       List<List<Map<String, Object>>> detectionsPb =
-82c63
+>       List<List<DetectionsResource.Detections>> detectionsPb =
+82c64
 <               new Callable<List<List<DetectionsResourceItems>>>() {
 ---
->               new Callable<List<List<Map<String, Object>>>>() {
-84c65
+>               new Callable<List<List<DetectionsResource.Detections>>>() {
+84c66
 <                 public List<List<DetectionsResourceItems>> call() {
 ---
->                 public List<List<Map<String, Object>>> call() {
-91c72
+>                 public List<List<DetectionsResource.Detections>> call() {
+91c73
 <       Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
 ---
->       Iterator<List<Map<String, Object>>> detectionIterator = detectionsPb.iterator();
-94c75
+>       Iterator<List<DetectionsResource.Detections>> detectionIterator = detectionsPb.iterator();
+94c76
 <         List<DetectionsResourceItems> detectionPb = detectionIterator.next();
 ---
->         List<Map<String, Object>> detectionPb = detectionIterator.next();
-121c102
+>         List<DetectionsResource.Detections> detectionPb = detectionIterator.next();
+106,111d87
+<   @Override
+<   public List<Detection> detect(String... texts) {
+<     return detect(Arrays.asList(texts));
+<   }
+< 
+<   @Override
+116d91
+<   @Override
+121c96
 <               new Callable<List<TranslationsResource>>() {
 ---
->               new Callable<List<Map<String, Object>>>() {
-123c104
+>               new Callable<List<Translations>>() {
+123c98
 <                 public List<TranslationsResource> call() {
 ---
->                 public List<Map<String, Object>> call() {
+>                 public List<Translations> call() {
+136d110
+<   @Override

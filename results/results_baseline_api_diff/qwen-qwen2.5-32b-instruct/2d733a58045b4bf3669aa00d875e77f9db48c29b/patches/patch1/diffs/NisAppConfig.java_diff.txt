@@ -1,0 +1,333 @@
+3a4
+> import org.flywaydb.core.api.configuration.ClassicConfiguration;
+93c94
+<                                 configuration.getNetworkName());
+---
+>                                 configuration.getNetworkInfo().getName());
+103c104
+<         @Bean(initMethod = "migrate")
+---
+>         @Bean
+105,113c106,111
+<                 final Properties prop = new Properties();
+<                 prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+< 
+<                 final org.flywaydb.core.Flyway flyway = new Flyway();
+<                 flyway.setDataSource(this.dataSource());
+<                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+<                 flyway.setLocations(prop.getProperty("flyway.locations"));
+<                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+<                 return flyway;
+---
+>                 final ClassicConfiguration config = new ClassicConfiguration();
+>                 config.setDataSource(this.dataSource());
+>                 config.setLocations(prop.getProperty("flyway.locations").split(","));
+>                 config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 config.setClassLoader(NisAppConfig.class.getClassLoader());
+>                 return new Flyway(config);
+117d114
+<         @DependsOn("flyway")
+129,130c126,127
+<                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
+<                                 this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+---
+>                 return new DefaultBlockChainServices(this.blockDao, this.blockChainLastBlockLayer, this.nisMapperFactory(),
+>                                 this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear());
+148c145
+<         public MapperFactory mapperFactory() {
+---
+>         protected MapperFactory mapperFactory() {
+153c150
+<         public NisMapperFactory nisMapperFactory() {
+---
+>         protected NisMapperFactory nisMapperFactory() {
+158c155
+<         public NisModelToDbModelMapper nisModelToDbModelMapper() {
+---
+>         protected NisModelToDbModelMapper nisModelToDbModelMapper() {
+163c160
+<         public NisDbModelToModelMapper nisDbModelToModelMapper() {
+---
+>         protected NisDbModelToModelMapper nisDbModelToModelMapper() {
+172c169
+<         public BlockTransactionObserverFactory blockTransactionObserverFactory() {
+---
+>         protected BlockTransactionObserverFactory blockTransactionObserverFactory() {
+178c175
+<         public BlockValidatorFactory blockValidatorFactory() {
+---
+>         protected BlockValidatorFactory blockValidatorFactory() {
+183c180
+<         public TransactionValidatorFactory transactionValidatorFactory() {
+---
+>         protected TransactionValidatorFactory transactionValidatorFactory() {
+189,192c186,192
+<         public SingleTransactionValidator transactionValidator() {
+<                 // this is only consumed by the TransactionController and used in transaction/prepare,
+<                 // which should propagate incomplete transactions
+<                 return this.transactionValidatorFactory().createIncompleteSingleBuilder(this.nisCache()).build();
+---
+>         protected Function<Address, Collection<Address>> cosignatoryLookup() {
+>                 return a -> this.accountStateCache().findStateByAddress(a).getMultisigLinks().getCosignatories();
+>         }
+> 
+>         @Bean
+>         protected SynchronizedAccountCache accountCache() {
+>                 return new SynchronizedAccountCache(new DefaultAccountCache());
+195c195,242
+<         // endregion
+---
+>         @Bean
+>         protected SynchronizedAccountStateCache accountStateCache() {
+>                 return new SynchronizedAccountStateCache(new DefaultAccountStateCache());
+>         }
+> 
+>         @Bean
+>         protected SynchronizedHashCache transactionHashCache() {
+>                 return new SynchronizedHashCache(new DefaultHashCache(50000, this.nisConfiguration().getTransactionHashRetentionTime()));
+>         }
+> 
+>         @Bean
+>         protected SynchronizedPoxFacade poxFacade() {
+>                 return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
+>         }
+> 
+>         @Bean
+>         protected MosaicIdCache mosaicIdCache() {
+>                 return new SynchronizedMosaicIdCache(new DefaultMosaicIdCache());
+>         }
+> 
+>         @Bean
+>         protected UnconfirmedTransactions unconfirmedTransactions() {
+>                 final BlockChainConfiguration blockChainConfiguration = this.nisConfiguration().getBlockChainConfiguration();
+>                 return new DefaultUnconfirmedTransactions(this.nisCache(), this.transactionValidatorFactory(), blockChainConfiguration.getMaxTransactionsPerBlock());
+>         }
+> 
+>         @Bean
+>         protected UnconfirmedTransactionsFilter unconfirmedTransactionsFilter() {
+>                 return this.unconfirmedTransactions().asFilter();
+>         }
+> 
+>         @Bean
+>         protected ImportanceCalculator importanceCalculator() {
+>                 final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<>();
+>                 featureSupplierMap.put(BlockChainFeature.PROOF_OF_IMPORTANCE, () -> new PoiImportanceCalculator());
+>                 featureSupplierMap.put(BlockChainFeature.PROOF_OF_STAKE, PosImportanceCalculator::new);
+>                 return BlockChainFeatureDependentFactory.createObject(this.nisConfiguration().getBlockChainConfiguration(), "consensus algorithm", featureSupplierMap);
+>         }
+> 
+>         @Bean
+>         protected NisConfiguration nisConfiguration() {
+>                 return new NisConfiguration();
+>         }
+> 
+>         @Bean
+>         protected TimeProvider timeProvider() {
+>                 return CommonStarter.TIME_PROVIDER;
+>         }
+198c245,275
+<         public Harvester harvester() {
+---
+>         protected TrustProvider trustProvider() {
+>                 final int LOW_COMMUNICATION_NODE_WEIGHT = 30;
+>                 final int TRUST_CACHE_TIME = 15 * 60;
+>                 return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME, this.timeProvider());
+>         }
+> 
+>         @Bean
+>         protected NisMain nisMain() {
+>                 // initialize network info
+>                 NetworkInfos.setDefault(this.nisConfiguration().getNetworkInfo());
+> 
+>                 // other configurations
+>                 return new NisMain(this.blockDao, this.nisCache(), this.nisDbModelToModelMapper(), this.nisConfiguration().getForkConfiguration());
+>         }
+> 
+>         @Bean
+>         protected EnumSet<ObserverOption> observerOptions() {
+>                 final EnumSet<ObserverOption> observerOptions = EnumSet.noneOf(ObserverOption.class);
+>                 if (this.nisConfiguration().isFeatureSupported(NodeFeature.HISTORICAL_ACCOUNT_DATA)) {
+>                         observerOptions.add(ObserverOption.NoHistoricalDataPruning);
+>                 }
+> 
+>                 final BlockChainConfiguration blockChainConfiguration = this.nisConfiguration().getBlockChainConfiguration();
+>                 if (blockChainConfiguration.isBlockChainFeatureSupported(BlockChainFeature.PROOF_OF_STAKE)) {
+>                         observerOptions.add(ObserverOption.NoOutlinkObserver);
+>                 }
+>                 return observerOptions;
+>         }
+> 
+>         @Bean
+>         protected Harvester harvester() {
+210c287
+<         public SynchronizedAccountCache accountCache() {
+---
+>         protected SynchronizedAccountCache accountCache() {
+215c292
+<         public SynchronizedAccountStateCache accountStateCache() {
+---
+>         protected SynchronizedAccountStateCache accountStateCache() {
+220c297
+<         public SynchronizedHashCache transactionHashCache() {
+---
+>         protected SynchronizedHashCache transactionHashCache() {
+225c302
+<         public SynchronizedPoxFacade poxFacade() {
+---
+>         protected SynchronizedPoxFacade poxFacade() {
+230c307
+<         public SynchronizedNamespaceCache namespaceCache() {
+---
+>         protected SynchronizedNamespaceCache namespaceCache() {
+235c312
+<         public ReadOnlyNisCache nisCache() {
+---
+>         protected ReadOnlyNisCache nisCache() {
+241,252c318,322
+<         @SuppressWarnings("serial")
+<         public ImportanceCalculator importanceCalculator() {
+<                 final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<ImportanceCalculator>>() {
+<                         {
+<                                 this.put(BlockChainFeature.PROOF_OF_IMPORTANCE,
+<                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
+<                                 this.put(BlockChainFeature.PROOF_OF_STAKE, PosImportanceCalculator::new);
+<                         }
+<                 };
+< 
+<                 return BlockChainFeatureDependentFactory.createObject(this.nisConfiguration().getBlockChainConfiguration(), "consensus algorithm",
+<                                 featureSupplierMap);
+---
+>         protected ImportanceCalculator importanceCalculator() {
+>                 final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<>();
+>                 featureSupplierMap.put(BlockChainFeature.PROOF_OF_IMPORTANCE, () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
+>                 featureSupplierMap.put(BlockChainFeature.PROOF_OF_STAKE, PosImportanceCalculator::new);
+>                 return BlockChainFeatureDependentFactory.createObject(this.nisConfiguration().getBlockChainConfiguration(), "consensus algorithm", featureSupplierMap);
+256c326
+<         public UnlockedAccounts unlockedAccounts() {
+---
+>         protected UnlockedAccounts unlockedAccounts() {
+262c332
+<         public CanHarvestPredicate canHarvestPredicate() {
+---
+>         protected CanHarvestPredicate canHarvestPredicate() {
+275c345
+<         public Supplier<BlockHeight> lastBlockHeight() {
+---
+>         protected Supplier<BlockHeight> lastBlockHeight() {
+280c350
+<         public UnconfirmedTransactions unconfirmedTransactions() {
+---
+>         protected UnconfirmedTransactions unconfirmedTransactions() {
+285,286c355
+<                 final UnconfirmedTransactions unconfirmedTransactions = new DefaultUnconfirmedTransactions(unconfirmedStateFactory,
+<                                 this.nisCache());
+---
+>                 final UnconfirmedTransactions unconfirmedTransactions = new DefaultUnconfirmedTransactions(unconfirmedStateFactory, this.nisCache());
+291c360
+<         public UnconfirmedTransactionsFilter unconfirmedTransactionsFilter() {
+---
+>         protected UnconfirmedTransactionsFilter unconfirmedTransactionsFilter() {
+296c365
+<         public HibernateTransactionManager transactionManager() throws IOException {
+---
+>         protected HibernateTransactionManager transactionManager() throws IOException {
+301c370
+<         public NisMain nisMain() {
+---
+>         protected NisMain nisMain() {
+313,314c382
+<                                                         new BlockHeight(
+<                                                                         BlockMarkerConstants.SECOND_FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24))
+---
+>                                                         new BlockHeight(BlockMarkerConstants.SECOND_FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24))
+327,335c395,398
+<                 final Map<BlockChainFeature, Supplier<Supplier<WeightedBalances>>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<WeightedBalances>>>() {
+<                         {
+<                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
+<                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
+<                         }
+<                 };
+< 
+<                 return BlockChainFeatureDependentFactory.createObject(this.nisConfiguration().getBlockChainConfiguration(),
+<                                 "weighted balance scheme", featureSupplierMap);
+---
+>                 final Map<BlockChainFeature, Supplier<Supplier<WeightedBalances>>> featureSupplierMap = new HashMap<>();
+>                 featureSupplierMap.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
+>                 featureSupplierMap.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
+>                 return BlockChainFeatureDependentFactory.createObject(this.nisConfiguration().getBlockChainConfiguration(), "weighted balance scheme", featureSupplierMap);
+339c402
+<         public BlockAnalyzer blockAnalyzer() {
+---
+>         protected BlockAnalyzer blockAnalyzer() {
+341,342c404
+<                 return new BlockAnalyzer(this.blockDao, this.blockChainUpdater(), this.blockChainLastBlockLayer, this.nisMapperFactory(),
+<                                 estimatedBlocksPerYear);
+---
+>                 return new BlockAnalyzer(this.blockDao, this.blockChainUpdater(), this.blockChainLastBlockLayer, this.nisMapperFactory(), estimatedBlocksPerYear);
+346c408
+<         public HttpConnectorPool httpConnectorPool() {
+---
+>         protected HttpConnectorPool httpConnectorPool() {
+354c416
+<         public NisPeerNetworkHost nisPeerNetworkHost() {
+---
+>         protected NisPeerNetworkHost nisPeerNetworkHost() {
+366c428
+<         public NetworkHostBootstrapper networkHostBootstrapper() {
+---
+>         protected NetworkHostBootstrapper networkHostBootstrapper() {
+371c433
+<         public NisConfiguration nisConfiguration() {
+---
+>         protected NisConfiguration nisConfiguration() {
+376c438
+<         public TimeProvider timeProvider() {
+---
+>         protected TimeProvider timeProvider() {
+381c443
+<         public TrustProvider trustProvider() {
+---
+>         protected TrustProvider trustProvider() {
+384,385c446
+<                 return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME,
+<                                 this.timeProvider());
+---
+>                 return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME, this.timeProvider());
+389c450
+<         public NemConfigurationPolicy configurationPolicy() {
+---
+>         protected NisConfigurationPolicy configurationPolicy() {
+394c455
+<         public ChainServices chainServices() {
+---
+>         protected ChainServices chainServices() {
+399c460
+<         public CommonStarter commonStarter() {
+---
+>         protected CommonStarter commonStarter() {
+404c465
+<         public ValidationState validationState() {
+---
+>         protected ValidationState validationState() {
+409c470
+<         public LocalHostDetector localHostDetector() {
+---
+>         protected LocalHostDetector localHostDetector() {
+414c475
+<         public NodeCompatibilityChecker nodeCompatibilityChecker() {
+---
+>         protected NodeCompatibilityChecker nodeCompatibilityChecker() {
+419c480
+<         public EnumSet<ObserverOption> observerOptions() {
+---
+>         protected EnumSet<ObserverOption> observerOptions() {
+429d489
+< 
+434c494
+<         public Function<Address, Collection<Address>> cosignatoryLookup() {
+---
+>         protected Function<Address, Collection<Address>> cosignatoryLookup() {
+439c499
+<         public MosaicIdCache mosaicIdCache() {
+---
+>         protected MosaicIdCache mosaicIdCache() {

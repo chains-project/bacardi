@@ -1,0 +1,24 @@
+14,16c14,16
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.managed.Flag;
+> import org.spongepowered.api.command.parameter.managed.ValueParameter;
+> import org.spongepowered.api.command.parameter.Parameter;
+18,20c18
+< 
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import org.spongepowered.api.command.CommandExecutor;
+23a22
+> {
+43c42
+<                 Task.builder().async().execute(skinUploader).submit(plugin);
+---
+>                 Task.builder().execute(skinUploader).submit(plugin);
+56c55
+<                 .arguments(string(of("url")))
+---
+>                 .arguments(Parameter.string().key(Flag.of("url")))

@@ -3,7 +3,7 @@
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
- * http://maven.apache.org/xsd/maven-4.0.0.xsd
+ * http://www.eclipse.org/legal/epl-v10.html
  */
 package org.sonatype.maven.polyglot.yaml;
 
@@ -13,14 +13,15 @@ import org.apache.maven.model.Developer;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.error.YAMLException;
+import org.yaml.snakeyaml.introspector.BeanAccess;
 import org.yaml.snakeyaml.introspector.Property;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
-import org.yaml.snakeyaml.DumperOptions;
 
 import java.beans.IntrospectionException;
 import java.util.*;
@@ -47,7 +48,7 @@ class ModelRepresenter extends Representer {
   }
 
   protected NodeTuple representJavaBeanProperty(Object javaBean, Property property,
-                                                Object propertyValue, Tag customTag) {
+                                                  Object propertyValue, Tag customTag) {
     if (property != null && property.getName().equals("pomFile")) {
       // "pomFile" is not a part of POM http://maven.apache.org/xsd/maven-4.0.0.xsd
       return null;
@@ -156,23 +157,31 @@ class ModelRepresenter extends Representer {
           "mailingLists",
           "scm",
           "issueManagement",
-          "ciManagement"
+          "ciManagement",
+
+          "properties",
+          "prerequisites",
+          "modules",
+          "dependencyManagement",
+          "dependencies",
+          "distributionManagement",
+          //"repositories",
+          //"pluginRepositories",
+          "build",
+          "profiles",
+          "reporting"
   ));
   private static List<String> ORDER_DEVELOPER = new ArrayList<String>(Arrays.asList(
-          "name", "id", "email"
-  ));
+          "name", "id", "email"));
   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<String>(Arrays.asList(
-          "name", "id", "email"
-  ));
+          "name", "id", "email"));
   private static List<String> ORDER_DEPENDENCY = new ArrayList<String>(Arrays.asList(
-          "groupId", "artifactId", "version", "type", "classifier", "scope"
-  ));
+          "groupId", "artifactId", "version", "type", "classifier", "scope"));
   private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
-          "groupId", "artifactId", "version", "inherited", "extensions", "configuration"
-  ));
+          "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
   //}
 
-  protected Set<Property> getProperties(Class<? extends Object> type) {
+  protected Set<Property> getProperties(Class<? extends Object> type) throws IntrospectionException {
     if (type.isAssignableFrom(Model.class)) {
       return sortTypeWithOrder(type, ORDER_MODEL);
     } else if (type.isAssignableFrom(Developer.class)) {
@@ -188,9 +197,10 @@ class ModelRepresenter extends Representer {
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
-    Set<Property> standard = PropertyUtils.getProperties(type);
-    Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+          throws IntrospectionException {
+    Set<Property> standard = PropertyUtils.getProperties(type, BeanAccess.FIELD);
+    Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
     sorted.addAll(standard);
     return sorted;
   }
@@ -220,7 +230,7 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0; // compare further
+      return 0;// compare further
     }
   }
 }

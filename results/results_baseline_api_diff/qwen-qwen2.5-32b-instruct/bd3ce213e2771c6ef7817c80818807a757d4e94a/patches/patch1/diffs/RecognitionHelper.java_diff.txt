@@ -1,25 +1,44 @@
-42d41
+4d3
+< import java.io.FileWriter;
+6c5,7
+< import java.nio.file.*;
+---
+> import java.nio.file.Files;
+> import java.nio.file.Path;
+> import java.nio.file.StandardOpenOption;
+17a19
+> import com.fasterxml.jackson.core.JsonGenerator;
+42d43
 < 
-143,144c142,143
-<                     LineSegmentsOfPage.add(projConf.PAGE_DIR + pageId + File.separator + segmentId +
+144c145
 <                         File.separator + lineSegmentId + projConf.getImageExtensionByType(projectImageType));
 ---
->                     LineSegmentsOfPage.add(projConf.PAGE_DIR + pageId + File.separator +
->                         segmentId + File.separator + lineSegmentId + projConf.getImageExtensionByType(projectImageType));
-179c178
+>                         File.separator + lineSegmentId + projConf.REC_EXT);
+179c180
 <      * @return List of checkpoints
 ---
 >      * @return Map of models (key = modelName | value = path)
-193a193
+193a195
 > 
-198c198
+198c200
 <      * @param pageIds Identifiers of the pages (e.g 0002,0003)
 ---
 >      * @param pageIds Identifiers of the chosen pages (e.g 0002,0003)
-227c227,283
-<                         skewparams.add(segmentListFile.toString());
----
+215a218,275
+>                         skewparams.add(cmdArgsWork.remove(maxskewIndex);
+>                 }
+>                 final int skewstepsIndex = cmdArgsWork.indexOf("--skewsteps");
+>                 if(skewstepsIndex > -1) {
+>                         skewparams.add(cmdArgsWork.remove(skewstepsIndex);
+>                         skewparams.add(cmdArgsWork.remove(skewstepsIndex);
+>                 }
+> 
+>                         // Create temp json file with all segment images (to not overload parameter list)
+>                         // Temp file in a temp folder named "skew-<random numbers>.json"
+>                         File segmentListFile = File.createTempFile("skew-",".json");
+>                         skewparams.add(segmentListFile.toString());
 >                         segmentListFile.deleteOnExit(); // Delete if OCR4all terminates
+> 
 >                         ObjectMapper mapper = new ObjectMapper();
 >                         ArrayNode dataList = mapper.createArrayNode();
 >                         for (String pageId : pageIds) {
@@ -64,17 +83,19 @@
 >             skewparams.add("skewestimate");
 >                 final int maxskewIndex = cmdArgsWork.indexOf("--maxskew");
 >                 if(maxskewIndex > -1) {
->                         skewparams.add(cmdArgsWork.remove(maxskewIndex));
+216a277
 >                         skewparams.add(cmdArgsWork.remove(maxskewIndex);
->                 }
->                 final int skewstepsIndex = cmdArgsWork.indexOf("--skewsteps");
->                 if(skewstepsIndex > -1) {
+220,221c281,282
+<                         skewparams.add(cmdArgsWork.remove(skewstepsIndex));
+<                         skewparams.add(cmdArgsWork.remove(skewstepsIndex));
+---
 >                         skewparams.add(cmdArgsWork.remove(skewstepsIndex);
 >                         skewparams.add(cmdArgsWork.remove(skewstepsIndex);
->                 }
+228a290
 > 
->                         // Create temp json file with all segment images (to not overload parameter list)
->                         // Temp file in a temp folder named "skew-<random numbers>.json"
->                         File segmentListFile = File.createTempFile("skew-",".json");
-251d306
+251d312
 < 
+291c352
+<         Files.write(segmentListFile.toPath(), content, StandardOpenOption.APPEND);
+---
+>         Files.write(segmentListFile.toPath(), content, StandardOpenOption.CREATE, StandardOpenOption.WRITE);

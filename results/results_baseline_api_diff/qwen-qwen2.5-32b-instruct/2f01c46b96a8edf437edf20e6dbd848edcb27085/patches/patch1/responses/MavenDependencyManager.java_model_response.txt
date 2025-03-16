@@ -136,11 +136,11 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
   public Set<String> collectUsedClassesFromProcessors() {
     getLog().debug("# collectUsedClassesFromProcessors()");
     return Optional.ofNullable(project.getPlugin("org.bsc.maven:maven-processor-plugin"))
-        .map(plugin -> plugin.getExecutions().get(0))
-        .map(exec -> exec.getConfiguration())
-        .map(config -> config.get("processors"))
-        .map(processors -> processors.getChildren())
-        .map(arr -> Arrays.stream(arr).map(processor -> processor.getValue()).collect(Collectors.toSet()))
+        .map(plugin -> plugin.getExecutionsAsMap().get("process"))
+        .map(exec -> (org.apache.maven.model.Configuration) exec.getConfiguration())
+        .map(config -> config.getChild("processors"))
+        .map(children -> children.getChildren("processor"))
+        .map(processors -> processors.stream().map(Xpp3Dom::getValue).collect(Collectors.toSet()))
         .orElse(of());
   }
 

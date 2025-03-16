@@ -15,6 +15,7 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.yaml.snakeyaml.error.YAMLException;
+import org.yaml.snakeyaml.introspector.BeanAccess;
 import org.yaml.snakeyaml.introspector.Property;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
@@ -46,7 +47,7 @@ class ModelRepresenter extends Representer {
   }
 
   protected NodeTuple representJavaBeanProperty(Object javaBean, Property property,
-                                                Object propertyValue, Tag customTag) {
+                                                 Object propertyValue, Tag customTag) {
     if (property != null && property.getName().equals("pomFile")) {
       // "pomFile" is not a part of POM http://maven.apache.org/xsd/maven-4.0.0.xsd
       return null;
@@ -118,7 +119,18 @@ class ModelRepresenter extends Representer {
 
         Object childValue = child.getValue();
         if (childValue == null) {
-          childValue = toMap(child);
+          boolean isList = singularName != null;
+          if (isList) { // check for eventual list construction
+            for (int j = 0, grandChildCount = child.getChildCount(); j < grandChildCount; j++) {
+              String grandChildName = child.getChild(j).getName();
+              isList &= grandChildName.equals(singularName);
+            }
+          }
+          if (isList) {
+            childValue = toList(child, singularName);
+          } else {
+            childValue = toMap(child);
+          }
         }
         map.put(child.getName(), childValue);
       }
@@ -219,9 +231,10 @@ class ModelRepresenter extends Representer {
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+          throws IntrospectionException {
     Set<Property> standard = super.getProperties(type);
-    Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));
+    Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
     sorted.addAll(standard);
     return sorted;
   }

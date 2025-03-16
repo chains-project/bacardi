@@ -14,11 +14,10 @@ import org.nem.nis.boot.*;
 import org.nem.nis.cache.*;
 import org.nem.nis.connect.*;
 import org.nem.nis.controller.interceptors.LocalHostDetector;
-import org.nem.nis.dao.*;
-import org.nem.nis.harvesting.*;
 import org.nem.nis.mappers.*;
 import org.nem.nis.pox.ImportanceCalculator;
 import org.nem.nis.pox.poi.*;
+import org.nem.nis.pox.pos.PosImportanceCalculator;
 import org.nem.nis.secret.*;
 import org.nem.nis.service.BlockChainLastBlockLayer;
 import org.nem.nis.state.*;
@@ -102,16 +101,12 @@ public class NisAppConfig {
 
 	@Bean
 	public Flyway flyway() throws IOException {
-		final Properties prop = new Properties();
-		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
-
-		final ClassicConfiguration configuration = new ClassicConfiguration();
-		configuration.setDataSource(this.dataSource());
-		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
-		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
-
-		return new Flyway(configuration);
+		final ClassicConfiguration config = new ClassicConfiguration();
+		config.setDataSource(this.dataSource());
+		config.setLocations(prop.getProperty("flyway.locations").split(","));
+		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		config.setClassLoader(NisAppConfig.class.getClassLoader());
+		return new Flyway(config);
 	}
 
 	@Bean
@@ -196,43 +191,78 @@ public class NisAppConfig {
 
 	// endregion
 
-	// region mappers
-
-	@Bean
-	public Flyway flyway() throws IOException {
-		final Properties prop = new Properties();
-		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
-
-		final ClassicConfiguration configuration = new ClassicConfiguration();
-		configuration.setDataSource(this.dataSource());
-		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
-		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
-
-		return new Flyway(configuration);
-	}
-
-	// endregion
-
 	// region other beans
 
 	@Bean
-	public DataSource dataSource() throws IOException {
-		final NisConfiguration configuration = this.nisConfiguration();
-		final String nemFolder = configuration.getNemFolder();
-		final Properties prop = new Properties();
-		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+	public Harvester harvester() {
+		final NewBlockTransactionsProvider transactionsProvider = new DefaultNewBlockTransactionsProvider(this.nisCache(),
+				this.transactionValidatorFactory(), this.blockValidatorFactory(), this.blockTransactionObserverFactory(),
+				this.unconfirmedTransactionsFilter(), this.nisConfiguration().getForkConfiguration());
 
-		// replace url parameters with values from configuration
-		final String jdbcUrl = prop.getProperty("jdbc.url").replace("${nem.folder}", nemFolder).replace("${nem.network}",
-				configuration.getNetworkName());
+		final BlockGenerator generator = new BlockGenerator(this.nisCache(), transactionsProvider, this.blockDao,
+				new BlockScorer(this.accountStateCache()), this.blockValidatorFactory().create(this.nisCache()));
+		return new Harvester(this.timeProvider(), this.blockChainLastBlockLayer, this.unlockedAccounts(), this.nisDbModelToModelMapper(),
+				generator);
+	}
 
-		final DriverManagerDataSource dataSource = new DriverManagerDataSource();
-		dataSource.setDriverClassName(prop.getProperty("jdbc.driverClassName"));
-		dataSource.setUrl(jdbcUrl);
-		dataSource.setUsername(prop.getProperty("jdbc.username"));
-		dataSource.setPassword(prop.getProperty("jdbc.password"));
-		return dataSource;
+	@Bean
+	public SynchronizedAccountCache accountCache() {
+		return new SynchronizedAccountCache(new DefaultAccountCache());
+	}
+
+	@Bean
+	public SynchronizedAccountStateCache accountStateCache() {
+		return new SynchronizedAccountStateCache(new DefaultAccountStateCache());
+	}
+
+	@Bean
+	public SynchronizedHashCache transactionHashCache() {
+		return new SynchronizedHashCache(new DefaultHashCache(50000, this.nisConfiguration().getTransactionHashRetentionTime()));
+	}
+
+	@Bean
+	public SynchronizedPoxFacade poxFacade() {
+		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
+	}
+
+	@Bean
+	public SynchronizedNamespaceCache namespaceCache() {
+		final ForkConfiguration forkConfiguration = this.nisConfiguration().getForkConfiguration();
+		final BlockHeight mosaicRedefinitionForkHeight = forkConfiguration.getMosaicRedefinitionForkHeight();
+
+		NemNamespaceEntry.setDefault(mosaicRedefinitionForkHeight);
+		return new SynchronizedNamespaceCache(new DefaultNamespaceCache(mosaicRedefinitionForkHeight));
+	}
+
+	@Bean
+	public ReadOnlyNisCache nisCache() {
+		return new DefaultNisCache(this.accountCache(), this.accountStateCache(), this.poxFacade(), this.transactionHashCache(),
+				this.namespaceCache());
+	}
+
+	@Bean
+	public ImportanceCalculator importanceCalculator() {
+		final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<ImportanceCalculator>>() {
+			{
+				this.put(BlockChainFeature.PROOF_OF_IMPORTANCE,
+						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
+				this.put(BlockChainFeature.PROOF_OF_STAKE, PosImportanceCalculator::new);
+			}
+		};
+
+		return BlockChainFeatureDependentFactory.createObject(this.nisConfiguration().getBlockChainConfiguration(), "consensus algorithm",
+				featureSupplierMap);
+	}
+
+	@Bean
+	public UnlockedAccounts unlockedAccounts() {
+		return new UnlockedAccounts(this.accountCache(), this.accountStateCache(), this.blockChainLastBlockLayer,
+				this.canHarvestPredicate(), this.nisConfiguration().getUnlockedLimit());
+	}
+
+	@Bean
+	public CanHarvestPredicate canHarvestPredicate() {
+		return new CanHarvestPredicate(this::getBlockDependentMinHarvesterBalance);
 	}
 
 	@Bean
@@ -269,7 +299,8 @@ public class NisAppConfig {
 
 	@Bean
 	public SynchronizedNamespaceCache namespaceCache() {
-		final BlockHeight mosaicRedefinitionForkHeight = this.nisConfiguration().getForkConfiguration().getMosaicRedefinitionForkHeight();
+		final ForkConfiguration forkConfiguration = this.nisConfiguration().getForkConfiguration();
+		final BlockHeight mosaicRedefinitionForkHeight = forkConfiguration.getMosaicRedefinitionForkHeight();
 
 		NemNamespaceEntry.setDefault(mosaicRedefinitionForkHeight);
 		return new SynchronizedNamespaceCache(new DefaultNamespaceCache(mosaicRedefinitionForkHeight));
@@ -282,7 +313,6 @@ public class NisAppConfig {
 	}
 
 	@Bean
-	@SuppressWarnings("serial")
 	public ImportanceCalculator importanceCalculator() {
 		final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<ImportanceCalculator>>() {
 			{
@@ -305,14 +335,6 @@ public class NisAppConfig {
 	@Bean
 	public CanHarvestPredicate canHarvestPredicate() {
 		return new CanHarvestPredicate(this::getBlockDependentMinHarvesterBalance);
-	}
-
-	private Amount getBlockDependentMinHarvesterBalance(final BlockHeight height) {
-		return getBlockDependentPoiOptions(height).getMinHarvesterBalance();
-	}
-
-	private static org.nem.nis.pox.poi.PoiOptions getBlockDependentPoiOptions(final BlockHeight height) {
-		return new PoiOptionsBuilder(height).create();
 	}
 
 	@Bean

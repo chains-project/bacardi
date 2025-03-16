@@ -110,8 +110,9 @@ public class PlayerUtils
 
         if (random.nextBoolean())
         {
-            first = LeetConverter.convert(first);
-            last = LeetConverter.convert(last);
+            LeetConverter leetConverter = new LeetConverter();
+            first = leetConverter.convert(first);
+            last = leetConverter.convert(last);
         }
 
         String name = first + (random.nextBoolean() ? "_": "") + last + (random.nextBoolean() ? "19" + random.nextInt(120): "");

@@ -111,10 +111,11 @@ public class PlayerUtils
             ? RandomStringUtils.randomAlphanumeric(new Random().nextInt(13) + 1)
             : RandomWordUtils.getRandomWord();
 
+        LeetConverter leetConverter = new LeetConverter();
         if (random.nextBoolean())
         {
-            first = LeetConverter.convert(first);
-            last = LeetConverter.convert(last);
+            first = leetConverter.convert(first);
+            last = leetConverter.convert(last);
         }
 
         String name = first + (random.nextBoolean() ? "_": "") + last + (random.nextBoolean() ? "19" + random.nextInt(120): "");

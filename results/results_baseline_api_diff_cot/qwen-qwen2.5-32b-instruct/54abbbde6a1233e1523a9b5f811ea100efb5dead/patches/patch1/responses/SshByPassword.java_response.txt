@@ -1,7 +1,6 @@
 package com.jcabi.ssh;
 
 import com.jcabi.aspects.RetryOnFailure;
-import com.jcabi.log.Logger;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
@@ -44,7 +43,7 @@ public final class SshByPassword extends AbstractSshShell {
     @RetryOnFailure(
         attempts = 7,
         delay = 1,
-        unit = TimeUnit.MINUTES,
+        unit = java.util.concurrent.TimeUnit.MINUTES,
         verbose = false,
         types = IOException.class
     )

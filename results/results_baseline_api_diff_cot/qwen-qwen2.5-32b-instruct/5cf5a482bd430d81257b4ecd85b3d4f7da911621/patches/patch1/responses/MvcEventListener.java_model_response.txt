@@ -33,7 +33,7 @@ public class MvcEventListener {
     private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
         LOGGER.info(() -> "AfterProcessViewEvent:: " + event.getEngine());
     }
-
+    
     private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
         LOGGER.info(() -> "ControllerRedirectEvent:: " + event);
     }
@@ -45,4 +45,4 @@ public class MvcEventListener {
 }
 ```
 
-The fix involves updating the imports and method calls to align with the new API changes. Specifically, the package `javax.mvc.event` has been replaced with `jakarta.mvc.event`, and the method `getEngine()` has been added to the `BeforeProcessViewEvent` and `AfterProcessViewEvent` interfaces. The class `MvcEventListener` now compiles with the updated dependency.
+In this solution, the package `javax.mvc.event` has been replaced with `jakarta.mvc.event` to reflect the changes in the dependency. Additionally, the method `getEngine()` is now correctly referenced from the `jakarta.mvc.event.BeforeProcessViewEvent` and `jakarta.mvc.event.AfterProcessViewEvent` interfaces. This ensures that the client code is compatible with the updated dependency and should compile without errors.

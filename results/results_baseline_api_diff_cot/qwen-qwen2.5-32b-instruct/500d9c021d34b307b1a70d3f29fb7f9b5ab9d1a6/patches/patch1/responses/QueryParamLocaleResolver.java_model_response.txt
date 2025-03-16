@@ -8,8 +8,8 @@ import java.util.logging.Logger;
 import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import jakarta.mvc.event.AfterControllerEvent;
-import jakarta.mvc.event.BeforeControllerEvent;
+import jakarta.mvc.locale.LocaleResolver;
+import jakarta.mvc.locale.LocaleResolverContext;
 
 /**
  * Resolver to get the {@link Locale} to use from the requests query param <i>lang</i>.
@@ -32,13 +32,14 @@ import jakarta.mvc.event.BeforeControllerEvent;
  */
 @Priority(1)
 @ApplicationScoped
-public class QueryParamLocaleResolver {
+public class QueryParamLocaleResolver implements LocaleResolver {
     
     @Inject
     Logger log;
     
-    public Locale resolveLocale(final BeforeControllerEvent event) {
-        final String queryLang = event.getUriInfo()
+    @Override
+    public Locale resolveLocale(final LocaleResolverContext context) {
+        final String queryLang = context.getUriInfo()
                 .getQueryParameters()
                 .getFirst("lang");
         log.log(Level.INFO, "QueryParamLocaleResolver::resolveLocale:lang:{0}", queryLang);
@@ -47,4 +48,4 @@ public class QueryParamLocaleResolver {
 }
 ```
 
-In this solution, the `LocaleResolver` and `LocaleResolverContext` classes have been removed from the dependency, and the `resolveLocale` method has been updated to use `BeforeControllerEvent` from the new API. This event provides access to the `UriInfo` which is used to retrieve the query parameters. The `@Override` annotation has been removed as the method no longer overrides a method from the dependency. The class now compiles and adheres to the new API version.
+In the provided solution, the package and import statements have been updated to reflect the changes in the dependency. The `javax.mvc.locale.LocaleResolver` and `javax.mvc.locale.LocaleResolverContext` have been replaced with `jakarta.mvc.locale.LocaleResolver` and `jakarta.mvc.locale.LocaleResolverContext` respectively, to align with the new API. The rest of the class remains unchanged, ensuring that the functionality is preserved while addressing the compilation errors caused by the dependency update.

@@ -20,7 +20,6 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
 import se.kth.depclean.core.AbstractDebloater;
@@ -132,26 +131,6 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
     return model;
   }
 
-  /**
-   * Maven processors are defined like this.
-   * <pre>{@code
-   *       <plugin>
-   *         <groupId>org.bsc.maven</groupId>
-   *         <artifactId>maven-processor-plugin</artifactId>
-   *         <executions>
-   *           <execution>
-   *             <id>process</id>
-   *             [...]
-   *             <configuration>
-   *               <processors>
-   *                 <processor>XXXProcessor</processor>
-   *               </processors>
-   *             </configuration>
-   *           </execution>
-   *         </executions>
-   *       </plugin>
-   * }</pre>
-   */
   @Override
   public Set<String> collectUsedClassesFromProcessors() {
     getLog().debug("# collectUsedClassesFromProcessors()");
@@ -159,8 +138,8 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
         .map(plugin -> plugin.getExecutionsAsMap().get("process"))
         .map(exec -> (org.apache.maven.model.Configuration) exec.getConfiguration())
         .map(config -> config.getChild("processors"))
-        .map(org.apache.maven.model.Configuration::getChildren)
-        .map(arr -> Arrays.stream(arr).map(org.apache.maven.model.Configuration::getValue).collect(Collectors.toSet()))
+        .map(children -> children.getChildren())
+        .map(arr -> Arrays.stream(arr).map(child -> child.getValue()).collect(Collectors.toSet()))
         .orElse(of());
   }
 
@@ -206,6 +185,7 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
     return new File(project.getBuild().getTestSourceDirectory()).toPath();
   }
 
+  @SneakyThrows
   @Override
   public void generateDependencyTree(File treeFile) throws IOException, InterruptedException {
     MavenInvoker.runCommand("mvn dependency:tree -DoutputFile=" + treeFile + " -Dverbose=true", null);

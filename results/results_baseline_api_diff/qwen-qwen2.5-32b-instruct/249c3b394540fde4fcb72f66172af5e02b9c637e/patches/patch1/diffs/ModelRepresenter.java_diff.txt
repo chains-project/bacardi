@@ -1,8 +1,12 @@
-94d93
+16a17
+> import org.yaml.snakeyaml.introspector.BeanAccess;
+17a19
+> import org.yaml.snakeyaml.introspector.PropertyUtils;
+94d95
 < 
-107a107
+107a109
 > 
-214,219c214
+214,219c216,217
 <   /*
 <    * Change the default order. Important data goes first.
 <    */
@@ -11,12 +15,20 @@
 <           throws IntrospectionException {
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) {
-235,238c230,232
+>     try {
+231c229,232
+<       return super.getProperties(type);
+---
+>         return PropertyUtils.getProperties(type, BeanAccess.FIELD);
+>       }
+>     } catch (IntrospectionException e) {
+>       throw new RuntimeException(e);
+235,238c236,238
 <   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
 <           throws IntrospectionException {
 <       Set<Property> standard = super.getProperties(type);
 <       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
 ---
 >   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
->     Set<Property> standard = PropertyUtils.getProperties(type);
+>     Set<Property> standard = PropertyUtils.getProperties(type, BeanAccess.FIELD);
 >     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));

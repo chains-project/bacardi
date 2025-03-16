@@ -32,10 +32,7 @@ import org.jclouds.byon.domain.YamlNode;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.introspector.BeanAccess;
-import org.yaml.snakeyaml.introspector.Property;
-import org.yaml.snakeyaml.nodes.Node;
-import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.LoaderOptions;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
@@ -84,22 +81,8 @@ public class NodesFromYamlStream implements Function<ByteSource, LoadingCache<St
    @Override
    public LoadingCache<String, Node> apply(ByteSource source) {
 
-      Constructor constructor = new Constructor(Config.class) {
-         {
-            this.yamlConstructors.put(new Tag("tag:yaml.org,2002:org.jclouds.byon.functions.NodesFromYamlStream$Config"), this);
-            this.yamlConstructors.put(new Tag("tag:yaml.org,2002:org.jclouds.byon.domain.YamlNode"), this);
-         }
-
-         @Override
-         protected Object constructObject(Node node) {
-            if (node.getTag().getValue().equals("!Config")) {
-               return super.constructObject(node);
-            } else if (node.getTag().getValue().equals("!YamlNode")) {
-               return super.constructObject(node);
-            }
-            return super.constructObject(node);
-         }
-      };
+      LoaderOptions options = new LoaderOptions();
+      Constructor constructor = new Constructor(Config.class, options);
 
       TypeDescription nodeDesc = new TypeDescription(YamlNode.class);
       nodeDesc.putListPropertyType("tags", String.class);

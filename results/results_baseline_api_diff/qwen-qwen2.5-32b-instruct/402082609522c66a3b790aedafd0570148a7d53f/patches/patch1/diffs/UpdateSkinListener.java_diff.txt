@@ -21,10 +21,7 @@
 <         Optional<Player> receiver = Sponge.getServer().getPlayer(playerName);
 ---
 >         Optional<Player> receiver = Sponge.server().getPlayer(playerName);
-35,36c32,34
+35c32
 <             Runnable skinUpdater = new SkinApplier(plugin, (CommandSource) connection, receiver.get(), null, false);
-<             Task.builder().execute(skinUpdater).submit(plugin);
 ---
 >             Runnable skinUpdater = new SkinApplier(plugin, connection, receiver.get(), null, false);
->             TaskExecutorService executorService = Sponge.server().scheduler().executorService();
->             executorService.submit(skinUpdater);

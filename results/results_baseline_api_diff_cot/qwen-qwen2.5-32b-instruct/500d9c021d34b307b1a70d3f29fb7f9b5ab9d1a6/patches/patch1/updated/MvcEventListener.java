@@ -30,9 +30,9 @@ public class MvcEventListener {
     }
 
     private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
-        LOGGER.info(() -> "AfterProcessViewEvent:: " + event);
+        LOGGER.info(() -> "AfterProcessViewEvent:: " + event.getEngine());
     }
-
+    
     private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
         LOGGER.info(() -> "ControllerRedirectEvent:: " + event);
     }

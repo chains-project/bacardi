@@ -41,7 +41,7 @@ import org.sonarsource.sonarlint.core.commons.progress.ProgressMonitor;
 import org.sonarsource.sonarlint.core.plugin.commons.LoadedPlugins;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoadResult;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader;
-import org.sonarsource.sonarlint.core.plugin.commons.Configuration;
+import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader.Configuration;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInfo;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInstancesLoader;
 import org.sonarsource.sonarlint.core.rule.extractor.SonarLintRuleDefinition;
@@ -216,7 +216,8 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                                                             new DefaultClientIssue(
                                                                     i,
                                                                     allRulesDefinitionsByKey.get(
-                                                                            i.getRuleKey()))),
+                                                                            i.getRuleKey())),
+                                            logOutput),
                                     new ProgressMonitor(monitor))
                             .get();
             return analysisResults == null ? new AnalysisResults() : analysisResults;

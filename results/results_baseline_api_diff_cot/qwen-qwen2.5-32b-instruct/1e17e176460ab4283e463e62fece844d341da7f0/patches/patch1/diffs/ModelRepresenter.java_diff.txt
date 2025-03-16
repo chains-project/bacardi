@@ -1,16 +1,14 @@
-6c6
-<  * http://www.eclipse.org/legal/epl-v10.html
----
->  * http://maven.apache.org/xsd/maven-4.0.0.xsd
-22a23
+15a16
 > import org.yaml.snakeyaml.DumperOptions;
-37a39
+16a18
+> import org.yaml.snakeyaml.introspector.BeanAccess;
+37a40
 >     super(new DumperOptions());
-94d95
+94d96
 < 
-107a109
+107a110
 > 
-122,131d123
+122,131d124
 <           boolean isList = singularName != null;
 <           if (isList) { // check for eventual list construction
 <             for (int j = 0, grandChildCount = child.getChildCount(); j < grandChildCount; j++) {
@@ -21,9 +19,9 @@
 <           if (isList) {
 <             childValue = toList(child, singularName);
 <           } else {
-134d125
+134d126
 <         }
-144,165d134
+144,165d135
 < 
 <     private List<Object> toList(Xpp3Dom node, String childName) {
 <       List<Object> list = new ArrayList<>();
@@ -46,43 +44,7 @@
 < 
 <       return list;
 <     }
-190,202c159
-<           "ciManagement",
-< 
-<           "properties",
-<           "prerequisites",
-<           "modules",
-<           "dependencyManagement",
-<           "dependencies",
-<           "distributionManagement",
-<           //"repositories",
-<           //"pluginRepositories",
-<           "build",
-<           "profiles",
-<           "reporting"
----
->           "ciManagement"
-205c162,163
-<                   "name", "id", "email"));
----
->           "name", "id", "email"
->   ));
-207c165,166
-<                   "name", "id", "email"));
----
->           "name", "id", "email"
->   ));
-209c168,169
-<                   "groupId", "artifactId", "version", "type", "classifier", "scope"));
----
->           "groupId", "artifactId", "version", "type", "classifier", "scope"
->   ));
-211c171,172
-<                   "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
----
->           "groupId", "artifactId", "version", "inherited", "extensions", "configuration"
->   ));
-214,219c175
+214,219c184
 <   /*
 <    * Change the default order. Important data goes first.
 <    */
@@ -90,13 +52,8 @@
 <   protected Set<Property> getProperties(Class<? extends Object> type)
 <           throws IntrospectionException {
 ---
->   protected Set<Property> getProperties(Class<? extends Object> type) {
-235,238c191,193
-<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
-<           throws IntrospectionException {
+>   protected Set<Property> getProperties(Class<? extends Object> type) throws IntrospectionException {
+237c202
 <       Set<Property> standard = super.getProperties(type);
-<       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
 ---
->   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
->     Set<Property> standard = PropertyUtils.getProperties(type);
->     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));
+>     Set<Property> standard = PropertyUtils.getProperties(type, BeanAccess.FIELD);

@@ -1,6 +1,8 @@
 3a4
 > import org.flywaydb.core.api.configuration.ClassicConfiguration;
-108,113c109,115
+54a56
+> {
+108,113c110,116
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
@@ -15,14 +17,11 @@
 >                 flywayConfig.setClassLoader(NisAppConfig.class.getClassLoader());
 > 
 >                 return new Flyway(flywayConfig);
-117d118
+117d119
 <         @DependsOn("flyway")
-129,130c130,131
-<                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
-<                                 this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+334,335c336,337
+<                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
+<                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
 ---
->                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
->                                 this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
-197a199,200
->         // region harvester
-> 
+>                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
+>                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTINGING, () -> AlwaysVestedBalances::new);

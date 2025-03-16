@@ -1,12 +1,12 @@
-27a28
+27a28,29
 > import org.yaml.snakeyaml.LoaderOptions;
-114c115,118
+> import org.yaml.snakeyaml.TypeDescription;
+114c116,118
 <             return (YamlNode) new Yaml(new Constructor(YamlNode.class)).load(in);
 ---
->             // Use LoaderOptions instead of Class for the constructor
->             LoaderOptions loaderOptions = new LoaderOptions();
->             loaderOptions.setAllowDuplicateKeys(false);
->             return (YamlNode) new Yaml(new Constructor(loaderOptions)).load(in);
+>             TypeDescription yamlNodeDescription = new TypeDescription(YamlNode.class);
+>             Constructor constructor = new Constructor(yamlNodeDescription);
+>             return (YamlNode) new Yaml(constructor).load(in);
 126a131,166
 >    public static final Function<Node, YamlNode> nodeToYamlNode = new Function<Node, YamlNode>() {
 >       @Override

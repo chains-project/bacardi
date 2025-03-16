@@ -14,6 +14,7 @@ import java.util.Map;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.HttpHeaders;
 import lombok.EqualsAndHashCode;
+import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.IsEqual;
@@ -21,6 +22,9 @@ import org.hamcrest.core.StringContains;
 
 /**
  * REST response.
+ *
+ * <p>This response decorator is able to make basic assertions on
+ * HTTP response and manipulate with it afterwards.
  *
  * @since 0.8
  */
@@ -66,8 +70,7 @@ public final class RestResponse extends AbstractResponse {
                 "HTTP response status is not equal to %d:%n%s",
                 status, this
             ),
-            this.status(),
-            new IsEqual<>(status)
+            this.status(), new IsEqual<>(status)
         );
         return this;
     }
@@ -84,8 +87,7 @@ public final class RestResponse extends AbstractResponse {
                 "HTTP response status is not the one expected:%n%s",
                 this
             ),
-            this.status(),
-            matcher
+            this.status(), matcher
         );
         return this;
     }
@@ -102,8 +104,7 @@ public final class RestResponse extends AbstractResponse {
                 "HTTP response body content is not valid:%n%s",
                 this
             ),
-            this.body(),
-            matcher
+            this.body(), matcher
         );
         return this;
     }
@@ -130,8 +131,8 @@ public final class RestResponse extends AbstractResponse {
      * Verifies HTTP header against provided matcher, and throws
      * {@link AssertionError} in case of mismatch.
      *
-     * <p>The iterator for the matcher will always be a real object an never
-     * {@code NULL}, even if such a header is absent in the response. If the
+     * <p>The iterator for the matcher will always be a real object and never
+     * {@code null}, even if such a header is absent in the response. If the
      * header is absent the iterable will be empty.
      *
      * @param name Name of the header to match
@@ -151,8 +152,7 @@ public final class RestResponse extends AbstractResponse {
                 "HTTP header '%s' is not valid:%n%s",
                 name, this
             ),
-            values,
-            matcher
+            values, matcher
         );
         return this;
     }
@@ -202,7 +202,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            new IsEqual<>(Collections.singletonList("not-empty"))
+            new IsEqual<>(Collections.singletonList("http://example.com"))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -219,8 +219,7 @@ public final class RestResponse extends AbstractResponse {
         final Map<String, List<String>> headers = this.headers();
         MatcherAssert.assertThat(
             "cookies should be set in HTTP header",
-            headers.containsKey(HttpHeaders.SET_COOKIE),
-            new IsEqual<>(true)
+            headers.containsKey(HttpHeaders.SET_COOKIE)
         );
         final List<String> cookies = headers.get(HttpHeaders.SET_COOKIE);
         final Iterator<String> iterator = cookies.iterator();
@@ -241,7 +240,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            new IsEqual<>(Matchers.notNullValue())
+            new IsEqual<>(null)
         );
         assert cookie != null;
         return cookie;

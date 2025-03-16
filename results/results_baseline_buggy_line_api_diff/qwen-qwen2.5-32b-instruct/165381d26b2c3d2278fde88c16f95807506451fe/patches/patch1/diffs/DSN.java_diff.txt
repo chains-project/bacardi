@@ -8,14 +8,12 @@
 15c9
 < import com.github.javaparser.printer.PrettyPrinterConfiguration;
 ---
-> import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration; // Updated import
-41d34
-< import java.util.stream.Collectors;
-43,45d35
+> import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration;
+43,45d36
 < /**
 <  * @author Fabien Hermenier
 <  */
-57,312c47
+57,329c48
 <     ////@Test
 <     public void fuzzingSizing() throws Exception {
 <         TestScanner sc = newScanner();
@@ -272,13 +270,22 @@
 <         Path path = Paths.get(root, "sloc.csv");
 <         Files.write(path, sb.getBytes());
 <     }
+< 
+<     private static class FunctionVisitor extends VoidVisitorAdapter<Void> {
+< 
+<       private final List<Integer> l;
+< 
+<         FunctionVisitor(List<Integer> numbers) {
+<             this.l = numbers;
+<         }
+< 
+<         @Override
+<         public void visit(MethodDeclaration n, Void arg) {
+<             if (n.getNameAsString().equals("eval")) {
+<                 n.getRange().ifPresent(r -> l.add(r.end.line - r.begin.line));
+<             }
+<             super.visit(n, arg);
+<         }
+<     }
 ---
 >     // ... (rest of the methods remain unchanged)
-335c70
-<       private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
----
->         private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false); // Updated configuration
-344c79
-<             if (n.toString(noComments).contains("solve")) {
----
->             if (n.toString(noComments).contains("solve")) { // Use the updated configuration

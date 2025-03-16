@@ -1,0 +1,182 @@
+1,15d0
+< /*
+<  * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+18,26c3,10
+< import com.hazelcast.core.Cluster;
+< import com.hazelcast.core.EntryListener;
+< import com.hazelcast.core.LifecycleEvent;
+< import com.hazelcast.core.LifecycleEvent.LifecycleState;
+< import com.hazelcast.core.LifecycleListener;
+< import com.hazelcast.core.Member;
+< import com.hazelcast.core.MemberAttributeEvent;
+< import com.hazelcast.core.MembershipEvent;
+< import com.hazelcast.core.MembershipListener;
+---
+> import com.hazelcast.cluster.Cluster;
+> import com.hazelcast.cluster.EntryListener;
+> import com.hazelcast.cluster.LifecycleEvent;
+> import com.hazelcast.cluster.LifecycleEvent.LifecycleState;
+> import com.hazelcast.cluster.Member;
+> import com.hazelcast.cluster.MemberAttributeEvent;
+> import com.hazelcast.cluster.MembershipEvent;
+> import com.hazelcast.cluster.MembershipListener;
+37c21
+< import org.slf4j.LoggerFactory;
+---
+> import org.slf4j.LoggerFactoryFactory;
+52c36
+< public class ClusterListener implements MembershipListener, LifecycleListener {
+---
+> public class ClusterListener implements MembershipListener, com.hazelcast.cluster.LifecycleListener {
+53a38
+> {
+76a62
+>     {
+95c81,110
+<     @SuppressWarnings("unchecked")
+---
+>     @SuppressWarnings("WeakerAccess")
+>     public List<ClusterNodeInfo> getClusterNodesInfo() {
+>         return new ArrayList<>(clusterNodesInfo.values());
+>     }
+> 
+>     @Override
+>     public void memberAdded(final MembershipEvent event) {
+>         logger.info("Received a Hazelcast memberAdded event {}", event);
+> 
+>         isSenior = isSeniorClusterMember();
+>         final NodeID nodeID = ClusteredCacheFactory.nodeID(event.getMember());
+> 
+>         if (event.getMember().localMember()) { // We left and re-joined the cluster
+>             joinCluster();
+> 
+>         } else {
+>             if (!seniorClusterMember && isSeniorClusterMember()) {
+>                 seniorClusterMember = true;
+>                 ClusterManager.fireMarkedAsSeniorClusterMember();
+>             }
+> 
+>             // Remove traces of directed presences sent from local entities to handlers that no longer exist.
+>             // At this point c2s sessions are gone from the routing table so we can identify expired sessions
+>             XMPPServer.getInstance().getPresenceUpdateHandler().removedExpiredPresences();
+>         }
+>         // Delete nodeID instance (release from memory)
+>         NodeID.deleteInstance(nodeID.toByteArray());
+>         clusterNodesInfo.remove(nodeID);
+>     }
+> 
+122c137
+<             new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), seniorClusterMember});
+---
+>             new Object[]{ClusteredCacheFactory.nodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), seniorClusterMember});
+150c165
+<             new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), wasSeniorClusterMember});
+---
+>             new Object[]{ClusteredCacheFactory.nodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), wasSeniorClusterMember});
+154,202d168
+<     @Override
+<     public void memberAdded(final MembershipEvent event) {
+<         logger.info("Received a Hazelcast memberAdded event {}", event);
+< 
+<         final boolean wasSenior = isSenior;
+<         isSenior = isSeniorClusterMember();
+<         // local member only
+<         final NodeID nodeID = ClusteredCacheFactory.getNodeID(event.getMember());
+<         if (event.getMember().localMember()) { // We left and re-joined the cluster
+<             joinCluster();
+< 
+<         } else {
+<             if (wasSenior && !isSenior) {
+<                 logger.warn("Recovering from split-brain; firing leftCluster()/joinedCluster() events");
+<                 ClusteredCacheFactory.fireLeftClusterAndWaitToComplete(Duration.ofSeconds(30));
+<                 logger.debug("Firing joinedCluster() event");
+<                 ClusterManager.fireJoinedCluster(false);
+< 
+<                 try {
+<                     logger.debug("Postponing notification of other nodes for 30 seconds. This allows all local leave/join processing to be finished and local cache backups to be stabilized before receiving events from other nodes.");
+<                     Thread.sleep(30000L);
+<                 } catch (InterruptedException e) {
+<                     logger.warn("30 Second wait was interrupted.", e);
+<                 }
+< 
+<                 // The following line was intended to wait until all local handling finishes before informing other
+<                 // nodes. However that proved to be insufficient. Hence the 30 second default wait in the lines above.
+<                 // TODO Instead of the 30 second wait, we should look (and then wait) for some trigger or event that signifies that local handling has completed and caches have stabilized.
+<                 waitForClusterCacheToBeInstalled();
+< 
+<                 // Let the other nodes know that we joined the cluster
+<                 logger.debug("Done joining the cluster in split brain recovery. Now proceed informing other nodes that we joined the cluster.");
+<                 CacheFactory.doClusterTask(new NewClusterMemberJoinedTask());
+<             }
+<         }
+<         clusterNodesInfo.put(nodeID,
+<                 new HazelcastClusterNodeInfo(event.getMember(), cluster.getClusterTime()));
+<     }
+< 
+<     /**
+<      * Blocks the current thread until the cluster cache is guaranteed to support clustering. This is especially useful
+<      * for executing cluster tasks immediately after joining. If this wait is not performed, the cache factory may still
+<      * be using the 'default' strategy instead of the 'hazelcast' strategy, which leads to cluster tasks being silently
+<      * discarded.
+<      *
+<      * The method will keep trying this for 10 minutes. After that the thread is released regardless of the result.
+<      *
+<      * @return Boolean indicating whether the clustered cache was actually observed to be installed.
+<      */
+219c185
+<                 logger.warn("Cache factory was not swapped to '{}', but still remains '{}' after a 10 minute wait. Cluster join is not guaranteed to have completed.", ClusteredCacheFactory.PLUGIN_NAME, CacheFactory.getPluginName());
+---
+>                 logger.warn("Cache factory was not swapped to '{}', but still remains '{}' after a 10 minute wait.", ClusteredCacheFactory.PLUGIN_NAME, CachFactory.getPluginName());
+232c198
+<         final NodeID nodeID = ClusteredCacheFactory.getNodeID(event.getMember());
+---
+>         final NodeID nodeID = ClusteredCacheFactory.nodeID(event.getMember());
+238,240d203
+<         } else {
+<             // Trigger event that a node left the cluster
+<             ClusterManager.fireLeftCluster(nodeID.toByteArray());
+241a205
+>         } else {
+256,258c220,226
+<     @SuppressWarnings("WeakerAccess")
+<     public List<ClusterNodeInfo> getClusterNodesInfo() {
+<         return new ArrayList<>(clusterNodesInfo.values());
+---
+>     @Override
+>     public void memberAttributeChanged(final MemberAttributeEvent event) {
+>         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
+>         isSenior = isSeniorClusterMember();
+>         final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.nodeID(event.getMember()));
+>         clusterNodesInfo.put(ClusteredCacheFactory.nodeID(event.getMember()),
+>                 new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
+265c233
+<         } else if (event.getState().equals(LifecycleState.STARTED)) {
+---
+>         } else if (event.state().equals(LifecycleState.STARTED)) {
+269,281d236
+< 
+<     @Override
+<     public void memberAttributeChanged(final MemberAttributeEvent event) {
+<         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
+<         isSenior = isSeniorClusterMember();
+<         final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
+<         clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(event.getMember()),
+<                 new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
+<     }
+< 
+<     boolean isClusterMember() {
+<         return clusterMember;
+<     }

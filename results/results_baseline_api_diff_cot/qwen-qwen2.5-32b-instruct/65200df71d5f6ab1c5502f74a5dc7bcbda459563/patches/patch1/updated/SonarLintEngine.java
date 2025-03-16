@@ -41,7 +41,6 @@ import org.sonarsource.sonarlint.core.plugin.commons.LoadedPlugins;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoadResult;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInfo;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInstancesLoader;
-import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginRequirementsCheckResult;
 import org.sonarsource.sonarlint.core.rule.extractor.SonarLintRuleDefinition;
 import sorald.FileUtils;
 import sorald.util.ConfigLoader;
@@ -140,7 +139,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                 instancesLoader.instantiatePluginClasses(allPlugins);
 
         return new LoadedPluginsThatDoesNotCloseLoader(
-                (pluginInstancesByKeys, new PluginInstancesLoader());
+                (pluginInstancesByKeys, pluginInstancesLoader);
     }
 
     private static Collection<PluginInfo> getAllPlugins(
@@ -156,7 +155,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
         return AnalysisEngineConfiguration.builder()
-                .setLanguages(List.of(Language.JAVA))
+                .addEnabledLanguages(List.of(Language.JAVA))
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())
@@ -216,6 +215,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                                                                     i,
                                                                     allRulesDefinitionsByKey.get(
                                                                             i.getRuleKey()))),
+                                            logOutput),
                                     new ProgressMonitor(monitor))
                             .get();
             return analysisResults == null ? new AnalysisResults() : analysisResults;

@@ -1,24 +1,23 @@
 31a32
 > import org.cactoos.Func;
-33c34,35
+33c34
 < import org.cactoos.func.IoCheckedFunc;
 ---
 > import org.cactoos.FuncAsScalar;
-> import org.cactoos.FuncAsFunc;
-37,38d38
+37,38d37
 < import org.cactoos.scalar.IoCheckedScalar;
 < import org.cactoos.scalar.SolidScalar;
-40d39
+40d38
 < import org.cactoos.text.JoinedText;
-53c52
+53c51
 <     private final IoCheckedScalar<Path> path;
 ---
 >     private final Scalar<Path> path;
-58c57
+58c56
 <     private final IoCheckedFunc<Path, Boolean> filter;
 ---
 >     private final Func<Path, Boolean> filter;
-103,107c102,103
+103,107c101,102
 <         this.path = new IoCheckedScalar<>(
 <             new SolidScalar<>(pth)
 <         );
@@ -26,15 +25,17 @@
 <             (file) -> file.toFile().isFile()
 ---
 >         this.path = pth;
->         this.filter = new FuncAsFunc<>(file -> file.toFile().isFile()
-110,111c106
+>         this.filter = (file) -> file.toFile().isFile()
+110,111c105
 <                 .matches(file)
 <         );
 ---
->             .matches(file));
-119,120c114,115
+>             .matches(file);
+119,123c113
 <             new JoinedText(
 <                 ".",
+<                 Long.toHexString(this.random.nextLong()),
+<                 this.ext
+<             ).asString()
 ---
->             new FormattedText(
->                 "%s.%s",
+>             String.format("%s.%s", Long.toHexString(this.random.nextLong()), this.ext)

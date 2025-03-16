@@ -1,8 +1,9 @@
 package com.google.cloud.resourcemanager;
 
 import com.google.api.services.cloudresourcemanager.v3.model.Binding;
-import com.google.api.services.cloudresourcemanager.v3.model.Policy;
+import com.google.api.services.cloudresourcemanager.v3.model.Policy as V3Policy;
 import com.google.cloud.Identity;
+import com.google.cloud.Policy;
 import com.google.cloud.Policy.Marshaller;
 import com.google.cloud.Role;
 import com.google.common.base.Function;
@@ -24,19 +25,8 @@ final class PolicyMarshaller
 
   private PolicyMarshaller() {}
 
-  private static class Builder extends Policy.Builder {
-
-    private Builder(Map<Role, Set<Identity>> bindings, String etag, Integer version) {
-      setBindings(bindings);
-      setEtag(etag);
-      if (version != null) {
-        setVersion(version);
-      }
-    }
-  }
-
   @Override
-  protected Policy fromPb(com.google.api.services.cloudresourcemanager.v3.model.Policy policyPb) {
+  protected Policy fromPb(V3Policy policyPb) {
     Map<Role, Set<Identity>> bindings = new HashMap<>();
     if (policyPb.getBindings() != null) {
       for (Binding bindingPb : policyPb.getBindings()) {
@@ -44,7 +34,7 @@ final class PolicyMarshaller
             Role.of(bindingPb.getRole()),
             ImmutableSet.copyOf(
                 Lists.transform(
-                    bindingPb.getMembers(),
+                    new ArrayList<>(bindingPb.getMembers()),
                     new Function<String, Identity>() {
                       @Override
                       public Identity apply(String s) {
@@ -57,9 +47,8 @@ final class PolicyMarshaller
   }
 
   @Override
-  protected com.google.api.services.cloudresourcemanager.v3.model.Policy toPb(Policy policy) {
-    com.google.api.services.cloudresourcemanager.v3.model.Policy policyPb =
-        new com.google.api.services.cloudresourcemanager.v3.model.Policy();
+  protected V3Policy toPb(Policy policy) {
+    V3Policy policyPb = new V3Policy();
     List<Binding> bindingPbList = new LinkedList<>();
     for (Map.Entry<Role, Set<Identity>> binding : policy.getBindings().entrySet()) {
       Binding bindingPb = new Binding();
@@ -72,7 +61,7 @@ final class PolicyMarshaller
                 public String apply(Identity identity) {
                   return IDENTITY_STR_VALUE_FUNCTION.apply(identity);
                 }
-              });
+              }));
       bindingPbList.add(bindingPb);
     }
     policyPb.setBindings(bindingPbList);

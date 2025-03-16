@@ -12,84 +12,14 @@
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 <                 return flyway;
 ---
->                 final ClassicConfiguration config = new ClassicConfiguration();
->                 config.setDataSource(this.dataSource());
->                 config.setClassLoader(NisAppConfig.class.getClassLoader());
->                 config.setLocations(prop.getProperty("flyway.locations").split(","));
->                 config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 final ClassicConfiguration configuration = new ClassicConfiguration();
+>                 configuration.setDataSource(this.dataSource());
+>                 configuration.setLocations(prop.getProperty("flyway.locations").split(","));
+>                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
 > 
->                 return new Flyway(config);
-335c337
-<                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
+>                 return new Flyway(configuration);
+334c336
+<                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
 ---
->                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, AlwaysVestedBalances::new);
-344,348c346,347
-<         public BlockAnalyzer blockAnalyzer() {
-<                 final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
-<                 final ForkConfiguration forkConfiguration = this.nisConfiguration().getForkConfiguration();
-<                 return new BlockAnalyzer(this.blockDao, this.blockChainUpdater(), this.blockChainLastBlockLayer, this.nisMapperFactory(),
-<                                 estimatedBlocksPerYear, forkConfiguration);
----
->         public NisConfiguration nisConfiguration() {
->                 return new NisConfiguration();
-352,356c351,360
-<         public HttpConnectorPool httpConnectorPool() {
-<                 final CommunicationMode communicationMode = this.nisConfiguration().useBinaryTransport()
-<                                 ? CommunicationMode.BINARY
-<                                 : CommunicationMode.JSON;
-<                 return new HttpConnectorPool(communicationMode, this.outgoingAudits());
----
->         public TimeProvider timeProvider() {
->                 return CommonStarter.TIME_PROVIDER;
->         }
-> 
->         @Bean
->         public TrustProvider trustProvider() {
->                 final int LOW_COMMUNICATION_NODE_WEIGHT = 30;
->                 final int TRUST_CACHE_TIME = 15 * 60;
->                 return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME,
->                                 this.timeProvider());
-363,368c367,371
-<                 final PeerNetworkScheduler scheduler = new PeerNetworkScheduler(this.timeProvider(), harvestingTask);
-< 
-<                 final CountingBlockSynchronizer synchronizer = new CountingBlockSynchronizer(this.blockChain());
-< 
-<                 return new NisPeerNetworkHost(this.nisCache(), synchronizer, scheduler, this.chainServices(), this.nodeCompatibilityChecker(),
-<                                 this.nisConfiguration(), this.httpConnectorPool(), this.trustProvider(), this.incomingAudits(), this.outgoingAudits());
----
->                 final BlockGenerator generator = new BlockGenerator(this.nisCache(), harvestingTask.getTransactionsProvider(), this.blockDao,
->                                 new BlockScorer(this.accountStateCache()), this.blockValidatorFactory().create(this.nisCache()));
->                 return new NisPeerNetworkHost(this.nisCache(), harvestingTask.getSynchronizer(), harvestingTask.getScheduler(), this.chainServices(),
->                                 this.nodeCompatibilityChecker(), this.nisConfiguration(), this.httpConnectorPool(), this.trustProvider(), this.incomingAudits(),
->                                 this.outgoingAudits());
-377,391c380,384
-<         public NisConfiguration nisConfiguration() {
-<                 return new NisConfiguration();
-<         }
-< 
-<         @Bean
-<         public TimeProvider timeProvider() {
-<                 return CommonStarter.TIME_PROVIDER;
-<         }
-< 
-<         @Bean
-<         public TrustProvider trustProvider() {
-<                 final int LOW_COMMUNICATION_NODE_WEIGHT = 30;
-<                 final int TRUST_CACHE_TIME = 15 * 60;
-<                 return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME,
-<                                 this.timeProvider());
----
->         public BlockAnalyzer blockAnalyzer() {
->                 final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
->                 final ForkConfiguration forkConfiguration = this.nisConfiguration().getForkConfiguration();
->                 return new BlockAnalyzer(this.blockDao, this.blockChainUpdater(), this.blockChainLastBlockLayer, this.nisMapperFactory(),
->                                 estimatedBlocksPerYear, forkConfiguration);
-395,396c388,392
-<         public NemConfigurationPolicy configurationPolicy() {
-<                 return new NisConfigurationPolicy();
----
->         public HttpConnectorPool httpConnectorPool() {
->                 final CommunicationMode communicationMode = this.nisConfiguration().useBinaryTransport()
->                                 ? CommunicationMode.BINARY
->                                 : CommunicationMode.JSON;
->                 return new HttpConnectorPool(communicationMode, this.outgoingAudits());
+>                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);

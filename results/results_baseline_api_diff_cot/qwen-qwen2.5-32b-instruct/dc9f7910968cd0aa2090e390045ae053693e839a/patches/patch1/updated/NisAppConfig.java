@@ -103,17 +103,12 @@ public class NisAppConfig {
 
 	@Bean
 	public Flyway flyway() throws IOException {
-		final Properties prop = new Properties();
-		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
-
-		final ClassicConfiguration flywayConfig = new ClassicConfiguration();
-		flywayConfig.setDataSource(this.dataSource());
-		flywayConfig.setLocations(prop.getProperty("flyway.locations").split(","));
-		flywayConfig.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		flywayConfig.setClassLoader(NisAppConfig.class.getClassLoader());
-
-		final Flyway flyway = new Flyway(flywayConfig);
-		return flyway;
+		final ClassicConfiguration configuration = new ClassicConfiguration();
+		configuration.setDataSource(this.dataSource());
+		configuration.setLocations(new Location[]{new Location(prop.getProperty("flyway.locations"))});
+		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+		return new Flyway(configuration);
 	}
 
 	@Bean
@@ -129,8 +124,8 @@ public class NisAppConfig {
 
 	@Bean
 	public BlockChainServices blockChainServices() {
-		return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
-				this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+		return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
+				this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
 	}
 
 	@Bean
@@ -196,6 +191,8 @@ public class NisAppConfig {
 	}
 
 	// endregion
+
+	// region other beans
 
 	@Bean
 	public Harvester harvester() {
@@ -329,8 +326,8 @@ public class NisAppConfig {
 	private Supplier<WeightedBalances> weighedBalancesSupplier() {
 		final Map<BlockChainFeature, Supplier<Supplier<WeightedBalances>>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<WeightedBalances>>>() {
 			{
-				this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
-				this.put(BlockChainFeature.WB_IMMEDIATE_VESTINGING, AlwaysVestedBalances::new);
+				this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
+				this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, AlwaysVestedBalances::new);
 			}
 		};
 
@@ -389,7 +386,7 @@ public class NisAppConfig {
 	}
 
 	@Bean
-	public NemConfigurationPolicy configurationPolicy() {
+	public NisConfigurationPolicy configurationPolicy() {
 		return new NisConfigurationPolicy();
 	}
 

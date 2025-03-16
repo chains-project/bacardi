@@ -14,7 +14,9 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.yaml.snakeyaml.error.YAMLException;
+import org.yaml.snakeyaml.introspector.BeanAccess;
 import org.yaml.snakeyaml.introspector.Property;
+import org.yaml.snakeyaml.introspector.PropertyUtils;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
@@ -45,7 +47,7 @@ class ModelRepresenter extends Representer {
   }
 
   protected NodeTuple representJavaBeanProperty(Object javaBean, Property property,
-                                                 Object propertyValue, Tag customTag) {
+                                                Object propertyValue, Tag customTag) {
     if (property != null && property.getName().equals("pomFile")) {
       // "pomFile" is not a part of POM http://maven.apache.org/xsd/maven-4.0.0.xsd
       return null;
@@ -64,7 +66,7 @@ class ModelRepresenter extends Representer {
       //skip optional if it is false
       if (skipBoolean(property, "optional", propertyValue, false)) return null;
       //skip type if it is jar
-      if (skipBoolean(property, "type", propertyValue, "jar")) return null;
+      if (skipString(property, "type", propertyValue, "jar")) return null;
     }
     if (javaBean instanceof Plugin) {
       //skip extensions if it is false
@@ -179,28 +181,23 @@ class ModelRepresenter extends Representer {
   //}
 
   protected Set<Property> getProperties(Class<? extends Object> type) {
-    try {
-      if (type.isAssignableFrom(Model.class)) {
-        return sortTypeWithOrder(type, ORDER_MODEL);
-      } else if (type.isAssignableFrom(Developer.class)) {
-        return sortTypeWithOrder(type, ORDER_DEVELOPER);
-      } else if (type.isAssignableFrom(Contributor.class)) {
-        return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-      } else if (type.isAssignableFrom(Dependency.class)) {
-        return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-      } else if (type.isAssignableFrom(Plugin.class)) {
-        return sortTypeWithOrder(type, ORDER_PLUGIN);
-      } else {
-        return super.getProperties(type);
-      }
-    } catch (IntrospectionException e) {
-      throw new RuntimeException(e);
+    if (type.isAssignableFrom(Model.class)) {
+      return sortTypeWithOrder(type, ORDER_MODEL);
+    } else if (type.isAssignableFrom(Developer.class)) {
+      return sortTypeWithOrder(type, ORDER_DEVELOPER);
+    } else if (type.isAssignableFrom(Contributor.class)) {
+      return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
+    } else if (type.isAssignableFrom(Dependency.class)) {
+      return sortTypeWithOrder(type, ORDER_DEPENDENCY);
+    } else if (type.isAssignableFrom(Plugin.class)) {
+      return sortTypeWithOrder(type, ORDER_PLUGIN);
+    } else {
+      return PropertyUtils.getProperties(type, BeanAccess.FIELD);
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
-          throws IntrospectionException {
-    Set<Property> standard = super.getProperties(type);
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+    Set<Property> standard = PropertyUtils.getProperties(type, BeanAccess.FIELD);
     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));
     sorted.addAll(standard);
     return sorted;
@@ -231,7 +228,7 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0; // compare further
+      return 0;// compare further
     }
   }
 }

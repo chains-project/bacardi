@@ -24,52 +24,44 @@
 138c123
 <       return obj instanceof ResourceId && Objects.equals(toPb(), ((ResourceId) obj).toPb());
 ---
->       return obj instanceof ResourceId && Objects.equals(toPb(), ((ResourceIdId) obj).toPb());
-146,148c131,133
+>       return obj instanceof ResourceId && Objects.equals(toPb(), ((ResourceIdId) obj).toPb()));
+146,150c131,135
 <     com.google.api.services.cloudresourcemanager.model.ResourceId toPb() {
 <       com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb =
 <           new com.google.api.services.cloudresourcemanager.model.ResourceId();
+<       resourceIdPb.setId(id);
+<       resourceIdPb.setType(type.toLowerCase());
 ---
 >     com.google.api.services.cloudresourcemanager.v3.model.ResourceId toPb() {
 >       com.google.api.services.cloudresourcemanager.v3.model.ResourceId resourceIdPb =
 >           new com.google.api.services.cloudresourcemanager.v3.model.ResourceId();
+>       resourceIdP3.setId(id);
+>       resourceIdP3.type(type.toLowerCase());
 155c140
 <         com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb) {
 ---
->         (com.google.api.services.cloudresourcemanager.v3.model.ResourceId resourceIdPb) {
-167c152
-<      * uppercase letters, numbers, hyphen, single-quote, double-quote, space, and exclamation point.
----
->      * uppercase letters, digits, hyphen, single-quote, double-quote, space, and exclamation point.
-175,177c160,162
-<      * <p>The ID must be 6 to 30 lowercase letters, digits, or hyphens. It must start with a letter.
-<      * Trailing hyphens are prohibited. This field cannot be changed after the server creates the
-<      * project.
----
->      * <p>The ID must be 6 to 30 lowercase letters, digits, or hyphens. It must start with a
->      * letter. Trailing hyphens are prohibited. This field cannot be changed after the server creates
->      * the project.
-211c196
+>         com.google.api.services.cloudresourcemanager.v3.model.ResourceId resourceIdPb) {
+162a148
+>   {
+211c197
 <     public abstract Builder setParent(ResourceId parent);
 ---
 >     public abstract Builder setParent(String parent);
-224c209
+217a204
+>   {
+224c211
 <     private ResourceId parent;
 ---
 >     private String parent;
-272c257
-<       this.labels = Maps.newHashMap(checkNotNull(labels));
----
->       this.labels = Maps.newHashMap(checkNotNull(labels);
-295c280
+295c282
 <     public Builder setParent(ResourceId parent) {
 ---
 >     public Builder setParent(String parent) {
-358c343
+358c345
 <   ResourceId getParent() {
 ---
 >   String getParent() {
-392,394c377,379
+392,394c379,381
 <   com.google.api.services.cloudresourcemanager.model.Project toPb() {
 <     com.google.api.services.cloudresourcemanager.model.Project projectPb =
 <         new com.google.api.services.cloudresourcemanager.model.Project();
@@ -77,23 +69,19 @@
 >   com.google.api.services.cloudresourcemanager.v3.model.Project toPb() {
 >     com.google.api.services.cloudresourcemanager.v3.model.Project projectPb =
 >         new com.google.api.services.cloudresourcemanager.v3.model.Project();
-404c389
-<           DateTimeFormatter.ISO_DATE_TIME
+406c393
+<               .format(Instant.ofEpochMilli(createTimeMillis)));
 ---
->           (DateTimeFormatter.ISO_DATE_TIME
-409c394
+>               .format(Instant.ofEpochMilli(createTimeMillis));
+409c396
 <       projectPb.setParent(parent.toPb());
 ---
 >       projectPb.setParent(parent);
-414c399
+414c401
 <   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.model.Project projectPb) {
 ---
 >   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {
-428c413
-<           DATE_TIME_FORMATTER.parse(projectPb.getCreateTime(), Instant.FROM).toEpochMilli());
----
->           (DATE_TIME_FORMATTER.parse(projectPb.getCreateTime(), Instant.FROM).toEpochMilli());
-431c416
+431c418
 <       builder.setParent(ResourceId.fromPb(projectPb.getParent()));
 ---
 >       builder.setParent(projectPb.getParent());

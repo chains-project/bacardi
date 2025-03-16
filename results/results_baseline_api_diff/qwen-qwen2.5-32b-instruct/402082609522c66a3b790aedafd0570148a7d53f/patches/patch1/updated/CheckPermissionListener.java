@@ -8,29 +8,25 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import com.google.inject.Inject;
 
 import java.util.UUID;
 
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.network.channel.packet.PacketDispatcher;
-import org.spongepowered.api.network.channel.packet.Packet;
-import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
-import org.spongepowered.api.network.EngineConnection;
-import org.spongepowered.api.network.channel.ChannelBuf;
 import org.spongepowered.api.network.channel.packet.RequestPacket;
-import org.spongepowered.api.network.channel.packet.TransactionalPacketDispatcher;
+import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
+import org.spongepowered.api.network.channel.ChannelBuf;
+import org.spongepowered.api.network.EngineConnection;
 
 public class CheckPermissionListener {
 
     private final ChangeSkinSponge plugin;
     private final RawPlayDataChannel permissionsResultChannel;
 
-    @Inject
-    CheckPermissionListener(ChangeSkinSponge plugin, RawPlayDataChannel channel) {
+    public CheckPermissionListener(ChangeSkinSponge plugin, RawPlayDataChannel permissionsResultChannel) {
         this.plugin = plugin;
-        this.permissionsResultChannel = channel;
+        this.permissionsResultChannel = permissionsResultChannel;
     }
 
     public void handlePayload(ChannelBuf data, EngineConnection connection, Type side) {
@@ -76,8 +72,6 @@ public class CheckPermissionListener {
     private void sendResultMessage(Player receiver, PermResultMessage resultMessage) {
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
         resultMessage.writeTo(dataOutput);
-        Packet packet = new Packet(dataOutput.toByteArray());
-        PacketDispatcher dispatcher = new PacketDispatcher();
-        dispatcher.sendTo(receiver, packet);
+        permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
     }
 }

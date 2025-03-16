@@ -4,7 +4,7 @@
 <             return (YamlNode) new Yaml(new Constructor(YamlNode.class)).load(in);
 ---
 >             LoaderOptions options = new LoaderOptions();
->             options.setAllowDuplicateKeys(true);
+>             options.setAllowDuplicateKeys(false);
 >             return (YamlNode) new Yaml(new Constructor(YamlNode.class, options)).load(in);
 172d174
 <       }

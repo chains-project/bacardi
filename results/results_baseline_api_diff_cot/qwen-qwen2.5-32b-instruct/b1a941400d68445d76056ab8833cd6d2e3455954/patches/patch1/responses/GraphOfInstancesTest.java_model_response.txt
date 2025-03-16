@@ -132,7 +132,7 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
         assertThat(aggregator.sum, is(3.0));
         assertThat(handlerC.value, is(0));
         onEvent("C");
-        assertThat(aggregator.sum, is(3.0));
+        assertThat(aggregator.sum, is(3.0);
         assertThat(handlerC.value, is(1));
 
         getField("instanceHolder");
@@ -242,4 +242,4 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
 }
 ```
 
-The fix involves updating the instantiation of the `Constructor` class to use the `LoaderOptions` parameter, which is now required by the updated API. This change is applied in the `driveFromYaml` and `driveAsListFromYaml` methods. The `LoaderOptions` instance is created and passed to the `Constructor` constructor to resolve the compilation errors.
+The fix involves updating the `Constructor` instantiation to use the `LoaderOptions` parameter, which is now required by the updated YAML dependency. This change is applied in the `driveFromYaml` and `driveAsListFromYaml` methods. The `LoaderOptions` is initialized with default settings, and the `Constructor` is then created with this `LoaderOptions` instance. This ensures compatibility with the new version of the YAML dependency while maintaining the original functionality of the client code.

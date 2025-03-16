@@ -1,9 +1,10 @@
 ```java
 package com.google.cloud.resourcemanager;
 
-import com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy;
-import com.google.api.services.cloudresourcemanager.v3.model.Policy;
-import com.google.api.services.cloudresourcemanager.v3.model.RestoreDefault;
+import com.google.cloud.resourcemanager.v3.Policy;
+import com.google.cloud.resourcemanager.v3.BooleanPolicy;
+import com.google.cloud.resourcemanager.v3.ListPolicy;
+import com.google.cloud.resourcemanager.v3.Policy;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.List;
@@ -36,15 +37,16 @@ public class OrgPolicyInfo {
         }
       };
 
-  private BoolPolicy boolPolicy;
+  private BooleanPolicy boolPolicy;
   private String constraint;
   private String etag;
   private Policies policies;
-  private RestoreDefault restoreDefault;
   private String updateTime;
   private Integer version;
 
-  /** Used For boolean Constraints, whether to enforce the Constraint or not. */
+  /**
+   * Used For boolean Constraints, whether to enforce the Constraint or not.
+   */
   static class BoolPolicy {
 
     private final Boolean enforce;
@@ -94,11 +96,7 @@ public class OrgPolicyInfo {
    * <p>ListPolicy can define specific values and subtrees of Cloud Resource Manager resource
    * hierarchy (Organizations, Folders, Projects) that are allowed or denied by setting the
    * allowedValues and deniedValues fields. This is achieved by using the under: and optional is:
-   * prefixes. Values prefixed with "is:" are treated the same as values with no prefix. Ancestry
-   * subtrees must be in one of the following formats: - "projects/", e.g. "projects/tokyo-rain-123" - "folders/", e.g. "folders/1234" - "organizations/", e.g. "organizations/1234" The
-   * supportsUnder field of the associated Constraint defines whether ancestry prefixes can be used. You
-   * can set allowedValues and deniedValues in the same Policy if allValues is ALL_VALUES_UNSPECIFIED. ALLOW or DENY are used to allow or deny all values. If allValues is set to either
-   * ALLOW or DENY, allowedValues and deniedValues must be unset.
+   * prefixes. Values prefixed with "is:" are treated the same as values with no prefix.
    */
   static class Policies {
 
@@ -109,11 +107,11 @@ public class OrgPolicyInfo {
     private final String suggestedValue;
 
     Policies(
-        (String allValues,
-         List<String> allowedValues,
-         List<String> deniedValues,
-         Boolean inheritFromParent,
-         String suggestedValue) {
+        String allValues,
+        List<String> allowedValues,
+        List<String> deniedValues,
+        Boolean inheritFromParent,
+        String suggestedValue) {
       this.allValues = allValues;
       this.allowedValues = allowedValues;
       this.deniedValues = deniedValues;
@@ -176,11 +174,11 @@ public class OrgPolicyInfo {
     @Override
     public int hashCode() {
       return Objects.hash(
-          (allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
+          allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
     }
 
-    Policy toProtobuf() {
-      return new Policy()
+    ListPolicy toProtobuf() {
+      return new ListPolicy()
           .setAllValues(allValues)
           .setAllowedValues(allowedValues)
           .setDeniedValues(deniedValues)
@@ -188,23 +186,22 @@ public class OrgPolicyInfo {
           .setSuggestedValue(suggestedValue);
     }
 
-    static Policies fromProtobuf(Policy listPolicy) {
+    static Policies fromProtobuf(ListPolicy listPolicy) {
       return new Policies(
-          (listPolicy.getAllValues(),
-           listPolicy.getAllowedValues(),
-           listPolicy.getDeniedValues(),
-           listPolicy.getInheritFromParent(),
-           listPolicy.getSuggestedValue());
+          listPolicy.getAllValues(),
+          listPolicy.getAllowedValues(),
+          listPolicy.getDeniedValues(),
+          listPolicy.getInheritFromParent(),
+          listPolicy.getSuggestedValue());
     }
   }
 
   /** Builder for {@code OrganizationPolicyInfo}. */
   static class Builder {
-    private BoolPolicy boolPolicy;
+    private BooleanPolicy boolPolicy;
     private String constraint;
     private String etag;
     private Policies policies;
-    private RestoreDefault restoreDefault;
     private String updateTime;
     private Integer version;
 
@@ -215,12 +212,11 @@ public class OrgPolicyInfo {
       this.constraint = info.constraint;
       this.etag = info.etag;
       this.policies = info.policies;
-      this.restoreDefault = info.restoreDefault;
       this.updateTime = info.updateTime;
       this.version = info.version;
     }
 
-    Builder setBoolPolicy(BoolPolicy boolPolicy) {
+    Builder setBoolPolicy(BooleanPolicy boolPolicy) {
       this.boolPolicy = boolPolicy;
       return this;
     }
@@ -237,11 +233,6 @@ public class OrgPolicyInfo {
 
     Builder setListPolicy(Policies policies) {
       this.policies = policies;
-      return this;
-    }
-
-    Builder setRestoreDefault(RestoreDefault restoreDefault) {
-      this.restoreDefault = restoreDefault;
       return this;
     }
 
@@ -265,13 +256,12 @@ public class OrgPolicyInfo {
     this.constraint = builder.constraint;
     this.etag = builder.etag;
     this.policies = builder.policies;
-    this.restoreDefault = builder.restoreDefault;
     this.updateTime = builder.updateTime;
     this.version = builder.version;
   }
 
   /** Returns the boolean constraint to check whether the constraint is enforced or not. */
-  public BoolPolicy getBoolPolicy() {
+  public BooleanPolicy getBoolPolicy() {
     return boolPolicy;
   }
 
@@ -290,11 +280,6 @@ public class OrgPolicyInfo {
     return policies;
   }
 
-  /** Restores the default behavior of the constraint. */
-  public RestoreDefault getRestoreDefault() {
-    return restoreDefault;
-  }
-
   /** Returns the updated timestamp of policy. */
   public String getUpdateTime() {
     return updateTime;
@@ -305,36 +290,10 @@ public class OrgPolicyInfo {
     return version;
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    OrgPolicyInfo policyInfo = (OrgPolicyInfo) o;
-    return Objects.equals(boolPolicy, policyInfo.boolPolicy)
-        && Objects.equals(constraint, policyInfo.constraint)
-        && Objects.equals(etag, policyInfo.etag)
-        && Objects.equals(policies, policyInfo.policies)
-        && Objects.equals(restoreDefault, policyInfo.restoreDefault)
-        && Objects.equals(updateTime, policyInfo.updateTime)
-        && Objects.equals(version, policyInfo.version);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash
-        (boolPolicy, constraint, etag, policies, restoreDefault, updateTime, version);
-  }
-
-  /** Returns a builder for the {@link OrgPolicyInfo} object. */
   public static Builder newBuilder() {
     return new Builder();
   }
 
-  /** Returns a builder for the {@link OrgPolicyInfo} object. */
   public Builder toBuilder() {
     return new Builder(this);
   }
@@ -344,13 +303,12 @@ public class OrgPolicyInfo {
     if (boolPolicy != null) {
       orgPolicyProto.setBooleanPolicy(boolPolicy.toProtobuf());
     }
-    // constraint field is no longer available in the new version
+    orgPolicyProto.setConstraint(constraint);
     if (policies != null) {
       orgPolicyProto.setListPolicy(policies.toProtobuf());
     }
-    orgPolicyProto.setRestoreDefault(restoreDefault);
     orgPolicyProto.setEtag(etag);
-    // updateTime field is no longer available in the new version
+    orgPolicyProto.setUpdateTime(updateTime);
     orgPolicyProto.setVersion(version);
     return orgPolicyProto;
   }
@@ -358,15 +316,14 @@ public class OrgPolicyInfo {
   static OrgPolicyInfo fromProtobuf(Policy orgPolicyProtobuf) {
     Builder builder = newBuilder();
     if (orgPolicyProtobuf.getBooleanPolicy() != null) {
-      builder.setBoolPolicy(BoolPolicy.fromProtobuf(orgPolicyProtobuf.getBooleanPolicy());
+      builder.setBoolPolicy(BoolPolicy.fromProtobuf(orgPolicyProtobuf.getBooleanPolicy()));
     }
-    // constraint field is no longer available in the new version
+    builder.setConstraint(orgPolicyProtobuf.getConstraint());
     if (orgPolicyProtobuf.getListPolicy() != null) {
-      builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getListPolicy());
+      builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getListPolicy()));
     }
-    builder.setRestoreDefault(orgPolicyProtobuf.getRestoreDefault());
     builder.setEtag(orgPolicyProtobuf.getEtag());
-    // updateTime field is no longer available in the new version
+    builder.setUpdateTime(orgPolicyProtobuf.getUpdateTime());
     builder.setVersion(orgPolicyProtobuf.getVersion());
     return builder.build();
   }

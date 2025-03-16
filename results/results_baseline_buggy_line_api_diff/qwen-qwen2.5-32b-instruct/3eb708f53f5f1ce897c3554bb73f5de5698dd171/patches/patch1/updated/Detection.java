@@ -16,7 +16,7 @@
 
 package com.google.cloud.translate;
 
-import com.google.api.services.translate.v3.model.DetectedLanguage;
+import com.google.cloud.translate.v3.DetectedLanguage;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import java.util.Objects;

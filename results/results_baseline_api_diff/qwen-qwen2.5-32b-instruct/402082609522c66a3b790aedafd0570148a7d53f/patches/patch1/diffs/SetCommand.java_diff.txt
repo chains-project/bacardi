@@ -1,0 +1,41 @@
+8d7
+< import com.google.inject.Inject;
+14,17c13,14
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.args.GenericArguments;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+21,22c18,19
+< import static org.spongepowered.api.command.args.GenericArguments.flags;
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+---
+> import static org.spongepowered.api.command.parameter.Parameter.flags;
+> import static org.spongepowered.api.command.parameter.Parameter.text;
+25c22
+< public class SetCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class SetCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
+50,51c47,48
+<         String targetSkin = args.<String>getOne("skin").get();
+<         boolean keepSkin = args.hasAny("keep");
+---
+>         String targetSkin = args.getOne("skin").get();
+>         boolean keepSkin = args.getOne("keep").orElse(false);
+76,83c73,77
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+<                 .executor(this)
+<                 .arguments(
+<                         string(of("skin")),
+<                         flags().flag("keep").buildWith(GenericArguments.none()))
+<                 .permission(PomData.ARTIFACT_ID + ".command.setskin.base")
+<                 .build();
+---
+>     public Parameter[] parameters() {
+>         return new Parameter[] {
+>             text("skin"),
+>             flags().flag("keep")
+>         };

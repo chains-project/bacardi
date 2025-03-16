@@ -195,7 +195,109 @@ public class NisAppConfig {
 
 	// endregion
 
-	// region other beans
+	// region mappers
+
+	@Bean
+	public MapperFactory mapperFactory() {
+		return new DefaultMapperFactory(this.mosaicIdCache());
+	}
+
+	@Bean
+	public NisMapperFactory nisMapperFactory() {
+		return new NisMapperFactory(this.mapperFactory());
+	}
+
+	@Bean
+	public NisModelToDbModelMapper nisModelToDbModelMapper() {
+		return new NisModelToDbModelMapper(this.mapperFactory().createModelToDbModelMapper(new AccountDaoLookupAdapter(this.accountDao)));
+	}
+
+	@Bean
+	public NisDbModelToModelMapper nisDbModelToModelMapper() {
+		return this.nisMapperFactory().createDbModelToModelNisMapper(this.accountCache());
+	}
+
+	// endregion
+
+	// region observers + validators
+
+	@Bean
+	public BlockTransactionObserverFactory blockTransactionObserverFactory() {
+		final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
+		return new BlockTransactionObserverFactory(this.observerOptions(), estimatedBlocksPerYear);
+	}
+
+	@Bean
+	public BlockValidatorFactory blockValidatorFactory() {
+		return new BlockValidatorFactory(this.timeProvider(), this.nisConfiguration().getForkConfiguration());
+	}
+
+	@Bean
+	public TransactionValidatorFactory transactionValidatorFactory() {
+		return new TransactionValidatorFactory(this.timeProvider(), this.nisConfiguration().getNetworkInfo(),
+				this.nisConfiguration().getForkConfiguration(), this.nisConfiguration().ignoreFees());
+	}
+
+	@Bean
+	public SingleTransactionValidator transactionValidator() {
+		// this is only consumed by the TransactionController and used in transaction/prepare,
+		// which should propagate incomplete transactions
+		return this.transactionValidatorFactory().createIncompleteSingleBuilder(this.nisCache()).build();
+	}
+
+	// endregion
+
+	// region mappers
+
+	@Bean
+	public MapperFactory mapperFactory() {
+		return new DefaultMapperFactory(this.mosaicIdCache());
+	}
+
+	@Bean
+	public NisMapperFactory nisMapperFactory() {
+		return new NisMapperFactory(this.mapperFactory());
+	}
+
+	@Bean
+	public NisModelToDbModelMapper nisModelToDbModelMapper() {
+		return new NisModelToDbModelMapper(this.mapperFactory().createModelToDbModelMapper(new AccountDaoLookupAdapter(this.accountDao)));
+	}
+
+	@Bean
+	public NisDbModelToModelMapper nisDbModelToModelMapper() {
+		return this.nisMapperFactory().createDbModelToModelNisMapper(this.accountCache());
+	}
+
+	// endregion
+
+	// region observers + validators
+
+	@Bean
+	public BlockTransactionObserverFactory blockTransactionObserverFactory() {
+		final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
+		return new BlockTransactionObserverFactory(this.observerOptions(), estimatedBlocksPerYear);
+	}
+
+	@Bean
+	public BlockValidatorFactory blockValidatorFactory() {
+		return new BlockValidatorFactory(this.timeProvider(), this.nisConfiguration().getForkConfiguration());
+	}
+
+	@Bean
+	public TransactionValidatorFactory transactionValidatorFactory() {
+		return new TransactionValidatorFactory(this.timeProvider(), this.nisConfiguration().getNetworkInfo(),
+				this.nisConfiguration().getForkConfiguration(), this.nisConfiguration().ignoreFees());
+	}
+
+	@Bean
+	public SingleTransactionValidator transactionValidator() {
+		// this is only consumed by the TransactionController and used in transaction/prepare,
+		// which should propagate incomplete transactions
+		return this.transactionValidatorFactory().createIncompleteSingleBuilder(this.nisCache()).build();
+	}
+
+	// endregion
 
 	@Bean
 	public Harvester harvester() {
@@ -314,7 +416,7 @@ public class NisAppConfig {
 					() -> this.blockChainLastBlockLayer.getLastBlockHeight().next(), new BlockHeight[]{
 							new BlockHeight(BlockMarkerConstants.FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24)),
 							new BlockHeight(
-									BlockMarkerConstants.SECOND_FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24)
+									BlockMarkerConstants.SECOND_FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24))
 					}));
 		}
 

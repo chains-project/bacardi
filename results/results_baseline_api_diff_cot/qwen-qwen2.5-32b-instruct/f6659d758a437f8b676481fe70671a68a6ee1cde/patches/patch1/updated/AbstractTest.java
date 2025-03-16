@@ -34,7 +34,6 @@ import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.nodes.Tag;
-import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -69,7 +68,7 @@ public class AbstractTest {
         final Tag localDateTag = new Tag("!LocalDate");
         representer.addClassTag(LocalDate.class, localDateTag);
 
-        final Constructor constructor = new Constructor(clazz, loadingConfig) {{
+        Constructor constructor = new Constructor(clazz, loadingConfig) {{
             this.addTypeDescription(new TypeDescription(ZoneId.class, "ZoneId"));
             this.addTypeDescription(new TypeDescription(LocalDate.class, "LocalDate"));
 

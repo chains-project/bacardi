@@ -38,8 +38,8 @@ public class QueryParamLocaleResolver implements LocaleResolver {
     Logger log;
     
     @Override
-    public Locale resolveLocale(final LocaleResolverContext context) {
-        final String queryLang = context.getUriInfo()
+    public Locale resolveLocale(final BeforeControllerEvent event) {
+        final String queryLang = event.getUriInfo()
                 .getQueryParameters()
                 .getFirst("lang");
         log.log(Level.INFO, "QueryParamLocaleResolver::resolveLocale:lang:{0}", queryLang);

@@ -1,13 +1,20 @@
-34c34,35
+34d33
 < import org.hamcrest.Matchers;
----
-> import org.hamcrest.core.IsEqual;
-> import org.hamcrest.core.StringContains;
-85c86
+85c84,89
 <             Matchers.<URI>hasProperty("rawPath", path)
 ---
->             IsEqual.equalTo(path)
-97c98
+>             new Matcher<URI>() {
+>                 @Override
+>                 public boolean matches(Object item) {
+>                     return path.matches(((URI) item).getRawPath());
+>                 }
+>             }
+97c101,106
 <             Matchers.<URI>hasProperty("rawQuery", query)
 ---
->             StringContains.stringContains(query)
+>             new Matcher<URI>() {
+>                 @Override
+>                 public boolean matches(Object item) {
+>                     return query.matches(((URI) item).getRawQuery());
+>                 }
+>             }

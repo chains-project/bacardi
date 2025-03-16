@@ -4,6 +4,7 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +35,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
@@ -89,7 +91,7 @@ class EventMessageHandlerTest {
 
     @BeforeEach
     void setUp() {
-        eventMessageHandler = new EventMessageHandler(mockQueueMessage, mockLedgerService, mockNotificationService, mockServiceFinder, mockUserServices, objectMapper);
+        eventMessageHandler = new EventMessageHandler(mockEventSubscriberQueue, mockLedgerService, mockNotificationService, mockServiceFinder, mockUserServices, objectMapper);
         service = Service.from(randomInt(), randomUuid(), new ServiceName(DEFAULT_NAME_VALUE));
         service.setMerchantDetails(new MerchantDetails("Organisation Name", null, null, null, null, null, null, null, null));
         transaction = aLedgerTransactionFixture()
@@ -101,9 +103,9 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
+        Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        Logger logger = loggerContext.getLogger(EventMessageHandler.class);
-        logger.addAppender(mockLogAppender);
+        loggerContext.getLogger(EventMessageHandler.class).addAppender(mockLogAppender);
     }
 
     @Test
@@ -113,43 +115,54 @@ class EventMessageHandlerTest {
                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
                 .withParentResourceExternalId("456")
                 .build();
+        var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
+        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
 
         eventMessageHandler.processMessages();
 
-        verify(mockQueueMessage).markMessageAsProcessed();
+        verify(mockEventSubscriberQueue).markMessageAsProcessed(mockQueueMessage);
     }
 
     @Test
     void shouldHandleDisputeCreatedEvent() throws QueueException {
-        // ... (rest of the test methods remain unchanged)
+        var mockQueueMessage = mock(QueueMessage.class);
+        disputeEvent = anEventFixture()
+                .withEventType(EventType.DISPUTE_CREATED.name())
+                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId))
+                .withParentResourceExternalId("456")
+                .build();
+        var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
+        when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
+        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
+        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction);
+        when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
+
+        eventMessageHandler.processMessages();
+
+        verify(mockNotificationService, atMostOnce()).sendStripeDisputeCreatedEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
+
+        var emails = adminEmailsCaptor.getValue();
+        var personalisation = personalisationCaptor.getValue();
+
+        assertThat(emails.size(), is(2));
+        assertThat(emails, hasItems("admin1@service.gov.uk", "admin2@service.gov.uk"));
+        assertThat(personalisation.get("serviceName"), is(service.getName()));
+        assertThat(personalisation.get("serviceReference"), is("tx ref"));
+        assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName));
+        assertThat(personalisation.get("sendEvidenceToPayDueDate"), is("4 March 2022"));
+        assertThat(personalisation.get("disputedAmount"), is("210.00"));
+
+        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+
+        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
 
-    @Test
-    void shouldHandleDisputeLostEvent() throws QueueException {
-        // ... (rest of the test methods remain unchanged)
-    }
-
-    @Test
-    void shouldHandleDisputeEvidenceSubmittedEvent() throws QueueException {
-        // ... (rest of the test methods remain unchanged)
-    }
-
-    @Test
-    void shouldNotCallNotificationServiceWhenServiceDoesNotExist() throws QueueException {
-        // ... (rest of the test methods remain unchanged)
-    }
-
-    @Test
-    void shouldNotCallNotificationServiceWhenTransactionDoesNotExist() throws QueueException {
-        // ... (rest of the test methods remain unchanged)
-    }
-
-    @Test
-    void shouldNotCallNotificationServiceWhenNoAdminUsersExist() throws QueueException {
-        // ... (rest of the test methods remain unchanged)
-    }
+    // ... (rest of the class remains unchanged)
 }

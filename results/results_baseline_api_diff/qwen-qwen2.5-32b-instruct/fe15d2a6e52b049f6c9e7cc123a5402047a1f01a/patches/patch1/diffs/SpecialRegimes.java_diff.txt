@@ -9,34 +9,37 @@
 110c106
 <         append(null, buffer, strategy);
 ---
->         append(null, buffer, new ToStringStrategy());
-114,115c110
+>         append(null, buffer);
+114,138c110,115
 <     @Override
 <     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
----
->     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy strategy) {
-122,123c117
+<         strategy.appendStart(locator, this, buffer);
+<         appendFields(locator, buffer, strategy);
+<         strategy.appendEnd(locator, this, buffer);
+<         return buffer;
+<     }
+< 
 <     @Override
 <     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<         {
+<             int theSelfBillingIndicator;
+<             theSelfBillingIndicator = this.getSelfBillingIndicator();
+<             strategy.appendField(locator, this, "selfBillingIndicator", buffer, theSelfBillingIndicator, true);
+<         }
+<         {
+<             int theCashVATSchemeIndicator;
+<             theCashVATSchemeIndicator = this.getCashVATSchemeIndicator();
+<             strategy.appendField(locator, this, "cashVATSchemeIndicator", buffer, theCashVATSchemeIndicator, true);
+<         }
+<         {
+<             int theThirdPartiesBillingIndicator;
+<             theThirdPartiesBillingIndicator = this.getThirdPartiesBillingIndicator();
+<             strategy.appendField(locator, this, "thirdPartiesBillingIndicator", buffer, theThirdPartiesBillingIndicator, true);
+<         }
 ---
->     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy strategy) {
-141a136,154
->     private static class ToStringStrategy implements org.jvnet.jaxb2_commons.lang.ToStringStrategy {
->         @Override
->         public void appendStart(ObjectLocator locator, Object objectToAppend, StringBuilder buffer) {
->             buffer.append(objectToAppend.getClass().getSimpleName()).append("@").append(Integer.toHexString(System.identityHashCode(objectToAppend))).append(" {");
->         }
-> 
->         @Override
->         public void appendField(ObjectLocator locator, Object object, String name, StringBuilder buffer, Object value, boolean first) {
->             if (!first) {
->                 buffer.append(", ");
->             }
->             buffer.append(name).append('=').append(value);
->         }
-> 
->         @Override
->         public void appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
->             buffer.append('}');
->         }
->     }
+>     public StringBuilder append(ObjectLocator locator, StringBuilder buffer) {
+>         buffer.append("SpecialRegimes{");
+>         buffer.append("selfBillingIndicator=").append(selfBillingIndicator);
+>         buffer.append(", cashVATSchemeIndicator=").append(cashVATSchemeIndicator);
+>         buffer.append(", thirdPartiesBillingIndicator=").append(thirdPartiesBillingIndicator);
+>         buffer.append("}");

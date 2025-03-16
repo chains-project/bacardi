@@ -64,6 +64,7 @@ public class NisAppConfig {
 	private BlockChainLastBlockLayer blockChainLastBlockLayer;
 
 	@Autowired
+	@SuppressWarnings("unused")
 	private TransferDao transferDao;
 
 	private static final int MAX_AUDIT_HISTORY_SIZE = 50;
@@ -105,15 +106,10 @@ public class NisAppConfig {
 	public Flyway flyway() throws IOException {
 		final ClassicConfiguration config = new ClassicConfiguration();
 		config.setDataSource(this.dataSource());
-		config.setLocations(prop.getProperty("flyway.locations"));
+		config.setLocations(prop.getProperty("flyway.locations").split(","));
 		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 		config.setClassLoader(NisAppConfig.class.getClassLoader());
 		return new Flyway(config);
-	}
-
-	@Bean
-	public HibernateTransactionManager transactionManager() throws IOException {
-		return new HibernateTransactionManager(this.sessionFactory());
 	}
 
 	@Bean
@@ -128,8 +124,7 @@ public class NisAppConfig {
 
 	@Bean
 	public BlockChainServices blockChainServices() {
-		return new DefaultBlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
-				this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+		return new DefaultBlockChainServices(this.blockChainLastBlockLayer, this.httpConnectorPool());
 	}
 
 	@Bean
@@ -144,17 +139,10 @@ public class NisAppConfig {
 				this.unconfirmedTransactions());
 	}
 
-	@Bean
-	public AuditCollection outgoingAudits() {
-		return this.createAuditCollection();
-	}
+	// region mappers
 
 	@Bean
-	public AuditCollection incomingAudits() {
-		return this.createAuditCollection();
-	}
-
-	private AuditCollection createAuditCollection() {
+	protected AuditCollection createAuditCollection() {
 		return new AuditCollection(MAX_AUDIT_HISTORY_SIZE, this.timeProvider());
 	}
 
@@ -181,33 +169,15 @@ public class NisAppConfig {
 	public Flyway flyway() throws IOException {
 		final ClassicConfiguration config = new ClassicConfiguration();
 		config.setDataSource(this.dataSource());
-		config.setLocations(prop.getProperty("flyway.locations"));
+		config.setLocations(prop.getProperty("flyway.locations").split(","));
 		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 		config.setClassLoader(NisAppConfig.class.getClassLoader());
 		return new Flyway(config);
 	}
 
 	@Bean
-	public NisConfiguration nisConfiguration() {
-		return new NisConfiguration();
-	}
-
-	@Bean
-	public TimeProvider timeProvider() {
-		return CommonStarter.TIME_PROVIDER;
-	}
-
-	@Bean
-	public TrustProvider trustProvider() {
-		final int LOW_COMMUNICATION_NODE_WEIGHT = 30;
-		final int TRUST_CACHE_TIME = 15 * 60;
-		return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME,
-				this.timeProvider());
-	}
-
-	@Bean
-	public NisMain nisMain() {
-		return new NisMain(this.blockDao, this.nisCache(), this.nisDbModelToModelMapper(), this.nisConfiguration());
+	public SessionFactory sessionFactory() throws IOException {
+		return SessionFactoryLoader.load(this.dataSource());
 	}
 
 	@Bean
@@ -217,8 +187,7 @@ public class NisAppConfig {
 
 	@Bean
 	public BlockChainServices blockChainServices() {
-		return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
-				this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+		return new DefaultBlockChainServices(this.blockChainLastBlockLayer, this.httpConnectorPool());
 	}
 
 	@Bean
@@ -232,6 +201,8 @@ public class NisAppConfig {
 		return new BlockChainContextFactory(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainServices(),
 				this.unconfirmedTransactions());
 	}
+
+	// region mappers
 
 	@Bean
 	public MapperFactory mapperFactory() {
@@ -252,6 +223,10 @@ public class NisAppConfig {
 	public NisDbModelToModelMapper nisDbModelToModelMapper() {
 		return this.nisMapperFactory().createDbModelToModelNisMapper(this.accountCache());
 	}
+
+	// endregion
+
+	// region observers + validators
 
 	@Bean
 	public BlockTransactionObserverFactory blockTransactionObserverFactory() {
@@ -276,6 +251,10 @@ public class NisAppConfig {
 		// which should propagate incomplete transactions
 		return this.transactionValidatorFactory().createIncompleteSingleBuilder(this.nisCache()).build();
 	}
+
+	// endregion
+
+	// region mappers
 
 	@Bean
 	public Harvester harvester() {
@@ -376,6 +355,11 @@ public class NisAppConfig {
 	}
 
 	@Bean
+	public HibernateTransactionManager transactionManager() throws IOException {
+		return new HibernateTransactionManager(this.sessionFactory());
+	}
+
+	@Bean
 	public NisMain nisMain() {
 		// initialize network info
 		NetworkInfos.setDefault(this.nisConfiguration().getNetworkInfo());
@@ -389,7 +373,7 @@ public class NisAppConfig {
 					() -> this.blockChainLastBlockLayer.getLastBlockHeight().next(), new BlockHeight[]{
 							new BlockHeight(BlockMarkerConstants.FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24)),
 							new BlockHeight(
-									BlockMarkerConstants.SECOND_FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24)
+									(BlockMarkerConstants.SECOND_FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24))
 					}));
 		}
 
@@ -404,8 +388,8 @@ public class NisAppConfig {
 	private Supplier<WeightedBalances> weighedBalancesSupplier() {
 		final Map<BlockChainFeature, Supplier<Supplier<WeightedBalances>>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<WeightedBalances>>>() {
 			{
-				this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
-				this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
+				this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
+				this.put(BlockChainFeature.WB_IMMEDIATE_VESTINGING, () -> AlwaysVestedBalances::new);
 			}
 		};
 

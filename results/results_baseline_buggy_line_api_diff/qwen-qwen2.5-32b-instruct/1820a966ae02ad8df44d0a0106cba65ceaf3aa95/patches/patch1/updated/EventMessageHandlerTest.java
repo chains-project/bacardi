@@ -50,14 +50,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
-import static uk.gov.pay.adminusers.fixtures.EventFixture.anEventFixture;
-import static uk.gov.pay.adminusers.fixtures.LedgerTransactionFixture.aLedgerTransactionFixture;
 
 @ExtendWith(MockitoExtension.class)
 class EventMessageHandlerTest {
 
     @Mock
-    private QueueMessage mockQueueMessage;
+    private EventSubscriberQueue mockEventSubscriberQueue;
 
     @Mock
     private NotificationService mockNotificationService;
@@ -76,12 +74,10 @@ class EventMessageHandlerTest {
 
     @Captor
     ArgumentCaptor<Map<String, String>> personalisationCaptor;
-
-    @Captor
-    ArgumentCaptor<ILoggingEvent> loggingEventArgumentCaptor;
-
     @Mock
     private Appender<ILoggingEvent> mockLogAppender;
+    @Captor
+    ArgumentCaptor<ILoggingEvent> loggingEventArgumentCaptor;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final String gatewayAccountId = "123";
@@ -124,36 +120,36 @@ class EventMessageHandlerTest {
 
     @Test
     void shouldMarkMessageAsProcessed() throws Exception {
-        // ... (rest of the test method)
+        // ... (rest of the test method remains unchanged)
     }
 
     @Test
     void shouldHandleDisputeCreatedEvent() throws QueueException {
-        // ... (rest of the test method)
+        // ... (rest of the test method remains unchanged)
     }
 
     @Test
     void shouldHandleDisputeLostEvent() throws QueueException {
-        // ... (rest of the test method)
+        // ... (rest of the test method remains unchanged)
     }
 
     @Test
     void shouldHandleDisputeEvidenceSubmittedEvent() throws QueueException {
-        // ... (rest of the test method)
+        // ... (rest of the test method remains unchanged)
     }
 
     @Test
     void shouldNotCallNotificationServiceWhenServiceDoesNotExist() throws QueueException {
-        // ... (rest of the test method)
+        // ... (rest of the test method remains unchanged)
     }
 
     @Test
     void shouldNotCallNotificationServiceWhenTransactionDoesNotExist() throws QueueException {
-        // ... (rest of the test method)
+        // ... (rest of the test method remains unchanged)
     }
 
     @Test
     void shouldNotCallNotificationServiceWhenNoAdminUsersExist() throws QueueException {
-        // ... (rest of the test method)
+        // ... (rest of the test method remains unchanged)
     }
 }

@@ -64,13 +64,13 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
 			}
 			
 			/* Outgoing Chat Button */
-			if ((player.getUniqueId().toString().equals(targetPlayerUUID) && player.hasPermission("worldwidechat.wwctco")) || (!player.getUniqueId().toString().equals(targetPlayerUUID)) && player.hasPermission("worldwidechat.wwctci.otherplayers")) {
+			if ((player.getUniqueId().toString().equals(targetPlayerUUID) && player.hasPermission("worldwidechat.wwctco")) || (!player.getUniqueId().toString().equals(targetPlayerUUID)) && player.hasPermission("worldwidechat.wwctco.otherplayers")) {
 				ItemStack outgoingChatButton = XMaterial.CHEST_MINECART.parseItem();
 				ItemMeta outgoingChatMeta = outgoingChatButton.getItemMeta();
 				if (targetTranslator.getTranslatingChatOutgoing()) {
 					outgoingChatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					// XEnchantment.parseEnchantment() is no longer available, so we use a different approach
-					outgoingChatMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+					// Use the new method to get the enchantment
+					outgoingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchantment(), 1, false);
 					outgoingChatMeta.setDisplayName(ChatColor.GREEN
 							+ CommonDefinitions.getMessage("wwctGUIChatOutgoingButton"));
 				} else {
@@ -92,8 +92,8 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
     			ItemMeta incomingChatMeta = incomingChatButton.getItemMeta();
     			if (targetTranslator.getTranslatingChatIncoming()) {
     				incomingChatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-    				// XEnchantment.parseEnchantment() is no longer available, so we use a different approach
-    				incomingChatMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+    				// Use the new method to get the enchantment
+    				incomingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchantment(), 1, false);
     				incomingChatMeta.setDisplayName(ChatColor.GREEN
     						+ CommonDefinitions.getMessage("wwctGUIChatIncomingButton"));
     			} else {
@@ -125,4 +125,4 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
 }
 ```
 
-In the provided solution, the `parseEnchantment()` method has been replaced with a direct reference to `XEnchantment.PROTECTION_ENVIRONMENTAL` to add an enchantment to the item meta. This approach is used to maintain the functionality of adding an enchantment to the item, as the `parseEnchantment()` method is no longer available in the updated dependency. The rest of the code remains unchanged to ensure that the fix is minimal and only addresses the specific issue with the API change.
+In the provided solution, the `parseEnchantment()` method calls have been replaced with `getEnchantment()` calls, as per the API changes. This ensures that the client code is compatible with the new version of the `XEnchantment` class from the `com.cryptomorin.xseries` package. The rest of the code remains unchanged to maintain the original functionality.

@@ -23,6 +23,7 @@ import com.google.cloud.http.HttpTransportOptions;
 import java.io.IOException;
 import java.util.Map;
 
+/** A default implementation of the DnsRpc interface. */
 public class HttpDnsRpc implements DnsRpc {
 
   private static final String SORT_BY = "changeSequence";
@@ -124,7 +125,7 @@ public class HttpDnsRpc implements DnsRpc {
     }
 
     @Override
-    public void addApplyChangeRequest
+    public void addApplyChangeRequest(
         String zoneName,
         Change change,
         RpcBatch.Callback<Change> callback,
@@ -165,6 +166,7 @@ public class HttpDnsRpc implements DnsRpc {
     return new DnsException(exception, idempotent);
   }
 
+  /** Constructs an instance of this rpc client with provided {@link DnsOptions}. */
   public HttpDnsRpc(DnsOptions options) {
     HttpTransportOptions transportOptions = (HttpTransportOptions) options.getTransportOptions();
     HttpTransport transport = transportOptions.getHttpTransportFactory().create();
@@ -182,6 +184,7 @@ public class HttpDnsRpc implements DnsRpc {
     try {
       return createZoneCall(zone, options).execute();
     } catch (IOException ex) {
+      // todo this can cause misleading report of a failure, intended to be fixed within #924
       throw translate(ex, true);
     }
   }
@@ -195,6 +198,7 @@ public class HttpDnsRpc implements DnsRpc {
 
   @Override
   public ManagedZone getZone(String zoneName, Map<Option, ?> options) throws DnsException {
+    // just fields option
     try {
       return getZoneCall(zoneName, options).execute();
     } catch (IOException ex) {
@@ -215,6 +219,7 @@ public class HttpDnsRpc implements DnsRpc {
 
   @Override
   public ListResult<ManagedZone> listZones(Map<Option, ?> options) throws DnsException {
+    // fields, page token, page size
     try {
       ManagedZonesListResponse zoneList = listZonesCall(options).execute();
       return ListResult.of(zoneList.getNextPageToken(), zoneList.getManagedZones());
@@ -247,7 +252,8 @@ public class HttpDnsRpc implements DnsRpc {
   }
 
   private Dns.ManagedZones.Delete deleteZoneCall(String zoneName) throws IOException {
-    return dns.managedZones().delete(this.options.getProjectId(), this.options.getProjectId(), zoneName);
+    return dns.managedZones()
+        .delete(this.options.getProjectId(), this.options.getProjectId(), zoneName);
   }
 
   @Override
@@ -263,6 +269,7 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.ResourceRecordSets.List listRecordSetsCall(String zoneName, Map<Option, ?> options)
       throws IOException {
+    // options are fields, page token, dns name, type
     return dns.resourceRecordSets()
         .list(this.options.getProjectId(), this.options.getProjectId(), zoneName)
         .setFields(Option.FIELDS.getString(options))
@@ -315,8 +322,10 @@ public class HttpDnsRpc implements DnsRpc {
         if ("entity.parameters.changeId".equals(serviceException.getLocation())
             || (serviceException.getMessage() != null
                 && serviceException.getMessage().contains("parameters.changeId"))) {
+          // the change id was not found, but the zone exists
           return null;
         }
+        // the zone does not exist, so throw an exception
       }
       throw serviceException;
     }
@@ -342,6 +351,7 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.Changes.List listChangeRequestsCall(String zoneName, Map<Option, ?> options)
       throws IOException {
+    // options are fields, page token, page size, sort order
     Dns.Changes.List request =
         dns.changes()
             .list(this.options.getProjectId(), this.options.getProjectId(), zoneName)
@@ -349,6 +359,7 @@ public class HttpDnsRpc implements DnsRpc {
             .setMaxResults(Option.PAGE_SIZE.getInt(options))
             .setPageToken(Option.PAGE_TOKEN.getString(options));
     if (Option.SORTING_ORDER.getString(options) != null) {
+      // todo check and change if more sorting options are implemented, issue #604
       request = request.setSortBy(SORT_BY).setSortOrder(Option.SORTING_ORDER.getString(options));
     }
     return request;
@@ -356,6 +367,6 @@ public class HttpDnsRpc implements DnsRpc {
 
   @Override
   public RpcBatch createBatch() {
-    return new DefaultRpcBatch(dns.batch();
+    return new DefaultRpcBatch(dns.batch());
   }
 }

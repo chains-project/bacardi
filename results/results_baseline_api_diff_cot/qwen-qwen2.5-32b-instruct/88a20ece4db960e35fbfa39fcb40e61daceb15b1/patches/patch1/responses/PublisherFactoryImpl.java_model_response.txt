@@ -1,6 +1,7 @@
 ```java
 package com.google.pubsublite.kafka.sink;
 
+import com.google.cloud.pubsublite.CloudZone;
 import com.google.cloud.pubsublite.ProjectPath;
 import com.google.cloud.pubsublite.TopicName;
 import com.google.cloud.pubsublite.TopicPath;
@@ -21,21 +22,23 @@ class PublisherFactoryImpl implements PublisherFactory {
     Map<String, ConfigValue> config = ConfigDefs.config().validateAll(params);
     RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
     TopicPath topic =
-        TopicPath.of(
-            ProjectPath.of("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value()),
-            CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()),
-            TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()));
+        TopicPath.newBuilder()
+            .setProject(
+                ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
+                    .project())
+            .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
+            .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
+            .build();
     builder.setTopic(topic);
     builder.setPublisherFactory(
         partition ->
             SinglePartitionPublisherBuilder.newBuilder()
                 .setTopic(topic)
                 .setPartition(partition)
-                .setContext(FRAMEWORK)
                 .build());
     return builder.build();
   }
 }
 ```
 
-In this solution, the `PublishMetadata` class and the `PartitionPublisherFactory` interface have been removed from the dependency, and the `TopicPath.Builder` has been replaced with a static factory method `TopicPath.of`. The `PubsubContext` is now directly instantiated with a static factory method `PubsubContext.of`. The `Publisher` class no longer requires a generic type parameter, and the `PublisherBuilder` and `SinglePartitionPublisherBuilder` no longer have a `setContext` method. The code has been adjusted to reflect these changes while maintaining the original functionality.
+In this solution, the `PublishMetadata` type has been removed from the `Publisher` type and the `newPublisher` method's return type, as the `PublishMetadata` class has been removed from the dependency. Additionally, the `PubsubContext` is now directly used as a static field `FRAMEWORK` instead of being passed to the `PublisherBuilder` and `SinglePartitionPublisherBuilder` as the `setContext` method has been removed. The class should now compile and work with the updated dependency.

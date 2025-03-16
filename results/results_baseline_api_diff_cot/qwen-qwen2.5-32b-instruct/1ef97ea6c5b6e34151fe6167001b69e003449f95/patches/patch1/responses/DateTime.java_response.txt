@@ -40,8 +40,10 @@ public class DateTime extends DateAndTime {
     return new Timestamp(super.past(atMost, unit, referenceDate).getTime());
   }
 
-  public Timestamp between(Timestamp from, Timestamp to) throws IllegalArgumentException {
-    return new Timestamp(super.between(from, to).getTime());
+  public Timestamp between(Date from, Date to) throws IllegalArgumentException {
+    // The method between(Date, Date) has been removed in the new version of the dependency.
+    // We need to convert the Date parameters to Timestamp and use the new method signature.
+    return new Timestamp(super.between(new Timestamp(from.getTime()), new Timestamp(to.getTime())).getTime());
   }
 
   @Override

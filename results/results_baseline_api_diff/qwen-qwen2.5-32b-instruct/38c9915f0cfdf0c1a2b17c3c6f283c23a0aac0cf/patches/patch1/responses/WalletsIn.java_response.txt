@@ -32,7 +32,6 @@ import java.util.Random;
 import org.cactoos.Func;
 import org.cactoos.Scalar;
 import org.cactoos.FuncAsScalar;
-import org.cactoos.FuncAsFunc;
 import org.cactoos.io.Directory;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.Mapped;
@@ -100,10 +99,10 @@ public final class WalletsIn implements Wallets {
     public WalletsIn(final Scalar<Path> pth, final String ext,
         final Random random) {
         this.path = pth;
-        this.filter = new FuncAsFunc<>(file -> file.toFile().isFile()
+        this.filter = (file) -> file.toFile().isFile()
             && FileSystems.getDefault()
             .getPathMatcher(String.format("glob:**.%s", ext))
-            .matches(file));
+            .matches(file);
         this.ext = ext;
         this.random = random;
     }
@@ -111,11 +110,7 @@ public final class WalletsIn implements Wallets {
     @Override
     public Wallet create() throws IOException {
         final Path wpth = this.path.value().resolve(
-            new FormattedText(
-                "%s.%s",
-                Long.toHexString(this.random.nextLong()),
-                this.ext
-            ).asString()
+            String.format("%s.%s", Long.toHexString(this.random.nextLong()), this.ext)
         );
         if (wpth.toFile().exists()) {
             throw new IOException(

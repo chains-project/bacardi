@@ -22,11 +22,11 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
 
   private final TranslateRpc translateRpc;
 
-  private static final Function<List<Map<String, Object>>, Detection>
+  private static final Function<List<Translate.DetectionsResource.Detections>, Detection>
       DETECTION_FROM_PB_FUNCTION =
-          new Function<List<Map<String, Object>>, Detection>() {
+          new Function<List<Translate.DetectionsResource.Detections>, Detection>() {
             @Override
-            public Detection apply(List<Map<String, Object>> detectionPb) {
+            public Detection apply(List<Translate.DetectionsResource.Detections> detectionPb) {
               return Detection.fromPb(detectionPb.get(0));
             }
           };
@@ -41,9 +41,9 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<Map<String, Object>>>() {
+              new Callable<List<Translate.LanguagesResource>>() {
                 @Override
-                public List<Map<String, Object>> call() {
+                public List<Translate.LanguagesResource> call() {
                   return translateRpc.listSupportedLanguages(optionMap(options));
                 }
               },
@@ -59,21 +59,21 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   @Override
   public List<Detection> detect(final List<String> texts) {
     try {
-      List<List<Map<String, Object>>> detectionsPb =
+      List<List<Translate.DetectionsResource.Detections>> detectionsPb =
           runWithRetries(
-              new Callable<List<List<Map<String, Object>>>>() {
+              new Callable<List<List<Translate.DetectionsResource.Detections>>>() {
                 @Override
-                public List<List<Map<String, Object>>> call() {
+                public List<List<Translate.DetectionsResource.Detections>> call() {
                   return translateRpc.detect(texts);
                 }
               },
               getOptions().getRetrySettings(),
               EXCEPTION_HANDLER,
               getOptions().getClock());
-      Iterator<List<Map<String, Object>>> detectionIterator = detectionsPb.iterator();
+      Iterator<List<Translate.DetectionsResource.Detections>> detectionIterator = detectionsPb.iterator();
       Iterator<String> textIterator = texts.iterator();
       while (detectionIterator.hasNext() && textIterator.hasNext()) {
-        List<Map<String, Object>> detectionPb = detectionIterator.next();
+        List<Translate.DetectionsResource.Detections> detectionPb = detectionIterator.next();
         String text = textIterator.next();
         checkState(
             detectionPb != null && !detectionPb.isEmpty(), "No detection found for text: %s", text);
@@ -100,9 +100,9 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<Map<String, Object>>>() {
+              new Callable<List<Translate.TranslationsResource>>() {
                 @Override
-                public List<Map<String, Object>> call() {
+                public List<Translate.TranslationsResource> call() {
                   return translateRpc.translate(texts, optionMap(options));
                 }
               },

@@ -1,6 +1,7 @@
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -52,6 +53,7 @@ import java.util.function.*;
 @EnableTransactionManagement
 public class NisAppConfig {
 
+{
 	@Autowired
 	private AccountDao accountDao;
 
@@ -105,12 +107,11 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final org.flywaydb.core.Flyway flyway = new Flyway(new org.flywaydb.core.api.configuration.ClassicConfiguration());
-		flyway.getConfiguration().setDataSource(this.dataSource());
-		flyway.getConfiguration().setLocations(prop.getProperty("flyway.locations").split(","));
-		flyway.getConfiguration().setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		flyway.getConfiguration().setClassLoader(NisAppConfig.class.getClassLoader());
-		return flyway;
+		final ClassicConfiguration flywayConfig = new ClassicConfiguration();
+		flywayConfig.setDataSource(this.dataSource());
+		flywayConfig.setLocations(prop.getProperty("flyway.locations").split(","));
+		flywayConfig.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		return new Flyway(flywayConfig);
 	}
 
 	@Bean
@@ -194,7 +195,7 @@ public class NisAppConfig {
 
 	// endregion
 
-	// region mappers
+	// region harvester
 
 	@Bean
 	public Harvester harvester() {
@@ -233,7 +234,7 @@ public class NisAppConfig {
 		final BlockHeight mosaicRedefinitionForkHeight = this.nisConfiguration().getForkConfiguration().getMosaicRedefinitionForkHeight();
 
 		NemNamespaceEntry.setDefault(mosaicRedefinitionForkHeight);
-		return new SynchronizedNamespaceCache(new DefaultNamespaceCache(mosaicReditaionForkHeight));
+		return new SynchronizedNamespaceCache(new DefaultNamespaceCache(mosaicReditDefinitionForkHeight));
 	}
 
 	@Bean
@@ -332,8 +333,8 @@ public class NisAppConfig {
 	private Supplier<WeightedBalances> weighedBalancesSupplier() {
 		final Map<BlockChainFeature, Supplier<Supplier<WeightedBalances>>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<WeightedBalances>>>() {
 			{
-				this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
-				this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
+				this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
+				this.put(BlockChainFeature.WB_IMMEDIATE_VESTINGING, () -> AlwaysVestedBalances::new);
 			}
 		};
 

@@ -23,13 +23,11 @@
 <                 pluginInstancesByKeys, new PluginInstancesLoader());
 ---
 >                 (pluginInstancesByKeys, new PluginInstancesLoader());
-154c150
-<                 .collect(toList());
----
->                 .collect(Collectors.toList());
 163c159
 <                 .addEnabledLanguages(globalConfig.getEnabledLanguages())
 ---
->                 .addEnabledLanguages(Language.JAVA)
-223d218
-<                                             logOutput),
+>                 .addEnabledLanguages(new Language[] {Language.JAVA})
+222c218
+<                                                                             i.getRuleKey()))),
+---
+>                                                                             i.getRuleKey())),

@@ -1,161 +1,218 @@
-38d37
+1,23d0
+< /*
+<  * The MIT License (MIT)
+<  *
+<  * Copyright (c) 2018-2023 Yegor Bugayenko
+<  *
+<  * Permission is hereby granted, free of charge, to any person obtaining a copy
+<  * of this software and associated documentation files (the "Software"), to deal
+<  * in the Software without restriction, including without limitation the rights
+<  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+<  *
+<  * The above copyright notice and this permission notice shall be included
+<  * in all copies or substantial portions of the Software.
+<  *
+<  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+<  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+<  * SOFTWARE.
+<  */
+31a9
+> import org.cactoos.Scalar;
+33,38d10
+< import org.cactoos.iterable.LengthOf;
+< import org.cactoos.list.ListOf;
+< import org.cactoos.scalar.IoCheckedScalar;
+< import org.cactoos.scalar.ItemAt;
+< import org.cactoos.scalar.StickyScalar;
 < import org.cactoos.scalar.UncheckedScalar;
-43d41
+40c12
+< import org.cactoos.text.SplitText;
+---
+> import org.cactoos.text.SplitBy;
+42,44c14
+< import org.cactoos.text.TrimmedText;
 < import org.cactoos.text.UncheckedText;
-52,53c50
+< import org.cactoos.time.ZonedDateTimeOf;
+---
+> import org.cactoos.text.Trimmed;
+52,53c22
 < @SuppressWarnings({"PMD.AvoidCatchingGenericException",
 <     "PMD.AvoidFieldNameMatchingMethodName"})
 ---
-> @SuppressWarnings({"PMD.AvoidFieldNameMatchingMethodName", "PMD.AvoidCatchingGenericException"})
-60d56
+> @SuppressWarnings({"PMD.AvoidFieldNameMatchingMethodName"})
+60d28
 <         //@checkstyle LineLengthCheck (1 line)
-96d91
+88c56
+<     private final IoCheckedScalar<String> transaction;
+---
+>     private final Scalar<String> transaction;
+95,102c63,66
+<         this.transaction = new IoCheckedScalar<>(
 <             new StickyScalar<>(
-98,99c93
+<                 () -> {
 <                     if (
 <                         new TrimmedText(
----
->                 final String trimmed = new TrimmedText(
-101,102c95,96
+<                             new TextOf(trnsct)
 <                         ).asString().isEmpty()
 <                     ) {
 ---
->                 ).asString();
->                 if (trimmed.isEmpty()) {
-107,109c101,102
+>         this.transaction = new Scalar<String>() {
+>             @Override
+>             public String value() throws Exception {
+>                 if (new Trimmed<>(new TextOf(trnsct)).asString().isEmpty()) {
+107,112c71,72
 <                     final List<Text> pieces =
 <                         new ListOf<>(
 <                             new SplitText(trnsct, ";")
----
->                 final List<Text> pieces = new ListOf<>(
->                     new SplitText(trimmed, ";")
-111,112c104
+<                         );
 <                     // @checkstyle MagicNumberCheck (1 line)
 <                     if (new LengthOf(pieces).intValue() != 7) {
 ---
+>                 final List<Text> pieces = new SplitBy<>(trnsct, ";");
 >                 if (new LengthOf<>(pieces).intValue() != 7) {
-115d106
+115d74
 <                                 // @checkstyle LineLength (1 line)
-121c112
-<                     return trnsct;
----
->                 return trimmed;
-123d113
+123,124c82
 <             )
-128d117
+<         );
+---
+>         };
+128d85
 <     @SuppressWarnings("PMD.ShortMethodName")
-130,132c119
+130,136c87,92
 <         final String ident = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
----
->         final String ident = new ItemAt<>(
-134,136c121
+<                     0, new SplitText(this.transaction.value(), ";")
 <                 )
 <             ).value()
 <         ).asString();
 ---
->         ).value();
-139d123
+>         final String ident = new Scalar<String>() {
+>             @Override
+>             public String value() throws Exception {
+>                 return new SplitBy<>(this.transaction.value(), ";").get(0).asString();
+>             }
+>         }.value();
+139d94
 <                 new UncheckedText(
-141d124
+141d95
 <                         // @checkstyle LineLength (1 line)
-144d126
+144d97
 <                     )
-148d129
+148d100
 <         // @checkstyle MagicNumber (1 line)
-155,156d135
+155,161c107,112
 <             new UncheckedText(
 <                 new IoCheckedScalar<>(
-159,161c138
+<                     new ItemAt<>(
+<                         1, new SplitText(this.transaction.value(), ";")
 <                     )
 <                 ).value()
 <             ).asString(),
 ---
->             ).value(),
-168,170c145
+>             new Scalar<String>() {
+>                 @Override
+>                 public String value() throws Exception {
+>                     return new SplitBy<>(this.transaction.value(), ";").get(1).asString();
+>                 }
+>             }.value(),
+168,174c119,124
 <         final String amnt = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
----
->         final String amnt = new ItemAt<>(
-172,174c147
+<                     2, new SplitText(this.transaction.value(), ";")
 <                 )
 <             ).value()
 <         ).asString();
 ---
->         ).value();
-177d149
+>         final String amnt = new Scalar<String>() {
+>             @Override
+>             public String value() throws Exception {
+>                 return new SplitBy<>(this.transaction.value(), ";").get(2).asString();
+>             }
+>         }.value();
+177d126
 <                 new UncheckedText(
-179,180c151
+179d127
 <                         // @checkstyle LineLength (1 line)
-<                         "Invalid amount '%s' expecting 64-bit signed hex string with 16 symbols",
----
->                     "Invalid amount '%s', expecting 64-bit signed hex string with 16 symbols",
-182d152
+182d129
 <                     )
-186d155
+186d132
 <         // @checkstyle MagicNumber (1 line)
-192,195c161
+192,200c138,143
 <         final String prefix = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
 <                     //@checkstyle MagicNumberCheck (1 line)
----
->         final String prefix = new ItemAt<>(
-197,200c163
+<                     3, new SplitText(this.transaction.value(), ";")
 <                 )
 <             ).value()
 <         ).asString();
 <         //@checkstyle MagicNumberCheck (1 line)
 ---
->         ).value();
-212,215c175
+>         final String prefix = new Scalar<String>() {
+>             @Override
+>             public String value() throws Exception {
+>                 return new SplitBy<>(this.transaction.value(), ";").get(3).asString();
+>             }
+>         }.value();
+212,219c155,160
 <         final String bnf = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
 <                     //@checkstyle MagicNumberCheck (1 line)
----
->         final String bnf = new ItemAt<>(
-217,219c177
+<                     4, new SplitText(this.transaction.value(), ";")
 <                 )
 <             ).value()
 <         ).asString();
 ---
->         ).value();
-222d179
+>         final String bnf = new Scalar<String>() {
+>             @Override
+>             public String value() throws Exception {
+>                 return new SplitBy<>(this.transaction.value(), ";").get(4).asString();
+>             }
+>         }.value();
+222d162
 <                 new UncheckedText(
-224d180
+224d163
 <                         // @checkstyle LineLength (1 line)
-227d182
+227d165
 <                     )
-236,239c191
+236,243c174,179
 <         final String dtls = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
 <                     //@checkstyle MagicNumberCheck (1 line)
----
->         final String dtls = new ItemAt<>(
-241,243c193
+<                     5, new SplitText(this.transaction.value(), ";")
 <                 )
 <             ).value()
 <         ).asString();
 ---
->         ).value();
-246d195
+>         final String dtls = new Scalar<String>() {
+>             @Override
+>             public String value() throws Exception {
+>                 return new SplitBy<>(this.transaction.value(), ";").get(5).asString();
+>             }
+>         }.value();
+246d181
 <                 new UncheckedText(
-248d196
+248d182
 <                         // @checkstyle LineLength (1 line)
-251d198
+251d184
 <                     )
-260,263c207
+260,270c193,199
 <         final String sign = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
 <                     //@checkstyle MagicNumberCheck (1 line)
----
->         final String sign = new ItemAt<>(
-265,270c209,210
+<                     6, new SplitText(this.transaction.value(), ";")
 <                 )
 <             ).value()
 <         ).asString();
@@ -163,25 +220,42 @@
 <         if (sign.length() != 684
 <             || !RtTransaction.SIGN.matcher(sign).matches()) {
 ---
->         ).value();
+>         final String sign = new Scalar<String>() {
+>             @Override
+>             public String value() throws Exception {
+>                 return new SplitBy<>(this.transaction.value(), ";").get(6).asString();
+>             }
+>         }.value();
 >         if (sign.length() != 684 || !RtTransaction.SIGN.matcher(sign).matches()) {
-272d211
+272d200
 <                 new UncheckedText(
-274d212
+274d201
 <                         // @checkstyle LineLength (1 line)
-277d214
+277d203
 <                     )
-286c223
+286c212,216
 <         return new UncheckedScalar<>(this.transaction).value();
 ---
->         return this.transaction.value();
-290d226
+>         try {
+>             return this.transaction.value();
+>         } catch (Exception e) {
+>             throw new RuntimeException(e);
+>         }
+290d219
 <     @SuppressWarnings("PMD.OnlyOneReturn")
-299c235
+299c228,232
 <         return this.transaction.equals(that.transaction);
 ---
->         return this.transaction.value().equals(that.transaction.value());
-304c240
+>         try {
+>             return this.transaction.value().equals(that.transaction.value());
+>         } catch (Exception e) {
+>             throw new RuntimeException(e);
+>         }
+304c237,241
 <         return this.transaction.hashCode();
 ---
->         return this.transaction.value().hashCode();
+>         try {
+>             return this.transaction.value().hashCode();
+>         } catch (Exception e) {
+>             throw new RuntimeException(e);
+>         }

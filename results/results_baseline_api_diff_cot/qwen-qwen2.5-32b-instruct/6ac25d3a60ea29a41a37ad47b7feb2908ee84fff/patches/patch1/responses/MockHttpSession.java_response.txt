@@ -60,21 +60,8 @@ public class MockHttpSession implements HttpSession {
     return 0;
   }
 
-  // Removed methods due to the removal of HttpSessionContext class
-  // @Override
-  // public HttpSessionContext getSessionContext() {
-  //   return null;
-  // }
-
-  // @Override
-  // public Object getValue(final String s) {
-  //   return null;
-  // }
-
-  // @Override
-  // public String[] getValueNames() {
-  //   return new String[0];
-  // }
+  // Removed HttpSessionContext related methods as the class is no longer available in the new API version
+  // The following methods are deprecated and removed in the new version of the dependency
 
   @Override
   public void invalidate() {
@@ -84,21 +71,6 @@ public class MockHttpSession implements HttpSession {
   public boolean isNew() {
     return false;
   }
-
-  // Removed methods due to the removal of HttpSessionContext class
-  // @Override
-  // public void putValue(final String s, final Object o) {
-  // }
-
-  @Override
-  public void removeAttribute(final String s) {
-    attributes.remove(s);
-  }
-
-  // Removed methods due to the removal of HttpSessionContext class
-  // @Override
-  // public void removeValue(final String s) {
-  // }
 
   @Override
   public void setAttribute(final String s, final Object o) {

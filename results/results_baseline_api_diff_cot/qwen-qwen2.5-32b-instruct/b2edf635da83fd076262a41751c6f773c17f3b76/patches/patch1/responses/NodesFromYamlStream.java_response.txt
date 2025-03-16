@@ -32,6 +32,10 @@ import org.jclouds.byon.domain.YamlNode;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.introspector.BeanAccess;
+import org.yaml.snakeyaml.introspector.Property;
+import org.yaml.snakeyaml.nodes.NodeTuple;
+import org.yaml.snakeyaml.nodes.Tag;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
@@ -81,6 +85,9 @@ public class NodesFromYamlStream implements Function<ByteSource, LoadingCache<St
    public LoadingCache<String, Node> apply(ByteSource source) {
 
       Constructor constructor = new Constructor();
+      constructor.setAllowDuplicateKeys(false);
+      constructor.setAllowRecursiveKeys(false);
+      constructor.setBeanAccess(BeanAccess.FIELD);
       constructor.addTypeDescription(new TypeDescription(Config.class)
             .withPropertyType("nodes", YamlNode.class));
       constructor.addTypeDescription(new TypeDescription(YamlNode.class)
@@ -91,7 +98,7 @@ public class NodesFromYamlStream implements Function<ByteSource, LoadingCache<St
       InputStream in = null;
       try {
          in = source.openStream();
-         config = (Config) yaml.load(in);
+         config = yaml.loadAs(in, Config.class);
       } catch (IOException ioe) {
          throw propagate(ioe);
       } finally {

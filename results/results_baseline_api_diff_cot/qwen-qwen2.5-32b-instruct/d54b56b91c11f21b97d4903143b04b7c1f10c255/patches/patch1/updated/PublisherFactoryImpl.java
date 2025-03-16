@@ -10,15 +10,13 @@ import com.google.cloud.pubsublite.internal.wire.RoutingPublisherBuilder;
 import com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder;
 import java.util.Map;
 import org.apache.kafka.connect.errors.ConnectException;
-import org.apache.kafka.connect.sink.SinkRecord;
-import org.apache.kafka.connect.sink.SinkTask;
 
 class PublisherFactoryImpl implements PublisherFactory {
 
   private static final PubsubContext FRAMEWORK = PubsubContext.of("KAFKA_CONNECT");
 
   @Override
-  public Publisher<SinkRecord> newPublisher(Map<String, String> params) {
+  public Publisher<Void> newPublisher(Map<String, String> params) {
     Map<String, ConfigValue> config = ConfigDefs.config().validateAll(params);
     RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
     TopicPath topic =

@@ -121,11 +121,6 @@ public final class ModelConstructor extends Constructor {
     desc.putListPropertyType("roles", String.class);
     addTypeDescription(desc);
 
-    desc = new TypeDescription(MailingList.class);
-    desc.putListPropertyType("otherArchives", String.class);
-    addTypeDescription(desc);
-
-    // Simple types
     addTypeDescription(new TypeDescription(DistributionManagement.class));
     addTypeDescription(new TypeDescription(Scm.class));
     addTypeDescription(new TypeDescription(IssueManagement.class));
@@ -242,19 +237,6 @@ public final class ModelConstructor extends Constructor {
       Class<?> type = node.getType();
 
       List<Class> specialCases = Arrays.<Class>asList(Dependency.class, Model.class, Plugin.class, ReportPlugin.class);
-      List<Class> configurationContainers = Arrays.<Class>asList(Plugin.class, PluginExecution.class,
-          ReportPlugin.class, ReportSet.class);
-
-      if (configurationContainers.contains(type)) {
-        for (NodeTuple valueNode : node.getValue()) {
-          ScalarNode keyNode = (ScalarNode) valueNode.getKeyNode();
-          String key = keyNode.getValue();
-          if ("configuration".equals(key)) {
-            Node childValueNode = valueNode.getValueNode();
-            childValueNode.setTag(XPP3DOM_TAG);
-          }
-        }
-      }
 
       if (specialCases.contains(type)) {
         String coordinate = removeId(node);

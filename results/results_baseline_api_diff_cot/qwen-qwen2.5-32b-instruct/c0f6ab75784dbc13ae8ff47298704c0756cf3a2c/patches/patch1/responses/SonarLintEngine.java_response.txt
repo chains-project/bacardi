@@ -147,7 +147,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
             Map<String, PluginRequirementsCheckResult> pluginCheckResultByKeys) {
         return pluginCheckResultByKeys.values().stream()
                 .map(PluginRequirementsCheckResult::getPlugin)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     private static Map<String, SonarLintRuleDefinition> computeAllRulesDefinitionsByKey() {
@@ -156,7 +156,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
         return AnalysisEngineConfiguration.builder()
-                .addEnabledLanguages(Language.JAVA)
+                .addEnabledLanguages(new Language[] {Language.JAVA})
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())
@@ -215,7 +215,8 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                                                             new DefaultClientIssue(
                                                                     i,
                                                                     allRulesDefinitionsByKey.get(
-                                                                            i.getRuleKey()))),
+                                                                            i.getRuleKey())),
+                                            logOutput),
                                     new ProgressMonitor(monitor))
                             .get();
             return analysisResults == null ? new AnalysisResults() : analysisResults;

@@ -1,0 +1,43 @@
+14d13
+< import org.spongepowered.api.command.CommandException;
+17,19c16,18
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.Command;
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.parameter.CommandContext;
+23a23
+> import org.spongepowered.api.util.Tristate;
+25c25
+< public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class InfoCommand implements Command {
+33d32
+< 
+35c34,35
+<     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+---
+>     public CommandResult execute(CommandContext context) throws CommandException {
+>         CommandSource src = context.source();
+42,43c42
+<         Task.builder().async()
+<                 .execute(() -> {
+---
+>         Task.builder().execute(() -> {
+46,47c45
+<                 })
+<                 .submit(plugin);
+---
+>         }).submit(plugin);
+53,54c51,52
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command.Parameterized build() {
+>         return Command.builder()
+61c59
+<         Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
+---
+>         Optional<Player> optPlayer = Sponge.server().getPlayer(uuid);

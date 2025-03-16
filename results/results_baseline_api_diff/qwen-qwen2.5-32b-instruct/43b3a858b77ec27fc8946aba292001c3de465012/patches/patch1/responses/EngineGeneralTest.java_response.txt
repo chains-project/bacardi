@@ -69,6 +69,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -84,13 +85,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.feedzai.commons.sql.abstraction.ddl.DbColumnConstraint.NOT_NULL;
-import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.BLOB;
-import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.BOOLEAN;
-import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.CLOB;
-import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.DOUBLE;
-import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.INT;
-import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.LONG;
-import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.STRING;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.BLOB;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.BOOLEAN;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.CLOB;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.DOUBLE;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.INT;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.LONG;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.STRING;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.L;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.all;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.avg;
@@ -177,11 +178,8 @@ public class EngineGeneralTest {
 
     @BeforeClass
     public static void initStatic() {
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerContext();
-        loggerContext.reset();
-        JoranConfigurator configurator = new JoranConfigurator();
-        configurator.setContext(loggerContext);
-        configurator.doConfigure("src/test/resources/logback-test-logback.xml");
+        LoggerContext loggerContext = ((LoggerContext) LoggerFactory.getILoggerContext());
+        loggerContext.getLogger(Logger.ROOT_LOGGER_NAME).setLevel(Level.TRACE);
     }
 
     @Before

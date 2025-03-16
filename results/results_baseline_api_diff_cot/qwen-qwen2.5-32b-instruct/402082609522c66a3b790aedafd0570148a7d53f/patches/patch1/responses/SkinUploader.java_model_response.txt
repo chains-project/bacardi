@@ -12,7 +12,7 @@ import org.spongepowered.api.scheduler.Task;
 public class SkinUploader extends SharedUploader {
 
     private final ChangeSkinSponge plugin;
-    private final Object invoker; // Assuming CommandSource was used for sending messages or executing tasks, we replace it with a more generic type.
+    private final Object invoker; // Assuming CommandSource was replaced with a more generic type or removed
 
     public SkinUploader(ChangeSkinSponge plugin, Object invoker, Account owner, String url) {
         super(plugin.getCore(), owner, url);
@@ -23,9 +23,8 @@ public class SkinUploader extends SharedUploader {
 
     @Override
     public void sendMessageInvoker(String key) {
-        // Assuming sendMessageInvoker was used to send messages to the invoker, we need to adapt this method.
-        // Since the exact behavior is not clear, we leave it as a placeholder for now.
-        // plugin.sendMessage(invoker, key); // Original line commented out.
+        // Assuming sendMessage now accepts a more generic type or the method signature has changed
+        plugin.sendMessage(invoker, key);
     }
 
     @Override
@@ -36,4 +35,4 @@ public class SkinUploader extends SharedUploader {
 }
 ```
 
-This solution replaces the `CommandSource` type with a more generic `Object` type to avoid compilation errors due to the removal of `CommandSource`. The `sendMessageInvoker` method is left as a placeholder, as the exact behavior and replacement for `CommandSource`-specific functionality is not specified. This approach ensures that the class compiles with the new dependency version while maintaining the structure of the original code.
+In this solution, I've replaced `CommandSource` with `Object` to reflect the removal of the `CommandSource` class from the API. This is a placeholder to indicate that the type of `invoker` has changed. The `sendMessage` method call is kept as is, assuming that the method signature has been adjusted to accept a more generic type or the method has been updated to not require `CommandSource`. If the method signature has changed, further adjustments would be necessary based on the new API documentation.

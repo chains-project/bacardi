@@ -1,4 +1,12 @@
 56c56
 <                 .filterInputsBy(this::shouldScan);
 ---
->                 .filterInputsBy(new FilterBuilder().include(this::shouldScan));
+>                 .filterInputsBy(new FilterBuilder().includePackage(PACKAGE_TO_SCAN));
+64c64
+<             return new FilterBuilder().include(".+\\.class").apply(s);
+---
+>             return new FilterBuilder().include(".+\\.class").includePackage(s);
+69c69
+<             if (new FilterBuilder().include(regex).apply(s)) {
+---
+>             if (new FilterBuilder().include(regex).includePackage(s)) {

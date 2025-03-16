@@ -104,11 +104,13 @@ public class NisAppConfig {
 
 	@Bean
 	public Flyway flyway() throws IOException {
+		final Properties prop = new Properties();
+		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+
 		final ClassicConfiguration config = new ClassicConfiguration();
 		config.setDataSource(this.dataSource());
 		config.setLocations(prop.getProperty("flyway.locations").split(","));
 		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		config.setClassLoader(NisAppConfig.class.getClassLoader());
 
 		return new Flyway(config);
 	}
@@ -200,8 +202,8 @@ public class NisAppConfig {
 	@Bean
 	public Harvester harvester() {
 		final NewBlockTransactionsProvider transactionsProvider = new DefaultNewBlockTransactionsProvider(this.nisCache(),
-				this.blockTransactionObserverFactory(), this.blockValidatorFactory(), this.unconfirmedTransactionsFilter(),
-				this.nisConfiguration().getForkConfiguration());
+				this.transactionValidatorFactory(), this.blockValidatorFactory(), this.blockTransactionObserverFactory(),
+				this.unconfirmedTransactionsFilter(), this.nisConfiguration().getForkConfiguration());
 
 		final BlockGenerator generator = new BlockGenerator(this.nisCache(), transactionsProvider, this.blockDao,
 				new BlockScorer(this.accountStateCache()), this.blockValidatorFactory().create(this.nisCache()));
@@ -255,6 +257,17 @@ public class NisAppConfig {
 
 		return BlockChainFeatureDependentFactory.createObject(this.nisConfiguration().getBlockChainConfiguration(), "consensus algorithm",
 				featureSupplierMap);
+	}
+
+	@Bean
+	public UnlockedAccounts unlockedAccounts() {
+		return new UnlockedAccounts(this.accountCache(), this.accountStateCache(), this.blockChainLastBlockLayer,
+				this.canHarvestPredicate(), this.nisConfiguration().getUnlockedLimit());
+	}
+
+	@Bean
+	public CanHarvestPredicate canHarvestPredicate() {
+		return new CanHarvestPredicate(this::getBlockDependentMinHarvesterBalance);
 	}
 
 	@Bean
@@ -328,14 +341,6 @@ public class NisAppConfig {
 		return new CanHarvestPredicate(this::getBlockDependentMinHarvesterBalance);
 	}
 
-	private Amount getBlockDependentMinHarvesterBalance(final BlockHeight height) {
-		return getBlockDependentPoiOptions(height).getMinHarvesterBalance();
-	}
-
-	private static org.nem.nis.pox.poi.PoiOptions getBlockDependentPoiOptions(final BlockHeight height) {
-		return new PoiOptionsBuilder(height).create();
-	}
-
 	@Bean
 	public Supplier<BlockHeight> lastBlockHeight() {
 		return this.blockChainLastBlockLayer::getLastBlockHeight;
@@ -392,8 +397,8 @@ public class NisAppConfig {
 	private Supplier<WeightedBalances> weighedBalancesSupplier() {
 		final Map<BlockChainFeature, Supplier<Supplier<WeightedBalances>>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<WeightedBalances>>>() {
 			{
-				this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
-				this.put(BlockChainFeature.WB_IMMEDIATE_VEST, AlwaysVestedBalances::new);
+				this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
+				this.put(BlockChainFeature.WB_IMMEDIATE_VESTINGING, () -> AlwaysVestedBalances::new);
 			}
 		};
 

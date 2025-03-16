@@ -148,7 +148,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
             Map<String, PluginRequirementsCheckResult> pluginCheckResultByKeys) {
         return pluginCheckResultByKeys.values().stream()
                 .map(PluginRequirementsCheckResult::getPlugin)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     private static Map<String, SonarLintRuleDefinition> computeAllRulesDefinitionsByKey() {
@@ -157,7 +157,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
         return AnalysisEngineConfiguration.builder()
-                .addEnabledLanguages(Language.JAVA)
+                .addEnabledLanguages(new Language[] {Language.JAVA})
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())
@@ -216,7 +216,8 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                                                             new DefaultClientIssue(
                                                                     i,
                                                                     allRulesDefinitionsByKey.get(
-                                                                            i.getRuleKey()))),
+                                                                            i.getRuleKey())),
+                                            logOutput),
                                     new ProgressMonitor(monitor))
                             .get();
             return analysisResults == null ? new AnalysisResults() : analysisResults;
@@ -286,4 +287,4 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
 }
 ```
 
-In the provided solution, the method `addEnabledLanguages` in `AnalysisEngineConfiguration.Builder` has been updated to use `addEnabledLanguages(Language...)` instead of `addEnabledLanguages(Collection<Language>)`. This change is made to align with the new API changes. The rest of the class remains unchanged to ensure that the fix is minimal and only addresses the breaking dependency update.
+In the provided solution, the method `addEnabledLanguages` in `AnalysisEngineConfiguration.Builder` has been replaced with `addEnabledLanguages` that takes an array of `Language` as a parameter. This change is made to align with the new API of the dependency. The rest of the code remains unchanged to ensure that the class is compilable and functional with the new dependency version.

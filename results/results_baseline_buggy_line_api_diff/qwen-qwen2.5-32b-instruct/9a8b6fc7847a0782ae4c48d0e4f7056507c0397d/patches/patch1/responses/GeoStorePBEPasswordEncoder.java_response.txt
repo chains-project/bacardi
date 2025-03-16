@@ -29,9 +29,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import org.jasypt.encryption.pbe.StandardPBEByteEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
-import org.jasypt.spring.security3.PBEStringEncryptor;
-import org.jasypt.util.password.PasswordEncryptor;
-import org.jasypt.util.password.StrongPasswordEncryptor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import it.geosolutions.geostore.core.security.password.CharArrayPasswordEncoder;
 import it.geosolutions.geostore.core.security.password.PasswordEncodingType;
@@ -92,8 +90,7 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			}
 			stringEncrypter.setAlgorithm(getAlgorithm());
 
-			PasswordEncryptor encoder = new StrongPasswordEncryptor();
-			return encoder::isPasswordValid;
+			return stringEncrypter;
 		} finally {
 			scramble(password);
 			scramble(chars);
@@ -188,4 +185,5 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			scramble(bytes);
 		}
 	}
+	
 }

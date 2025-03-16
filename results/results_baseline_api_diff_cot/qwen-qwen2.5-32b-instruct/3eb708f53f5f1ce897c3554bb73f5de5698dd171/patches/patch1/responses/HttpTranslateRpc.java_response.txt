@@ -9,11 +9,6 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.cloud.http.HttpTransportOptions;
 import com.google.cloud.translate.TranslateException;
 import com.google.cloud.translate.TranslateOptions;
-import com.google.cloud.translate.v3.Translate;
-import com.google.cloud.translate.v3.TranslateClient;
-import com.google.cloud.translate.v3.TranslateTextRequest;
-import com.google.cloud.translate.v3.TranslateTextResponse;
-import com.google.cloud.translate.v3.Translation;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -23,16 +18,15 @@ import java.util.Map;
 
 public class HttpTranslateRpc implements TranslateRpc {
 
-{
   private final TranslateOptions options;
-  private final TranslateClient translate;
+  private final com.google.cloud.translate.v3.Translate translate;
 
   public HttpTranslateRpc(TranslateOptions options) {
     HttpTransportOptions transportOptions = (HttpTransportOptions) options.getTransportOptions();
     HttpTransport transport = transportOptions.getHttpTransportFactory().create();
     HttpRequestInitializer initializer = transportOptions.getHttpRequestInitializer(options);
     this.options = options;
-    translate = TranslateClient.create();
+    this.translate = new com.google.cloud.translate.v3.Translate(transport, new JacksonFactory(), initializer);
   }
 
   private static TranslateException translate(IOException exception) {
@@ -48,9 +42,9 @@ public class HttpTranslateRpc implements TranslateRpc {
   }
 
   @Override
-  public List<List<Map<String, Double>> detect(List<String> texts) {
+  public List<List<Map<String, Double>>> detect(List<String> texts) {
     try {
-      List<List<Map<String, Double>> detections = translate.detectLanguage(texts).toArray(new String[0]));
+      List<List<Map<String, Double>>> detections = translate.detect(texts).getDetections();
       return detections != null ? detections : ImmutableList.of();
     } catch (IOException ex) {
       throw translate(ex);
@@ -60,7 +54,7 @@ public class HttpTranslateRpc implements TranslateRpc {
   @Override
   public List<Map<String, String>> listSupportedLanguages(Map<Option, ?> optionMap) {
     try {
-      List<Map<String, String>> languages = translate.listSupportedLanguages();
+      List<Map<String, String>> languages = translate.listSupportedLanguages().getLanguages();
       return languages != null ? languages : ImmutableList.of();
     } catch (IOException ex) {
       throw translate(ex);
@@ -68,11 +62,22 @@ public class HttpTranslateRpc implements TranslateRpc {
   }
 
   @Override
-  public List<Translation> translate(List<String> texts, Map<Option, ?> optionMap) {
+  public List<Map<String, String>> translate(List<String> texts, Map<Option, ?> optionMap) {
     try {
       String targetLanguage = firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
-      List<Translation> translations = translate.translateText(texts.toArray(new String[0]), targetLanguage);
-      return translations != null ? translations : ImmutableList.of();
+      List<Map<String, String>> translations = translate.translate(texts, targetLanguage).getTranslations();
+      return Lists.transform(
+          translations != null ? translations : ImmutableList.of(),
+          new Function<Map<String, String>, Map<String, String>>() {
+            @Override
+            public Map<String, String> apply(Map<String, String> translationsResource) {
+              // Since setDetectedSourceLanguage and getDetectedSourceLanguage are removed, we need to handle this differently.
+              // Assuming the source language is known or can be inferred, we can set it directly.
+              String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
+              translationsResource.put("sourceLanguage", sourceLanguage);
+              return translationsResource;
+            }
+          });
     } catch (IOException ex) {
       throw translate(ex);
     }

@@ -218,7 +218,7 @@ public class RecognitionHelper {
         	final int skewstepsIndex = cmdArgsWork.indexOf("--skewsteps");
         	if(skewstepsIndex > -1) {
         		skewparams.add(cmdArgsWork.remove(skewstepsIndex));
-        		skewparams.add(cmdArgsWork.remove(skewstepsIndex);
+        		skewparams.add(cmdArgsWork.remove(skewstepsIndex));
         	}
 
 			// Create temp json file with all segment images (to not overload parameter list)
@@ -239,7 +239,7 @@ public class RecognitionHelper {
 				dataList.add(pageList);
 			}
 			ObjectWriter writer = mapper.writer();
-			mapper.writeValue(segmentListFile, dataList);
+			writer.writeValue(segmentListFile, dataList);
 
             processHandler = new ProcessHandler();
             processHandler.setFetchProcessConsole(true);
@@ -264,12 +264,12 @@ public class RecognitionHelper {
 
         List<String> command = new ArrayList<>();
         // Ugly hack but helpers will be rewritten for the next release anyways. Don't use as basis for future code!
-        if(cmdArgsWork.contains("--data.output_glyphs")) {
+        if(cmdArgsWork.contains("--data.output_glyphs")){
             cmdArgsWork.remove("--data.output_glyphs");
             command.add("--data.output_glyphs");
             command.add("True");
         }
-        if(cmdArgsWork.contains("--data.output_confidences")) {
+        if(cmdArgsWork.contains("--data.output_confidences")){
             cmdArgsWork.remove("--data.output_confidences");
             command.add("--data.output_confidences");
             command.add("True");
@@ -279,8 +279,7 @@ public class RecognitionHelper {
         // Create temp json file with all segment images (to not overload parameter list)
 		// Temp file in a temp folder named "calamari-<random numbers>.json"
         File segmentListFile = File.createTempFile("calamari-",".files");
-        segmentListFile.deleteOnExit();
-
+        segmentListFile.deleteOnExit(); // Delete if OCR4all terminates
         List<String> content = new ArrayList<>();
         for (String pageId : pageIds) {
             // Add affected images with their absolute path to the file

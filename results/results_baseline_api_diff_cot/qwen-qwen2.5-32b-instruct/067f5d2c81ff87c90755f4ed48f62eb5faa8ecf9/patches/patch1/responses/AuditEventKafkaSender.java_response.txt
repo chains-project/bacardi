@@ -14,8 +14,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.TSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,31 +52,20 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
 
   private static final int PARTITIONS_REFRESH_INTERVAL_IN_SECONDS = 30;
 
-  private final LoggingAuditStage stage;
-
-  private final String host;
-
-  private final LinkedBlockingDeque<LoggingAuditEvent> queue;
-
-  private KafkaProducer<byte[], byte[]> kafkaProducer;
-
-  private TSerializer serializer;
-
-  private AtomicBoolean cancelled = new AtomicBoolean(false);
-
   private String topic;
-
+  private LinkedBlockingDeque<LoggingAuditEvent> queue;
+  private LoggingAuditStage stage;
+  private String host;
   private String name;
-
-  private Thread thread;
-
+  private KafkaProducer<byte[], byte[]> kafkaProducer;
+  private TSerializer serializer = new TSerializer();
+  private AtomicBoolean cancelled = new AtomicBoolean(false);
   private List<PartitionInfo> partitionInfoList = new ArrayList<>();
-
   private long lastTimeUpdate = -1;
-
   private Set<Integer> badPartitions = ConcurrentHashMap.newKeySet();
-
   private Map<LoggingAuditHeaders, Integer> eventTriedCount = new ConcurrentHashMap<>();
+  private int currentPartitionId = -1;
+  private int stopGracePeriodInSeconds = 300;
 
   public AuditEventKafkaSender(KafkaSenderConfig config,
                                LinkedBlockingDeque<LoggingAuditEvent> queue,
@@ -89,7 +76,6 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
     this.host = host;
     this.name = name;
     this.stopGracePeriodInSeconds = config.getStopGracePeriodInSeconds();
-    this.serializer = new TSerializer(new TBinaryProtocol.Factory());
     this.badPartitions.add(-1);
   }
 
@@ -104,9 +90,9 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
             .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_PARTITIONS_REFRESH_COUNT, 1,
                 "host=" + host, "stage=" + stage.toString());
       } catch (Exception e) {
-        OpenTsdbMetricConverter.incr(
-            LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_PARTITIONS_REFRESH_ERROR, 1,
-                "host=" + host, "stage=" + stage.toString());
+        OpenTsdbMetricConverter
+            .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_PARTITIONS_REFRESH_ERROR, 1,
+                "host=" + host, "stage=" + stage.toString(), "topic=" + topic);
       }
     }
     resetCurrentPartitionIdIfNeeded();
@@ -122,7 +108,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
       while (trial < MAX_RETRIES_FOR_SELECTION_RANDOM_PARTITION) {
         trial += 1;
         int index = ThreadLocalRandom.current().nextInt(partitionInfoList.size());
-        int randomPartition = partitionInfoList.get(index).partition());
+        int randomPartition = partitionInfoList.get(index).partition();
         if (!badPartitions.contains(randomPartition)) {
           LOG.warn("Change current partition of audit event topic from {} to {}", currentPartitionId,
               randomPartition);
@@ -136,6 +122,52 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
       currentPartitionId =  partitionInfoList.get(ThreadLocalRandom.current().nextInt(
           partitionInfoList.size())).partition();
       LOG.warn("After {} trials, set current partition to {}", MAX_RETRIES_FOR_SELECTION_RANDOM_PARTITION, currentPartitionId);
+    }
+  }
+
+  @Override
+  public void run() {
+    LoggingAuditEvent event = null;
+    ProducerRecord<byte[], byte[]> record;
+    byte[] value = null;
+
+    while (!cancelled.get()) {
+      try {
+        refreshPartitionIfNeeded();
+        if (currentPartitionId == -1){
+          Thread.sleep(100);
+          continue;
+        }
+        event = queue.poll(DEQUEUE_WAIT_IN_SECONDS, TimeUnit.SECONDS);
+        if (event != null) {
+          try {
+            value = serializer.serialize(event);
+            record = new ProducerRecord<>(this.topic, currentPartitionId, null, value);
+            kafkaProducer.send(record, new KafkaProducerCallback(event, currentPartitionId));
+          } catch (TException e) {
+            LOG.debug("[{}] failed to construct ProducerRecord because of serialization exception.",
+                Thread.currentThread().getName(), e);
+            OpenTsdbMetricConverter
+                .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_SERIALIZATION_EXCEPTION, 1,
+                    "host=" + host, "stage=" + stage.toString(),
+                    "logName=" + event.getLoggingAuditHeaders().getLogName());
+            eventTriedCount.remove(event.getLoggingAuditHeaders());
+          }
+        }
+      } catch (InterruptedException e) {
+        LOG.warn("[{}] got interrupted when polling the queue and while loop is ended!",
+            Thread.currentThread().getName(), e);
+        OpenTsdbMetricConverter
+            .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_DEQUEUE_INTERRUPTED_EXCEPTION, 1,
+                "host=" + host, "stage=" + stage.toString());
+        break;
+      } catch (Exception e) {
+        LOG.warn("Exit the while loop and finish the thread execution due to exception: ", e);
+        OpenTsdbMetricConverter
+            .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_EXCEPTION, 1,
+                "host=" + host, "stage=" + stage.toString(), "topic=" + topic);
+        break;
+      }
     }
   }
 
@@ -154,6 +186,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
       OpenTsdbMetricConverter
           .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_PARTITION_ERROR, 1,
               "host=" + host, "stage=" + stage.toString(), "topic=" + topic);
+
       Integer count = eventTriedCount.get(event.getLoggingAuditHeaders());
       if (count == null){
         eventTriedCount.put(event.getLoggingAuditHeaders(), 1);
@@ -179,13 +212,11 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
       try {
         boolean success = queue.offerFirst(event, 3, TimeUnit.SECONDS);
         if (!success) {
-          LOG.debug("Failed to enqueue LoggingAuditEvent at head of the queue when executing "
-              + "producer send callback. Drop this event.");
+          LOG.debug("Failed to enqueue LoggingAuditEvent at head of the queue in callback. Drop this event.");
           eventTriedCount.remove(event.getLoggingAuditHeaders());
         }
       } catch (InterruptedException ex) {
-        LOG.warn("[{}] got interrupted while waiting for [{}] to send out LoggingAuditEvents left"
-            + " in the queue.", Thread.currentThread().getName(), name, ex);
+        LOG.warn("[{}] got interrupted while enqueuing LoggingAuditEvent in callback. Drop this event", Thread.currentThread().getName(), ex);
       }
     }
 
@@ -197,6 +228,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
               .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_EVENTS_ACKED, 1,
                   "host=" + host, "stage=" + stage.toString(),
                   "logName=" + event.getLoggingAuditHeaders().getLogName());
+
           eventTriedCount.remove(event.getLoggingAuditHeaders());
           badPartitions.remove(recordMetadata.partition());
         } else {
@@ -211,46 +243,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
     }
   }
 
-  public void run() {
-    LoggingAuditEvent event = null;
-    ProducerRecord<byte[], byte[]> record;
-    byte[] value = null;
-
-    while (!cancelled.get()) {
-      try {
-        refreshPartitionIfNeeded();
-        if (currentPartitionId == -1){
-          Thread.sleep(100);
-          continue;
-        }
-        event = queue.poll(DEQUEUE_WAIT_IN_SECONDS, TimeUnit.SECONDS);
-        if (event != null) {
-          try {
-            value = serializer.serialize(event);
-            record = new ProducerRecord<>(this.topic, currentPartitionId, null, value);
-            kafkaProducer.send(record, new KafkaProducerCallback(event, currentPartitionId));
-          } catch (TException e) {
-            LOG.debug("[{}] failed to construct ProducerRecord because of serialization exception.",
-                Thread.currentThread().getName(), e);
-            OpenTsdbMetricConverter
-                .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_SERIALIZATION_EXCEPTION, 1,
-                    "host=" + host, "stage=" + stage.toString());
-            eventTriedCount.remove(event.getLoggingAuditHeaders());
-          }
-        }
-      } catch (InterruptedException e) {
-        LOG.warn("[{}] got interrupted while polling the queue and while loop is ended!",
-            Thread.currentThread().getName(), e);
-      } catch (Exception e) {
-        LOG.warn("Exit the while loop and finish the thread execution due to exception: ", e);
-        OpenTsdbMetricConverter
-            .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_EXCEPTION, 1,
-                "host=" + host, "stage=" + stage.toString());
-      }
-    }
-  }
-
-  public synchronized void start() {
+  public void start() {
     if (this.thread == null) {
       thread = new Thread(this);
       thread.setDaemon(true);
@@ -262,11 +255,11 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
     }
   }
 
-  public synchronized void stop() {
+  public void stop() {
     LOG.warn(
         "[{}] waits up to {} seconds to let [{}] send out LoggingAuditEvents left in the queue if"
             + " any.",
-        Thread.currentThread().name(), stopGracePeriodInSeconds, name);
+        Thread.currentThread().getName(), stopGracePeriodInSeconds, name);
     int i = 0;
     int numOfRounds = stopGracePeriodInSeconds / THREAD_SLEEP_IN_SECONDS;
     while (queue.size() > 0 && this.thread != null && thread.isAlive() && i < numOfRounds) {
@@ -275,10 +268,10 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
         Thread.sleep(THREAD_SLEEP_IN_SECONDS * 1000);
         CommonUtils.reportQueueUsage(queue.size(), queue.remainingCapacity(), host, stage.toString());
         LOG.info("In {} round, [{}] waited {} seconds and the current queue size is {}", i,
-            Thread.currentThread().name(), THREAD_SLEEP_IN_SECONDS, queue.size());
+            Thread.currentThread().getName(), THREAD_SLEEP_IN_SECONDS, queue.size());
       } catch (InterruptedException e) {
         LOG.warn("[{}] got interrupted while waiting for [{}] to send out LoggingAuditEvents left"
-            + " in the queue.", Thread.currentThread().name(), name, e);
+            + " in the queue.", Thread.currentThread().getName(), name, e);
       }
     }
     cancelled.set(true);

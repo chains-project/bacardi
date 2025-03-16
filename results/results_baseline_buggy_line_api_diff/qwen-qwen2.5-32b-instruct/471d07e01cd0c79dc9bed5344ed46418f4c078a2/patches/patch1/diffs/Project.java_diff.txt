@@ -15,8 +15,8 @@
 <  * limitations under the License.
 <  */
 < 
-21a6
-> import com.google.api.services.cloudresourcemanager.v3.model.Project; // Updated import for the new version
+20a5
+> import com.google.api.services.cloudresourcemanager.v3.model.Project as V3Project;
 111,116d95
 <     public Builder setParent(ResourceId parent) {
 <       infoBuilder.setParent(parent);
@@ -75,13 +75,29 @@
 <    * @see <a href=
 <    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/setIamPolicy">
 <    *     Resource Manager setIamPolicy</a>
-244,248d192
+233,239c182,183
+<    * Returns the permissions that a caller has on this project. You typically don't call this method
+<    * if you're using Google Cloud Platform directly to manage permissions. This method is intended
+<    * for integration with your proprietary software, such as a customized graphical user interface.
+<    * For example, the Cloud Platform Console tests IAM permissions internally to determine which UI
+<    * should be available to the logged-in user. Each service that supports IAM lists the possible
+<    * permissions; see the <i>Supported Cloud Platform services</i> page below for links to these
+<    * lists.
+---
+>    * Returns a list of booleans representing whether the caller has the permissions specified (in
+>    * the order of the given permissions).
+241,242c185
+<    * @return a list of booleans representing whether the caller has the permissions specified (in
+<    *     the order of the given permissions)
+---
+>    * @return a list of booleans representing whether the caller has the permissions specified
+244,248d186
 <    * @see <a href=
 <    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/testIamPermissions">
 <    *     Resource Manager testIamPermissions</a>
 <    * @see <a href= "https://cloud.google.com/iam/#supported_cloud_platform_services">Supported Cloud
 <    *     Platform Services</a>
-283c227
+283c221
 <       com.google.api.services.cloudresourcemanager.model.Project answer) {
 ---
->       com.google.api.services.cloudresourcemanager.v3.model.Project answer) { // Updated reference to the new version
+>       V3Project answer) {

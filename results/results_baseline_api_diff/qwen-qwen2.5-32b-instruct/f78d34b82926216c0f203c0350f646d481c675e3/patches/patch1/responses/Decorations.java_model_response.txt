@@ -178,7 +178,7 @@ public class Decorations
      * まほーじん！！
      *
      * @param player 餌食
-     * @param seconds 秒数
+     * @param sec    秒数
      */
     public static void magic(Player player, int seconds)
     {
@@ -193,18 +193,18 @@ public class Decorations
                 for (double i = 0; i < Math.PI * 2; i++)
                 {
                     Location c = player.getLocation().clone();
-                    Location X = new Location(c.getWorld(), particle_x(count[0], 3) + c.getX(), 5.0 + c.getY(), particle_z(count[0], 3) + c.getZ());
+                    Location X = new Location(c.getWorld(), particle_x(count[0], 2.5) + c.getX(), 5.0 + c.getY(), particle_z(count[0], 2.5) + c.getZ());
 
                     for (int i = 0; i < 10; i++)
                         line(c, X, Particle.TOWN_AURA);
-                    count[0]++;
+                    count[0] += Math.E;
                 }
 
                 Location center = player.getLocation();
 
                 line(center.clone().add(3, 0.7, 0), center.clone().add(-1.5, 0.7, 2.3));
                 line(center.clone().add(-1.5, 0.7, 2.3), center.clone().add(-1.5, 0.7, -2.3)); //三角
-                line(center.clone().add(3, 0.7, 0), center.clone().add(1.5, 0.7, 2.3));
+                line(center.clone().add(-3, 0.7, 0), center.clone().add(1.5, 0.7, 2.3));
             }
         };
 
@@ -253,9 +253,9 @@ public class Decorations
         if (Variables.config.getBoolean("decoration.flame"))
             flame(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20));
         if (Variables.config.getBoolean("decoration.circle"))
-            magic(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20));
+            magic(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20);
         if (Variables.config.getBoolean("decoration.laser"))
-            laser(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20));
+            laser(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20);
     }
 
 }

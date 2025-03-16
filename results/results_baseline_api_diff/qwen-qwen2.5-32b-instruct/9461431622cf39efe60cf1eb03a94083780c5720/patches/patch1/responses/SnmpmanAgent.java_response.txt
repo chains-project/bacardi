@@ -108,7 +108,8 @@ public class SnmpmanAgent extends BaseAgent {
      * Translates a string into {@code x-www-form-urlencoded} format. The method uses the <i>UTF-8</i> encoding scheme.
      *
      * @param string {@code String} to be translated
-     * @return the translated {@code String}
+     * @return a a {@code String} instance with the specified type and value
+     * @throws IllegalArgumentException if the type could not be mapped to a {@code Variable} implementation
      */
     private static String encode(final String string) {
         try {
@@ -142,21 +143,21 @@ public class SnmpmanAgent extends BaseAgent {
             case "OID":
                 return new OID(value);
             case "Gauge32":
-                return new Gauge32(Long.parseLong(value.replaceAll("[^-?0-9]+", "")));
+                return new Gauge32(Long.parseLong(value.replaceAll("[^-?0-9]+", ""));
             case "Timeticks":
                 final int openBracket = value.indexOf("(") + 1;
                 final int closeBracket = value.indexOf(")");
                 if (openBracket == 0 || closeBracket < 0) {
                     throw new IllegalArgumentException("could not parse time tick value in " + value);
                 }
-                return new TimeTicks(Long.parseLong(value.substring(openBracket, closeBracket)));
+                return new TimeTicks(Long.parseLong(value.substring(openBracket, closeBracket));
             case "Counter32":
-                return new Counter32(Long.parseLong(value.replaceAll("[^-?0-9]+", "")));
+                return new Counter32(Long.parseLong(value.replaceAll("[^-?0-9]+", ""));
             case "Counter64":
                 // Parse unsigned long
                 return new Counter64(UnsignedLong.valueOf(value).longValue());
             case "INTEGER":
-                return new Integer32(Integer.parseInt(value.replaceAll("[^-?0-9]+", "")));
+                return new Integer32(Integer.parseInt(value.replaceAll("[^-?0-9]+", ""));
             case "Hex-STRING":
                 return OctetString.fromHexString(value, ' ');
             case "IpAddress":
@@ -199,10 +200,10 @@ public class SnmpmanAgent extends BaseAgent {
     @Override
     protected void registerManagedObjects() {
         unregisterDefaultManagedObjects(null);
-        unregisterDefaultManagedObjects(new OctetString());
+        registerDefaultManagedObjects(new OctetString());
         final List<Long> vlans = configuration.getDevice().getVlans();
         for (final Long vlan : vlans) {
-            unregisterDefaultManagedObjects(new OctetString(String.valueOf(vlan)));
+            registerDefaultManagedObjects(new OctetString(String.valueOf(vlan)));
         }
 
         log.trace("registering managed objects for agent \"{}\"", configuration.getName());
@@ -211,7 +212,6 @@ public class SnmpmanAgent extends BaseAgent {
                  final BufferedReader reader = new BufferedReader(new InputStreamReader(fileInputStream, DEFAULT_CHARSET))) {
 
                 Map<OID, Variable> bindings = readVariableBindings(reader);
-
                 final SortedMap<OID, Variable> variableBindings = this.getVariableBindings(configuration.getDevice(), bindings, new OctetString(String.valueOf(vlan)));
 
                 final List<OID> roots = SnmpmanAgent.getRoots(variableBindings);
@@ -234,7 +234,7 @@ public class SnmpmanAgent extends BaseAgent {
                         }
                     } else {
                         groups.add(group);
-                        registerGroupAndContext(group, new OctetString(String.valueOf(vlan)));
+                        registerGroupAndContext(group, new OctetString(String.valueOf(vlan));
                     }
                 }
             } catch (final FileNotFoundException e) {
@@ -278,19 +278,6 @@ public class SnmpmanAgent extends BaseAgent {
     }
 
     /**
-     * Creates a list of {@link VariableBinding} out of a mapping of {@link OID} and {@link Variable}.
-     *
-     * @param variableBindings mapping of {@link OID} and {@link Variable}.
-     * @param root             root SNMP OID.
-     * @return list of {@link VariableBinding}.
-     */
-    private ArrayList<VariableBinding> generateSubtreeBindings(final SortedMap<OID, Variable> variableBindings, final OID root) {
-        return variableBindings.entrySet().stream().filter(binding -> binding.getKey().size() >= root.size()).
-                filter(binding -> binding.getKey().leftMostCompare(root.size(), root) == 0).
-                map(binding -> new VariableBinding(binding.getKey(), binding.getValue())).collect(Collectors.toCollection(ArrayList::new);
-    }
-
-    /**
      * Registers a {@link ManagedObject} to the server with an empty {@link OctetString} community context.
      *
      * @param group {@link ManagedObject} to register.
@@ -310,9 +297,17 @@ public class SnmpmanAgent extends BaseAgent {
         try {
             if (context == null || context.toString().equals("")) {
                 MOContextScope contextScope = new DefaultMOContextScope(new OctetString(""), group.getScope());
-                ManagedObject query;
-                while ((query = server.lookup(new DefaultMOQuery(contextScope, false)) != null) {
-                    server.unregister(query, context);
+                ManagedObject other = server.lookup(new DefaultMOQuery(contextScope, false));
+                if (other != null) {
+                    log.warn("group {} already existed", group);
+                    return;
+                }
+
+                contextScope = new DefaultMOContextScope(null, group.getScope());
+                other = server.lookup(new DefaultMOQuery(contextScope, false));
+                if (other != null) {
+                    registerHard(group);
+                    return;
                 }
                 this.server.register(group, new OctetString());
             } else {
@@ -320,6 +315,26 @@ public class SnmpmanAgent extends BaseAgent {
             }
         } catch (final DuplicateRegistrationException e) {
             log.error("duplicate registrations are not allowed", e);
+        }
+    }
+
+    /**
+     * Sets the private registry value of {@link DefaultMOServer} via reflection.
+     * FIXME
+     * If there is any possibility to avoid this, then replace!
+     *
+     * @param group {@link ManagedObject} to register.
+     */
+    private void registerHard(final MOGroup group) {
+        try {
+            final Field registry = server.getClass().getDeclaredField("registry");
+            registry.setAccessible(true);
+            final SortedMap<MOScope, ManagedObject> reg = server.getRegistry();
+            DefaultMOContextScope contextScope = new DefaultMOContextScope(new OctetString(""), group.getScope());
+            reg.put(contextScope, group);
+            registry.set(server, reg);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            log.warn("could not set server registry", e);
         }
     }
 
@@ -451,6 +466,8 @@ public class SnmpmanAgent extends BaseAgent {
         vacmMIB.addAccess(new OctetString("v1v2group"), new OctetString(), SecurityModel.SECURITY_MODEL_ANY, SecurityLevel.NOAUTH_NOPRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
         vacmMIB.addAccess(new OctetString("v3group"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_PRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
         vacmMIB.addAccess(new OctetString("v3restricted"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.NOAUTH_NOPRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("restrictedReadView"), new OctetString("restrictedWriteView"), new OctetString("restrictedNotifyView"), StorageType.nonVolatile);
+        vacmMIB.addAccess(new OctetString("v3test"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_PRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("testReadView"), new OctetString("testWriteView"), new OctetString("testNotifyView"), StorageType.nonVolatile);
+
         vacmMIB.addViewTreeFamily(new OctetString("fullReadView"), new OID("1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
         vacmMIB.addViewTreeFamily(new OctetString("fullWriteView"), new OID("1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
         vacmMIB.addViewTreeFamily(new OctetString("fullNotifyView"), new OID("1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
@@ -482,7 +499,26 @@ public class SnmpmanAgent extends BaseAgent {
      * @param snmpCommunityMIB SNMP community.
      * @param context          SNMP community context.
      */
-    private void configureSnmpCommunity(final SnmpCommunityMIB.SnmpCommunityEntryRow row = snmpCommunityMIB.getSnmpCommunityEntry().createRow(
+    private void configureSnmpCommunity(final SnmpCommunityMIB snmpCommunityMIB, final Long context) {
+        String communityString;
+        OctetString contextName;
+        if (context != null) {
+            communityString = configuration.getCommunity() + "@" + context;
+            contextName = new OctetString(String.valueOf(context));
+        } else {
+            communityString = configuration.getCommunity();
+            contextName = new OctetString();
+        }
+        final Variable[] com2sec = new Variable[]{
+                new OctetString(communityString),       // community name
+                new OctetString(communityString),       // security name
+                getAgent().getContextEngineID(),        // local engine ID
+                contextName,                            // default context name
+                new OctetString(),                      // transport tag
+                new Integer32(StorageType.readOnly),    // storage type
+                new Integer32(RowStatus.active)         // row status
+        };
+        final SnmpCommunityMIB.SnmpCommunityEntryRow row = snmpCommunityMIB.getSnmpCommunityEntry().createRow(
                 new OctetString(communityString + "2" + communityString).toSubIndex(true), com2sec);
         snmpCommunityMIB.getSnmpCommunityEntry().addRow(row);
     }

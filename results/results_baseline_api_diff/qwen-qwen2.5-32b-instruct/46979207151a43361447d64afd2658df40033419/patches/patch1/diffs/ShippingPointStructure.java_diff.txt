@@ -1,0 +1,62 @@
+4c4
+< // Any modifications to this file will be lost upon recompilation of the source schema. 
+---
+> // Any modifications you make to this file will be lost upon recompilation of the source schema. 
+22d21
+< import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
+24d22
+< import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
+27d24
+< 
+185d181
+<         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+187c183
+<         append(null, buffer, strategy);
+---
+>         append(null, buffer);
+191,204c187,190
+<     @Override
+<     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<         strategy.appendStart(locator, this, buffer);
+<         appendFields(locator, buffer, strategy);
+<         strategy.appendEnd(locator, this, buffer);
+<         return buffer;
+<     }
+< 
+<     @Override
+<     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<         {
+<             List<String> theDeliveryID;
+<             theDeliveryID = (((this.deliveryID!= null)&&(!this.deliveryID.isEmpty()))?this.getDeliveryID():null);
+<             strategy.appendField(locator, this, "deliveryID", buffer, theDeliveryID, ((this.deliveryID!= null)&&(!this.deliveryID.isEmpty())));
+---
+>     public StringBuilder append(ObjectLocator locator, StringBuilder buffer) {
+>         buffer.append("ShippingPointStructure{");
+>         if (deliveryID != null && !deliveryID.isEmpty()) {
+>             buffer.append("deliveryID=").append(deliveryID);
+206,209c192,193
+<         {
+<             XMLGregorianCalendar theDeliveryDate;
+<             theDeliveryDate = this.getDeliveryDate();
+<             strategy.appendField(locator, this, "deliveryDate", buffer, theDeliveryDate, (this.deliveryDate!= null));
+---
+>         if (deliveryDate != null) {
+>             buffer.append(", deliveryDate=").append(deliveryDate);
+211,214c195,196
+<         {
+<             List<JAXBElement<String>> theWarehouseIDAndLocationID;
+<             theWarehouseIDAndLocationID = (((this.warehouseIDAndLocationID!= null)&&(!this.warehouseIDAndLocationID.isEmpty()))?this.getWarehouseIDAndLocationID():null);
+<             strategy.appendField(locator, this, "warehouseIDAndLocationID", buffer, theWarehouseIDAndLocationID, ((this.warehouseIDAndLocationID!= null)&&(!this.warehouseIDAndLocationID.isEmpty())));
+---
+>         if (warehouseIDAndLocationID != null && !warehouseIDAndLocationID.isEmpty()) {
+>             buffer.append(", warehouseIDAndLocationID=").append(warehouseIDAndLocationID);
+216,219c198,199
+<         {
+<             AddressStructure theAddress;
+<             theAddress = this.getAddress();
+<             strategy.appendField(locator, this, "address", buffer, theAddress, (this.address!= null));
+---
+>         if (address != null) {
+>             buffer.append(", address=").append(address);
+220a201
+>         buffer.append("}");

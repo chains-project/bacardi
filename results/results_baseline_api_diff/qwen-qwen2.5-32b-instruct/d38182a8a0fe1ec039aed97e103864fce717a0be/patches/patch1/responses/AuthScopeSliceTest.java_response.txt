@@ -12,6 +12,7 @@ import com.artipie.http.auth.Authentication;
 import com.artipie.http.rs.StandardRs;
 import java.nio.ByteBuffer;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -55,7 +56,7 @@ class AuthScopeSliceTest {
                 new AuthScheme.Result() {
                     @Override
                     public Optional<Authentication> user() {
-                        return Optional.of(Authentication.of("alice", Collection.emptyList()));
+                        return Optional.of(new Authentication("alice", Collections.emptyList()));
                     }
 
                     @Override

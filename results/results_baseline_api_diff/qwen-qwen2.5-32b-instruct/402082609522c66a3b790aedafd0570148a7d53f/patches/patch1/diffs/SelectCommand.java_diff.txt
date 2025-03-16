@@ -1,0 +1,46 @@
+7a8,11
+> import net.kyori.adventure.text.Component;
+> import net.kyori.adventure.text.format.TextColor;
+> import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+> import org.spongepowered.api.command.Command;
+10,12c14,16
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.managed.Flag;
+> import org.spongepowered.api.command.parameter.managed.ValueParameter;
+16,17c20
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import java.util.Optional;
+19c22
+< public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class SelectCommand implements Command.Executor, ChangeSkinCommand {
+20a24
+> {
+30c34
+<         if (!(src instanceof Player)) {
+---
+>         if (!(src instanceof Player)) || !args.hasAny("skinName")) {
+32c36
+<             return CommandResult.empty();
+---
+>             return CommandResult.success();
+35c39
+<         String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
+---
+>         String skinName = args.getOne("skinName").get().toLowerCase().replace("skin-", "");
+49,50c53,54
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command build() {
+>         return Command.builder()
+52c56
+<                 .arguments(string(of("skinName")))
+---
+>                 .argument(new ValueParameter<String>(PlainTextComponentSerializer.PLAIN.plain("skinName"), Flag.of("skinName"))

@@ -46,4 +46,4 @@ public class NameResolver extends SharedNameResolver {
 }
 ```
 
-In this solution, the `CommandSource` class has been replaced with `MessageReceiver` as it is more aligned with the new API changes. The `sendMessageInvoker` method has been updated to use `Text.of(id)` to create a `Text` object, which is more in line with the Sponge API's text handling. The rest of the class remains unchanged to ensure that the functionality is preserved while addressing the compilation errors.
+In this solution, the `CommandSource` class has been replaced with `MessageReceiver` as it is a more general interface that can be used to send messages, which seems to be the intended use of `CommandSource` in the original code. The `sendMessageInvoker` method has been updated to use `Text.of(id)` to create a `Text` object, which is required by the `MessageReceiver` interface for sending messages.

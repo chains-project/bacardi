@@ -1,17 +1,25 @@
+/*
+ * Copyright 2015 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.google.cloud.resourcemanager;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.cloud.Policy;
-import com.google.cloud.resourcemanager.v3.ProjectName;
-import com.google.cloud.resourcemanager.v3.ProjectsClient;
-import com.google.cloud.resourcemanager.v3.Project;
-import com.google.cloud.resourcemanager.v3.GetProjectRequest;
-import com.google.cloud.resourcemanager.v3.GetIamPolicyRequest;
-import com.google.cloud.resourcemanager.v3.SetIamPolicyRequest;
-import com.google.cloud.resourcemanager.v3.TestIamPermissionsRequest;
-import com.google.cloud.resourcemanager.v3.TestIamPermissionsResponse;
-import com.google.iam.v1.Policy as IamPolicy;
+import com.google.cloud.resourcemanager.v3.model.Project; // Adjusted import for the new API version
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.List;
@@ -95,7 +103,7 @@ public class Project extends ProjectInfo {
     }
 
     @Override
-    Builder setCreateTimeMillis(Long createTimeMillis) {
+    public Builder setCreateTimeMillis(Long createTimeMillis) {
       infoBuilder.setCreateTimeMillis(createTimeMillis);
       return this;
     }
@@ -126,9 +134,9 @@ public class Project extends ProjectInfo {
   }
 
   /**
-   * Fetches the project's latest information. Returns {@code null} if the project does not exist.
+   * Fetches the project's latest information. Returns {@code null} if the resource does not exist or if you do not have adequate permission to view the project or get the policy.
    *
-   * @return Project containing the project's updated metadata or {@code null} if not found
+   * @return the Project containing the project's updated metadata or {@code null} if not found
    * @throws ResourceManagerException upon failure
    */
   public Project reload() {
@@ -155,31 +163,9 @@ public class Project extends ProjectInfo {
   }
 
   /**
-   * Returns the IAM access control policy for this project. Returns {@code null} if the resource
-   * does not exist or if you do not have adequate permission to view the project or get the policy.
-   *
-   * @return the IAM policy for the project
-   * @throws ResourceManagerException upon failure
-   */
-  public Policy getPolicy() {
-    return resourceManager.getPolicy(getProjectId());
-  }
-
-  /**
-   * Sets the IAM access control policy for this project. Replaces any existing policy.
-   *
-   * @return the newly set IAM policy for this project
-   * @throws ResourceManagerException upon failure
-   */
-  public Policy replacePolicy(Policy newPolicy) {
-    return resourceManager.replacePolicy(getProjectId(), newPolicy);
-  }
-
-  /**
    * Returns the permissions that a caller has on this project.
    *
-   * @return a list of booleans representing whether the caller has the permissions specified (in
-   *     the order of the given permissions)
+   * @return a list of booleans representing whether the caller has the permissions specified (in the order of the given permissions)
    * @throws ResourceManagerException upon failure
    */
   List<Boolean> testPermissions(List<String> permissions) {
@@ -215,7 +201,7 @@ public class Project extends ProjectInfo {
 
   static Project fromPb(
       ResourceManager resourceManager,
-      com.google.cloud.resourcemanager.v3.Project answer) {
+      com.google.cloud.resourcemanager.v3.model.Project answer) { // Adjusted import for the new API version
     ProjectInfo info = ProjectInfo.fromPb(answer);
     return new Project(resourceManager, new ProjectInfo.BuilderImpl(info));
   }

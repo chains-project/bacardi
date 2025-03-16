@@ -15,17 +15,17 @@
 >                 final ClassicConfiguration config = new ClassicConfiguration();
 >                 config.setDataSource(this.dataSource());
 >                 config.setLocations(prop.getProperty("flyway.locations").split(","));
->                 config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 >                 config.setClassLoader(NisAppConfig.class.getClassLoader());
+>                 config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 > 
 >                 return new Flyway(config);
-129,130c131,132
+117d118
+<         @DependsOn("flyway")
+129c130
 <                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
-<                                 this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
 ---
->                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
->                                 this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
-235,295d236
+>                 return new DefaultBlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
+235,370d235
 <         public ReadOnlyNisCache nisCache() {
 <                 return new DefaultNisCache(this.accountCache(), this.accountStateCache(), this.poxFacade(), this.transactionHashCache(),
 <                                 this.namespaceCache());
@@ -87,7 +87,16 @@
 <         }
 < 
 <         @Bean
-306,440c247
+<         public HibernateTransactionManager transactionManager() throws IOException {
+<                 return new HibernateTransactionManager(this.sessionFactory());
+<         }
+< 
+<         @Bean
+<         public NisMain nisMain() {
+<                 // initialize network info
+<                 NetworkInfos.setDefault(this.nisConfiguration().getNetworkInfo());
+< 
+<                 // initialize other globals
 <                 final NamespaceCacheLookupAdapters adapters = new NamespaceCacheLookupAdapters(this.namespaceCache());
 <                 if (this.nisConfiguration().ignoreFees()) {
 <                         NemGlobals.setTransactionFeeCalculator(new ZeroTransactionFeeCalculator());
@@ -153,24 +162,7 @@
 <         }
 < 
 <         @Bean
-<         public NisConfiguration nisConfiguration() {
-<                 return new NisConfiguration();
-<         }
-< 
-<         @Bean
-<         public TimeProvider timeProvider() {
-<                 return CommonStarter.TIME_PROVIDER;
-<         }
-< 
-<         @Bean
-<         public TrustProvider trustProvider() {
-<                 final int LOW_COMMUNICATION_NODE_WEIGHT = 30;
-<                 final int TRUST_CACHE_TIME = 15 * 60;
-<                 return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME,
-<                                 this.timeProvider());
-<         }
-< 
-<         @Bean
+389,423c254,256
 <         public NemConfigurationPolicy configurationPolicy() {
 <                 return new NisConfigurationPolicy();
 <         }
@@ -206,8 +198,13 @@
 <                 if (this.nisConfiguration().isFeatureSupported(NodeFeature.HISTORICAL_ACCOUNT_DATA)) {
 <                         observerOptions.add(ObserverOption.NoHistoricalDataPruning);
 <                 }
-< 
-<                 final BlockChainConfiguration blockChainConfiguration = this.nisConfiguration().getBlockChainConfiguration();
+---
+>         public NisMain nisMain() {
+>                 // initialize network info
+>                 NetworkInfos.setDefault(this.nisConfiguration().getNetworkInfo());
+424a258
+>                 // initialize other globals
+426,440c260,261
 <                 if (blockChainConfiguration.isBlockChainFeatureSupported(BlockChainFeature.PROOF_OF_STAKE)) {
 <                         observerOptions.add(ObserverOption.NoOutlinkObserver);
 <                 }
@@ -224,4 +221,5 @@
 <         public MosaicIdCache mosaicIdCache() {
 <                 return new SynchronizedMosaicIdCache(new DefaultMosaicIdCache());
 ---
->                 return new NisMain(this.blockDao, this.blockChainLastBlockLayer, this.nisConfiguration());
+>                 NemGlobals.setBlockChainConfiguration(blockChainConfiguration);
+>                 return new NisMain(this.blockDao, this.nisCache(), this.nisConfiguration());

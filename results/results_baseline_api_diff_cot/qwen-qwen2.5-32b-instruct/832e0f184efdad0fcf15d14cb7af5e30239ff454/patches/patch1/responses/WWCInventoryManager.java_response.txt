@@ -76,8 +76,9 @@ public class WWCInventoryManager extends InventoryManager {
 			pageMeta.setDisplayName(ChatColor.AQUA
 					+ CommonDefinitions.getMessage("wwcGUIPageNumber", args));
 			if (args[0].equals("1")) {
-				// Adjust for the removal of parseEnchantment method
-				pageMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+				// Since parseEnchantment() is removed, we need to find an alternative way to add an enchantment.
+				// Assuming the intention was to add a dummy enchantment for display purposes, we can use a known enchantment.
+				pageMeta.addEnchant(org.bukkit.enchantments.Enchantment.LOOT_BONUS_BLOCKS, 1, false);
 			}
 		} else {
 			pageMeta.setDisplayName(ChatColor.RED + "Not a valid button! This is a bug, please report it.");
@@ -87,15 +88,6 @@ public class WWCInventoryManager extends InventoryManager {
 		return pageButton;
 	}
 	
-	public static ItemStack getSaveMainConfigButton() {
-		ItemStack quitButton = XMaterial.BARRIER.parseItem();
-		ItemMeta quitMeta = quitButton.getItemMeta();
-		quitMeta.setDisplayName(ChatColor.RED
-				+ CommonDefinitions.getMessage("wwcConfigGUIQuitButton"));
-		quitButton.setItemMeta(quitMeta);
-		return quitButton;
-	}
-
 	public static void saveMainConfigAndReload(Player player, InventoryContents content) {
 		WorldwideChat.instance.removePlayerUsingConfigurationGUI(player);
 		player.closeInventory();

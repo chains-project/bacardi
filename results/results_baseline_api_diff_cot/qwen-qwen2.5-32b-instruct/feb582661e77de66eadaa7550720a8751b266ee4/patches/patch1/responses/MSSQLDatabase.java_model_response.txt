@@ -4,7 +4,6 @@ package liquibase.ext.mssql.database;
 import liquibase.CatalogAndSchema;
 import liquibase.exception.LiquibaseException;
 import liquibase.database.Database;
-import liquibase.database.DatabaseFactory;
 import liquibase.ext.mssql.statement.DropStoredProcedureStatement;
 
 public class MSSQLDatabase extends liquibase.database.core.MSSQLDatabase {
@@ -17,20 +16,10 @@ public class MSSQLDatabase extends liquibase.database.core.MSSQLDatabase {
     @Override
     public void dropDatabaseObjects(CatalogAndSchema schemaToDrop) throws LiquibaseException {
         super.dropDatabaseObjects(schemaToDrop);
-        Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(this);
-        DropStoredProcedureStatement dropStatement = new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName());
-        database.execute(dropStatement);
+        Database database = this;
+        new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()).execute(database);
     }
 }
 ```
 
-<repair_strategy>
-1. The error indicates that the `getInstance()` method from `ExecutorService` is no longer available in the new version of the dependency.
-2. The `ExecutorService` class and its `getInstance()` method have been removed, and a new method `getExecutor(String, Database)` has been added.
-3. The client code needs to be updated to use the new method `getExecutor(String, Database)` to execute the `DropStoredProcedureStatement`.
-4. The fix should not change the function signature of `dropDatabaseObjects` and should ensure that the `DropStoredProcedureStatement` is executed correctly.
-5. The minimal changes involve replacing the `ExecutorService` usage with the new `Database` instance method `execute()`.
-6. The new approach uses `DatabaseFactory` to find the correct database implementation and then calls `execute()` on the `Database` instance to run the `DropStoredProcedureStatement`.
-7. The class should compile and function correctly with the new dependency version.
-8. The import for `ExecutorService` is removed, and a new import for `DatabaseFactory` is added.
-</repair_strategy>
+In the provided solution, the `ExecutorService.getInstance().getExecutor(this).execute(...)` line was replaced with a direct call to the `execute` method on the `DropStoredProcedureStatement` object, passing the current `MSSQLDatabase` instance as the `Database` parameter. This is based on the assumption that the `execute` method on `DropStoredProcedureStatement` can be called directly with a `Database` instance, as the old `ExecutorService` method was likely used to execute statements against a database. The `ExecutorService` and its `getInstance` method are no longer available, so this approach bypasses the need for that service.

@@ -128,8 +128,7 @@ public class NisAppConfig {
 
 	@Bean
 	public BlockChainServices blockChainServices() {
-		return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
-				this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+		return new BlockChainServices(this.blockChainLastBlockLayer, this.httpConnectorPool());
 	}
 
 	@Bean
@@ -243,58 +242,19 @@ public class NisAppConfig {
 				this.namespaceCache());
 	}
 
-	// region mappers
-
 	@Bean
-	public MapperFactory mapperFactory() {
-		return new DefaultMapperFactory(this.mosaicIdCache());
+	public ImportanceCalculator importanceCalculator() {
+		final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<ImportanceCalculator>>() {
+			{
+				this.put(BlockChainFeature.PROOF_OF_IMPORTANCE,
+						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
+				this.put(BlockChainFeature.PROOF_OF_STAKE, PosImportanceCalculator::new);
+			}
+		};
+
+		return BlockChainFeatureDependentFactory.createObject(this.nisConfiguration().getBlockChainConfiguration(), "consensus algorithm",
+				featureSupplierMap);
 	}
-
-	@Bean
-	public NisMapperFactory nisMapperFactory() {
-		return new NisMapperFactory(this.mapperFactory());
-	}
-
-	@Bean
-	public NisModelToDbModelMapper nisModelToDbModelMapper() {
-		return new NisModelToDbModelMapper(this.mapperFactory().createModelToDbModelMapper(new AccountDaoLookupAdapter(this.accountDao)));
-	}
-
-	@Bean
-	public NisDbModelToModelMapper nisDbModelToModelMapper() {
-		return this.nisMapperFactory().createDbModelToModelNisMapper(this.accountCache());
-	}
-
-	// endregion
-
-	// region observers + validators
-
-	@Bean
-	public BlockTransactionObserverFactory blockTransactionObserverFactory() {
-		final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
-		final ForkConfiguration forkConfiguration = this.nisConfiguration().getForkConfiguration();
-		return new BlockTransactionObserverFactory(this.observerOptions(), estimatedBlocksPerYear, forkConfiguration);
-	}
-
-	@Bean
-	public BlockValidatorFactory blockValidatorFactory() {
-		return new BlockValidatorFactory(this.timeProvider(), this.nisConfiguration().getForkConfiguration());
-	}
-
-	@Bean
-	public TransactionValidatorFactory transactionValidatorFactory() {
-		return new TransactionValidatorFactory(this.timeProvider(), this.nisConfiguration().getNetworkInfo(),
-				this.nisConfiguration().getForkConfiguration(), this.nisConfiguration().ignoreFees());
-	}
-
-	@Bean
-	public SingleTransactionValidator transactionValidator() {
-		// this is only consumed by the TransactionController and used in transaction/prepare,
-		// which should propagate incomplete transactions
-		return this.transactionValidatorFactory().createIncompleteSingleBuilder(this.nisCache()).build();
-	}
-
-	// endregion
 
 	@Bean
 	public Harvester harvester() {
@@ -432,8 +392,8 @@ public class NisAppConfig {
 	private Supplier<WeightedBalances> weighedBalancesSupplier() {
 		final Map<BlockChainFeature, Supplier<Supplier<WeightedBalances>>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<WeightedBalances>>>() {
 			{
-				this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
-				this.put(BlockChainFeature.WB_IMMEDIATE_VESTINGING, () -> AlwaysVestedBalances::new);
+				this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
+				this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
 			}
 		};
 

@@ -22,7 +22,7 @@ import org.hamcrest.CoreMatchers;
  * REST response.
  *
  * <p>This response decorator is able to make basic assertions on
- * HTTP response and manipulate with it afterwards, for example:
+ * HTTP response and manipulate with it afterwords, for example:
  *
  * <pre> String name = new JdkRequest("http://my.example.com")
  *   .fetch()
@@ -32,9 +32,6 @@ import org.hamcrest.CoreMatchers;
  *   .assertHeader("Content-Type", CoreMatchers.hasItems("text/plain"))
  *   .jump(URI.create("/users"))
  *   .fetch();</pre>
- *
- * <p>The method {@link #jump(URI)} creates a new instance of class
- * {@link Request} with all cookies transferred from the current one.
  *
  * <p>The class is immutable and thread-safe.
  *
@@ -60,7 +57,9 @@ public final class RestResponse extends AbstractResponse {
      */
     public RestResponse assertThat(final Matcher<Response> matcher) {
         MatcherAssert.assertThat(
-            String.format("HTTP response is not valid: %s", this),
+            String.format(
+                "HTTP response is not valid: %s", this
+            ),
             this,
             matcher
         );
@@ -132,7 +131,8 @@ public final class RestResponse extends AbstractResponse {
             String.format(
                 "HTTP response binary content is not valid:%n%s",
                 this
-            ), this.binary(),
+            ),
+            this.binary(),
             matcher
         );
         return this;
@@ -142,7 +142,7 @@ public final class RestResponse extends AbstractResponse {
      * Verifies HTTP header against provided matcher, and throws
      * {@link AssertionError} in case of mismatch.
      *
-     * <p>The iterator for the matcher will always be a real object and never
+     * <p>The iterator for the matcher will always be a real object an never
      * {@code NULL}, even if such a header is absent in the response. If the
      * header is absent the iterable will be empty.
      *

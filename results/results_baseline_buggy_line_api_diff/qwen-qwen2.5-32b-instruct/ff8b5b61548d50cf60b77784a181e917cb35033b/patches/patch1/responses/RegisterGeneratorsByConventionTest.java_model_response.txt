@@ -16,11 +16,10 @@ import com.pholser.junit.quickcheck.internal.generator.conventiontestclasses.Not
 import com.pholser.junit.quickcheck.random.SourceOfRandomness;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
-@ExtendWith(MockitoExtension.class)
 public class RegisterGeneratorsByConventionTest {
     private GeneratorRepository repo;
     @Mock private SourceOfRandomness random;
@@ -33,28 +32,64 @@ public class RegisterGeneratorsByConventionTest {
 
     @Test
     public void canGenerateValues() {
-        Generator<?> generator =
-            repo.generatorFor(ParameterTypeContext.forClass(Convention.class));
+        try (MockedStatic<ParameterTypeContext> theMock = Mockito.mockStatic(ParameterTypeContext.class)) {
+            theMock.when(() -> ParameterTypeContext.forClass(Convention.class)).thenReturn(new ParameterTypeContext() {
+                @Override
+                public Class<?> getType() {
+                    return Convention.class;
+                }
+            });
 
-        assertNotNull(generator);
-        assertThat(
-            generator.generate(random, generationStatus),
-            instanceOf(Convention.class));
+            Generator<?> generator =
+                repo.generatorFor(ParameterTypeContext.forClass(Convention.class));
+
+            assertNotNull(generator);
+            assertThat(
+                generator.generate(random, generationStatus),
+                instanceOf(Convention.class));
+        }
     }
 
     @Test
     public void classNameFollowsConventionButNotAGenerator() {
-        assertThatNoGeneratorCanBeFound(NotAGenerator.class);
+        try (MockedStatic<ParameterTypeContext> theMock = Mockito.mockStatic(ParameterTypeContext.class)) {
+            theMock.when(() -> ParameterTypeContext.forClass(NotAGenerator.class)).thenReturn(new ParameterTypeContext() {
+                @Override
+                public Class<?> getType() {
+                    return NotAGenerator.class;
+                }
+            });
+
+            assertThatNoGeneratorCanBeFound(NotAGenerator.class);
+        }
     }
 
     @Test
     public void noValueTypeMatch() {
-        assertThatNoGeneratorCanBeFound(GeneratesOtherTypes.class);
+        try (MockedStatic<ParameterTypeContext> theMock = Mockito.mockStatic(ParameterTypeContext.class)) {
+            theMock.when(() -> ParameterTypeContext.forClass(GeneratesOtherTypes.class)).thenReturn(new ParameterTypeContext() {
+                @Override
+                public Class<?> getType() {
+                    return GeneratesOtherTypes.class;
+                }
+            });
+
+            assertThatNoGeneratorCanBeFound(GeneratesOtherTypes.class);
+        }
     }
 
     @Test
     public void notAClassFollowingNamingConvention() {
-        assertThatNoGeneratorCanBeFound(this.getClass());
+        try (MockedStatic<ParameterTypeContext> theMock = Mockito.mockStatic(ParameterTypeContext.class)) {
+            theMock.when(() -> ParameterTypeContext.forClass(this.getClass())).thenReturn(new ParameterTypeContext() {
+                @Override
+                public Class<?> getType() {
+                    return this.getClass();
+                }
+            });
+
+            assertThatNoGeneratorCanBeFound(this.getClass());
+        }
     }
 
     private void assertThatNoGeneratorCanBeFound(Class<?> valueClass) {

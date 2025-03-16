@@ -91,7 +91,7 @@ public class NisAppConfig {
 
 		// replace url parameters with values from configuration
 		final String jdbcUrl = prop.getProperty("jdbc.url").replace("${nem.folder}", nemFolder).replace("${nem.network}",
-				configuration.getNetworkInfo().getName());
+				configuration.getNetworkName());
 
 		final DriverManagerDataSource dataSource = new DriverManagerDataSource();
 		dataSource.setDriverClassName(prop.getProperty("jdbc.driverClassName"));
@@ -127,7 +127,8 @@ public class NisAppConfig {
 
 	@Bean
 	public BlockChainServices blockChainServices() {
-		return new DefaultChainServices(this.blockChainLastBlockLayer, this.httpConnectorPool());
+		return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
+				this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
 	}
 
 	@Bean
@@ -186,15 +187,19 @@ public class NisAppConfig {
 	}
 
 	@Bean
-	public Function<Address, Collection<Address>> cosignatoryLookup() {
-		return a -> this.accountStateCache().findStateByAddress(a).getMultisigLinks().getCosignatories();
+	public SingleTransactionValidator transactionValidator() {
+		// this is only consumed by the TransactionController and used in transaction/prepare,
+		// which should propagate incomplete transactions
+		return this.transactionValidatorFactory().createIncompleteSingleBuilder(this.nisCache()).build();
 	}
+
+	// endregion
 
 	@Bean
 	public Harvester harvester() {
 		final NewBlockTransactionsProvider transactionsProvider = new DefaultNewBlockTransactionsProvider(this.nisCache(),
-				this.transactionValidatorFactory(), this.blockValidatorFactory(), this.blockTransactionObserverFactory(),
-				this.unconfirmedTransactionsFilter(), this.nisConfiguration().getForkConfiguration());
+				this.blockTransactionObserverFactory(), this.blockValidatorFactory(), this.unconfirmedTransactionsFilter(),
+				this.nisConfiguration().getForkConfiguration());
 
 		final BlockGenerator generator = new BlockGenerator(this.nisCache(), transactionsProvider, this.blockDao,
 				new BlockScorer(this.accountStateCache()), this.blockValidatorFactory().create(this.nisCache()));
@@ -239,10 +244,7 @@ public class NisAppConfig {
 
 	@Bean
 	public TrustProvider trustProvider() {
-		final int LOW_COMMUNICATION_NODE_WEIGHT = 30;
-		final int TRUST_CACHE_TIME = 15 * 60;
-		return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME,
-				this.timeProvider());
+		return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), 30), 15 * 60, this.timeProvider());
 	}
 
 	@Bean
@@ -251,8 +253,41 @@ public class NisAppConfig {
 		NetworkInfos.setDefault(this.nisConfiguration().getNetworkInfo());
 
 		// initialize other globals
-		final BlockChainConfiguration blockChainConfiguration = this.nisConfiguration().getBlockChainConfiguration();
-		NemGlobals.setBlockChainConfiguration(blockChainConfiguration);
-		return new NisMain(this.blockDao, this.nisCache(), this.networkHostBootstrapper(), this.nisMapperFactory().createDbModelToModelNisMapper(this.accountCache()));
+		return new NisMain(this.blockDao, this.blockChainLastBlockLayer, this.nisConfiguration());
 	}
+
+	@Bean
+	public DataSource dataSource() throws IOException {
+		final NisConfiguration configuration = this.nisConfiguration();
+		final String nemFolder = configuration.getNemFolder();
+		final Properties prop = new Properties();
+		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+
+		// replace url parameters with values from configuration
+		final String jdbcUrl = prop.getProperty("jdbc.url").replace("${nem.folder}", nemFolder).replace("${nem.network}",
+				configuration.getNetworkName());
+
+		final DriverManagerDataSource dataSource = new DriverManagerDataSource();
+		dataSource.setDriverClassName(prop.getProperty("jdbc.driverClassName"));
+		dataSource.setUrl(jdbcUrl);
+		dataSource.setUsername(prop.getProperty("jdbc.username"));
+		dataSource.setPassword(prop.getProperty("jdbc.password"));
+		return dataSource;
+	}
+
+	@Bean
+	public Flyway flyway() throws IOException {
+		final Properties prop = new Properties();
+		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+
+		final ClassicConfiguration config = new ClassicConfiguration();
+		config.setDataSource(this.dataSource());
+		config.setLocations(prop.getProperty("flyway.locations").split(","));
+		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		config.setClassLoader(NisAppConfig.class.getClassLoader());
+
+		return new Flyway(config);
+	}
+
+	// ... (rest of the class remains unchanged)
 }

@@ -81,15 +81,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasPath(final Matcher<String> path) {
         return new MkQueryUriMatcher(
-            new Matcher<URI>() {
-                @Override
-                public boolean matches(Object item) {
-                    if (item instanceof URI) {
-                        return path.matches(((URI) item).getPath());
-                    }
-                    return false;
-                }
-            }
+            org.hamcrest.core.IsEqual.equalTo(path)
         );
     }
 
@@ -101,15 +93,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasQuery(final Matcher<String> query) {
         return new MkQueryUriMatcher(
-            new Matcher<URI>() {
-                @Override
-                public boolean matches(Object item) {
-                    if (item instanceof URI) {
-                        return query.matches(((URI) item).getQuery());
-                    }
-                    return false;
-                }
-            }
+            org.hamcrest.core.IsEqual.equalTo(query)
         );
     }
 

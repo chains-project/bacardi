@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2017 Premium Minds.
+ *
+ * This file is part of billy GIN.
+ *
+ * billy GIN is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * billy GIN is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with billy GIN. If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.premiumminds.billy.gin.services.impl.pdf;
 
 import com.google.zxing.BarcodeFormat;
@@ -13,7 +31,6 @@ import com.premiumminds.billy.gin.services.export.ParamsTree.Node;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
@@ -36,6 +53,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.FopFactoryBuilder;
+import org.apache.fop.apps.FopFactoryConfig;
 import org.apache.fop.apps.MimeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,13 +65,21 @@ public abstract class FOPPDFTransformer {
     private static final String QR_CODE = "qrCode";
 
     private final TransformerFactory transformerFactory;
+    private final FopFactory fopFactory;
 
     public FOPPDFTransformer(TransformerFactory transformerFactory) {
         this.transformerFactory = transformerFactory;
+        this.fopFactory = createFopFactory();
     }
 
     public FOPPDFTransformer() {
         this(TransformerFactory.newInstance());
+    }
+
+    private FopFactory createFopFactory() {
+        FopFactoryBuilder builder = new FopFactoryBuilder(new File("."));
+        FopFactoryConfig config = builder.build();
+        return FopFactory.newInstance(config);
     }
 
     private Source mapParamsToSource(ParamsTree<String, String> documentParams) {
@@ -92,11 +118,6 @@ public abstract class FOPPDFTransformer {
         // creation of transform source
         StreamSource transformSource = new StreamSource(templateStream);
 
-        // a user agent is needed for transformation
-        FopFactoryBuilder builder = new FopFactoryBuilder(new File("."));
-        FopFactory fopFactory = builder.build();
-        FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
-
         Optional<Node<String, String>> qrCodeString = documentParams
             .getRoot()
             .getChildren()
@@ -116,21 +137,16 @@ public abstract class FOPPDFTransformer {
             Transformer xslfoTransformer = this.getTransformer(transformSource);
 
             // Construct fop with desired output format
-            Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, outStream);
+            Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, outStream);
 
-            // Resulting SAX events (the generated FO)
-            // must be piped through to FOP
+            // Resulting SAX events (the generated FO) must be piped through to FOP
             Result res = new SAXResult(fop.getDefaultHandler());
 
             // Start XSLT transformation and FOP processing
             // everything will happen here..
             xslfoTransformer.transform(source, res);
-        } catch (FOPException e) {
-            throw new ExportServiceException("Error using FOP to open the template", e);
-        } catch (TransformerException e) {
+        } catch (Exception e) {
             throw new ExportServiceException("Error generating pdf from template and data source", e);
-        } catch (IOException | WriterException e) {
-            throw new ExportServiceException("Error generating qrCode", e);
         } finally {
             deleteTempFileIfExists(qr);
         }
@@ -185,4 +201,5 @@ public abstract class FOPPDFTransformer {
             }
         }
     }
+
 }

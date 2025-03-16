@@ -39,6 +39,7 @@ import org.sonarsource.sonarlint.core.commons.log.ClientLogOutput;
 import org.sonarsource.sonarlint.core.commons.progress.ClientProgressMonitor;
 import org.sonarsource.sonarlint.core.plugin.commons.LoadedPlugins;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoadResult;
+import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInfo;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInstancesLoader;
 import org.sonarsource.sonarlint.core.rule.extractor.SonarLintRuleDefinition;
@@ -61,8 +62,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     // The only instance of this class
     private static SonarLintEngine theOnlyInstance;
 
-    // We need to reinitialise the analysis engine as it is stopped after each analysis executed by {@link
-    // SonarStaticAnalyzer}.
+    // We need to reinitialise it before starting analysis of any source files on any rules.
     private AnalysisEngine analysisEngine;
 
     private SonarLintEngine() {
@@ -139,14 +139,14 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                 instancesLoader.instantiatePluginClasses(allPlugins);
 
         return new LoadedPluginsThatDoesNotCloseLoader(
-                (pluginInstancesByKeys, new PluginInstancesLoader());
+                pluginInstancesByKeys, pluginInstancesLoader);
     }
 
     private static Collection<PluginInfo> getAllPlugins(
             Map<String, PluginRequirementsCheckResult> pluginCheckResultByKeys) {
         return pluginCheckResultByKeys.values().stream()
                 .map(PluginRequirementsCheckResult::getPlugin)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     private static Map<String, SonarLintRuleDefinition> computeAllRulesDefinitionsByKey() {
@@ -155,7 +155,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
         return AnalysisEngineConfiguration.builder()
-                .setLanguages(globalConfig.getEnabledLanguages())
+                .addEnabledLanguages(List.of(Language.JAVA))
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())
@@ -215,7 +215,6 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                                                                     i,
                                                                     allRulesDefinitionsByKey.get(
                                                                             i.getRuleKey()))),
-                                            logOutput),
                                     new ProgressMonitor(monitor))
                             .get();
             return analysisResults == null ? new AnalysisResults() : analysisResults;
@@ -271,6 +270,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
      */
     public static class LoadedPluginsThatDoesNotCloseLoader extends LoadedPlugins {
 
+    {
         public LoadedPluginsThatDoesNotCloseLoader(
                 Map<String, Plugin> pluginInstancesByKeys,
                 PluginInstancesLoader pluginInstancesLoader) {

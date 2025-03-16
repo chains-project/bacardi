@@ -32,7 +32,8 @@ import java.util.stream.Collectors;
 
 import static ml.peya.plugins.Utils.MessageEngine.get;
 import static ml.peya.plugins.Variables.skin;
-import tokyo.peya.lib.LeetConverter; // Import the new package for LeetConverter
+
+import tokyo.peya.lib.LeetConverter;
 
 /**
  * プレイヤーに関してまとめたやつ！
@@ -61,7 +62,7 @@ public class PlayerUtils
      *
      * @param player   見られてるプレイヤー。
      * @param location あと場所。
-     * @return 見られてたらtrueを返してくれます。
+     * @return 見られてたらtrue。
      */
     public static boolean isLooking(Player player, Location location)
     {
@@ -111,8 +112,8 @@ public class PlayerUtils
 
         if (random.nextBoolean())
         {
-            first = LeetConverter.convert(first); // Use the new LeetConverter from tokyo.peya.lib
-            last = LeetConverter.convert(last); // Use the new LeetConverter from tokyo.peya.lib
+            first = LeetConverter.convert(first);
+            last = LeetConverter.convert(last);
         }
 
         String name = first + (random.nextBoolean() ? "_": "") + last + (random.nextBoolean() ? "19" + random.nextInt(120): "");
@@ -162,7 +163,7 @@ public class PlayerUtils
     }
 
     /**
-     * プレイヤーを取得する。たぶん。
+     * プレイヤーを取得します。
      *
      * @param sender イベントセンダー。
      * @param name   なまえ

@@ -1,74 +1,66 @@
-33c33,37
-< import org.cactoos.func.IoCheckedFunc;
----
+31a32
 > import org.cactoos.Func;
-> import org.cactoos.Text;
-> import org.cactoos.text.ConcatText;
-> import org.cactoos.text.FormattedText;
-> import org.cactoos.text.UncheckedText;
-37,41d40
+33d33
+< import org.cactoos.func.IoCheckedFunc;
+37,38d36
 < import org.cactoos.scalar.IoCheckedScalar;
 < import org.cactoos.scalar.SolidScalar;
-< import org.cactoos.text.FormattedText;
+40d37
 < import org.cactoos.text.JoinedText;
-< import org.cactoos.text.UncheckedText;
-53c52
+53c50
 <     private final IoCheckedScalar<Path> path;
 ---
 >     private final Path path;
-58c57
+58c55
 <     private final IoCheckedFunc<Path, Boolean> filter;
 ---
 >     private final Func<Path, Boolean> filter;
-76c75
+76c73
 <             () -> pth,
 ---
 >             pth,
-89c88
+89c86
 <             () -> pth,
 ---
 >             pth,
-98d96
+98d94
 <      * @param random Randomizer
-99a98
+99a96
 >      * @param random Randomizer
-101,107c100,102
-<     public WalletsIn(final Scalar<Path> pth, final String ext,
-<         final Random random) {
+103,107c100,101
 <         this.path = new IoCheckedScalar<>(
 <             new SolidScalar<>(pth)
 <         );
 <         this.filter = new IoCheckedFunc<Path, Boolean>(
 <             (file) -> file.toFile().isFile()
 ---
->     public WalletsIn(final Path pth, final String ext, final Random random) {
->         this.path = pth;
->         this.filter = (file) -> file.toFile().isFile()
-110,111c105
+>         this.path = pth.value();
+>         this.filter = file -> file.toFile().isFile()
+110,111c104
 <                 .matches(file)
 <         );
 ---
 >             .matches(file);
-118,119c112,113
+118,123c111,112
 <         final Path wpth = this.path.value().resolve(
 <             new JoinedText(
+<                 ".",
+<                 Long.toHexString(this.random.nextLong()),
+<                 this.ext
+<             ).asString()
 ---
 >         final Path wpth = this.path.resolve(
->             new ConcatText(
-140,151d133
+>             String.format("%s.%s", Long.toHexString(this.random.nextLong()), this.ext)
+140,145c129
 <     // @todo #65:30min Create the new wallet in the path with all wallets.
 <     //  It should contain the correct content according to the
 <     //  white paper (network, protocol version, id and public RSA key). After
 <     //  this remove exception expect for tests on WalletsInTest.
 <     public Wallet create(final long id, final String pubkey, final String
 <         network) throws IOException {
-<         throw new UnsupportedOperationException(
-<             "WalletsIn.create(String, String, String) not supported"
-<         );
-<     }
-< 
-<     @Override
-156c138
+---
+>     public Wallet create(final long id, final String pubkey, final String network) throws IOException {
+156c140
 <                 new Filtered<>(this.filter, new Directory(this.path.value()))
 ---
 >                 new Filtered<>(this.filter, new Directory(this.path))

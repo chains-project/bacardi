@@ -1,8 +1,8 @@
 package com.google.cloud.resourcemanager;
 
-import com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy;
-import com.google.api.services.cloudresourcemanager.v3.model.Policy;
-import com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy;
+import com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy as BooleanPolicyV3;
+import com.google.api.services.cloudresourcemanager.v3.model.ListPolicy as ListPolicyV3;
+import com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy as OrgPolicyV3;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.List;
@@ -19,18 +19,17 @@ import java.util.Objects;
 @Deprecated
 public class OrgPolicyInfo {
 
-{
-  static final Function<OrgPolicy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
-      new Function<OrgPolicy, OrgPolicyInfo>() {
+  static final Function<OrgPolicyV3, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
+      new Function<OrgPolicyV3, OrgPolicyInfo>() {
         @Override
-        public OrgPolicyInfo apply(OrgPolicy protobuf) {
+        public OrgPolicyInfo apply(OrgPolicyV3 protobuf) {
           return OrgPolicyInfo.fromProtobuf(protobuf);
         }
       };
-  static final Function<OrgPolicyInfo, OrgPolicy> TO_PROTOBUF_FUNCTION =
-      new Function<OrgPolicyInfo, OrgPolicy>() {
+  static final Function<OrgPolicyInfo, OrgPolicyV3> TO_PROTOBUF_FUNCTION =
+      new Function<OrgPolicyInfo, OrgPolicyV3>() {
         @Override
-        public OrgPolicy apply(OrgPolicyInfo orgPolicyInfo) {
+        public OrgPolicyV3 apply(OrgPolicyInfo orgPolicyInfo) {
           return orgPolicyInfo.toProtobuf();
         }
       };
@@ -45,7 +44,6 @@ public class OrgPolicyInfo {
   /** Used For boolean Constraints, whether to enforce the Constraint or not. */
   static class BoolPolicy {
 
-  {
     private final Boolean enforce;
 
     BoolPolicy(Boolean enforce) {
@@ -78,11 +76,11 @@ public class OrgPolicyInfo {
       return Objects.hash(enforce);
     }
 
-    BooleanPolicy toProtobuf() {
-      return new BooleanPolicy().setEnforced(enforce);
+    BooleanPolicyV3 toProtobuf() {
+      return new BooleanPolicyV3().setEnforced(enforce);
     }
 
-    static BoolPolicy fromProtobuf(BooleanPolicy booleanPolicy) {
+    static BoolPolicy fromProtobuf(BooleanPolicyV3 booleanPolicy) {
       return new BoolPolicy(booleanPolicy.getEnforced());
     }
   }
@@ -92,36 +90,23 @@ public class OrgPolicyInfo {
    *
    * <p>ListPolicy can define specific values and subtrees of Cloud Resource Manager resource
    * hierarchy (Organizations, Folders, Projects) that are allowed or denied by setting the
-   * allowedValues and deniedValues fields. This is achieved by using the under: and optional is:
-   * prefixes. The under: prefix denotes resource subtree values. The is: prefix is used to denote
-   * specific values, and is required only if the value contains a ":". Values prefixed with "is:"
-   * are treated the same as values with no prefix. Ancestry subtrees must be in one of the
-   * following formats: - "projects/", e.g. "projects/tokyo-rain-123" - "folders/", e.g.
-   * "folders/1234" - "organizations/", e.g. "organizations/1234" The supportsUnder field of the
-   * associated Constraint defines whether ancestry prefixes can be used. You can set allowedValues
-   * and deniedValues in the same Policy if allValues is ALL_VALUES_UNSPECIFIED. ALLOW or DENY are
-   * used to allow or deny all values. If allValues is set to either ALLOW or DENY, allowedValues
-   * and deniedValues must be unset.
+   * allowedValues and deniedValues fields.
    */
   static class Policies {
 
-  {
     private final String allValues;
     private final List<String> allowedValues;
     private final List<String> deniedValues;
-    private final Boolean inheritFromParent;
     private final String suggestedValue;
 
     Policies(
-        (String allValues,
+        String allValues,
         List<String> allowedValues,
         List<String> deniedValues,
-        Boolean inheritFromParent,
         String suggestedValue) {
       this.allValues = allValues;
       this.allowedValues = allowedValues;
       this.deniedValues = deniedValues;
-      this.inheritFromParent = inheritFromParent;
       this.suggestedValue = suggestedValue;
     }
 
@@ -140,11 +125,6 @@ public class OrgPolicyInfo {
       return deniedValues;
     }
 
-    /** Returns the inheritance behavior for this Policy */
-    Boolean getInheritFromParent() {
-      return inheritFromParent;
-    }
-
     /** Returns the suggested value of this policy. */
     String getSuggestedValue() {
       return suggestedValue;
@@ -156,7 +136,6 @@ public class OrgPolicyInfo {
           .add("allValues", getAllValues())
           .add("allowedValues", getAllowedValues())
           .add("deniedValues", getDeniedValues())
-          .add("inheritFromParent", getInheritFromParent())
           .add("suggestedValue", getSuggestedValue())
           .toString();
     }
@@ -173,31 +152,27 @@ public class OrgPolicyInfo {
       return Objects.equals(allValues, policies.allValues)
           && Objects.equals(allowedValues, policies.allowedValues)
           && Objects.equals(deniedValues, policies.deniedValues)
-          && Objects.equals(inheritFromParent, policies.inheritFromParent)
           && Objects.equals(suggestedValue, policies.suggestedValue);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(
-          (allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
+      return Objects.hash(allValues, allowedValues, deniedValues, suggestedValue);
     }
 
-    Policy toProtobuf() {
-      return new Policy()
+    ListPolicyV3 toProtobuf() {
+      return new ListPolicyV3()
           .setAllValues(allValues)
           .setAllowedValues(allowedValues)
           .setDeniedValues(deniedValues)
-          .setInheritFromParent(inheritFromParent)
           .setSuggestedValue(suggestedValue);
     }
 
-    static Policies fromProtobuf(Policy listPolicy) {
+    static Policies fromProtobuf(ListPolicyV3 listPolicy) {
       return new Policies(
           (listPolicy.getAllValues(),
           listPolicy.getAllowedValues(),
           listPolicy.getDeniedValues(),
-          listPolicy.getInheritFromParent(),
           listPolicy.getSuggestedValue());
     }
   }
@@ -315,8 +290,7 @@ public class OrgPolicyInfo {
 
   @Override
   public int hashCode() {
-    return Objects.hash
-        (boolPolicy, constraint, etag, policies, updateTime, version);
+    return Objects.hash(boolPolicy, constraint, etag, policies, updateTime, version);
   }
 
   /** Returns a builder for the {@link OrgPolicyInfo} object. */
@@ -329,31 +303,27 @@ public class OrgPolicyInfo {
     return new Builder(this);
   }
 
-  OrgPolicy toProtobuf() {
-    OrgPolicy orgPolicyProto = new OrgPolicy();
+  OrgPolicyV3 toProtobuf() {
+    OrgPolicyV3 orgPolicyProto = new OrgPolicyV3();
     if (boolPolicy != null) {
       orgPolicyProto.setBooleanPolicy(boolPolicy.toProtobuf());
     }
-    orgPolicyProto.setConstraint(constraint);
     if (policies != null) {
-      orgPolicyProto.setPolicy(policies.toProtobuf());
+      orgPolicyProto.setListPolicy(policies.toProtobuf());
     }
-    orgPolicyProto.setEtag(etag);
     orgPolicyProto.setUpdateTime(updateTime);
     orgPolicyProto.setVersion(version);
     return orgPolicyProto;
   }
 
-  static OrgPolicyInfo fromProtobuf(OrgPolicy orgPolicyProtobuf) {
+  static OrgPolicyInfo fromProtobuf(OrgPolicyV3 orgPolicyProtobuf) {
     Builder builder = newBuilder();
     if (orgPolicyProtobuf.getBooleanPolicy() != null) {
       builder.setBoolPolicy(BoolPolicy.fromProtobuf(orgPolicyProtobuf.getBooleanPolicy()));
     }
-    builder.setConstraint(orgPolicyProtobuf.getConstraint());
-    if (orgPolicyProtobuf.getPolicy() != null) {
-      builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getPolicy());
+    if (orgPolicyProtobuf.getListPolicy() != null) {
+      builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getListPolicy()));
     }
-    builder.setEtag(orgPolicyProtobuf.getEtag());
     builder.setUpdateTime(orgPolicyProtobuf.getUpdateTime());
     builder.setVersion(orgPolicyProtobuf.getVersion());
     return builder.build();

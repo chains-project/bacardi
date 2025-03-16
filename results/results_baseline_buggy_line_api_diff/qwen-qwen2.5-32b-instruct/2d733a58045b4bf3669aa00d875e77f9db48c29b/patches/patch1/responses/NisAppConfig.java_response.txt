@@ -103,12 +103,18 @@ public class NisAppConfig {
 
 	@Bean
 	public Flyway flyway() throws IOException {
+		final Properties prop = new Properties();
+		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+
 		ClassicConfiguration config = new ClassicConfiguration();
 		config.setDataSource(this.dataSource());
 		config.setLocations(prop.getProperty("flyway.locations").split(","));
 		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 		config.setClassLoader(NisAppConfig.class.getClassLoader());
-		return new Flyway(config);
+
+		Flyway flyway = new Flyway(config);
+		flyway.migrate();
+		return flyway;
 	}
 
 	@Bean
@@ -191,8 +197,6 @@ public class NisAppConfig {
 
 	// endregion
 
-	// region other beans
-
 	@Bean
 	public Harvester harvester() {
 		final NewBlockTransactionsProvider transactionsProvider = new DefaultNewBlockTransactionsProvider(this.nisCache(),
@@ -241,15 +245,7 @@ public class NisAppConfig {
 	}
 
 	@Bean
-	public TrustProvider trustProvider() {
-		final int LOW_COMMUNICATION_NODE_WEIGHT = 30;
-		final int TRUST_CACHE_TIME = 15 * 60;
-		return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME,
-				this.timeProvider());
-	}
-
-	@Bean
-	public NisConfigurationPolicy configurationPolicy() {
-		return new NisConfigurationPolicy();
+	public HibernateTransactionManager transactionManager() throws IOException {
+		return new HibernateTransactionManager(this.sessionFactory());
 	}
 }

@@ -53,6 +53,7 @@ import java.util.function.*;
 @EnableTransactionManagement
 public class NisAppConfig {
 
+{
 	@Autowired
 	private AccountDao accountDao;
 
@@ -101,7 +102,7 @@ public class NisAppConfig {
 		return dataSource;
 	}
 
-	@Bean(initMethod = "migrate")
+	@Bean
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
@@ -110,12 +111,12 @@ public class NisAppConfig {
 		flywayConfig.setDataSource(this.dataSource());
 		flywayConfig.setLocations(prop.getProperty("flyway.locations").split(","));
 		flywayConfig.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		flywayConfig.setClassLoader(NisAppConfig.class.getClassLoader());
 
 		return new Flyway(flywayConfig);
 	}
 
 	@Bean
+	@DependsOn("flyway")
 	public SessionFactory sessionFactory() throws IOException {
 		return SessionFactoryLoader.load(this.dataSource());
 	}
@@ -167,7 +168,7 @@ public class NisAppConfig {
 
 	// endregion
 
-	// region observers + validators
+	// region mappers
 
 	@Bean
 	public BlockTransactionObserverFactory blockTransactionObserverFactory() {
@@ -196,7 +197,7 @@ public class NisAppConfig {
 
 	// endregion
 
-	// region harvester
+	// region mappers
 
 	@Bean
 	public Harvester harvester() {
@@ -334,8 +335,8 @@ public class NisAppConfig {
 	private Supplier<WeightedBalances> weighedBalancesSupplier() {
 		final Map<BlockChainFeature, Supplier<Supplier<WeightedBalances>>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<WeightedBalances>>>() {
 			{
-				this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
-				this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
+				this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
+				this.put(BlockChainFeature.WB_IMMEDIATE_VESTINGING, () -> AlwaysVestedBalances::new);
 			}
 		};
 

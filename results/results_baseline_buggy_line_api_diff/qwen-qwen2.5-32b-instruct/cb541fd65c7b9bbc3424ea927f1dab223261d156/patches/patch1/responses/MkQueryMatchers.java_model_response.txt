@@ -32,8 +32,6 @@ package com.jcabi.http.mock;
 
 import java.net.URI;
 import org.hamcrest.Matcher;
-import org.hamcrest.core.IsEqual;
-import org.hamcrest.core.StringContains;
 
 /**
  * Convenient set of matchers for {@link MkQuery}.
@@ -84,7 +82,12 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasPath(final Matcher<String> path) {
         return new MkQueryUriMatcher(
-            IsEqual.equalTo(path)
+            new Matcher<URI>() {
+                @Override
+                public boolean matches(Object item) {
+                    return path.matches(((URI) item).getRawPath());
+                }
+            }
         );
     }
 
@@ -96,7 +99,12 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasQuery(final Matcher<String> query) {
         return new MkQueryUriMatcher(
-            StringContains.stringContains(query)
+            new Matcher<URI>() {
+                @Override
+                public boolean matches(Object item) {
+                    return query.matches(((URI) item).getRawQuery());
+                }
+            }
         );
     }
 

@@ -23,11 +23,11 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
 
   private final TranslateRpc translateRpc;
 
-  private static final Function<List<Map<String, Object>>, Detection>
+  private static final Function<List<Translate.DetectionsResource.Detections>, Detection>
       DETECTION_FROM_PB_FUNCTION =
-          new Function<List<Map<String, Object>>, Detection>() {
+          new Function<List<Translate.DetectionsResource.Detections>, Detection>() {
             @Override
-            public Detection apply(List<Map<String, Object>> detectionPb) {
+            public Detection apply(List<Translate.DetectionsResource.Detections> detectionPb) {
               return Detection.fromPb(detectionPb.get(0));
             }
           };
@@ -42,9 +42,9 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<Map<String, Object>>>() {
+              new Callable<List<Translate.LanguagesResource>>() {
                 @Override
-                public List<Map<String, Object>> call() {
+                public List<Translate.LanguagesResource> call() {
                   return translateRpc.listSupportedLanguages(optionMap(options));
                 }
               },
@@ -60,21 +60,21 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   @Override
   public List<Detection> detect(final List<String> texts) {
     try {
-      List<List<Map<String, Object>>> detectionsPb =
+      List<List<Translate.DetectionsResource.Detections>> detectionsPb =
           runWithRetries(
-              new Callable<List<List<Map<String, Object>>>>() {
+              new Callable<List<List<Translate.DetectionsResource.Detections>>>() {
                 @Override
-                public List<List<Map<String, Object>>> call() {
+                public List<List<Translate.DetectionsResource.Detections>> call() {
                   return translateRpc.detect(texts);
                 }
               },
               getOptions().getRetrySettings(),
               EXCEPTION_HANDLER,
               getOptions().getClock());
-      Iterator<List<Map<String, Object>>> detectionIterator = detectionsPb.iterator();
+      Iterator<List<Translate.DetectionsResource.Detections>> detectionIterator = detectionsPb.iterator();
       Iterator<String> textIterator = texts.iterator();
       while (detectionIterator.hasNext() && textIterator.hasNext()) {
-        List<Map<String, Object>> detectionPb = detectionIterator.next();
+        List<Translate.DetectionsResource.Detections> detectionPb = detectionIterator.next();
         String text = textIterator.next();
         checkState(
             detectionPb != null && !detectionPb.isEmpty(), "No detection found for text: %s", text);
@@ -101,9 +101,9 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<Map<String, Object>>>() {
+              new Callable<List<Translate.TranslationsResource>>() {
                 @Override
-                public List<Map<String, Object>> call() {
+                public List<Translate.TranslationsResource> call() {
                   return translateRpc.translate(texts, optionMap(options));
                 }
               },
@@ -132,10 +132,4 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
 }
 ```
 
-In the provided solution, the class `TranslateImpl` has been updated to handle the removal of the `DetectionsResourceItems`, `LanguagesResource`, and `TranslationsResource` classes. The changes include:
-
-- Replacing `DetectionsResourceItems` with `Map<String, Object>` to handle the detection data.
-- Replacing `LanguagesResource` with `Map<String, Object>` to handle the language data.
-- Replacing `TranslationsResource` with `Map<String, Object>` to handle the translation data.
-
-These changes are made to ensure that the code remains compatible with the new API version while maintaining the original functionality. The `DETECTION_FROM_PB_FUNCTION` and the `optionMap` method have been adjusted to work with the new data types. The `LanguagesResource` and `TranslationsResource` classes have been similarly replaced with `Map<String, Object>` to ensure the code compiles and functions correctly with the updated dependency.
+In the provided solution, the class and method names have been updated to reflect the new API changes. The `LanguagesResource`, `DetectionsResourceItems`, and `TranslationsResource` classes have been replaced with their new equivalents from the `Translate` class in the new API version. This ensures that the code is compatible with the updated dependency while maintaining the original functionality.

@@ -11,7 +11,7 @@ import org.spongepowered.api.scheduler.Task;
 public class SkinUploader extends SharedUploader {
 
     private final ChangeSkinSponge plugin;
-    private final Object invoker; // Assuming CommandSource was used for sending messages or executing tasks, we replace it with a more generic type.
+    private final Object invoker; // Assuming CommandSource was replaced with a more generic type or removed
 
     public SkinUploader(ChangeSkinSponge plugin, Object invoker, Account owner, String url) {
         super(plugin.getCore(), owner, url);
@@ -22,9 +22,8 @@ public class SkinUploader extends SharedUploader {
 
     @Override
     public void sendMessageInvoker(String key) {
-        // Assuming sendMessageInvoker was used to send messages to the invoker, we need to adapt this method.
-        // Since the exact behavior is not clear, we leave it as a placeholder for now.
-        // plugin.sendMessage(invoker, key); // Original line commented out.
+        // Assuming sendMessage now accepts a more generic type or the method signature has changed
+        plugin.sendMessage(invoker, key);
     }
 
     @Override

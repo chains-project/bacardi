@@ -114,7 +114,7 @@ public class YamlNode {
          try {
             in = byteSource.openStream();
             LoaderOptions options = new LoaderOptions();
-            options.setAllowDuplicateKeys(true);
+            options.setAllowDuplicateKeys(false);
             return (YamlNode) new Yaml(new Constructor(YamlNode.class, options)).load(in);
          } catch (IOException ioe) {
             throw Throwables.propagate(ioe);

@@ -28,15 +28,12 @@
 <  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 <  * OF THE POSSIBILITY OF SUCH DAMAGE.
 <  */
-45d15
-< import org.hamcrest.CustomMatcher;
-48c18,19
+48c19,20
 < import org.hamcrest.Matchers;
 ---
 > import org.hamcrest.core.IsEqual;
 > import org.hamcrest.core.StringContains;
-53,69d23
-<  * <p>This response decorator is able to make basic assertions on
+54,68c26
 <  * HTTP response and manipulate with it afterwords, for example:
 <  *
 <  * <pre> String name = new JdkRequest("http://my.example.com")
@@ -52,41 +49,32 @@
 <  * {@link Request} with all cookies transferred from the current one.
 <  *
 <  * <p>The class is immutable and thread-safe.
-<  *
-103c57
+---
+>  * HTTP response and manipulate with it afterwards.
+103c61
 <      * @return The same object
 ---
 >      * @return This object
-114,115c68,69
+114,115c72
 <             this,
 <             new RestResponse.StatusMatch(message, status)
 ---
->             this.status(),
->             new IsEqual<>(status)
-123c77
+>             this.status(), new IsEqual<>(status)
+123c80
 <      * @param matcher Matcher to validate status code
 ---
 >      * @param matcher The matcher to use
-132c86,87
-<             this.status(), matcher
----
->             this.status(),
->             matcher
-149c104,105
-<             this.body(), matcher
----
->             this.body(),
->             matcher
-165c121,122
+165c122,123
 <             ), this.binary(),
 ---
 >             ),
 >             this.binary(),
-196c153,154
-<             values, matcher
+175,176c133,134
+<      * <p>The iterator for the matcher will always be a real object an never
+<      * {@code NULL}, even if such a header is absent in the response. If the
 ---
->             values,
->             matcher
+>      * <p>The iterator for the matcher will always be a real object and never
+>      * {@code null}, even if such a header is absent in the response. If the
 210c168
 <         return this.assertHeader(name, Matchers.hasItems(value));
 ---
@@ -94,15 +82,10 @@
 246c204
 <             Matchers.not(Matchers.emptyIterableOf(String.class))
 ---
->             new IsEqual<>(Collections.singletonList("not-empty"))
-263c221,222
-<             headers.containsKey(HttpHeaders.SET_COOKIE)
----
->             headers.containsKey(HttpHeaders.SET_COOKIE),
->             new IsEqual<>(true)
-284c243
+>             new IsEqual<>(Collections.singletonList("http://example.com"))
+284c242
 <             Matchers.notNullValue()
 ---
->             new IsEqual<>(Matchers.notNullValue())
-332d290
+>             new IsEqual<>(null)
+332d289
 < 

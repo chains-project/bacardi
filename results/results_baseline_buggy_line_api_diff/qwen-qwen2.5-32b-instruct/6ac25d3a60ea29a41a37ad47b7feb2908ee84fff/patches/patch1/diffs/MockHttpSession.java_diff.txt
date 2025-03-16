@@ -1,9 +1,16 @@
 23,24d22
 < import jakarta.servlet.http.HttpSession;
 < import jakarta.servlet.http.HttpSessionContext;
+30c28
+< public class MockHttpSession implements HttpSession {
+---
+> public class MockHttpSession implements jakarta.servlet.http.HttpSession {
 41c39
 <     return new Vector(attributes.keySet()).elements();
 ---
 >     return new Vector<>(attributes.keySet()).elements();
-66d63
+66,67c64
 <   @Override
+<   public HttpSessionContext getSessionContext() {
+---
+>   public Object getSessionContext() {

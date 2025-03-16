@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2017 Premium Minds.
+ *
+ * This file is part of billy GIN.
+ *
+ * billy GIN is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * billy GIN is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with billy GIN. If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.premiumminds.billy.gin.services.impl.pdf;
 
 import com.google.zxing.BarcodeFormat;
@@ -13,6 +31,7 @@ import com.premiumminds.billy.gin.services.export.ParamsTree.Node;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
@@ -32,11 +51,12 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.FopFactoryBuilder;
-import org.apache.fop.apps.MimeConstants;
+import org.apache.fop.render.pdf.PDFRendererConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,11 +112,15 @@ public abstract class FOPPDFTransformer {
         // creation of transform source
         Source source = this.mapParamsToSource(documentParams);
 
-        Transformer xslfoTransformer = this.getTransformer(templateStream);
+        // Create FopFactory instance with a builder
+        FopFactory fopFactory = FopFactoryBuilder.buildFopFactory();
+
+        // a user agent is needed for transformation
+        FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
+        // the XML file from which we take the name
+        Transformer xslfoTransformer = this.getTransformer(new StreamSource(templateStream));
 
         // Construct fop with desired output format
-        FopFactory fopFactory = FopFactoryBuilder.newInstance().build();
-        FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
         Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, outStream);
 
         // Resulting SAX events (the generated FO)
@@ -106,6 +130,25 @@ public abstract class FOPPDFTransformer {
         // Start XSLT transformation and FOP processing
         // everything will happen here..
         xslfoTransformer.transform(source, res);
+
+        Optional<Node<String, String>> qrCodeString = documentParams
+            .getRoot()
+            .getChildren()
+            .stream()
+            .filter(stringStringNode -> stringStringNode.getKey().equals(QR_CODE))
+            .findAny();
+
+        Path qr = null;
+        try {
+            if(qrCodeString.isPresent() && !qrCodeString.get().getValue().isEmpty()){
+                qr = createQR(qrCodeString.get().getValue());
+                documentParams.getRoot().addChild(QR_CODE_PATH, qr.toString());
+            }
+        } catch (WriterException | IOException e) {
+            throw new ExportServiceException("Error generating qrCode", e);
+        } finally {
+            deleteTempFileIfExists(qr);
+        }
     }
 
     public File toFile(URI fileURI, InputStream templateStream, ParamsTree<String, String> documentParams)
@@ -122,8 +165,8 @@ public abstract class FOPPDFTransformer {
         }
     }
 
-    private Transformer getTransformer(InputStream streamSource) throws TransformerConfigurationException {
-        return this.transformerFactory.newTransformer(new StreamSource(streamSource));
+    private Transformer getTransformer(StreamSource streamSource) throws TransformerConfigurationException {
+        return this.transformerFactory.newTransformer(streamSource);
     }
 
     private Path createQR(String data)

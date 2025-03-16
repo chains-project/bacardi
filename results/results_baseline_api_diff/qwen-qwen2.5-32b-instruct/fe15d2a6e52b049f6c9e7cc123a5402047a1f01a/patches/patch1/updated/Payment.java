@@ -18,6 +18,27 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
+/**
+ * <p>Java class for Payment complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType name="Payment"&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}PaymentMechanism"/&gt;
+ *         &lt;element name="PaymentAmount" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SAFmonetaryType"/&gt;
+ *         &lt;element name="PaymentDate" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SAFdateType"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Payment", propOrder = {
     "paymentMechanism",
@@ -111,8 +132,8 @@ public class Payment implements ToString2
     public String toString() {
         final org.jvnet.jaxb2_commons.lang.ToStringStrategy2 strategy = new org.jvnet.jaxb2_commons.lang.ToStringStrategy2() {
             @Override
-            public StringBuilder append(ObjectLocator locator, StringBuilder buffer, Object object) {
-                return buffer.append(object == null ? "null" : object.toString());
+            public String toString(ObjectLocator locator, Object object, String... excludeFields) {
+                return org.jvnet.jaxb2_commons.locator.util.LocatorUtils.property(locator, this, "toString", object);
             }
         };
         final StringBuilder buffer = new StringBuilder();

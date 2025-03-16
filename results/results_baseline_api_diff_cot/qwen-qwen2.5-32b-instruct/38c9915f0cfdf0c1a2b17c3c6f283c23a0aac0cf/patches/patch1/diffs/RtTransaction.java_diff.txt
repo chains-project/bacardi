@@ -1,182 +1,108 @@
-33,38d32
-< import org.cactoos.iterable.LengthOf;
-< import org.cactoos.list.ListOf;
-< import org.cactoos.scalar.IoCheckedScalar;
-< import org.cactoos.scalar.ItemAt;
-< import org.cactoos.scalar.StickyScalar;
+1,23d0
+< /*
+<  * The MIT License (MIT)
+<  *
+<  * Copyright (c) 2018-2023 Yegor Bugayenko
+<  *
+<  * Permission is hereby granted, free of charge, to any person obtaining a copy
+<  * of this software and associated documentation files (the "Software"), to deal
+<  * in the Software without restriction, including without limitation the rights
+<  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+<  *
+<  * The above copyright notice and this permission notice shall be included
+<  * in all copies or substantial portions of the Software.
+<  *
+<  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+<  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+<  * SOFTWARE.
+<  */
+38d14
 < import org.cactoos.scalar.UncheckedScalar;
-40d33
-< import org.cactoos.text.SplitText;
-42d34
-< import org.cactoos.text.TrimmedText;
-43a36,38
-> import org.cactoos.scalar.LengthOf;
-> import org.cactoos.scalar.ScalarOf;
-> import org.cactoos.scalar.UncheckedScalar;
-52,53c47
+43d18
+< import org.cactoos.text.UncheckedText;
+50c25
+<  * @checkstyle ClassDataAbstractionCoupling (3 lines)
+---
+>  * @checkstyle ClassDataAbstractionCouplingCheck (3 lines)
+52,53c27
 < @SuppressWarnings({"PMD.AvoidCatchingGenericException",
 <     "PMD.AvoidFieldNameMatchingMethodName"})
 ---
-> @SuppressWarnings({"PMD.AvoidFieldNameMatchingMethodName"})
-60d53
+> @SuppressWarnings({"PMD.AvoidFieldNameMatchingMethodName", "PMD.ShortMethodName"})
+60d33
 <         //@checkstyle LineLengthCheck (1 line)
-81,85d73
-<      * Pattern for ID String.
-<      */
-<     private static final Pattern IDENT = Pattern.compile("[A-Fa-f0-9]{4}");
-< 
-<     /**
-88c76
-<     private final IoCheckedScalar<String> transaction;
----
->     private final String transaction;
-92a81
->      * @throws IOException If an I/O error occurs
-94,102c83,85
-<     RtTransaction(final String trnsct) {
-<         this.transaction = new IoCheckedScalar<>(
-<             new StickyScalar<>(
-<                 () -> {
-<                     if (
-<                         new TrimmedText(
-<                             new TextOf(trnsct)
-<                         ).asString().isEmpty()
-<                     ) {
----
->     RtTransaction(final String trnsct) throws IOException {
->         this.transaction = trnsct;
->         if (this.transaction.trim().isEmpty()) {
-107,112c90,91
-<                     final List<Text> pieces =
-<                         new ListOf<>(
-<                             new SplitText(trnsct, ";")
-<                         );
+111,112c84
 <                     // @checkstyle MagicNumberCheck (1 line)
 <                     if (new LengthOf(pieces).intValue() != 7) {
 ---
->         final List<String> pieces = List.of(this.transaction.split(";"));
->         if (new LengthOf<>(pieces).intValue() != 7) {
-115d93
+>                     if (new LengthOf<>(pieces).intValue() != 7) {
+115d86
 <                                 // @checkstyle LineLength (1 line)
-121,124d98
-<                     return trnsct;
-<                 }
-<             )
-<         );
-130,136c104
-<         final String ident = new UncheckedText(
-<             new IoCheckedScalar<>(
-<                 new ItemAt<>(
-<                     0, new SplitText(this.transaction.value(), ";")
-<                 )
-<             ).value()
-<         ).asString();
----
->         final String ident = this.transaction.split(";")[0];
-139d106
+139d109
 <                 new UncheckedText(
-141d107
+141d110
 <                         // @checkstyle LineLength (1 line)
-144d109
+144d112
 <                     )
-148d112
+148d115
 <         // @checkstyle MagicNumber (1 line)
-155,161c119
-<             new UncheckedText(
-<                 new IoCheckedScalar<>(
-<                     new ItemAt<>(
-<                         1, new SplitText(this.transaction.value(), ";")
-<                     )
-<                 ).value()
-<             ).asString(),
----
->             this.transaction.split(";")[1],
-168,174c126
-<         final String amnt = new UncheckedText(
-<             new IoCheckedScalar<>(
-<                 new ItemAt<>(
-<                     2, new SplitText(this.transaction.value(), ";")
-<                 )
-<             ).value()
-<         ).asString();
----
->         final String amnt = this.transaction.split(";")[2];
-177d128
+177d143
 <                 new UncheckedText(
-179d129
+179d144
 <                         // @checkstyle LineLength (1 line)
-182d131
+182d146
 <                     )
-186d134
+186d149
 <         // @checkstyle MagicNumber (1 line)
-192,200c140
-<         final String prefix = new UncheckedText(
-<             new IoCheckedScalar<>(
-<                 new ItemAt<>(
+195d157
 <                     //@checkstyle MagicNumberCheck (1 line)
-<                     3, new SplitText(this.transaction.value(), ";")
-<                 )
-<             ).value()
-<         ).asString();
+200d161
 <         //@checkstyle MagicNumberCheck (1 line)
----
->         final String prefix = this.transaction.split(";")[3];
-212,219c152
-<         final String bnf = new UncheckedText(
-<             new IoCheckedScalar<>(
-<                 new ItemAt<>(
+215d175
 <                     //@checkstyle MagicNumberCheck (1 line)
-<                     4, new SplitText(this.transaction.value(), ";")
-<                 )
-<             ).value()
-<         ).asString();
----
->         final String bnf = this.transaction.split(";")[4];
-222d154
+222d181
 <                 new UncheckedText(
-224d155
+224d182
 <                         // @checkstyle LineLength (1 line)
-227d157
+227d184
 <                     )
-236,243c166
-<         final String dtls = new UncheckedText(
-<             new IoCheckedScalar<>(
-<                 new ItemAt<>(
+239d195
 <                     //@checkstyle MagicNumberCheck (1 line)
-<                     5, new SplitText(this.transaction.value(), ";")
-<                 )
-<             ).value()
-<         ).asString();
----
->         final String dtls = this.transaction.split(";")[5];
-246d168
+246d201
 <                 new UncheckedText(
-248d169
+248d202
 <                         // @checkstyle LineLength (1 line)
-251d171
+251d204
 <                     )
-260,270c180,181
-<         final String sign = new UncheckedText(
-<             new IoCheckedScalar<>(
-<                 new ItemAt<>(
+263d215
 <                     //@checkstyle MagicNumberCheck (1 line)
-<                     6, new SplitText(this.transaction.value(), ";")
-<                 )
-<             ).value()
-<         ).asString();
+268,270c220
 <         // @checkstyle MagicNumber (1 line)
 <         if (sign.length() != 684
 <             || !RtTransaction.SIGN.matcher(sign).matches()) {
 ---
->         final String sign = this.transaction.split(";")[6];
 >         if (sign.length() != 684 || !RtTransaction.SIGN.matcher(sign).matches()) {
-272d182
+272d221
 <                 new UncheckedText(
-274d183
+274d222
 <                         // @checkstyle LineLength (1 line)
-277d185
+277d224
 <                     )
-286c194
+286c233
 <         return new UncheckedScalar<>(this.transaction).value();
 ---
->         return this.transaction;
+>         return this.transaction.value();
+299c246
+<         return this.transaction.equals(that.transaction);
+---
+>         return this.transaction.value().equals(that.transaction.value());
+304c251
+<         return this.transaction.hashCode();
+---
+>         return this.transaction.value().hashCode();

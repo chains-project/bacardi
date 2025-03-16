@@ -141,40 +141,15 @@ public interface ResourceManagerRpc extends ServiceRpc {
   /** Clears the Policy from a resource. */
   void clearOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
 
-  /**
-   * Gets the effective Policy on a resource.
-   *
-   * <p>This is the result of merging Policies in the resource hierarchy. The returned Policy does
-   * not have an etag set because it is a computed Policy across multiple resources. Subtrees of
-   * Resource Manager resource hierarchy with 'under:' prefix will not be expanded.
-   *
-   * @throws ResourceManagerException upon failure
-   */
   OrgPolicy getEffectiveOrgPolicy(String resource, String constraint) throws IOException;
 
-  /**
-   * Lists all the Policies set for a particular resource.
-   *
-   * @throws ResourceManagerException upon failure
-   */
   ListResult<OrgPolicy> listOrgPolicies(String resource, Map<Option, ?> options) throws IOException;
 
-  /**
-   * Updates the specified Policy on the resource. Creates a new Policy for that Constraint on the
-   * resource if one does not exist.
-   *
-   * <p>Not supplying an etag on the request Policy results in an unconditional write of the Policy.
-   *
-   * @throws ResourceManagerException upon failure
-   */
-  OrgPolicy replaceOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
+  OrgPolicy getOrgPolicy(String resource, String constraint) throws IOException;
 
-  /**
-   * Lists all the Constraints that can be applied on the specified resource.
-   *
-   * @throws ResourceManagerException upon failure
-   */
   ListResult<Constraint> listAvailableOrgPolicyConstraints(String resource, Map<Option, ?> options)
       throws IOException;
+
+  OrgPolicy replaceOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
 }
 ```

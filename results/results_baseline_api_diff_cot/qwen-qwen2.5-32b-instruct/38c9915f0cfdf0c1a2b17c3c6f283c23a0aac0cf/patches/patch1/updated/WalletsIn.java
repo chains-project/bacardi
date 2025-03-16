@@ -29,15 +29,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Random;
-import org.cactoos.Scalar;
 import org.cactoos.Func;
-import org.cactoos.Text;
-import org.cactoos.text.ConcatText;
-import org.cactoos.text.FormattedText;
-import org.cactoos.text.UncheckedText;
+import org.cactoos.Scalar;
 import org.cactoos.io.Directory;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.Mapped;
+import org.cactoos.text.FormattedText;
+import org.cactoos.text.UncheckedText;
 
 /**
  * Wallets in path.
@@ -97,9 +95,10 @@ public final class WalletsIn implements Wallets {
      * @param ext Wallets file extension
      * @param random Randomizer
      */
-    public WalletsIn(final Path pth, final String ext, final Random random) {
-        this.path = pth;
-        this.filter = (file) -> file.toFile().isFile()
+    public WalletsIn(final Scalar<Path> pth, final String ext,
+        final Random random) {
+        this.path = pth.value();
+        this.filter = file -> file.toFile().isFile()
             && FileSystems.getDefault()
             .getPathMatcher(String.format("glob:**.%s", ext))
             .matches(file);
@@ -110,11 +109,7 @@ public final class WalletsIn implements Wallets {
     @Override
     public Wallet create() throws IOException {
         final Path wpth = this.path.resolve(
-            new ConcatText(
-                ".",
-                Long.toHexString(this.random.nextLong()),
-                this.ext
-            ).asString()
+            String.format("%s.%s", Long.toHexString(this.random.nextLong()), this.ext)
         );
         if (wpth.toFile().exists()) {
             throw new IOException(
@@ -128,6 +123,13 @@ public final class WalletsIn implements Wallets {
         }
         Files.createFile(wpth);
         return new Wallet.File(wpth);
+    }
+
+    @Override
+    public Wallet create(final long id, final String pubkey, final String network) throws IOException {
+        throw new UnsupportedOperationException(
+            "WalletsIn.create(String, String, String) not supported"
+        );
     }
 
     @Override

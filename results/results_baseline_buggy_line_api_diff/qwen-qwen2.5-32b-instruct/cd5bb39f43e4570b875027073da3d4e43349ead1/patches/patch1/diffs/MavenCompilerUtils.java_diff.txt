@@ -1,5 +1,32 @@
 21c21,22
 < import org.codehaus.plexus.util.xml.Xpp3Dom;
 ---
-> import org.apache.maven.shared.utils.xml.Xpp3Dom;
-> import org.apache.maven.shared.utils.xml.Xpp3DomBuilder;
+> import org.w3c.dom.Element;
+> import org.w3c.dom.NodeList;
+70,72c71,73
+<         if (config instanceof Xpp3Dom) {
+<             return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
+<                     .flatMap(aggregate -> stream(aggregate.getChildren("path")))
+---
+>         if (config instanceof Element) {
+>             return stream(((Element) config).getElementsByTagName("annotationProcessorPaths"))
+>                     .flatMap(aggregate -> stream(((Element) aggregate).getElementsByTagName("path")))
+74,76c75,77
+<                             extractChildValue(processor, "groupId"),
+<                             extractChildValue(processor, "artifactId"),
+<                             extractChildValue(processor, "version"),
+---
+>                             extractChildValue((Element) processor, "groupId"),
+>                             extractChildValue((Element) processor, "artifactId"),
+>                             extractChildValue((Element) processor, "version"),
+99,101c100,105
+<     private static String extractChildValue(Xpp3Dom node, String name) {
+<         final Xpp3Dom child = node.getChild(name);
+<         return child == null ? "" : child.getValue();
+---
+>     private static String extractChildValue(Element node, String name) {
+>         NodeList children = node.getElementsByTagName(name);
+>         if (children.getLength() > 0) {
+>             return children.item(0).getTextContent();
+>         }
+>         return "";

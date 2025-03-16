@@ -1,0 +1,185 @@
+1,23d0
+< /*
+<  * The MIT License (MIT)
+<  *
+<  * Copyright (c) 2018-2023 Yegor Bugayenko
+<  *
+<  * Permission is hereby granted, free of charge, to any person obtaining a copy
+<  * of this software and associated documentation files (the "Software"), to deal
+<  * in the Software without restriction, including without limitation the rights
+<  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+<  *
+<  * The above copyright notice and this permission notice shall be included
+<  * in all copies or substantial portions of the Software.
+<  *
+<  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+<  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+<  * SOFTWARE.
+<  */
+29a7
+> import org.cactoos.Func;
+30a9,11
+> import org.cactoos.collection.Mapped;
+> import org.cactoos.collection.Skipped;
+> import org.cactoos.collection.ListOf;
+33,38c14,16
+< import org.cactoos.iterable.Mapped;
+< import org.cactoos.iterable.Skipped;
+< import org.cactoos.list.ListOf;
+< import org.cactoos.scalar.CheckedScalar;
+< import org.cactoos.scalar.Or;
+< import org.cactoos.scalar.UncheckedScalar;
+---
+> import org.cactoos.iterable.FilteredIterable;
+> import org.cactoos.iterable.MappedIterable;
+> import org.cactoos.iterable.SkippedIterable;
+40d17
+< import org.cactoos.text.SplitText;
+96,102c73,75
+<      * @todo #65:30min Complete Wallet implementations with id, public RSA
+<      *  key and network id. Wallets.create(Long, String, String) must
+<      *  create a Wallet with these strings set and a constructor must be
+<      *  added to all Walletl realizations (Wallet(final long id, final String
+<      *  pubkey, final String network, final Transaction... transactions). After
+<      *  completing these implementations fix tests that uses Wallets.create()
+<      *  and all Wallet realizations.
+---
+>      * @todo #65:30min Implement key method. This should return the
+>      *  public RSA key of the wallet owner in Base64. Also add a unit test
+>      *  to replace WalletTest.keyIsNotYetImplemented().
+134c107
+<          * Constructor.
+---
+>          * Ctor.
+138c111
+<          * @checkstyle UnusedFormalParameter (2 lines)
+---
+>          * @checkstyle UnusedFormalParameter (1 line)
+144,153d116
+<         /**
+<          * Ctor.
+<          * @param id The wallet id.
+<          * @param transactions Transactions.
+<          */
+<         public Fake(final long id, final Iterable<Transaction> transactions) {
+<             this.id = id;
+<             this.transactions = transactions;
+<         }
+< 
+165,233d127
+<         public Wallet merge(final Wallet other) {
+<             return other;
+<         }
+< 
+<         @Override
+<         public Iterable<Transaction> ledger() {
+<             return this.transactions;
+<         }
+< 
+<         @Override
+<         public String key() {
+<             return Long.toString(this.id);
+<         }
+<     }
+< 
+<     /**
+<      * Default File implementation.
+<      * @checkstyle ClassDataAbstractionCouplingCheck (2 lines)
+<      */
+<     final class File implements Wallet {
+< 
+<         /**
+<          * Path of this wallet.
+<          */
+<         private final Path path;
+< 
+<         /**
+<          * Ctor.
+<          * @param path Path of wallet
+<          */
+<         File(final Path path) {
+<             this.path = path;
+<         }
+< 
+<         @Override
+<         public long id() throws IOException {
+<             return new CheckedScalar<>(
+<                 () -> Long.parseUnsignedLong(
+<                     new ListOf<>(
+<                         new SplitText(
+<                             new TextOf(this.path),
+<                             "\n"
+<                         )
+<                     ).get(2).asString(),
+<                     // @checkstyle MagicNumber (1 line)
+<                     16
+<                 ),
+<                 e -> new IOException(e)
+<             ).value();
+<         }
+< 
+<         @Override
+<         public void pay(final long amt, final long bnf) throws IOException {
+<             try (final Writer out = new FileWriter(this.path.toFile(), true)) {
+<                 out.write('\n');
+<                 out.write(new CpTransaction(amt, bnf).toString());
+<             }
+<         }
+< 
+<         // @todo #16:30min Following transactions should be ignored according
+<         //  to the whitepaper:
+<         //  a) If the transaction is negative and its signature is not valid,
+<         //  it is ignored;
+<         //  b) If the transaction makes the balance of the wallet negative,
+<         //  it is ignored;
+<         //  c) If the transaction is positive and it’s absent in the paying
+<         //  wallet (which exists at the node), it’s ignored; If the paying
+<         //  wallet doesn’t exist at the node, the transaction is ignored;
+<         @Override
+247,258c141,152
+<             final Iterable<Transaction> candidates = new Filtered<>(
+<                 incoming -> new Filtered<>(
+<                     origin -> new UncheckedScalar<>(
+<                         new Or(
+<                             () -> incoming.equals(origin),
+<                             () -> incoming.id() == origin.id()
+<                                 && incoming.bnf().equals(origin.bnf()),
+<                             () -> incoming.id() == origin.id()
+<                                 && incoming.amount() < 0L,
+<                             () -> incoming.prefix().equals(origin.prefix())
+<                         )
+<                     ).value(),
+---
+>             final Iterable<Transaction> candidates = new FilteredIterable<>(
+>                 incoming -> new FilteredIterable<>(
+>                     origin -> new Func<Boolean>() {
+>                         @Override
+>                         public Boolean apply(final Object input) {
+>                             final Transaction t = (Transaction) input;
+>                             return incoming.equals(t)
+>                                 || (incoming.id() == t.id() && incoming.bnf().equals(t.bnf()))
+>                                 || (incoming.id() == t.id() && incoming.amount() < 0L)
+>                                 || incoming.prefix().equals(t.prefix());
+>                         }
+>                     },
+271c165
+<             return new Mapped<>(
+---
+>             return new MappedIterable<>(
+273c167
+<                 new Skipped<>(
+---
+>                 new SkippedIterable<>(
+275,278c169
+<                         new SplitText(
+<                             new TextOf(this.path),
+<                             "\\n"
+<                         )
+---
+>                         new TextOf(this.path).asString().split("\\n")

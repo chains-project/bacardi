@@ -6,20 +6,18 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
 import org.cactoos.Func;
-import org.cactoos.IterableOf;
-import org.cactoos.Scalar;
 import org.cactoos.Text;
-import org.cactoos.collection.Filtered;
+import org.cactoos.text.FormattedText;
+import org.cactoos.text.TextOf;
+import org.cactoos.text.UncheckedText;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.IterableOf;
 import org.cactoos.iterable.Joined;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Skipped;
-import org.cactoos.list.ListOf;
-import org.cactoos.text.FormattedText;
+import org.cactoos.scalar.Or;
+import org.cactoos.scalar.Scalar;
 import org.cactoos.text.SplitText;
-import org.cactoos.text.TextOf;
-import org.cactoos.text.UncheckedText;
 
 /**
  * Wallet.
@@ -153,16 +151,14 @@ public interface Wallet {
             final Iterable<Transaction> ledger = this.ledger();
             final Iterable<Transaction> candidates = new Filtered<>(
                 incoming -> new Filtered<>(
-                    origin -> new Func<Boolean, Transaction>() {
-                        @Override
-                        public Boolean apply(final Transaction input) {
-                            return incoming.equals(origin)
-                                || (incoming.id() == origin.id()
-                                    && incoming.bnf().equals(origin.bnf()))
-                                || (incoming.id() == origin.id() && incoming.amount() < 0L)
-                                || incoming.prefix().equals(origin.prefix());
-                        }
-                    },
+                    origin -> new Or<>(
+                        () -> incoming.equals(origin),
+                        () -> incoming.id() == origin.id()
+                            && incoming.bnf().equals(origin.bnf()),
+                        () -> incoming.id() == origin.id()
+                            && incoming.amount() < 0L,
+                        () -> incoming.prefix().equals(origin.prefix())
+                    ).value(),
                     ledger
                 ).isEmpty(),
                 other.ledger()
@@ -222,21 +218,19 @@ public interface Wallet {
 
         @Override
         public long id() throws IOException {
-            return new Scalar<Long>() {
-                @Override
-                public Long value() throws Exception {
-                    return Long.parseUnsignedLong(
-                        new ListOf<>(
-                            new SplitText(
-                                new TextOf(this.path),
-                                "\n"
-                            )
-                        ).get(2).asString(),
-                        // @checkstyle MagicNumber (1 line)
-                        16
-                    );
-                }
-            }.value();
+            return new Scalar<>(
+                () -> Long.parseUnsignedLong(
+                    new ListOf<>(
+                        new SplitText(
+                            new TextOf(this.path),
+                            "\n"
+                        )
+                    ).get(2).asString(),
+                    // @checkstyle MagicNumber (1 line)
+                    16
+                ),
+                e -> new IOException(e)
+            ).value();
         }
 
         @Override
@@ -247,14 +241,6 @@ public interface Wallet {
             }
         }
 
-        // @todo #16:30min Following transactions should be ignored according
-        //  to the whitepaper:
-        //  a) If the transaction is negative and its signature is not valid,
-        //  it is ignored;
-        //  b) If the transaction makes the balance of the wallet negative,
-        //  it is ignored;
-        //  c) If the transaction is positive and it’s absent in the paying
-        //  wallet (which exists at the node), it’s ignored;
         @Override
         public Wallet merge(final Wallet other) throws IOException {
             if (other.id() != this.id()) {
@@ -271,16 +257,14 @@ public interface Wallet {
             final Iterable<Transaction> ledger = this.ledger();
             final Iterable<Transaction> candidates = new Filtered<>(
                 incoming -> new Filtered<>(
-                    origin -> new Func<Boolean, Transaction>() {
-                        @Override
-                        public Boolean apply(final Transaction input) {
-                            return incoming.equals(origin)
-                                || (incoming.id() == origin.id()
-                                    && incoming.bnf().equals(origin.bnf()))
-                                || (incoming.id() == origin.id() && incoming.amount() < 0L)
-                                || incoming.prefix().equals(origin.prefix());
-                        }
-                    },
+                    origin -> new Or<>(
+                        () -> incoming.equals(origin),
+                        () -> incoming.id() == origin.id()
+                            && incoming.bnf().equals(origin.bnf()),
+                        () -> incoming.id() == origin.id()
+                            && incoming.amount() < 0L,
+                        () -> incoming.prefix().equals(origin.prefix())
+                    ).value(),
                     ledger
                 ).isEmpty(),
                 other.ledger()

@@ -74,11 +74,11 @@ public final class MavenCompilerUtils {
             NodeList annotationProcessorPaths = configElement.getElementsByTagName("annotationProcessorPaths");
             return stream(range(0, annotationProcessorPaths.getLength()))
                     .mapToObj(annotationProcessorPaths::item)
-                    .flatMap(aggregate -> stream(((Element) aggregate).getElementsByTagName("path")))
+                    .flatMap(path -> ((Element) path).getElementsByTagName("path").stream())
                     .map(processor -> system.createArtifact(
-                            extractChildValue(processor, "groupId"),
-                            extractChildValue(processor, "artifactId"),
-                            extractChildValue(processor, "version"),
+                            extractChildValue((Element) processor, "groupId"),
+                            extractChildValue((Element) processor, "artifactId"),
+                            extractChildValue((Element) processor, "version"),
                             PACKAGING))
                     // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
                     // therefore there is little use in logging incomplete paths that are filtered out.
@@ -112,11 +112,13 @@ public final class MavenCompilerUtils {
 ```
 
 <repair_strategy>
-1. The error indicates that the `Xpp3Dom` class cannot be found, which is due to the removal of the `Xpp3Dom` class in the new version of the dependency.
-2. The `Xpp3Dom` class was used to parse XML configurations. The new version of the dependency no longer supports `Xpp3Dom`, so we need to replace it with an alternative XML parsing method.
-3. The `org.w3c.dom` package can be used as an alternative for XML parsing. We will replace `Xpp3Dom` with `org.w3c.dom.Element` and `org.w3c.dom.NodeList` for XML node handling.
-4. The `extractChildValue` method needs to be updated to use `org.w3c.dom` methods for XML node retrieval and value extraction.
-5. The `extractAnnotationProcessors` method needs to be updated to handle the XML configuration using `org.w3c.dom` methods.
-6. The `org.w3c.dom` package will be imported to handle XML parsing.
-7. The changes will ensure that the class remains compilable and functional with the new dependency version.
+1. The error indicates that the `Xpp3Dom` class and its methods are no longer available in the new version of the dependency. The `Xpp3Dom` class has been removed entirely.
+2. The new API does not provide `Xpp3Dom` class, so we need to replace it with an alternative approach to handle XML configuration.
+3. The `extractAnnotationProcessors` method and `extractChildValue` method need to be updated to use `org.w3c.dom.Element` and `org.w3c.dom.NodeList` for XML handling.
+4. The `extractChildValue` method needs to be updated to use `org.w3c.dom.Element` and `org.w3c.dom.NodeList` to extract values from XML elements.
+5. The `extractAnnotationProcessors` method needs to be updated to handle the XML configuration using `org.w3c.dom.Element` and `org.w3c.dom.NodeList`.
+6. The changes should not affect the functionality of the class and should ensure that the class compiles and functions as expected.
+7. The `org.w3c.dom.Element` and `org.w3c.dom.NodeList` classes are used to replace the `Xpp3Dom` class and its methods.
+8. The `org.w3c.dom.Element` and `org.w3c.dom.NodeList` classes are imported to handle XML configuration.
 </repair_strategy>
+```

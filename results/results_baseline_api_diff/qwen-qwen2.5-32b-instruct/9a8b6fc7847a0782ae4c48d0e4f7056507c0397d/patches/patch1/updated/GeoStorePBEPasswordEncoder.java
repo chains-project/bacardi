@@ -29,9 +29,8 @@ import java.util.Arrays;
 import java.util.Base64;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEByteEncryptor;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
 import it.geosolutions.geostore.core.security.password.CharArrayPasswordEncoder;
+import it.geosolutions.geostore.core.security.password.PasswordEncoder;
 import it.geosolutions.geostore.core.security.password.PasswordEncodingType;
 import it.geosolutions.geostore.core.security.password.KeyStoreProvider;
 import it.geosolutions.geostore.core.security.password.KeyStoreProviderImpl;
@@ -177,7 +176,7 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 	public String decode(String encPass) throws UnsupportedOperationException {
 		if (stringEncrypter == null) {
 			// not initialized
-			getStringEncoder();
+			createStringEncoder();
 		}
 
 		return stringEncrypter.decrypt(removePrefix(encPass));
@@ -188,7 +187,7 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			throws UnsupportedOperationException {
 		if (byteEncrypter == null) {
 			// not initialized
-			getCharEncoder();
+			createCharEncoder();
 		}
 
 		byte[] decoded = Base64.getDecoder().decode(removePrefix(encPass).getBytes());

@@ -7,8 +7,8 @@ import java.util.logging.Logger;
 import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import jakarta.mvc.event.AfterControllerEvent;
-import jakarta.mvc.locale.LocaleResolver;
+import jakarta.mvc.engine.ViewEngineContext;
+import jakarta.ws.rs.core.UriInfo;
 
 /**
  * Resolver to get the {@link Locale} to use from the requests query param <i>lang</i>.
@@ -31,16 +31,17 @@ import jakarta.mvc.locale.LocaleResolver;
  */
 @Priority(1)
 @ApplicationScoped
-public class QueryParamLocaleResolver implements LocaleResolver {
+public class QueryParamLocaleResolver {
     
     @Inject
     Logger log;
     
-    @Override
-    public Locale resolveLocale(AfterControllerEvent event) {
-        final String queryLang = event.getUriInfo()
-                .getQueryParameters()
-                .getFirst("lang");
+    @Inject
+    private ViewEngineContext viewEngineContext;
+    
+    public Locale resolveLocale() {
+        final UriInfo uriInfo = viewEngineContext.getUriInfo();
+        final String queryLang = uriInfo.getQueryParameters().getFirst("lang");
         log.log(Level.INFO, "QueryParamLocaleResolver::resolveLocale:lang:{0}", queryLang);
         return queryLang != null ? Locale.forLanguageTag(queryLang) : null;
     }

@@ -1,37 +1,47 @@
-1,18d0
-< /*
-<  * Copyright (C) 2017 Premium Minds.
-<  *
-<  * This file is part of billy GIN.
-<  *
-<  * billy GIN is free software: you can redistribute it and/or modify it under
-<  * the terms of the GNU Lesser General Public License as published by the Free
-<  * Software Foundation, either version 3 of the License, or (at your option) any
-<  * later version.
-<  *
-<  * billy GIN is distributed in the hope that it will be useful, but WITHOUT ANY
-<  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-<  * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
-<  * details.
-<  *
-<  * You should have received a copy of the GNU Lesser General Public License
-<  * along with billy GIN. If not, see <http://www.gnu.org/licenses/>.
-<  */
-54,55d35
+34d33
+< import java.io.IOException;
+54,55d52
 < import org.apache.fop.apps.FOPException;
 < import org.apache.fop.apps.FOUserAgent;
-58c38,39
+58c55,57
 < import org.apache.xmlgraphics.util.MimeConstants;
 ---
 > import org.apache.fop.apps.FopFactoryBuilder;
+> import org.apache.fop.apps.FopFactoryConfig;
 > import org.apache.fop.apps.MimeConstants;
-114,115d94
+68a68
+>     private final FopFactory fopFactory;
+71a72
+>         this.fopFactory = createFopFactory();
+77a79,84
+>     private FopFactory createFopFactory() {
+>         FopFactoryBuilder builder = new FopFactoryBuilder(new File("."));
+>         FopFactoryConfig config = builder.build();
+>         return FopFactory.newInstance(config);
+>     }
+> 
+114,119d120
 <         // create an instance of fop factory
 <         FopFactory fopFactory = FopFactory.newInstance();
-116a96,97
->         FopFactoryBuilder builder = new FopFactoryBuilder(new File("."));
->         FopFactory fopFactory = builder.build();
-118d98
+<         // a user agent is needed for transformation
+<         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
 <         // to store output
-208d187
 < 
+139c140
+<             Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, outStream);
+---
+>             Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, outStream);
+141,142c142
+<             // Resulting SAX events (the generated FO)
+<             // must be piped through to FOP
+---
+>             // Resulting SAX events (the generated FO) must be piped through to FOP
+148,150c148
+<         } catch (FOPException e) {
+<             throw new ExportServiceException("Error using FOP to open the template", e);
+<         } catch (TransformerException e) {
+---
+>         } catch (Exception e) {
+152,153d149
+<         } catch (IOException | WriterException e) {
+<             throw new ExportServiceException("Error generating qrCode", e);

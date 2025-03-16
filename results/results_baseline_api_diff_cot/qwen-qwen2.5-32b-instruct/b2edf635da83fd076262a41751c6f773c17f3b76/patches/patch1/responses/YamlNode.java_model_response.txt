@@ -27,6 +27,7 @@ import org.jclouds.byon.Node;
 import org.jclouds.util.Closeables2;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
@@ -113,10 +114,9 @@ public class YamlNode {
          InputStream in = null;
          try {
             in = byteSource.openStream();
-            // Use LoaderOptions instead of Class for the constructor
-            LoaderOptions loaderOptions = new LoaderOptions();
-            loaderOptions.setAllowDuplicateKeys(false);
-            return (YamlNode) new Yaml(new Constructor(loaderOptions)).load(in);
+            TypeDescription yamlNodeDescription = new TypeDescription(YamlNode.class);
+            Constructor constructor = new Constructor(yamlNodeDescription);
+            return (YamlNode) new Yaml(constructor).load(in);
          } catch (IOException ioe) {
             throw Throwables.propagate(ioe);
          } finally {
@@ -217,12 +217,11 @@ public class YamlNode {
 
 <repair_strategy>
 1. The error is caused by the removal of the `Constructor(Class<T>)` constructor in the new version of the SnakeYAML library.
-2. The new version of the library requires the use of `LoaderOptions` instead of `Class<T>` for the constructor of `Constructor`.
-3. The client code needs to be updated to use `LoaderOptions` when creating a `Yaml` instance for deserialization.
-4. The fix involves creating a `LoaderOptions` instance and passing it to the `Constructor` instead of the class type.
-5. The fix should be minimal, only affecting the deserialization part of the code.
-6. The fix should not have side effects on other parts of the code, as it only changes the way the `Yaml` instance is created.
-7. The fix ensures that the class remains compilable and functional with the new version of the SnakeYAML library.
-8. Additional import for `LoaderOptions` is added to the class.
+2. The new API requires the use of `TypeDescription` and `Constructor` with a `LoaderOptions` instance.
+3. The client code needs to be updated to use `TypeDescription` and `Constructor` with `LoaderOptions` to replace the old constructor usage.
+4. The fix should not change the function signatures and should maintain the same functionality.
+5. The minimal changes needed are to replace the `Constructor(YamlNode.class)` with `Constructor` initialized with `TypeDescription` and `LoaderOptions`.
+6. The changes should not have side effects on other parts of the code.
+7. The class should compile and function as intended after the fix.
+8. Additional imports for `TypeDescription` and `LoaderOptions` are required.
 </repair_strategy>
-```

@@ -113,5 +113,5 @@
 <             GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
 <             return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
 ---
->             GitHubComparison comparison = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).compare(ghc.hash, branch);
+>             GitHubComparison comparison = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).compare(branch, ghc.hash);
 >             return comparison.getStatus() == GitHubComparison.Status.BEHIND || comparison.getStatus() == GitHubComparison.Status.IDENTICAL;

@@ -90,26 +90,11 @@ public final class J2EHelper {
 
 2. The error information:
 <error_information>
-[ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[5,21] package javax.servlet does not exist
-</error_information>
-<error_information>
-[ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[6,21] package javax.servlet does not exist
-</error_information>
-<error_information>
-[ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[76,33] package FilterRegistration does not exist
-</error_information>
-<error_information>
-[ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[76,33] package FilterRegistration does not exist
-</error_information>
-<error_information>
 [ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[80,28] cannot find symbol
-</error_information>
   symbol:   variable DispatcherType
   location: class org.pac4j.dropwizard.J2EHelper
 
-<error_information>
 [ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[77,28] no suitable method found for addFilter(java.lang.String,org.pac4j.jee.filter.AbstractConfigFilter)
-</error_information>
     method io.dropwizard.jetty.setup.ServletEnvironment.addFilter(java.lang.String,javax.servlet.Filter) is not applicable
       (argument mismatch; org.pac4j.jee.filter.AbstractConfigFilter cannot be converted to javax.servlet.Filter)
     method io.dropwizard.jetty.setup.ServletEnvironment.addFilter(java.lang.String,java.lang.Class<? extends javax.servlet.Filter>) is not applicable
@@ -117,23 +102,24 @@ public final class J2EHelper {
     method io.dropwizard.jetty.setup.ServletEnvironment.addFilter(java.lang.String,org.eclipse.jetty.servlet.FilterHolder) is not applicable
       (argument mismatch; org.pac4j.jee.filter.AbstractConfigFilter cannot be converted to org.eclipse.jetty.servlet.FilterHolder)
 
-<error_information>
+[ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[76,33] package FilterRegistration does not exist
 [ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[37,15] cannot access javax.servlet.Filter
-</error_information>
   class file for javax.servlet.Filter not found
 
+[ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[5,21] package javax.servlet does not exist
+[ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[6,21] package javax.servlet does not exist
+</error_information>
 
 3. The changes in the API of the dependency:
 <api_changes>
      Class javax.servlet.DispatcherType has been removed in the new version of the dependency.
      Interface jakarta.servlet.DispatcherType has been added in the new version of the dependency.
-     Interface jakarta.servlet.FilterRegistration has been added in the new version of the dependency.
      Class javax.servlet.FilterRegistration has been removed in the new version of the dependency.
-     Class javax.servlet.FilterRegistration$Dynamic has been removed in the new version of the dependency.
+     Interface jakarta.servlet.FilterRegistration has been added in the new version of the dependency.
      Interface jakarta.servlet.FilterRegistration$Dynamic has been added in the new version of the dependency.
+     Class javax.servlet.FilterRegistration$Dynamic has been removed in the new version of the dependency.
 
 </api_changes>
-
 
 
 Before proposing a fix, please analyze the situation and plan your approach within <repair_strategy> tags:

@@ -41,8 +41,10 @@ public class DateTime extends DateAndTime {
     return new Timestamp(super.past(atMost, unit, referenceDate).getTime());
   }
 
-  public Timestamp between(Timestamp from, Timestamp to) throws IllegalArgumentException {
-    return new Timestamp(super.between(from, to).getTime());
+  public Timestamp between(Date from, Date to) throws IllegalArgumentException {
+    // The method between(Date, Date) has been removed in the new version of the dependency.
+    // We need to convert the Date parameters to Timestamp and use the new method signature.
+    return new Timestamp(super.between(new Timestamp(from.getTime()), new Timestamp(to.getTime())).getTime());
   }
 
   @Override
@@ -57,71 +59,4 @@ public class DateTime extends DateAndTime {
 }
 ```
 
-<repair_strategy>
-1. The error indicates that the `between` method in the `DateTime` class is trying to override a method that no longer exists in the `DateAndTime` class due to the API changes.
-2. The `between` method signature in the client code needs to be updated to match the new API, which now requires `Timestamp` objects instead of `Date` objects.
-3. The `between` method in the client code should be updated to accept `Timestamp` parameters and return a `Timestamp` object.
-4. The `@Override` annotation on the `between` method should be removed since the method no longer overrides a method from the superclass.
-5. The `between` method should be updated to call the new `between` method from the superclass with `Timestamp` parameters.
-6. No other changes are necessary to the rest of the class, as the other methods are not affected by the API changes.
-7. The class should now compile without errors, as the `between` method is now compatible with the new API.
-8. No additional imports are required, as the `Timestamp` class is already imported.
-</repair_strategy>
-```java
-package com.github.knaufk.flink.faker;
-
-import java.sql.Timestamp;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
-import net.datafaker.DateAndTime;
-import net.datafaker.Faker;
-
-public class DateTime extends DateAndTime {
-
-  protected DateTime(Faker faker) {
-    super(faker);
-  }
-
-  public Timestamp past(int atMost, TimeUnit unit) {
-    return new Timestamp(super.past(atMost, unit).getTime());
-  }
-
-  public Timestamp past(int atMost, int minimum, TimeUnit unit) {
-    return new Timestamp(super.past(atMost, minimum, unit).getTime());
-  }
-
-  @Override
-  public Timestamp future(int atMost, TimeUnit unit) {
-    return new Timestamp(super.future(atMost, unit).getTime());
-  }
-
-  @Override
-  public Timestamp future(int atMost, int minimum, TimeUnit unit) {
-    return new Timestamp(super.future(atMost, minimum, unit).getTime());
-  }
-
-  @Override
-  public Timestamp future(int atMost, TimeUnit unit, Date referenceDate) {
-    return new Timestamp(super.future(atMost, unit, referenceDate).getTime());
-  }
-
-  @Override
-  public Timestamp past(int atMost, TimeUnit unit, Date referenceDate) {
-    return new Timestamp(super.past(atMost, unit, referenceDate).getTime());
-  }
-
-  public Timestamp between(Timestamp from, Timestamp to) throws IllegalArgumentException {
-    return new Timestamp(super.between(from, to).getTime());
-  }
-
-  @Override
-  public Timestamp birthday() {
-    return new Timestamp(super.birthday().getTime());
-  }
-
-  @Override
-  public Timestamp birthday(int minAge, int maxAge) {
-    return new Timestamp(super.birthday(minAge, maxAge).getTime());
-  }
-}
-```
+In the provided solution, the `between(Date from, Date to)` method has been updated to use the new method signature that requires `Timestamp` parameters instead of `Date`. This change ensures that the method is compatible with the new version of the dependency. The `@Override` annotation has been removed from the `between(Date from, Date to)` method as it no longer overrides a method from the superclass due to the API change.

@@ -1,23 +1,19 @@
-7,8c7,10
+7,8c7,8
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.text.serializer.TextSerializers;
 ---
-> import org.checkerframework.checker.nullness.qual.Nullable;
 > import org.spongepowered.api.text.Text;
 > import org.spongepowered.api.text.format.TextColors;
-> import org.spongepowered.api.text.message.Message;
-12c14
+12c12
 <     private final CommandSource invoker;
 ---
->     private final @Nullable Object invoker;
-14c16
+>     private final Object invoker;
+14c14
 <     public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker) {
 ---
->     public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, @Nullable Object invoker) {
-22c24,27
+>     public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, Object invoker) {
+22c22,23
 <         invoker.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage));
 ---
->         if (invoker != null) {
->             // Assuming invoker has a sendMessage method that accepts a Message object
->             invoker.sendMessage(Message.of(Text.of(TextColors.RED, localeMessage)));
->         }
+>         // Assuming invoker has a sendMessage method that accepts Text
+>         invoker.sendMessage(Text.of(TextColors.RED, localeMessage));

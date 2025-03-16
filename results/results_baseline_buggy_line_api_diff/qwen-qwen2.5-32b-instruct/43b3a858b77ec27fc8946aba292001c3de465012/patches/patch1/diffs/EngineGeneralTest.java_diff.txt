@@ -17,17 +17,23 @@
 18d2
 < import ch.qos.logback.classic.Level;
 19a4,7
-> import ch.qos.logback.classic.Level;
 > import ch.qos.logback.classic.LoggerContext;
+> import ch.qos.logback.classic.Level;
 > import ch.qos.logback.classic.joran.JoranConfigurator;
-> import ch.qos.logback.core.joran.util.ConfigurationWatchListUtil;
-54c42
+> import ch.qos.logback.classic.spi.ILoggingEvent;
+52a41,44
+> import com.feedzai.commons.sql.abstraction.util.StringUtils;
+> import com.feedzai.commons.sql.abstraction.util.EngineTestUtils;
+> import com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties;
+> 
+54,59d45
 < import java.sql.SQLException;
----
-> import java.sql.Connection;
-71d58
-< import java.sql.Connection;
-87,93c74,80
+< import mockit.Expectations;
+< import mockit.Invocation;
+< import mockit.Mock;
+< import mockit.MockUp;
+< import mockit.Verifications;
+87,93c73,79
 < import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.BLOB;
 < import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.BOOLEAN;
 < import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.CLOB;
@@ -43,26 +49,86 @@
 > import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.INT;
 > import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.LONG;
 > import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.STRING;
-104c91
-< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.count;
----
-> import static com.feed com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.count;
-125,126c112
+125,4336c111
 < import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.notBetween;
 < import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.notIn;
----
-> import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.notBetween
-165c151
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.or;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.select;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.stddev;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.stringAgg;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.sum;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.table;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.udf;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.union;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.update;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.upper;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.values;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.with;
+< import static com.feedzai.commons.sql.abstraction.engine.EngineTestUtils.buildEntity;
+< import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.ENGINE;
+< import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.JDBC;
+< import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.PASSWORD;
+< import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.SCHEMA_POLICY;
+< import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.USERNAME;
+< import static com.feedzai.commons.sql.abstraction.util.StringUtils.quotize;
+< import static org.assertj.core.api.Assertions.assertThat;
+< import static org.assertj.core.api.Assertions.assertThatCode;
+< import static org.junit.Assert.assertArrayEquals;
+< import static org.junit.Assert.assertEquals;
+< import static org.junit.Assert.assertFalse;
+< import static org.junit.Assert.assertNotNull;
+< import static org.junit.Assert.assertNull;
+< import static org.junit.Assert.assertTrue;
+< import static org.junit.Assert.fail;
+< import static org.junit.Assume.assumeFalse;
+< import static org.junit.Assume.assumeTrue;
 < 
----
-> {
-181c167,169
+< /**
+<  * @author Rui Vilao (rui.vilao@feedzai.com)
+<  * @since 2.0.0
+<  */
+< @RunWith(Parameterized.class)
+< public class EngineGeneralTest {
+< 
+< 
+<     private static final double DELTA = 1e-7;
+< 
+<     protected DatabaseEngine engine;
+<     protected Properties properties;
+< 
+<     @Parameterized.Parameters
+<     public static Collection<DatabaseConfiguration> data() throws Exception {
+<         return DatabaseTestUtil.loadConfigurations();
+<     }
+< 
+<     @Parameterized.Parameter
+<     public DatabaseConfiguration config;
+< 
+<     @BeforeClass
+<     public static void initStatic() {
 <         ((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);
----
->         LoggerContext loggerContext = ((LoggerContext) LoggerFactory.getILoggerContext());
->         Logger rootLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
->         rootLogger.setLevel(Level.TRACE);
-204,4335c192
+<     }
+< 
+<     @Before
+<     public void init() throws DatabaseFactoryException {
+<         properties = new Properties() {
+<             {
+<                 setProperty(JDBC, config.jdbc);
+<                 setProperty(USERNAME, config.username);
+<                 setProperty(PASSWORD, config.password);
+<                 setProperty(ENGINE, config.engine);
+<                 setProperty(SCHEMA_POLICY, "drop-create");
+<             }
+<         };
+< 
+<         engine = DatabaseFactory.getConnection(properties);
+<     }
+< 
+<     @After
+<     public void cleanup() {
+<         engine.close();
+<     }
+< 
 <     @Test
 <     public void createEntityTest() throws DatabaseEngineException {
 < 
@@ -4195,5 +4261,7 @@
 <             return super.toString() + " description";
 <         }
 <     }
+< }
 ---
->     // ... (rest of the class remains unchanged)
+> import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.notBetween
+\ No newline at end of file

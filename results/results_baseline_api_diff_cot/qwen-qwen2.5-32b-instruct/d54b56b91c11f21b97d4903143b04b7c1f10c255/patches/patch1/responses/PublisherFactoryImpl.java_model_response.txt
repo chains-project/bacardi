@@ -11,15 +11,13 @@ import com.google.cloud.pubsublite.internal.wire.RoutingPublisherBuilder;
 import com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder;
 import java.util.Map;
 import org.apache.kafka.connect.errors.ConnectException;
-import org.apache.kafka.connect.sink.SinkRecord;
-import org.apache.kafka.connect.sink.SinkTask;
 
 class PublisherFactoryImpl implements PublisherFactory {
 
   private static final PubsubContext FRAMEWORK = PubsubContext.of("KAFKA_CONNECT");
 
   @Override
-  public Publisher<SinkRecord> newPublisher(Map<String, String> params) {
+  public Publisher<Void> newPublisher(Map<String, String> params) {
     Map<String, ConfigValue> config = ConfigDefs.config().validateAll(params);
     RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
     TopicPath topic =
@@ -42,4 +40,4 @@ class PublisherFactoryImpl implements PublisherFactory {
 }
 ```
 
-In the provided solution, the `PublishMetadata` class and the `setContext` method have been removed as per the API changes. The `PublishMetadata` class was replaced with `SinkRecord` from the Kafka Connect API, which is a more appropriate type for the `Publisher` in the context of a Kafka sink. The `setContext` method was removed from the `SinglePartitionPublisherBuilder.Builder` as it no longer exists in the new version of the dependency. The `FRAMEWORK` variable was updated to use `PubsubContext` directly, as the `setContext` method is no longer available in the `PublisherBuilder`.
+In this solution, the `PublishMetadata` class has been removed from the dependency, and the `setContext` method has been removed from the `SinglePartitionPublisherBuilder.Builder` class. The fix involves changing the return type of the `newPublisher` method from `Publisher<PublishMetadata>` to `Publisher<Void>` to match the new API. Additionally, the `FRAMEWORK` variable is now of type `PubsubContext` and is used directly in the `PubsubContext.of("KAFKA_CONNECT")` call. The `setContext` method calls have been removed as they are no longer available in the new API.

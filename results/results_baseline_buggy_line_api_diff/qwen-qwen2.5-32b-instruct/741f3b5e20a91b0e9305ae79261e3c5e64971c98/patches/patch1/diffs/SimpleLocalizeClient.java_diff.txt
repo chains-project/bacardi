@@ -1,19 +1,14 @@
-2a3,4
-> import com.fasterxml.jackson.core.JsonProcessingException;
-> import com.fasterxml.jackson.databind.JsonNode;
-3a6
-> import com.fasterxml.jackson.databind.ObjectReader;
-28,30d30
+2a3
+> import com.fasterxml.jackson.core.type.TypeReference;
+26,29d26
+< import java.util.Optional;
+< 
 < import static io.simplelocalize.cli.TemplateKeys.LANGUAGE_TEMPLATE_KEY;
 < import static io.simplelocalize.cli.TemplateKeys.NAMESPACE_TEMPLATE_KEY;
-< 
-88c88,89
+88c85
 <     ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
 ---
->     ObjectReader objectReader = objectMapper.readerFor(ExportResponse.class);
->     ExportResponse exportResponse = objectReader.readValue(body);
-97a99
-> 
-165,166d166
+>     ExportResponse exportResponse = objectMapper.readValue(body, new TypeReference<ExportResponse>() {});
+165,166d161
 < 
 < 

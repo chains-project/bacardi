@@ -1,8 +1,8 @@
 package io.simplelocalize.cli.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import io.simplelocalize.cli.client.dto.DownloadRequest;
@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -22,10 +21,10 @@ import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 public class SimpleLocalizeClient
 {
@@ -84,9 +83,9 @@ public class SimpleLocalizeClient
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
     throwOnError(httpResponse);
     String body = httpResponse.body();
-    JavaType javaType = objectMapper.getTypeFactory().constructCollectionType(List.class, DownloadableFile.class);
-    List<DownloadableFile> exportResponse = objectMapper.readValue(body, javaType);
-    return exportResponse;
+    ObjectReader objectReader = objectMapper.readerFor(ExportResponse.class);
+    ExportResponse exportResponse = objectReader.readValue(body);
+    return exportResponse.getFiles();
   }
 
   public void downloadFile(DownloadableFile downloadableFile, String downloadPathTemplate)
@@ -107,6 +106,7 @@ public class SimpleLocalizeClient
       }
       log.info("Downloading {}", savePath);
       httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofFile(savePath, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING));
+      );
     } catch (IOException e)
     {
       log.error("Download failed: {}", savePath, e);

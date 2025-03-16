@@ -1,24 +1,21 @@
 7d6
 < import eu.europa.esig.dss.pades.CertificationPermission;
-10,12c9,10
-< import eu.europa.esig.dss.pades.signature.PAdESService;
-< import eu.europa.esig.dss.pdf.pdfbox.PdfBoxNativeObjectFactory;
-< import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
----
-> import eu.europa.esig.dss.signature.CertificationLevel;
-> import eu.europa.esig.dss.signature.DigestAlgorithmConstants;
-21c19
-< import org.openpdfsign.dss.PdfBoxNativeTableObjectFactory;
----
-> import org.openpdfsign.dss.PdfBoxNativeObjectFactory;
-46,48d43
+46,48d44
 <         //load PDF file
 <         //PDDocument doc = PDDocument.load(pdfFile.toFile());
 < 
-71c66,67
+71c67,68
 <         signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
 ---
->         // CertificationPermission.MINIMAL_CHANGES_PERMITTED is removed, use CertificationLevel.PAdES_BASELINE_B instead
->         signatureParameters.setCertificationLevel(CertificationLevel.PAdES_BASELINE_B);
-123d118
+>         // CertificationPermission.MINIMAL_CHANGES_PERMITTED is removed, so we need to find an alternative or remove it.
+>         //signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
+106c103
+<             // Get the SignedInfo segment that need to be signed.
+---
+>             // Get the SignedInfo segment that needs to be signed.
+123d119
 < 
+131c127
+<         //if it is set to an url, us this
+---
+>         //if it is set to an url, use this

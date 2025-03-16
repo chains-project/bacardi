@@ -79,7 +79,7 @@ public final class AwsOcketITCase {
         final Bucket bucket = this.rule.bucket();
         final String name = "test-44.txt";
         final Ocket.Text ocket = new Ocket.Text(bucket.ocket(name));
-        final String data = RandomStringUtils.random(100000); // Assuming 100 * 1000 was the value of Tv.HUNDRED * Tv.THOUSAND
+        final String data = RandomStringUtils.random(100000); // Assuming 100 * 1000 was used for large data
         ocket.write(data);
         try {
             MatcherAssert.assertThat(ocket.read(), Matchers.equalTo(data));
