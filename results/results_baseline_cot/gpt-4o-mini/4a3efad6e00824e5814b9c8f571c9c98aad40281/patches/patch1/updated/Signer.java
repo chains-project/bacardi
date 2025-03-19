@@ -40,7 +40,6 @@ public class Signer {
 
     public void signPdf(Path pdfFile, Path outputFile, byte[] keyStore, char[] keyStorePassword, boolean binary, SignatureParameters params) throws IOException {
         boolean visibleSignature = params.getPage() != null;
-
         //load PDF file in DSSDocument format
         DSSDocument toSignDocument = new FileDocument(pdfFile.toFile());
 
@@ -88,6 +87,7 @@ public class Signer {
                 fieldParameters.setPage(pageCount + (1 + params.getPage()));
                 pdDocument.close();
                 log.debug("PDF page count: " + pageCount);
+
             } else {
                 fieldParameters.setPage(params.getPage());
             }
@@ -118,6 +118,8 @@ public class Signer {
         }
 
         //only use TSP source, if parameter is set
+        //if it is set to an url, us this
+        //otherwise, default
         if (params.getUseTimestamp() || params.getTSA() != null) {
             CompositeTSPSource compositeTSPSource = new CompositeTSPSource();
             Map<String, TSPSource> tspSources = new HashMap<>();

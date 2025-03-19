@@ -37,6 +37,7 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
             aggregator.getDoubleSuppliers().add(stringHandlerA);
             aggregator.getDoubleSuppliers().add(stringHandlerB);
 
+
             InstanceHolder instanceHolder = new InstanceHolder();
             instanceHolder.getNodeList().add(aggregator);
             c.addNode(instanceHolder);

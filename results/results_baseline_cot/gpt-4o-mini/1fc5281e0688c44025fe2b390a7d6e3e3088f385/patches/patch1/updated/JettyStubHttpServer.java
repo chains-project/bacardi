@@ -8,7 +8,7 @@ import net.jadler.RequestManager;
 import net.jadler.stubbing.server.StubHttpServer;
 import org.apache.commons.lang.Validate;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector; // Updated import
+import org.eclipse.jetty.server.ServerConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +20,7 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
     private final Server server;
-    private final ServerConnector httpConnector; // Updated type
+    private final ServerConnector httpConnector;
 
     public JettyStubHttpServer() {
         this(0);
@@ -29,10 +29,8 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
-        this.server.setSendServerVersion(false); // This method is still valid
-        this.server.setSendDateHeader(true); // This method is still valid
-
-        this.httpConnector = new ServerConnector(server); // Updated instantiation
+        this.server.setHandler(new JadlerHandler(null)); // Placeholder for handler
+        this.httpConnector = new ServerConnector(server);
         this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);
     }
@@ -76,6 +74,6 @@ public class JettyStubHttpServer implements StubHttpServer {
      */
     @Override
     public int getPort() {
-        return httpConnector.getLocalPort(); // This method is still valid
+        return httpConnector.getLocalPort();
     }
 }

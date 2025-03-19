@@ -9,7 +9,7 @@
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless by applicable law or agreed to in writing,
+ * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied.  See the License for the
@@ -54,15 +54,10 @@ public abstract class CourseMeetingWrapper {
          * pick-and-choose which data they provide. 
          */
         if (startTime != null) {
-            try {
-                SHORT_TIME_FORMAT.printTo(rslt, startTime);
-                if (endTime != null) {
-                    rslt.append(" - ");
-                    SHORT_TIME_FORMAT.printTo(rslt, endTime);
-                }
-            }
-            catch (IllegalArgumentException e) {
-                logger.info("Failed to generate formatted string for course.startTime=" + startTime + " and course.endTime=" + endTime, e);
+            SHORT_TIME_FORMAT.printTo(rslt, startTime);
+            if (endTime != null) {
+                rslt.append(" - ");
+                SHORT_TIME_FORMAT.printTo(rslt, endTime);
             }
         }
 

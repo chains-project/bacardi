@@ -1,32 +1,13 @@
 9a10
-> import org.eclipse.jetty.server.ServerConnector; // Updated import
-13,15d13
+> import org.eclipse.jetty.server.ServerConnector;
+13,14d13
 < import org.eclipse.jetty.server.Connector;
 < import org.eclipse.jetty.server.nio.SelectChannelConnector;
-< 
-24c22
+24c23
 <     private final Connector httpConnector;
 ---
->     private final ServerConnector httpConnector; // Updated type
-30d27
-< 
-34c31
-<         this.server.setSendDateHeader(true);
----
->         this.server.setSendDateHeader(true); // This method has been removed in newer versions
-36c33
+>     private final ServerConnector httpConnector;
+36c35
 <         this.httpConnector = new SelectChannelConnector();
 ---
->         this.httpConnector = new ServerConnector(server); // Updated to use ServerConnector
-41d37
-< 
-52d47
-< 
-63d57
-< 
-74d67
-< 
-80c73
-<         return httpConnector.getLocalPort();
----
->         return httpConnector.getLocalPort(); // This method is now available in ServerConnector
+>         this.httpConnector = new ServerConnector(server);

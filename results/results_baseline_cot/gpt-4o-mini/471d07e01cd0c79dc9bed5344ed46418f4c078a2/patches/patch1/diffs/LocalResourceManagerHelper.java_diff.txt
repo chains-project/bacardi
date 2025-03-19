@@ -1,4 +1,4 @@
-25,31c25,31
+25,31c25,29
 < import com.google.api.services.cloudresourcemanager.model.Binding;
 < import com.google.api.services.cloudresourcemanager.model.Operation;
 < import com.google.api.services.cloudresourcemanager.model.Policy;
@@ -7,10 +7,74 @@
 < import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsRequest;
 < import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsResponse;
 ---
-> import com.google.api.services.cloudresourcemanager.v1.model.Binding; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.Operation; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.Policy; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.Project; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.SetIamPolicyRequest; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.TestIamPermissionsRequest; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.TestIamPermissionsResponse; // Updated import
+> import com.google.cloud.resourcemanager.ProjectInfo;
+> import com.google.cloud.resourcemanager.Policy;
+> import com.google.cloud.resourcemanager.SetIamPolicyRequest;
+> import com.google.cloud.resourcemanager.TestIamPermissionsRequest;
+> import com.google.cloud.resourcemanager.TestIamPermissionsResponse;
+126c124
+<   private final ConcurrentSkipListMap<String, Project> projects = new ConcurrentSkipListMap<>();
+---
+>   private final ConcurrentSkipListMap<String, ProjectInfo> projects = new ConcurrentSkipListMap<>();
+218c216
+<                 replace(projectIdFromUri(path), jsonFactory.fromString(requestBody, Project.class));
+---
+>                 replace(projectIdFromUri(path), jsonFactory.fromString(requestBody, ProjectInfo.class));
+238c236
+<       return create(jsonFactory.fromString(requestBody, Project.class));
+---
+>       return create(jsonFactory.fromString(requestBody, ProjectInfo.class));
+276c274
+<           Project project = projects.get(projectId);
+---
+>           ProjectInfo project = projects.get(projectId);
+388c386
+<   private static String checkForProjectErrors(Project project) {
+---
+>   private static String checkForProjectErrors(ProjectInfo project) {
+444c442
+<   synchronized Response create(Project project) {
+---
+>   synchronized Response create(ProjectInfo project) {
+478c476
+<     Project project = projects.get(projectId);
+---
+>     ProjectInfo project = projects.get(projectId);
+493c491
+<     Project project = projects.get(projectId);
+---
+>     ProjectInfo project = projects.get(projectId);
+517c515
+<     Map<String, Project> projectsToScan = projects;
+---
+>     Map<String, ProjectInfo> projectsToScan = projects;
+521c519
+<     for (Project p : projectsToScan.values()) {
+---
+>     for (ProjectInfo p : projectsToScan.values()) {
+569c567
+<   private static boolean includeProject(Project project, String[] filters) {
+---
+>   private static boolean includeProject(ProjectInfo project, String[] filters) {
+604c602
+<   private static Project extractFields(Project fullProject, String[] fields) {
+---
+>   private static ProjectInfo extractFields(ProjectInfo fullProject, String[] fields) {
+608c606
+<     Project project = new Project();
+---
+>     ProjectInfo project = ProjectInfo.newBuilder(fullProject.getProjectId()).build();
+637,638c635,636
+<   synchronized Response replace(String projectId, Project project) {
+<     Project originalProject = projects.get(projectId);
+---
+>   synchronized Response replace(String projectId, ProjectInfo project) {
+>     ProjectInfo originalProject = projects.get(projectId);
+664c662
+<     Project project = projects.get(projectId);
+---
+>     ProjectInfo project = projects.get(projectId);
+785c783
+<     Project project = projects.get(checkNotNull(projectId));
+---
+>     ProjectInfo project = projects.get(checkNotNull(projectId));

@@ -41,8 +41,7 @@ public class DeferredScatterOutputStream implements ScatterGatherBackingStore
     @Override
     public void writeOut( byte[] data, int offset, int length ) throws IOException
     {
-        // Updated method to use the correct method from OffloadingOutputStream
-        dfos.write(data, offset, length); // Assuming the method signature has changed
+        dfos.write(data, offset, length); // Updated to match new API
     }
 
     @Override

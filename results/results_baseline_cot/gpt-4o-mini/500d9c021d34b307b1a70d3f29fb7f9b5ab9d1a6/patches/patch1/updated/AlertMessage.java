@@ -3,15 +3,15 @@ package com.example.web;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.inject.Named; // Updated import from javax to jakarta
-import jakarta.mvc.RedirectScoped; // Updated import from javax to jakarta
+import javax.inject.Named;
+import jakarta.enterprise.context.RequestScoped; // Updated import
 
 /**
  * Used to transport messages back to the client.
  *
  * @author Hantsy Bai<hantsy@gmail.com>
  */
-@RedirectScoped
+@RequestScoped // Updated annotation
 @Named("flashMessage")
 public class AlertMessage implements Serializable {
 

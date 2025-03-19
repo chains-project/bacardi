@@ -9,8 +9,9 @@ import net.jadler.stubbing.server.StubHttpServer;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.Validate;
 import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.ServerConnector; // Updated import for newer Jetty versions
+import org.eclipse.jetty.server.ServerConnector;
 
 
 /**
@@ -32,7 +33,7 @@ public class JettyStubHttpServer implements StubHttpServer {
         this.server.setSendServerVersion(false);
         this.server.setSendDateHeader(true);
         
-        this.httpConnector = new ServerConnector(server); // Updated to use ServerConnector
+        this.httpConnector = new ServerConnector(server);
         this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);
     }

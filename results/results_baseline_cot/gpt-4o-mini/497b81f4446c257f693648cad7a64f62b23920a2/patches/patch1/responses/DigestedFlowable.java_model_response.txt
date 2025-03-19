@@ -45,7 +45,6 @@ public final class DigestedFlowable extends Flowable<ByteBuffer> {
         this.origin = origin;
     }
 
-    @Override
     public void subscribeActual(final Subscriber<? super ByteBuffer> subscriber) {
         final MessageDigest sha = Digests.SHA256.get();
         Flowable.fromPublisher(this.origin).map(
@@ -70,14 +69,3 @@ public final class DigestedFlowable extends Flowable<ByteBuffer> {
     }
 }
 ```
-
-### Changes Made:
-1. **Imports**: The error message indicated that the packages `org.cactoos.io` and `org.cactoos.text` do not exist. This suggests that the `cactoos` library may have been updated or removed. If these classes are no longer available, you will need to replace them with equivalent functionality or find alternative libraries that provide similar capabilities.
-   
-2. **Hex Conversion**: If `HexOf` is not available, you can implement a simple hex conversion method or use an alternative library for converting byte arrays to hex strings.
-
-3. **BytesOf Replacement**: If `BytesOf` is also not available, you may need to replace it with a custom implementation or another library that can convert byte arrays to a suitable format.
-
-4. **Digest Calculation**: Ensure that the digest calculation logic remains intact and that the new implementations for hex conversion and byte handling are compatible with the existing logic.
-
-Please ensure that you have the correct dependencies in your project to avoid similar issues in the future.

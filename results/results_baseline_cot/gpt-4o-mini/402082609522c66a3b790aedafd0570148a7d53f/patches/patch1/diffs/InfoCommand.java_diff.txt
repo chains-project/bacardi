@@ -1,14 +1,23 @@
 14d13
 < import org.spongepowered.api.command.CommandException;
-22a22
-> import org.spongepowered.api.text.format.TextColors;
-33d32
+16d14
+< import org.spongepowered.api.command.CommandSource;
+22a21,22
+> import org.spongepowered.api.text.format.TextColor;
+> import org.spongepowered.api.text.format.TextStyles;
+33,37c33,35
 < 
-35c34
+<     @Override
 <     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
 ---
->     public CommandResult execute(CommandSource src, CommandContext args) {
-70c69
-<                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
+>     public CommandResult execute(CommandContext args) {
+>         if (!(args.getSource() instanceof Player)) {
+>             plugin.sendMessage(args.getSource(), "no-console");
+41c39
+<         UUID uniqueId = ((Player) src).getUniqueId();
 ---
->                 Text text = TextSerializers.FORMATTING_CODE.deserialize(formatted);
+>         UUID uniqueId = ((Player) args.getSource()).getUniqueId();
+52d49
+<     @Override

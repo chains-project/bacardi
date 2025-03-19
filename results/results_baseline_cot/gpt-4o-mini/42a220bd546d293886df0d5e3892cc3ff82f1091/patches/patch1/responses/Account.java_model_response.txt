@@ -3,7 +3,8 @@ package com.maxmind.minfraud.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.maxmind.minfraud.AbstractModel;
-import org.apache.commons.codec.digest.DigestUtils; // Ensure this import is correct
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Account related data for the minFraud request
@@ -47,8 +48,24 @@ public final class Account extends AbstractModel {
          * @return The builder object.
          */
         public Account.Builder username(String username) {
-            this.usernameMd5 = DigestUtils.md5Hex(username);
+            this.usernameMd5 = md5Hex(username);
             return this;
+        }
+
+        private String md5Hex(String input) {
+            try {
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                byte[] messageDigest = md.digest(input.getBytes());
+                StringBuilder hexString = new StringBuilder();
+                for (byte b : messageDigest) {
+                    String hex = Integer.toHexString(0xff & b);
+                    if (hex.length() == 1) hexString.append('0');
+                    hexString.append(hex);
+                }
+                return hexString.toString();
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         /**
@@ -76,6 +93,4 @@ public final class Account extends AbstractModel {
         return usernameMd5;
     }
 }
-``` 
-
-In this patch, I ensured that the import statement for `DigestUtils` is present and correct, which resolves the compilation error related to the missing symbol. The rest of the class remains unchanged, adhering to the guidelines provided.
+```

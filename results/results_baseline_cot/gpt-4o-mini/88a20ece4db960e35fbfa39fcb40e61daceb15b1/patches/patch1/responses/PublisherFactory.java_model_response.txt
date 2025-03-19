@@ -16,20 +16,12 @@
  */
 package com.google.pubsublite.kafka.sink;
 
-import com.google.cloud.pubsublite.PublishMetadata; // Ensure this import is correct based on the updated dependency
+import com.google.cloud.pubsublite.PublishMetadata; // Ensure this import is correct based on the new API
 import com.google.cloud.pubsublite.internal.Publisher;
 import java.util.Map;
 
 interface PublisherFactory {
 
-  Publisher<PublishMetadata> newPublisher(Map<String, String> params);
+  Publisher<com.google.cloud.pubsublite.PublishMetadata> newPublisher(Map<String, String> params);
 }
-``` 
-
-In this case, the error message indicates that the `PublishMetadata` class cannot be found in the `com.google.cloud.pubsublite` package. This could be due to a breaking change in the dependency update where the class has been moved, renamed, or removed. 
-
-To resolve this, you should verify the correct package and class name in the updated version of the library. If `PublishMetadata` has been moved to a different package, you would need to update the import statement accordingly. 
-
-If `PublishMetadata` has been removed or replaced with a different class, you would need to replace it in the `PublisherFactory` interface as well. However, since the task specifies not to change function signatures, you would need to ensure that any new class used in place of `PublishMetadata` is compatible with the existing method signature. 
-
-In this case, I have retained the original import statement, assuming that the class is still available in the updated dependency. If it is not, you would need to replace it with the correct class from the updated library.
+```

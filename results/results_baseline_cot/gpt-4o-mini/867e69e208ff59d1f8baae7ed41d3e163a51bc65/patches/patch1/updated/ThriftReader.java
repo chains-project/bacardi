@@ -21,9 +21,7 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TTransport;
-import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.transport.TIOStreamTransport;
-import org.apache.thrift.transport.TFramedTransport; // Ensure this import is correct
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -61,11 +59,11 @@ public class ThriftReader<T extends TBase> implements Closeable {
   // The ByteOffsetInputStream to read from.
   private final ByteOffsetInputStream byteOffsetInputStream;
 
-  // The framed framedTransport.
-  private final TFramedTransport framedTransport;
-
   // TProtocol implementation.
   private final TProtocol protocol;
+
+  // TTransport implementation.
+  private final TTransport transport;
 
   public ThriftReader(
       String path,
@@ -78,10 +76,9 @@ public class ThriftReader<T extends TBase> implements Closeable {
 
     this.byteOffsetInputStream = new ByteOffsetInputStream(
         new RandomAccessFile(path, "r"), readBufferSize);
-    this.framedTransport = new TFramedTransport(new TIOStreamTransport(this
-        .byteOffsetInputStream), maxMessageSize);
+    this.transport = new TIOStreamTransport(this.byteOffsetInputStream);
     this.baseFactory = Preconditions.checkNotNull(baseFactory);
-    this.protocol = protocolFactory.get(this.framedTransport);
+    this.protocol = protocolFactory.get(this.transport);
   }
 
   /**
@@ -93,7 +90,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
    */
   public T read() throws IOException, TException {
     // If frame buffer is empty and we are at EOF of underlying input stream, return null.
-    if (framedTransport.getBytesRemainingInBuffer() == 0 && byteOffsetInputStream.isEOF()) {
+    if (transport.getBytesRemainingInBuffer() == 0 && byteOffsetInputStream.isEOF()) {
       return null;
     }
 
@@ -108,8 +105,8 @@ public class ThriftReader<T extends TBase> implements Closeable {
    */
   public long getByteOffset() throws IOException {
     Preconditions.checkState(
-        byteOffsetInputStream.getByteOffset() >= framedTransport.getBytesRemainingInBuffer());
-    return byteOffsetInputStream.getByteOffset() - framedTransport.getBytesRemainingInBuffer();
+        byteOffsetInputStream.getByteOffset() >= transport.getBytesRemainingInBuffer());
+    return byteOffsetInputStream.getByteOffset() - transport.getBytesRemainingInBuffer();
   }
 
   /**
@@ -125,7 +122,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
     }
 
     // Clear the buffer
-    framedTransport.consumeBuffer(framedTransport.getBytesRemainingInBuffer());
+    transport.consumeBuffer(transport.getBytesRemainingInBuffer());
 
     // Set underlying stream byte offset
     byteOffsetInputStream.setByteOffset(byteOffset);
@@ -137,6 +134,6 @@ public class ThriftReader<T extends TBase> implements Closeable {
    * @throws IOException on file error.
    */
   public void close() throws IOException {
-    framedTransport.close();
+    transport.close();
   }
 }

@@ -42,8 +42,7 @@ public class SSLFilter extends SslFilter {
     private static final String PEER_ADDRESS = "PEER_ADDRESS"; // Added missing variable
 
     public SSLFilter(SSLContext sslContext, boolean autoStart) {
-        super(sslContext); // Updated to match the constructor signature
-        // Note: The boolean parameter is removed as the constructor in the updated dependency does not support it.
+        super(sslContext); // Updated to match the new constructor
     }
 
     public SSLFilter(SSLContext sslContext) {
@@ -89,8 +88,4 @@ public class SSLFilter extends SslFilter {
         this.useSNI = useSNI;
     }
 }
-``` 
-
-### Summary of Changes:
-1. **Constructor Update**: The constructor `SSLFilter(SSLContext sslContext, boolean autoStart)` was modified to only accept `SSLContext` as the updated `SslFilter` class does not support a boolean parameter.
-2. **Missing Variable**: Added a static final variable `PEER_ADDRESS` to resolve the "cannot find symbol" error. This variable is used to store the peer address in the session attributes.
+```

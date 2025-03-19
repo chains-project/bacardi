@@ -17,7 +17,8 @@ import javax.xml.bind.annotation.XmlType;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
-import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy; // Ensure this import is correct
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy; // Added import
+
 
 /**
  * <p>Java class for anonymous complex type.
@@ -77,11 +78,201 @@ public class GeneralLedger implements ToString2
     @XmlElement(name = "GroupingCode")
     protected String groupingCode;
 
-    // Getter and Setter methods...
+    /**
+     * Gets the value of the accountID property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getAccountID() {
+        return accountID;
+    }
+
+    /**
+     * Sets the value of the accountID property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setAccountID(String value) {
+        this.accountID = value;
+    }
+
+    /**
+     * Gets the value of the accountDescription property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getAccountDescription() {
+        return accountDescription;
+    }
+
+    /**
+     * Sets the value of the accountDescription property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setAccountDescription(String value) {
+        this.accountDescription = value;
+    }
+
+    /**
+     * Gets the value of the openingDebitBalance property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
+     */
+    public BigDecimal getOpeningDebitBalance() {
+        return openingDebitBalance;
+    }
+
+    /**
+     * Sets the value of the openingDebitBalance property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
+     */
+    public void setOpeningDebitBalance(BigDecimal value) {
+        this.openingDebitBalance = value;
+    }
+
+    /**
+     * Gets the value of the openingCreditBalance property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
+     */
+    public BigDecimal getOpeningCreditBalance() {
+        return openingCreditBalance;
+    }
+
+    /**
+     * Sets the value of the openingCreditBalance property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
+     */
+    public void setOpeningCreditBalance(BigDecimal value) {
+        this.openingCreditBalance = value;
+    }
+
+    /**
+     * Gets the value of the closingDebitBalance property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
+     */
+    public BigDecimal getClosingDebitBalance() {
+        return closingDebitBalance;
+    }
+
+    /**
+     * Sets the value of the closingDebitBalance property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
+     */
+    public void setClosingDebitBalance(BigDecimal value) {
+        this.closingDebitBalance = value;
+    }
+
+    /**
+     * Gets the value of the closingCreditBalance property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
+     */
+    public BigDecimal getClosingCreditBalance() {
+        return closingCreditBalance;
+    }
+
+    /**
+     * Sets the value of the closingCreditBalance property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
+     */
+    public void setClosingCreditBalance(BigDecimal value) {
+        this.closingCreditBalance = value;
+    }
+
+    /**
+     * Gets the value of the groupingCategory property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getGroupingCategory() {
+        return groupingCategory;
+    }
+
+    /**
+     * Sets the value of the groupingCategory property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setGroupingCategory(String value) {
+        this.groupingCategory = value;
+    }
+
+    /**
+     * Gets the value of the groupingCode property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getGroupingCode() {
+        return groupingCode;
+    }
+
+    /**
+     * Sets the value of the groupingCode property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setGroupingCode(String value) {
+        this.groupingCode = value;
+    }
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = JAXBToStringStrategy.DEFAULT; // Updated to use DEFAULT instead of getInstance()
+        final ToStringStrategy2 strategy = JAXBToStringStrategy.DEFAULT; // Updated to use DEFAULT
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

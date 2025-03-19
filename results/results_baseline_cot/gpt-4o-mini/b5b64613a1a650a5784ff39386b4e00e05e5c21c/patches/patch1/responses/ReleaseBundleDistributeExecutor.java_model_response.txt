@@ -49,7 +49,7 @@ public class ReleaseBundleDistributeExecutor implements Executor {
                                                          String siteName, String cityName, boolean dryRun) throws IOException {
         DistributeReleaseBundleRequest request;
         if (StringUtils.isNotBlank(distRules)) {
-            if (!CollectionUtils.isEmpty(countryCodes) || StringUtils.isAnyNotBlank(siteName, cityName)) {
+            if (!CollectionUtils.isEmpty(countryCodes) || (StringUtils.isNotBlank(siteName) || StringUtils.isNotBlank(cityName))) {
                 throw new IOException("The distRules input can't be used with site, city or country codes");
             }
             ObjectMapper mapper = createMapper();
@@ -86,6 +86,4 @@ public class ReleaseBundleDistributeExecutor implements Executor {
         }
     }
 }
-``` 
-
-In this patch, I replaced the call to `StringUtils.isAllBlank(siteName, cityName)` with `StringUtils.isAnyNotBlank(siteName, cityName)` to resolve the compilation error caused by the removal of the `isAllBlank` method in the updated version of the Apache Commons Lang library. This change maintains the intended logic of checking if either `siteName` or `cityName` is not blank.
+```

@@ -1,9 +1,11 @@
-19c19,20
+19,20d18
 < import com.google.api.services.translate.model.DetectionsResourceItems;
----
-> // Updated import statement to reflect the new package structure
-> import com.google.api.services.translate.model.DetectionsResourceItem; // Changed from DetectionsResourceItems to DetectionsResourceItem
-87c88
+< import com.google.common.base.MoreObjects;
+87,88c85,88
 <   static Detection fromPb(DetectionsResourceItems detectionPb) {
+<     return new Detection(detectionPb.getLanguage(), detectionPb.getConfidence());
 ---
->   static Detection fromPb(DetectionsResourceItem detectionPb) { // Changed from DetectionsResourceItems to DetectionsResourceItem
+>   static Detection fromPb(Object detectionPb) {
+>     String language = (String) detectionPb.getClass().getMethod("getLanguage").invoke(detectionPb);
+>     Float confidence = (Float) detectionPb.getClass().getMethod("getConfidence").invoke(detectionPb);
+>     return new Detection(language, confidence);

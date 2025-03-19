@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.LoaderOptions; // Added import for LoaderOptions
+import org.yaml.snakeyaml.LoaderOptions;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,9 +37,9 @@ public final class ConfigurationLoader
   private Configuration load(Path configurationFilePath)
   {
     File file = new File(URLDecoder.decode(String.valueOf(configurationFilePath.toFile()), StandardCharsets.UTF_8));
-    Constructor yamlTargetClass = new Constructor(Configuration.class);
-    LoaderOptions loaderOptions = new LoaderOptions(); // Create LoaderOptions instance
-    Yaml yaml = new Yaml(loaderOptions, yamlTargetClass); // Pass LoaderOptions to Yaml constructor
+    LoaderOptions loaderOptions = new LoaderOptions();
+    Constructor yamlTargetClass = new Constructor(Configuration.class, loaderOptions);
+    Yaml yaml = new Yaml(yamlTargetClass);
 
     log.info("Loading configuration file from: {}", configurationFilePath);
     Configuration configuration;

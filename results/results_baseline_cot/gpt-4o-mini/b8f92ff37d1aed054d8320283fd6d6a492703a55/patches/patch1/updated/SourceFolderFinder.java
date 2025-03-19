@@ -7,6 +7,7 @@ import org.apache.maven.surefire.api.testset.TestListResolver;
 import java.io.File;
 import java.util.List;
 
+
 public class SourceFolderFinder implements ClassFinder {
 
     private String srcFolder;

@@ -11,7 +11,7 @@ import com.google.inject.Inject;
 import java.util.UUID;
 
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandExecutor;
@@ -48,7 +48,7 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
         }
 
         Player receiver = (Player) src;
-        String targetSkin = args.<String>getOne("skin").orElse("");
+        String targetSkin = args.<String>getOne("skin").get();
         boolean keepSkin = args.hasAny("keep");
 
         if ("reset".equals(targetSkin)) {
@@ -73,7 +73,6 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
         return CommandResult.success();
     }
 
-    @Override
     public CommandSpec buildSpec() {
         return CommandSpec.builder()
                 .executor(this)
@@ -84,9 +83,4 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
                 .build();
     }
 }
-``` 
-
-### Changes Made:
-1. **Imports**: The error messages indicated that the `org.spongepowered.api.command.args` and `org.spongepowered.api.command.spec` packages do not exist. This suggests that the dependency version has changed, and the classes may have been moved or renamed. Ensure that the correct version of the Sponge API is being used, and that the necessary imports are available in the new version.
-2. **Optional Handling**: Changed the way `targetSkin` is retrieved from the `CommandContext` to use `orElse("")` to avoid potential `NoSuchElementException` if the argument is not present.
-3. **Maintained Functionality**: The overall structure and functionality of the class remain intact, adhering to the constraints provided.
+```

@@ -18,11 +18,9 @@ package org.simplify4u.plugins.utils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.repository.RepositorySystem;
-import org.apache.maven.plugin.logging.Log; // Updated import for logging
-import org.apache.maven.plugin.AbstractMojo; // Updated import for AbstractMojo
-import org.apache.maven.plugin.MojoExecutionException; // Updated import for MojoExecutionException
-import org.apache.maven.plugin.MojoFailureException; // Updated import for MojoFailureException
-import org.codehaus.plexus.util.xml.Xpp3Dom; // Ensure this import is correct based on the dependency version
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugin.logging.SystemStreamLog;
+import org.codehaus.plexus.util.xml.XmlDom;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -71,8 +69,8 @@ public final class MavenCompilerUtils {
         if (config == null) {
             return emptySet();
         }
-        if (config instanceof Xpp3Dom) {
-            return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
+        if (config instanceof XmlDom) {
+            return stream(((XmlDom) config).getChildren("annotationProcessorPaths"))
                     .flatMap(aggregate -> stream(aggregate.getChildren("path")))
                     .map(processor -> system.createArtifact(
                             extractChildValue(processor, "groupId"),
@@ -100,8 +98,8 @@ public final class MavenCompilerUtils {
      * @param name the child node name
      * @return Returns child value if child node present or otherwise empty string.
      */
-    private static String extractChildValue(Xpp3Dom node, String name) {
-        final Xpp3Dom child = node.getChild(name);
+    private static String extractChildValue(XmlDom node, String name) {
+        final XmlDom child = node.getChild(name);
         return child == null ? "" : child.getValue();
     }
 }

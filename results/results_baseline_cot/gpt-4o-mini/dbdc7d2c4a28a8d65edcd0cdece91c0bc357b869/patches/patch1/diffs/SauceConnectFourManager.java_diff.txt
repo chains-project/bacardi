@@ -1,0 +1,19 @@
+284c284,286
+<         extractArchive(unArchiver, zipFile, workingDirectory);
+---
+>         unArchiver.setSourceFile(zipFile);
+>         unArchiver.setDestDirectory(workingDirectory);
+>         unArchiver.extract();
+302,313d303
+<      * @param unArchiver  the unarchiver
+<      * @param archive     the compressed file to extract
+<      * @param destination the destination directory
+<      */
+<     private void extractArchive(AbstractUnArchiver unArchiver, File archive, File destination) {
+<         unArchiver.enableLogging(new ConsoleLogger(Logger.LEVEL_DEBUG, "Sauce"));
+<         unArchiver.setSourceFile(archive);
+<         unArchiver.setDestDirectory(destination);
+<         unArchiver.extract();
+<     }
+< 
+<     /**

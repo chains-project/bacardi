@@ -63,12 +63,8 @@ class InitiatorProxyIoHandler extends AbstractProxyIoHandler {
     @Override
     public void proxySessionOpened(IoSession ioSession) throws Exception {
         if (this.sslFilter != null) {
-            // Updated method call to match the new SSLFilter API
             this.sslFilter.startHandshake(ioSession);
         }
     }
 }
-``` 
-
-### Explanation of Changes:
-- The method `initiateHandshake` was replaced with `startHandshake` in the `proxySessionOpened` method to align with the updated `SSLFilter` API, which no longer contains the `initiateHandshake` method. This change resolves the compilation error while maintaining the overall structure and functionality of the class.
+```

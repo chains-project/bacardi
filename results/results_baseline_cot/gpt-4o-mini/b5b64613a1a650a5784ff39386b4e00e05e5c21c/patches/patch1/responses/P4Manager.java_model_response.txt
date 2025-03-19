@@ -6,14 +6,13 @@ import com.perforce.p4java.server.IOptionsServer;
 import hudson.EnvVars;
 import hudson.model.AbstractBuild;
 import hudson.model.TaskListener;
+import hudson.model.ItemGroup;
 import org.apache.commons.lang3.StringUtils;
 import org.jenkinsci.plugins.p4.PerforceScm;
 import org.jenkinsci.plugins.p4.client.ClientHelper;
 import org.jenkinsci.plugins.p4.client.ConnectionFactory;
 import org.jenkinsci.plugins.p4.client.ConnectionHelper;
 import org.jfrog.build.vcs.perforce.PerforceClient;
-import hudson.model.Item; // Importing Item for the new constructor
-import hudson.model.ItemGroup; // Importing ItemGroup for the new constructor
 
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
@@ -44,9 +43,8 @@ public class P4Manager extends AbstractPerforceManager<PerforceScm> {
         try {
             String clientString = getClientString();
             if (connection.isClient(clientString)) {
-                // Create an ItemGroup or Item instance as needed
-                ItemGroup<?> itemGroup = build.getProject(); // Assuming build.getProject() returns an ItemGroup
-                ClientHelper perforceClient = new ClientHelper(itemGroup, credentials, buildListener, StandardCharsets.UTF_8.toString());
+                ItemGroup<?> itemGroup = build.getParent(); // Added to get the ItemGroup
+                ClientHelper perforceClient = new ClientHelper(itemGroup, credentials, buildListener, null); // Updated constructor
                 IClient client = perforceClient.getClient();
                 try {
                     this.perforce = new PerforceClient(server, client);
@@ -80,9 +78,4 @@ public class P4Manager extends AbstractPerforceManager<PerforceScm> {
         return client;
     }
 }
-``` 
-
-### Explanation of Changes:
-1. **Constructor Update for `ClientHelper`:** The original constructor call for `ClientHelper` was updated to match the new constructor signature, which requires an `ItemGroup` or `Item` as the first parameter. I assumed that `build.getProject()` returns an `ItemGroup`, which is appropriate for this context.
-2. **Imports:** Added necessary imports for `Item` and `ItemGroup` to ensure the code compiles correctly with the updated dependencies.
-3. **No Other Changes:** The rest of the code remains unchanged, adhering to the guidelines provided.
+```

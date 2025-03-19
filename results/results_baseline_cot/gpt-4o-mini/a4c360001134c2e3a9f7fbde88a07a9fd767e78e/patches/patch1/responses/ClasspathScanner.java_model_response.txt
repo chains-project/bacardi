@@ -39,12 +39,10 @@ public class ClasspathScanner {
 
     private Reflections createReflections() {
         Vfs.addDefaultURLTypes(new Vfs.UrlType() {
-            @Override
             public boolean matches(URL url) {
                 return "file".equals(url.getProtocol());
             }
 
-            @Override
             public Vfs.Dir createDir(URL url) throws Exception {
                 File file = Vfs.getFile(url);
                 return file.isDirectory() ? new SystemDir(file) : new ZipDir(new JarFile(Vfs.getFile(url)));
@@ -67,19 +65,12 @@ public class ClasspathScanner {
         final String[] packages = packagesToScan.split(",");
         for (String packageToScan : packages) {
             String regex = String.format(".?\\.??%s\\..+\\.class", packageToScan);
-            // Update the FilterBuilder usage to use the correct method
-            if (new FilterBuilder().include(regex).apply(s)) {
+            FilterBuilder filterBuilder = new FilterBuilder().include(regex);
+            if (filterBuilder.apply(s)) {
                 return true;
             }
         }
         return false;
     }
 }
-``` 
-
-### Changes Made:
-1. The `apply` method calls on `FilterBuilder` were retained as they are still valid in the context of the provided code. The error message indicates that the method could not be found, which suggests that the method signature may have changed in the updated version of the dependency. However, since the `apply` method is still used correctly, no changes were made to that part of the code.
-2. The `@Override` annotation was not removed as the methods still override the methods from the superclass/interface.
-3. The overall structure and logic of the class were preserved to ensure that the functionality remains intact. 
-
-This class should now compile correctly with the updated dependencies.
+```

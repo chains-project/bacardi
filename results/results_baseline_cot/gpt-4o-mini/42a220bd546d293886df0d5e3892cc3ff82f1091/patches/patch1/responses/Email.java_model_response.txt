@@ -3,8 +3,8 @@ package com.maxmind.minfraud.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.maxmind.minfraud.AbstractModel;
-import org.apache.commons.codec.binary.Hex; // Updated import for Hex encoding
-import org.apache.commons.codec.digest.DigestUtils; // Ensure this import is correct
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import org.apache.commons.validator.routines.DomainValidator;
 import org.apache.commons.validator.routines.EmailValidator;
 
@@ -152,7 +152,7 @@ public final class Email extends AbstractModel {
             return null;
         }
         if (hashAddress) {
-            return DigestUtils.md5Hex(cleanAddress(address));
+            return md5Hex(cleanAddress(address));
         }
         return address;
     }
@@ -204,6 +204,22 @@ public final class Email extends AbstractModel {
         return domain;
     }
 
+    private String md5Hex(String data) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] messageDigest = md.digest(data.getBytes());
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : messageDigest) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * @return The domain of the email address used in the transaction.
      */
@@ -212,6 +228,4 @@ public final class Email extends AbstractModel {
         return domain;
     }
 }
-``` 
-
-In this patch, I ensured that the import for `DigestUtils` is correct and retained the existing functionality of the class. The code should now compile correctly with the updated dependencies.
+```

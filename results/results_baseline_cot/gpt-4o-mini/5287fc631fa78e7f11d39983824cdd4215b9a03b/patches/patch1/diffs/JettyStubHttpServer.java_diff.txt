@@ -3,20 +3,16 @@
 12c11
 < import org.eclipse.jetty.server.nio.SelectChannelConnector;
 ---
-> import org.eclipse.jetty.server.ServerConnector; // Updated import
+> import org.eclipse.jetty.server.ServerConnector;
 24c23
 <     private final Connector httpConnector;
 ---
->     private final ServerConnector httpConnector; // Updated type
-34c33
+>     private final ServerConnector httpConnector;
+33,36c32,33
+<         this.server.setSendServerVersion(false);
 <         this.server.setSendDateHeader(true);
----
->         this.server.setSendDateHeader(true); // This method is removed in newer versions
-36c35
+< 
 <         this.httpConnector = new SelectChannelConnector();
 ---
->         this.httpConnector = new ServerConnector(server); // Updated instantiation
-80c79
-<         return httpConnector.getLocalPort();
----
->         return httpConnector.getLocalPort(); // This method is now available in ServerConnector
+>         this.server.setHandler(new JadlerHandler(null)); // Placeholder for ruleProvider
+>         this.httpConnector = new ServerConnector(server);

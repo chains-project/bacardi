@@ -1,19 +1,3 @@
-/*
- * Copyright 2016 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.google.cloud.resourcemanager.spi.v1beta1;
 
 import static com.google.cloud.RetryHelper.runWithRetries;
@@ -29,33 +13,31 @@ import com.google.api.core.ApiClock;
 import com.google.api.gax.retrying.ResultRetryAlgorithm;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.retrying.TimedAttemptSettings;
-import com.google.api.services.cloudresourcemanager.v1.CloudResourceManager; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.ClearOrgPolicyRequest; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.Constraint; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.GetEffectiveOrgPolicyRequest; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.GetIamPolicyRequest; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.GetOrgPolicyRequest; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.ListAvailableOrgPolicyConstraintsRequest; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.ListAvailableOrgPolicyConstraintsResponse; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.ListOrgPoliciesRequest; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.ListOrgPoliciesResponse; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.ListProjectsResponse; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.Operation; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.OrgPolicy; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.Policy; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.Project; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.SetIamPolicyRequest; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.SetOrgPolicyRequest; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.Status; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.TestIamPermissionsRequest; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.TestIamPermissionsResponse; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.UndeleteProjectRequest; // Updated import
-import com.google.cloud.RetryHelper;
+import com.google.cloud.resourcemanager.ResourceManagerException;
+import com.google.cloud.resourcemanager.ResourceManagerOptions;
 import com.google.cloud.Tuple;
 import com.google.cloud.http.BaseHttpServiceException;
 import com.google.cloud.http.HttpTransportOptions;
-import com.google.cloud.resourcemanager.ResourceManagerException;
-import com.google.cloud.resourcemanager.ResourceManagerOptions;
+import com.google.cloud.resourcemanager.model.ClearOrgPolicyRequest;
+import com.google.cloud.resourcemanager.model.Constraint;
+import com.google.cloud.resourcemanager.model.GetEffectiveOrgPolicyRequest;
+import com.google.cloud.resourcemanager.model.GetIamPolicyRequest;
+import com.google.cloud.resourcemanager.model.GetOrgPolicyRequest;
+import com.google.cloud.resourcemanager.model.ListAvailableOrgPolicyConstraintsRequest;
+import com.google.cloud.resourcemanager.model.ListAvailableOrgPolicyConstraintsResponse;
+import com.google.cloud.resourcemanager.model.ListOrgPoliciesRequest;
+import com.google.cloud.resourcemanager.model.ListOrgPoliciesResponse;
+import com.google.cloud.resourcemanager.model.ListProjectsResponse;
+import com.google.cloud.resourcemanager.model.Operation;
+import com.google.cloud.resourcemanager.model.OrgPolicy;
+import com.google.cloud.resourcemanager.model.Policy;
+import com.google.cloud.resourcemanager.model.Project;
+import com.google.cloud.resourcemanager.model.SetIamPolicyRequest;
+import com.google.cloud.resourcemanager.model.SetOrgPolicyRequest;
+import com.google.cloud.resourcemanager.model.Status;
+import com.google.cloud.resourcemanager.model.TestIamPermissionsRequest;
+import com.google.cloud.resourcemanager.model.TestIamPermissionsResponse;
+import com.google.cloud.resourcemanager.model.UndeleteProjectRequest;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -66,8 +48,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import org.threeten.bp.Duration;
 
-/** @deprecated v3 GAPIC client of ResourceManager is now available */
-@Deprecated
 public class HttpResourceManagerRpc implements ResourceManagerRpc {
 
   private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
@@ -122,7 +102,7 @@ public class HttpResourceManagerRpc implements ResourceManagerRpc {
         }
       };
 
-  private final CloudResourceManager resourceManager;
+  private final com.google.cloud.resourcemanager.CloudResourceManager resourceManager;
   private final ApiClock clock;
 
   public HttpResourceManagerRpc(ResourceManagerOptions options) {
@@ -130,7 +110,7 @@ public class HttpResourceManagerRpc implements ResourceManagerRpc {
     HttpTransport transport = transportOptions.getHttpTransportFactory().create();
     HttpRequestInitializer initializer = transportOptions.getHttpRequestInitializer(options);
     resourceManager =
-        new CloudResourceManager.Builder(transport, JSON_FACTORY, initializer)
+        new com.google.cloud.resourcemanager.CloudResourceManager.Builder(transport, JSON_FACTORY, initializer)
             .setRootUrl(options.getHost())
             .setApplicationName(options.getApplicationName())
             .build();

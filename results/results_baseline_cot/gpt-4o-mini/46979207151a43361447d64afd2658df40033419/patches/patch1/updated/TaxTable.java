@@ -18,7 +18,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
-import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy; // Ensure this import is correct
+
 
 /**
  * <p>Java class for anonymous complex type.
@@ -81,7 +81,22 @@ public class TaxTable implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = JAXBToStringStrategy.DEFAULT; // Updated to use DEFAULT instead of getInstance()
+        final ToStringStrategy2 strategy = new ToStringStrategy2() {
+            @Override
+            public void appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+                // Custom implementation or delegate to a default strategy
+            }
+
+            @Override
+            public void appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+                // Custom implementation or delegate to a default strategy
+            }
+
+            @Override
+            public void appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean isPresent) {
+                // Custom implementation or delegate to a default strategy
+            }
+        };
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

@@ -7,7 +7,7 @@ import com.github.games647.changeskin.sponge.task.SkinInvalidator;
 import com.google.inject.Inject;
 
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.source.CommandSource; // Updated import
+import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
@@ -35,7 +35,6 @@ public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
         return CommandResult.success();
     }
 
-    @Override
     public CommandSpec buildSpec() {
         return CommandSpec.builder()
                 .executor(this)
@@ -43,10 +42,4 @@ public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
                 .build();
     }
 }
-``` 
-
-### Changes Made:
-1. Updated the import for `CommandSource` to `org.spongepowered.api.command.source.CommandSource` to reflect the new package structure in the updated dependency.
-2. Ensured that all other imports remain unchanged and valid according to the new dependency version. 
-
-This should resolve the compilation errors related to missing classes and packages.
+```

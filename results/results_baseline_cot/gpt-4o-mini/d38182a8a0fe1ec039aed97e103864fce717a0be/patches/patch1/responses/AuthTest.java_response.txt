@@ -351,7 +351,7 @@ public final class AuthTest {
                     token -> CompletableFuture.completedFuture(
                         Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
                             .filter(user -> token.equals(token(user)))
-                            .map(user -> new Authentication.User(user.name())) // Updated to match the new User type
+                            .map(user -> new Authentication.User(user.name(), user.password())) // Updated to match new API
                             .findFirst()
                     ),
                     ""

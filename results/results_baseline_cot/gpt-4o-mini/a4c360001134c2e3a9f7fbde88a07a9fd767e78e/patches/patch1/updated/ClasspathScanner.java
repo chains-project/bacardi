@@ -38,12 +38,10 @@ public class ClasspathScanner {
 
     private Reflections createReflections() {
         Vfs.addDefaultURLTypes(new Vfs.UrlType() {
-            @Override
             public boolean matches(URL url) {
                 return "file".equals(url.getProtocol());
             }
 
-            @Override
             public Vfs.Dir createDir(URL url) throws Exception {
                 File file = Vfs.getFile(url);
                 return file.isDirectory() ? new SystemDir(file) : new ZipDir(new JarFile(Vfs.getFile(url)));
@@ -66,8 +64,8 @@ public class ClasspathScanner {
         final String[] packages = packagesToScan.split(",");
         for (String packageToScan : packages) {
             String regex = String.format(".?\\.??%s\\..+\\.class", packageToScan);
-            // Update the FilterBuilder usage to use the correct method
-            if (new FilterBuilder().include(regex).apply(s)) {
+            FilterBuilder filterBuilder = new FilterBuilder().include(regex);
+            if (filterBuilder.apply(s)) {
                 return true;
             }
         }

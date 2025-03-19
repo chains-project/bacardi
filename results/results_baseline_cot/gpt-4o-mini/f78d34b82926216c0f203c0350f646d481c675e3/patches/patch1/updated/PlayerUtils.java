@@ -103,10 +103,10 @@ public class PlayerUtils
         Random random = new Random();
         String first = random.nextBoolean()
             ? RandomStringUtils.randomAlphanumeric(new Random().nextInt(13) + 1)
-            : RandomWordUtils.getRandomWord();
+            : RandomStringUtils.randomAlphabetic(5); // Fallback to a simple random string
         String last = random.nextBoolean()
             ? RandomStringUtils.randomAlphanumeric(new Random().nextInt(13) + 1)
-            : RandomWordUtils.getRandomWord();
+            : RandomStringUtils.randomAlphabetic(5); // Fallback to a simple random string
 
         String name = first + (random.nextBoolean() ? "_": "") + last + (random.nextBoolean() ? "19" + random.nextInt(120): "");
         if (name.length() > 16)

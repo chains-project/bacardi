@@ -21,7 +21,6 @@ package org.apache.myfaces.tobago.internal.mock.servlet;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.HttpSessionContext; // This import is no longer valid
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,27 +60,6 @@ public class MockHttpSession implements HttpSession {
     return 0;
   }
 
-  /** @deprecated */
-  @Deprecated
-  @Override
-  public HttpSessionContext getSessionContext() {
-    return null; // This method is deprecated and can be removed
-  }
-
-  /** @deprecated */
-  @Deprecated
-  @Override
-  public Object getValue(final String s) {
-    return null; // This method is deprecated and can be removed
-  }
-
-  /** @deprecated */
-  @Deprecated
-  @Override
-  public String[] getValueNames() {
-    return new String[0]; // This method is deprecated and can be removed
-  }
-
   @Override
   public void invalidate() {
   }
@@ -91,19 +69,9 @@ public class MockHttpSession implements HttpSession {
     return false;
   }
 
-  /** @deprecated */
-  @Deprecated
-  @Override
-  public void putValue(final String s, final Object o) {
-  }
-
   @Override
   public void removeAttribute(final String s) {
     attributes.remove(s);
-  }
-
-  @Override
-  public void removeValue(final String s) {
   }
 
   @Override

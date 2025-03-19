@@ -8,6 +8,7 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import java.util.concurrent.TimeUnit;
 
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.source.CommandSource; // Updated import
 import org.spongepowered.api.scheduler.Task;
 
 public class SkinUploader extends SharedUploader {
@@ -33,6 +34,4 @@ public class SkinUploader extends SharedUploader {
         Task.builder().delay(1, TimeUnit.MINUTES).execute(task).async().submit(plugin);
     }
 }
-``` 
-
-In this case, the `CommandSource` class is still present in the `org.spongepowered.api.command` package, so no changes were necessary to the imports or the class itself. The error message indicates that the class could not be found, which may suggest an issue with the dependency version or the build path rather than the code itself. If the dependency has been updated and `CommandSource` has been moved or renamed, you would need to adjust the import statement accordingly. However, based on the provided information, the class remains unchanged and should compile correctly if the dependencies are correctly set up.
+```

@@ -161,7 +161,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
         return AnalysisEngineConfiguration.builder()
-                .addEnabledLanguage(Language.JAVA) // Updated to use addEnabledLanguage instead of addEnabledLanguages
+                .addEnabledLanguage(Language.JAVA) // Updated to use addEnabledLanguage instead
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())
@@ -289,6 +289,4 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
         }
     }
 }
-``` 
-
-In this patch, I updated the `buildAnalysisEngineConfiguration` method to use `addEnabledLanguage(Language.JAVA)` instead of `addEnabledLanguages(globalConfig.getEnabledLanguages())`, which resolves the compilation error caused by the method signature change in the updated dependency.
+```

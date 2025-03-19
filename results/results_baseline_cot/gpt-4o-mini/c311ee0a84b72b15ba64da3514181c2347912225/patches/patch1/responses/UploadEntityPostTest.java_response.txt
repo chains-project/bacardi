@@ -110,7 +110,7 @@ class UploadEntityPostTest {
             RsStatus.ACCEPTED,
             new IsHeader(
                 "Location",
-                new StringStartsWith("/v2/test/blobs/uploads/") // Fixed constructor usage
+                new StringStartsWith("/v2/test/blobs/uploads/")
             ),
             new IsHeader("Range", "0-0"),
             new IsHeader("Content-Length", "0"),

@@ -18,7 +18,7 @@ import org.apache.commons.io.FileUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.core.exc.StreamWriteException; // Added import for StreamWriteException
+import com.fasterxml.jackson.core.JsonProcessingException; // Added import for JsonProcessingException
 
 import de.uniwue.config.ProjectConfiguration;
 import de.uniwue.feature.ProcessConflictDetector;
@@ -240,11 +240,11 @@ public class RecognitionHelper {
 				dataList.add(pageList);
 			}
 			ObjectWriter writer = mapper.writer();
-			try {
-                writer.writeValue(segmentListFile, dataList);
-            } catch (StreamWriteException e) {
-                throw new IOException("Error writing JSON to file", e);
-            }
+			try { // Added try-catch for JsonProcessingException
+				writer.writeValue(segmentListFile, dataList);
+			} catch (JsonProcessingException e) {
+				throw new IOException("Error writing JSON to file", e);
+			}
 
             processHandler = new ProcessHandler();
             processHandler.setFetchProcessConsole(true);

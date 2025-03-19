@@ -1,6 +1,7 @@
 package io.simplelocalize.cli.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import io.simplelocalize.cli.client.dto.DownloadRequest;
@@ -141,7 +142,12 @@ public class SimpleLocalizeClient
 
       Object responseBody = httpResponse.body();
       String stringBody = safeCastHttpBodyToString(responseBody);
-      String message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH);
+      String message = null;
+      try {
+        message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH);
+      } catch (JsonParseException e) {
+        message = "Error parsing JSON response";
+      }
       if (message == null)
       {
         message = "Unknown error, HTTP Status: " + httpResponse.statusCode();
@@ -162,5 +168,6 @@ public class SimpleLocalizeClient
     }
     return "";
   }
+
 
 }

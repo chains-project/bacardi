@@ -27,8 +27,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.io.IOUtils; // Updated import
-import org.apache.commons.io.input.ClosedInputStream; // Ensure this is available in the dependency
+import java.io.PipedInputStream; // Updated import
 
 /**
  * This class implements an output stream in which the data is
@@ -400,7 +399,7 @@ public class ByteArrayOutputStream extends OutputStream
         int remaining = count;
         if ( remaining == 0 )
         {
-            return new ClosedInputStream();
+            return new PipedInputStream(); // Updated to use PipedInputStream
         }
         final List<ByteArrayInputStream> list = new ArrayList<ByteArrayInputStream>( buffers.size() );
         for ( final byte[] buf : buffers )

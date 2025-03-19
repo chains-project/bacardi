@@ -9,13 +9,12 @@ import java.util.UUID;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.data.Keys; // Updated import
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.tab.TabListEntry;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
-import com.flowpowered.math.vector.Vector3d; // Updated import
+import org.spongepowered.api.data.Keys;
 
 public class SkinApplier extends SharedApplier {
 

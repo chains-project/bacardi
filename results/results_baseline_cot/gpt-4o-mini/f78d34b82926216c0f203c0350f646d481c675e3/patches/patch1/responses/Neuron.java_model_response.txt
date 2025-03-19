@@ -2,9 +2,7 @@
 package ml.peya.plugins.Learn;
 
 import java.util.ArrayList;
-
-// Assuming the sigmoid function is now located in a different package
-import ml.peya.plugins.LearnMath; // Updated import statement
+import ml.peya.plugins.LearnMath; // Updated import to the correct package
 
 /**
  * 重みを突っ込む器。
@@ -49,7 +47,7 @@ public class Neuron
     public void input(ArrayList<Input> inputData)
     {
         inputData.parallelStream().forEachOrdered(input -> input(input.getWeightingValue()));
-        setValue(LearnMath.sigmoid(sum)); // Updated to use the correct import
+        setValue(LearnMath.sigmoid(sum)); // Updated to use the correct method reference
     }
 
     /**
@@ -62,6 +60,4 @@ public class Neuron
         sum += value;
     }
 }
-``` 
-
-In this patch, I updated the import statement to reflect the new location of the `sigmoid` method, assuming it is now part of the `ml.peya.plugins.LearnMath` class. This resolves the compilation error related to the missing `sigmoid` method and ensures that the class compiles correctly with the updated dependencies.
+```

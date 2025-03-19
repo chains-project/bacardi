@@ -1,29 +1,13 @@
 ```java
-/*
- * Copyright (C) 1999-2009 Jive Software. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.jivesoftware.openfire.plugin.util.cache;
 
-import com.hazelcast.core.Cluster;
-import com.hazelcast.core.EntryListener;
-import com.hazelcast.core.LifecycleEvent;
-import com.hazelcast.core.LifecycleListener;
-import com.hazelcast.core.Member;
-import com.hazelcast.core.MemberAttributeEvent;
-import com.hazelcast.core.MembershipEvent;
-import com.hazelcast.core.MembershipListener;
+import com.hazelcast.cluster.Cluster;
+import com.hazelcast.cluster.MembershipEvent;
+import com.hazelcast.cluster.MembershipListener;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MemberAttributeEvent;
+import com.hazelcast.lifecycle.LifecycleEvent;
+import com.hazelcast.lifecycle.LifecycleListener;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterManager;
 import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
@@ -151,7 +135,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         done = true;
     }
 
-    @Override
     public void memberAdded(final MembershipEvent event) {
         logger.info("Received a Hazelcast memberAdded event {}", event);
 
@@ -176,7 +159,7 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
                     logger.warn("30 Second wait was interrupted.", e);
                 }
 
-                // The following line was intended to wait until all local handling finishes before informing
+                // The following line was intended to wait until all local handling finishes before informing other
                 // nodes. However that proved to be insufficient. Hence the 30 second default wait in the lines above.
                 // TODO Instead of the 30 second wait, we should look (and then wait) for some trigger or event that signifies that local handling has completed and caches have stabilized.
                 waitForClusterCacheToBeInstalled();
@@ -224,7 +207,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         return !failed;
     }
 
-    @Override
     public void memberRemoved(final MembershipEvent event) {
         logger.info("Received a Hazelcast memberRemoved event {}", event);
 
@@ -258,7 +240,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         return new ArrayList<>(clusterNodesInfo.values());
     }
 
-    @Override
     public void stateChanged(final LifecycleEvent event) {
         if (event.getState().equals(LifecycleEvent.LifecycleState.SHUTDOWN)) {
             leaveCluster();
@@ -267,7 +248,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         }
     }
 
-    @Override
     public void memberAttributeChanged(final MemberAttributeEvent event) {
         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
         isSenior = isSeniorClusterMember();

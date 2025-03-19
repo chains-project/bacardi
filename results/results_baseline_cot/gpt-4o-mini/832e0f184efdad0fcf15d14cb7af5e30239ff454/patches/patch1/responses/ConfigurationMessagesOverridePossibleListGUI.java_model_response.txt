@@ -70,7 +70,7 @@ public class ConfigurationMessagesOverridePossibleListGUI implements InventoryPr
 				if (messagesConfig.getString("Overrides." + entry.getKey()) != null) {
 					lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwcConfigGUIMessagesAlreadyOverriden"));
 					currentEntryMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					currentEntryMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false); // Updated method call
+					currentEntryMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
 				}
 				lore.add(CommonDefinitions.getMessage("wwcConfigGUIMessagesOverrideOriginalLabel") + ": " + messagesConfig.getString("Messages." + entry.getKey()));
 				currentEntryMeta.setLore(lore);
@@ -120,6 +120,4 @@ public class ConfigurationMessagesOverridePossibleListGUI implements InventoryPr
 	public void update(Player player, InventoryContents contents) {}
 
 }
-``` 
-
-In this patch, I replaced the call to `parseEnchantment()` with `getEnchant()` to align with the updated method in the `XEnchantment` class, resolving the compilation error.
+```

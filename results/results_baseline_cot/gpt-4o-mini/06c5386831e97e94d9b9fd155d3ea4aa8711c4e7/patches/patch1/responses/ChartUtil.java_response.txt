@@ -51,7 +51,7 @@ public class ChartUtil {
             for (int i = 0; i < MAX_ATTEMPTS; i++) {
                 Object result = pageObject.executeScript(String.format(
                         "delete(window.Array.prototype.toJSON) %n"
-                                + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div[tool='%s']\")).getOption())",
+                                + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
                         toolAttribute));
 
                 if (result != null) {
@@ -60,7 +60,7 @@ public class ChartUtil {
                 pageObject.elasticSleep(1000);
             }
         }
-        throw new java.util.NoSuchElementException("Found no trend chart with tool attribute '%s'" + toolAttribute);
+        throw new java.util.NoSuchElementException("Found no trend chart with ID '%s''" + toolAttribute);
     }
 
     /**
@@ -101,5 +101,7 @@ public class ChartUtil {
         catch (NoSuchElementException exception) {
             return false;
         }
+
     }
+
 }

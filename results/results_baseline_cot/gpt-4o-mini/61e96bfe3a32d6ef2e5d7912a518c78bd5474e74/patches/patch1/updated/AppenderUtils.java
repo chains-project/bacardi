@@ -80,10 +80,9 @@ public class AppenderUtils {
       framedTransport.close();
     }
 
-    // Added footerBytes method to satisfy the Encoder interface
     @Override
     public byte[] footerBytes() {
-      return new byte[0]; // Return an empty byte array as a placeholder
+      return new byte[0]; // Implementing the missing method
     }
   }
 

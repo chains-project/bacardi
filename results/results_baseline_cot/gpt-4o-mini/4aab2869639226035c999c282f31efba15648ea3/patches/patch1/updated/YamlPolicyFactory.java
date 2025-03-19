@@ -39,7 +39,6 @@ public final class YamlPolicyFactory implements PolicyFactory {
     public Policy<?> getPolicy(final PolicyConfig config) {
         final PolicyConfig sub = config.config("storage");
         try {
-            // Create a new Storage instance using the updated method
             Storage storage = new Storages().newStorage(sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping());
             return new YamlPolicy(new BlockingStorage(storage));
         } catch (final IOException err) {

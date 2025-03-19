@@ -129,6 +129,7 @@ public final class ModelConstructor extends Constructor {
     private static final String ATTRIBUTE_PREFIX = "attr/";
 
     private Xpp3Dom toDom(Xpp3Dom parent, Map<Object, Object> map) {
+
       for (Map.Entry<Object, Object> entry : map.entrySet()) {
         String key = entry.getKey().toString();
         Object entryValue = entry.getValue();
@@ -153,6 +154,7 @@ public final class ModelConstructor extends Constructor {
 
     private void toDom(Xpp3Dom parent, String parentKey, List list) {
       Object firstItem = list.get(0);
+
       String childKey;
 
       if (firstItem.getClass().isArray()) {

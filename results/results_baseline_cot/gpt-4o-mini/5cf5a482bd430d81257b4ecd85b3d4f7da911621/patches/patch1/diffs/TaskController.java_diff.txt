@@ -1,14 +1,61 @@
-66d65
-< 
-90d88
+12,19d11
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.View;
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.ParamError;
+< import javax.mvc.security.CsrfProtected;
+< import javax.validation.Valid;
+< import javax.validation.constraints.NotNull;
+33d24
+< @Controller
+41c32
+<     private Models models;
+---
+>     private javax.mvc.Models models;
+44c35
+<     private BindingResult validationResult;
+---
+>     private javax.mvc.binding.BindingResult validationResult;
+53c44
+<     @View("tasks.xhtml")
+---
+>     @javax.mvc.View("tasks.xhtml")
+71c62
+<     public Viewable taskDetails(@PathParam("id") @NotNull Long id) {
+---
+>     public Viewable taskDetails(@PathParam("id") Long id) {
+89,91c80,81
+<     @CsrfProtected
 <     //@ValidateOnExecution(type = ExecutableType.NONE)
-95c93
+<     public Response save(@Valid @BeanParam TaskForm form) {
+---
+>     @javax.mvc.security.CsrfProtected
+>     public Response save(@javax.validation.Valid @BeanParam TaskForm form) {
+95c85
 <             AlertMessage alert = AlertMessage.danger("Validation voilations!");
 ---
 >             AlertMessage alert = AlertMessage.danger("Validation violations!");
-139c137
+98c88
+<                     .forEach((ParamError t) -> {
+---
+>                     .forEach((javax.mvc.binding.ParamError t) -> {
+134,135c124,125
+<     @CsrfProtected
+<     public Response update(@PathParam(value = "id") Long id, @Valid @BeanParam TaskForm form) {
+---
+>     @javax.mvc.security.CsrfProtected
+>     public Response update(@PathParam(value = "id") Long id, @javax.validation.Valid @BeanParam TaskForm form) {
+139c129
 <             AlertMessage alert = AlertMessage.danger("Validation voilations!");
 ---
 >             AlertMessage alert = AlertMessage.danger("Validation violations!");
-164d161
+142c132
+<                     .forEach((ParamError t) -> {
+---
+>                     .forEach((javax.mvc.binding.ParamError t) -> {
+164,165c154
 <     //@CsrfProtected
+<     public Response updateStatus(@PathParam(value = "id") Long id, @NotNull @FormParam(value = "status") String status) {
+---
+>     public Response updateStatus(@PathParam(value = "id") Long id, @javax.validation.NotNull @FormParam(value = "status") String status) {
