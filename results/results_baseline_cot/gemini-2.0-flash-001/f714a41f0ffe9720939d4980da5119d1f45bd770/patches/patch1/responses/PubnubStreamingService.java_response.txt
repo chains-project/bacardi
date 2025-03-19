@@ -12,10 +12,9 @@ import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
 import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
-import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
-import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
-import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
-import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
+import com.pubnub.api.models.consumer.objects.PNMembership;
+import com.pubnub.api.models.consumer.objects.PNSpace;
+import com.pubnub.api.models.consumer.objects.PNUser;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -25,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
 
 /** Created by Lukas Zaoralek on 14.11.17. */
 public class PubnubStreamingService {
@@ -96,24 +96,24 @@ public class PubnubStreamingService {
                 }
 
                 @Override
-                public void user(PubNub pubnub, PNUserResult pnUserResult) {
+                public void messageAction(
+                    PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
+                  LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
+                }
+
+                @Override
+                public void user(PubNub pubnub, PNUser pnUserResult) {
                   LOG.debug("PubNub user: {}", pnUserResult.toString());
                 }
 
                 @Override
-                public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
+                public void space(PubNub pubnub, PNSpace pnSpaceResult) {
                   LOG.debug("PubNub space: {}", pnSpaceResult.toString());
                 }
 
                 @Override
-                public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
+                public void membership(PubNub pubnub, PNMembership pnMembershipResult) {
                   LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
-                }
-
-                @Override
-                public void messageAction(
-                    PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
-                  LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
                 }
               });
           e.onComplete();

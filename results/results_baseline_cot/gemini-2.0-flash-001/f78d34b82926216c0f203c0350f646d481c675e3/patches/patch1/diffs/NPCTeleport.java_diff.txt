@@ -1,6 +1,54 @@
 3d2
 < import develop.p2p.lib.*;
-91a91
->             @Override
-165a166
->             @Override
+161c160
+<         WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
+---
+>         final WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
+179,180c178
+<                         rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
+<                             .get(0.01, true);
+---
+>                         rangeTmp = ypp.get(radius - 0.1, radius, config.getDouble("npc.waveMin"));
+186c184
+<                         center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
+---
+>                         center.getY() + ypp.get(1.0, 2.0, 0.0, count[0] < 20),
+220c218
+<                     ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
+---
+>                     ? ypp.get(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange"))
+260a259,292
+> 
+>     private static class WaveCreator {
+>         private final double min;
+>         private final double max;
+>         private final double waveSize;
+> 
+>         public WaveCreator(double min, double max, double waveSize) {
+>             this.min = min;
+>             this.max = max;
+>             this.waveSize = waveSize;
+>         }
+> 
+>         public double get(double scale, boolean shouldWave) {
+>             if (!shouldWave) {
+>                 return max;
+>             }
+>             return min + (max - min) * Math.sin(System.currentTimeMillis() * scale * waveSize) ;
+>         }
+> 
+>         public double get(double min, double max, double waveSize) {
+>             return min + (max - min) * Math.sin(System.currentTimeMillis() * 0.01 * waveSize);
+>         }
+> 
+>         public double get(double min, double max, double waveSize, boolean shouldWave) {
+>             if (!shouldWave) {
+>                 return max;
+>             }
+>             return min + (max - min) * Math.sin(System.currentTimeMillis() * 0.01 * waveSize);
+>         }
+> 
+>         public double getStatic() {
+>             return max;
+>         }
+>     }

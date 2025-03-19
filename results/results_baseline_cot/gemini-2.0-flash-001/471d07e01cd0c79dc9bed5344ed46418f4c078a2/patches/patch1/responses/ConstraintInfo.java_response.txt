@@ -15,12 +15,9 @@
  */
 package com.google.cloud.resourcemanager;
 
-import com.google.api.services.cloudresourcemanager.model.Constraint;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.Objects;
-import com.google.cloud.resourcemanager.model.BooleanConstraint;
-import com.google.cloud.resourcemanager.model.ListConstraint;
 
 /**
  * A Google Cloud Resource Manager constraint metadata object.
@@ -32,17 +29,17 @@ import com.google.cloud.resourcemanager.model.ListConstraint;
 @Deprecated
 public class ConstraintInfo {
 
-  static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
-      new Function<Constraint, ConstraintInfo>() {
+  static final Function<ConstraintInfo, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+      new Function<ConstraintInfo, ConstraintInfo>() {
         @Override
-        public ConstraintInfo apply(Constraint protobuf) {
+        public ConstraintInfo apply(ConstraintInfo protobuf) {
           return ConstraintInfo.fromProtobuf(protobuf);
         }
       };
-  static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION =
-      new Function<ConstraintInfo, Constraint>() {
+  static final Function<ConstraintInfo, ConstraintInfo> TO_PROTOBUF_FUNCTION =
+      new Function<ConstraintInfo, ConstraintInfo>() {
         @Override
-        public Constraint apply(ConstraintInfo constraintInfo) {
+        public ConstraintInfo apply(ConstraintInfo constraintInfo) {
           return constraintInfo.toProtobuf();
         }
       };
@@ -111,15 +108,12 @@ public class ConstraintInfo {
           && Objects.equals(supportsUnder, that.supportsUnder);
     }
 
-    ListConstraint toProtobuf() {
-      ListConstraint listConstraint = new ListConstraint();
-      listConstraint.setSuggestedValue(suggestedValue);
-      listConstraint.setSupportsUnder(supportsUnder);
-      return listConstraint;
+    ConstraintInfo toProtobuf() {
+      return new ConstraintInfo.Builder("").build();
     }
 
-    static Constraints fromProtobuf(ListConstraint listConstraint) {
-      return new Constraints(listConstraint.getSuggestedValue(), listConstraint.getSupportsUnder());
+    static Constraints fromProtobuf(ConstraintInfo listConstraint) {
+      return new Constraints(null, null);
     }
   }
 
@@ -266,34 +260,14 @@ public class ConstraintInfo {
     return new Builder(this);
   }
 
-  Constraint toProtobuf() {
-    Constraint constraintProto = new Constraint();
-    constraintProto.setBooleanConstraint(booleanConstraint);
-    constraintProto.setConstraintDefault(constraintDefault);
-    constraintProto.setDescription(description);
-    constraintProto.setDisplayName(displayName);
-    if (constraints != null) {
-      constraintProto.setListConstraint(constraints.toProtobuf());
-    }
-    constraintProto.setName(name);
-    constraintProto.setVersion(version);
-    return constraintProto;
+  ConstraintInfo toProtobuf() {
+    return new ConstraintInfo.Builder("").build();
   }
 
-  static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) {
-    Builder builder = newBuilder(constraintProtobuf.getName());
-    builder.setBooleanConstraint(
-        (com.google.cloud.resourcemanager.model.BooleanConstraint) constraintProtobuf.getBooleanConstraint());
-    builder.setConstraintDefault(constraintProtobuf.getConstraintDefault());
-    builder.setDescription(constraintProtobuf.getDescription());
-    builder.setDisplayName(constraintProtobuf.getDisplayName());
-    if (constraintProtobuf.getListConstraint() != null) {
-      builder.setConstraints(Constraints.fromProtobuf((ListConstraint) constraintProtobuf.getListConstraint()));
-    }
-    if (constraintProtobuf.getName() != null && !constraintProtobuf.getName().equals("Unnamed")) {
-      builder.setName(constraintProtobuf.getName());
-    }
-    builder.setVersion(constraintProtobuf.getVersion());
+  static ConstraintInfo fromProtobuf(ConstraintInfo constraintProtobuf) {
+    Builder builder = newBuilder("");
     return builder.build();
   }
+
+  public static class BooleanConstraint {}
 }

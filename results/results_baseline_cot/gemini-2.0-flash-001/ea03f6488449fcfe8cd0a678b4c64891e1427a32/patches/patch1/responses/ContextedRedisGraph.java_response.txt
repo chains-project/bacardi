@@ -11,6 +11,7 @@ import com.redislabs.redisgraph.impl.resultset.ResultSetImpl;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPooled;
+import redis.clients.jedis.commands.RedisCommand;
 import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.util.SafeEncoder;
 
@@ -139,17 +140,10 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphTransaction multi() {
         Jedis jedis = getConnection();
-        redis.clients.jedis.commands.RedisBinaryCommands client = jedis;
-        if (jedis instanceof JedisPooled) {
-            client = ((JedisPooled) jedis).getResource();
-        }
+        RedisCommand client = jedis;
         client.multi();
-        if (client instanceof redis.clients.jedis.Jedis) {
-            ((redis.clients.jedis.Jedis) client).getClient().getOne();
-        } else if (client instanceof redis.clients.jedis.commands.RedisBinaryCommands) {
-            // do nothing
-        }
-        RedisGraphTransaction transaction = new RedisGraphTransaction((redis.clients.jedis.Jedis)jedis, this);
+        client.getOne();
+        RedisGraphTransaction transaction = new RedisGraphTransaction(client, this);
         transaction.setRedisGraphCaches(caches);
         return transaction;
     }
@@ -161,11 +155,8 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphPipeline pipelined() {
         Jedis jedis = getConnection();
-        redis.clients.jedis.commands.RedisBinaryCommands client = jedis;
-        if (jedis instanceof JedisPooled) {
-            client = ((JedisPooled) jedis).getResource();
-        }
-        RedisGraphPipeline pipeline = new RedisGraphPipeline((redis.clients.jedis.Jedis)jedis, this);
+        RedisCommand client = jedis;
+        RedisGraphPipeline pipeline = new RedisGraphPipeline(client, this);
         pipeline.setRedisGraphCaches(caches);
         return pipeline;
     }

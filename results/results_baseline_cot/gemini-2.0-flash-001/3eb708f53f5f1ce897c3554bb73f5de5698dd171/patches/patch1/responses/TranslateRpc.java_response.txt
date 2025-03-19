@@ -8,7 +8,7 @@
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * is distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -16,10 +16,9 @@
 
 package com.google.cloud.translate.spi.v2;
 
-import com.google.cloud.translate.Detection;
-import com.google.cloud.translate.Language;
-import com.google.cloud.translate.Translate.TranslateOption;
-import com.google.cloud.translate.Translation;
+import com.google.cloud.translate.v2.Translate.Detections;
+import com.google.cloud.translate.v2.Translate.Language;
+import com.google.cloud.translate.v2.Translate.Translation;
 import com.google.cloud.ServiceRpc;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +64,7 @@ public interface TranslateRpc extends ServiceRpc {
    * @param texts the texts to translate
    * @return a list of lists of detections, one list of detections for each provided text, in order
    */
-  List<List<Detection>> detect(List<String> texts);
+  List<List<Detections>> detect(List<String> texts);
 
   /**
    * Translates the provided texts.

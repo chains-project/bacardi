@@ -1,7 +1,3 @@
-/*
- * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
- * https://github.com/artipie/docker-adapter/LICENSE.txt
- */
 package com.artipie.docker;
 
 import com.artipie.docker.error.InvalidTagNameException;
@@ -59,7 +55,7 @@ class TagValidTest {
             throwable.getMessage(),
             new AllOf<>(
                 Arrays.asList(
-                    new StringContains("Invalid tag"),
+                    new StringContains( "Invalid tag"),
                     new StringContains(original)
                 )
             )

@@ -1,5 +1,5 @@
 ```java
-//
+    //
 // Wire
 // Copyright (C) 2016 Wire Swiss GmbH
 //
@@ -34,8 +34,8 @@ import com.wire.xenon.exceptions.MissingStateException;
 import com.wire.xenon.tools.Logger;
 import io.swagger.annotations.*;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -125,8 +125,4 @@ public class MessageResource extends MessageResourceBase {
         return repo.getClient(botId);
     }
 }
-```</code_analysis>
-The error message indicates that the `javax.ws.rs.core` and `javax.ws.rs` packages do not exist. This suggests that the JAX-RS API dependency has been updated, and the package names have changed. The updated package name is `jakarta.ws.rs.core` and `jakarta.ws.rs`.
-
-The fix involves changing the import statements to use the `jakarta.ws.rs` package instead of `javax.ws.rs`.
-</code_analysis>
+```

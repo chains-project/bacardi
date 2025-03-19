@@ -10,22 +10,23 @@ import com.google.inject.Inject;
 
 import java.util.Optional;
 
+import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.network.channel.ChannelBuf;
-import org.spongepowered.api.network.channel.RawDataHandler;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.network.ChannelBuf;
+import org.spongepowered.api.network.MessageChannelListener;
 import org.spongepowered.api.network.RemoteConnection;
 import org.spongepowered.api.scheduler.Task;
 
-public class UpdateSkinListener implements RawDataHandler<RemoteConnection> {
+public class UpdateSkinListener implements MessageChannelListener {
 
     @Inject
     private ChangeSkinSponge plugin;
 
     @Override
-    public void handlePayload(ChannelBuf data, RemoteConnection connection) {
-        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.asReadOnlyBuf().array());
+    public void handlePayload(ChannelBuf data, RemoteConnection connection, Platform.Type side) {
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
         SkinUpdateMessage updateMessage = new SkinUpdateMessage();
         updateMessage.readFrom(dataInput);
 

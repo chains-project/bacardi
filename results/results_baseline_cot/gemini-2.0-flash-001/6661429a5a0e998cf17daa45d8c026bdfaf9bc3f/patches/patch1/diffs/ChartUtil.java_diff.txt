@@ -1,18 +1,32 @@
 7c7
 < import com.gargoylesoftware.htmlunit.ScriptResult;
 ---
-> import net.sf.json.JSONObject;
-35,36c35,37
+> import net.sourceforge.htmlunit.corejs.javascript.ScriptableObject;
+35,36c35,43
 <             ScriptResult scriptResult = new ScriptResult(result);
 <             return scriptResult.getJavaScriptResult().toString();
 ---
->             if (result != null) {
->                 return result.toString();
+>             String scriptResult;
+>             if (result instanceof String) {
+>                 scriptResult = (String) result;
+>             } else if (result instanceof ScriptableObject) {
+>                 scriptResult = result.toString();
+>             } else {
+>                 scriptResult = null;
 >             }
-60,62c61,62
+>             return scriptResult;
+60c67,74
 <                 Object scriptResult = new ScriptResult(result).getJavaScriptResult();
-<                 if (scriptResult != null) {
+---
+>                 String scriptResult;
+>                 if (result instanceof String) {
+>                     scriptResult = (String) result;
+>                 } else if (result instanceof ScriptableObject) {
+>                     scriptResult = result.toString();
+>                 } else {
+>                     scriptResult = null;
+>                 }
+62c76
 <                     return scriptResult.toString();
 ---
->                 if (result != null) {
->                     return result.toString();
+>                     return scriptResult;

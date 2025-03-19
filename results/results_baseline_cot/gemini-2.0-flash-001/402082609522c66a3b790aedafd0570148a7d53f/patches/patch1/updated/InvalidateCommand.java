@@ -9,12 +9,12 @@ import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
-import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.command.source.CommandSource;
 
-public class InvalidateCommand implements CommandExecutor {
+import java.util.Collections;
+
+public class InvalidateCommand implements Command, ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
 
@@ -24,22 +24,21 @@ public class InvalidateCommand implements CommandExecutor {
     }
 
     @Override
-    public CommandResult execute(CommandContext args) {
-        CommandSource src = args.cause().root();
-        if (!(src instanceof Player)) {
-            plugin.sendMessage(src, "no-console");
+    public CommandResult execute(org.spongepowered.api.command.CommandCause cause, CommandContext args) {
+        if (!(cause.cause().root() instanceof Player)) {
+            plugin.sendMessage(cause.cause().root(), "no-console");
             return CommandResult.empty();
         }
 
-        Player receiver = (Player) src;
+        Player receiver = (Player) cause.cause().root();
         Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
         return CommandResult.success();
     }
 
-    public CommandSpec buildSpec() {
-        return CommandSpec.builder()
+    @Override
+    public org.spongepowered.api.command.Command.Builder buildSpec() {
+        return Command.builder()
                 .executor(this)
-                .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base")
-                .build();
+                .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base");
     }
 }

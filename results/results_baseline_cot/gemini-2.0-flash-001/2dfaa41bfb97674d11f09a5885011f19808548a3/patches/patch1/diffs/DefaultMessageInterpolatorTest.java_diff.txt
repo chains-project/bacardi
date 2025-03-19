@@ -1,7 +1,12 @@
 53a54,55
 > import org.mockito.invocation.InvocationOnMock;
 > import org.mockito.stubbing.Answer;
-318c320
+318c320,325
 <             .thenAnswer(invocation -> invocation.getArgumentAt(0, Class.class).cast(result));
 ---
->             .thenAnswer(invocation -> invocation.getArgument(0, Class.class).cast(result));
+>             .thenAnswer(new Answer<Object>() {
+>                 @Override
+>                 public Object answer(InvocationOnMock invocation) throws Throwable {
+>                     return invocation.getArgument(0);
+>                 }
+>             });

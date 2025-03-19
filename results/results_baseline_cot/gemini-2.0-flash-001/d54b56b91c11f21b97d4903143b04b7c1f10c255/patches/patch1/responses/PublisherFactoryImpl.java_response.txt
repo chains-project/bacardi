@@ -1,30 +1,19 @@
-/*
- * Copyright 2020 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.google.pubsublite.kafka.sink;
 
 import com.google.cloud.pubsublite.CloudZone;
-import com.google.cloud.pubsublite.ProjectPath;
+import com.google.cloud.pubsublite.ProjectName;
 import com.google.cloud.pubsublite.TopicName;
 import com.google.cloud.pubsublite.TopicPath;
-import com.google.cloud.pubsublite.internal.Publisher;
+import com.google.cloud.pubsublite.v1.PublisherServiceClient;
+import com.google.cloud.pubsublite.v1.PublisherServiceSettings;
 import com.google.cloud.pubsublite.internal.wire.PubsubContext;
 import com.google.cloud.pubsublite.internal.wire.PubsubContext.Framework;
+import com.google.cloud.pubsublite.internal.wire.RoutingPublisher;
 import com.google.cloud.pubsublite.internal.wire.RoutingPublisherBuilder;
+import com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisher;
 import com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder;
-import com.google.cloud.pubsublite.proto.PubsubMessage;
+import com.google.protobuf.ByteString;
+import java.io.IOException;
 import java.util.Map;
 import org.apache.kafka.common.config.ConfigValue;
 
@@ -33,24 +22,34 @@ class PublisherFactoryImpl implements PublisherFactory {
   private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
 
   @Override
-  public Publisher<PubsubMessage> newPublisher(Map<String, String> params) {
+  public RoutingPublisher newPublisher(Map<String, String> params) {
     Map<String, ConfigValue> config = ConfigDefs.config().validateAll(params);
     RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
     TopicPath topic =
         TopicPath.newBuilder()
             .setProject(
-                ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
-                    .project())
-            .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
-            .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
+                ProjectName.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
+                    .toString())
+            .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()).toString())
+            .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()).toString())
             .build();
-    builder.setTopic(topic);
+    builder.setTopicPath(topic.toString());
     builder.setPublisherFactory(
-        partition ->
-            SinglePartitionPublisherBuilder.newBuilder()
-                .setTopic(topic)
-                .setPartition(partition)
-                .build());
+        partition -> {
+          try {
+            PublisherServiceSettings publisherServiceSettings = PublisherServiceSettings.newBuilder().build();
+            PublisherServiceClient publisherServiceClient = PublisherServiceClient.create(publisherServiceSettings);
+
+            return SinglePartitionPublisher.newBuilder()
+                    .setTopic(topic.toString())
+                    .setPartition(partition)
+                    .setContext(PubsubContext.of(FRAMEWORK))
+                    .setPublisherServiceClient(publisherServiceClient)
+                    .build();
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        });
     return builder.build();
   }
 }

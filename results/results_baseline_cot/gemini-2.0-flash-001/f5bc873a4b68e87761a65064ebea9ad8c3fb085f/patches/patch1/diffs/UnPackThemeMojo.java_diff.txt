@@ -1,13 +1,43 @@
-22d21
+1,19d0
+< /*
+<  * Licensed to the Apache Software Foundation (ASF) under one
+<  * or more contributor license agreements.  See the NOTICE file
+<  * distributed with this work for additional information
+<  * regarding copyright ownership.  The ASF licenses this file
+<  * to you under the Apache License, Version 2.0 (the
+<  * "License"); you may not use this file except in compliance
+<  * with the License.  You may obtain a copy of the License at
+<  *
+<  *   http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing,
+<  * software distributed under the License is distributed on an
+<  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+<  * KIND, either express or implied.  See the License for the
+<  * specific language governing permissions and limitations
+<  * under the License.
+<  */
+< 
+22d2
 < import org.apache.maven.artifact.DependencyResolutionRequiredException;
-51a51,53
+39a20,21
 > import org.apache.maven.project.MavenProject;
-> import org.apache.maven.artifact.resolver.ResolutionErrorHandler;
-> import org.apache.maven.artifact.resolver.ArtifactResolutionException;
-196c198
-<     } catch (final DependencyResolutionRequiredException drre) {
+> import org.apache.maven.artifact.DependencyResolutionRequiredException;
+51a34
+> import java.util.List;
+110c93,94
+<       final Iterator<String> artifacts = getProject().getRuntimeClasspathElements().iterator();
 ---
->     } catch (final org.apache.maven.artifact.resolver.ArtifactResolutionException drre) {
-214,215d215
+>       final List<String> artifacts = getProject().getRuntimeClasspathElements();
+>       final Iterator<String> artifactsIterator = artifacts.iterator();
+114c98
+<       while (artifacts.hasNext()) {
+---
+>       while (artifactsIterator.hasNext()) {
+116c100
+<         final String artifact = artifacts.next();
+---
+>         final String artifact = artifactsIterator.next();
+214,215d197
 < 
 < 

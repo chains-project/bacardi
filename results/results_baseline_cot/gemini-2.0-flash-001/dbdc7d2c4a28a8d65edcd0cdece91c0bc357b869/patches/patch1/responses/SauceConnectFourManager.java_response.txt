@@ -281,12 +281,9 @@ public class SauceConnectFourManager extends AbstractSauceTunnelManager implemen
         } else {
             throw new RuntimeException("Unknown operating system: " + operatingSystem.name());
         }
-        // The method enableLogging(org.codehaus.plexus.logging.console.ConsoleLogger) no longer exists in AbstractUnArchiver
-        // in newer versions of plexus-archiver. The logging is now handled differently.
-        // unArchiver.enableLogging(new ConsoleLogger(Logger.LEVEL_DEBUG, "Sauce"));
-        unArchiver.setSourceFile(archive);
-        unArchiver.setDestDirectory(destination);
-        unArchiver.extract();
+        ConsoleLogger consoleLogger = new ConsoleLogger(Logger.LEVEL_DEBUG, "Sauce");
+        unArchiver.enableLogging(consoleLogger);
+        extractArchive(unArchiver, zipFile, workingDirectory);
         File unzipDir = getUnzipDir(workingDirectory, operatingSystem);
         if (cleanUpOnExit) {
             unzipDir.deleteOnExit();

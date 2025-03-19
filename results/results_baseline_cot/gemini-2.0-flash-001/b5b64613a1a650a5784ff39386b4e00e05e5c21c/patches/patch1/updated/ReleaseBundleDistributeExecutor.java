@@ -48,7 +48,7 @@ public class ReleaseBundleDistributeExecutor implements Executor {
                                                          String siteName, String cityName, boolean dryRun) throws IOException {
         DistributeReleaseBundleRequest request;
         if (StringUtils.isNotBlank(distRules)) {
-            if (!CollectionUtils.isEmpty(countryCodes) || !StringUtils.isAllBlank(siteName, cityName)) {
+            if (!CollectionUtils.isEmpty(countryCodes) || !StringUtils.isAnyBlank(siteName, cityName)) {
                 throw new IOException("The distRules input can't be used with site, city or country codes");
             }
             ObjectMapper mapper = createMapper();

@@ -182,7 +182,11 @@ public class Decorations
     public static void magic(Player player, int seconds)
     {
         final int[] count = {0};
-        //WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1); // develop.p2p.lib.WaveCreator is missing. Removing this line.
+        final double[] waveValues = {0.0, 0.0}; // Store wave values for x and static
+        final double waveSpeed = 0.01;
+        final double waveAmplitude = 0.8;
+        final double waveStaticValue = 1.8;
+        final double waveOffset = 0.1;
 
         BukkitRunnable runnable = new BukkitRunnable()
         {
@@ -197,7 +201,9 @@ public class Decorations
 
                     circle(center.add(0, 0.7, 0), count[0], 2.7, Particle.ENCHANTMENT_TABLE);
 
-                    //circle(center.clone().add(0, wave.get(0.01, false), 0), count[0], wave.getStatic()); // WaveCreator is missing. Removing this line.
+                    waveValues[0] = waveAmplitude * Math.sin(waveSpeed * count[0]) + waveOffset;
+
+                    circle(center.clone().add(0, waveValues[0], 0), count[0], waveStaticValue);
 
                     circle(center.clone().add(3.2, 0.7, 3.2), count[0], 1.5);
                     circle(center.clone().add(-3.2, 0.7, -3.2), count[0], 1.5);

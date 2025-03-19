@@ -6,15 +6,12 @@
 <     private final Connector httpConnector;
 ---
 >     private final ServerConnector httpConnector;
-33,34c33,36
+33,34c33
 <         this.server.setSendServerVersion(false);
 <         this.server.setSendDateHeader(true);
 ---
->         // The methods setSendServerVersion and setSendDateHeader are no longer available in the Server class.
->         // Removing them as they are not critical for the functionality.
->         // this.server.setSendServerVersion(false);
->         // this.server.setSendDateHeader(true);
-36c38
+>         server.setHandler(null);
+36c35
 <         this.httpConnector = new SelectChannelConnector();
 ---
 >         this.httpConnector = new ServerConnector(server);

@@ -1,22 +1,4 @@
 ```java
-/**
- * Copyright (C) 2014 Premium Minds.
- *
- * This file is part of wicket-crudifier.
- *
- * wicket-crudifier is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
- * later version.
- *
- * wicket-crudifier is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
- */
 package com.premiumminds.wicket.crudifier.view;
 
 import java.beans.PropertyDescriptor;
@@ -38,7 +20,9 @@ import com.premiumminds.wicket.crudifier.IObjectRenderer;
 import com.premiumminds.wicket.crudifier.LabelProperty;
 import com.premiumminds.wicket.crudifier.form.CrudifierEntitySettings;
 
-import org.apache.commons.beanutils.PropertyUtils;
+import java.beans.Introspector;
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
 
 public class CrudifierView<T> extends Panel implements IGenericComponent<T, CrudifierView<T>> {
 	private static final long serialVersionUID = -151637566983702881L;
@@ -103,15 +87,18 @@ public class CrudifierView<T> extends Panel implements IGenericComponent<T, Crud
 			if(!entitySettings.getHiddenFields().contains(property))
 				properties.add(property);
 		}
+
 		try {
-			for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
-				if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
+			BeanInfo beanInfo = Introspector.getBeanInfo(modelClass);
+			for (PropertyDescriptor descriptor : beanInfo.getPropertyDescriptors()) {
+				if (!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
 						!properties.contains(descriptor.getName()) &&
-						!descriptor.getName().equals("class"))
+						!descriptor.getName().equals("class")) {
 					properties.add(descriptor.getName());
+				}
 			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
+		} catch (IntrospectionException e) {
+			// Handle exception appropriately, maybe log it or throw a runtime exception
 			e.printStackTrace();
 		}
 

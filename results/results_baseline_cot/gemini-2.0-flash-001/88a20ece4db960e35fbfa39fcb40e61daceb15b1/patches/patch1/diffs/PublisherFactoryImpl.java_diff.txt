@@ -1,8 +1,48 @@
-20d19
+1,15d0
+< /*
+<  * Copyright 2020 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+19,20c4
+< import com.google.cloud.pubsublite.ProjectPath;
 < import com.google.cloud.pubsublite.PublishMetadata;
-27a27
-> import com.google.cloud.pubsublite.proto.PubSubMessage;
-36c36
+---
+> import com.google.cloud.pubsublite.ProjectName;
+27a12
+> import com.google.protobuf.ByteString;
+36c21
 <   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
 ---
->   public Publisher<PubSubMessage> newPublisher(Map<String, String> params) {
+>   public Publisher<ByteString> newPublisher(Map<String, String> params) {
+42,43c27
+<                 ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
+<                     .project())
+---
+>                 ProjectName.of(config.get(ConfigDefs.PROJECT_FLAG).value().toString()))
+49,54c33,40
+<         partition ->
+<             SinglePartitionPublisherBuilder.newBuilder()
+<                 .setTopic(topic)
+<                 .setPartition(partition)
+<                 .setContext(PubsubContext.of(FRAMEWORK))
+<                 .build());
+---
+>         (partition) -> {
+>           SinglePartitionPublisherBuilder singlePartitionPublisherBuilder =
+>               SinglePartitionPublisherBuilder.newBuilder();
+>           singlePartitionPublisherBuilder.setTopic(topic);
+>           singlePartitionPublisherBuilder.setPartition(partition);
+>           singlePartitionPublisherBuilder.setContext(PubsubContext.of(FRAMEWORK));
+>           return singlePartitionPublisherBuilder.build();
+>         });

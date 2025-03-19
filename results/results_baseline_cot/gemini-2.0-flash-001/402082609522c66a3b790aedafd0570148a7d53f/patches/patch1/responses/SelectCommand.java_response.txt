@@ -4,20 +4,26 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import com.github.games647.changeskin.sponge.PomData;
 import com.github.games647.changeskin.sponge.task.SkinSelector;
 import com.google.inject.Inject;
-
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
-
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.Component;
-
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.github.games647.changeskin.sponge.PomData;
+import com.github.games647.changeskin.sponge.task.SkinSelector;
+import com.google.inject.Inject;
+import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.exception.CommandException;
+import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
 import java.util.Optional;
 
-public class SelectCommand implements Command {
+public class SelectCommand implements Command, ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
 
@@ -27,15 +33,15 @@ public class SelectCommand implements Command {
     }
 
     @Override
-    public CommandResult execute(CommandContext context) {
-        org.spongepowered.api.command.CommandSource src = context.getCause().root();
-
+    public CommandResult execute(org.spongepowered.api.command.CommandCause cause, CommandContext args) throws CommandException {
+        org.spongepowered.api.command.CommandSource src = cause.cause().first(org.spongepowered.api.command.CommandSource.class).orElse(null);
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
             return CommandResult.empty();
         }
 
-        Optional<String> skinNameOptional = context.one(Parameter.string().key("skinName").build());
+        Parameter.Key<String> skinNameKey = Parameter.key("skinName", String.class);
+        Optional<String> skinNameOptional = args.one(skinNameKey);
 
         if (!skinNameOptional.isPresent()) {
             plugin.sendMessage(src, "invalid-skin-name");
@@ -57,9 +63,16 @@ public class SelectCommand implements Command {
 
     @Override
     public org.spongepowered.api.command.Command.Builder build() {
+        Parameter skinNameParameter = Parameter.string().key("skinName").build();
+
         return org.spongepowered.api.command.Command.builder()
                 .executor(this)
-                .addParameter(Parameter.string().key("skinName").build())
+                .addParameter(skinNameParameter)
                 .permission(PomData.ARTIFACT_ID + ".command.skinselect.base");
+    }
+
+    @Override
+    public String getShortDescription() {
+        return "Selects a skin by ID.";
     }
 }

@@ -4,7 +4,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 
-import net.sourceforge.htmlunit.corejs.javascript.ScriptableObject;
+import org.openqa.selenium.JavascriptExecutor;
 
 import org.jenkinsci.test.acceptance.po.PageObject;
 
@@ -28,12 +28,11 @@ public class ChartUtil {
      */
     public static String getChartDataById(final PageObject pageObject, final String elementId) {
         if (isChartDisplayedByElementId(pageObject, elementId)) {
-            Object result = pageObject.executeScript(String.format(
+            Object result = ((JavascriptExecutor) pageObject.driver).executeScript(String.format(
                     "delete(window.Array.prototype.toJSON) %n"
                             + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
                     elementId));
-            String scriptResult = ScriptableObject.getProperty(pageObject.getCurrentWindow(), result).toString();
-            return scriptResult;
+            return String.valueOf(result);
         }
         return null;
     }
@@ -52,14 +51,13 @@ public class ChartUtil {
             final String toolAttribute) {
         if (isChartDisplayedByDivToolAttribute(pageObject, toolAttribute)) {
             for (int i = 0; i < MAX_ATTEMPTS; i++) {
-                Object result = pageObject.executeScript(String.format(
+                Object result = ((JavascriptExecutor) pageObject.driver).executeScript(String.format(
                         "delete(window.Array.prototype.toJSON) %n"
                                 + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
                         toolAttribute));
 
-                Object scriptResult = ScriptableObject.getProperty(pageObject.getCurrentWindow(), result);
-                if (scriptResult != null) {
-                    return scriptResult.toString();
+                if (result != null) {
+                    return result.toString();
                 }
                 pageObject.elasticSleep(1000);
             }

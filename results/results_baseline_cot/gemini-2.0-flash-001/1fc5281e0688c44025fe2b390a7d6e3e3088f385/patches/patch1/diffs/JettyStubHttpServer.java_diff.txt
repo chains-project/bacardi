@@ -6,14 +6,12 @@
 <     private final Connector httpConnector;
 ---
 >     private final ServerConnector httpConnector;
-33,34c33,35
+33,34c33
 <         this.server.setSendServerVersion(false);
 <         this.server.setSendDateHeader(true);
 ---
->         //The methods setSendServerVersion and setSendDateHeader are no longer available in org.eclipse.jetty.server.Server
->         //this.server.setSendServerVersion(false);
->         //this.server.setSendDateHeader(true);
-36c37
+>         server.setHandler(null);
+36c35
 <         this.httpConnector = new SelectChannelConnector();
 ---
 >         this.httpConnector = new ServerConnector(server);

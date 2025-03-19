@@ -1,0 +1,81 @@
+18,21c18,21
+< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+---
+> import com.google.api.resourcemanager.v3.BooleanPolicy;
+> import com.google.api.resourcemanager.v3.ListPolicy;
+> import com.google.api.resourcemanager.v3.OrgPolicy;
+> import com.google.api.resourcemanager.v3.RestoreDefault;
+97c97
+<       return new BooleanPolicy().setEnforced(enforce);
+---
+>       return BooleanPolicy.newBuilder().setEnforced(enforce).build();
+100a101,103
+>       if (booleanPolicy == null) {
+>         return new BoolPolicy(null);
+>       }
+201c204
+<       return new ListPolicy()
+---
+>       return ListPolicy.newBuilder()
+203,204c206,207
+<           .setAllowedValues(allowedValues)
+<           .setDeniedValues(deniedValues)
+---
+>           .addAllAllowedValues(allowedValues)
+>           .addAllDeniedValues(deniedValues)
+206c209,210
+<           .setSuggestedValue(suggestedValue);
+---
+>           .setSuggestedValue(suggestedValue)
+>           .build();
+209a214,216
+>       if (listPolicy == null) {
+>         return null;
+>       }
+212,213c219,220
+<           listPolicy.getAllowedValues(),
+<           listPolicy.getDeniedValues(),
+---
+>           listPolicy.getAllowedValuesList(),
+>           listPolicy.getDeniedValuesList(),
+361c368
+<     OrgPolicy orgPolicyProto = new OrgPolicy();
+---
+>     OrgPolicy.Builder orgPolicyProtoBuilder = OrgPolicy.newBuilder();
+363c370
+<       orgPolicyProto.setBooleanPolicy(boolPolicy.toProtobuf());
+---
+>       orgPolicyProtoBuilder.setBooleanPolicy(boolPolicy.toProtobuf());
+365c372
+<     orgPolicyProto.setConstraint(constraint);
+---
+>     orgPolicyProtoBuilder.setConstraint(constraint);
+367c374
+<       orgPolicyProto.setListPolicy(policies.toProtobuf());
+---
+>       orgPolicyProtoBuilder.setListPolicy(policies.toProtobuf());
+369,373c376,385
+<     orgPolicyProto.setRestoreDefault(restoreDefault);
+<     orgPolicyProto.setEtag(etag);
+<     orgPolicyProto.setUpdateTime(updateTime);
+<     orgPolicyProto.setVersion(version);
+<     return orgPolicyProto;
+---
+>     if (restoreDefault != null) {
+>       orgPolicyProtoBuilder.setRestoreDefault(restoreDefault);
+>     }
+>     orgPolicyProtoBuilder.setEtag(etag);
+>     orgPolicyProtoBuilder.setUpdateTime(updateTime);
+>     if (version != null) {
+>       orgPolicyProtoBuilder.setVersion(version);
+>     }
+> 
+>     return orgPolicyProtoBuilder.build();
+384a397
+>     if (orgPolicyProtobuf.getRestoreDefault() != null) {
+385a399,400
+>     }
+> 

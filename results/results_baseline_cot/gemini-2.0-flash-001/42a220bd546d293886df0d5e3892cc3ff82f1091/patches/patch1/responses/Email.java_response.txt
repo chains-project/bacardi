@@ -155,7 +155,7 @@ public final class Email extends AbstractModel {
         }
         if (hashAddress) {
             try {
-                MessageDigest md = MessageDigest.getInstance(MessageDigestAlgorithms.MD5);
+                MessageDigest md = MessageDigest.getInstance(MessageDigestAlgorithms.MD5.getName());
                 byte[] digest = md.digest(cleanAddress(address).getBytes(StandardCharsets.UTF_8));
                 return new String(Hex.encodeHex(digest));
             } catch (NoSuchAlgorithmException e) {

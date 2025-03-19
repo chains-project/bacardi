@@ -1,7 +1,5 @@
 package com.example.web;
 
-import java.util.Locale;
-import java.util.logging.Logger;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.mvc.Controller;
@@ -9,6 +7,9 @@ import jakarta.mvc.Models;
 import jakarta.mvc.MvcContext;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+
+import java.util.Locale;
+import java.util.logging.Logger;
 
 /**
  *

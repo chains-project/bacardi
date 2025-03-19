@@ -1,20 +1,4 @@
 ```java
-/**
- * Copyright 2019 Pinterest, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.pinterest.singer.loggingaudit.client;
 
 import com.pinterest.singer.loggingaudit.client.common.LoggingAuditClientMetrics;
@@ -32,7 +16,6 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.thrift.TException;
 import org.apache.thrift.TSerializer;
-import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -271,7 +254,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
             value = serializer.serialize(event);
             record = new ProducerRecord<>(this.topic, currentPartitionId , null, value);
             kafkaProducer.send(record, new KafkaProducerCallback(event, currentPartitionId));
-          } catch (TTransportException e) {
+          } catch (TException e) {
             LOG.debug("[{}] failed to construct ProducerRecord because of serialization exception.",
                 Thread.currentThread().getName(), e);
             OpenTsdbMetricConverter
@@ -369,7 +352,9 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
           // LoggingAuditHeaders can uniquely identify an event.
           eventTriedCount.remove(event.getLoggingAuditHeaders());
           // if send out successfully, remove the partition from the badPartitions if it was added.
-          badPartitions.remove(recordMetadata.partition());
+          if (recordMetadata != null) {
+            badPartitions.remove(recordMetadata.partition());
+          }
         } else {
           checkAndEnqueueWhenSendFailed();
         }

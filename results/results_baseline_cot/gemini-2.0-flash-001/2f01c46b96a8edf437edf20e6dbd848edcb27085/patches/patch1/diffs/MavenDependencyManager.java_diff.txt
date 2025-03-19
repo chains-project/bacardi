@@ -1,6 +1,45 @@
-27a28
-> import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-130c131
-<     } catch (Exception ex) {
+37a38,40
+> import org.apache.maven.model.Plugin;
+> import org.apache.maven.model.PluginExecution;
+> import org.apache.maven.model.ConfigurationContainer;
+160,166c163,194
+<     return Optional.ofNullable(project.getPlugin("org.bsc.maven:maven-processor-plugin"))
+<         .map(plugin -> plugin.getExecutionsAsMap().get("process"))
+<         .map(exec -> (Xpp3Dom) exec.getConfiguration())
+<         .map(config -> config.getChild("processors"))
+<         .map(Xpp3Dom::getChildren)
+<         .map(arr -> Arrays.stream(arr).map(Xpp3Dom::getValue).collect(Collectors.toSet()))
+<         .orElse(of());
 ---
->     } catch (IOException | XmlPullParserException ex) {
+>     Plugin plugin = project.getPlugin("org.bsc.maven:maven-processor-plugin");
+> 
+>     if (plugin == null) {
+>       return of();
+>     }
+> 
+>     PluginExecution execution = plugin.getExecutionsAsMap().get("process");
+> 
+>     if (execution == null) {
+>       return of();
+>     }
+> 
+>     Object configuration = execution.getConfiguration();
+> 
+>     if (!(configuration instanceof Xpp3Dom)) {
+>       return of();
+>     }
+> 
+>     Xpp3Dom config = (Xpp3Dom) configuration;
+>     Xpp3Dom processors = config.getChild("processors");
+> 
+>     if (processors == null) {
+>       return of();
+>     }
+> 
+>     Xpp3Dom[] processorArray = processors.getChildren();
+> 
+>     if (processorArray == null) {
+>       return of();
+>     }
+> 
+>     return Arrays.stream(processorArray).map(Xpp3Dom::getValue).collect(Collectors.toSet());

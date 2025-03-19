@@ -1,23 +1,74 @@
-18d17
+18,20d17
 < import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
-20d18
+< import com.google.api.services.cloudresourcemanager.model.Constraint;
 < import com.google.api.services.cloudresourcemanager.model.ListConstraint;
-23a22,23
-> import com.google.cloud.resourcemanager.model.BooleanConstraint;
-> import com.google.cloud.resourcemanager.model.ListConstraint;
-115c115,118
+35,36c32,33
+<   static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+<       new Function<Constraint, ConstraintInfo>() {
+---
+>   static final Function<ConstraintInfo, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+>       new Function<ConstraintInfo, ConstraintInfo>() {
+38c35
+<         public ConstraintInfo apply(Constraint protobuf) {
+---
+>         public ConstraintInfo apply(ConstraintInfo protobuf) {
+42,43c39,40
+<   static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION =
+<       new Function<ConstraintInfo, Constraint>() {
+---
+>   static final Function<ConstraintInfo, ConstraintInfo> TO_PROTOBUF_FUNCTION =
+>       new Function<ConstraintInfo, ConstraintInfo>() {
+45c42
+<         public Constraint apply(ConstraintInfo constraintInfo) {
+---
+>         public ConstraintInfo apply(ConstraintInfo constraintInfo) {
+114,115c111,112
+<     ListConstraint toProtobuf() {
 <       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
 ---
->       ListConstraint listConstraint = new ListConstraint();
->       listConstraint.setSuggestedValue(suggestedValue);
->       listConstraint.setSupportsUnder(supportsUnder);
->       return listConstraint;
-282c285,286
-<     builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint());
+>     ConstraintInfo toProtobuf() {
+>       return new ConstraintInfo.Builder("").build();
+118,119c115,116
+<     static Constraints fromProtobuf(ListConstraint listConstraint) {
+<       return new Constraints(listConstraint.getSuggestedValue(), listConstraint.getSupportsUnder());
 ---
->     builder.setBooleanConstraint(
->         (com.google.cloud.resourcemanager.model.BooleanConstraint) constraintProtobuf.getBooleanConstraint());
-287c291
+>     static Constraints fromProtobuf(ConstraintInfo listConstraint) {
+>       return new Constraints(null, null);
+266,287c263,264
+<   Constraint toProtobuf() {
+<     Constraint constraintProto = new Constraint();
+<     constraintProto.setBooleanConstraint(booleanConstraint);
+<     constraintProto.setConstraintDefault(constraintDefault);
+<     constraintProto.setDescription(description);
+<     constraintProto.setDisplayName(displayName);
+<     if (constraints != null) {
+<       constraintProto.setListConstraint(constraints.toProtobuf());
+<     }
+<     constraintProto.setName(name);
+<     constraintProto.setVersion(version);
+<     return constraintProto;
+<   }
+< 
+<   static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) {
+<     Builder builder = newBuilder(constraintProtobuf.getName());
+<     builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint());
+<     builder.setConstraintDefault(constraintProtobuf.getConstraintDefault());
+<     builder.setDescription(constraintProtobuf.getDescription());
+<     builder.setDisplayName(constraintProtobuf.getDisplayName());
+<     if (constraintProtobuf.getListConstraint() != null) {
 <       builder.setConstraints(Constraints.fromProtobuf(constraintProtobuf.getListConstraint()));
 ---
->       builder.setConstraints(Constraints.fromProtobuf((ListConstraint) constraintProtobuf.getListConstraint()));
+>   ConstraintInfo toProtobuf() {
+>     return new ConstraintInfo.Builder("").build();
+289,292c266,268
+<     if (constraintProtobuf.getName() != null && !constraintProtobuf.getName().equals("Unnamed")) {
+<       builder.setName(constraintProtobuf.getName());
+<     }
+<     builder.setVersion(constraintProtobuf.getVersion());
+---
+> 
+>   static ConstraintInfo fromProtobuf(ConstraintInfo constraintProtobuf) {
+>     Builder builder = newBuilder("");
+294a271,272
+> 
+>   public static class BooleanConstraint {}

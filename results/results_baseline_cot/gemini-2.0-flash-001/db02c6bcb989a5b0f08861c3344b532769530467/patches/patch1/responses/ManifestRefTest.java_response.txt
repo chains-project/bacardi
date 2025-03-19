@@ -1,8 +1,3 @@
-/*
- * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
- * https://github.com/artipie/docker-adapter/LICENSE.txt
- */
-
 package com.artipie.docker.ref;
 
 import com.artipie.docker.Digest;
@@ -54,7 +49,7 @@ public final class ManifestRefTest {
             throwable.getMessage(),
             new AllOf<>(
                 Arrays.asList(
-                    new StringContains("Unsupported reference"),
+                    new StringContains( "Unsupported reference"),
                     Matchers.not(new StringContains(string))
                 )
             )

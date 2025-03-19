@@ -346,8 +346,8 @@ public class ReportBuilder
 		final Font f = style.getFont();
 		txtField.setFontName(f.getName());
 		txtField.setFontSize(Float.valueOf(f.getSize()));
-		txtField.setBold(f.isBold());
-		txtField.setItalic(f.isItalic());
+		txtField.setBold(Boolean.valueOf(f.isBold()));
+		txtField.setItalic(Boolean.valueOf(f.isItalic()));
 		txtField.setHorizontalTextAlign(style.getHorizontalAlignment().getHorizontalTextAlignEnum());
 		
 		

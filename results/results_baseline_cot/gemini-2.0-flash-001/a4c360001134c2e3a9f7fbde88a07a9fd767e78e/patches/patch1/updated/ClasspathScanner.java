@@ -1,8 +1,3 @@
-/*----------------------------------------------------------------
- *  Copyright (c) ThoughtWorks, Inc.
- *  Licensed under the Apache License, V2.0
- *  See LICENSE.txt in the project root for license information.
- *----------------------------------------------------------------*/
 package com.thoughtworks.gauge.scan;
 
 import com.thoughtworks.gauge.ClasspathHelper;
@@ -62,13 +57,13 @@ public class ClasspathScanner {
     private boolean shouldScan(String s) {
         final String packagesToScan = System.getenv(PACKAGE_TO_SCAN);
         if (packagesToScan == null || packagesToScan.isEmpty()) {
-            Predicate<String> filter = new FilterBuilder().include(".+\\.class");
+            Predicate<String> filter = new FilterBuilder().include(".+\\.class").build();
             return filter.test(s);
         }
         final String[] packages = packagesToScan.split(",");
         for (String packageToScan : packages) {
             String regex = String.format(".?\\.??%s\\..+\\.class", packageToScan);
-            Predicate<String> filter = new FilterBuilder().include(regex);
+            Predicate<String> filter = new FilterBuilder().include(regex).build();
             if (filter.test(s)) {
                 return true;
             }

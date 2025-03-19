@@ -4,7 +4,7 @@
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * Unless required by applicable law or agreed to in writing, software is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  *
@@ -13,8 +13,6 @@
 package org.assertj.vavr.api;
 
 import io.vavr.control.Try;
-import net.bytebuddy.dynamic.loading.ClassInjector;
-import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
@@ -26,12 +24,12 @@ class ClassLoadingStrategyFactory {
         () -> MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class)
     ).getOrElse((Method) null);
 
-    static ClassLoadingStrategy<ClassLoader> classLoadingStrategy(Class<?> assertClass) {
-        if (ClassInjector.UsingReflection.isAvailable()) {
-            return ClassLoadingStrategy.Default.INJECTION;
-        } else if (ClassInjector.UsingLookup.isAvailable() && PRIVATE_LOOKUP_IN != null) {
+    static Object classLoadingStrategy(Class<?> assertClass) {
+        if (isInjectionAvailable()) {
+            return InjectionType.INJECTION;
+        } else if (isLookupAvailable() && PRIVATE_LOOKUP_IN != null) {
             try {
-                return ClassLoadingStrategy.UsingLookup.of(MethodHandles.privateLookupIn(assertClass, LOOKUP));
+                return LookupStrategy.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));
             } catch (Exception e) {
                 throw new IllegalStateException("Could not access package of " + assertClass, e);
             }
@@ -40,4 +38,35 @@ class ClassLoadingStrategyFactory {
         }
     }
 
+    private static boolean isInjectionAvailable() {
+        try {
+            Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingReflection");
+            Method isAvailable = Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingReflection").getMethod("isAvailable");
+            return (Boolean) isAvailable.invoke(null);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private static boolean isLookupAvailable() {
+        try {
+            Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingLookup");
+            Method isAvailable = Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingLookup").getMethod("isAvailable");
+            return (Boolean) isAvailable.invoke(null);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private enum InjectionType {
+        INJECTION
+    }
+
+    private enum LookupStrategy {
+        LOOKUP;
+
+        static LookupStrategy of(Object o) {
+            return LOOKUP;
+        }
+    }
 }

@@ -1,16 +1,15 @@
 12a13
 > import java.nio.charset.StandardCharsets;
-16,17c17,18
+16,17c17
 < import org.cactoos.io.BytesOf;
 < import org.cactoos.text.HexOf;
 ---
-> import org.apache.commons.io.IOUtils;
 > import org.apache.commons.codec.binary.Hex;
-54c55
-<                         sha.update(buf);
----
->                         sha.update(IOUtils.toByteArray(buf.openStream()));
-61c62
+61c61,65
 <                     () -> new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
 ---
->                     () -> new Digest.Sha256(new String(Hex.encodeHex(sha.digest())))
+>                     () -> {
+>                         final byte[] digest = sha.digest();
+>                         final char[] encoded = Hex.encodeHex(digest);
+>                         return new Digest.Sha256(new String(encoded));
+>                     }

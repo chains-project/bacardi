@@ -8,7 +8,7 @@ import fr.spoonlabs.flacoco.core.config.FlacocoConfig;
 import fr.spoonlabs.flacoco.core.test.TestContext;
 import org.apache.log4j.Logger;
 import org.apache.maven.plugin.surefire.util.DirectoryScanner;
-import org.apache.maven.shared.utils.io.SelectorUtils;
+import org.apache.maven.surefire.api.testset.TestRequest;
 
 import java.io.File;
 import java.util.concurrent.TimeoutException;
@@ -89,15 +89,13 @@ public abstract class TestFrameworkStrategy {
 	protected String computeJacocoIncludes() {
 		StringBuilder includes = new StringBuilder();
 		for (String directory : config.getBinJavaDir()) {
-			DirectoryScanner directoryScanner = new DirectoryScanner(new File(directory), SelectorUtils.DEFAULT_INCLUDES);
-			directoryScanner.scan();
-			includes.append(":").append(directoryScanner.getClasses().stream().reduce((x, y) -> x + ":" + y).orElse(""));
+			DirectoryScanner directoryScanner = new DirectoryScanner(new File(directory), new TestRequest().getWildcard());
+			includes.append(":").append(directoryScanner.scan().getClasses().stream().reduce((x, y) -> x + ":" + y).orElse(""));
 		}
 		if (config.isCoverTests()) {
 			for (String directory : config.getBinTestDir()) {
-				DirectoryScanner directoryScanner = new DirectoryScanner(new File(directory), SelectorUtils.DEFAULT_INCLUDES);
-				directoryScanner.scan();
-				includes.append(":").append(directoryScanner.getClasses().stream().reduce((x, y) -> x + ":" + y).orElse(""));
+				DirectoryScanner directoryScanner = new DirectoryScanner(new File(directory),  new TestRequest().getWildcard());
+				includes.append(":").append(directoryScanner.scan().getClasses().stream().reduce((x, y) -> x + ":" + y).orElse(""));
 			}
 		}
 		return includes.toString();

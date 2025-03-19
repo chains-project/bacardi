@@ -1,10 +1,72 @@
-20d19
+1,15d0
+< /*
+<  * Copyright 2020 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+19,20c4
+< import com.google.cloud.pubsublite.ProjectPath;
 < import com.google.cloud.pubsublite.PublishMetadata;
-27a27
-> import com.google.cloud.pubsublite.proto.PubsubMessage;
-36c36
+---
+> import com.google.cloud.pubsublite.ProjectName;
+23c7,8
+< import com.google.cloud.pubsublite.internal.Publisher;
+---
+> import com.google.cloud.pubsublite.v1.PublisherServiceClient;
+> import com.google.cloud.pubsublite.v1.PublisherServiceSettings;
+25a11
+> import com.google.cloud.pubsublite.internal.wire.RoutingPublisher;
+26a13
+> import com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisher;
+27a15,16
+> import com.google.protobuf.ByteString;
+> import java.io.IOException;
+36c25
 <   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
 ---
->   public Publisher<PubsubMessage> newPublisher(Map<String, String> params) {
-53d52
-<                 .setContext(PubsubContext.of(FRAMEWORK))
+>   public RoutingPublisher newPublisher(Map<String, String> params) {
+42,45c31,34
+<                 ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
+<                     .project())
+<             .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
+<             .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
+---
+>                 ProjectName.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
+>                     .toString())
+>             .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()).toString())
+>             .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()).toString())
+47c36
+<     builder.setTopic(topic);
+---
+>     builder.setTopicPath(topic.toString());
+49,51c38,44
+<         partition ->
+<             SinglePartitionPublisherBuilder.newBuilder()
+<                 .setTopic(topic)
+---
+>         partition -> {
+>           try {
+>             PublisherServiceSettings publisherServiceSettings = PublisherServiceSettings.newBuilder().build();
+>             PublisherServiceClient publisherServiceClient = PublisherServiceClient.create(publisherServiceSettings);
+> 
+>             return SinglePartitionPublisher.newBuilder()
+>                     .setTopic(topic.toString())
+54c47,52
+<                 .build());
+---
+>                     .setPublisherServiceClient(publisherServiceClient)
+>                     .build();
+>           } catch (IOException e) {
+>             throw new RuntimeException(e);
+>           }
+>         });

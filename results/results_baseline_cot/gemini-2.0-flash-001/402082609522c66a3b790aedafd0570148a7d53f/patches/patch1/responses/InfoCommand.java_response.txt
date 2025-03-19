@@ -21,7 +21,7 @@ import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
-public class InfoCommand implements Command.Parameterized, ChangeSkinCommand {
+public class InfoCommand implements Command, ChangeSkinCommand {
 
     @Inject
     private ChangeSkinSponge plugin;
@@ -30,7 +30,6 @@ public class InfoCommand implements Command.Parameterized, ChangeSkinCommand {
     private SkinFormatter formatter;
 
 
-    @Override
     public CommandResult execute(Subject src, CommandContext args) {
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
@@ -49,8 +48,8 @@ public class InfoCommand implements Command.Parameterized, ChangeSkinCommand {
     }
 
     @Override
-    public Command.Builder buildSpec() {
-        return Command.builder()
+    public org.spongepowered.api.command.Command.Builder build() {
+        return org.spongepowered.api.command.Command.builder()
                 .executor(this)
                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base");
     }
@@ -71,5 +70,10 @@ public class InfoCommand implements Command.Parameterized, ChangeSkinCommand {
                 plugin.sendMessage(player, "skin-not-found");
             }
         }
+    }
+
+    @Override
+    public Parameter.Value<?<?>> getParameter() {
+        return null;
     }
 }

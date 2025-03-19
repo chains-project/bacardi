@@ -7,8 +7,8 @@
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is made
- * subject to the following conditions:
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
@@ -162,7 +162,9 @@ final class FileProxySliceTest {
             new SliceHasResponse(
                 Matchers.allOf(
                     new RsHasStatus(RsStatus.OK), new RsHasBody(body),
-                    new AbstractMap.SimpleEntry<>("Content-Length", String.valueOf(body.length))
+                    new RsHasHeaders(
+                        new AbstractMap.SimpleEntry<>("Content-Length", String.valueOf(body.length))
+                    )
                 ),
                 new RequestLine(RqMethod.GET, String.format("/%s", key))
             )
@@ -192,6 +194,11 @@ final class FileProxySliceTest {
             this.storage.list(Key.ROOT).join().isEmpty(),
             new IsEqual<>(true)
         );
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
     }
 
     /**

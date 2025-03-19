@@ -17,10 +17,9 @@ import org.spongepowered.api.Platform;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.network.channel.raw.RawDataChannel;
 import org.spongepowered.api.network.channel.raw.RawDataListener;
-import org.spongepowered.api.network.channel.ChannelRegistrar;
+import org.spongepowered.api.network.ChannelBuf;
+import org.spongepowered.api.network.ChannelRegistrar;
 import org.spongepowered.api.network.RemoteConnection;
-
-import io.netty.buffer.ByteBuf;
 
 import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
 import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
@@ -39,8 +38,11 @@ public class CheckPermissionListener implements RawDataListener {
     }
 
     @Override
-    public void handlePayload(RawDataChannel channel, RemoteConnection connection, ByteBuf data) {
-        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+    public void handlePayload(ChannelBuf data, RemoteConnection connection, Platform.Type side) {
+
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.asByteArray());
+        CheckPermMessage checkMessage = new CheckPermMessage();
+        checkMessage.readFrom(dataInput);
 
         CheckPermMessage message = new CheckPermMessage();
         message.readFrom(dataInput);
@@ -79,7 +81,7 @@ public class CheckPermissionListener implements RawDataListener {
     private void sendResultMessage(Player receiver, PermResultMessage resultMessage) {
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
         resultMessage.writeTo(dataOutput);
-        permissionsResultChannel.sendTo(receiver, dataOutput::toByteArray);
+        permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
     }
 }
 ```

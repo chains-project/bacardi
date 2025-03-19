@@ -1,8 +1,102 @@
-26,28d25
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+26,28c10,15
 < import com.google.api.services.translate.model.DetectionsResourceItems;
 < import com.google.api.services.translate.model.LanguagesResource;
 < import com.google.api.services.translate.model.TranslationsResource;
-37a35,37
-> import com.google.api.services.translate.model.DetectionsResourceItems;
-> import com.google.api.services.translate.model.LanguagesResource;
-> import com.google.api.services.translate.model.TranslationsResource;
+---
+> import com.google.api.services.translate.model.DetectLanguageResponse;
+> import com.google.api.services.translate.model.DetectionsListResponse;
+> import com.google.api.services.translate.model.Language;
+> import com.google.api.services.translate.model.LanguagesListResponse;
+> import com.google.api.services.translate.model.TranslateResponse;
+> import com.google.api.services.translate.model.Translation;
+35a23
+> import java.util.ArrayList;
+69c57
+<   public List<List<DetectionsResourceItems>> detect(List<String> texts) {
+---
+>   public List<List<DetectLanguageResponse>> detect(List<String> texts) {
+71,73c59,62
+<       List<List<DetectionsResourceItems>> detections =
+<           translate.detections().list(texts).setKey(options.getApiKey()).execute().getDetections();
+<       return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
+---
+>       Translate.Detections.List request = translate.detections().list(texts).setKey(options.getApiKey());
+>       DetectionsListResponse response = request.execute();
+>       List<List<DetectLanguageResponse>> detections = response.getDetections();
+>       return detections != null ? detections : ImmutableList.<List<DetectLanguageResponse>>of();
+80c69
+<   public List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
+---
+>   public List<Language> listSupportedLanguages(Map<Option, ?> optionMap) {
+82,92c71,76
+<       List<LanguagesResource> languages =
+<           translate
+<               .languages()
+<               .list()
+<               .setKey(options.getApiKey())
+<               .setTarget(
+<                   firstNonNull(
+<                       Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
+<               .execute()
+<               .getLanguages();
+<       return languages != null ? languages : ImmutableList.<LanguagesResource>of();
+---
+>       Translate.Languages.List request = translate.languages().list().setKey(options.getApiKey());
+>       String target = firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
+>       request.setTarget(target);
+>       LanguagesListResponse response = request.execute();
+>       List<Language> languages = response.getLanguages();
+>       return languages != null ? languages : ImmutableList.<Language>of();
+99c83
+<   public List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap) {
+---
+>   public List<Translation> translate(List<String> texts, Map<Option, ?> optionMap) {
+104,113c88,97
+<       List<TranslationsResource> translations =
+<           translate
+<               .translations()
+<               .list(texts, targetLanguage)
+<               .setSource(sourceLanguage)
+<               .setKey(options.getApiKey())
+<               .setModel(Option.MODEL.getString(optionMap))
+<               .setFormat(Option.FORMAT.getString(optionMap))
+<               .execute()
+<               .getTranslations();
+---
+> 
+>       Translate.Translations.List request = translate.translations().list(texts, targetLanguage);
+>       request.setSource(sourceLanguage);
+>       request.setKey(options.getApiKey());
+>       request.setModel(Option.MODEL.getString(optionMap));
+>       request.setFormat(Option.FORMAT.getString(optionMap));
+> 
+>       TranslateResponse response = request.execute();
+>       List<Translation> translations = response.getTranslations();
+> 
+115,116c99,100
+<           translations != null ? translations : ImmutableList.<TranslationsResource>of(),
+<           new Function<TranslationsResource, TranslationsResource>() {
+---
+>           translations != null ? translations : ImmutableList.<Translation>of(),
+>           new Function<Translation, Translation>() {
+118c102
+<             public TranslationsResource apply(TranslationsResource translationsResource) {
+---
+>             public Translation apply(Translation translationsResource) {

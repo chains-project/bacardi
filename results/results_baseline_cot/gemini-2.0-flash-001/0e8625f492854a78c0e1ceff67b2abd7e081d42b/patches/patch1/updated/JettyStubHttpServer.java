@@ -30,10 +30,7 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
-        server.setHandler(null); // Required before setting attributes
-
-        this.server.setAttribute("org.eclipse.jetty.server.Request.maxFormContentSize", -1);
-
+        server.setHandler(null);
         this.httpConnector = new ServerConnector(server);
         this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);

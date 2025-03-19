@@ -5,7 +5,6 @@ import com.github.games647.changeskin.core.shared.task.SharedSkinChanger;
 import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-
 import org.spongepowered.api.command.CommandCause;
 
 public class SkinChanger extends SharedSkinChanger {

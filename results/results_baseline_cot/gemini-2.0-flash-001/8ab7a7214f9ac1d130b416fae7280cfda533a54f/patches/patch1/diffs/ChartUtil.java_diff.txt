@@ -1,14 +1,24 @@
 7c7
 < import com.gargoylesoftware.htmlunit.ScriptResult;
 ---
-> import net.sourceforge.htmlunit.corejs.javascript.ScriptableObject;
-35,36c35,36
+> import org.openqa.selenium.JavascriptExecutor;
+31c31
+<             Object result = pageObject.executeScript(String.format(
+---
+>             Object result = ((JavascriptExecutor) pageObject.driver).executeScript(String.format(
+35,36c35
 <             ScriptResult scriptResult = new ScriptResult(result);
 <             return scriptResult.getJavaScriptResult().toString();
 ---
->             String scriptResult = ScriptableObject.getProperty(pageObject.getCurrentWindow(), result).toString();
->             return scriptResult;
-60c60
-<                 Object scriptResult = new ScriptResult(result).getJavaScriptResult();
+>             return String.valueOf(result);
+55c54
+<                 Object result = pageObject.executeScript(String.format(
 ---
->                 Object scriptResult = ScriptableObject.getProperty(pageObject.getCurrentWindow(), result);
+>                 Object result = ((JavascriptExecutor) pageObject.driver).executeScript(String.format(
+60,62c59,60
+<                 Object scriptResult = new ScriptResult(result).getJavaScriptResult();
+<                 if (scriptResult != null) {
+<                     return scriptResult.toString();
+---
+>                 if (result != null) {
+>                     return result.toString();

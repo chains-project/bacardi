@@ -1,13 +1,30 @@
-38,44d37
-< import javax.annotation.Nullable;
+1,18d0
+< //
+< // Wire
+< // Copyright (C) 2016 Wire Swiss GmbH
+< //
+< // This program is free software: you can redistribute it and/or modify
+< // it under the terms of the GNU General Public License as published by
+< // the Free Software Foundation, either version 3 of the License, or
+< // (at your option) any later version.
+< //
+< // This program is distributed in the hope that it will be useful,
+< // but WITHOUT ANY WARRANTY; without even the implied warranty of
+< // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+< // GNU General Public License for more details.
+< //
+< // You should have received a copy of the GNU General Public License
+< // along with this program. If not, see http://www.gnu.org/licenses/.
+< //
+< 
+39,44d20
 < import javax.ws.rs.NotSupportedException;
 < import javax.ws.rs.client.Client;
 < import javax.ws.rs.client.Entity;
 < import javax.ws.rs.client.Invocation;
 < import javax.ws.rs.client.WebTarget;
 < import javax.ws.rs.core.*;
-51a45,55
-> import jakarta.annotation.Nullable;
+51a28,38
 > import jakarta.ws.rs.NotSupportedException;
 > import jakarta.ws.rs.client.Client;
 > import jakarta.ws.rs.client.Entity;
@@ -17,82 +34,13 @@
 > import jakarta.ws.rs.core.MediaType;
 > import jakarta.ws.rs.core.Response;
 > import jakarta.ws.rs.core.HttpHeaders;
+> import jakarta.ws.rs.core.GenericType;
 > 
-128,130c132,134
-<                 .request(MediaType.APPLICATION_JSON)
-<                 .header(HttpHeaders.AUTHORIZATION, bearer())
-<                 .post(Entity.entity(msg, MediaType.APPLICATION_JSON));
----
->                 .request(jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
->                 .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, bearer())
->                 .post(Entity.entity(msg, jakarta.ws.rs.core.MediaType.APPLICATION_JSON));
-149,151c153,155
-<                 .request(MediaType.APPLICATION_JSON)
-<                 .header(HttpHeaders.AUTHORIZATION, bearer())
-<                 .post(Entity.entity(msg, MediaType.APPLICATION_JSON));
----
->                 .request(jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
->                 .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, bearer())
->                 .post(Entity.entity(msg, jakarta.ws.rs.core.MediaType.APPLICATION_JSON));
-170,171c174,175
-<                 .request(MediaType.APPLICATION_JSON)
-<                 .header(HttpHeaders.AUTHORIZATION, bearer())
----
->                 .request(jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
->                 .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, bearer())
-180,181c184,185
-<                 .request(MediaType.APPLICATION_JSON)
-<                 .header(HttpHeaders.AUTHORIZATION, bearer())
----
->                 .request(jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
->                 .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, bearer())
-189,190c193,194
-<                 .header(HttpHeaders.AUTHORIZATION, bearer())
-<                 .accept(MediaType.APPLICATION_JSON)
----
->                 .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, bearer())
->                 .accept(jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
-197,200c201,204
-<                 .request(MediaType.APPLICATION_JSON)
-<                 .header(HttpHeaders.AUTHORIZATION, bearer())
-<                 .accept(MediaType.APPLICATION_JSON)
-<                 .post(Entity.entity(missing, MediaType.APPLICATION_JSON), PreKeys.class);
----
->                 .request(jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
->                 .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, bearer())
->                 .accept(jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
->                 .post(Entity.entity(missing, jakarta.ws.rs.core.MediaType.APPLICATION_JSON), PreKeys.class);
-207,208c211,212
-<                 .header(HttpHeaders.AUTHORIZATION, bearer())
-<                 .accept(MediaType.APPLICATION_JSON)
----
->                 .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, bearer())
->                 .accept(jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
-219,222c223,226
-<                 .request(MediaType.APPLICATION_JSON)
-<                 .header(HttpHeaders.AUTHORIZATION, bearer())
-<                 .accept(MediaType.APPLICATION_JSON)
-<                 .post(Entity.entity(model, MediaType.APPLICATION_JSON));
----
->                 .request(jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
->                 .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, bearer())
->                 .accept(jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
->                 .post(Entity.entity(model, jakarta.ws.rs.core.MediaType.APPLICATION_JSON));
-265,266c269,270
+265c252
 <                 .request(MediaType.APPLICATION_JSON_TYPE)
-<                 .header(HttpHeaders.AUTHORIZATION, bearer())
 ---
 >                 .request(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE)
->                 .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, bearer())
-281c285
+281c268
 <         BodyPart bodyPart1 = new BodyPart(metaData, MediaType.APPLICATION_JSON_TYPE);
 ---
 >         BodyPart bodyPart1 = new BodyPart(metaData, jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE);
-299c303
-<                 .header(HttpHeaders.AUTHORIZATION, bearer());
----
->                 .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, bearer());
-310c314
-<         final String location = response.getHeaderString(HttpHeaders.LOCATION);
----
->         final String location = response.getHeaderString(jakarta.ws.rs.core.HttpHeaders.LOCATION);

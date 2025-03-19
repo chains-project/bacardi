@@ -1,16 +1,18 @@
-3c3
+1,5d0
+< /*----------------------------------------------------------------
+<  *  Copyright (c) ThoughtWorks, Inc.
 <  *  Licensed under the Apache License, Version 2.0
----
->  *  Licensed under the Apache License, V2.0
-20a21
+<  *  See LICENSE.txt in the project root for license information.
+<  *----------------------------------------------------------------*/
+20a16
 > import java.util.function.Predicate;
-64c65,66
+64c60,61
 <             return new FilterBuilder().include(".+\\.class").apply(s);
 ---
->             Predicate<String> filter = new FilterBuilder().include(".+\\.class");
+>             Predicate<String> filter = new FilterBuilder().include(".+\\.class").build();
 >             return filter.test(s);
-69c71,72
+69c66,67
 <             if (new FilterBuilder().include(regex).apply(s)) {
 ---
->             Predicate<String> filter = new FilterBuilder().include(regex);
+>             Predicate<String> filter = new FilterBuilder().include(regex).build();
 >             if (filter.test(s)) {

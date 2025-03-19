@@ -1,5 +1,5 @@
 ```java
-//
+    //
 // Wire
 // Copyright (C) 2016 Wire Swiss GmbH
 //
@@ -127,10 +127,4 @@ public class BotsResource {
         return handler.onNewBot(newBot, auth);
     }
 }
-```</error_message>
-</code_analysis>
-
-The error message indicates that the `javax.ws.rs.*` and `javax.ws.rs.core.*` packages are not found. This suggests that the JAX-RS API dependency is either missing or has been updated to a newer version that uses a different package name. Jakarta EE 9 and later versions use `jakarta.ws.rs.*` instead of `javax.ws.rs.*`.
-
-The fix involves changing the import statements from `javax.ws.rs.*` and `javax.ws.rs.core.*` to `jakarta.ws.rs.*` and `jakarta.ws.rs.core.*` respectively, and `javax.validation.*` to `jakarta.validation.*`. This aligns the code with the updated JAX-RS API.
-
+```

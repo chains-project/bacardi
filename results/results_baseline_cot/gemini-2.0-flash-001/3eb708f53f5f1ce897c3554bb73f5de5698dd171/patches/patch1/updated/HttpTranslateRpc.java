@@ -1,19 +1,3 @@
-/*
- * Copyright 2016 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.google.cloud.translate.spi.v2;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -23,6 +7,12 @@ import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.translate.Translate;
+import com.google.api.services.translate.model.DetectLanguageResponse;
+import com.google.api.services.translate.model.DetectionsListResponse;
+import com.google.api.services.translate.model.Language;
+import com.google.api.services.translate.model.LanguagesListResponse;
+import com.google.api.services.translate.model.TranslateResponse;
+import com.google.api.services.translate.model.Translation;
 import com.google.cloud.http.HttpTransportOptions;
 import com.google.cloud.translate.TranslateException;
 import com.google.cloud.translate.TranslateOptions;
@@ -30,11 +20,9 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import com.google.api.services.translate.model.DetectionsResourceItems;
-import com.google.api.services.translate.model.LanguagesResource;
-import com.google.api.services.translate.model.TranslationsResource;
 
 public class HttpTranslateRpc implements TranslateRpc {
 
@@ -66,56 +54,52 @@ public class HttpTranslateRpc implements TranslateRpc {
   }
 
   @Override
-  public List<List<DetectionsResourceItems>> detect(List<String> texts) {
+  public List<List<DetectLanguageResponse>> detect(List<String> texts) {
     try {
-      List<List<DetectionsResourceItems>> detections =
-          translate.detections().list(texts).setKey(options.getApiKey()).execute().getDetections();
-      return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
+      Translate.Detections.List request = translate.detections().list(texts).setKey(options.getApiKey());
+      DetectionsListResponse response = request.execute();
+      List<List<DetectLanguageResponse>> detections = response.getDetections();
+      return detections != null ? detections : ImmutableList.<List<DetectLanguageResponse>>of();
     } catch (IOException ex) {
       throw translate(ex);
     }
   }
 
   @Override
-  public List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
+  public List<Language> listSupportedLanguages(Map<Option, ?> optionMap) {
     try {
-      List<LanguagesResource> languages =
-          translate
-              .languages()
-              .list()
-              .setKey(options.getApiKey())
-              .setTarget(
-                  firstNonNull(
-                      Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
-              .execute()
-              .getLanguages();
-      return languages != null ? languages : ImmutableList.<LanguagesResource>of();
+      Translate.Languages.List request = translate.languages().list().setKey(options.getApiKey());
+      String target = firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
+      request.setTarget(target);
+      LanguagesListResponse response = request.execute();
+      List<Language> languages = response.getLanguages();
+      return languages != null ? languages : ImmutableList.<Language>of();
     } catch (IOException ex) {
       throw translate(ex);
     }
   }
 
   @Override
-  public List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap) {
+  public List<Translation> translate(List<String> texts, Map<Option, ?> optionMap) {
     try {
       String targetLanguage =
           firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
       final String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
-      List<TranslationsResource> translations =
-          translate
-              .translations()
-              .list(texts, targetLanguage)
-              .setSource(sourceLanguage)
-              .setKey(options.getApiKey())
-              .setModel(Option.MODEL.getString(optionMap))
-              .setFormat(Option.FORMAT.getString(optionMap))
-              .execute()
-              .getTranslations();
+
+      Translate.Translations.List request = translate.translations().list(texts, targetLanguage);
+      request.setSource(sourceLanguage);
+      request.setKey(options.getApiKey());
+      request.setModel(Option.MODEL.getString(optionMap));
+      request.setFormat(Option.FORMAT.getString(optionMap));
+
+      TranslateResponse response = request.execute();
+      List<Translation> translations = response.getTranslations();
+
       return Lists.transform(
-          translations != null ? translations : ImmutableList.<TranslationsResource>of(),
-          new Function<TranslationsResource, TranslationsResource>() {
+          translations != null ? translations : ImmutableList.<Translation>of(),
+          new Function<Translation, Translation>() {
             @Override
-            public TranslationsResource apply(TranslationsResource translationsResource) {
+            public Translation apply(Translation translationsResource) {
               if (translationsResource.getDetectedSourceLanguage() == null) {
                 translationsResource.setDetectedSourceLanguage(sourceLanguage);
               }

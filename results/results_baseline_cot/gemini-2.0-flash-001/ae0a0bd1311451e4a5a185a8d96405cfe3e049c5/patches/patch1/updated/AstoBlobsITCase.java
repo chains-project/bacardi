@@ -1,7 +1,3 @@
-/*
- * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
- * https://github.com/artipie/docker-adapter/LICENSE.txt
- */
 package com.artipie.docker.asto;
 
 import com.artipie.asto.Content;
@@ -81,11 +77,12 @@ final class AstoBlobsITCase {
                     Throwables.getRootCause(throwable),
                     new IsInstanceOf(InvalidDigestException.class)
                 );
-                final String calculated = "3a6eb0790f39ac87c94f3856b2dd2c5d110e6811602261a9a923d3bb23adc8b7";
                 MatcherAssert.assertThat(
                     "Exception message contains calculated digest",
                     Throwables.getRootCause(throwable).getMessage(),
-                    new StringContains(calculated)
+                    new StringContains(
+                        "3a6eb0790f39ac87c94f3856b2dd2c5d110e6811602261a9a923d3bb23adc8b7"
+                    )
                 );
                 MatcherAssert.assertThat(
                     "Exception message contains expected digest",

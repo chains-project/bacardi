@@ -4,8 +4,9 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 
-import org.jenkinsci.test.acceptance.po.PageObject;
 import org.openqa.selenium.JavascriptExecutor;
+
+import org.jenkinsci.test.acceptance.po.PageObject;
 
 /**
  * Charts are displayed one multiple PageObjects. This util provides some helper methods to deal with charts.
@@ -31,7 +32,7 @@ public class ChartUtil {
                     "delete(window.Array.prototype.toJSON) %n"
                             + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
                     elementId));
-            return result.toString();
+            return String.valueOf(result);
         }
         return null;
     }

@@ -4,8 +4,9 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 
+import org.openqa.selenium.JavascriptExecutor;
+
 import org.jenkinsci.test.acceptance.po.PageObject;
-import net.sf.json.JSONObject;
 
 /**
  * Charts are displayed one multiple PageObjects. This util provides some helper methods to deal with charts.
@@ -27,13 +28,11 @@ public class ChartUtil {
      */
     public static String getChartDataById(final PageObject pageObject, final String elementId) {
         if (isChartDisplayedByElementId(pageObject, elementId)) {
-            Object result = pageObject.executeScript(String.format(
+            Object result = ((JavascriptExecutor) pageObject.driver).executeScript(String.format(
                     "delete(window.Array.prototype.toJSON) %n"
                             + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
                     elementId));
-            if (result != null) {
-                return result.toString();
-            }
+            return String.valueOf(result);
         }
         return null;
     }
@@ -52,7 +51,7 @@ public class ChartUtil {
             final String toolAttribute) {
         if (isChartDisplayedByDivToolAttribute(pageObject, toolAttribute)) {
             for (int i = 0; i < MAX_ATTEMPTS; i++) {
-                Object result = pageObject.executeScript(String.format(
+                Object result = ((JavascriptExecutor) pageObject.driver).executeScript(String.format(
                         "delete(window.Array.prototype.toJSON) %n"
                                 + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
                         toolAttribute));

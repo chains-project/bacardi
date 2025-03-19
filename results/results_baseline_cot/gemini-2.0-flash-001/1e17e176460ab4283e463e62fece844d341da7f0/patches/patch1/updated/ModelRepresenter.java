@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2012 to original author or authors
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
 package org.sonatype.maven.polyglot.yaml;
 
 import org.apache.maven.model.Contributor;
@@ -22,6 +15,9 @@ import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
 
 import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.BeanInfo;
+import java.beans.PropertyDescriptor;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -216,30 +212,37 @@ class ModelRepresenter extends Representer {
    * Change the default order. Important data goes first.
    */
   @Override
-  protected Set<Property> getProperties(Class<? extends Object> type)
-          throws IntrospectionException {
-    if (type.isAssignableFrom(Model.class)) {
-      return sortTypeWithOrder(type, ORDER_MODEL);
-    } else if (type.isAssignableFrom(Developer.class)) {
-      return sortTypeWithOrder(type, ORDER_DEVELOPER);
-    } else if (type.isAssignableFrom(Contributor.class)) {
-      return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-    }  else if (type.isAssignableFrom(Dependency.class)) {
-      return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-    }  else if (type.isAssignableFrom(Plugin.class)) {
-      return sortTypeWithOrder(type, ORDER_PLUGIN);
-    } else {
-      try {
-        return super.getProperties(type);
-      } catch (java.beans.IntrospectionException e) {
-        throw new RuntimeException(e);
+  protected Set<Property> getProperties(Class<? extends Object> type) {
+    try {
+      BeanInfo beanInfo = Introspector.getBeanInfo(type);
+      PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
+
+      Set<Property> properties = new LinkedHashSet<>();
+      for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
+        if (propertyDescriptor.getReadMethod() != null && propertyDescriptor.getWriteMethod() != null) {
+          properties.add(new Property(propertyDescriptor));
+        }
       }
+
+      if (type.isAssignableFrom(Model.class)) {
+        return sortTypeWithOrder(type, ORDER_MODEL, properties);
+      } else if (type.isAssignableFrom(Developer.class)) {
+        return sortTypeWithOrder(type, ORDER_DEVELOPER, properties);
+      } else if (type.isAssignableFrom(Contributor.class)) {
+        return sortTypeWithOrder(type, ORDER_CONTRIBUTOR, properties);
+      } else if (type.isAssignableFrom(Dependency.class)) {
+        return sortTypeWithOrder(type, ORDER_DEPENDENCY, properties);
+      } else if (type.isAssignableFrom(Plugin.class)) {
+        return sortTypeWithOrder(type, ORDER_PLUGIN, properties);
+      } else {
+        return super.getProperties(type);
+      }
+    } catch (IntrospectionException e) {
+      return super.getProperties(type);
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
-          throws IntrospectionException {
-      Set<Property> standard = super.getProperties(type);
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order, Set<Property> standard) {
       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
       sorted.addAll(standard);
       return sorted;

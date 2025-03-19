@@ -1,6 +1,19 @@
-6,7c6,7
-< import javax.inject.Named;
+7c7,10
 < import javax.mvc.RedirectScoped;
 ---
-> import jakarta.inject.Named;
-> import jakarta.mvc.RedirectScoped;
+> import jakarta.faces.view.ViewScoped;
+> import jakarta.enterprise.context.RequestScoped;
+> import jakarta.faces.context.FacesContext;
+> import jakarta.faces.application.FacesMessage;
+14d16
+< @RedirectScoped
+15a18
+> @ViewScoped
+59a63
+>         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, text, null));
+63a68
+>         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, text, null));
+67a73
+>         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, text, null));
+71a78
+>         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, text, null));

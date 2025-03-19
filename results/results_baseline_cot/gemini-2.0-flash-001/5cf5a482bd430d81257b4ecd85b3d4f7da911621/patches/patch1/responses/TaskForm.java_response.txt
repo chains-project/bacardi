@@ -2,8 +2,7 @@ package com.example.web;
 
 import java.io.Serializable;
 import java.util.Objects;
-//import javax.mvc.binding.MvcBinding; // Removed: javax.mvc is deprecated
-import jakarta.mvc.binding.MvcBinding; // Added: Use jakarta.mvc instead
+import jakarta.mvc.binding.MvcBinding;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import javax.ws.rs.FormParam;
