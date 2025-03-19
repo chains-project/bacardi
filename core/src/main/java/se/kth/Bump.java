@@ -77,6 +77,8 @@ public class Bump {
         // Filter by java version incompatibility
         ArrayList<String> listOfJavaVersionIncompatibilities = readJavaVersionIncompatibilities(JAVA_VERSION_INCOMPATIBILITY_FILE);
 
+        ArrayList<String> listOfApiDiff = readJavaVersionIncompatibilities(APIDIFF_FILE);
+
         // List of breaking updates
         // List<BreakingUpdate> breaking =
         // BreakingUpdateProvider.getBreakingUpdatesFromResourcesByCategory(BENCHMARK_PATH,
@@ -128,6 +130,7 @@ public class Bump {
             customThreadPool.submit(() -> breaking.parallelStream()
                     // commitAllChanges
                     .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
+                    .filter(e -> !listOfApiDiff.contains(e.breakingCommit)) // filter by apidiff
                     .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure
                     // category
                     .forEach(e -> {
