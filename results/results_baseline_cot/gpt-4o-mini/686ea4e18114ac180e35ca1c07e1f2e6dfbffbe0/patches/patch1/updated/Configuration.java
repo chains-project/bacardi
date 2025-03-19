@@ -45,7 +45,7 @@ public class Configuration extends io.dropwizard.Configuration {
     private JerseyClientConfiguration jerseyClient = new JerseyClientConfiguration();
 
     @JsonProperty("swagger")
-    public SwaggerBundleConfiguration swagger = new SwaggerBundleConfiguration();
+    public SwaggerBundleConfiguration swagger = new _SwaggerBundleConfiguration();
 
     @JsonProperty
     public String apiHost = "https://prod-nginz-https.wire.com";
@@ -65,18 +65,8 @@ public class Configuration extends io.dropwizard.Configuration {
         public boolean baseline;
     }
 
-    // Removed the underscore prefix from JerseyClientConfiguration subclass
-    public static class JerseyClientConfiguration extends JerseyClientConfiguration {
-        public JerseyClientConfiguration() {
-            setChunkedEncodingEnabled(false);
-            setGzipEnabled(false);
-            setGzipEnabledForRequests(false);
-        }
-    }
-
-    // Removed the underscore prefix from SwaggerBundleConfiguration subclass
-    private static class SwaggerBundleConfiguration extends SwaggerBundleConfiguration {
-        SwaggerBundleConfiguration() {
+    private static class _SwaggerBundleConfiguration extends SwaggerBundleConfiguration {
+        _SwaggerBundleConfiguration() {
             setResourcePackage("com.wire.lithium.server.resources");
         }
     }

@@ -9,7 +9,7 @@ import jakarta.mvc.UriRef;
 import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.binding.MvcBinding;
 import jakarta.mvc.binding.ParamError;
-import jakarta.security.enterprise.csrf.CsrfProtected;
+import jakarta.mvc.security.CsrfProtected;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;

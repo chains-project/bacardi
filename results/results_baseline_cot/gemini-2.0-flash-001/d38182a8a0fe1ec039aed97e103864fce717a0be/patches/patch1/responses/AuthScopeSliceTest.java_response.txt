@@ -1,7 +1,3 @@
-/*
- * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
- * https://github.com/artipie/docker-adapter/LICENSE.txt
- */
 package com.artipie.docker.http;
 
 import com.artipie.asto.Content;
@@ -9,7 +5,6 @@ import com.artipie.http.Headers;
 import com.artipie.http.Response;
 import com.artipie.http.auth.AuthScheme;
 import com.artipie.http.auth.Authentication;
-import com.artipie.http.auth.User;
 import com.artipie.http.rs.StandardRs;
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -54,8 +49,8 @@ class AuthScopeSliceTest {
             (headers, rline) -> CompletableFuture.completedFuture(
                 new AuthScheme.Result() {
                     @Override
-                    public Optional<User> user() {
-                        return Optional.of(new User("alice"));
+                    public Optional<Authentication.Credentials> credentials() {
+                        return Optional.of(new Authentication.Credentials.Simple("alice"));
                     }
 
                     @Override

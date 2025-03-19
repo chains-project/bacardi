@@ -1,23 +1,7 @@
 ```java
-/*
- * Copyright 2016 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.google.cloud.resourcemanager;
 
-import com.google.api.services.cloudresourcemanager.model.Binding;
+import com.google.api.services.cloudresourcemanager.v3.model.Binding; // Updated import
 import com.google.cloud.Identity;
 import com.google.cloud.Policy;
 import com.google.cloud.Policy.Marshaller;
@@ -31,12 +15,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import com.google.api.services.cloudresourcemanager.model.Policy as CloudResourceManagerPolicy; // Updated import
 
 /** @deprecated v3 GAPIC client of ResourceManager is now available */
 @Deprecated
 final class PolicyMarshaller
-    extends Marshaller<CloudResourceManagerPolicy> { // Updated type parameter
+    extends Marshaller<com.google.api.services.cloudresourcemanager.v3.model.Policy> { // Updated import
 
   static final PolicyMarshaller INSTANCE = new PolicyMarshaller();
 
@@ -54,7 +37,7 @@ final class PolicyMarshaller
   }
 
   @Override
-  protected Policy fromPb(CloudResourceManagerPolicy policyPb) { // Updated parameter type
+  protected Policy fromPb(com.google.api.services.cloudresourcemanager.v3.model.Policy policyPb) { // Updated import
     Map<Role, Set<Identity>> bindings = new HashMap<>();
     if (policyPb.getBindings() != null) {
       for (Binding bindingPb : policyPb.getBindings()) {
@@ -75,9 +58,9 @@ final class PolicyMarshaller
   }
 
   @Override
-  protected CloudResourceManagerPolicy toPb(Policy policy) { // Updated return type
-    CloudResourceManagerPolicy policyPb =
-        new CloudResourceManagerPolicy(); // Updated instantiation
+  protected com.google.api.services.cloudresourcemanager.v3.model.Policy toPb(Policy policy) { // Updated import
+    com.google.api.services.cloudresourcemanager.v3.model.Policy policyPb = // Updated import
+        new com.google.api.services.cloudresourcemanager.v3.model.Policy(); // Updated import
     List<Binding> bindingPbList = new LinkedList<>();
     for (Map.Entry<Role, Set<Identity>> binding : policy.getBindings().entrySet()) {
       Binding bindingPb = new Binding();
@@ -99,6 +82,4 @@ final class PolicyMarshaller
     return policyPb;
   }
 }
-``` 
-
-In this patch, I updated the import statement for the `Policy` class from the `com.google.api.services.cloudresourcemanager.model` package to ensure it is correctly referenced. Additionally, I updated the type parameters and method parameters to use the new class reference, ensuring that the code compiles correctly with the updated dependencies.
+```

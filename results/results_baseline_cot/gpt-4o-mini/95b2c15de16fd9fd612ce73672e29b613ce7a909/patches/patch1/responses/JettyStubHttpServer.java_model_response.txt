@@ -9,7 +9,7 @@ import net.jadler.RequestManager;
 import net.jadler.stubbing.server.StubHttpServer;
 import org.apache.commons.lang.Validate;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector; // Updated import
+import org.eclipse.jetty.server.ServerConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +21,7 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
     private final Server server;
-    private final ServerConnector httpConnector; // Updated type
+    private final ServerConnector httpConnector;
 
     public JettyStubHttpServer() {
         this(0);
@@ -30,10 +30,10 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
-        this.server.setAttribute("org.eclipse.jetty.server.Server.sendServerVersion", false); // Updated method
-        this.server.setAttribute("org.eclipse.jetty.server.Server.sendDateHeader", true); // Updated method
+        this.server.setSendServerVersion(false);
+        this.server.setSendDateHeader(true);
 
-        this.httpConnector = new ServerConnector(server); // Updated instantiation
+        this.httpConnector = new ServerConnector(server);
         this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);
     }
@@ -77,15 +77,7 @@ public class JettyStubHttpServer implements StubHttpServer {
      */
     @Override
     public int getPort() {
-        return httpConnector.getLocalPort(); // This method is valid for ServerConnector
+        return httpConnector.getLocalPort();
     }
 }
-``` 
-
-### Summary of Changes:
-1. **Imports Updated**: Changed the import from `SelectChannelConnector` to `ServerConnector` as the latter is the correct class in the newer Jetty versions.
-2. **Connector Type Updated**: Changed the type of `httpConnector` from `Connector` to `ServerConnector`.
-3. **Method Calls Updated**: Replaced the deprecated `setSendServerVersion` and `setSendDateHeader` methods with setting attributes directly on the `Server` instance.
-4. **Instantiation Updated**: Updated the instantiation of `httpConnector` to use `new ServerConnector(server)` instead of `new SelectChannelConnector()`. 
-
-These changes ensure compatibility with the updated Jetty library while maintaining the original functionality of the `JettyStubHttpServer` class.
+```

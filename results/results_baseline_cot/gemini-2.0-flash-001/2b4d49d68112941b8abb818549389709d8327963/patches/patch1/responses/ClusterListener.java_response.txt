@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 1999-2009 Jive Software. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.cluster.Cluster;
@@ -23,7 +8,6 @@ import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.LifecycleEvent;
 import com.hazelcast.core.LifecycleEvent.LifecycleState;
 import com.hazelcast.cluster.MemberAttributeEvent;
-import com.hazelcast.core.HazelcastInstance;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterManager;
 import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
@@ -49,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * ClusterListener reacts to membership changes in the cluster. It takes care of cleaning up the state
  * of the routing table and the sessions within it when a node which manages those sessions goes down.
  */
-public class ClusterListener implements MembershipListener, LifecycleListener {
+public class ClusterListener implements MembershipListener, com.hazelcast.core.LifecycleListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ClusterListener.class);
 
@@ -71,11 +55,10 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
      */
     private boolean clusterMember = false;
     private boolean isSenior;
-    private final HazelcastInstance hazelcastInstance;
 
-    ClusterListener(final HazelcastInstance hazelcastInstance) {
-        this.hazelcastInstance = hazelcastInstance;
-        this.cluster = hazelcastInstance.getCluster();
+    ClusterListener(final Cluster cluster) {
+
+        this.cluster = cluster;
         for (final Member member : cluster.getMembers()) {
             clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(member),
                     new HazelcastClusterNodeInfo(member, cluster.getClusterTime()));

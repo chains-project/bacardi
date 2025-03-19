@@ -41,8 +41,7 @@ public class SSLFilter extends SslFilter {
     private static final String PEER_ADDRESS = "PEER_ADDRESS"; // Added missing variable
 
     public SSLFilter(SSLContext sslContext, boolean autoStart) {
-        super(sslContext); // Updated to match the constructor signature
-        // Note: The boolean parameter is removed as the constructor in the updated dependency does not support it.
+        super(sslContext); // Updated to match the new constructor
     }
 
     public SSLFilter(SSLContext sslContext) {

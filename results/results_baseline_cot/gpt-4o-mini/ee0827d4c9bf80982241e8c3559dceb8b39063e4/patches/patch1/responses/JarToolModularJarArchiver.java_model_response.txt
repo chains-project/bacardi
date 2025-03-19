@@ -42,7 +42,6 @@ import org.apache.commons.compress.parallel.InputStreamSupplier;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.zip.ConcurrentJarCreator;
 import org.codehaus.plexus.util.IOUtil;
-import org.apache.commons.io.output.NullOutputStream; // Updated import
 
 /**
  * A {@link ModularJarArchiver} implementation that uses
@@ -298,7 +297,9 @@ public class JarToolModularJarArchiver
             // Test the output code validating the --date option.
             String[] args = { "--date", "2099-12-31T23:59:59Z", "--version" };
 
-            PrintStream nullPrintStream = NullOutputStream.NULL_OUTPUT_STREAM; // Updated variable
+            PrintStream nullPrintStream = new PrintStream(new java.io.OutputStream() {
+                public void write(int b) {}
+            });
             Integer result = (Integer) runMethod.invoke( jarTool, nullPrintStream, nullPrintStream, args );
 
             return result != null && result.intValue() == 0;

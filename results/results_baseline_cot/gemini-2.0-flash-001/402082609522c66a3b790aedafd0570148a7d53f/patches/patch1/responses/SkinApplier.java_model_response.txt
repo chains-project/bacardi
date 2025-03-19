@@ -1,6 +1,7 @@
 ```java
 package com.github.games647.changeskin.sponge.task;
 
+import org.spongepowered.math.vector.Vector3d;
 import com.github.games647.changeskin.core.model.UserPreference;
 import com.github.games647.changeskin.core.model.skin.SkinModel;
 import com.github.games647.changeskin.core.shared.task.SharedApplier;
@@ -9,16 +10,13 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import java.util.UUID;
 
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.source.CommandSource;
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.tab.TabListEntry;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.api.world.server.ServerWorld;
-import org.spongepowered.math.vector.Vector3d;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
 
 public class SkinApplier extends SharedApplier {
 
@@ -98,18 +96,16 @@ public class SkinApplier extends SharedApplier {
                 .profile(receiver.getProfile())
                 .build());
 
-        Location<World> oldLocation = receiver.getLocation();
+        ServerLocation oldLocation = receiver.getLocation();
         Vector3d rotation = receiver.getRotation();
-        World receiverWorld = receiver.getWorld();
+        ServerWorld receiverWorld = receiver.getWorld();
         Sponge.getServer().getWorlds()
                 .stream()
                 .filter(world -> !world.equals(receiverWorld))
                 .findFirst()
                 .ifPresent(world -> {
-                    if (world instanceof ServerWorld && oldLocation instanceof ServerLocation) {
-                        receiver.setLocation(world.getSpawnLocation());
-                        receiver.setLocationAndRotation(oldLocation, rotation);
-                    }
+                    receiver.setLocation(world.getSpawnLocation());
+                    receiver.setLocationAndRotation(oldLocation, rotation);
                 });
     }
 }

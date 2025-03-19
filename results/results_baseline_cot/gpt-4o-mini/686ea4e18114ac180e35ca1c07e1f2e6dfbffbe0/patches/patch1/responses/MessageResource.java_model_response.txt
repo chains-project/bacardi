@@ -44,8 +44,8 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 @Api
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
+@javax.ws.rs.Produces(MediaType.APPLICATION_JSON)
+@javax.ws.rs.Consumes(MediaType.APPLICATION_JSON)
 @Path("/bots/{bot}/messages")
 public class MessageResource extends MessageResourceBase {
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -125,12 +125,4 @@ public class MessageResource extends MessageResourceBase {
         return repo.getClient(botId);
     }
 }
-``` 
-
-### Changes Made:
-1. **Dependency Update**: The error messages indicate that the `javax.ws.rs` package is not found. This typically means that the JAX-RS dependency is missing or has been updated. Ensure that the correct version of the JAX-RS library is included in your project dependencies (e.g., Maven or Gradle).
-2. **Imports**: The imports for `javax.ws.rs.*` are correct and should work with the appropriate JAX-RS library. If the library is updated, ensure that the correct version is being used in your build configuration.
-3. **No Changes to Function Signatures**: The function signatures remain unchanged as per the requirements.
-4. **No Removal of Code**: Existing code is preserved as it does not cause any compilation or functionality errors. 
-
-Make sure to check your build configuration to ensure that the necessary dependencies are included.
+```

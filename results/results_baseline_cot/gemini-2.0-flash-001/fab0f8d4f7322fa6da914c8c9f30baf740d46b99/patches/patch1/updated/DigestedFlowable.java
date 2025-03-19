@@ -1,7 +1,3 @@
-/*
- * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
- * https://github.com/artipie/docker-adapter/LICENSE.txt
- */
 package com.artipie.docker.misc;
 
 import com.artipie.asto.Remaining;
@@ -9,10 +5,10 @@ import com.artipie.asto.ext.Digests;
 import com.artipie.docker.Digest;
 import io.reactivex.Flowable;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import org.apache.commons.codec.binary.Hex;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
@@ -53,7 +49,7 @@ public final class DigestedFlowable extends Flowable<ByteBuffer> {
             }
         ).doOnComplete(
             () -> this.dig.set(
-                new Digest.Sha256(bytesToHex(sha.digest()))
+                new Digest.Sha256(new String(Hex.encodeHex(sha.digest())))
             )
         ).subscribe(subscriber);
     }
@@ -65,17 +61,5 @@ public final class DigestedFlowable extends Flowable<ByteBuffer> {
      */
     public Digest digest() {
         return Objects.requireNonNull(this.dig.get(), "Digest is not yet calculated.");
-    }
-
-    private static String bytesToHex(byte[] hash) {
-        StringBuilder hexString = new StringBuilder(2 * hash.length);
-        for (byte b : hash) {
-            String hex = Integer.toHexString(0xff & b);
-            if (hex.length() == 1) {
-                hexString.append('0');
-            }
-            hexString.append(hex);
-        }
-        return hexString.toString();
     }
 }

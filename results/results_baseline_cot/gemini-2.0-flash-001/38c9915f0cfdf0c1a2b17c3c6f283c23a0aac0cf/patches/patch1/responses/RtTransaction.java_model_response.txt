@@ -1,26 +1,4 @@
 ```java
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2018-2023 Yegor Bugayenko
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies, and to permit persons to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
 package io.zold.api;
 
 import java.io.IOException;
@@ -30,19 +8,18 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.cactoos.Text;
-import org.cactoos.iterable.IterableOf;
-import org.cactoos.iterable.Mapped;
-import org.cactoos.scalar.IoChecked;
 import org.cactoos.scalar.Sticky;
+import org.cactoos.iterable.LengthOf;
+import org.cactoos.list.ListOf;
+import org.cactoos.scalar.IoChecked;
+import org.cactoos.scalar.ItemAt;
 import org.cactoos.scalar.Unchecked;
 import org.cactoos.text.FormattedText;
-import org.cactoos.text.Split;
+import org.cactoos.text.SplitText;
 import org.cactoos.text.TextOf;
-import org.cactoos.text.Trimmed;
+import org.cactoos.text.TrimmedText;
 import org.cactoos.text.UncheckedText;
 import org.cactoos.time.ZonedDateTimeOf;
-import java.util.Iterator;
-import java.util.ArrayList;
 
 /**
  * RtTransaction.
@@ -97,7 +74,7 @@ final class RtTransaction implements Transaction {
             new Sticky<>(
                 () -> {
                     if (
-                        new Trimmed(
+                        new TrimmedText(
                             new TextOf(trnsct)
                         ).asString().isEmpty()
                     ) {
@@ -106,13 +83,11 @@ final class RtTransaction implements Transaction {
                         );
                     }
                     final List<Text> pieces =
-                        new ArrayList<>();
-                    final Iterator<Text> iterator = new Split(trnsct, ";").iterator();
-                    while (iterator.hasNext()) {
-                        pieces.add(iterator.next());
-                    }
+                        new ListOf<>(
+                            new SplitText(trnsct, ";")
+                        );
                     // @checkstyle MagicNumberCheck (1 line)
-                    if (pieces.size() != 7) {
+                    if (new LengthOf(pieces).intValue() != 7) {
                         throw new IOException(
                             new FormattedText(
                                 // @checkstyle LineLength (1 line)
@@ -132,8 +107,8 @@ final class RtTransaction implements Transaction {
     public int id() throws IOException {
         final String ident = new UncheckedText(
             new IoChecked<>(
-                new org.cactoos.scalar.ItemAt<>(
-                    0, new IterableOf<>(new Split(this.transaction.value(), ";"))
+                new ItemAt<>(
+                    0, new SplitText(this.transaction.value(), ";")
                 )
             ).value()
         ).asString();
@@ -157,8 +132,8 @@ final class RtTransaction implements Transaction {
         return new ZonedDateTimeOf(
             new UncheckedText(
                 new IoChecked<>(
-                    new org.cactoos.scalar.ItemAt<>(
-                        1, new IterableOf<>(new Split(this.transaction.value(), ";"))
+                    new ItemAt<>(
+                        1, new SplitText(this.transaction.value(), ";")
                     )
                 ).value()
             ).asString(),
@@ -170,8 +145,8 @@ final class RtTransaction implements Transaction {
     public long amount() throws IOException {
         final String amnt = new UncheckedText(
             new IoChecked<>(
-                new org.cactoos.scalar.ItemAt<>(
-                    2, new IterableOf<>(new Split(this.transaction.value(), ";"))
+                new ItemAt<>(
+                    2, new SplitText(this.transaction.value(), ";")
                 )
             ).value()
         ).asString();
@@ -194,9 +169,9 @@ final class RtTransaction implements Transaction {
     public String prefix() throws IOException {
         final String prefix = new UncheckedText(
             new IoChecked<>(
-                new org.cactoos.scalar.ItemAt<>(
+                new ItemAt<>(
                     //@checkstyle MagicNumberCheck (1 line)
-                    3, new IterableOf<>(new Split(this.transaction.value(), ";"))
+                    3, new SplitText(this.transaction.value(), ";")
                 )
             ).value()
         ).asString();
@@ -214,9 +189,9 @@ final class RtTransaction implements Transaction {
     public String bnf() throws IOException {
         final String bnf = new UncheckedText(
             new IoChecked<>(
-                new org.cactoos.scalar.ItemAt<>(
+                new ItemAt<>(
                     //@checkstyle MagicNumberCheck (1 line)
-                    4, new IterableOf<>(new Split(this.transaction.value(), ";"))
+                    4, new SplitText(this.transaction.value(), ";")
                 )
             ).value()
         ).asString();
@@ -238,9 +213,9 @@ final class RtTransaction implements Transaction {
     public String details() throws IOException {
         final String dtls = new UncheckedText(
             new IoChecked<>(
-                new org.cactoos.scalar.ItemAt<>(
+                new ItemAt<>(
                     //@checkstyle MagicNumberCheck (1 line)
-                    5, new IterableOf<>(new Split(this.transaction.value(), ";"))
+                    5, new SplitText(this.transaction.value(), ";")
                 )
             ).value()
         ).asString();
@@ -262,9 +237,9 @@ final class RtTransaction implements Transaction {
     public String signature() throws IOException {
         final String sign = new UncheckedText(
             new IoChecked<>(
-                new org.cactoos.scalar.ItemAt<>(
+                new ItemAt<>(
                     //@checkstyle MagicNumberCheck (1 line)
-                    6, new IterableOf<>(new Split(this.transaction.value(), ";"))
+                    6, new SplitText(this.transaction.value(), ";")
                 )
             ).value()
         ).asString();

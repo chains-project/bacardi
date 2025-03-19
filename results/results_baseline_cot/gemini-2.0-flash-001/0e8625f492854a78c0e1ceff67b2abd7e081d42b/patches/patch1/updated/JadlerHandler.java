@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2012 - 2016 Jadler contributors
- * This program is made available under the terms of the MIT License.
- */
 package net.jadler.stubbing.server.jetty;
 
 import net.jadler.KeyValues;
@@ -37,8 +33,8 @@ class JadlerHandler extends AbstractHandler {
 
 
     @Override
-    public void handle(String target, Request baseRequest, HttpServletRequest request,
-                       HttpServletResponse response) throws IOException, ServletException {
+    public void handle(final String target, final Request baseRequest, final HttpServletRequest request,
+                       final HttpServletResponse response) throws IOException, ServletException {
 
         final net.jadler.Request req = RequestUtils.convert(request);
         final StubResponse stubResponse = this.requestManager.provideStubResponseFor(req);
@@ -54,7 +50,7 @@ class JadlerHandler extends AbstractHandler {
 
 
     private void insertResponseBody(final byte[] body, final HttpServletResponse response) throws IOException {
-        if (body.length > 0) {
+        if (body != null && body.length > 0) {
             final OutputStream os = response.getOutputStream();
             os.write(body);
         }
@@ -62,10 +58,15 @@ class JadlerHandler extends AbstractHandler {
 
 
     private void insertResponseHeaders(final KeyValues headers, final HttpServletResponse response) {
-        for (final String key : headers.getKeys()) {
-
-            for (final String value : headers.getValues(key)) {
-                response.addHeader(key, value);
+        if (headers != null) {
+            for (final String key : headers.getKeys()) {
+                if (key != null) {
+                    for (final String value : headers.getValues(key)) {
+                        if (value != null) {
+                            response.addHeader(key, value);
+                        }
+                    }
+                }
             }
         }
     }

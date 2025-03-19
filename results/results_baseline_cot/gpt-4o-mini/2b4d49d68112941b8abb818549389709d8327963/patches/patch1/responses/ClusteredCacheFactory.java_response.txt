@@ -1,25 +1,9 @@
-/*
- * Copyright (C) 2007-2009 Jive Software. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.MapConfig;
-import com.hazelcast.config.MaxSizeConfig; // Ensure this import is correct
+import com.hazelcast.config.MaxSizeConfig;
 import com.hazelcast.config.MemberAttributeConfig;
 import com.hazelcast.config.MemcacheProtocolConfig;
 import com.hazelcast.config.NetworkConfig;
@@ -27,7 +11,7 @@ import com.hazelcast.config.RestApiConfig;
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.cluster.Member; // Updated import for Member
+import com.hazelcast.core.Member;
 import org.jivesoftware.openfire.JMXManager;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterEventListener;
@@ -72,12 +56,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
-/**
- * CacheFactory implementation to use when using Hazelcast in cluster mode.
- *
- * @author Tom Evans
- * @author Gaston Dombiak
- */
 public class ClusteredCacheFactory implements CacheFactoryStrategy {
 
     private static final SystemProperty<String> HAZELCAST_EXECUTOR_SERVICE_NAME = SystemProperty.Builder.ofType(String.class)
@@ -134,36 +112,21 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
     private static final Logger logger = LoggerFactory.getLogger(ClusteredCacheFactory.class);
     public static final String PLUGIN_NAME = "hazelcast";
 
-    /**
-     * Keep serialization strategy the server was using before we set our strategy. We will
-     * restore old strategy when plugin is unloaded.
-     */
     private ExternalizableUtilStrategy serializationStrategy;
-
-    /**
-     * Storage for cache statistics
-     */
     private static Map<String, Map<String, long[]>> cacheStats;
 
     private static HazelcastInstance hazelcast = null;
-    private static Cluster cluster = null;
+    private static com.hazelcast.core.Cluster cluster = null; // Updated type
     private ClusterListener clusterListener;
     private String lifecycleListener;
     private String membershipListener;
 
-    /**
-     * Keeps that running state. Initial state is stopped.
-     */
     private State state = State.stopped;
-
-    /**
-     * Used to limit the amount of duplicate warnings logged.
-     */
     private final Cache<String, Instant> pluginClassLoaderWarnings;
 
     public ClusteredCacheFactory() {
         pluginClassLoaderWarnings = CacheFactory.createLocalCache("PluginClassLoader Warnings for Clustered Tasks");
-        pluginClassLoaderWarnings.setMaxLifetime(Duration.ofHours(1).toMillis()); // Minimum duration between logged warnings.
+        pluginClassLoaderWarnings.setMaxLifetime(Duration.ofHours(1).toMillis());
     }
 
     @Override
@@ -171,11 +134,9 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         logger.info("Starting hazelcast clustering");
         state = State.starting;
 
-        // Set the serialization strategy to use for transmitting objects between node clusters
         serializationStrategy = ExternalizableUtil.getInstance().getStrategy();
         ExternalizableUtil.getInstance().setStrategy(new ClusterExternalizableUtil());
 
-        // Store previous class loader (in case we change it)
         final ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
         final ClassLoader loader = new ClusterClassLoader();
         Thread.currentThread().setContextClassLoader(loader);
@@ -202,7 +163,6 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
                 hazelcast = Hazelcast.newHazelcastInstance(config);
                 cluster = hazelcast.getCluster();
                 state = State.started;
-                // CacheFactory is now using clustered caches. We can add our listeners.
                 clusterListener = new ClusterListener(cluster);
                 clusterListener.joinCluster();
                 lifecycleListener = hazelcast.getLifecycleService().addLifecycleListener(clusterListener);
@@ -227,7 +187,6 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         } while (retry++ < CLUSTER_STARTUP_RETRY_COUNT.getValue() && !Thread.currentThread().isInterrupted());
 
         if (oldLoader != null) {
-            // Restore previous class loader
             Thread.currentThread().setContextClassLoader(oldLoader);
         }
         return cluster != null;
@@ -235,15 +194,10 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
 
     @Override
     public void stopCluster() {
-        // Stop the cache services.
         cacheStats = null;
-        // Update the running state of the cluster
         state = State.stopped;
 
-        // Fire the leftClusterEvent before we leave the cluster - we need to access the clustered data before the
-        // cluster is shutdown so it can be copied in to the non-clustered, DefaultCache
         fireLeftClusterAndWaitToComplete(Duration.ofSeconds(30));
-        // Stop the cluster
         hazelcast.getLifecycleService().removeLifecycleListener(lifecycleListener);
         cluster.removeMembershipListener(membershipListener);
         Hazelcast.shutdownAll();
@@ -252,35 +206,26 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         membershipListener = null;
         clusterListener = null;
 
-        // Reset packet router to use to deliver packets to remote cluster nodes
         XMPPServer.getInstance().getRoutingTable().setRemotePacketRouter(null);
-        // Reset the session locator to use
         XMPPServer.getInstance().setRemoteSessionLocator(null);
-        // Set the old serialization strategy was using before clustering was loaded
         ExternalizableUtil.getInstance().setStrategy(serializationStrategy);
     }
 
     @Override
     public Cache createCache(final String name) {
-        // Check if cluster is being started up
         while (state == State.starting) {
-            // Wait until cluster is fully started (or failed)
             try {
                 Thread.sleep(250);
             } catch (final InterruptedException e) {
-                // Ignore
             }
         }
         if (state == State.stopped) {
             throw new IllegalStateException("Cannot create clustered cache when not in a cluster");
         }
-        // Determine the time to live. Note that in Hazelcast 0 means "forever", not -1
         final long openfireLifetimeInMilliseconds = CacheFactory.getMaxCacheLifetime(name);
         final int hazelcastLifetimeInSeconds = openfireLifetimeInMilliseconds < 0 ? 0 : Math.max((int) (openfireLifetimeInMilliseconds / 1000), 1);
-        // Determine the max cache size. Note that in Hazelcast the max cache size must be positive and is in megabytes
         final long openfireMaxCacheSizeInBytes = CacheFactory.getMaxCacheSize(name);
         final int hazelcastMaxCacheSizeInMegaBytes = openfireMaxCacheSizeInBytes < 0 ? Integer.MAX_VALUE : Math.max((int) openfireMaxCacheSizeInBytes / 1024 / 1024, 1);
-        // It's only possible to create a dynamic config if a static one doesn't already exist
         final MapConfig staticConfig = hazelcast.getConfig().getMapConfigOrNull(name);
         if (staticConfig == null) {
             final MapConfig dynamicConfig = new MapConfig(name);
@@ -291,7 +236,6 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         } else {
             logger.debug("Static configuration already exists for cache={}, staticConfig={}", name, staticConfig);
         }
-        // TODO: Better genericize this method in CacheFactoryStrategy so we can stop suppressing this warning
         @SuppressWarnings("unchecked") final ClusteredCache clusteredCache = new ClusteredCache(name, hazelcast.getMap(name));
         return clusteredCache;
     }
@@ -321,7 +265,6 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
 
     @Override
     public int getMaxClusterNodes() {
-        // No longer depends on license code so just return a big number
         return 10000;
     }
 
@@ -344,26 +287,13 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         }
     }
 
-    /**
-     * Gets the pseudo-synchronized time from the cluster. While the cluster members may
-     * have varying system times, this method is expected to return a timestamp that is
-     * synchronized (or nearly so; best effort) across the cluster.
-     *
-     * @return Synchronized time for all cluster members
-     */
     @Override
     public long getClusterTime() {
         return cluster == null ? System.currentTimeMillis() : cluster.getClusterTime();
     }
 
-    /*
-     * Execute the given task on the other (non-local) cluster members.
-     * Note that this method does not provide the result set for the given
-     * task, as the task is run asynchronously across the cluster.
-     */
     @Override
     public void doClusterTask(final ClusterTask<?> task) {
-
         if (cluster == null) {
             return;
         }
@@ -375,9 +305,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
             }
         }
 
-
         if (!members.isEmpty()) {
-            // Asynchronously execute the task on the other cluster members
             logger.debug("Executing asynchronous MultiTask: " + task.getClass().getName());
             checkForPluginClassLoader(task);
             hazelcast.getExecutorService(HAZELCAST_EXECUTOR_SERVICE_NAME.getValue()).submitToMembers(new CallableTask<>(task), members);
@@ -386,20 +314,13 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         }
     }
 
-    /*
-     * Execute the given task on the given cluster member.
-     * Note that this method does not provide the result set for the given
-     * task, as the task is run asynchronously across the cluster.
-     */
     @Override
     public void doClusterTask(final ClusterTask<?> task, final byte[] nodeID) {
         if (cluster == null) {
             return;
         }
         final Member member = getMember(nodeID);
-        // Check that the requested member was found
         if (member != null) {
-            // Asynchronously execute the task on the target member
             logger.debug("Executing asynchronous DistributedTask: " + task.getClass().getName());
             checkForPluginClassLoader(task);
             hazelcast.getExecutorService(HAZELCAST_EXECUTOR_SERVICE_NAME.getValue()).submitToMember(new CallableTask<>(task), member);
@@ -410,11 +331,6 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         }
     }
 
-    /*
-     * Execute the given task on the designated cluster members.
-     * Note that this method blocks for up to MAX_CLUSTER_EXECUTION_TIME
-     * (seconds) per member until the task is run on all members.
-     */
     @Override
     public <T> Collection<T> doSynchronousClusterTask(final ClusterTask<T> task, final boolean includeLocalMember) {
         if (cluster == null) {
@@ -429,7 +345,6 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         }
         final Collection<T> result = new ArrayList<>();
         if (!members.isEmpty()) {
-            // Asynchronously execute the task on the other cluster members
             try {
                 logger.debug("Executing MultiTask: " + task.getClass().getName());
                 checkForPluginClassLoader(task);
@@ -451,11 +366,6 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         return result;
     }
 
-    /*
-     * Execute the given task on the designated cluster member.
-     * Note that this method blocks for up to MAX_CLUSTER_EXECUTION_TIME
-     * (seconds) until the task is run on the given member.
-     */
     @Override
     public <T> T doSynchronousClusterTask(final ClusterTask<T> task, final byte[] nodeID) {
         if (cluster == null) {
@@ -463,9 +373,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         }
         final Member member = getMember(nodeID);
         T result = null;
-        // Check that the requested member was found
         if (member != null) {
-            // Asynchronously execute the task on the target member
             logger.debug("Executing DistributedTask: " + task.getClass().getName());
             checkForPluginClassLoader(task);
             try {
@@ -511,7 +419,6 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
     @Override
     public void updateCacheStats(final Map<String, Cache> caches) {
         if (!caches.isEmpty() && cluster != null) {
-            // Create the cacheStats map if necessary.
             if (cacheStats == null) {
                 cacheStats = hazelcast.getMap("opt-$cacheStats");
             }
@@ -519,9 +426,6 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
             final Map<String, long[]> stats = new HashMap<>();
             for (final String cacheName : caches.keySet()) {
                 final Cache cache = caches.get(cacheName);
-                // The following information is published:
-                // current size, max size, num elements, cache
-                // hits, cache misses.
                 final long[] info = new long[5];
                 info[0] = cache.getLongCacheSize();
                 info[1] = cache.getMaxCacheSize();
@@ -530,7 +434,6 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
                 info[4] = cache.getCacheMisses();
                 stats.put(cacheName, info);
             }
-            // Publish message
             cacheStats.put(uid, stats);
         }
     }
@@ -545,25 +448,14 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         if (cache instanceof CacheWrapper) {
             cache = ((CacheWrapper) cache).getWrappedCache();
         }
-        // TODO: Update CacheFactoryStrategy so the signature is getLock(final Serializable key, Cache<Serializable, Serializable> cache)
         @SuppressWarnings("unchecked") final ClusterLock clusterLock = new ClusterLock((Serializable) key, (ClusteredCache<Serializable, ?>) cache);
         return clusterLock;
     }
 
-    /**
-     * ClusterTasks that are executed should not be provided by a plugin. These will cause issues related to class
-     * loading when the providing plugin is reloaded. This method verifies if an instance of a task is
-     * loaded by a plugin class loader, and logs a warning to the log files when it is. The amount of warnings logged is
-     * limited by a time interval.
-     *
-     * @param o the instance for which to verify the class loader
-     * @see <a href="https://github.com/igniterealtime/openfire-hazelcast-plugin/issues/74">Issue #74: Warn against usage of plugin-provided classes in Hazelcast</a>
-     */
     protected <T extends ClusterTask<?>> void checkForPluginClassLoader(final T o) {
         if (o != null && o.getClass().getClassLoader() instanceof PluginClassLoader
             && !pluginClassLoaderWarnings.containsKey(o.getClass().getName()) )
         {
-            // Try to determine what plugin loaded the offending class.
             String pluginName = null;
             try {
                 final Collection<Plugin> plugins = XMPPServer.getInstance().getPluginManager().getPlugins();
@@ -580,7 +472,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
             logger.warn("An instance of {} that is executed as a cluster task. This will cause issues when reloading " +
                     "the plugin that provides this class. The plugin implementation should be modified.",
                 pluginName != null ? o.getClass() + " (provided by plugin " + pluginName + ")" : o.getClass());
-            pluginClassLoaderWarnings.put(o.getClass().getName(), Instant.now()); // Note that this Instant is unused.
+            pluginClassLoaderWarnings.put(o.getClass().getName(), Instant.now());
         }
     }
 
@@ -681,8 +573,6 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
             }
         };
         try {
-            // Add a listener at the ultimate end of the list of all listeners, to detect that left-cluster event handling
-            // has been invoked for all before proceeding.
             ClusterManager.addListener(clusterEventListener, Integer.MAX_VALUE);
             logger.debug("Firing leftCluster() event");
             ClusterManager.fireLeftCluster();

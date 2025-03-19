@@ -19,6 +19,7 @@ import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.IsEqual;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
+import com.artipie.http.auth.Authentication.User; // Added import for User
 
 /**
  * Tests for {@link AuthScopeSlice}.
@@ -53,8 +54,8 @@ class AuthScopeSliceTest {
             (headers, rline) -> CompletableFuture.completedFuture(
                 new AuthScheme.Result() {
                     @Override
-                    public Optional<Authentication.User> user() {
-                        return Optional.of(new Authentication.User("alice")); // Ensure User is correctly imported
+                    public Optional<User> user() { // Updated to use the correct User class
+                        return Optional.of(new User("alice"));
                     }
 
                     @Override

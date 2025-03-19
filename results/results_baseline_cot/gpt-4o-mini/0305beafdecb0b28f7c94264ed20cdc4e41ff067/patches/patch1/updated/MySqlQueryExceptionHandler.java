@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * you may obtain a copy of the License at
+ * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -18,9 +18,8 @@ package com.feedzai.commons.sql.abstraction.engine.impl.mysql;
 
 import com.feedzai.commons.sql.abstraction.engine.handler.QueryExceptionHandler;
 
-import com.mysql.cj.jdbc.exceptions.CommunicationsException; // Updated import for newer MySQL Connector/J
-
 import java.sql.SQLException;
+import com.mysql.cj.jdbc.exceptions.CommunicationsException; // Updated import
 
 /**
  * A specific implementation of {@link QueryExceptionHandler} for MySQL engine.

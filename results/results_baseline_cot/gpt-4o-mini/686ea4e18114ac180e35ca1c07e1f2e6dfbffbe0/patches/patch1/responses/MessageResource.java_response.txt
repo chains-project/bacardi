@@ -43,8 +43,8 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 @Api
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
+@javax.ws.rs.Produces(MediaType.APPLICATION_JSON)
+@javax.ws.rs.Consumes(MediaType.APPLICATION_JSON)
 @Path("/bots/{bot}/messages")
 public class MessageResource extends MessageResourceBase {
     private final ObjectMapper objectMapper = new ObjectMapper();

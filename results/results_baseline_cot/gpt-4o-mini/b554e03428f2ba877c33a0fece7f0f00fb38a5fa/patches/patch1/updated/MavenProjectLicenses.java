@@ -30,7 +30,7 @@ import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilderException;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
-import org.apache.maven.shared.dependency.graph.internal.DefaultDependencyGraphBuilder; // Updated import
+import org.apache.maven.shared.dependency.graph.internal.DefaultDependencyGraphBuilder;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -183,7 +183,7 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
   }
 
   private void setGraph(DependencyGraphBuilder graph) {
-    this.graph = Optional.ofNullable(graph).orElse(new DefaultDependencyGraphBuilder()); // Updated to use DefaultDependencyGraphBuilder
+    this.graph = Optional.ofNullable(graph).orElse(new DefaultDependencyGraphBuilder());
   }
 
   private ProjectBuilder getProjectBuilder() {

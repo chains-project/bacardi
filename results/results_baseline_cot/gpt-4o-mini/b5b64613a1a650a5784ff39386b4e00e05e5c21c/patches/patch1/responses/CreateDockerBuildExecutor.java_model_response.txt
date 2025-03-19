@@ -32,10 +32,9 @@ public class CreateDockerBuildExecutor extends BuildInfoProcessRunner {
         if (server == null) {
             throw new IllegalStateException("Artifactory server must be configured");
         }
-        if (StringUtils.isBlank(kanikoImageFile) && StringUtils.isBlank(jibImageFile)) {
-            throw new IllegalStateException("Exactly one of 'kanikoImageFile' or 'jibImageFile' must be configured");
-        }
-        if (StringUtils.isNotBlank(kanikoImageFile) && StringUtils.isNotBlank(jibImageFile)) {
+        boolean isKanikoBlank = StringUtils.isBlank(kanikoImageFile);
+        boolean isJibBlank = StringUtils.isBlank(jibImageFile);
+        if (isKanikoBlank == isJibBlank) {
             throw new IllegalStateException("Exactly one of 'kanikoImageFile' or 'jibImageFile' must be configured");
         }
         CommonDeployer deployer = new CommonDeployer();
@@ -50,9 +49,4 @@ public class CreateDockerBuildExecutor extends BuildInfoProcessRunner {
         return buildInfo;
     }
 }
-``` 
-
-### Explanation of Changes:
-1. **Replaced `StringUtils.isAllBlank`**: The method `isAllBlank` was removed in the newer version of Apache Commons Lang. I replaced it with a combination of `StringUtils.isBlank` checks to ensure that exactly one of `kanikoImageFile` or `jibImageFile` is provided.
-2. **Maintained Functionality**: The logic remains intact, ensuring that the class still throws the appropriate exceptions when neither or both image files are provided.
-3. **No Signature Changes**: The function signatures and overall structure of the class remain unchanged, adhering to the provided constraints.
+```

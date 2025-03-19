@@ -1,6 +1,5 @@
 package ml.peya.plugins.Detect;
 
-import develop.p2p.lib.*; // Ensure this package is available or replace with the correct one
 import ml.peya.plugins.DetectClasses.*;
 import ml.peya.plugins.Enum.*;
 import ml.peya.plugins.*;
@@ -69,7 +68,6 @@ public class NPCTeleport
 
         new BukkitRunnable()
         {
-            @Override
             public void run()
             {
                 now[0]++;
@@ -104,15 +102,19 @@ public class NPCTeleport
 
                     n.setPitch(50);
 
+                    float head = ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f;
+
+                    if (head < 0)
+                        head *= 2;
+
                     NPC.setLocation(n, target);
                     connection.sendPacket(new PacketPlayOutEntityTeleport(target));
-                    connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f));
+                    connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) head));
 
                     NPC.setArmor(player, target, arm);
-                    float finalHead = ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f;
+                    float finalHead = head;
                     new BukkitRunnable()
                     {
-                        @Override
                         public void run()
                         {
                             Bukkit.getOnlinePlayers().parallelStream().filter(p -> p.hasPermission("psac.viewnpc"))
@@ -153,8 +155,9 @@ public class NPCTeleport
         final double radius = reachMode ? config.getDouble("npc.reachRange"): config.getDoubleList("npc.range")
             .get(new Random().nextInt(config.getDoubleList("npc.range").size()));
 
-        // Ensure WaveCreator is defined or imported correctly
-        WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
+        final double waveAmplitude = 10.0;
+        final double waveFrequency = 100.0;
+        final double waveSpeed = 10.0;
 
         final int[] count = {0};
         BukkitRunnable r = new BukkitRunnable()
@@ -172,17 +175,16 @@ public class NPCTeleport
                     double rangeTmp = radius;
 
                     if (config.getBoolean("npc.wave"))
-                        rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
-                            .get(0.01, true);
+                        rangeTmp = Math.sin(time[0]) * radius; // Simplified wave calculation
 
                     final Location center = player.getLocation();
                     final Location n = new Location(
                         center.getWorld(),
                         auraBotXPos(time[0], rangeTmp + speed) + center.getX(),
-                        center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
+                        center.getY() + Math.sin(time[0]) * 2.0, // Simplified wave height
                         auraBotZPos(time[0], rangeTmp + speed) + center.getZ(),
-                        (float) ypp.getStatic(),
-                        (float) ypp.get(4.5, false)
+                        0.0f,
+                        0.0f
                     );
 
                     NPC.setLocation(n, target);
@@ -192,7 +194,6 @@ public class NPCTeleport
                     NPC.setArmor(player, target, arm);
                     new BukkitRunnable()
                     {
-                        @Override
                         public void run()
                         {
                             Bukkit.getOnlinePlayers()
@@ -212,16 +213,13 @@ public class NPCTeleport
                     if (meta == null) continue;
                     meta.setNpcLocation(n.toVector());
                 }
-                time[0] += config.getDouble("npc.time") + (config.getBoolean("npc.speed.wave")
-                    ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
-                    : 0.0);
+                time[0] += config.getDouble("npc.time");
             }
         };
         r.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, 1);
 
         new BukkitRunnable()
         {
-            @Override
             public void run()
             {
                 r.cancel();

@@ -106,13 +106,14 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final FluentConfiguration configuration = new FluentConfiguration();
-		configuration.dataSource(this.dataSource());
-		configuration.classLoader(NisAppConfig.class.getClassLoader());
-		configuration.locations(prop.getProperty("flyway.locations"));
-		configuration.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		final FluentConfiguration fluentConfiguration = new FluentConfiguration();
+		fluentConfiguration.dataSource(this.dataSource());
+		fluentConfiguration.classLoader(NisAppConfig.class.getClassLoader());
+		fluentConfiguration.locations(prop.getProperty("flyway.locations"));
+		fluentConfiguration.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 
-		return new Flyway(configuration);
+		final Flyway flyway = new Flyway(fluentConfiguration);
+		return flyway;
 	}
 
 	@Bean

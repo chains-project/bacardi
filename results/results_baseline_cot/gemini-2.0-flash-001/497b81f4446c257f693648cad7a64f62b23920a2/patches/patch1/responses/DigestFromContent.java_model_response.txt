@@ -1,5 +1,5 @@
 ```java
-/*
+    /*
  * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
  * https://github.com/artipie/docker-adapter/LICENSE.txt
  */
@@ -15,7 +15,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.CompletionStage;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.codec.binary.Hex;
 
 /**
@@ -53,14 +52,18 @@ public final class DigestFromContent {
                 buf -> Completable.fromAction(
                     () -> {
                         buf.mark();
-                        sha.update(IOUtils.toByteArray(buf.openStream()));
+                        sha.update(buf);
                         buf.reset();
                     }
                 )
             )
             .<Digest>andThen(
                 Single.fromCallable(
-                    () -> new Digest.Sha256(new String(Hex.encodeHex(sha.digest())))
+                    () -> {
+                        final byte[] digest = sha.digest();
+                        final char[] encoded = Hex.encodeHex(digest);
+                        return new Digest.Sha256(new String(encoded));
+                    }
                 )
             )
             .to(SingleInterop.get()).toCompletableFuture();

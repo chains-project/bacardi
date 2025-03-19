@@ -1,14 +1,42 @@
-8d7
+6,13d5
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
 < import javax.mvc.UriRef;
-12,13d10
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.MvcBinding;
+< import javax.mvc.binding.ParamError;
 < import javax.mvc.security.CsrfProtected;
 < import javax.validation.constraints.NotBlank;
-17a15,18
-> import jakarta.mvc.security.CsrfProtected; // Updated import for security
-> import jakarta.validation.constraints.NotBlank; // Updated import for validation
-> import jakarta.mvc.UriRef; // Updated import for UriRef
-> import jakarta.mvc.Models; // Updated import for Models
-52c53
+17a10
+> import javax.validation.constraints.NotBlank;
+24d16
+< @Controller
+29,37d20
+<     BindingResult bindingResult;
+< 
+<     @Inject
+<     Models models;
+< 
+<     @Inject
+<     AlertMessage flashMessage;
+< 
+<     @Inject
+46d28
+<     @UriRef("greeting-post")
+49d30
+<             @MvcBinding
+51,62d31
+<         if (bindingResult.isFailed()) {
 <             AlertMessage alert = AlertMessage.danger("Validation voilations!");
----
->             AlertMessage alert = AlertMessage.danger("Validation violations!");
+<             bindingResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+<                         alert.addError(t.getParamName(), "", t.getMessage());
+<                     });
+<             models.put("errors", alert);
+<             log.info("mvc binding failed.");
+<             return "greeting.xhtml";
+<         }
+< 
+64d32
+<         flashMessage.notify(AlertMessage.Type.success, "Message:" + greeting);

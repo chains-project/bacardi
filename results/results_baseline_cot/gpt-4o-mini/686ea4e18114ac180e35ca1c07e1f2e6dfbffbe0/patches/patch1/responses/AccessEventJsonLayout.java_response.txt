@@ -4,7 +4,6 @@ import ch.qos.logback.access.spi.IAccessEvent;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.core.filter.Filter;
 
-// Importing the correct HttpServletResponse class from the appropriate package
 import jakarta.servlet.http.HttpServletResponse; // Updated import
 
 import java.util.LinkedHashMap;
@@ -16,11 +15,11 @@ import java.util.Map;
  */
 public class AccessEventJsonLayout extends AbstractJsonLayout<IAccessEvent> {
 
+
     public AccessEventJsonLayout(List<Filter<IAccessEvent>> filters) {
         super(filters);
     }
 
-    @Override
     public String doLayout(IAccessEvent event) {
         if (shouldIgnoreEvent(event)) {
             return null;

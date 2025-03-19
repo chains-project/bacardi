@@ -24,7 +24,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.beanutils.PropertyUtilsBean; // Updated import
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.wicket.IGenericComponent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -59,8 +59,10 @@ public class CrudifierView<T> extends Panel implements IGenericComponent<T, Crud
 				setVisible(!getDefaultModelObjectAsString().isEmpty());
 			}
 		});
-	}
 
+
+
+	}
 	@Override
 	protected void onConfigure() {
 		super.onConfigure();
@@ -94,13 +96,12 @@ public class CrudifierView<T> extends Panel implements IGenericComponent<T, Crud
 
 	private Set<String> getPropertiesByOrder(Class<?> modelClass) {
 		Set<String> properties = new LinkedHashSet<String>();
-		PropertyUtilsBean propertyUtils = new PropertyUtilsBean(); // Create an instance of PropertyUtilsBean
 
 		for(String property : entitySettings.getOrderOfFields()){
 			if(!entitySettings.getHiddenFields().contains(property))
 				properties.add(property);
 		}
-		for(PropertyDescriptor descriptor : propertyUtils.getPropertyDescriptors(modelClass)){ // Use the instance to get property descriptors
+		for(PropertyDescriptor descriptor : BeanUtils.getPropertyDescriptors(modelClass)){
 			if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
 					!properties.contains(descriptor.getName()) &&
 					!descriptor.getName().equals("class"))

@@ -63,7 +63,7 @@ public class AbstractTest {
 
     public <T extends MockBaseEntity> T createMockEntity(Class<T> clazz, String path) {
         final LoaderOptions loadingConfig = new LoaderOptions();
-        // Removed TrustedTagInspector as it is no longer available in the updated version
+        loadingConfig.setAllowDuplicateKeys(false); // Updated to remove TrustedTagInspector
 
         final Representer representer = new Representer(new DumperOptions());
         final Tag zoneIdTag = new Tag("!ZoneId");
@@ -89,6 +89,4 @@ public class AbstractTest {
     }
 
 }
-``` 
-
-In this patch, I removed the `TrustedTagInspector` as it is no longer available in the updated version of the SnakeYAML library. This resolves the compilation errors while keeping the rest of the code intact.
+```

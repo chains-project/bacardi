@@ -24,7 +24,8 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
-import org.codehaus.plexus.util.xml.Xpp3Dom; // Ensure this import is correct and available
+import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.codehaus.plexus.util.xml.XmlStreamReader; // Added import
 import se.kth.depclean.core.AbstractDebloater;
 import se.kth.depclean.core.analysis.graph.DependencyGraph;
 import se.kth.depclean.core.analysis.model.ProjectDependencyAnalysis;
@@ -125,7 +126,7 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
     MavenXpp3Reader mavenReader = new MavenXpp3Reader();
     try {
       reader = new FileReader(pomFile);
-      model = mavenReader.read(reader);
+      model = mavenReader.read(new XmlStreamReader(reader)); // Updated to use XmlStreamReader
       model.setPomFile(pomFile);
     } catch (Exception ex) {
       getLog().error("Unable to build the maven project.");

@@ -81,7 +81,7 @@ final class DockerSliceITCase {
         final String output = this.client.run("pull", this.image.remote());
         MatcherAssert.assertThat(
             output,
-            Matchers.containsString(
+            new StringContains(
                 String.format("Status: Downloaded newer image for %s", this.image.remote())
             )
         );
@@ -95,7 +95,7 @@ final class DockerSliceITCase {
         final String output = this.client.run("pull", this.image.remoteByDigest());
         MatcherAssert.assertThat(
             output,
-            Matchers.containsString(
+            new StringContains(
                 String.format("Status: Downloaded newer image for %s", this.image.remoteByDigest())
             )
         );

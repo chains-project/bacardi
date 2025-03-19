@@ -2,51 +2,50 @@
 < import org.spongepowered.api.Platform.Type;
 ---
 > import org.spongepowered.api.Platform;
-23c23
+23,24c23
 < import org.spongepowered.api.command.CommandManager;
+< import org.spongepowered.api.command.CommandSource;
 ---
 > import org.spongepowered.api.command.Command;
-27,31c27,30
+27,31c26,30
 < import org.spongepowered.api.event.game.state.GameInitializationEvent;
 < import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 < import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 < import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
 < import org.spongepowered.api.network.ChannelRegistrar;
 ---
-> import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
-> import org.spongepowered.api.event.lifecycle.StoppingServerEvent;
-> import org.spongepowered.api.network.channel.raw.RawDataChannel;
+> import org.spongepowered.api.event.lifecycle.GameInitializationEvent;
+> import org.spongepowered.api.event.lifecycle.GamePreInitializationEvent;
+> import org.spongepowered.api.event.lifecycle.GameStoppingServerEvent;
+> import org.spongepowered.api.network.channel.ChannelBinding;
 > import org.spongepowered.api.network.channel.ChannelRegistrar;
-62c61
-<     public void onPreInit(GamePreInitializationEvent preInitEvent) {
+33a33,35
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.CommandResult;
+42c44
+< public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
 ---
->     public void onPreInit(ConstructPluginEvent preInitEvent) {
-73c72
-<     public void onInit(GameInitializationEvent initEvent) {
----
->     public void onInit(org.spongepowered.api.event.lifecycle.StartedEngineEvent<org.spongepowered.api.Server> initEvent) {
-77c76
+> public class ChangeSkinSponge implements PlatformPlugin<org.spongepowered.api.command.CommandSource> {
+77c79
 <         CommandManager cmdManager = Sponge.getCommandManager();
 ---
 >         org.spongepowered.api.command.CommandManager cmdManager = Sponge.getCommandManager();
-83c82,85
-<         cmdManager.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
----
-> 
->         Command.Parameterized changeskinCommand = injector.getInstance(SetCommand.class).buildSpec();
->         cmdManager.register(this, changeskinCommand, "changeskin", "setskin", "skin");
-> 
 93,96c95,98
 <         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
 <         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
 <         updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
 <         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
 ---
->         RawDataChannel updateChannel = channelReg.getOrCreate(this, updateChannelName, buffer -> {});
->         RawDataChannel permChannel = channelReg.getOrCreate(this, permissionChannelName, buffer -> {});
->         updateChannel.addListener(injector.getInstance(UpdateSkinListener.class));
->         permChannel.addListener(injector.getInstance(CheckPermissionListener.class));
-100c102
-<     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
+>         ChannelBinding.RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
+>         ChannelBinding.RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
+>         updateChannel.addListener(Platform.Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+>         permChannel.addListener(Platform.Type.SERVER, injector.getInstance(CheckPermissionListener.class));
+109c111
+<     public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
 ---
->     public void onShutdown(StoppingServerEvent stoppingServerEvent) {
+>     public boolean hasSkinPermission(org.spongepowered.api.command.CommandSource invoker, UUID uuid, boolean sendMessage) {
+142c144
+<     public void sendMessage(CommandSource receiver, String key) {
+---
+>     public void sendMessage(org.spongepowered.api.command.CommandSource receiver, String key) {

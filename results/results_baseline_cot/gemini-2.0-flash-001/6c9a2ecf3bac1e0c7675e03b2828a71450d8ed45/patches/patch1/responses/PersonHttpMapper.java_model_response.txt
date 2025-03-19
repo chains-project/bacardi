@@ -7,22 +7,17 @@ import io.github.wesleyosantos91.core.domain.PersonDomain;
 import java.util.ArrayList;
 import java.util.List;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface PersonHttpMapper {
 
     PersonHttpMapper INSTANCE = Mappers.getMapper(PersonHttpMapper.class);
-
-    @Mapping(target = "id", ignore = true)
     PersonDomain toDomain(PersonRequest request);
-
     PersonRequest toRequest(PersonDomain domain);
 
-    @Mapping(target = "id", ignore = true)
     PersonDomain toDomain(PersonResponse response);
-
     PersonResponse toResponse(PersonDomain domain);
 
 

@@ -2,27 +2,18 @@
 < import org.spongepowered.api.Platform.Type;
 ---
 > import org.spongepowered.api.Platform;
-17,20c17,19
+17c17,18
 < import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
-< import org.spongepowered.api.network.ChannelBuf;
-< import org.spongepowered.api.network.ChannelRegistrar;
-< import org.spongepowered.api.network.RawDataListener;
 ---
 > import org.spongepowered.api.network.channel.raw.RawDataChannel;
 > import org.spongepowered.api.network.channel.raw.RawDataListener;
-> import org.spongepowered.api.network.channel.ChannelRegistrar;
-22a22,23
-> import io.netty.buffer.ByteBuf;
-> 
-40,41c41
+20d20
+< import org.spongepowered.api.network.RawDataListener;
+40c40
 <     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
-< 
 ---
->     public void handlePayload(RawDataChannel channel, RemoteConnection connection, ByteBuf data) {
-43,44d42
-<         CheckPermMessage checkMessage = new CheckPermMessage();
-<         checkMessage.readFrom(dataInput);
-83c81
-<         permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+>     public void handlePayload(ChannelBuf data, RemoteConnection connection, Platform.Type side) {
+42c42
+<         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
 ---
->         permissionsResultChannel.sendTo(receiver, dataOutput::toByteArray);
+>         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.asByteArray());

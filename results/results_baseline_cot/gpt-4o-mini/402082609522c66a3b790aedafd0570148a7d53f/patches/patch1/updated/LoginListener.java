@@ -10,12 +10,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent.Auth;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.scheduler.Task;
-
-// Updated import for the ClientConnectionEvent
-import org.spongepowered.api.event.network.ClientConnectionEvent.Auth;
 
 public class LoginListener extends SharedListener {
 
@@ -61,7 +58,6 @@ public class LoginListener extends SharedListener {
         }
     }
 
-    @Override
     protected void save(final UserPreference preferences) {
         Task.builder()
                 .async()

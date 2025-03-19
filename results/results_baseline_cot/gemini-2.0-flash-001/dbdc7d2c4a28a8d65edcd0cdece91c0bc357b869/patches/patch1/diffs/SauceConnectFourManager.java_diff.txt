@@ -1,11 +1,5 @@
-284c284,289
-<         extractArchive(unArchiver, zipFile, workingDirectory);
----
->         // The method enableLogging(org.codehaus.plexus.logging.console.ConsoleLogger) no longer exists in AbstractUnArchiver
->         // in newer versions of plexus-archiver. The logging is now handled differently.
->         // unArchiver.enableLogging(new ConsoleLogger(Logger.LEVEL_DEBUG, "Sauce"));
->         unArchiver.setSourceFile(archive);
->         unArchiver.setDestDirectory(destination);
->         unArchiver.extract();
-307d311
+283a284,285
+>         ConsoleLogger consoleLogger = new ConsoleLogger(Logger.LEVEL_DEBUG, "Sauce");
+>         unArchiver.enableLogging(consoleLogger);
+307d308
 <         unArchiver.enableLogging(new ConsoleLogger(Logger.LEVEL_DEBUG, "Sauce"));

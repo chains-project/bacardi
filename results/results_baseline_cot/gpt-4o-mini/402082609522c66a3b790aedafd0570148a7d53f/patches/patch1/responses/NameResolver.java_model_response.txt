@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.command.CommandSource; // Added import for updated API
 
 public class NameResolver extends SharedNameResolver {
 
@@ -43,12 +44,4 @@ public class NameResolver extends SharedNameResolver {
         new SkinDownloader(plugin, invoker, receiver, uuid, keepSkin).run();
     }
 }
-``` 
-
-In this case, the error message indicates that the `CommandSource` class cannot be found in the specified package. This suggests that the dependency for the Sponge API may have been updated, and the `CommandSource` class might have been moved or renamed. 
-
-To resolve this issue, ensure that the correct version of the Sponge API is being used, and verify that the `CommandSource` class is still part of the API. If it has been moved to a different package, update the import statement accordingly. 
-
-However, since the provided code already has the correct import for `CommandSource`, it seems that the issue might be related to the dependency not being correctly included in the project. Ensure that the build configuration (like Maven or Gradle) is updated to include the correct version of the Sponge API that contains the `CommandSource` class. 
-
-If the class is indeed missing from the new version, you may need to replace it with an alternative class that serves a similar purpose in the updated API.
+```

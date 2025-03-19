@@ -7,6 +7,7 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import java.util.concurrent.TimeUnit;
 
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.source.CommandSource; // Updated import
 import org.spongepowered.api.scheduler.Task;
 
 public class SkinUploader extends SharedUploader {

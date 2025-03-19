@@ -1,14 +1,22 @@
-20d19
+1,15d0
+< /*
+<  * Copyright 2020 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+20d4
 < import com.google.cloud.pubsublite.PublishMetadata;
-25d23
-< import com.google.cloud.pubsublite.internal.wire.PubsubContext.Framework;
-27a26
-> import com.google.cloud.pubsublite.internal.wire.PublishMetadata; // Updated import for PublishMetadata
-33c32
-<   private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
+36c20
+<   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
 ---
->   private static final PubsubContext.Framework FRAMEWORK = PubsubContext.Framework.of("KAFKA_CONNECT");
-53c52
-<                 .setContext(PubsubContext.of(FRAMEWORK))
----
->                 .setContext(PubsubContext.of(FRAMEWORK)) // Removed setContext as it is not available
+>   public Publisher<Void> newPublisher(Map<String, String> params) {

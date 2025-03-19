@@ -62,7 +62,6 @@ class InitiatorProxyIoHandler extends AbstractProxyIoHandler {
     @Override
     public void proxySessionOpened(IoSession ioSession) throws Exception {
         if (this.sslFilter != null) {
-            // Updated method call to match the new SSLFilter API
             this.sslFilter.startHandshake(ioSession);
         }
     }

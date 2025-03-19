@@ -1,16 +1,8 @@
 27c27
 < import org.apache.commons.beanutils.PropertyUtils;
 ---
-> import org.apache.commons.beanutils.PropertyUtilsBean; // Updated import
-62,64d61
-< 
-< 
-< 
-65a63
-> 
-98a97
->                 PropertyUtilsBean propertyUtils = new PropertyUtilsBean(); // Create an instance of PropertyUtilsBean
-104c103
+> import org.apache.commons.beanutils.BeanUtils;
+104c104
 <                 for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
 ---
->                 for(PropertyDescriptor descriptor : propertyUtils.getPropertyDescriptors(modelClass)){ // Use the instance to get property descriptors
+>                 for(PropertyDescriptor descriptor : BeanUtils.getPropertyDescriptors(modelClass)){

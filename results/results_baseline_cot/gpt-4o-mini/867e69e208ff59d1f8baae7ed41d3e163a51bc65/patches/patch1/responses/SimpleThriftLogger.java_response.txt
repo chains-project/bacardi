@@ -23,8 +23,7 @@ import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
-import org.apache.thrift.transport.TFramedTransport; // Ensure this import is correct
-import org.apache.thrift.transport.TIOStreamTransport;
+import org.apache.thrift.transport.TTransportFactory;
 
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
@@ -42,24 +41,25 @@ import java.nio.file.FileSystems;
 @SuppressWarnings("rawtypes")
 public final class SimpleThriftLogger<T extends TBase> implements Closeable {
 
-  private static final class ByteOffsetTFramedTransport extends TFramedTransport {
+  private static final class ByteOffsetTTransport extends TTransport {
 
     private long byteOffset;
+    private final TTransport transport;
 
-    public ByteOffsetTFramedTransport(TTransport transport) {
-      super(transport);
+    public ByteOffsetTTransport(TTransport transport) {
+      this.transport = transport;
       byteOffset = 0;
     }
 
     @Override
     public void write(byte[] buf, int off, int len) throws TTransportException {
-      super.write(buf, off, len);
+      transport.write(buf, off, len);
       byteOffset += len;
     }
 
     @Override
     public void flush() throws TTransportException {
-      super.flush();
+      transport.flush();
       // Add 4 bytes for the frame size.
       byteOffset += 4;
     }
@@ -67,18 +67,38 @@ public final class SimpleThriftLogger<T extends TBase> implements Closeable {
     public long getByteOffset() {
       return byteOffset;
     }
+
+    @Override
+    public boolean isOpen() {
+      return transport.isOpen();
+    }
+
+    @Override
+    public void open() throws TTransportException {
+      transport.open();
+    }
+
+    @Override
+    public void close() throws TTransportException {
+      transport.close();
+    }
+
+    @Override
+    public int read(byte[] buf, int off, int len) throws TTransportException {
+      return transport.read(buf, off, len);
+    }
   }
 
   private final String fileName;
 
   private BufferedOutputStream bufferedOutputStream;
-  private ByteOffsetTFramedTransport transport;
+  private ByteOffsetTTransport transport;
   private TProtocol protocol;
 
   public SimpleThriftLogger(String filename) throws Exception {
     this.fileName = filename;
     bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(fileName, true));
-    transport = new ByteOffsetTFramedTransport(new TIOStreamTransport(bufferedOutputStream));
+    transport = new ByteOffsetTTransport(new TTransportFactory().getTransport(bufferedOutputStream));
     protocol = new TBinaryProtocol(transport);
   }
 
@@ -112,7 +132,7 @@ public final class SimpleThriftLogger<T extends TBase> implements Closeable {
     }
     FileUtils.moveFile(new File(fileName), new File(fileName + ".1"));
     bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(fileName, true));
-    transport = new ByteOffsetTFramedTransport(new TIOStreamTransport(bufferedOutputStream));
+    transport = new ByteOffsetTTransport(new TTransportFactory().getTransport(bufferedOutputStream));
     protocol = new TBinaryProtocol(transport);
   }
 

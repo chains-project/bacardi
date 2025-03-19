@@ -1,9 +1,5 @@
 3a4
 > import org.flywaydb.core.api.configuration.Configuration;
-103c104
-<         @Bean(initMethod = "migrate")
----
->         @Bean
 108,113c109,114
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
@@ -16,5 +12,5 @@
 >                                 .dataSource(this.dataSource())
 >                                 .locations(prop.getProperty("flyway.locations"))
 >                                 .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-> 
+>                 
 >                 return new Flyway(configuration);

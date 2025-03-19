@@ -21,25 +21,41 @@
 < import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsResponse;
 < import com.google.api.services.cloudresourcemanager.model.UndeleteProjectRequest;
 68a48,69
-> import com.google.api.services.cloudresourcemanager.v1beta1.CloudResourceManager;
-> import com.google.api.services.cloudresourcemanager.v1beta1.model.ClearOrgPolicyRequest;
-> import com.google.api.services.cloudresourcemanager.v1beta1.model.Constraint;
-> import com.google.api.services.cloudresourcemanager.v1beta1.model.GetEffectiveOrgPolicyRequest;
-> import com.google.api.services.cloudresourcemanager.v1beta1.model.GetIamPolicyRequest;
-> import com.google.api.services.cloudresourcemanager.v1beta1.model.GetOrgPolicyRequest;
-> import com.google.api.services.cloudresourcemanager.v1beta1.model.ListAvailableOrgPolicyConstraintsRequest;
-> import com.google.api.services.cloudresourcemanager.v1beta1.model.ListAvailableOrgPolicyConstraintsResponse;
-> import com.google.api.services.cloudresourcemanager.v1beta1.model.ListOrgPoliciesRequest;
-> import com.google.api.services.cloudresourcemanager.v1beta1.model.ListOrgPoliciesResponse;
-> import com.google.api.services.cloudresourcemanager.v1beta1.model.ListProjectsResponse;
-> import com.google.api.services.cloudresourcemanager.v1beta1.model.Operation;
-> import com.google.api.services.cloudresourcemanager.v1beta1.model.OrgPolicy;
-> import com.google.api.services.cloudresourcemanager.v1beta1.model.Policy;
-> import com.google.api.services.cloudresourcemanager.v1beta1.model.Project;
-> import com.google.api.services.cloudresourcemanager.v1beta1.model.SetIamPolicyRequest;
-> import com.google.api.services.cloudresourcemanager.v1beta1.model.SetOrgPolicyRequest;
-> import com.google.api.services.cloudresourcemanager.v1beta1.model.Status;
-> import com.google.api.services.cloudresourcemanager.v1beta1.model.TestIamPermissionsRequest;
-> import com.google.api.services.cloudresourcemanager.v1beta1.model.TestIamPermissionsResponse;
-> import com.google.api.services.cloudresourcemanager.v1beta1.model.UndeleteProjectRequest;
+> import com.google.api.services.cloudresourcemanager.v1.CloudResourceManager;
+> import com.google.api.services.cloudresourcemanager.v1.model.ClearOrgPolicyRequest;
+> import com.google.api.services.cloudresourcemanager.v1.model.Constraint;
+> import com.google.api.services.cloudresourcemanager.v1.model.GetEffectiveOrgPolicyRequest;
+> import com.google.api.services.cloudresourcemanager.v1.model.GetIamPolicyRequest;
+> import com.google.api.services.cloudresourcemanager.v1.model.GetOrgPolicyRequest;
+> import com.google.api.services.cloudresourcemanager.v1.model.ListAvailableOrgPolicyConstraintsRequest;
+> import com.google.api.services.cloudresourcemanager.v1.model.ListAvailableOrgPolicyConstraintsResponse;
+> import com.google.api.services.cloudresourcemanager.v1.model.ListOrgPoliciesRequest;
+> import com.google.api.services.cloudresourcemanager.v1.model.ListOrgPoliciesResponse;
+> import com.google.api.services.cloudresourcemanager.v1.model.ListProjectsResponse;
+> import com.google.api.services.cloudresourcemanager.v1.model.Operation;
+> import com.google.api.services.cloudresourcemanager.v1.model.OrgPolicy;
+> import com.google.api.services.cloudresourcemanager.v1.model.Policy;
+> import com.google.api.services.cloudresourcemanager.v1.model.Project;
+> import com.google.api.services.cloudresourcemanager.v1.model.SetIamPolicyRequest;
+> import com.google.api.services.cloudresourcemanager.v1.model.SetOrgPolicyRequest;
+> import com.google.api.services.cloudresourcemanager.v1.model.Status;
+> import com.google.api.services.cloudresourcemanager.v1.model.TestIamPermissionsRequest;
+> import com.google.api.services.cloudresourcemanager.v1.model.TestIamPermissionsResponse;
+> import com.google.api.services.cloudresourcemanager.v1.model.UndeleteProjectRequest;
 > 
+161c162
+<     final Operation operation;
+---
+>     final com.google.api.services.cloudresourcemanager.v1.model.Operation operation;
+168c169
+<     Operation finishedOp =
+---
+>     com.google.api.services.cloudresourcemanager.v1.model.Operation finishedOp =
+170c171
+<             new Callable<Operation>() {
+---
+>             new Callable<com.google.api.services.cloudresourcemanager.v1.model.Operation>() {
+172c173
+<               public Operation call() {
+---
+>               public com.google.api.services.cloudresourcemanager.v1.model.Operation call() {

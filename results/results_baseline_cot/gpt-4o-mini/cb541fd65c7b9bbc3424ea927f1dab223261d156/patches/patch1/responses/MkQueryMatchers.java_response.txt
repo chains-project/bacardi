@@ -3,8 +3,8 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met: 1) Redistributions of source code must retain the above
+ * modification, are permitted provided that the following conditions
+ * are met: 1) Redistributions of source code must retain the above
  * copyright notice, this list of conditions and the following
  * disclaimer. 2) Redistributions in binary form must reproduce the above
  * copyright notice, this list of conditions and the following
@@ -31,7 +31,8 @@ package com.jcabi.http.mock;
 
 import java.net.URI;
 import org.hamcrest.Matcher;
-import org.hamcrest.Matchers; // Ensure this import is correct based on the updated dependency
+import org.hamcrest.Matchers;
+import org.hamcrest.core.IsEqual;
 
 /**
  * Convenient set of matchers for {@link MkQuery}.
@@ -82,7 +83,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasPath(final Matcher<String> path) {
         return new MkQueryUriMatcher(
-            Matchers.<URI>hasProperty("rawPath", path)
+            IsEqual.<URI>equalTo(path)
         );
     }
 
@@ -94,7 +95,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasQuery(final Matcher<String> query) {
         return new MkQueryUriMatcher(
-            Matchers.<URI>hasProperty("rawQuery", query)
+            IsEqual.<URI>equalTo(query)
         );
     }
 

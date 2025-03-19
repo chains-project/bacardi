@@ -6,15 +6,11 @@
 <     private final Connector httpConnector;
 ---
 >     private final ServerConnector httpConnector;
-33,34c33,36
+33,36c33,34
 <         this.server.setSendServerVersion(false);
 <         this.server.setSendDateHeader(true);
----
->         // The methods setSendServerVersion and setSendDateHeader are no longer available in newer versions of Jetty.
->         // These settings are now configured differently or are defaults.
->         // this.server.setSendServerVersion(false);
->         // this.server.setSendDateHeader(true);
-36c38
+< 
 <         this.httpConnector = new SelectChannelConnector();
 ---
+>         server.setHandler(null);
 >         this.httpConnector = new ServerConnector(server);

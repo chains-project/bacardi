@@ -1,23 +1,4 @@
 ```java
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-
 package org.apache.myfaces.tobago.maven.plugin;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -37,6 +18,8 @@ import org.codehaus.plexus.util.xml.XmlStreamReader;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -49,9 +32,7 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.artifact.resolver.ResolutionErrorHandler;
-import org.apache.maven.artifact.resolver.ArtifactResolutionException;
+import java.util.List;
 
 @Mojo(
   name = "resources",
@@ -110,13 +91,14 @@ public class UnPackThemeMojo extends AbstractThemeMojo {
 
   public void execute() throws MojoExecutionException {
     try {
-      final Iterator<String> artifacts = getProject().getRuntimeClasspathElements().iterator();
+      final List<String> artifacts = getProject().getRuntimeClasspathElements();
+      final Iterator<String> artifactsIterator = artifacts.iterator();
       if (!workDirectory.exists()) {
         workDirectory.mkdirs();
       }
-      while (artifacts.hasNext()) {
+      while (artifactsIterator.hasNext()) {
 
-        final String artifact = artifacts.next();
+        final String artifact = artifactsIterator.next();
         if (getLog().isDebugEnabled()) {
           getLog().debug("Testing jar " + artifact);
         }
@@ -196,7 +178,7 @@ public class UnPackThemeMojo extends AbstractThemeMojo {
           }
         }
       }
-    } catch (final org.apache.maven.artifact.resolver.ArtifactResolutionException drre) {
+    } catch (final DependencyResolutionRequiredException drre) {
       throw new MojoExecutionException(drre.getMessage(), drre);
     }
   }

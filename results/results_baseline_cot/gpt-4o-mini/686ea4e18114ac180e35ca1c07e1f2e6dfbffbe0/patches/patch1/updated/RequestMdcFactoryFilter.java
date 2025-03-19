@@ -11,7 +11,6 @@ import java.util.UUID;
 /**
  * Filter that sets MDC.
  */
-@Provider
 public class RequestMdcFactoryFilter implements ContainerRequestFilter {
     @Override
     public void filter(ContainerRequestContext requestContext) {

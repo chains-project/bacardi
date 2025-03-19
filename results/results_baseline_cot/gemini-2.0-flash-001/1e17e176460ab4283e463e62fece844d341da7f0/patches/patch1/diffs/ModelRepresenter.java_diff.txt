@@ -1,8 +1,60 @@
-37a38
+1,7d0
+< /**
+<  * Copyright (c) 2012 to original author or authors
+<  * All rights reserved. This program and the accompanying materials
+<  * are made available under the terms of the Eclipse Public License v1.0
+<  * which accompanies this distribution, and is available at
+<  * http://www.eclipse.org/legal/epl-v10.html
+<  */
+24a18,20
+> import java.beans.Introspector;
+> import java.beans.BeanInfo;
+> import java.beans.PropertyDescriptor;
+37a34
 >     super();
-230a232
->       try {
-231a234,236
->       } catch (java.beans.IntrospectionException e) {
->         throw new RuntimeException(e);
+218,219c215,226
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+>     try {
+>       BeanInfo beanInfo = Introspector.getBeanInfo(type);
+>       PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
+> 
+>       Set<Property> properties = new LinkedHashSet<>();
+>       for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
+>         if (propertyDescriptor.getReadMethod() != null && propertyDescriptor.getWriteMethod() != null) {
+>           properties.add(new Property(propertyDescriptor));
+>         }
 >       }
+> 
+221c228
+<       return sortTypeWithOrder(type, ORDER_MODEL);
+---
+>         return sortTypeWithOrder(type, ORDER_MODEL, properties);
+223c230
+<       return sortTypeWithOrder(type, ORDER_DEVELOPER);
+---
+>         return sortTypeWithOrder(type, ORDER_DEVELOPER, properties);
+225c232
+<       return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
+---
+>         return sortTypeWithOrder(type, ORDER_CONTRIBUTOR, properties);
+227c234
+<       return sortTypeWithOrder(type, ORDER_DEPENDENCY);
+---
+>         return sortTypeWithOrder(type, ORDER_DEPENDENCY, properties);
+229c236
+<       return sortTypeWithOrder(type, ORDER_PLUGIN);
+---
+>         return sortTypeWithOrder(type, ORDER_PLUGIN, properties);
+232a240,242
+>     } catch (IntrospectionException e) {
+>       return super.getProperties(type);
+>     }
+235,237c245
+<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+<           throws IntrospectionException {
+<       Set<Property> standard = super.getProperties(type);
+---
+>   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order, Set<Property> standard) {

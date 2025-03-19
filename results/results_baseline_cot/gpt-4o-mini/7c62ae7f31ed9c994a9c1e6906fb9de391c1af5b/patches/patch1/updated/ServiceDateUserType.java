@@ -25,8 +25,8 @@ import java.text.ParseException;
 
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.UserType;
-import org.hibernate.engine.spi.SharedSessionContractImplementor; // Added import for the new method signature
 import org.onebusaway.gtfs.model.calendar.ServiceDate;
 
 public class ServiceDateUserType implements UserType {
@@ -83,7 +83,7 @@ public class ServiceDateUserType implements UserType {
   }
 
   @Override
-  public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor sessionImplementor) // Updated method signature
+  public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor sessionImplementor)
       throws HibernateException, SQLException {
 
     if (value == null) {

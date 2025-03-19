@@ -3,15 +3,17 @@ package com.example.web;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.inject.Named;
-import jakarta.mvc.RedirectScoped;
+import javax.inject.Named;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.faces.context.FacesContext;
 
 /**
  * Used to transport messages back to the client.
  *
  * @author Hantsy Bai<hantsy@gmail.com>
  */
-@RedirectScoped
+@ViewScoped
 @Named("flashMessage")
 public class AlertMessage implements Serializable {
 
@@ -24,6 +26,9 @@ public class AlertMessage implements Serializable {
     private Type type = Type.info;
     private String text;
     private String code;
+
+    @Inject
+    private FacesContext facesContext;
 
     public AlertMessage() {
     }

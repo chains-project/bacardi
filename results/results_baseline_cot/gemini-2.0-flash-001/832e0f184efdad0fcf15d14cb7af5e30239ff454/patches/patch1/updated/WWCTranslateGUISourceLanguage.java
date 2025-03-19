@@ -73,7 +73,7 @@ public class WWCTranslateGUISourceLanguage implements InventoryProvider {
 				if (selectedSourceLanguage.equals(main.getSupportedTranslatorLanguages().get(i).getLangCode())) {
 					XEnchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get();
 					if (powerEnchantment != null) {
-						Enchantment enchantment = powerEnchantment.getEnchant();
+						Enchantment enchantment = powerEnchantment.parseEnchantment();
 						if (enchantment != null) {
 							currentLangMeta.addEnchant(enchantment, 1, false);
 						}
@@ -82,7 +82,7 @@ public class WWCTranslateGUISourceLanguage implements InventoryProvider {
 				} else if (currTranslator.getInLangCode().equals(main.getSupportedTranslatorLanguages().get(i).getLangCode())) {
 					XEnchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get();
 					if (powerEnchantment != null) {
-						Enchantment enchantment = powerEnchantment.getEnchant();
+						Enchantment enchantment = powerEnchantment.parseEnchantment();
 						if (enchantment != null) {
 							currentLangMeta.addEnchant(enchantment, 1, false);
 						}
@@ -134,7 +134,7 @@ public class WWCTranslateGUISourceLanguage implements InventoryProvider {
 				if ((currTranslator.getInLangCode().equals("None"))) {
 					XEnchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get();
 					if (powerEnchantment != null) {
-						Enchantment enchantment = powerEnchantment.getEnchant();
+						Enchantment enchantment = powerEnchantment.parseEnchantment();
 						if (enchantment != null) {
 							skipSourceMeta.addEnchant(enchantment, 1, false);
 						}
@@ -143,7 +143,7 @@ public class WWCTranslateGUISourceLanguage implements InventoryProvider {
 				} else if (selectedSourceLanguage.equalsIgnoreCase("None")) {
 					XEnchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get();
 					if (powerEnchantment != null) {
-						Enchantment enchantment = powerEnchantment.getEnchant();
+						Enchantment enchantment = powerEnchantment.parseEnchantment();
 						if (enchantment != null) {
 							skipSourceMeta.addEnchant(enchantment, 1, false);
 						}

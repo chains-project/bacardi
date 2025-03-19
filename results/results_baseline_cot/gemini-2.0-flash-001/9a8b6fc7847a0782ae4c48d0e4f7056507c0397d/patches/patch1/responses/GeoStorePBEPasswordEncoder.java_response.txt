@@ -27,7 +27,6 @@ import static it.geosolutions.geostore.core.security.password.SecurityUtils.toCh
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Base64;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.jasypt.encryption.pbe.StandardPBEByteEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
@@ -107,13 +106,13 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			return new PasswordEncoder() {
 				@Override
 				public String encode(CharSequence rawPassword) {
-					stringEncrypter.initialize();
+					stringEncrypter.setPasswordCharArray(chars);
 					return stringEncrypter.encrypt(rawPassword.toString());
 				}
 
 				@Override
 				public boolean matches(CharSequence rawPassword, String encodedPassword) {
-					stringEncrypter.initialize();
+					stringEncrypter.setPasswordCharArray(chars);
 					return stringEncrypter.decrypt(encodedPassword).equals(rawPassword.toString());
 				}
 			};

@@ -9,14 +9,6 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.mvc.Controller;
-import javax.mvc.Models;
-import javax.mvc.View;
-import javax.mvc.binding.BindingResult;
-import javax.mvc.binding.ParamError;
-import javax.mvc.security.CsrfProtected;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
@@ -30,7 +22,6 @@ import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import org.eclipse.krazo.engine.Viewable;
 
 @Path("tasks")
-@Controller
 @RequestScoped
 public class TaskController {
 
@@ -38,10 +29,10 @@ public class TaskController {
     Logger log;
 
     @Inject
-    private Models models;
+    private javax.mvc.Models models;
 
     @Inject
-    private BindingResult validationResult;
+    private javax.mvc.binding.BindingResult validationResult;
 
     @Inject
     TaskRepository taskRepository;
@@ -50,7 +41,7 @@ public class TaskController {
     AlertMessage flashMessage;
 
     @GET
-    @View("tasks.xhtml")
+    @javax.mvc.View("tasks.xhtml")
     public void allTasks() {
         log.log(Level.INFO, "fetching all tasks");
 
@@ -63,11 +54,12 @@ public class TaskController {
         models.put("todotasks", todotasks);
         models.put("doingtasks", doingtasks);
         models.put("donetasks", donetasks);
+
     }
 
     @GET
     @Path("{id}")
-    public Viewable taskDetails(@PathParam("id") @NotNull Long id) {
+    public Viewable taskDetails(@PathParam("id") Long id) {
         log.log(Level.INFO, "get task by id@{0}", id);
         Task task = taskRepository.findById(id);
 
@@ -85,15 +77,15 @@ public class TaskController {
     }
 
     @POST
-    @CsrfProtected
-    public Response save(@Valid @BeanParam TaskForm form) {
+    @javax.mvc.security.CsrfProtected
+    public Response save(@javax.validation.Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "saving new task @{0}", form);
 
         if (validationResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation violations!");
             validationResult.getAllErrors()
                     .stream()
-                    .forEach((ParamError t) -> {
+                    .forEach((javax.mvc.binding.ParamError t) -> {
                         alert.addError(t.getParamName(), "", t.getMessage());
                     });
             models.put("errors", alert);
@@ -129,15 +121,15 @@ public class TaskController {
 
     @PUT
     @Path("{id}")
-    @CsrfProtected
-    public Response update(@PathParam(value = "id") Long id, @Valid @BeanParam TaskForm form) {
+    @javax.mvc.security.CsrfProtected
+    public Response update(@PathParam(value = "id") Long id, @javax.validation.Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "updating existed task@id:{0}, form data:{1}", new Object[]{id, form});
 
         if (validationResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation violations!");
             validationResult.getAllErrors()
                     .stream()
-                    .forEach((ParamError t) -> {
+                    .forEach((javax.mvc.binding.ParamError t) -> {
                         alert.addError(t.getParamName(), "", t.getMessage());
                     });
             models.put("errors", alert);
@@ -159,7 +151,7 @@ public class TaskController {
 
     @PUT
     @Path("{id}/status")
-    public Response updateStatus(@PathParam(value = "id") Long id, @NotNull @FormParam(value = "status") String status) {
+    public Response updateStatus(@PathParam(value = "id") Long id, @javax.validation.NotNull @FormParam(value = "status") String status) {
         log.log(Level.INFO, "updating status of the existed task@id:{0}, status:{1}", new Object[]{id, status});
 
         Task task = taskRepository.findById(id);

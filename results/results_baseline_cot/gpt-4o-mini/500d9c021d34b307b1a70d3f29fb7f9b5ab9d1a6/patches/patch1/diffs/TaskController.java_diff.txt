@@ -1,14 +1,37 @@
-66d65
+15,17d14
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.ParamError;
+< import javax.mvc.security.CsrfProtected;
+44,46d40
+<     private BindingResult validationResult;
 < 
-90d88
+<     @Inject
+89,90d82
+<     @CsrfProtected
 <     //@ValidateOnExecution(type = ExecutableType.NONE)
-95c93
+94,100c86,87
+<         if (validationResult.isFailed()) {
 <             AlertMessage alert = AlertMessage.danger("Validation voilations!");
+<             validationResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+<                         alert.addError(t.getParamName(), "", t.getMessage());
+<                     });
 ---
+>         if (form.getName() == null || form.getDescription() == null) {
 >             AlertMessage alert = AlertMessage.danger("Validation violations!");
-139c137
+134d120
+<     @CsrfProtected
+138,144c124,125
+<         if (validationResult.isFailed()) {
 <             AlertMessage alert = AlertMessage.danger("Validation voilations!");
+<             validationResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+<                         alert.addError(t.getParamName(), "", t.getMessage());
+<                     });
 ---
+>         if (form.getName() == null || form.getDescription() == null) {
 >             AlertMessage alert = AlertMessage.danger("Validation violations!");
-164d161
+164d144
 <     //@CsrfProtected

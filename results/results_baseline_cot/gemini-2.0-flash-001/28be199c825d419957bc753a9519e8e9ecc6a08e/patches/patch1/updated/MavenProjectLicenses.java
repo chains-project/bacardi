@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2008-2021 Mycila (mathieu.carbou@gmail.com)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for specific language governing permissions and
- * limitations under the License.
- */
 package com.mycila.maven.plugin.license.dependencies;
 
 import org.apache.maven.artifact.Artifact;
@@ -32,6 +17,7 @@ import org.apache.maven.shared.dependency.graph.DependencyGraphBuilderException;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
 import org.apache.maven.shared.dependency.graph.internal.Maven31DependencyGraphBuilder;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -108,9 +94,10 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
   protected Set<License> getLicensesFromArtifact(final Artifact artifact) {
     Set<License> licenses = new HashSet<License>();
     try {
-      ProjectBuildingRequest buildingRequest = new DefaultProjectBuildingRequest(getBuildingRequest());
-      buildingRequest.setProject(artifact);
-      MavenProject project = getProjectBuilder().build(artifact, buildingRequest).getProject();
+      File artifactFile = artifact.getFile();
+      ProjectBuildingRequest buildingRequest = getBuildingRequest();
+      buildingRequest.setProcessDependencies(false);
+      MavenProject project = getProjectBuilder().build(artifactFile, buildingRequest).getProject();
       licenses.addAll(project.getLicenses());
     } catch (ProjectBuildingException ex) {
       getLog().warn(String.format("Could not get project from dependency's artifact: %s", artifact.getFile()));

@@ -19,10 +19,8 @@ import static com.google.pubsublite.kafka.sink.Schemas.encodeToBytes;
 
 import com.google.api.core.ApiService.State;
 import com.google.cloud.pubsublite.Message;
-import com.google.cloud.pubsublite.PublishMetadata; // This import is causing the issue
 import com.google.cloud.pubsublite.internal.Publisher;
-import com.google.cloud.pubsublite.internal.PublisherFactory; // Added import for PublisherFactory
-import com.google.cloud.pubsublite.internal.PublisherFactoryImpl; // Added import for PublisherFactoryImpl
+import com.google.cloud.pubsublite.internal.PublishMetadata; // Updated import
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.protobuf.ByteString;

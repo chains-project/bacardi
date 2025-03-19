@@ -1,10 +1,16 @@
 3d2
 < import develop.p2p.lib.WaveCreator;
-185c184
+185c184,188
 <         WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1);
 ---
->         //WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1); // develop.p2p.lib.WaveCreator is missing. Removing this line.
-200c199
+>         final double[] waveValues = {0.0, 0.0}; // Store wave values for x and static
+>         final double waveSpeed = 0.01;
+>         final double waveAmplitude = 0.8;
+>         final double waveStaticValue = 1.8;
+>         final double waveOffset = 0.1;
+200c203,205
 <                     circle(center.clone().add(0, wave.get(0.01, false), 0), count[0], wave.getStatic());
 ---
->                     //circle(center.clone().add(0, wave.get(0.01, false), 0), count[0], wave.getStatic()); // WaveCreator is missing. Removing this line.
+>                     waveValues[0] = waveAmplitude * Math.sin(waveSpeed * count[0]) + waveOffset;
+> 
+>                     circle(center.clone().add(0, waveValues[0], 0), count[0], waveStaticValue);

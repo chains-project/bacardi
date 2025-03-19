@@ -10,9 +10,6 @@ import liquibase.sqlgenerator.SqlGeneratorChain;
 import liquibase.sqlgenerator.core.CreateIndexGenerator;
 import liquibase.statement.core.CreateIndexStatement;
 
-// Importing the correct StringUtils class from Apache Commons Lang
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -34,7 +31,6 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
   private Sql[] generateMSSQLSql(CreateIndexStatementMSSQL statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
     StringBuilder builder = new StringBuilder();
 
-    // Basically copied from liquibase.sqlgenerator.core.CreateIndexGenerator
     builder.append("CREATE ");
     if (statement.isUnique() != null && statement.isUnique()) {
       builder.append("UNIQUE ");
@@ -75,8 +71,7 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
     if (statement.getFillFactor() != null) {
       builder.append(" WITH (FILLFACTOR = ").append(statement.getFillFactor()).append(")");
     }
-    // This block simplified, since we know we have MSSQLDatabase
-    if (StringUtils.trimToNull(statement.getTablespace()) != null) {
+    if (statement.getTablespace() != null && !statement.getTablespace().trim().isEmpty()) {
       builder.append(" ON ").append(statement.getTablespace());
     }
 

@@ -14,11 +14,6 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-// Ensure the correct import for the Interceptor and InvocationContext
-import jakarta.interceptor.AroundInvoke; // Updated import
-import jakarta.interceptor.Interceptor; // Updated import
-import jakarta.interceptor.InvocationContext; // Updated import
-
 @Replaceable
 @Interceptor
 @Dependent

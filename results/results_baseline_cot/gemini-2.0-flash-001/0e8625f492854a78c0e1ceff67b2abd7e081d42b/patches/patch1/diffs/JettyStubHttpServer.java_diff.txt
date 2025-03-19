@@ -6,14 +6,11 @@
 <     private final Connector httpConnector;
 ---
 >     private final ServerConnector httpConnector;
-33,34c33
+33,36c33,34
 <         this.server.setSendServerVersion(false);
 <         this.server.setSendDateHeader(true);
----
->         server.setHandler(null); // Required before setting attributes
-36c35,37
+< 
 <         this.httpConnector = new SelectChannelConnector();
 ---
->         this.server.setAttribute("org.eclipse.jetty.server.Request.maxFormContentSize", -1);
-> 
+>         server.setHandler(null);
 >         this.httpConnector = new ServerConnector(server);

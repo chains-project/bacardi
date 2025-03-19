@@ -1,22 +1,14 @@
-11a12
-> import java.nio.charset.StandardCharsets;
-15,16d15
+1,4d0
+< /*
+<  * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
+<  * https://github.com/artipie/docker-adapter/LICENSE.txt
+<  */
+15,16c11
 < import org.cactoos.io.BytesOf;
 < import org.cactoos.text.HexOf;
-57c56
+---
+> import org.apache.commons.codec.binary.Hex;
+57c52
 <                 new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
 ---
->                 new Digest.Sha256(bytesToHex(sha.digest()))
-69a69,80
-> 
->     private static String bytesToHex(byte[] hash) {
->         StringBuilder hexString = new StringBuilder(2 * hash.length);
->         for (byte b : hash) {
->             String hex = Integer.toHexString(0xff & b);
->             if (hex.length() == 1) {
->                 hexString.append('0');
->             }
->             hexString.append(hex);
->         }
->         return hexString.toString();
->     }
+>                 new Digest.Sha256(new String(Hex.encodeHex(sha.digest())))

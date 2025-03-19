@@ -13,45 +13,47 @@ public class DateTime extends DateAndTime {
   }
 
   public Timestamp past(int atMost, TimeUnit unit) {
-    return new Timestamp(super.past(atMost, unit).getTime());
+    Date date = super.past(atMost, unit);
+    return new Timestamp(date.getTime());
   }
 
   public Timestamp past(int atMost, int minimum, TimeUnit unit) {
-    return new Timestamp(super.past(atMost, minimum, unit).getTime());
+    Date date = super.past(atMost, minimum, unit);
+    return new Timestamp(date.getTime());
   }
 
-  @Override
   public Timestamp future(int atMost, TimeUnit unit) {
-    return new Timestamp(super.future(atMost, unit).getTime());
+    Date date = super.future(atMost, unit);
+    return new Timestamp(date.getTime());
   }
 
-  @Override
   public Timestamp future(int atMost, int minimum, TimeUnit unit) {
-    return new Timestamp(super.future(atMost, minimum, unit).getTime());
+    Date date = super.future(atMost, minimum, unit);
+    return new Timestamp(date.getTime());
   }
 
-  @Override
   public Timestamp future(int atMost, TimeUnit unit, Date referenceDate) {
-    return new Timestamp(super.future(atMost, unit, referenceDate).getTime());
+    Date date = super.future(atMost, unit, referenceDate);
+    return new Timestamp(date.getTime());
   }
 
-  @Override
   public Timestamp past(int atMost, TimeUnit unit, Date referenceDate) {
-    return new Timestamp(super.past(atMost, unit, referenceDate).getTime());
+    Date date = super.past(atMost, unit, referenceDate);
+    return new Timestamp(date.getTime());
   }
 
-  @Override
   public Timestamp between(Date from, Date to) throws IllegalArgumentException {
-    return new Timestamp(super.between(from, to).getTime());
+    Date date = super.between(from, to);
+    return new Timestamp(date.getTime());
   }
 
-  @Override
   public Timestamp birthday() {
-    return new Timestamp(super.birthday().getTime());
+    Date date = super.birthday();
+    return new Timestamp(date.getTime());
   }
 
-  @Override
   public Timestamp birthday(int minAge, int maxAge) {
-    return new Timestamp(super.birthday(minAge, maxAge).getTime());
+    Date date = super.birthday(minAge, maxAge);
+    return new Timestamp(date.getTime());
   }
 }

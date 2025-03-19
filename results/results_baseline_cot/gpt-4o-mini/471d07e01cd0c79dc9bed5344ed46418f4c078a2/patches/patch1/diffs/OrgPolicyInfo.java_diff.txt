@@ -1,12 +1,87 @@
-21c21
-< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
----
-> import com.google.api.services.cloudresourcemanager.model.RestoreDefault; // Ensure this import is correct
-125c125
+1,15d0
+< /*
+<  * Copyright 2020 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+40d24
+<         @Override
+47d30
+<         @Override
+74d56
+<     @Override
+79d60
+<     @Override
+91d71
+<     @Override
+105,120d84
+<   /**
+<    * The organization ListPolicy object.
+<    *
+<    * <p>ListPolicy can define specific values and subtrees of Cloud Resource Manager resource
+<    * hierarchy (Organizations, Folders, Projects) that are allowed or denied by setting the
+<    * allowedValues and deniedValues fields. This is achieved by using the under: and optional is:
+<    * prefixes. The under: prefix denotes resource subtree values. The is: prefix is used to denote
+<    * specific values, and is required only if the value contains a ":". Values prefixed with "is:"
+<    * are treated the same as values with no prefix. Ancestry subtrees must be in one of the
+<    * following formats: - "projects/", e.g. "projects/tokyo-rain-123" - "folders/", e.g.
+<    * "folders/1234" - "organizations/", e.g. "organizations/1234" The supportsUnder field of the
+<    * associated Constraint defines whether ancestry prefixes can be used. You can set allowedValues
+<    * and deniedValues in the same Policy if allValues is ALL_VALUES_UNSPECIFIED. ALLOW or DENY are
+<    * used to allow or deny all values. If allValues is set to either ALLOW or DENY, allowedValues
+<    * and deniedValues must be unset.
+<    */
+125c89
 <     private final List<java.lang.String> deniedValues;
 ---
->     private final List<String> deniedValues; // Changed from java.lang.String to String
-225c225
-<     private RestoreDefault restoreDefault;
----
->     private RestoreDefault restoreDefault; // Ensure this is correctly imported
+>     private final List<String> deniedValues;
+142d105
+<     /** Returns all the Values state of this policy. */
+147d109
+<     /** Returns the list of allowed values of this resource */
+152d113
+<     /** Returns the list of denied values of this resource. */
+157d117
+<     /** Returns the inheritance behavior for this Policy */
+162d121
+<     /** Returns the suggested value of this policy. */
+167d125
+<     @Override
+178d135
+<     @Override
+194d150
+<     @Override
+219d174
+<   /** Builder for {@code OrganizationPolicyInfo}. */
+291d245
+<   /** Returns the boolean constraint to check whether the constraint is enforced or not. */
+296d249
+<   /** Returns the name of the Constraint. */
+301d253
+<   /** Returns the etag value of policy. */
+306d257
+<   /** Return the policies. */
+311d261
+<   /** Restores the default behavior of the constraint. */
+316d265
+<   /** Returns the updated timestamp of policy. */
+321d269
+<   /** Returns the version of the Policy, Default version is 0. */
+326d273
+<   @Override
+344d290
+<   @Override
+350d295
+<   /** Returns a builder for the {@link OrgPolicyInfo} object. */
+355d299
+<   /** Returns a builder for the {@link OrgPolicyInfo} object. */

@@ -4,6 +4,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 
+import org.openqa.selenium.JavascriptExecutor;
+
 import org.jenkinsci.test.acceptance.po.PageObject;
 
 /**
@@ -26,12 +28,11 @@ public class ChartUtil {
      */
     public static String getChartDataById(final PageObject pageObject, final String elementId) {
         if (isChartDisplayedByElementId(pageObject, elementId)) {
-            Object result = pageObject.executeScript(String.format(
+            Object result = ((JavascriptExecutor) pageObject.driver).executeScript(String.format(
                     "delete(window.Array.prototype.toJSON) %n"
                             + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
                     elementId));
-            // ScriptResult scriptResult = new ScriptResult(result); // ScriptResult is removed because it's not available
-            return result != null ? result.toString() : null;
+            return result.toString();
         }
         return null;
     }
@@ -50,12 +51,11 @@ public class ChartUtil {
             final String toolAttribute) {
         if (isChartDisplayedByDivToolAttribute(pageObject, toolAttribute)) {
             for (int i = 0; i < MAX_ATTEMPTS; i++) {
-                Object result = pageObject.executeScript(String.format(
+                Object result = ((JavascriptExecutor) pageObject.driver).executeScript(String.format(
                         "delete(window.Array.prototype.toJSON) %n"
                                 + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
                         toolAttribute));
 
-                //Object scriptResult = new ScriptResult(result).getJavaScriptResult(); // ScriptResult is removed because it's not available
                 if (result != null) {
                     return result.toString();
                 }

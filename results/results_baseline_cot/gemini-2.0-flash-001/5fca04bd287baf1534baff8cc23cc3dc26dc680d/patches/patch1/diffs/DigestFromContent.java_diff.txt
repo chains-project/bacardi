@@ -1,16 +1,12 @@
-12a13
+1,4d0
+< /*
+<  * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
+<  * https://github.com/artipie/docker-adapter/LICENSE.txt
+<  */
+12a9
 > import java.nio.charset.StandardCharsets;
-16,17c17,18
+16c13,14
 < import org.cactoos.io.BytesOf;
-< import org.cactoos.text.HexOf;
 ---
-> import org.apache.commons.io.IOUtils;
-> import org.apache.commons.codec.binary.Hex;
-54c55
-<                         sha.update(buf);
----
->                         sha.update(IOUtils.toByteArray(buf.openStream()));
-61c62
-<                     () -> new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
----
->                     () -> new Digest.Sha256(new String(Hex.encodeHex(sha.digest())))
+> import org.cactoos.bytes.BytesOf;
+> import org.cactoos.text.TextOf;

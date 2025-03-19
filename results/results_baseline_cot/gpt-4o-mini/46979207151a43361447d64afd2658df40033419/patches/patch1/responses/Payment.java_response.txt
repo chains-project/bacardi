@@ -18,7 +18,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
-import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy; // Ensure this import is correct
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy; // Added import for JAXBToStringStrategy
+
 
 /**
  * <p>Java class for Payment complex type.
@@ -132,7 +133,7 @@ public class Payment implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = JAXBToStringStrategy.DEFAULT; // Updated to use DEFAULT instead of getInstance()
+        final ToStringStrategy2 strategy = JAXBToStringStrategy.DEFAULT; // Updated to use DEFAULT
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

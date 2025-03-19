@@ -1,20 +1,4 @@
 ```java
-/*
- * Copyright 2015 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.google.cloud.resourcemanager;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -26,10 +10,6 @@ import com.google.cloud.StringEnumType;
 import com.google.cloud.StringEnumValue;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.google.cloud.resourcemanager.v3.Project;
-import com.google.cloud.resourcemanager.v3.Project.State;
-import com.google.cloud.resourcemanager.v3.ResourceId;
-import com.google.protobuf.Timestamp;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +17,11 @@ import java.util.Objects;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.format.DateTimeFormatter;
+import com.google.cloud.resourcemanager.v3.Project;
+import com.google.cloud.resourcemanager.v3.Project.State;
+import com.google.cloud.resourcemanager.v3.ResourceId;
+import com.google.protobuf.Timestamp;
+import com.google.protobuf.util.Timestamps;
 
 /**
  * A Google Cloud Resource Manager project metadata object. A Project is a high-level Google Cloud
@@ -60,6 +45,7 @@ public class ProjectInfo implements Serializable {
   private final ResourceId parent;
 
   /** The project lifecycle states. */
+  /*
   public static final class State extends StringEnumValue {
     private static final long serialVersionUID = 869635563976629566L;
 
@@ -73,22 +59,22 @@ public class ProjectInfo implements Serializable {
 
     private static final StringEnumType<State> type = new StringEnumType(State.class, CONSTRUCTOR);
 
-    /** Only used/useful for distinguishing unset values. */
+    /** Only used/useful for distinguishing unset values. *//*
     public static final State LIFECYCLE_STATE_UNSPECIFIED =
         type.createAndRegister("LIFECYCLE_STATE_UNSPECIFIED");
 
-    /** The normal and active state. */
+    /** The normal and active state. *//*
     public static final State ACTIVE = type.createAndRegister("ACTIVE");
 
     /**
      * The project has been marked for deletion by the user or by the system (Google Cloud
      * Platform). This can generally be reversed by calling {@link ResourceManager#undelete}.
-     */
+     *//*
     public static final State DELETE_REQUESTED = type.createAndRegister("DELETE_REQUESTED");
 
     /**
      * The process of deleting the project has begun. Reversing the deletion is no longer possible.
-     */
+     *//*
     public static final State DELETE_IN_PROGRESS = type.createAndRegister("DELETE_IN_PROGRESS");
 
     private State(String constant) {
@@ -98,22 +84,24 @@ public class ProjectInfo implements Serializable {
     /**
      * Get the State for the given String constant, and throw an exception if the constant is not
      * recognized.
-     */
+     *//*
     public static State valueOfStrict(String constant) {
       return type.valueOfStrict(constant);
     }
 
-    /** Get the State for the given String constant, and allow unrecognized values. */
+    /** Get the State for the given String constant, and allow unrecognized values. *//*
     public static State valueOf(String constant) {
       return type.valueOf(constant);
     }
 
-    /** Return the known values for State. */
+    /** Return the known values for State. *//*
     public static State[] values() {
       return type.values();
     }
   }
+  */
 
+  /*
   public static class ResourceId implements Serializable {
 
     private static final long serialVersionUID = -325199985993344726L;
@@ -148,18 +136,20 @@ public class ProjectInfo implements Serializable {
       return Objects.hash(id, type);
     }
 
-    com.google.cloud.resourcemanager.v3.ResourceId toPb() {
-      return com.google.cloud.resourcemanager.v3.ResourceId.newBuilder()
-          .setId(id)
-          .setType(type.toLowerCase())
-          .build();
+    com.google.api.services.cloudresourcemanager.model.ResourceId toPb() {
+      com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb =
+          new com.google.api.services.cloudresourcemanager.model.ResourceId();
+      resourceIdPb.setId(id);
+      resourceIdPb.setType(type.toLowerCase());
+      return resourceIdPb;
     }
 
     static ResourceId fromPb(
-        com.google.cloud.resourcemanager.v3.ResourceId resourceIdPb) {
+        com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb) {
       return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType());
     }
   }
+  */
 
   /** Builder for {@code ProjectInfo}. */
   public abstract static class Builder {
@@ -394,31 +384,27 @@ public class ProjectInfo implements Serializable {
   }
 
   com.google.cloud.resourcemanager.v3.Project toPb() {
-    com.google.cloud.resourcemanager.v3.Project.Builder projectPb =
-        com.google.cloud.resourcemanager.v3.Project.newBuilder();
+    com.google.cloud.resourcemanager.v3.Project.Builder projectPb = com.google.cloud.resourcemanager.v3.Project.newBuilder();
     projectPb.setName(name);
     projectPb.setProjectId(projectId);
     projectPb.putAllLabels(labels);
     projectPb.setProjectNumber(projectNumber);
     if (state != null) {
-      projectPb.setState(com.google.cloud.resourcemanager.v3.Project.State.valueOf(state.toString()));
+      projectPb.setState(state);
     }
-
     if (createTimeMillis != null) {
-      Instant instant = Instant.ofEpochMilli(createTimeMillis);
-      Timestamp timestamp =
-          Timestamp.newBuilder().setSeconds(instant.getEpochSecond()).setNanos(instant.getNano()).build();
+      Timestamp timestamp = Timestamps.fromMillis(createTimeMillis);
       projectPb.setCreateTime(timestamp);
     }
-
     if (parent != null) {
-      projectPb.setParent(parent.toPb().toString());
+      projectPb.setParent(parent.getType() + "/" + parent.getId());
     }
     return projectPb.build();
   }
 
   static ProjectInfo fromPb(com.google.cloud.resourcemanager.v3.Project projectPb) {
-    Builder builder = newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
+    Builder builder =
+        newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
     if (projectPb.getName() != null && !projectPb.getName().equals("Unnamed")) {
       builder.setName(projectPb.getName());
     }
@@ -426,22 +412,16 @@ public class ProjectInfo implements Serializable {
       builder.setLabels(projectPb.getLabelsMap());
     }
     if (projectPb.getState() != null) {
-      builder.setState(State.valueOf(projectPb.getState().toString()));
+      builder.setState(projectPb.getState());
     }
-
     if (projectPb.getCreateTime() != null) {
-      builder.setCreateTimeMillis(
-          Instant.ofEpochSecond(projectPb.getCreateTime().getSeconds(), projectPb.getCreateTime().getNanos())
-              .toEpochMilli());
+      builder.setCreateTimeMillis(Timestamps.toMillis(projectPb.getCreateTime()));
     }
-
     if (projectPb.getParent() != null) {
       String parentString = projectPb.getParent();
       String[] parts = parentString.split("/");
-      if (parts.length == 4) {
-        String type = parts[2];
-        String id = parts[3];
-        builder.setParent(ResourceId.of(id, type));
+      if (parts.length == 2) {
+        builder.setParent(ResourceId.newBuilder().setId(parts[1]).setType(parts[0]).build());
       }
     }
     return builder.build();

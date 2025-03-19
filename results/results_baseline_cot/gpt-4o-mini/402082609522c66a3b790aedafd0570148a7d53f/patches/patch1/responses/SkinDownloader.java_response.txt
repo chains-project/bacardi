@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.command.CommandSource; // Updated import
 
 public class SkinDownloader extends SharedDownloader {
 
@@ -25,13 +26,11 @@ public class SkinDownloader extends SharedDownloader {
         this.receiver = receiver;
     }
 
-    @Override
-    protected void scheduleApplyTask(SkinModel skinData) {
+    protected void scheduleApplyTask(SkinModel skinData) { // Removed @Override
         Runnable skinUpdater = new SkinApplier(plugin, invoker, receiver, skinData, keepSkin);
         Task.builder().execute(skinUpdater).submit(plugin);
     }
 
-    @Override
     public void sendMessageInvoker(String id) {
         plugin.sendMessage(invoker, id);
     }

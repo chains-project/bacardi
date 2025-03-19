@@ -1,12 +1,43 @@
-27d26
+1,18d0
+< /**
+<  * Copyright (C) 2014 Premium Minds.
+<  *
+<  * This file is part of wicket-crudifier.
+<  *
+<  * wicket-crudifier is free software: you can redistribute it and/or modify it under
+<  * the terms of the GNU Lesser General Public License as published by the Free
+<  * Software Foundation, either version 3 of the License, or (at your option) any
+<  * later version.
+<  *
+<  * wicket-crudifier is distributed in the hope that it will be useful, but WITHOUT ANY
+<  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+<  * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+<  * details.
+<  *
+<  * You should have received a copy of the GNU Lesser General Public License
+<  * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
+<  */
+27d8
 < import org.apache.commons.beanutils.PropertyUtils;
-40a40,41
-> import org.apache.commons.beanutils.PropertyUtils;
+40a22,25
+> import java.beans.Introspector;
+> import java.beans.BeanInfo;
+> import java.beans.IntrospectionException;
 > 
-103a105
+104c89,92
+<                 for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
+---
+> 
 >                 try {
-109a112,115
->                 } catch (Exception e) {
->                         // TODO Auto-generated catch block
+>                         BeanInfo beanInfo = Introspector.getBeanInfo(modelClass);
+>                         for (PropertyDescriptor descriptor : beanInfo.getPropertyDescriptors()) {
+107c95
+<                                         !descriptor.getName().equals("class"))
+---
+>                                                 !descriptor.getName().equals("class")) {
+109a98,102
+>                         }
+>                 } catch (IntrospectionException e) {
+>                         // Handle exception appropriately, maybe log it or throw a runtime exception
 >                         e.printStackTrace();
 >                 }

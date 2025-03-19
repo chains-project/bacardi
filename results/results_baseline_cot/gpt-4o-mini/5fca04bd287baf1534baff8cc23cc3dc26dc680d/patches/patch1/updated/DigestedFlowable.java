@@ -12,10 +12,11 @@ import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
-import org.cactoos.bytes.BytesOf; // Updated import
-import org.cactoos.text.HexOf; // Updated import
+import org.cactoos.io.BytesOf;
+import org.cactoos.text.HexOf;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
+import org.cactoos.text.TextOf; // Added import for TextOf
 
 /**
  * {@link Flowable} that calculates digest of origin {@link Publisher} bytes when they pass by.
@@ -44,7 +45,6 @@ public final class DigestedFlowable extends Flowable<ByteBuffer> {
         this.origin = origin;
     }
 
-    @Override
     public void subscribeActual(final Subscriber<? super ByteBuffer> subscriber) {
         final MessageDigest sha = Digests.SHA256.get();
         Flowable.fromPublisher(this.origin).map(
@@ -54,7 +54,7 @@ public final class DigestedFlowable extends Flowable<ByteBuffer> {
             }
         ).doOnComplete(
             () -> this.dig.set(
-                new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+                new Digest.Sha256(new TextOf(new BytesOf(sha.digest())).asString()) // Changed HexOf to TextOf
             )
         ).subscribe(subscriber);
     }

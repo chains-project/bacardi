@@ -1,7 +1,8 @@
 package io.zold.api;
 
 import org.cactoos.Text;
-import java.util.Iterator;
+import org.cactoos.iterable.LengthOf;
+import org.cactoos.iterable.IterableOf;
 
 /**
  * Default implementation for {@link Score}.
@@ -26,19 +27,12 @@ public final class RtScore implements Score {
 
     @Override
     public int compareTo(final Score other) {
-        return sizeOf(other.suffixes()) - sizeOf(this.sfxs);
+        return new LengthOf(new IterableOf<>(other.suffixes())).intValue()
+            - new LengthOf(new IterableOf<>(this.sfxs)).intValue();
     }
 
     @Override
     public Iterable<Text> suffixes() {
         return this.sfxs;
-    }
-
-    private int sizeOf(Iterable<Text> iterable) {
-        int size = 0;
-        for (Text text : iterable) {
-            size++;
-        }
-        return size;
     }
 }

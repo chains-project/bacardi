@@ -3,8 +3,8 @@
  *  contributor license agreements.  See the NOTICE file distributed with
  *  this work for additional information regarding copyright ownership.
  *  The ASF licenses this file to You under the Apache License, Version 2.0
- *  (the "License"); you may not use this file except in compliance with
- *  the License.  You may obtain a copy of the License at
+ *  (the "License"); you may not use this file except in compliance with the
+ *  License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -110,12 +110,11 @@ class OffloadingOutputStream extends ThresholdingOutputStream
         super( threshold );
         this.outputFile = outputFile;
 
-        memoryOutputStream = new ByteArrayOutputStream();
+        memoryOutputStream = new ByteArrayOutputStream( threshold / 10 );
         currentOutputStream = memoryOutputStream;
         this.prefix = prefix;
         this.suffix = suffix;
         this.directory = directory;
-        this.threshold = threshold;
     }
 
     // --------------------------------------- ThresholdingOutputStream methods
@@ -128,7 +127,6 @@ class OffloadingOutputStream extends ThresholdingOutputStream
      *
      * @exception java.io.IOException if an error occurs.
      */
-    @Override
     protected OutputStream getStream() throws IOException
     {
         return currentOutputStream;
@@ -142,7 +140,6 @@ class OffloadingOutputStream extends ThresholdingOutputStream
      *
      * @exception java.io.IOException if an error occurs.
      */
-    @Override
     protected void thresholdReached() throws IOException
     {
         if ( prefix != null )
@@ -155,7 +152,7 @@ class OffloadingOutputStream extends ThresholdingOutputStream
     public InputStream getInputStream() throws IOException
     {
 
-        InputStream memoryAsInput = memoryOutputStream.toInputStream();
+        java.io.ByteArrayInputStream memoryAsInput = new java.io.ByteArrayInputStream(memoryOutputStream.toByteArray());
         if ( outputFile == null )
         {
             return memoryAsInput;
@@ -209,11 +206,7 @@ class OffloadingOutputStream extends ThresholdingOutputStream
     @Override
     public void close() throws IOException
     {
-        try {
-            super.close();
-        } catch (IOException e) {
-            //ignore
-        }
+        super.close();
         closed = true;
         currentOutputStream.close();
     }

@@ -1,104 +1,6 @@
 22d21
 < import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
-25a25
-> import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy; // Ensure this import is correct
-27,451d26
-< 
-< /**
-<  * <p>Java class for anonymous complex type.
-<  * 
-<  * <p>The following schema fragment specifies the expected content contained within this class.
-<  * 
-<  * <pre>
-<  * &lt;complexType&gt;
-<  *   &lt;complexContent&gt;
-<  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-<  *       &lt;sequence&gt;
-<  *         &lt;element name="SalesInvoices" minOccurs="0"&gt;
-<  *           &lt;complexType&gt;
-<  *             &lt;complexContent&gt;
-<  *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-<  *                 &lt;sequence&gt;
-<  *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NumberOfEntries"/&gt;
-<  *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TotalDebit"/&gt;
-<  *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TotalCredit"/&gt;
-<  *                   &lt;element name="Invoice" maxOccurs="unbounded" minOccurs="0"&gt;
-<  *                     &lt;complexType&gt;
-<  *                       &lt;complexContent&gt;
-<  *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-<  *                           &lt;sequence&gt;
-<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceNo"/&gt;
-<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ATCUD"/&gt;
-<  *                             &lt;element name="DocumentStatus"&gt;
-<  *                               &lt;complexType&gt;
-<  *                                 &lt;complexContent&gt;
-<  *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-<  *                                     &lt;sequence&gt;
-<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceStatus"/&gt;
-<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceStatusDate"/&gt;
-<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Reason" minOccurs="0"/&gt;
-<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
-<  *                                       &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTSourceBilling"/&gt;
-<  *                                     &lt;/sequence&gt;
-<  *                                   &lt;/restriction&gt;
-<  *                                 &lt;/complexContent&gt;
-<  *                               &lt;/complexType&gt;
-<  *                             &lt;/element&gt;
-<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Hash"/&gt;
-<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}HashControl"/&gt;
-<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Period" minOccurs="0"/&gt;
-<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceDate"/&gt;
-<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceType"/&gt;
-<  *                             &lt;element name="SpecialRegimes" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SpecialRegimes"/&gt;
-<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
-<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}EACCode" minOccurs="0"/&gt;
-<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SystemEntryDate"/&gt;
-<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TransactionID" minOccurs="0"/&gt;
-<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomerID"/&gt;
-<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ShipTo" minOccurs="0"/&gt;
-<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ShipFrom" minOccurs="0"/&gt;
-<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementEndTime" minOccurs="0"/&gt;
-<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementStartTime" minOccurs="0"/&gt;
-<  *                             &lt;element name="Line" maxOccurs="unbounded"&gt;
-<  *                               &lt;complexType&gt;
-<  *                                 &lt;complexContent&gt;
-<  *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-<  *                                     &lt;sequence&gt;
-<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}LineNumber"/&gt;
-<  *                                       &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
-<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductCode"/&gt;
-<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductDescription"/&gt;
-<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Quantity"/&gt;
-<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitOfMeasure"/&gt;
-<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitPrice"/&gt;
-<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxBase" minOccurs="0"/&gt;
-<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPointDate"/&gt;
-<  *                                       &lt;element name="References" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}References" maxOccurs="unbounded" minOccurs="0"/&gt;
-<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Description"/&gt;
-<  *                                       &lt;element name="ProductSerialNumber" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductSerialNumber" minOccurs="0"/&gt;
-<  *                                       &lt;choice&gt;
-<  *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DebitAmount"/&gt;
-<  *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CreditAmount"/&gt;
-<  *                                       &lt;/choice&gt;
-<  *                                       &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Tax"/&gt;
-<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionReason" minOccurs="0"/&gt;
-<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionCode" minOccurs="0"/&gt;
-<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount" minOccurs="0"/&gt;
-<  *                                       &lt;element name="CustomsInformation" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomsInformation" minOccurs="0"/&gt;
-<  *                                     &lt;/sequence&gt;
-<  *                                   &lt;/restriction&gt;
-<  *                                 &lt;/complexContent&gt;
-<  *                               &lt;/complexType&gt;
-<  *                             &lt;/element&gt;
-<  *                             &lt;element name="DocumentTotals"&gt;
-<  *                               &lt;complexType&gt;
-<  *                                 &lt;complexContent&gt;
-<  *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-<  *                                     &lt;sequence&gt;
-<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPayable"/&gt;
-<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NetTotal"/&gt;
-<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GrossTotal"/&gt;
-<  *                                       &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Currency" minOccurs="0"/&gt;
+123,6960d121
 <  *                                       &lt;element name="Settlement" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Settlement" maxOccurs="unbounded" minOccurs="0"/&gt;
 <  *                                       &lt;element name="Payment" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentMethod" maxOccurs="unbounded" minOccurs="0"/&gt;
 <  *                                     &lt;/sequence&gt;
@@ -428,7 +330,26 @@
 <  * 
 <  * 
 <  */
-472,479d46
+< @XmlAccessorType(XmlAccessType.FIELD)
+< @XmlType(name = "", propOrder = {
+<     "salesInvoices",
+<     "movementOfGoods",
+<     "workingDocuments",
+<     "payments"
+< })
+< @XmlRootElement(name = "SourceDocuments")
+< public class SourceDocuments implements ToString2
+< {
+< 
+<     @XmlElement(name = "SalesInvoices")
+<     protected SourceDocuments.SalesInvoices salesInvoices;
+<     @XmlElement(name = "MovementOfGoods")
+<     protected SourceDocuments.MovementOfGoods movementOfGoods;
+<     @XmlElement(name = "WorkingDocuments")
+<     protected SourceDocuments.WorkingDocuments workingDocuments;
+<     @XmlElement(name = "Payments")
+<     protected SourceDocuments.Payments payments;
+< 
 <     /**
 <      * Gets the value of the salesInvoices property.
 <      * 
@@ -437,7 +358,10 @@
 <      *     {@link SourceDocuments.SalesInvoices }
 <      *     
 <      */
-484,491d50
+<     public SourceDocuments.SalesInvoices getSalesInvoices() {
+<         return salesInvoices;
+<     }
+< 
 <     /**
 <      * Sets the value of the salesInvoices property.
 <      * 
@@ -446,7 +370,10 @@
 <      *     {@link SourceDocuments.SalesInvoices }
 <      *     
 <      */
-496,503d54
+<     public void setSalesInvoices(SourceDocuments.SalesInvoices value) {
+<         this.salesInvoices = value;
+<     }
+< 
 <     /**
 <      * Gets the value of the movementOfGoods property.
 <      * 
@@ -455,7 +382,10 @@
 <      *     {@link SourceDocuments.MovementOfGoods }
 <      *     
 <      */
-508,515d58
+<     public SourceDocuments.MovementOfGoods getMovementOfGoods() {
+<         return movementOfGoods;
+<     }
+< 
 <     /**
 <      * Sets the value of the movementOfGoods property.
 <      * 
@@ -464,7 +394,10 @@
 <      *     {@link SourceDocuments.MovementOfGoods }
 <      *     
 <      */
-520,527d62
+<     public void setMovementOfGoods(SourceDocuments.MovementOfGoods value) {
+<         this.movementOfGoods = value;
+<     }
+< 
 <     /**
 <      * Gets the value of the workingDocuments property.
 <      * 
@@ -473,7 +406,10 @@
 <      *     {@link SourceDocuments.WorkingDocuments }
 <      *     
 <      */
-532,539d66
+<     public SourceDocuments.WorkingDocuments getWorkingDocuments() {
+<         return workingDocuments;
+<     }
+< 
 <     /**
 <      * Sets the value of the workingDocuments property.
 <      * 
@@ -482,7 +418,10 @@
 <      *     {@link SourceDocuments.WorkingDocuments }
 <      *     
 <      */
-544,551d70
+<     public void setWorkingDocuments(SourceDocuments.WorkingDocuments value) {
+<         this.workingDocuments = value;
+<     }
+< 
 <     /**
 <      * Gets the value of the payments property.
 <      * 
@@ -491,7 +430,10 @@
 <      *     {@link SourceDocuments.Payments }
 <      *     
 <      */
-556,563d74
+<     public SourceDocuments.Payments getPayments() {
+<         return payments;
+<     }
+< 
 <     /**
 <      * Sets the value of the payments property.
 <      * 
@@ -500,7 +442,51 @@
 <      *     {@link SourceDocuments.Payments }
 <      *     
 <      */
-609,717d119
+<     public void setPayments(SourceDocuments.Payments value) {
+<         this.payments = value;
+<     }
+< 
+<     @Override
+<     public String toString() {
+<         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+<         final StringBuilder buffer = new StringBuilder();
+<         append(null, buffer, strategy);
+<         return buffer.toString();
+<     }
+< 
+<     @Override
+<     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<         strategy.appendStart(locator, this, buffer);
+<         appendFields(locator, buffer, strategy);
+<         strategy.appendEnd(locator, this, buffer);
+<         return buffer;
+<     }
+< 
+<     @Override
+<     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<         {
+<             SourceDocuments.SalesInvoices theSalesInvoices;
+<             theSalesInvoices = this.getSalesInvoices();
+<             strategy.appendField(locator, this, "salesInvoices", buffer, theSalesInvoices, (this.salesInvoices!= null));
+<         }
+<         {
+<             SourceDocuments.MovementOfGoods theMovementOfGoods;
+<             theMovementOfGoods = this.getMovementOfGoods();
+<             strategy.appendField(locator, this, "movementOfGoods", buffer, theMovementOfGoods, (this.movementOfGoods!= null));
+<         }
+<         {
+<             SourceDocuments.WorkingDocuments theWorkingDocuments;
+<             theWorkingDocuments = this.getWorkingDocuments();
+<             strategy.appendField(locator, this, "workingDocuments", buffer, theWorkingDocuments, (this.workingDocuments!= null));
+<         }
+<         {
+<             SourceDocuments.Payments thePayments;
+<             thePayments = this.getPayments();
+<             strategy.appendField(locator, this, "payments", buffer, thePayments, (this.payments!= null));
+<         }
+<         return buffer;
+<     }
+< 
 < 
 <     /**
 <      * <p>Java class for anonymous complex type.
@@ -610,7 +596,23 @@
 <      * 
 <      * 
 <      */
-735,742d136
+<     @XmlAccessorType(XmlAccessType.FIELD)
+<     @XmlType(name = "", propOrder = {
+<         "numberOfMovementLines",
+<         "totalQuantityIssued",
+<         "stockMovement"
+<     })
+<     public static class MovementOfGoods implements ToString2
+<     {
+< 
+<         @XmlElement(name = "NumberOfMovementLines", required = true)
+<         @XmlSchemaType(name = "nonNegativeInteger")
+<         protected BigInteger numberOfMovementLines;
+<         @XmlElement(name = "TotalQuantityIssued", required = true)
+<         protected BigDecimal totalQuantityIssued;
+<         @XmlElement(name = "StockMovement")
+<         protected List<SourceDocuments.MovementOfGoods.StockMovement> stockMovement;
+< 
 <         /**
 <          * Gets the value of the numberOfMovementLines property.
 <          * 
@@ -619,7 +621,10 @@
 <          *     {@link BigInteger }
 <          *     
 <          */
-747,754d140
+<         public BigInteger getNumberOfMovementLines() {
+<             return numberOfMovementLines;
+<         }
+< 
 <         /**
 <          * Sets the value of the numberOfMovementLines property.
 <          * 
@@ -628,7 +633,10 @@
 <          *     {@link BigInteger }
 <          *     
 <          */
-759,766d144
+<         public void setNumberOfMovementLines(BigInteger value) {
+<             this.numberOfMovementLines = value;
+<         }
+< 
 <         /**
 <          * Gets the value of the totalQuantityIssued property.
 <          * 
@@ -637,7 +645,10 @@
 <          *     {@link BigDecimal }
 <          *     
 <          */
-771,778d148
+<         public BigDecimal getTotalQuantityIssued() {
+<             return totalQuantityIssued;
+<         }
+< 
 <         /**
 <          * Sets the value of the totalQuantityIssued property.
 <          * 
@@ -646,7 +657,10 @@
 <          *     {@link BigDecimal }
 <          *     
 <          */
-783,804d152
+<         public void setTotalQuantityIssued(BigDecimal value) {
+<             this.totalQuantityIssued = value;
+<         }
+< 
 <         /**
 <          * Gets the value of the stockMovement property.
 <          * 
@@ -669,7 +683,49 @@
 <          * 
 <          * 
 <          */
-848,944d195
+<         public List<SourceDocuments.MovementOfGoods.StockMovement> getStockMovement() {
+<             if (stockMovement == null) {
+<                 stockMovement = new ArrayList<SourceDocuments.MovementOfGoods.StockMovement>();
+<             }
+<             return this.stockMovement;
+<         }
+< 
+<         @Override
+<         public String toString() {
+<             final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+<             final StringBuilder buffer = new StringBuilder();
+<             append(null, buffer, strategy);
+<             return buffer.toString();
+<         }
+< 
+<         @Override
+<         public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<             strategy.appendStart(locator, this, buffer);
+<             appendFields(locator, buffer, strategy);
+<             strategy.appendEnd(locator, this, buffer);
+<             return buffer;
+<         }
+< 
+<         @Override
+<         public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<             {
+<                 BigInteger theNumberOfMovementLines;
+<                 theNumberOfMovementLines = this.getNumberOfMovementLines();
+<                 strategy.appendField(locator, this, "numberOfMovementLines", buffer, theNumberOfMovementLines, (this.numberOfMovementLines!= null));
+<             }
+<             {
+<                 BigDecimal theTotalQuantityIssued;
+<                 theTotalQuantityIssued = this.getTotalQuantityIssued();
+<                 strategy.appendField(locator, this, "totalQuantityIssued", buffer, theTotalQuantityIssued, (this.totalQuantityIssued!= null));
+<             }
+<             {
+<                 List<SourceDocuments.MovementOfGoods.StockMovement> theStockMovement;
+<                 theStockMovement = (((this.stockMovement!= null)&&(!this.stockMovement.isEmpty()))?this.getStockMovement():null);
+<                 strategy.appendField(locator, this, "stockMovement", buffer, theStockMovement, ((this.stockMovement!= null)&&(!this.stockMovement.isEmpty())));
+<             }
+<             return buffer;
+<         }
+< 
 < 
 <         /**
 <          * <p>Java class for anonymous complex type.
@@ -767,7 +823,83 @@
 <          * 
 <          * 
 <          */
-1022,1029d272
+<         @XmlAccessorType(XmlAccessType.FIELD)
+<         @XmlType(name = "", propOrder = {
+<             "documentNumber",
+<             "atcud",
+<             "documentStatus",
+<             "hash",
+<             "hashControl",
+<             "period",
+<             "movementDate",
+<             "movementType",
+<             "systemEntryDate",
+<             "transactionID",
+<             "customerID",
+<             "supplierID",
+<             "sourceID",
+<             "eacCode",
+<             "movementComments",
+<             "shipTo",
+<             "shipFrom",
+<             "movementEndTime",
+<             "movementStartTime",
+<             "atDocCodeID",
+<             "line",
+<             "documentTotals"
+<         })
+<         public static class StockMovement implements ToString2
+<         {
+< 
+<             @XmlElement(name = "DocumentNumber", required = true)
+<             protected String documentNumber;
+<             @XmlElement(name = "ATCUD", required = true)
+<             protected String atcud;
+<             @XmlElement(name = "DocumentStatus", required = true)
+<             protected SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus documentStatus;
+<             @XmlElement(name = "Hash", required = true)
+<             protected String hash;
+<             @XmlElement(name = "HashControl", required = true)
+<             protected String hashControl;
+<             @XmlElement(name = "Period")
+<             protected Integer period;
+<             @XmlElement(name = "MovementDate", required = true)
+<             @XmlSchemaType(name = "date")
+<             protected XMLGregorianCalendar movementDate;
+<             @XmlElement(name = "MovementType", required = true)
+<             protected String movementType;
+<             @XmlElement(name = "SystemEntryDate", required = true)
+<             @XmlSchemaType(name = "dateTime")
+<             protected XMLGregorianCalendar systemEntryDate;
+<             @XmlElement(name = "TransactionID")
+<             protected String transactionID;
+<             @XmlElement(name = "CustomerID")
+<             protected String customerID;
+<             @XmlElement(name = "SupplierID")
+<             protected String supplierID;
+<             @XmlElement(name = "SourceID", required = true)
+<             protected String sourceID;
+<             @XmlElement(name = "EACCode")
+<             protected String eacCode;
+<             @XmlElement(name = "MovementComments")
+<             protected String movementComments;
+<             @XmlElement(name = "ShipTo")
+<             protected ShippingPointStructure shipTo;
+<             @XmlElement(name = "ShipFrom")
+<             protected ShippingPointStructure shipFrom;
+<             @XmlElement(name = "MovementEndTime")
+<             @XmlSchemaType(name = "dateTime")
+<             protected XMLGregorianCalendar movementEndTime;
+<             @XmlElement(name = "MovementStartTime", required = true)
+<             @XmlSchemaType(name = "dateTime")
+<             protected XMLGregorianCalendar movementStartTime;
+<             @XmlElement(name = "ATDocCodeID")
+<             protected String atDocCodeID;
+<             @XmlElement(name = "Line", required = true)
+<             protected List<SourceDocuments.MovementOfGoods.StockMovement.Line> line;
+<             @XmlElement(name = "DocumentTotals", required = true)
+<             protected SourceDocuments.MovementOfGoods.StockMovement.DocumentTotals documentTotals;
+< 
 <             /**
 <              * Gets the value of the documentNumber property.
 <              * 
@@ -776,7 +908,10 @@
 <              *     {@link String }
 <              *     
 <              */
-1034,1041d276
+<             public String getDocumentNumber() {
+<                 return documentNumber;
+<             }
+< 
 <             /**
 <              * Sets the value of the documentNumber property.
 <              * 
@@ -785,7 +920,10 @@
 <              *     {@link String }
 <              *     
 <              */
-1046,1053d280
+<             public void setDocumentNumber(String value) {
+<                 this.documentNumber = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the atcud property.
 <              * 
@@ -794,7 +932,10 @@
 <              *     {@link String }
 <              *     
 <              */
-1058,1065d284
+<             public String getATCUD() {
+<                 return atcud;
+<             }
+< 
 <             /**
 <              * Sets the value of the atcud property.
 <              * 
@@ -803,7 +944,10 @@
 <              *     {@link String }
 <              *     
 <              */
-1070,1077d288
+<             public void setATCUD(String value) {
+<                 this.atcud = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the documentStatus property.
 <              * 
@@ -812,7 +956,10 @@
 <              *     {@link SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus }
 <              *     
 <              */
-1082,1089d292
+<             public SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus getDocumentStatus() {
+<                 return documentStatus;
+<             }
+< 
 <             /**
 <              * Sets the value of the documentStatus property.
 <              * 
@@ -821,7 +968,10 @@
 <              *     {@link SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus }
 <              *     
 <              */
-1094,1101d296
+<             public void setDocumentStatus(SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus value) {
+<                 this.documentStatus = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the hash property.
 <              * 
@@ -830,7 +980,10 @@
 <              *     {@link String }
 <              *     
 <              */
-1106,1113d300
+<             public String getHash() {
+<                 return hash;
+<             }
+< 
 <             /**
 <              * Sets the value of the hash property.
 <              * 
@@ -839,7 +992,10 @@
 <              *     {@link String }
 <              *     
 <              */
-1118,1125d304
+<             public void setHash(String value) {
+<                 this.hash = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the hashControl property.
 <              * 
@@ -848,7 +1004,10 @@
 <              *     {@link String }
 <              *     
 <              */
-1130,1137d308
+<             public String getHashControl() {
+<                 return hashControl;
+<             }
+< 
 <             /**
 <              * Sets the value of the hashControl property.
 <              * 
@@ -857,7 +1016,10 @@
 <              *     {@link String }
 <              *     
 <              */
-1142,1149d312
+<             public void setHashControl(String value) {
+<                 this.hashControl = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the period property.
 <              * 
@@ -866,7 +1028,10 @@
 <              *     {@link Integer }
 <              *     
 <              */
-1154,1161d316
+<             public Integer getPeriod() {
+<                 return period;
+<             }
+< 
 <             /**
 <              * Sets the value of the period property.
 <              * 
@@ -875,7 +1040,10 @@
 <              *     {@link Integer }
 <              *     
 <              */
-1166,1173d320
+<             public void setPeriod(Integer value) {
+<                 this.period = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the movementDate property.
 <              * 
@@ -884,7 +1052,10 @@
 <              *     {@link XMLGregorianCalendar }
 <              *     
 <              */
-1178,1185d324
+<             public XMLGregorianCalendar getMovementDate() {
+<                 return movementDate;
+<             }
+< 
 <             /**
 <              * Sets the value of the movementDate property.
 <              * 
@@ -893,7 +1064,10 @@
 <              *     {@link XMLGregorianCalendar }
 <              *     
 <              */
-1190,1197d328
+<             public void setMovementDate(XMLGregorianCalendar value) {
+<                 this.movementDate = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the movementType property.
 <              * 
@@ -902,7 +1076,10 @@
 <              *     {@link String }
 <              *     
 <              */
-1202,1209d332
+<             public String getMovementType() {
+<                 return movementType;
+<             }
+< 
 <             /**
 <              * Sets the value of the movementType property.
 <              * 
@@ -911,7 +1088,10 @@
 <              *     {@link String }
 <              *     
 <              */
-1214,1221d336
+<             public void setMovementType(String value) {
+<                 this.movementType = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the systemEntryDate property.
 <              * 
@@ -920,7 +1100,10 @@
 <              *     {@link XMLGregorianCalendar }
 <              *     
 <              */
-1226,1233d340
+<             public XMLGregorianCalendar getSystemEntryDate() {
+<                 return systemEntryDate;
+<             }
+< 
 <             /**
 <              * Sets the value of the systemEntryDate property.
 <              * 
@@ -929,7 +1112,10 @@
 <              *     {@link XMLGregorianCalendar }
 <              *     
 <              */
-1238,1245d344
+<             public void setSystemEntryDate(XMLGregorianCalendar value) {
+<                 this.systemEntryDate = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the transactionID property.
 <              * 
@@ -938,7 +1124,10 @@
 <              *     {@link String }
 <              *     
 <              */
-1250,1257d348
+<             public String getTransactionID() {
+<                 return transactionID;
+<             }
+< 
 <             /**
 <              * Sets the value of the transactionID property.
 <              * 
@@ -947,7 +1136,10 @@
 <              *     {@link String }
 <              *     
 <              */
-1262,1269d352
+<             public void setTransactionID(String value) {
+<                 this.transactionID = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the customerID property.
 <              * 
@@ -956,7 +1148,10 @@
 <              *     {@link String }
 <              *     
 <              */
-1274,1281d356
+<             public String getCustomerID() {
+<                 return customerID;
+<             }
+< 
 <             /**
 <              * Sets the value of the customerID property.
 <              * 
@@ -965,7 +1160,10 @@
 <              *     {@link String }
 <              *     
 <              */
-1286,1293d360
+<             public void setCustomerID(String value) {
+<                 this.customerID = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the supplierID property.
 <              * 
@@ -974,7 +1172,10 @@
 <              *     {@link String }
 <              *     
 <              */
-1298,1305d364
+<             public String getSupplierID() {
+<                 return supplierID;
+<             }
+< 
 <             /**
 <              * Sets the value of the supplierID property.
 <              * 
@@ -983,7 +1184,10 @@
 <              *     {@link String }
 <              *     
 <              */
-1310,1317d368
+<             public void setSupplierID(String value) {
+<                 this.supplierID = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the sourceID property.
 <              * 
@@ -992,7 +1196,10 @@
 <              *     {@link String }
 <              *     
 <              */
-1322,1329d372
+<             public String getSourceID() {
+<                 return sourceID;
+<             }
+< 
 <             /**
 <              * Sets the value of the sourceID property.
 <              * 
@@ -1001,7 +1208,10 @@
 <              *     {@link String }
 <              *     
 <              */
-1334,1341d376
+<             public void setSourceID(String value) {
+<                 this.sourceID = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the eacCode property.
 <              * 
@@ -1010,7 +1220,10 @@
 <              *     {@link String }
 <              *     
 <              */
-1346,1353d380
+<             public String getEACCode() {
+<                 return eacCode;
+<             }
+< 
 <             /**
 <              * Sets the value of the eacCode property.
 <              * 
@@ -1019,7 +1232,10 @@
 <              *     {@link String }
 <              *     
 <              */
-1358,1365d384
+<             public void setEACCode(String value) {
+<                 this.eacCode = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the movementComments property.
 <              * 
@@ -1028,7 +1244,10 @@
 <              *     {@link String }
 <              *     
 <              */
-1370,1377d388
+<             public String getMovementComments() {
+<                 return movementComments;
+<             }
+< 
 <             /**
 <              * Sets the value of the movementComments property.
 <              * 
@@ -1037,7 +1256,10 @@
 <              *     {@link String }
 <              *     
 <              */
-1382,1389d392
+<             public void setMovementComments(String value) {
+<                 this.movementComments = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the shipTo property.
 <              * 
@@ -1046,7 +1268,10 @@
 <              *     {@link ShippingPointStructure }
 <              *     
 <              */
-1394,1401d396
+<             public ShippingPointStructure getShipTo() {
+<                 return shipTo;
+<             }
+< 
 <             /**
 <              * Sets the value of the shipTo property.
 <              * 
@@ -1055,7 +1280,10 @@
 <              *     {@link ShippingPointStructure }
 <              *     
 <              */
-1406,1413d400
+<             public void setShipTo(ShippingPointStructure value) {
+<                 this.shipTo = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the shipFrom property.
 <              * 
@@ -1064,7 +1292,10 @@
 <              *     {@link ShippingPointStructure }
 <              *     
 <              */
-1418,1425d404
+<             public ShippingPointStructure getShipFrom() {
+<                 return shipFrom;
+<             }
+< 
 <             /**
 <              * Sets the value of the shipFrom property.
 <              * 
@@ -1073,7 +1304,10 @@
 <              *     {@link ShippingPointStructure }
 <              *     
 <              */
-1430,1437d408
+<             public void setShipFrom(ShippingPointStructure value) {
+<                 this.shipFrom = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the movementEndTime property.
 <              * 
@@ -1082,7 +1316,10 @@
 <              *     {@link XMLGregorianCalendar }
 <              *     
 <              */
-1442,1449d412
+<             public XMLGregorianCalendar getMovementEndTime() {
+<                 return movementEndTime;
+<             }
+< 
 <             /**
 <              * Sets the value of the movementEndTime property.
 <              * 
@@ -1091,7 +1328,10 @@
 <              *     {@link XMLGregorianCalendar }
 <              *     
 <              */
-1454,1461d416
+<             public void setMovementEndTime(XMLGregorianCalendar value) {
+<                 this.movementEndTime = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the movementStartTime property.
 <              * 
@@ -1100,7 +1340,10 @@
 <              *     {@link XMLGregorianCalendar }
 <              *     
 <              */
-1466,1473d420
+<             public XMLGregorianCalendar getMovementStartTime() {
+<                 return movementStartTime;
+<             }
+< 
 <             /**
 <              * Sets the value of the movementStartTime property.
 <              * 
@@ -1109,7 +1352,10 @@
 <              *     {@link XMLGregorianCalendar }
 <              *     
 <              */
-1478,1523d424
+<             public void setMovementStartTime(XMLGregorianCalendar value) {
+<                 this.movementStartTime = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the atDocCodeID property.
 <              * 
@@ -1156,7 +1402,13 @@
 <              * 
 <              * 
 <              */
-1531,1538d431
+<             public List<SourceDocuments.MovementOfGoods.StockMovement.Line> getLine() {
+<                 if (line == null) {
+<                     line = new ArrayList<SourceDocuments.MovementOfGoods.StockMovement.Line>();
+<                 }
+<                 return this.line;
+<             }
+< 
 <             /**
 <              * Gets the value of the documentTotals property.
 <              * 
@@ -1165,7 +1417,10 @@
 <              *     {@link SourceDocuments.MovementOfGoods.StockMovement.DocumentTotals }
 <              *     
 <              */
-1543,1550d435
+<             public SourceDocuments.MovementOfGoods.StockMovement.DocumentTotals getDocumentTotals() {
+<                 return documentTotals;
+<             }
+< 
 <             /**
 <              * Sets the value of the documentTotals property.
 <              * 
@@ -1174,7 +1429,84 @@
 <              *     {@link SourceDocuments.MovementOfGoods.StockMovement.DocumentTotals }
 <              *     
 <              */
-1629,1648d513
+<             public void setDocumentTotals(SourceDocuments.MovementOfGoods.StockMovement.DocumentTotals value) {
+<                 this.documentTotals = value;
+<             }
+< 
+<             @Override
+<             public String toString() {
+<                 final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+<                 final StringBuilder buffer = new StringBuilder();
+<                 append(null, buffer, strategy);
+<                 return buffer.toString();
+<             }
+< 
+<             @Override
+<             public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<                 strategy.appendStart(locator, this, buffer);
+<                 appendFields(locator, buffer, strategy);
+<                 strategy.appendEnd(locator, this, buffer);
+<                 return buffer;
+<             }
+< 
+<             @Override
+<             public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<                 {
+<                     String theDocumentNumber;
+<                     theDocumentNumber = this.getDocumentNumber();
+<                     strategy.appendField(locator, this, "documentNumber", buffer, theDocumentNumber, (this.documentNumber!= null));
+<                 }
+<                 {
+<                     String theATCUD;
+<                     theATCUD = this.getATCUD();
+<                     strategy.appendField(locator, this, "atcud", buffer, theATCUD, (this.atcud!= null));
+<                 }
+<                 {
+<                     SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus theDocumentStatus;
+<                     theDocumentStatus = this.getDocumentStatus();
+<                     strategy.appendField(locator, this, "documentStatus", buffer, theDocumentStatus, (this.documentStatus!= null));
+<                 }
+<                 {
+<                     String theHash;
+<                     theHash = this.getHash();
+<                     strategy.appendField(locator, this, "hash", buffer, theHash, (this.hash!= null));
+<                 }
+<                 {
+<                     String theHashControl;
+<                     theHashControl = this.getHashControl();
+<                     strategy.appendField(locator, this, "hashControl", buffer, theHashControl, (this.hashControl!= null));
+<                 }
+<                 {
+<                     Integer thePeriod;
+<                     thePeriod = this.getPeriod();
+<                     strategy.appendField(locator, this, "period", buffer, thePeriod, (this.period!= null));
+<                 }
+<                 {
+<                     XMLGregorianCalendar theMovementDate;
+<                     theMovementDate = this.getMovementDate();
+<                     strategy.appendField(locator, this, "movementDate", buffer, theMovementDate, (this.movementDate!= null));
+<                 }
+<                 {
+<                     String theMovementType;
+<                     theMovementType = this.getMovementType();
+<                     strategy.appendField(locator, this, "movementType", buffer, theMovementType, (this.movementType!= null));
+<                 }
+<                 {
+<                     XMLGregorianCalendar theSystemEntryDate;
+<                     theSystemEntryDate = this.getSystemEntryDate();
+<                     strategy.appendField(locator, this, "systemEntryDate", buffer, theSystemEntryDate, (this.systemEntryDate!= null));
+<                 }
+<                 {
+<                     String theTransactionID;
+<                     theTransactionID = this.getTransactionID();
+<                     strategy.appendField(locator, this, "transactionID", buffer, theTransactionID, (this.transactionID!= null));
+<                 }
+<                 {
+<                     String theCustomerID;
+<                     theCustomerID = this.getCustomerID();
+<                     strategy.appendField(locator, this, "customerID", buffer, theCustomerID, (this.customerID!= null));
+<                 }
+<                 {
 <                     String theSupplierID;
 <                     theSupplierID = this.getSupplierID();
 <                     strategy.appendField(locator, this, "supplierID", buffer, theSupplierID, (this.supplierID!= null));
@@ -1195,13 +1527,43 @@
 <                     strategy.appendField(locator, this, "movementComments", buffer, theMovementComments, (this.movementComments!= null));
 <                 }
 <                 {
-1669,1673d533
+<                     ShippingPointStructure theShipTo;
+<                     theShipTo = this.getShipTo();
+<                     strategy.appendField(locator, this, "shipTo", buffer, theShipTo, (this.shipTo!= null));
+<                 }
+<                 {
+<                     ShippingPointStructure theShipFrom;
+<                     theShipFrom = this.getShipFrom();
+<                     strategy.appendField(locator, this, "shipFrom", buffer, theShipFrom, (this.shipFrom!= null));
+<                 }
+<                 {
+<                     XMLGregorianCalendar theMovementEndTime;
+<                     theMovementEndTime = this.getMovementEndTime();
+<                     strategy.appendField(locator, this, "movementEndTime", buffer, theMovementEndTime, (this.movementEndTime!= null));
+<                 }
+<                 {
+<                     XMLGregorianCalendar theMovementStartTime;
+<                     theMovementStartTime = this.getMovementStartTime();
+<                     strategy.appendField(locator, this, "movementStartTime", buffer, theMovementStartTime, (this.movementStartTime!= null));
+<                 }
+<                 {
 <                     String theATDocCodeID;
 <                     theATDocCodeID = this.getATDocCodeID();
 <                     strategy.appendField(locator, this, "atDocCodeID", buffer, theATDocCodeID, (this.atDocCodeID!= null));
 <                 }
 <                 {
-1686,1709d545
+<                     List<SourceDocuments.MovementOfGoods.StockMovement.Line> theLine;
+<                     theLine = (((this.line!= null)&&(!this.line.isEmpty()))?this.getLine():null);
+<                     strategy.appendField(locator, this, "line", buffer, theLine, ((this.line!= null)&&(!this.line.isEmpty())));
+<                 }
+<                 {
+<                     SourceDocuments.MovementOfGoods.StockMovement.DocumentTotals theDocumentTotals;
+<                     theDocumentTotals = this.getDocumentTotals();
+<                     strategy.appendField(locator, this, "documentTotals", buffer, theDocumentTotals, (this.documentTotals!= null));
+<                 }
+<                 return buffer;
+<             }
+< 
 < 
 <             /**
 <              * <p>Java class for anonymous complex type.
@@ -1226,25 +1588,30 @@
 <              * 
 <              * 
 <              */
-1712,1713c548,549
+<             @XmlAccessorType(XmlAccessType.FIELD)
+<             @XmlType(name = "", propOrder = {
 <                 "movementStatus",
 <                 "movementStatusDate",
----
->                 "workStatus",
->                 "workStatusDate",
-1721,1723c557,559
+<                 "reason",
+<                 "sourceID",
+<                 "sourceBilling"
+<             })
+<             public static class DocumentStatus implements ToString2
+<             {
+< 
 <                 @XmlElement(name = "MovementStatus", required = true)
 <                 protected String movementStatus;
 <                 @XmlElement(name = "MovementStatusDate", required = true)
----
->                 @XmlElement(name = "WorkStatus", required = true)
->                 protected String workStatus;
->                 @XmlElement(name = "WorkStatusDate", required = true)
-1725c561
+<                 @XmlSchemaType(name = "dateTime")
 <                 protected XMLGregorianCalendar movementStatusDate;
----
->                 protected XMLGregorianCalendar workStatusDate;
-1734,1789c570,585
+<                 @XmlElement(name = "Reason")
+<                 protected String reason;
+<                 @XmlElement(name = "SourceID", required = true)
+<                 protected String sourceID;
+<                 @XmlElement(name = "SourceBilling", required = true)
+<                 @XmlSchemaType(name = "string")
+<                 protected SAFTPTSourceBilling sourceBilling;
+< 
 <                 /**
 <                  * Gets the value of the movementStatus property.
 <                  * 
@@ -1301,24 +1668,10 @@
 <                  *     {@link String }
 <                  *     
 <                  */
----
->                 public String getWorkStatus() {
->                     return workStatus;
->                 }
-> 
->                 public void setWorkStatus(String value) {
->                     this.workStatus = value;
->                 }
-> 
->                 public XMLGregorianCalendar getWorkStatusDate() {
->                     return workStatusDate;
->                 }
-> 
->                 public void setWorkStatusDate(XMLGregorianCalendar value) {
->                     this.workStatusDate = value;
->                 }
-> 
-1794,1801d589
+<                 public String getReason() {
+<                     return reason;
+<                 }
+< 
 <                 /**
 <                  * Sets the value of the reason property.
 <                  * 
@@ -1327,7 +1680,10 @@
 <                  *     {@link String }
 <                  *     
 <                  */
-1806,1813d593
+<                 public void setReason(String value) {
+<                     this.reason = value;
+<                 }
+< 
 <                 /**
 <                  * Gets the value of the sourceID property.
 <                  * 
@@ -1336,7 +1692,10 @@
 <                  *     {@link String }
 <                  *     
 <                  */
-1818,1825d597
+<                 public String getSourceID() {
+<                     return sourceID;
+<                 }
+< 
 <                 /**
 <                  * Sets the value of the sourceID property.
 <                  * 
@@ -1345,7 +1704,10 @@
 <                  *     {@link String }
 <                  *     
 <                  */
-1830,1837d601
+<                 public void setSourceID(String value) {
+<                     this.sourceID = value;
+<                 }
+< 
 <                 /**
 <                  * Gets the value of the sourceBilling property.
 <                  * 
@@ -1354,7 +1716,10 @@
 <                  *     {@link SAFTPTSourceBilling }
 <                  *     
 <                  */
-1842,1849d605
+<                 public SAFTPTSourceBilling getSourceBilling() {
+<                     return sourceBilling;
+<                 }
+< 
 <                 /**
 <                  * Sets the value of the sourceBilling property.
 <                  * 
@@ -1363,23 +1728,58 @@
 <                  *     {@link SAFTPTSourceBilling }
 <                  *     
 <                  */
-1873,1875c629,631
+<                 public void setSourceBilling(SAFTPTSourceBilling value) {
+<                     this.sourceBilling = value;
+<                 }
+< 
+<                 @Override
+<                 public String toString() {
+<                     final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+<                     final StringBuilder buffer = new StringBuilder();
+<                     append(null, buffer, strategy);
+<                     return buffer.toString();
+<                 }
+< 
+<                 @Override
+<                 public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<                     strategy.appendStart(locator, this, buffer);
+<                     appendFields(locator, buffer, strategy);
+<                     strategy.appendEnd(locator, this, buffer);
+<                     return buffer;
+<                 }
+< 
+<                 @Override
+<                 public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<                     {
 <                         String theMovementStatus;
 <                         theMovementStatus = this.getMovementStatus();
 <                         strategy.appendField(locator, this, "movementStatus", buffer, theMovementStatus, (this.movementStatus!= null));
----
->                         String theWorkStatus;
->                         theWorkStatus = this.getWorkStatus();
->                         strategy.appendField(locator, this, "workStatus", buffer, theWorkStatus, (this.workStatus != null));
-1878,1880c634,636
+<                     }
+<                     {
 <                         XMLGregorianCalendar theMovementStatusDate;
 <                         theMovementStatusDate = this.getMovementStatusDate();
 <                         strategy.appendField(locator, this, "movementStatusDate", buffer, theMovementStatusDate, (this.movementStatusDate!= null));
----
->                         XMLGregorianCalendar theWorkStatusDate;
->                         theWorkStatusDate = this.getWorkStatusDate();
->                         strategy.appendField(locator, this, "workStatusDate", buffer, theWorkStatusDate, (this.workStatusDate != null));
-1902,3862d657
+<                     }
+<                     {
+<                         String theReason;
+<                         theReason = this.getReason();
+<                         strategy.appendField(locator, this, "reason", buffer, theReason, (this.reason!= null));
+<                     }
+<                     {
+<                         String theSourceID;
+<                         theSourceID = this.getSourceID();
+<                         strategy.appendField(locator, this, "sourceID", buffer, theSourceID, (this.sourceID!= null));
+<                     }
+<                     {
+<                         SAFTPTSourceBilling theSourceBilling;
+<                         theSourceBilling = this.getSourceBilling();
+<                         strategy.appendField(locator, this, "sourceBilling", buffer, theSourceBilling, (this.sourceBilling!= null));
+<                     }
+<                     return buffer;
+<                 }
+< 
+<             }
+< 
 < 
 <             /**
 <              * <p>Java class for anonymous complex type.
@@ -3341,12 +3741,28 @@
 <              * 
 <              * 
 <              */
-3868d662
+<             @XmlAccessorType(XmlAccessType.FIELD)
+<             @XmlType(name = "", propOrder = {
+<                 "taxPayable",
+<                 "netTotal",
+<                 "grossTotal",
 <                 "settlement",
-3880,3881d673
+<                 "currency"
+<             })
+<             public static class DocumentTotals implements ToString2
+<             {
+< 
+<                 @XmlElement(name = "TaxPayable", required = true)
+<                 protected BigDecimal taxPayable;
+<                 @XmlElement(name = "NetTotal", required = true)
+<                 protected BigDecimal netTotal;
+<                 @XmlElement(name = "GrossTotal", required = true)
+<                 protected BigDecimal grossTotal;
 <                 @XmlElement(name = "Settlement")
 <                 protected SourceDocuments.Payments.Payment.DocumentTotals.Settlement settlement;
-3885,3892d676
+<                 @XmlElement(name = "Currency")
+<                 protected Currency currency;
+< 
 <                 /**
 <                  * Gets the value of the taxPayable property.
 <                  * 
@@ -3355,7 +3771,10 @@
 <                  *     {@link BigDecimal }
 <                  *     
 <                  */
-3897,3904d680
+<                 public BigDecimal getTaxPayable() {
+<                     return taxPayable;
+<                 }
+< 
 <                 /**
 <                  * Sets the value of the taxPayable property.
 <                  * 
@@ -3364,7 +3783,10 @@
 <                  *     {@link BigDecimal }
 <                  *     
 <                  */
-3909,3916d684
+<                 public void setTaxPayable(BigDecimal value) {
+<                     this.taxPayable = value;
+<                 }
+< 
 <                 /**
 <                  * Gets the value of the netTotal property.
 <                  * 
@@ -3373,7 +3795,10 @@
 <                  *     {@link BigDecimal }
 <                  *     
 <                  */
-3921,3928d688
+<                 public BigDecimal getNetTotal() {
+<                     return netTotal;
+<                 }
+< 
 <                 /**
 <                  * Sets the value of the netTotal property.
 <                  * 
@@ -3382,7 +3807,10 @@
 <                  *     {@link BigDecimal }
 <                  *     
 <                  */
-3933,3940d692
+<                 public void setNetTotal(BigDecimal value) {
+<                     this.netTotal = value;
+<                 }
+< 
 <                 /**
 <                  * Gets the value of the grossTotal property.
 <                  * 
@@ -3391,7 +3819,10 @@
 <                  *     {@link BigDecimal }
 <                  *     
 <                  */
-3945,3952d696
+<                 public BigDecimal getGrossTotal() {
+<                     return grossTotal;
+<                 }
+< 
 <                 /**
 <                  * Sets the value of the grossTotal property.
 <                  * 
@@ -3400,7 +3831,10 @@
 <                  *     {@link BigDecimal }
 <                  *     
 <                  */
-3957,3988d700
+<                 public void setGrossTotal(BigDecimal value) {
+<                     this.grossTotal = value;
+<                 }
+< 
 <                 /**
 <                  * Gets the value of the settlement property.
 <                  * 
@@ -3433,7 +3867,10 @@
 <                  *     {@link Currency }
 <                  *     
 <                  */
-3993,4000d704
+<                 public Currency getCurrency() {
+<                     return currency;
+<                 }
+< 
 <                 /**
 <                  * Sets the value of the currency property.
 <                  * 
@@ -3442,13 +3879,56 @@
 <                  *     {@link Currency }
 <                  *     
 <                  */
-4039,4043d742
+<                 public void setCurrency(Currency value) {
+<                     this.currency = value;
+<                 }
+< 
+<                 @Override
+<                 public String toString() {
+<                     final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+<                     final StringBuilder buffer = new StringBuilder();
+<                     append(null, buffer, strategy);
+<                     return buffer.toString();
+<                 }
+< 
+<                 @Override
+<                 public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<                     strategy.appendStart(locator, this, buffer);
+<                     appendFields(locator, buffer, strategy);
+<                     strategy.appendEnd(locator, this, buffer);
+<                     return buffer;
+<                 }
+< 
+<                 @Override
+<                 public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<                     {
+<                         BigDecimal theTaxPayable;
+<                         theTaxPayable = this.getTaxPayable();
+<                         strategy.appendField(locator, this, "taxPayable", buffer, theTaxPayable, (this.taxPayable!= null));
+<                     }
+<                     {
+<                         BigDecimal theNetTotal;
+<                         theNetTotal = this.getNetTotal();
+<                         strategy.appendField(locator, this, "netTotal", buffer, theNetTotal, (this.netTotal!= null));
+<                     }
+<                     {
+<                         BigDecimal theGrossTotal;
+<                         theGrossTotal = this.getGrossTotal();
+<                         strategy.appendField(locator, this, "grossTotal", buffer, theGrossTotal, (this.grossTotal!= null));
+<                     }
+<                     {
 <                         SourceDocuments.Payments.Payment.DocumentTotals.Settlement theSettlement;
 <                         theSettlement = this.getSettlement();
 <                         strategy.appendField(locator, this, "settlement", buffer, theSettlement, (this.settlement!= null));
 <                     }
 <                     {
-4051,4614d749
+<                         Currency theCurrency;
+<                         theCurrency = this.getCurrency();
+<                         strategy.appendField(locator, this, "currency", buffer, theCurrency, (this.currency!= null));
+<                     }
+<                     return buffer;
+<                 }
+< 
 < 
 <                 /**
 <                  * <p>Java class for anonymous complex type.
@@ -4013,7 +4493,12 @@
 < 
 <                 }
 < 
-4621,4732d755
+<             }
+< 
+<         }
+< 
+<     }
+< 
 < 
 <     /**
 <      * <p>Java class for anonymous complex type.
@@ -4126,7 +4611,26 @@
 <      * 
 <      * 
 <      */
-4753,4760d775
+<     @XmlAccessorType(XmlAccessType.FIELD)
+<     @XmlType(name = "", propOrder = {
+<         "numberOfEntries",
+<         "totalDebit",
+<         "totalCredit",
+<         "invoice"
+<     })
+<     public static class SalesInvoices implements ToString2
+<     {
+< 
+<         @XmlElement(name = "NumberOfEntries", required = true)
+<         @XmlSchemaType(name = "nonNegativeInteger")
+<         protected BigInteger numberOfEntries;
+<         @XmlElement(name = "TotalDebit", required = true)
+<         protected BigDecimal totalDebit;
+<         @XmlElement(name = "TotalCredit", required = true)
+<         protected BigDecimal totalCredit;
+<         @XmlElement(name = "Invoice")
+<         protected List<SourceDocuments.SalesInvoices.Invoice> invoice;
+< 
 <         /**
 <          * Gets the value of the numberOfEntries property.
 <          * 
@@ -4135,7 +4639,10 @@
 <          *     {@link BigInteger }
 <          *     
 <          */
-4765,4772d779
+<         public BigInteger getNumberOfEntries() {
+<             return numberOfEntries;
+<         }
+< 
 <         /**
 <          * Sets the value of the numberOfEntries property.
 <          * 
@@ -4144,7 +4651,10 @@
 <          *     {@link BigInteger }
 <          *     
 <          */
-4777,4784d783
+<         public void setNumberOfEntries(BigInteger value) {
+<             this.numberOfEntries = value;
+<         }
+< 
 <         /**
 <          * Gets the value of the totalDebit property.
 <          * 
@@ -4153,7 +4663,10 @@
 <          *     {@link BigDecimal }
 <          *     
 <          */
-4789,4796d787
+<         public BigDecimal getTotalDebit() {
+<             return totalDebit;
+<         }
+< 
 <         /**
 <          * Sets the value of the totalDebit property.
 <          * 
@@ -4162,7 +4675,10 @@
 <          *     {@link BigDecimal }
 <          *     
 <          */
-4801,4808d791
+<         public void setTotalDebit(BigDecimal value) {
+<             this.totalDebit = value;
+<         }
+< 
 <         /**
 <          * Gets the value of the totalCredit property.
 <          * 
@@ -4171,7 +4687,10 @@
 <          *     {@link BigDecimal }
 <          *     
 <          */
-4813,4820d795
+<         public BigDecimal getTotalCredit() {
+<             return totalCredit;
+<         }
+< 
 <         /**
 <          * Sets the value of the totalCredit property.
 <          * 
@@ -4180,7 +4699,10 @@
 <          *     {@link BigDecimal }
 <          *     
 <          */
-4825,4846d799
+<         public void setTotalCredit(BigDecimal value) {
+<             this.totalCredit = value;
+<         }
+< 
 <         /**
 <          * Gets the value of the invoice property.
 <          * 
@@ -4203,7 +4725,54 @@
 <          * 
 <          * 
 <          */
-4895,4993d847
+<         public List<SourceDocuments.SalesInvoices.Invoice> getInvoice() {
+<             if (invoice == null) {
+<                 invoice = new ArrayList<SourceDocuments.SalesInvoices.Invoice>();
+<             }
+<             return this.invoice;
+<         }
+< 
+<         @Override
+<         public String toString() {
+<             final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+<             final StringBuilder buffer = new StringBuilder();
+<             append(null, buffer, strategy);
+<             return buffer.toString();
+<         }
+< 
+<         @Override
+<         public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<             strategy.appendStart(locator, this, buffer);
+<             appendFields(locator, buffer, strategy);
+<             strategy.appendEnd(locator, this, buffer);
+<             return buffer;
+<         }
+< 
+<         @Override
+<         public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<             {
+<                 BigInteger theNumberOfEntries;
+<                 theNumberOfEntries = this.getNumberOfEntries();
+<                 strategy.appendField(locator, this, "numberOfEntries", buffer, theNumberOfEntries, (this.numberOfEntries!= null));
+<             }
+<             {
+<                 BigDecimal theTotalDebit;
+<                 theTotalDebit = this.getTotalDebit();
+<                 strategy.appendField(locator, this, "totalDebit", buffer, theTotalDebit, (this.totalDebit!= null));
+<             }
+<             {
+<                 BigDecimal theTotalCredit;
+<                 theTotalCredit = this.getTotalCredit();
+<                 strategy.appendField(locator, this, "totalCredit", buffer, theTotalCredit, (this.totalCredit!= null));
+<             }
+<             {
+<                 List<SourceDocuments.SalesInvoices.Invoice> theInvoice;
+<                 theInvoice = (((this.invoice!= null)&&(!this.invoice.isEmpty()))?this.getInvoice():null);
+<                 strategy.appendField(locator, this, "invoice", buffer, theInvoice, ((this.invoice!= null)&&(!this.invoice.isEmpty())));
+<             }
+<             return buffer;
+<         }
+< 
 < 
 <         /**
 <          * <p>Java class for anonymous complex type.
@@ -4303,7 +4872,80 @@
 <          * 
 <          * 
 <          */
-5068,5075d921
+<         @XmlAccessorType(XmlAccessType.FIELD)
+<         @XmlType(name = "", propOrder = {
+<             "invoiceNo",
+<             "atcud",
+<             "documentStatus",
+<             "hash",
+<             "hashControl",
+<             "period",
+<             "invoiceDate",
+<             "invoiceType",
+<             "specialRegimes",
+<             "sourceID",
+<             "eacCode",
+<             "systemEntryDate",
+<             "transactionID",
+<             "customerID",
+<             "shipTo",
+<             "shipFrom",
+<             "movementEndTime",
+<             "movementStartTime",
+<             "line",
+<             "documentTotals",
+<             "withholdingTax"
+<         })
+<         public static class Invoice implements ToString2
+<         {
+< 
+<             @XmlElement(name = "InvoiceNo", required = true)
+<             protected String invoiceNo;
+<             @XmlElement(name = "ATCUD", required = true)
+<             protected String atcud;
+<             @XmlElement(name = "DocumentStatus", required = true)
+<             protected SourceDocuments.SalesInvoices.Invoice.DocumentStatus documentStatus;
+<             @XmlElement(name = "Hash", required = true)
+<             protected String hash;
+<             @XmlElement(name = "HashControl", required = true)
+<             protected String hashControl;
+<             @XmlElement(name = "Period")
+<             protected Integer period;
+<             @XmlElement(name = "InvoiceDate", required = true)
+<             @XmlSchemaType(name = "date")
+<             protected XMLGregorianCalendar invoiceDate;
+<             @XmlElement(name = "InvoiceType", required = true)
+<             protected String invoiceType;
+<             @XmlElement(name = "SpecialRegimes", required = true)
+<             protected SpecialRegimes specialRegimes;
+<             @XmlElement(name = "SourceID", required = true)
+<             protected String sourceID;
+<             @XmlElement(name = "EACCode")
+<             protected String eacCode;
+<             @XmlElement(name = "SystemEntryDate", required = true)
+<             @XmlSchemaType(name = "dateTime")
+<             protected XMLGregorianCalendar systemEntryDate;
+<             @XmlElement(name = "TransactionID")
+<             protected String transactionID;
+<             @XmlElement(name = "CustomerID", required = true)
+<             protected String customerID;
+<             @XmlElement(name = "ShipTo")
+<             protected ShippingPointStructure shipTo;
+<             @XmlElement(name = "ShipFrom")
+<             protected ShippingPointStructure shipFrom;
+<             @XmlElement(name = "MovementEndTime")
+<             @XmlSchemaType(name = "dateTime")
+<             protected XMLGregorianCalendar movementEndTime;
+<             @XmlElement(name = "MovementStartTime")
+<             @XmlSchemaType(name = "dateTime")
+<             protected XMLGregorianCalendar movementStartTime;
+<             @XmlElement(name = "Line", required = true)
+<             protected List<SourceDocuments.SalesInvoices.Invoice.Line> line;
+<             @XmlElement(name = "DocumentTotals", required = true)
+<             protected SourceDocuments.SalesInvoices.Invoice.DocumentTotals documentTotals;
+<             @XmlElement(name = "WithholdingTax")
+<             protected List<WithholdingTax> withholdingTax;
+< 
 <             /**
 <              * Gets the value of the invoiceNo property.
 <              * 
@@ -4312,7 +4954,10 @@
 <              *     {@link String }
 <              *     
 <              */
-5080,5087d925
+<             public String getInvoiceNo() {
+<                 return invoiceNo;
+<             }
+< 
 <             /**
 <              * Sets the value of the invoiceNo property.
 <              * 
@@ -4321,7 +4966,10 @@
 <              *     {@link String }
 <              *     
 <              */
-5092,5099d929
+<             public void setInvoiceNo(String value) {
+<                 this.invoiceNo = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the atcud property.
 <              * 
@@ -4330,7 +4978,10 @@
 <              *     {@link String }
 <              *     
 <              */
-5104,5111d933
+<             public String getATCUD() {
+<                 return atcud;
+<             }
+< 
 <             /**
 <              * Sets the value of the atcud property.
 <              * 
@@ -4339,7 +4990,10 @@
 <              *     {@link String }
 <              *     
 <              */
-5116,5123d937
+<             public void setATCUD(String value) {
+<                 this.atcud = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the documentStatus property.
 <              * 
@@ -4348,7 +5002,10 @@
 <              *     {@link SourceDocuments.SalesInvoices.Invoice.DocumentStatus }
 <              *     
 <              */
-5128,5135d941
+<             public SourceDocuments.SalesInvoices.Invoice.DocumentStatus getDocumentStatus() {
+<                 return documentStatus;
+<             }
+< 
 <             /**
 <              * Sets the value of the documentStatus property.
 <              * 
@@ -4357,7 +5014,10 @@
 <              *     {@link SourceDocuments.SalesInvoices.Invoice.DocumentStatus }
 <              *     
 <              */
-5140,5147d945
+<             public void setDocumentStatus(SourceDocuments.SalesInvoices.Invoice.DocumentStatus value) {
+<                 this.documentStatus = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the hash property.
 <              * 
@@ -4366,7 +5026,10 @@
 <              *     {@link String }
 <              *     
 <              */
-5152,5159d949
+<             public String getHash() {
+<                 return hash;
+<             }
+< 
 <             /**
 <              * Sets the value of the hash property.
 <              * 
@@ -4375,7 +5038,10 @@
 <              *     {@link String }
 <              *     
 <              */
-5164,5171d953
+<             public void setHash(String value) {
+<                 this.hash = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the hashControl property.
 <              * 
@@ -4384,7 +5050,10 @@
 <              *     {@link String }
 <              *     
 <              */
-5176,5183d957
+<             public String getHashControl() {
+<                 return hashControl;
+<             }
+< 
 <             /**
 <              * Sets the value of the hashControl property.
 <              * 
@@ -4393,7 +5062,10 @@
 <              *     {@link String }
 <              *     
 <              */
-5188,5195d961
+<             public void setHashControl(String value) {
+<                 this.hashControl = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the period property.
 <              * 
@@ -4402,7 +5074,10 @@
 <              *     {@link Integer }
 <              *     
 <              */
-5200,5207d965
+<             public Integer getPeriod() {
+<                 return period;
+<             }
+< 
 <             /**
 <              * Sets the value of the period property.
 <              * 
@@ -4411,7 +5086,10 @@
 <              *     {@link Integer }
 <              *     
 <              */
-5212,5219d969
+<             public void setPeriod(Integer value) {
+<                 this.period = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the invoiceDate property.
 <              * 
@@ -4420,7 +5098,10 @@
 <              *     {@link XMLGregorianCalendar }
 <              *     
 <              */
-5224,5231d973
+<             public XMLGregorianCalendar getInvoiceDate() {
+<                 return invoiceDate;
+<             }
+< 
 <             /**
 <              * Sets the value of the invoiceDate property.
 <              * 
@@ -4429,7 +5110,10 @@
 <              *     {@link XMLGregorianCalendar }
 <              *     
 <              */
-5236,5243d977
+<             public void setInvoiceDate(XMLGregorianCalendar value) {
+<                 this.invoiceDate = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the invoiceType property.
 <              * 
@@ -4438,7 +5122,10 @@
 <              *     {@link String }
 <              *     
 <              */
-5248,5255d981
+<             public String getInvoiceType() {
+<                 return invoiceType;
+<             }
+< 
 <             /**
 <              * Sets the value of the invoiceType property.
 <              * 
@@ -4447,7 +5134,10 @@
 <              *     {@link String }
 <              *     
 <              */
-5260,5267d985
+<             public void setInvoiceType(String value) {
+<                 this.invoiceType = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the specialRegimes property.
 <              * 
@@ -4456,7 +5146,10 @@
 <              *     {@link SpecialRegimes }
 <              *     
 <              */
-5272,5279d989
+<             public SpecialRegimes getSpecialRegimes() {
+<                 return specialRegimes;
+<             }
+< 
 <             /**
 <              * Sets the value of the specialRegimes property.
 <              * 
@@ -4465,7 +5158,10 @@
 <              *     {@link SpecialRegimes }
 <              *     
 <              */
-5284,5291d993
+<             public void setSpecialRegimes(SpecialRegimes value) {
+<                 this.specialRegimes = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the sourceID property.
 <              * 
@@ -4474,7 +5170,10 @@
 <              *     {@link String }
 <              *     
 <              */
-5296,5303d997
+<             public String getSourceID() {
+<                 return sourceID;
+<             }
+< 
 <             /**
 <              * Sets the value of the sourceID property.
 <              * 
@@ -4483,7 +5182,10 @@
 <              *     {@link String }
 <              *     
 <              */
-5308,5315d1001
+<             public void setSourceID(String value) {
+<                 this.sourceID = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the eacCode property.
 <              * 
@@ -4492,7 +5194,10 @@
 <              *     {@link String }
 <              *     
 <              */
-5320,5327d1005
+<             public String getEACCode() {
+<                 return eacCode;
+<             }
+< 
 <             /**
 <              * Sets the value of the eacCode property.
 <              * 
@@ -4501,7 +5206,10 @@
 <              *     {@link String }
 <              *     
 <              */
-5332,5339d1009
+<             public void setEACCode(String value) {
+<                 this.eacCode = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the systemEntryDate property.
 <              * 
@@ -4510,7 +5218,10 @@
 <              *     {@link XMLGregorianCalendar }
 <              *     
 <              */
-5344,5351d1013
+<             public XMLGregorianCalendar getSystemEntryDate() {
+<                 return systemEntryDate;
+<             }
+< 
 <             /**
 <              * Sets the value of the systemEntryDate property.
 <              * 
@@ -4519,7 +5230,10 @@
 <              *     {@link XMLGregorianCalendar }
 <              *     
 <              */
-5356,5363d1017
+<             public void setSystemEntryDate(XMLGregorianCalendar value) {
+<                 this.systemEntryDate = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the transactionID property.
 <              * 
@@ -4528,7 +5242,10 @@
 <              *     {@link String }
 <              *     
 <              */
-5368,5375d1021
+<             public String getTransactionID() {
+<                 return transactionID;
+<             }
+< 
 <             /**
 <              * Sets the value of the transactionID property.
 <              * 
@@ -4537,7 +5254,10 @@
 <              *     {@link String }
 <              *     
 <              */
-5380,5387d1025
+<             public void setTransactionID(String value) {
+<                 this.transactionID = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the customerID property.
 <              * 
@@ -4546,7 +5266,10 @@
 <              *     {@link String }
 <              *     
 <              */
-5392,5399d1029
+<             public String getCustomerID() {
+<                 return customerID;
+<             }
+< 
 <             /**
 <              * Sets the value of the customerID property.
 <              * 
@@ -4555,7 +5278,10 @@
 <              *     {@link String }
 <              *     
 <              */
-5404,5411d1033
+<             public void setCustomerID(String value) {
+<                 this.customerID = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the shipTo property.
 <              * 
@@ -4564,7 +5290,10 @@
 <              *     {@link ShippingPointStructure }
 <              *     
 <              */
-5416,5423d1037
+<             public ShippingPointStructure getShipTo() {
+<                 return shipTo;
+<             }
+< 
 <             /**
 <              * Sets the value of the shipTo property.
 <              * 
@@ -4573,7 +5302,10 @@
 <              *     {@link ShippingPointStructure }
 <              *     
 <              */
-5428,5435d1041
+<             public void setShipTo(ShippingPointStructure value) {
+<                 this.shipTo = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the shipFrom property.
 <              * 
@@ -4582,7 +5314,10 @@
 <              *     {@link ShippingPointStructure }
 <              *     
 <              */
-5440,5447d1045
+<             public ShippingPointStructure getShipFrom() {
+<                 return shipFrom;
+<             }
+< 
 <             /**
 <              * Sets the value of the shipFrom property.
 <              * 
@@ -4591,7 +5326,10 @@
 <              *     {@link ShippingPointStructure }
 <              *     
 <              */
-5452,5459d1049
+<             public void setShipFrom(ShippingPointStructure value) {
+<                 this.shipFrom = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the movementEndTime property.
 <              * 
@@ -4600,7 +5338,10 @@
 <              *     {@link XMLGregorianCalendar }
 <              *     
 <              */
-5464,5471d1053
+<             public XMLGregorianCalendar getMovementEndTime() {
+<                 return movementEndTime;
+<             }
+< 
 <             /**
 <              * Sets the value of the movementEndTime property.
 <              * 
@@ -4609,7 +5350,10 @@
 <              *     {@link XMLGregorianCalendar }
 <              *     
 <              */
-5476,5483d1057
+<             public void setMovementEndTime(XMLGregorianCalendar value) {
+<                 this.movementEndTime = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the movementStartTime property.
 <              * 
@@ -4618,7 +5362,10 @@
 <              *     {@link XMLGregorianCalendar }
 <              *     
 <              */
-5488,5495d1061
+<             public XMLGregorianCalendar getMovementStartTime() {
+<                 return movementStartTime;
+<             }
+< 
 <             /**
 <              * Sets the value of the movementStartTime property.
 <              * 
@@ -4627,7 +5374,10 @@
 <              *     {@link XMLGregorianCalendar }
 <              *     
 <              */
-5500,5521d1065
+<             public void setMovementStartTime(XMLGregorianCalendar value) {
+<                 this.movementStartTime = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the line property.
 <              * 
@@ -4650,7 +5400,13 @@
 <              * 
 <              * 
 <              */
-5529,5536d1072
+<             public List<SourceDocuments.SalesInvoices.Invoice.Line> getLine() {
+<                 if (line == null) {
+<                     line = new ArrayList<SourceDocuments.SalesInvoices.Invoice.Line>();
+<                 }
+<                 return this.line;
+<             }
+< 
 <             /**
 <              * Gets the value of the documentTotals property.
 <              * 
@@ -4659,7 +5415,10 @@
 <              *     {@link SourceDocuments.SalesInvoices.Invoice.DocumentTotals }
 <              *     
 <              */
-5541,5548d1076
+<             public SourceDocuments.SalesInvoices.Invoice.DocumentTotals getDocumentTotals() {
+<                 return documentTotals;
+<             }
+< 
 <             /**
 <              * Sets the value of the documentTotals property.
 <              * 
@@ -4668,7 +5427,10 @@
 <              *     {@link SourceDocuments.SalesInvoices.Invoice.DocumentTotals }
 <              *     
 <              */
-5553,5574d1080
+<             public void setDocumentTotals(SourceDocuments.SalesInvoices.Invoice.DocumentTotals value) {
+<                 this.documentTotals = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the withholdingTax property.
 <              * 
@@ -4691,7 +5453,139 @@
 <              * 
 <              * 
 <              */
-5708,5948d1213
+<             public List<WithholdingTax> getWithholdingTax() {
+<                 if (withholdingTax == null) {
+<                     withholdingTax = new ArrayList<WithholdingTax>();
+<                 }
+<                 return this.withholdingTax;
+<             }
+< 
+<             @Override
+<             public String toString() {
+<                 final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+<                 final StringBuilder buffer = new StringBuilder();
+<                 append(null, buffer, strategy);
+<                 return buffer.toString();
+<             }
+< 
+<             @Override
+<             public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<                 strategy.appendStart(locator, this, buffer);
+<                 appendFields(locator, buffer, strategy);
+<                 strategy.appendEnd(locator, this, buffer);
+<                 return buffer;
+<             }
+< 
+<             @Override
+<             public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<                 {
+<                     String theInvoiceNo;
+<                     theInvoiceNo = this.getInvoiceNo();
+<                     strategy.appendField(locator, this, "invoiceNo", buffer, theInvoiceNo, (this.invoiceNo!= null));
+<                 }
+<                 {
+<                     String theATCUD;
+<                     theATCUD = this.getATCUD();
+<                     strategy.appendField(locator, this, "atcud", buffer, theATCUD, (this.atcud!= null));
+<                 }
+<                 {
+<                     SourceDocuments.SalesInvoices.Invoice.DocumentStatus theDocumentStatus;
+<                     theDocumentStatus = this.getDocumentStatus();
+<                     strategy.appendField(locator, this, "documentStatus", buffer, theDocumentStatus, (this.documentStatus!= null));
+<                 }
+<                 {
+<                     String theHash;
+<                     theHash = this.getHash();
+<                     strategy.appendField(locator, this, "hash", buffer, theHash, (this.hash!= null));
+<                 }
+<                 {
+<                     String theHashControl;
+<                     theHashControl = this.getHashControl();
+<                     strategy.appendField(locator, this, "hashControl", buffer, theHashControl, (this.hashControl!= null));
+<                 }
+<                 {
+<                     Integer thePeriod;
+<                     thePeriod = this.getPeriod();
+<                     strategy.appendField(locator, this, "period", buffer, thePeriod, (this.period!= null));
+<                 }
+<                 {
+<                     XMLGregorianCalendar theInvoiceDate;
+<                     theInvoiceDate = this.getInvoiceDate();
+<                     strategy.appendField(locator, this, "invoiceDate", buffer, theInvoiceDate, (this.invoiceDate!= null));
+<                 }
+<                 {
+<                     String theInvoiceType;
+<                     theInvoiceType = this.getInvoiceType();
+<                     strategy.appendField(locator, this, "invoiceType", buffer, theInvoiceType, (this.invoiceType!= null));
+<                 }
+<                 {
+<                     SpecialRegimes theSpecialRegimes;
+<                     theSpecialRegimes = this.getSpecialRegimes();
+<                     strategy.appendField(locator, this, "specialRegimes", buffer, theSpecialRegimes, (this.specialRegimes!= null));
+<                 }
+<                 {
+<                     String theSourceID;
+<                     theSourceID = this.getSourceID();
+<                     strategy.appendField(locator, this, "sourceID", buffer, theSourceID, (this.sourceID!= null));
+<                 }
+<                 {
+<                     String theEACCode;
+<                     theEACCode = this.getEACCode();
+<                     strategy.appendField(locator, this, "eacCode", buffer, theEACCode, (this.eacCode!= null));
+<                 }
+<                 {
+<                     XMLGregorianCalendar theSystemEntryDate;
+<                     theSystemEntryDate = this.getSystemEntryDate();
+<                     strategy.appendField(locator, this, "systemEntryDate", buffer, theSystemEntryDate, (this.systemEntryDate!= null));
+<                 }
+<                 {
+<                     String theTransactionID;
+<                     theTransactionID = this.getTransactionID();
+<                     strategy.appendField(locator, this, "transactionID", buffer, theTransactionID, (this.transactionID!= null));
+<                 }
+<                 {
+<                     String theCustomerID;
+<                     theCustomerID = this.getCustomerID();
+<                     strategy.appendField(locator, this, "customerID", buffer, theCustomerID, (this.customerID!= null));
+<                 }
+<                 {
+<                     ShippingPointStructure theShipTo;
+<                     theShipTo = this.getShipTo();
+<                     strategy.appendField(locator, this, "shipTo", buffer, theShipTo, (this.shipTo!= null));
+<                 }
+<                 {
+<                     ShippingPointStructure theShipFrom;
+<                     theShipFrom = this.getShipFrom();
+<                     strategy.appendField(locator, this, "shipFrom", buffer, theShipFrom, (this.shipFrom!= null));
+<                 }
+<                 {
+<                     XMLGregorianCalendar theMovementEndTime;
+<                     theMovementEndTime = this.getMovementEndTime();
+<                     strategy.appendField(locator, this, "movementEndTime", buffer, theMovementEndTime, (this.movementEndTime!= null));
+<                 }
+<                 {
+<                     XMLGregorianCalendar theMovementStartTime;
+<                     theMovementStartTime = this.getMovementStartTime();
+<                     strategy.appendField(locator, this, "movementStartTime", buffer, theMovementStartTime, (this.movementStartTime!= null));
+<                 }
+<                 {
+<                     List<SourceDocuments.SalesInvoices.Invoice.Line> theLine;
+<                     theLine = (((this.line!= null)&&(!this.line.isEmpty()))?this.getLine():null);
+<                     strategy.appendField(locator, this, "line", buffer, theLine, ((this.line!= null)&&(!this.line.isEmpty())));
+<                 }
+<                 {
+<                     SourceDocuments.SalesInvoices.Invoice.DocumentTotals theDocumentTotals;
+<                     theDocumentTotals = this.getDocumentTotals();
+<                     strategy.appendField(locator, this, "documentTotals", buffer, theDocumentTotals, (this.documentTotals!= null));
+<                 }
+<                 {
+<                     List<WithholdingTax> theWithholdingTax;
+<                     theWithholdingTax = (((this.withholdingTax!= null)&&(!this.withholdingTax.isEmpty()))?this.getWithholdingTax():null);
+<                     strategy.appendField(locator, this, "withholdingTax", buffer, theWithholdingTax, ((this.withholdingTax!= null)&&(!this.withholdingTax.isEmpty())));
+<                 }
+<                 return buffer;
+<             }
+< 
 < 
 <             /**
 <              * <p>Java class for anonymous complex type.
@@ -4933,13 +5827,26 @@
 <              * 
 <              * 
 <              */
-5954,5956c1219
+<             @XmlAccessorType(XmlAccessType.FIELD)
+<             @XmlType(name = "", propOrder = {
+<                 "taxPayable",
+<                 "netTotal",
+<                 "grossTotal",
 <                 "currency",
 <                 "settlement",
 <                 "payment"
----
->                 "currency"
-5969,5981c1232
+<             })
+<             public static class DocumentTotals implements ToString2
+<             {
+< 
+<                 @XmlElement(name = "TaxPayable", required = true)
+<                 protected BigDecimal taxPayable;
+<                 @XmlElement(name = "NetTotal", required = true)
+<                 protected BigDecimal netTotal;
+<                 @XmlElement(name = "GrossTotal", required = true)
+<                 protected BigDecimal grossTotal;
+<                 @XmlElement(name = "Currency")
+<                 protected Currency currency;
 <                 @XmlElement(name = "Settlement")
 <                 protected List<com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema.Settlement> settlement;
 <                 @XmlElement(name = "Payment")
@@ -4953,9 +5860,10 @@
 <                  *     {@link BigDecimal }
 <                  *     
 <                  */
----
-> 
-5986,5993d1236
+<                 public BigDecimal getTaxPayable() {
+<                     return taxPayable;
+<                 }
+< 
 <                 /**
 <                  * Sets the value of the taxPayable property.
 <                  * 
@@ -4964,7 +5872,10 @@
 <                  *     {@link BigDecimal }
 <                  *     
 <                  */
-5998,6005d1240
+<                 public void setTaxPayable(BigDecimal value) {
+<                     this.taxPayable = value;
+<                 }
+< 
 <                 /**
 <                  * Gets the value of the netTotal property.
 <                  * 
@@ -4973,7 +5884,10 @@
 <                  *     {@link BigDecimal }
 <                  *     
 <                  */
-6010,6017d1244
+<                 public BigDecimal getNetTotal() {
+<                     return netTotal;
+<                 }
+< 
 <                 /**
 <                  * Sets the value of the netTotal property.
 <                  * 
@@ -4982,7 +5896,10 @@
 <                  *     {@link BigDecimal }
 <                  *     
 <                  */
-6022,6029d1248
+<                 public void setNetTotal(BigDecimal value) {
+<                     this.netTotal = value;
+<                 }
+< 
 <                 /**
 <                  * Gets the value of the grossTotal property.
 <                  * 
@@ -4991,7 +5908,10 @@
 <                  *     {@link BigDecimal }
 <                  *     
 <                  */
-6034,6041d1252
+<                 public BigDecimal getGrossTotal() {
+<                     return grossTotal;
+<                 }
+< 
 <                 /**
 <                  * Sets the value of the grossTotal property.
 <                  * 
@@ -5000,7 +5920,10 @@
 <                  *     {@link BigDecimal }
 <                  *     
 <                  */
-6046,6053d1256
+<                 public void setGrossTotal(BigDecimal value) {
+<                     this.grossTotal = value;
+<                 }
+< 
 <                 /**
 <                  * Gets the value of the currency property.
 <                  * 
@@ -5009,7 +5932,10 @@
 <                  *     {@link Currency }
 <                  *     
 <                  */
-6058,6065d1260
+<                 public Currency getCurrency() {
+<                     return currency;
+<                 }
+< 
 <                 /**
 <                  * Sets the value of the currency property.
 <                  * 
@@ -5018,7 +5944,10 @@
 <                  *     {@link Currency }
 <                  *     
 <                  */
-6070,6127d1264
+<                 public void setCurrency(Currency value) {
+<                     this.currency = value;
+<                 }
+< 
 <                 /**
 <                  * Gets the value of the settlement property.
 <                  * 
@@ -5077,7 +6006,44 @@
 <                     return this.payment;
 <                 }
 < 
-6166,6175d1302
+<                 @Override
+<                 public String toString() {
+<                     final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+<                     final StringBuilder buffer = new StringBuilder();
+<                     append(null, buffer, strategy);
+<                     return buffer.toString();
+<                 }
+< 
+<                 @Override
+<                 public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<                     strategy.appendStart(locator, this, buffer);
+<                     appendFields(locator, buffer, strategy);
+<                     strategy.appendEnd(locator, this, buffer);
+<                     return buffer;
+<                 }
+< 
+<                 @Override
+<                 public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<                     {
+<                         BigDecimal theTaxPayable;
+<                         theTaxPayable = this.getTaxPayable();
+<                         strategy.appendField(locator, this, "taxPayable", buffer, theTaxPayable, (this.taxPayable!= null));
+<                     }
+<                     {
+<                         BigDecimal theNetTotal;
+<                         theNetTotal = this.getNetTotal();
+<                         strategy.appendField(locator, this, "netTotal", buffer, theNetTotal, (this.netTotal!= null));
+<                     }
+<                     {
+<                         BigDecimal theGrossTotal;
+<                         theGrossTotal = this.getGrossTotal();
+<                         strategy.appendField(locator, this, "grossTotal", buffer, theGrossTotal, (this.grossTotal!= null));
+<                     }
+<                     {
+<                         Currency theCurrency;
+<                         theCurrency = this.getCurrency();
+<                         strategy.appendField(locator, this, "currency", buffer, theCurrency, (this.currency!= null));
+<                     }
 <                     {
 <                         List<com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema.Settlement> theSettlement;
 <                         theSettlement = (((this.settlement!= null)&&(!this.settlement.isEmpty()))?this.getSettlement():null);
@@ -5088,7 +6054,11 @@
 <                         thePayment = (((this.payment!= null)&&(!this.payment.isEmpty()))?this.getPayment():null);
 <                         strategy.appendField(locator, this, "payment", buffer, thePayment, ((this.payment!= null)&&(!this.payment.isEmpty())));
 <                     }
-6181,6750d1307
+<                     return buffer;
+<                 }
+< 
+<             }
+< 
 < 
 <             /**
 <              * <p>Java class for anonymous complex type.
@@ -5659,7 +6629,8 @@
 <                  */
 <                 public void setCustomsInformation(CustomsInformation value) {
 <                     this.customsInformation = value;
-6753,6766d1309
+<                 }
+< 
 <                 @Override
 <                 public String toString() {
 <                     final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
@@ -5674,7 +6645,8 @@
 <                     appendFields(locator, buffer, strategy);
 <                     strategy.appendEnd(locator, this, buffer);
 <                     return buffer;
-6769,6978d1311
+<                 }
+< 
 <                 @Override
 <                 public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
 <                     {
@@ -5867,171 +6839,7 @@
 <      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NetTotal"/&gt;
 <      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GrossTotal"/&gt;
 <      *                             &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Currency" minOccurs="0"/&gt;
-<      *                           &lt;/sequence&gt;
-<      *                         &lt;/restriction&gt;
-<      *                       &lt;/complexContent&gt;
-<      *                     &lt;/complexType&gt;
-<      *                   &lt;/element&gt;
-<      *                 &lt;/sequence&gt;
-<      *               &lt;/restriction&gt;
-<      *             &lt;/complexContent&gt;
-<      *           &lt;/complexType&gt;
-<      *         &lt;/element&gt;
-<      *       &lt;/sequence&gt;
-<      *     &lt;/restriction&gt;
-<      *   &lt;/complexContent&gt;
-<      * &lt;/complexType&gt;
-<      * </pre>
-<      * 
-<      * 
-<      */
-6999,7006d1331
-<         /**
-<          * Gets the value of the numberOfEntries property.
-<          * 
-<          * @return
-<          *     possible object is
-<          *     {@link BigInteger }
-<          *     
-<          */
-7011,7018d1335
-<         /**
-<          * Sets the value of the numberOfEntries property.
-<          * 
-<          * @param value
-<          *     allowed object is
-<          *     {@link BigInteger }
-<          *     
-<          */
-7023,7030d1339
-<         /**
-<          * Gets the value of the totalDebit property.
-<          * 
-<          * @return
-<          *     possible object is
-<          *     {@link BigDecimal }
-<          *     
-<          */
-7035,7042d1343
-<         /**
-<          * Sets the value of the totalDebit property.
-<          * 
-<          * @param value
-<          *     allowed object is
-<          *     {@link BigDecimal }
-<          *     
-<          */
-7047,7054d1347
-<         /**
-<          * Gets the value of the totalCredit property.
-<          * 
-<          * @return
-<          *     possible object is
-<          *     {@link BigDecimal }
-<          *     
-<          */
-7059,7066d1351
-<         /**
-<          * Sets the value of the totalCredit property.
-<          * 
-<          * @param value
-<          *     allowed object is
-<          *     {@link BigDecimal }
-<          *     
-<          */
-7071,7092d1355
-<         /**
-<          * Gets the value of the workDocument property.
-<          * 
-<          * <p>
-<          * This accessor method returns a reference to the live list,
-<          * not a snapshot. Therefore any modification you make to the
-<          * returned list will be present inside the JAXB object.
-<          * This is why there is not a <CODE>set</CODE> method for the workDocument property.
-<          * 
-<          * <p>
-<          * For example, to add a new item, do as follows:
-<          * <pre>
-<          *    getWorkDocument().add(newItem);
-<          * </pre>
-<          * 
-<          * 
-<          * <p>
-<          * Objects of the following type(s) are allowed in the list
-<          * {@link SourceDocuments.WorkingDocuments.WorkDocument }
-<          * 
-<          * 
-<          */
-7141,7231d1403
-< 
-<         /**
-<          * <p>Java class for anonymous complex type.
-<          * 
-<          * <p>The following schema fragment specifies the expected content contained within this class.
-<          * 
-<          * <pre>
-<          * &lt;complexType&gt;
-<          *   &lt;complexContent&gt;
-<          *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-<          *       &lt;sequence&gt;
-<          *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DocumentNumber"/&gt;
-<          *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ATCUD"/&gt;
-<          *         &lt;element name="DocumentStatus"&gt;
-<          *           &lt;complexType&gt;
-<          *             &lt;complexContent&gt;
-<          *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-<          *                 &lt;sequence&gt;
-<          *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WorkStatus"/&gt;
-<          *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WorkStatusDate"/&gt;
-<          *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Reason" minOccurs="0"/&gt;
-<          *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
-<          *                   &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTSourceBilling"/&gt;
-<          *                 &lt;/sequence&gt;
-<          *               &lt;/restriction&gt;
-<          *             &lt;/complexContent&gt;
-<          *           &lt;/complexType&gt;
-<          *         &lt;/element&gt;
-<          *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Hash"/&gt;
-<          *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}HashControl"/&gt;
-<          *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Period" minOccurs="0"/&gt;
-<          *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WorkDate"/&gt;
-<          *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WorkType"/&gt;
-<          *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
-<          *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}EACCode" minOccurs="0"/&gt;
-<          *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SystemEntryDate"/&gt;
-<          *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TransactionID" minOccurs="0"/&gt;
-<          *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomerID"/&gt;
-<          *         &lt;element name="Line" maxOccurs="unbounded"&gt;
-<          *           &lt;complexType&gt;
-<          *             &lt;complexContent&gt;
-<          *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-<          *                 &lt;sequence&gt;
-<          *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}LineNumber"/&gt;
-<          *                   &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
-<          *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductCode"/&gt;
-<          *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductDescription"/&gt;
-<          *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Quantity"/&gt;
-<          *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitOfMeasure"/&gt;
-<          *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitPrice"/&gt;
-<          *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxBase" minOccurs="0"/&gt;
-<          *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPointDate"/&gt;
-<          *                   &lt;element name="References" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}References" maxOccurs="unbounded" minOccurs="0"/&gt;
-<          *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Description"/&gt;
-<          *                   &lt;element name="ProductSerialNumber" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductSerialNumber" minOccurs="0"/&gt;
-<          *                   &lt;choice&gt;
-<          *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DebitAmount"/&gt;
-<          *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CreditAmount"/&gt;
-<          *                   &lt;/choice&gt;
-<          *                   &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Tax" minOccurs="0"/&gt;
-<          *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionReason" minOccurs="0"/&gt;
-<          *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionCode" minOccurs="0"/&gt;
-<          *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount" minOccurs="0"/&gt;
-<          *                   &lt;element name="CustomsInformation" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomsInformation" minOccurs="0"/&gt;
-<          *                 &lt;/sequence&gt;
-<          *               &lt;/restriction&gt;
-<          *             &lt;/complexContent&gt;
-<          *           &lt;/complexType&gt;
-<          *         &lt;/element&gt;
+7210,7222d370
 <          *         &lt;element name="DocumentTotals"&gt;
 <          *           &lt;complexType&gt;
 <          *             &lt;complexContent&gt;
@@ -6045,16 +6853,59 @@
 <          *               &lt;/restriction&gt;
 <          *             &lt;/complexContent&gt;
 <          *           &lt;/complexType&gt;
-<          *         &lt;/element&gt;
-<          *       &lt;/sequence&gt;
-<          *     &lt;/restriction&gt;
-<          *   &lt;/complexContent&gt;
-<          * &lt;/complexType&gt;
-<          * </pre>
-<          * 
-<          * 
-<          */
-7286,7293d1457
+7234,7987d381
+<             "documentNumber",
+<             "atcud",
+<             "documentStatus",
+<             "hash",
+<             "hashControl",
+<             "period",
+<             "workDate",
+<             "workType",
+<             "sourceID",
+<             "eacCode",
+<             "systemEntryDate",
+<             "transactionID",
+<             "customerID",
+<             "line",
+<             "documentTotals"
+<         })
+<         public static class WorkDocument implements ToString2
+<         {
+< 
+<             @XmlElement(name = "DocumentNumber", required = true)
+<             protected String documentNumber;
+<             @XmlElement(name = "ATCUD", required = true)
+<             protected String atcud;
+<             @XmlElement(name = "DocumentStatus", required = true)
+<             protected SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus documentStatus;
+<             @XmlElement(name = "Hash", required = true)
+<             protected String hash;
+<             @XmlElement(name = "HashControl", required = true)
+<             protected String hashControl;
+<             @XmlElement(name = "Period")
+<             protected Integer period;
+<             @XmlElement(name = "WorkDate", required = true)
+<             @XmlSchemaType(name = "date")
+<             protected XMLGregorianCalendar workDate;
+<             @XmlElement(name = "WorkType", required = true)
+<             protected String workType;
+<             @XmlElement(name = "SourceID", required = true)
+<             protected String sourceID;
+<             @XmlElement(name = "EACCode")
+<             protected String eacCode;
+<             @XmlElement(name = "SystemEntryDate", required = true)
+<             @XmlSchemaType(name = "dateTime")
+<             protected XMLGregorianCalendar systemEntryDate;
+<             @XmlElement(name = "TransactionID")
+<             protected String transactionID;
+<             @XmlElement(name = "CustomerID", required = true)
+<             protected String customerID;
+<             @XmlElement(name = "Line", required = true)
+<             protected List<SourceDocuments.WorkingDocuments.WorkDocument.Line> line;
+<             @XmlElement(name = "DocumentTotals", required = true)
+<             protected SourceDocuments.WorkingDocuments.WorkDocument.DocumentTotals documentTotals;
+< 
 <             /**
 <              * Gets the value of the documentNumber property.
 <              * 
@@ -6063,7 +6914,10 @@
 <              *     {@link String }
 <              *     
 <              */
-7298,7305d1461
+<             public String getDocumentNumber() {
+<                 return documentNumber;
+<             }
+< 
 <             /**
 <              * Sets the value of the documentNumber property.
 <              * 
@@ -6072,7 +6926,10 @@
 <              *     {@link String }
 <              *     
 <              */
-7310,7317d1465
+<             public void setDocumentNumber(String value) {
+<                 this.documentNumber = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the atcud property.
 <              * 
@@ -6081,7 +6938,10 @@
 <              *     {@link String }
 <              *     
 <              */
-7322,7329d1469
+<             public String getATCUD() {
+<                 return atcud;
+<             }
+< 
 <             /**
 <              * Sets the value of the atcud property.
 <              * 
@@ -6090,7 +6950,10 @@
 <              *     {@link String }
 <              *     
 <              */
-7334,7341d1473
+<             public void setATCUD(String value) {
+<                 this.atcud = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the documentStatus property.
 <              * 
@@ -6099,7 +6962,10 @@
 <              *     {@link SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus }
 <              *     
 <              */
-7346,7353d1477
+<             public SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus getDocumentStatus() {
+<                 return documentStatus;
+<             }
+< 
 <             /**
 <              * Sets the value of the documentStatus property.
 <              * 
@@ -6108,7 +6974,10 @@
 <              *     {@link SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus }
 <              *     
 <              */
-7358,7365d1481
+<             public void setDocumentStatus(SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus value) {
+<                 this.documentStatus = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the hash property.
 <              * 
@@ -6117,7 +6986,10 @@
 <              *     {@link String }
 <              *     
 <              */
-7370,7377d1485
+<             public String getHash() {
+<                 return hash;
+<             }
+< 
 <             /**
 <              * Sets the value of the hash property.
 <              * 
@@ -6126,7 +6998,10 @@
 <              *     {@link String }
 <              *     
 <              */
-7382,7389d1489
+<             public void setHash(String value) {
+<                 this.hash = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the hashControl property.
 <              * 
@@ -6135,7 +7010,10 @@
 <              *     {@link String }
 <              *     
 <              */
-7394,7401d1493
+<             public String getHashControl() {
+<                 return hashControl;
+<             }
+< 
 <             /**
 <              * Sets the value of the hashControl property.
 <              * 
@@ -6144,7 +7022,10 @@
 <              *     {@link String }
 <              *     
 <              */
-7406,7413d1497
+<             public void setHashControl(String value) {
+<                 this.hashControl = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the period property.
 <              * 
@@ -6153,7 +7034,10 @@
 <              *     {@link Integer }
 <              *     
 <              */
-7418,7425d1501
+<             public Integer getPeriod() {
+<                 return period;
+<             }
+< 
 <             /**
 <              * Sets the value of the period property.
 <              * 
@@ -6162,7 +7046,10 @@
 <              *     {@link Integer }
 <              *     
 <              */
-7430,7437d1505
+<             public void setPeriod(Integer value) {
+<                 this.period = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the workDate property.
 <              * 
@@ -6171,7 +7058,10 @@
 <              *     {@link XMLGregorianCalendar }
 <              *     
 <              */
-7442,7449d1509
+<             public XMLGregorianCalendar getWorkDate() {
+<                 return workDate;
+<             }
+< 
 <             /**
 <              * Sets the value of the workDate property.
 <              * 
@@ -6180,7 +7070,10 @@
 <              *     {@link XMLGregorianCalendar }
 <              *     
 <              */
-7454,7461d1513
+<             public void setWorkDate(XMLGregorianCalendar value) {
+<                 this.workDate = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the workType property.
 <              * 
@@ -6189,7 +7082,10 @@
 <              *     {@link String }
 <              *     
 <              */
-7466,7473d1517
+<             public String getWorkType() {
+<                 return workType;
+<             }
+< 
 <             /**
 <              * Sets the value of the workType property.
 <              * 
@@ -6198,7 +7094,10 @@
 <              *     {@link String }
 <              *     
 <              */
-7478,7485d1521
+<             public void setWorkType(String value) {
+<                 this.workType = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the sourceID property.
 <              * 
@@ -6207,7 +7106,10 @@
 <              *     {@link String }
 <              *     
 <              */
-7490,7497d1525
+<             public String getSourceID() {
+<                 return sourceID;
+<             }
+< 
 <             /**
 <              * Sets the value of the sourceID property.
 <              * 
@@ -6216,7 +7118,10 @@
 <              *     {@link String }
 <              *     
 <              */
-7502,7509d1529
+<             public void setSourceID(String value) {
+<                 this.sourceID = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the eacCode property.
 <              * 
@@ -6225,7 +7130,10 @@
 <              *     {@link String }
 <              *     
 <              */
-7514,7521d1533
+<             public String getEACCode() {
+<                 return eacCode;
+<             }
+< 
 <             /**
 <              * Sets the value of the eacCode property.
 <              * 
@@ -6234,7 +7142,10 @@
 <              *     {@link String }
 <              *     
 <              */
-7526,7533d1537
+<             public void setEACCode(String value) {
+<                 this.eacCode = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the systemEntryDate property.
 <              * 
@@ -6243,7 +7154,10 @@
 <              *     {@link XMLGregorianCalendar }
 <              *     
 <              */
-7538,7545d1541
+<             public XMLGregorianCalendar getSystemEntryDate() {
+<                 return systemEntryDate;
+<             }
+< 
 <             /**
 <              * Sets the value of the systemEntryDate property.
 <              * 
@@ -6252,7 +7166,10 @@
 <              *     {@link XMLGregorianCalendar }
 <              *     
 <              */
-7550,7557d1545
+<             public void setSystemEntryDate(XMLGregorianCalendar value) {
+<                 this.systemEntryDate = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the transactionID property.
 <              * 
@@ -6261,7 +7178,10 @@
 <              *     {@link String }
 <              *     
 <              */
-7562,7569d1549
+<             public String getTransactionID() {
+<                 return transactionID;
+<             }
+< 
 <             /**
 <              * Sets the value of the transactionID property.
 <              * 
@@ -6270,7 +7190,10 @@
 <              *     {@link String }
 <              *     
 <              */
-7574,7581d1553
+<             public void setTransactionID(String value) {
+<                 this.transactionID = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the customerID property.
 <              * 
@@ -6279,7 +7202,10 @@
 <              *     {@link String }
 <              *     
 <              */
-7586,7593d1557
+<             public String getCustomerID() {
+<                 return customerID;
+<             }
+< 
 <             /**
 <              * Sets the value of the customerID property.
 <              * 
@@ -6288,7 +7214,10 @@
 <              *     {@link String }
 <              *     
 <              */
-7598,7619d1561
+<             public void setCustomerID(String value) {
+<                 this.customerID = value;
+<             }
+< 
 <             /**
 <              * Gets the value of the line property.
 <              * 
@@ -6311,7 +7240,13 @@
 <              * 
 <              * 
 <              */
-7627,7634d1568
+<             public List<SourceDocuments.WorkingDocuments.WorkDocument.Line> getLine() {
+<                 if (line == null) {
+<                     line = new ArrayList<SourceDocuments.WorkingDocuments.WorkDocument.Line>();
+<                 }
+<                 return this.line;
+<             }
+< 
 <             /**
 <              * Gets the value of the documentTotals property.
 <              * 
@@ -6320,7 +7255,10 @@
 <              *     {@link SourceDocuments.WorkingDocuments.WorkDocument.DocumentTotals }
 <              *     
 <              */
-7639,7646d1572
+<             public SourceDocuments.WorkingDocuments.WorkDocument.DocumentTotals getDocumentTotals() {
+<                 return documentTotals;
+<             }
+< 
 <             /**
 <              * Sets the value of the documentTotals property.
 <              * 
@@ -6329,7 +7267,106 @@
 <              *     {@link SourceDocuments.WorkingDocuments.WorkDocument.DocumentTotals }
 <              *     
 <              */
-7747,7985d1672
+<             public void setDocumentTotals(SourceDocuments.WorkingDocuments.WorkDocument.DocumentTotals value) {
+<                 this.documentTotals = value;
+<             }
+< 
+<             @Override
+<             public String toString() {
+<                 final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+<                 final StringBuilder buffer = new StringBuilder();
+<                 append(null, buffer, strategy);
+<                 return buffer.toString();
+<             }
+< 
+<             @Override
+<             public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<                 strategy.appendStart(locator, this, buffer);
+<                 appendFields(locator, buffer, strategy);
+<                 strategy.appendEnd(locator, this, buffer);
+<                 return buffer;
+<             }
+< 
+<             @Override
+<             public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<                 {
+<                     String theDocumentNumber;
+<                     theDocumentNumber = this.getDocumentNumber();
+<                     strategy.appendField(locator, this, "documentNumber", buffer, theDocumentNumber, (this.documentNumber!= null));
+<                 }
+<                 {
+<                     String theATCUD;
+<                     theATCUD = this.getATCUD();
+<                     strategy.appendField(locator, this, "atcud", buffer, theATCUD, (this.atcud!= null));
+<                 }
+<                 {
+<                     SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus theDocumentStatus;
+<                     theDocumentStatus = this.getDocumentStatus();
+<                     strategy.appendField(locator, this, "documentStatus", buffer, theDocumentStatus, (this.documentStatus!= null));
+<                 }
+<                 {
+<                     String theHash;
+<                     theHash = this.getHash();
+<                     strategy.appendField(locator, this, "hash", buffer, theHash, (this.hash!= null));
+<                 }
+<                 {
+<                     String theHashControl;
+<                     theHashControl = this.getHashControl();
+<                     strategy.appendField(locator, this, "hashControl", buffer, theHashControl, (this.hashControl!= null));
+<                 }
+<                 {
+<                     Integer thePeriod;
+<                     thePeriod = this.getPeriod();
+<                     strategy.appendField(locator, this, "period", buffer, thePeriod, (this.period!= null));
+<                 }
+<                 {
+<                     XMLGregorianCalendar theWorkDate;
+<                     theWorkDate = this.getWorkDate();
+<                     strategy.appendField(locator, this, "workDate", buffer, theWorkDate, (this.workDate!= null));
+<                 }
+<                 {
+<                     String theWorkType;
+<                     theWorkType = this.getWorkType();
+<                     strategy.appendField(locator, this, "workType", buffer, theWorkType, (this.workType!= null));
+<                 }
+<                 {
+<                     String theSourceID;
+<                     theSourceID = this.getSourceID();
+<                     strategy.appendField(locator, this, "sourceID", buffer, theSourceID, (this.sourceID!= null));
+<                 }
+<                 {
+<                     String theEACCode;
+<                     theEACCode = this.getEACCode();
+<                     strategy.appendField(locator, this, "eacCode", buffer, theEACCode, (this.eacCode!= null));
+<                 }
+<                 {
+<                     XMLGregorianCalendar theSystemEntryDate;
+<                     theSystemEntryDate = this.getSystemEntryDate();
+<                     strategy.appendField(locator, this, "systemEntryDate", buffer, theSystemEntryDate, (this.systemEntryDate!= null));
+<                 }
+<                 {
+<                     String theTransactionID;
+<                     theTransactionID = this.getTransactionID();
+<                     strategy.appendField(locator, this, "transactionID", buffer, theTransactionID, (this.transactionID!= null));
+<                 }
+<                 {
+<                     String theCustomerID;
+<                     theCustomerID = this.getCustomerID();
+<                     strategy.appendField(locator, this, "customerID", buffer, theCustomerID, (this.customerID!= null));
+<                 }
+<                 {
+<                     List<SourceDocuments.WorkingDocuments.WorkDocument.Line> theLine;
+<                     theLine = (((this.line!= null)&&(!this.line.isEmpty()))?this.getLine():null);
+<                     strategy.appendField(locator, this, "line", buffer, theLine, ((this.line!= null)&&(!this.line.isEmpty())));
+<                 }
+<                 {
+<                     SourceDocuments.WorkingDocuments.WorkDocument.DocumentTotals theDocumentTotals;
+<                     theDocumentTotals = this.getDocumentTotals();
+<                     strategy.appendField(locator, this, "documentTotals", buffer, theDocumentTotals, (this.documentTotals!= null));
+<                 }
+<                 return buffer;
+<             }
+< 
 < 
 <             /**
 <              * <p>Java class for anonymous complex type.
@@ -6569,79 +7606,9 @@
 <              * 
 <              * 
 <              */
-8005,8012d1691
-<                 /**
-<                  * Gets the value of the taxPayable property.
-<                  * 
-<                  * @return
-<                  *     possible object is
-<                  *     {@link BigDecimal }
-<                  *     
-<                  */
-8017,8024d1695
-<                 /**
-<                  * Sets the value of the taxPayable property.
-<                  * 
-<                  * @param value
-<                  *     allowed object is
-<                  *     {@link BigDecimal }
-<                  *     
-<                  */
-8029,8036d1699
-<                 /**
-<                  * Gets the value of the netTotal property.
-<                  * 
-<                  * @return
-<                  *     possible object is
-<                  *     {@link BigDecimal }
-<                  *     
-<                  */
-8041,8048d1703
-<                 /**
-<                  * Sets the value of the netTotal property.
-<                  * 
-<                  * @param value
-<                  *     allowed object is
-<                  *     {@link BigDecimal }
-<                  *     
-<                  */
-8053,8060d1707
-<                 /**
-<                  * Gets the value of the grossTotal property.
-<                  * 
-<                  * @return
-<                  *     possible object is
-<                  *     {@link BigDecimal }
-<                  *     
-<                  */
-8065,8072d1711
-<                 /**
-<                  * Sets the value of the grossTotal property.
-<                  * 
-<                  * @param value
-<                  *     allowed object is
-<                  *     {@link BigDecimal }
-<                  *     
-<                  */
-8077,8084d1715
-<                 /**
-<                  * Gets the value of the currency property.
-<                  * 
-<                  * @return
-<                  *     possible object is
-<                  *     {@link Currency }
-<                  *     
-<                  */
-8089,8096d1719
-<                 /**
-<                  * Sets the value of the currency property.
-<                  * 
-<                  * @param value
-<                  *     allowed object is
-<                  *     {@link Currency }
-<                  *     
-<                  */
-8144,8833d1766
+<             @XmlAccessorType(XmlAccessType.FIELD)
+<             @XmlType(name = "", propOrder = {
+8144,8835d537
 < 
 <             /**
 <              * <p>Java class for anonymous complex type.
@@ -7331,4 +8298,6 @@
 <                 }
 < 
 <             }
+< 
+<         }
 < 

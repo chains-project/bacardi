@@ -15,19 +15,26 @@
 25c24
 < public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
 ---
-> public class InfoCommand implements Command.Parameterized, ChangeSkinCommand {
-35c34
+> public class InfoCommand implements Command, ChangeSkinCommand {
+34,35c33
+<     @Override
 <     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 ---
 >     public CommandResult execute(Subject src, CommandContext args) {
-53,54c52,53
+53,54c51,52
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
 ---
->     public Command.Builder buildSpec() {
->         return Command.builder()
-56,57c55
+>     public org.spongepowered.api.command.Command.Builder build() {
+>         return org.spongepowered.api.command.Command.builder()
+56,57c54
 <                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
 <                 .build();
 ---
 >                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base");
+76a74,78
+> 
+>     @Override
+>     public Parameter.Value<?<?>> getParameter() {
+>         return null;
+>     }

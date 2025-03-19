@@ -18,7 +18,6 @@ import org.kohsuke.stapler.DataBoundSetter;
 
 import java.io.IOException;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @SuppressWarnings("unused")
@@ -34,6 +33,7 @@ public class CreateServerStep extends AbstractStepImpl {
     private Integer timeout;
     private Integer retry;
     private String url;
+
 
     @DataBoundConstructor
     public CreateServerStep(String id) {
@@ -126,7 +126,8 @@ public class CreateServerStep extends AbstractStepImpl {
          * @throws IOException if there is an illegal step configuration.
          */
         private void checkInputs(ArtifactoryServer server) throws IOException {
-            if (isBlank(server.getUrl()) && isBlank(step.url)) {
+            boolean isUrlBlank = isNotBlank(server.getUrl()) || isNotBlank(step.url);
+            if (!isUrlBlank) {
                 throw new IOException("Server URL is missing");
             }
             if (isNotBlank(step.credentialsId)) {

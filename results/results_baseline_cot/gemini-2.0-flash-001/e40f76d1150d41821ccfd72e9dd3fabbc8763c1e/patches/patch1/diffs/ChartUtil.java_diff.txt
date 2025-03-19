@@ -1,25 +1,14 @@
-7,8d6
+7c7
 < import com.gargoylesoftware.htmlunit.ScriptResult;
-< 
-9a8
-> import org.openqa.selenium.JavascriptExecutor;
-31c30
-<             Object result = pageObject.executeScript(String.format(
 ---
->             Object result = ((JavascriptExecutor) pageObject.driver).executeScript(String.format(
-35,36c34
+> import net.sourceforge.htmlunit.corejs.javascript.ScriptableObject;
+35,36c35,36
 <             ScriptResult scriptResult = new ScriptResult(result);
 <             return scriptResult.getJavaScriptResult().toString();
 ---
->             return result.toString();
-55c53
-<                 Object result = pageObject.executeScript(String.format(
----
->                 Object result = ((JavascriptExecutor) pageObject.driver).executeScript(String.format(
-60,62c58,59
+>             String scriptResult = ScriptableObject.getProperty(pageObject.getCurrentWindow().getScope(), "JSON").callMethod(pageObject.getCurrentWindow().getScope(), "stringify", new Object[]{result}, 0).toString();
+>             return scriptResult;
+60c60
 <                 Object scriptResult = new ScriptResult(result).getJavaScriptResult();
-<                 if (scriptResult != null) {
-<                     return scriptResult.toString();
 ---
->                 if (result != null) {
->                     return result.toString();
+>                 Object scriptResult = ScriptableObject.getProperty(pageObject.getCurrentWindow().getScope(), "JSON").callMethod(pageObject.getCurrentWindow().getScope(), "stringify", new Object[]{result}, 0);

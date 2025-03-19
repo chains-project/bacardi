@@ -4,16 +4,15 @@ import com.wire.xenon.Const;
 import com.wire.xenon.tools.Logger;
 import com.wire.xenon.tools.Util;
 
-import jakarta.ws.rs.WebApplicationException; // Updated import
-import jakarta.ws.rs.container.ContainerRequestContext; // Updated import
-import jakarta.ws.rs.container.ContainerRequestFilter; // Updated import
-import jakarta.ws.rs.core.HttpHeaders; // Updated import
-import jakarta.ws.rs.core.Response; // Updated import
-import jakarta.ws.rs.ext.Provider; // Updated import
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.Provider;
 
 @Provider
 public class AuthenticationFilter implements ContainerRequestFilter {
-    @Override
     public void filter(ContainerRequestContext requestContext) {
         String auth = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
         if (auth == null) {

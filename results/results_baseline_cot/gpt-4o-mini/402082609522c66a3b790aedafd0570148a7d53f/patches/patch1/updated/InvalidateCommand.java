@@ -6,7 +6,7 @@ import com.github.games647.changeskin.sponge.task.SkinInvalidator;
 import com.google.inject.Inject;
 
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.source.CommandSource; // Updated import
+import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
@@ -34,7 +34,6 @@ public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
         return CommandResult.success();
     }
 
-    @Override
     public CommandSpec buildSpec() {
         return CommandSpec.builder()
                 .executor(this)

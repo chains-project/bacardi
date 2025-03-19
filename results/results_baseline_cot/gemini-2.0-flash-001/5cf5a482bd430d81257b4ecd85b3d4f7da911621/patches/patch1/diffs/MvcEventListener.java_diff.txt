@@ -1,20 +1,37 @@
-4,12c4,12
-< import javax.annotation.PostConstruct;
-< import javax.enterprise.context.ApplicationScoped;
-< import javax.enterprise.event.Observes;
-< import javax.inject.Inject;
+8,12c8,14
 < import javax.mvc.event.AfterControllerEvent;
 < import javax.mvc.event.AfterProcessViewEvent;
 < import javax.mvc.event.BeforeControllerEvent;
 < import javax.mvc.event.BeforeProcessViewEvent;
 < import javax.mvc.event.ControllerRedirectEvent;
 ---
-> import jakarta.annotation.PostConstruct;
-> import jakarta.enterprise.context.ApplicationScoped;
-> import jakarta.enterprise.event.Observes;
-> import jakarta.inject.Inject;
 > import jakarta.mvc.event.AfterControllerEvent;
 > import jakarta.mvc.event.AfterProcessViewEvent;
 > import jakarta.mvc.event.BeforeControllerEvent;
 > import jakarta.mvc.event.BeforeProcessViewEvent;
 > import jakarta.mvc.event.ControllerRedirectEvent;
+> import jakarta.mvc.UriInfo;
+> import jakarta.mvc.Viewable;
+21c23,28
+<         LOGGER.info(() -> "Controller matched for " + event.getUriInfo().getRequestUri());
+---
+>         UriInfo uriInfo = event.getUriInfo();
+>         if (uriInfo != null) {
+>             LOGGER.info(() -> "Controller matched for " + uriInfo.getRequestUri());
+>         } else {
+>             LOGGER.warning("UriInfo is null in BeforeControllerEvent");
+>         }
+25c32
+<         LOGGER.info(() -> "View engine: " + event.getEngine());
+---
+>         LOGGER.info(() -> "View engine: " + event.getViewEngine());
+29c36,37
+<         LOGGER.info(() -> "AfterControllerEvent:: " + event.getResourceInfo());
+---
+>         Object resourceInfo = event.getResourceInfo();
+>         LOGGER.info(() -> "AfterControllerEvent:: " + resourceInfo);
+33c41,42
+<         LOGGER.info(() -> "AfterProcessViewEvent:: " + event);
+---
+>         Viewable viewable = event.getViewable();
+>         LOGGER.info(() -> "AfterProcessViewEvent:: " + viewable);

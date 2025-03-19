@@ -1,6 +1,18 @@
-36a37
-> import javax.validation.Validation;
-121c122
-<                 Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
+41,43d40
+< import javax.validation.metadata.BeanDescriptor;
+< import javax.validation.metadata.ConstraintDescriptor;
+< import javax.validation.metadata.ElementDescriptor;
+122d118
+<                 BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
+133,139c129
+<                         ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+<                         if(constraintDescriptor!=null){
+<                                 Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
+<                                 for(ConstraintDescriptor<?> constraint : constraintsSet){
+<                                         if(constraint.getAnnotation() instanceof NotNull ||
+<                                            constraint.getAnnotation() instanceof NotEmpty ||
+<                                            constraint.getAnnotation() instanceof NotBlank)
 ---
->                 Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+>                         if(validator.getConstraintsForClass(modelClass).getConstraintsForProperty(descriptor.getName()) != null){
+142d131
+<                         }

@@ -1,4 +1,21 @@
-32,52c32,52
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+32,53c16,17
 < import com.google.api.services.cloudresourcemanager.CloudResourceManager;
 < import com.google.api.services.cloudresourcemanager.model.ClearOrgPolicyRequest;
 < import com.google.api.services.cloudresourcemanager.model.Constraint;
@@ -20,48 +37,65 @@
 < import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsRequest;
 < import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsResponse;
 < import com.google.api.services.cloudresourcemanager.model.UndeleteProjectRequest;
+< import com.google.cloud.RetryHelper;
 ---
-> import com.google.api.services.cloudresourcemanager.v1.CloudResourceManager; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.ClearOrgPolicyRequest; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.Constraint; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.GetEffectiveOrgPolicyRequest; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.GetIamPolicyRequest; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.GetOrgPolicyRequest; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.ListAvailableOrgPolicyConstraintsRequest; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.ListAvailableOrgPolicyConstraintsResponse; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.ListOrgPoliciesRequest; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.ListOrgPoliciesResponse; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.ListProjectsResponse; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.Operation; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.OrgPolicy; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.Policy; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.Project; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.SetIamPolicyRequest; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.SetOrgPolicyRequest; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.Status; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.TestIamPermissionsRequest; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.TestIamPermissionsResponse; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.UndeleteProjectRequest; // Updated import
-75,76d74
+> import com.google.cloud.resourcemanager.ResourceManagerException;
+> import com.google.cloud.resourcemanager.ResourceManagerOptions;
+57,58c21,40
+< import com.google.cloud.resourcemanager.ResourceManagerException;
+< import com.google.cloud.resourcemanager.ResourceManagerOptions;
+---
+> import com.google.cloud.resourcemanager.model.ClearOrgPolicyRequest;
+> import com.google.cloud.resourcemanager.model.Constraint;
+> import com.google.cloud.resourcemanager.model.GetEffectiveOrgPolicyRequest;
+> import com.google.cloud.resourcemanager.model.GetIamPolicyRequest;
+> import com.google.cloud.resourcemanager.model.GetOrgPolicyRequest;
+> import com.google.cloud.resourcemanager.model.ListAvailableOrgPolicyConstraintsRequest;
+> import com.google.cloud.resourcemanager.model.ListAvailableOrgPolicyConstraintsResponse;
+> import com.google.cloud.resourcemanager.model.ListOrgPoliciesRequest;
+> import com.google.cloud.resourcemanager.model.ListOrgPoliciesResponse;
+> import com.google.cloud.resourcemanager.model.ListProjectsResponse;
+> import com.google.cloud.resourcemanager.model.Operation;
+> import com.google.cloud.resourcemanager.model.OrgPolicy;
+> import com.google.cloud.resourcemanager.model.Policy;
+> import com.google.cloud.resourcemanager.model.Project;
+> import com.google.cloud.resourcemanager.model.SetIamPolicyRequest;
+> import com.google.cloud.resourcemanager.model.SetOrgPolicyRequest;
+> import com.google.cloud.resourcemanager.model.Status;
+> import com.google.cloud.resourcemanager.model.TestIamPermissionsRequest;
+> import com.google.cloud.resourcemanager.model.TestIamPermissionsResponse;
+> import com.google.cloud.resourcemanager.model.UndeleteProjectRequest;
+69,70d50
+< /** @deprecated v3 GAPIC client of ResourceManager is now available */
+< @Deprecated
+75,76d54
 <   // See doc of create() for more details:
 <   // https://developers.google.com/resources/api-libraries/documentation/cloudresourcemanager/v1/java/latest/com/google/api/services/cloudresourcemanager/CloudResourceManager.Projects.html#create(com.google.api.services.cloudresourcemanager.model.Project)
-79,80d76
+79,80d56
 <           // SLO permits 30s at 90th percentile, 4x it for total limit.
 <           // Observed latency is much lower: 11s at 95th percentile.
-82d77
+82d57
 <           // Linked doc recommends polling at 5th second.
-85d79
+85d59
 <           // Observed P95 latency is 11s. We probably shouldn't sleep longer than this.
-92d85
+92d65
 <   // reference: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-187,192d179
+132c105
+<   private final CloudResourceManager resourceManager;
+---
+>   private final com.google.cloud.resourcemanager.CloudResourceManager resourceManager;
+140c113
+<         new CloudResourceManager.Builder(transport, JSON_FACTORY, initializer)
+---
+>         new com.google.cloud.resourcemanager.CloudResourceManager.Builder(transport, JSON_FACTORY, initializer)
+187,192d159
 <     // NOTE(pongad): Operation.getResponse() returns a Map<String, Object>.
 <     // 1. `(Project) finishedOp.getResponse()` doesn't work,
 <     // because JSON deserializer in execute() didn't know to create a Project object.
 <     // 2. `new Project().putAll(finishedOp.getResponse())` doesn't work either.
 <     // 64-bit integers are sent as strings in JSON,
 <     // so execute(), not knowing the type, parses it as String, not Long.
-221d207
+221d187
 <         // Service can return either 403 or 404 to signify that the project doesn't exist.
-276d261
+276d241
 <         // Service returns permission denied if policy doesn't exist.
