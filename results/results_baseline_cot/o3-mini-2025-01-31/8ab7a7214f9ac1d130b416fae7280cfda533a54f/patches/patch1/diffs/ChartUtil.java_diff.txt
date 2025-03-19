@@ -1,27 +1,18 @@
 7,8d6
 < import com.gargoylesoftware.htmlunit.ScriptResult;
 < 
-12c10
-<  * Charts are displayed one multiple PageObjects. This util provides some helper methods to deal with charts.
----
->  * Charts are displayed on multiple PageObjects. This util provides some helper methods to deal with charts.
-14d11
-< @SuppressWarnings("hideutilityclassconstructor")
-15a13
-> @SuppressWarnings("hideutilityclassconstructor")
 35,36c33
 <             ScriptResult scriptResult = new ScriptResult(result);
 <             return scriptResult.getJavaScriptResult().toString();
 ---
 >             return result != null ? result.toString() : null;
-60,62c57,58
+59,62c56,57
+< 
 <                 Object scriptResult = new ScriptResult(result).getJavaScriptResult();
 <                 if (scriptResult != null) {
 <                     return scriptResult.toString();
 ---
 >                 if (result != null) {
 >                     return result.toString();
-108d103
-< 
-110d104
+108d102
 < 

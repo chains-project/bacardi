@@ -34,6 +34,7 @@ import org.apache.thrift.transport.TTransport;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Utils to create logback appenders
@@ -50,29 +51,49 @@ public class AppenderUtils {
    */
   public static class LogMessageEncoder extends EncoderBase<LogMessage> {
 
-    /**
-     * New encode method for the updated Encoder API.
-     * It serializes the LogMessage into a byte array using Thrift.
-     */
-    @Override
+    private TTransport framedTransport;
+    private TProtocol protocol;
+    private OutputStream os;
+
+    public void init(OutputStream os) {
+      this.os = os;
+      // Use the TFastFramedTransport to be compatible with singer_thrift log.
+      final int bufferCapacity = 10;
+      framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);
+      protocol = new TBinaryProtocol(framedTransport);
+    }
+
+    public void doEncode(LogMessage logMessage) throws IOException {
+      try {
+        logMessage.write(protocol);
+        framedTransport.flush();
+      } catch (TException e) {
+        throw new IOException(e);
+      }
+    }
+
+    public void close() throws IOException {
+      framedTransport.close();
+    }
+
+    public byte[] headerBytes() {
+      return null;
+    }
+
     public byte[] encode(LogMessage logMessage) throws IOException {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       final int bufferCapacity = 10;
       TTransport transport = new TFastFramedTransport(new TIOStreamTransport(baos), bufferCapacity);
-      TProtocol protocol = new TBinaryProtocol(transport);
+      TProtocol proto = new TBinaryProtocol(transport);
       try {
-        logMessage.write(protocol);
-        transport.flush();
+        logMessage.write(proto);
       } catch (TException e) {
         throw new IOException(e);
       }
+      transport.flush();
       return baos.toByteArray();
     }
 
-    /**
-     * Implementation of footerBytes required by the updated Encoder API.
-     */
-    @Override
     public byte[] footerBytes() {
       return null;
     }
@@ -86,7 +107,7 @@ public class AppenderUtils {
    * @param topic the topic name for the current appender.
    * @param rotateThresholdKBytes threshold in kilobytes to rotate after.
    * @param context the logback context.
-   * @param maxRetentionHours maximum history hours for file retention.
+   * @param maxRetentionHours maximum retention period in hours.
    */
   public static Appender<LogMessage> createFileRollingThriftAppender(
       File basePath,

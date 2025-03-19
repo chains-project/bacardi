@@ -1,22 +1,3 @@
-<code_analysis>
-1. The error indicates that the method call
-   coverage.getClassInfo(Collections.singleton(data.getMutatedClass()))
-   cannot be resolved because there is no method in CoverageDatabase that accepts a Set of ClassName.
-   This suggests that, after the dependency update, the API of CoverageDatabase has changed.
-2. In the client code, the issue is in the createSummaryData method:
-   It calls getClassInfo with a Set parameter. The updated dependency likely provides a similar method
-   that accepts a single ClassName instead.
-3. A possible fix is to replace the call with one that passes a single ClassName,
-   changing Collections.singleton(data.getMutatedClass()) to just data.getMutatedClass().
-   This aligns with the updated API, assuming that a method getClassInfo(ClassName) now exists.
-4. The proposed change satisfies the constraints:
-   - Function signatures remain unchanged.
-   - Only the method call is modified.
-   - No unnecessary code removal.
-</code_analysis>
-
-Below is the complete, fixed Java class:
-
 ```java
 package org.pitest.elements;
 
@@ -40,8 +21,10 @@ import java.util.HashSet;
 public class MutationReportListener implements MutationResultListener {
 
   private final ResultOutputStrategy outputStrategy;
+
   private final JsonParser jsonParser;
-  private final CoverageDatabase coverage;
+
+  private final CoverageDatabase  coverage;
   private final PackageSummaryMap packageSummaryData = new PackageSummaryMap();
 
   private static final String HTML_PAGE = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n"
@@ -71,7 +54,8 @@ public class MutationReportListener implements MutationResultListener {
       final ResultOutputStrategy outputStrategy, final SourceLocator... locators) {
     this.coverage = coverage;
     this.outputStrategy = outputStrategy;
-    this.jsonParser = new JsonParser(new HashSet<>(Arrays.asList(locators)));
+    this.jsonParser = new JsonParser(
+        new HashSet<>(Arrays.asList(locators)));
   }
 
   private String loadMutationTestElementsJs() throws IOException {
@@ -92,7 +76,8 @@ public class MutationReportListener implements MutationResultListener {
   }
 
   private void createJs(final String json) {
-    final String content = "document.querySelector('mutation-test-report-app').report = " + json;
+    final String content =
+        "document.querySelector('mutation-test-report-app').report = " + json;
     final Writer writer = this.outputStrategy
         .createWriterForFile("html2" + File.separatorChar + "report.js");
     try {
@@ -117,16 +102,16 @@ public class MutationReportListener implements MutationResultListener {
 
   private MutationTestSummaryData createSummaryData(
       final CoverageDatabase coverage, final ClassMutationResults data) {
-    return new MutationTestSummaryData(
-        data.getFileName(),
-        data.getMutations(),
-        coverage.getClassInfo(data.getMutatedClass())
-    );
+    return new MutationTestSummaryData(data.getFileName(),
+        data.getMutations(), coverage.getClassInfo(data.getMutatedClass()));
   }
 
-  private void updatePackageSummary(final ClassMutationResults mutationMetaData) {
+  private void updatePackageSummary(
+      final ClassMutationResults mutationMetaData) {
     final String packageName = mutationMetaData.getPackageName();
-    this.packageSummaryData.update(packageName, createSummaryData(this.coverage, mutationMetaData));
+
+    this.packageSummaryData.update(packageName,
+        createSummaryData(this.coverage, mutationMetaData));
   }
 
   @Override
@@ -151,6 +136,4 @@ public class MutationReportListener implements MutationResultListener {
     }
   }
 }
-``` 
-
-In this patch, the call to coverage.getClassInfo now passes a single ClassName (data.getMutatedClass()) rather than a set, in line with the updated dependency API.
+```

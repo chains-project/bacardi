@@ -1,10 +1,20 @@
-10a11
-> import org.hamcrest.CoreMatchers;
-12d12
+1,4d0
+< /*
+<  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
+<  * https://github.com/artipie/docker-adapter/LICENSE.txt
+<  */
+12d7
 < import org.hamcrest.core.StringContains;
-62,63c62,63
+15a11,12
+> import static org.hamcrest.CoreMatchers.containsString;
+> import static org.hamcrest.CoreMatchers.not;
+60,64c57,59
+<             new AllOf<>(
+<                 Arrays.asList(
 <                     new StringContains(true, "Invalid tag"),
 <                     new StringContains(false, original)
+<                 )
 ---
->                     CoreMatchers.containsString("Invalid tag"),
->                     CoreMatchers.not(CoreMatchers.containsString(original))
+>             AllOf.allOf(
+>                 containsString("Invalid tag"),
+>                 not(containsString(original))

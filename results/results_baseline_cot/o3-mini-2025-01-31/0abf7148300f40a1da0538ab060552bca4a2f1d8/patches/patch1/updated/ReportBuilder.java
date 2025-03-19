@@ -1,5 +1,36 @@
 package xdev.tableexport.export;
 
+/*-
+ * #%L
+ * XDEV BI Suite
+ * %%
+ * Copyright (C) 2011 - 2020 XDEV Software
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Lesser Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Lesser Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/lgpl-3.0.html>.
+ * #L%
+ */
+
+/* <repair_strategy>
+   1. The error is caused by the call to txtField.setFontSize(Float.valueOf(f.getSize())),
+      as f.getSize() returns an int and the updated API now expects a primitive float.
+   2. Previously, the conversion via Float.valueOf(int) was tolerated, but now the API
+      requires a float value.
+   3. To fix, we simply cast f.getSize() to float.
+   4. This is the minimal change to keep the code functional and compliant with the new API.
+</repair_strategy> */
+
 import java.awt.Color;
 import java.awt.Font;
 import java.util.HashSet;
@@ -33,6 +64,7 @@ import xdev.tableexport.config.TemplateConfig;
 import xdev.vt.XdevBlob;
 import xdev.vt.XdevClob;
 
+
 /**
  * The {@link ReportBuilder} generates a {@link JasperReport} based on the
  * information of the {@link TemplateConfig}.
@@ -41,16 +73,19 @@ import xdev.vt.XdevClob;
  * 
  * @see TemplateConfig
  * @see ReportExporter
+ * 
  */
 public class ReportBuilder
 {
-	private final TemplateConfig config;
-	private final Set<JRDesignField> fieldSet = new HashSet<>();
+	private final TemplateConfig			config;
+	private final Set<JRDesignField>		fieldSet	= new HashSet<>();
+	
 	
 	public ReportBuilder(final TemplateConfig tempConfig)
 	{
 		this.config = tempConfig;
 	}
+	
 	
 	private JRDesignBand initDetailBand()
 	{
@@ -61,6 +96,7 @@ public class ReportBuilder
 		return detailBand;
 	}
 	
+	
 	private JRDesignBand initHeaderBand()
 	{
 		// Header
@@ -69,6 +105,7 @@ public class ReportBuilder
 		
 		return headerBand;
 	}
+	
 	
 	private JasperDesign createDefaultDesign()
 	{
@@ -88,6 +125,7 @@ public class ReportBuilder
 		
 		return jasperDesign;
 	}
+	
 	
 	private int calcColumnsWidth()
 	{
@@ -122,12 +160,14 @@ public class ReportBuilder
 		return width;
 	}
 	
+	
 	/**
 	 * 
 	 * @return
 	 */
 	private int calcMaxHeaderHeight()
 	{
+		
 		final JLabel lbl = new JLabel("a");
 		int maxHeight = 0;
 		
@@ -137,11 +177,11 @@ public class ReportBuilder
 			final Font font = style.getFont();
 			lbl.setFont(font);
 			//get the normal height of the label
-			int lblHeigh = (int) lbl.getPreferredSize().getHeight();
+			int lblHeigh = (int)lbl.getPreferredSize().getHeight();
 			//add the column border width
-			lblHeigh += style.getColBorder().getLineWidth() * 2;
+			lblHeigh+= style.getColBorder().getLineWidth()*2;
 			//Add padding
-			lblHeigh += style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
+			lblHeigh+= style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
 			
 			if(lblHeigh > maxHeight)
 			{
@@ -154,6 +194,7 @@ public class ReportBuilder
 	
 	private int calcMaxContentHeight()
 	{
+		
 		final JLabel lbl = new JLabel("a");
 		int maxHeight = 0;
 		
@@ -162,11 +203,11 @@ public class ReportBuilder
 			final ColumnStyle style = col.getContentColumn().getStyle();
 			final Font font = style.getFont();
 			lbl.setFont(font);
-			int lblHeigh = (int) lbl.getPreferredSize().getHeight();
+			int lblHeigh = (int)lbl.getPreferredSize().getHeight();
 			//Add border width
-			lblHeigh += style.getColBorder().getLineWidth() * 2;
+			lblHeigh+= style.getColBorder().getLineWidth()*2;
 			//Add padding
-			lblHeigh += style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
+			lblHeigh+= style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
 			
 			if(lblHeigh > maxHeight)
 			{
@@ -177,6 +218,7 @@ public class ReportBuilder
 		return maxHeight;
 	}
 	
+	
 	private void createTemplateFields(final JasperDesign jasperDesign) throws ExportException
 	{
 		JRDesignField field;
@@ -185,7 +227,7 @@ public class ReportBuilder
 		{
 			field = new JRDesignField();
 			field.setName(col.getContentColumn().getFieldName());
-			this.chooseValueClass(col, field);
+			this.chooseValueClass(col,field);
 			
 			try
 			{
@@ -195,10 +237,12 @@ public class ReportBuilder
 			catch(final JRException e)
 			{
 				throw new ExportException("error during add the field "
-						+ col.getContentColumn().getFieldName(), e);
+						+ col.getContentColumn().getFieldName(),e);
 			}
 		}
+		
 	}
+
 	
 	private JRDesignField chooseValueClass(final TemplateColumn col, final JRDesignField field)
 	{
@@ -215,6 +259,7 @@ public class ReportBuilder
 		
 		return field;
 	}
+	
 	
 	private void createHeaderAndContent(final JRDesignBand headerBand, final JRDesignBand detailBand)
 	{
@@ -249,11 +294,12 @@ public class ReportBuilder
 					headerLabel.setY(TemplateConfig.DEFAULT_COMPONENT_Y_POSITION);
 					
 					headerLabel.setHeight(headerLabelHeight);
-					this.setStlyeForTextField(headerLabel, headerColumn.getStyle());
-					this.prepareTextfieldWithBorder(headerLabel, headerColumn.getStyle());
-					this.prepareTextfieldPadding(headerLabel, headerColumn.getStyle());
+					this.setStlyeForTextField(headerLabel,headerColumn.getStyle());
+					this.prepareTextfieldWithBorder(headerLabel,headerColumn.getStyle());
+					this.prepareTextfieldPadding(headerLabel,headerColumn.getStyle());
 					
 					headerLabel.setPositionType(PositionTypeEnum.FLOAT);
+
 					
 					// Get the Property
 					headerLabel.setText(headerColumn.getProperty());
@@ -278,12 +324,12 @@ public class ReportBuilder
 			textField.setY(TemplateConfig.DEFAULT_COMPONENT_Y_POSITION);
 			textField.setHeight(contentLabelHeight);
 			
-			this.setStlyeForTextField(textField, contentColumn.getStyle());
+			this.setStlyeForTextField(textField,contentColumn.getStyle());
 			textField.setPattern(contentColumn.getProperty());
 			
 			// box tag properties
-			this.prepareTextfieldWithBorder(textField, contentColumn.getStyle());
-			this.prepareTextfieldPadding(textField, contentColumn.getStyle());
+			this.prepareTextfieldWithBorder(textField,contentColumn.getStyle());
+			this.prepareTextfieldPadding(textField,contentColumn.getStyle());
 			
 			textField.setExpression(this.buildExpression(contentColumn));
 			
@@ -297,6 +343,7 @@ public class ReportBuilder
 			
 			x += col.getWidth();
 		}
+		
 	}
 	
 	private void setStlyeForTextField(final JRDesignTextElement txtField, final ColumnStyle style)
@@ -306,17 +353,18 @@ public class ReportBuilder
 		// Font
 		final Font f = style.getFont();
 		txtField.setFontName(f.getName());
-		// Fix: explicitly cast the font size to float to avoid the int-to-Float conversion error
 		txtField.setFontSize((float) f.getSize());
 		txtField.setBold(Boolean.valueOf(f.isBold()));
 		txtField.setItalic(Boolean.valueOf(f.isItalic()));
 		txtField.setHorizontalTextAlign(style.getHorizontalAlignment().getHorizontalTextAlignEnum());
+		
 		
 		if(!style.getBackground().equals(Color.WHITE))
 		{
 			txtField.setMode(ModeEnum.OPAQUE);
 		}
 	}
+	
 	
 	private void prepareTextfieldWithBorder(final JRDesignTextElement textField, final ColumnStyle style)
 	{
@@ -336,11 +384,13 @@ public class ReportBuilder
 		final ColumnPadding colPadding = style.getColumnPadding();
 		final JRLineBox lineBox = textField.getLineBox();
 		
+		
 		lineBox.setTopPadding(colPadding.getTopWidth());
 		lineBox.setRightPadding(colPadding.getRightWidth());
 		lineBox.setLeftPadding(colPadding.getLeftWidth());
 		lineBox.setBottomPadding(colPadding.getBottomWidth());
 	}
+	
 	
 	private JRDesignExpression buildExpression(final ContentColumn column)
 	{
@@ -349,7 +399,9 @@ public class ReportBuilder
 		return expression;
 	}
 	
+	
 	/**
+	 * 
 	 * Assemble and compile a {@link JasperReport} based on the information of
 	 * the {@link TemplateConfig} object.
 	 * 
@@ -366,9 +418,9 @@ public class ReportBuilder
 			final JRDesignBand headerBand = this.initHeaderBand();
 			final JRDesignBand detailBand = this.initDetailBand();
 			
-			this.createHeaderAndContent(headerBand, detailBand);
+			this.createHeaderAndContent(headerBand,detailBand);
 			
-			((JRDesignSection) jasperDesign.getDetailSection()).addBand(detailBand);
+			((JRDesignSection)jasperDesign.getDetailSection()).addBand(detailBand);
 			if(this.config.hasAnyHeader())
 			{
 				jasperDesign.setTitle(headerBand);
@@ -381,4 +433,5 @@ public class ReportBuilder
 			throw new ExportException(e);
 		}
 	}
+	
 }

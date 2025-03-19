@@ -1,30 +1,4 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error indicates that the constructor of org.hamcrest.core.StringContains is being called with two arguments (a boolean and a String), but the updated dependency version only accepts a single String argument.
-   - The error occurs on the lines where new StringContains(false, "Unexpected path") and new StringContains(false, "Unexpected query") are used.
-   - The update to the Hamcrest dependency removed or changed the two-parameter constructor, so the client code must now use a single-argument constructor or a factory method.
-
-2. Client Code Review:
-   - The test methods shouldThrowExceptionOnInvalidPath and shouldThrowExceptionWhenDigestIsAbsent are using the two-parameter constructor.
-   - These tests are asserting that the exception messages contain the expected substrings ("Unexpected path" and "Unexpected query", respectively).
-
-3. Potential Fix:
-   - Remove the boolean parameter from the StringContains constructor and call the single-argument constructor instead.
-   - This change adheres to the constraints (do not change function signatures or existing code unnecessarily) and directly addresses the dependency update issue.
-
-4. Necessary Changes:
-   - In the shouldThrowExceptionOnInvalidPath test, change new StringContains(false, "Unexpected path") to new StringContains("Unexpected path").
-   - In the shouldThrowExceptionWhenDigestIsAbsent test, change new StringContains(false, "Unexpected query") to new StringContains("Unexpected query").
-   - Ensure all other imports and code remain unchanged.
-
-The following patch applies these modifications:
-</code_analysis>
-
 ```java
-/*
- * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
- * https://github.com/artipie/docker-adapter/LICENSE.txt
- */
 package com.artipie.docker.http;
 
 import com.artipie.docker.Digest;

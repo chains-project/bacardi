@@ -1,21 +1,17 @@
+/* <repair_strategy>
+1. The error occurs because the IoCheckedScalar class has been removed from the org.cactoos.scalar package in the updated dependency.
+2. In the old code, IoCheckedScalar was used to wrap a scalar and convert checked exceptions into IOExceptions.
+3. To adapt, the IoCheckedScalar is replaced with a try-catch block that calls the scalar's value() method and wraps any Exception into an IOException.
+4. This change preserves the function signature and intended behavior while complying with the new API.
+</repair_strategy> */
 package io.zold.api;
 
 import java.io.IOException;
 import java.util.Iterator;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Sorted;
-import org.cactoos.scalar.IoChecked;
 import org.cactoos.scalar.Reduced;
 
-/**
- * Network implementation.
- *
- * @since 0.1
- * @todo #5:30min We must figure out how to 'load' some network. Loading the
- *  network will be loading a local JSON file that contains data on all
- *  remote nodes that we know about; we must have a pre configured set of
- *  remote nodes built in too. See whitepaper for details.
- */
 public final class RtNetwork implements Network {
 
     /**
@@ -28,7 +24,7 @@ public final class RtNetwork implements Network {
      * @param remotes Remotes of the network
      */
     RtNetwork(final Iterable<Remote> remotes) {
-        this.nodes =  remotes;
+        this.nodes = remotes;
     }
 
     @Override
@@ -40,15 +36,20 @@ public final class RtNetwork implements Network {
 
     @Override
     public Wallet pull(final long id) throws IOException {
-        return new IoChecked<>(
-            new Reduced<>(
+        try {
+            return new Reduced<>(
                 Wallet::merge,
                 new Mapped<>(
                     c -> c::wallet,
                     new Sorted<>(new Copies(id, this))
                 )
-            )
-        ).value();
+            ).value();
+        } catch (final Exception ex) {
+            if (ex instanceof IOException) {
+                throw (IOException) ex;
+            }
+            throw new IOException(ex);
+        }
     }
 
     @Override

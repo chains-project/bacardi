@@ -1,7 +1,3 @@
-/*
- * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
- * https://github.com/artipie/docker-adapter/LICENSE.txt
- */
 package com.artipie.docker.misc;
 
 import com.artipie.asto.Remaining;
@@ -45,15 +41,16 @@ public final class DigestedFlowable extends Flowable<ByteBuffer> {
     @Override
     public void subscribeActual(final Subscriber<? super ByteBuffer> subscriber) {
         final MessageDigest sha = Digests.SHA256.get();
-        Flowable.fromPublisher(this.origin)
-            .map(buf -> {
+        Flowable.fromPublisher(this.origin).map(
+            buf -> {
                 sha.update(new Remaining(buf, true).bytes());
                 return buf;
-            })
-            .doOnComplete(() -> this.dig.set(
-                new Digest.Sha256(toHexString(sha.digest()))
-            ))
-            .subscribe(subscriber);
+            }
+        ).doOnComplete(
+            () -> this.dig.set(
+                new Digest.Sha256(bytesToHex(sha.digest()))
+            )
+        ).subscribe(subscriber);
     }
 
     /**
@@ -64,18 +61,12 @@ public final class DigestedFlowable extends Flowable<ByteBuffer> {
     public Digest digest() {
         return Objects.requireNonNull(this.dig.get(), "Digest is not yet calculated.");
     }
-
-    /**
-     * Converts a byte array to its hexadecimal string representation.
-     *
-     * @param bytes the byte array to convert
-     * @return a hexadecimal string
-     */
-    private static String toHexString(final byte[] bytes) {
-        StringBuilder hex = new StringBuilder();
+    
+    private static String bytesToHex(final byte[] bytes) {
+        final StringBuilder sb = new StringBuilder();
         for (byte b : bytes) {
-            hex.append(String.format("%02x", b));
+            sb.append(String.format("%02x", b));
         }
-        return hex.toString();
+        return sb.toString();
     }
 }

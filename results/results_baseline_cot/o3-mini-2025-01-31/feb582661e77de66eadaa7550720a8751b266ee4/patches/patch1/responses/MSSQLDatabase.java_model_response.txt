@@ -1,33 +1,17 @@
-<code_analysis>
-1. Examine the error message:
-   - The error states that the method getInstance() is not found in liquibase.executor.ExecutorService.
-   - This indicates that the dependency update removed or replaced the static getInstance() method.
-   - The issue occurs at line 18, where the code attempts to use ExecutorService.getInstance().
-
-2. Review the client code:
-   - The problematic line is: ExecutorService.getInstance().getExecutor(this).execute(new DropStoredProcedureStatement(...))
-   - With the updated dependency, using getInstance() is no longer valid.
-   - The rest of the method dropDatabaseObjects and other parts of the class remain unchanged.
-
-3. Consider potential fixes:
-   - Use the updated API pattern. In newer Liquibase versions, singletons and services (like ExecutorService) are typically obtained via the Scope mechanism.
-   - Replace ExecutorService.getInstance() with Scope.getCurrentScope().getSingleton(ExecutorService.class).
-   - Add an import for liquibase.Scope.
-   - All function signatures remain the same, and no extra code is removed unless required to fix the error.
-
-4. Plan the necessary changes:
-   - Remove the call to ExecutorService.getInstance() and replace it with:
-       ExecutorService executorService = Scope.getCurrentScope().getSingleton(ExecutorService.class);
-   - Then use executorService.getExecutor(this) to obtain the executor, as before.
-   - Ensure that the correct import for liquibase.Scope is added.
-   - This change should resolve the compilation error caused by the missing getInstance() method.
-</code_analysis>
-
 ```java
+/*
+<repair_strategy>
+1. The external API no longer provides the getInstance() method in ExecutorService.
+2. The new API offers a static getExecutor(Database) method that should be used directly.
+3. The change is made by replacing ExecutorService.getInstance().getExecutor(this)
+   with ExecutorService.getExecutor(this) in the dropDatabaseObjects method.
+4. This minimal change fixes the error while keeping the rest of the code intact.
+</repair_strategy>
+*/
+
 package liquibase.ext.mssql.database;
 
 import liquibase.CatalogAndSchema;
-import liquibase.Scope;
 import liquibase.exception.LiquibaseException;
 import liquibase.executor.ExecutorService;
 import liquibase.ext.mssql.statement.DropStoredProcedureStatement;
@@ -42,8 +26,7 @@ public class MSSQLDatabase extends liquibase.database.core.MSSQLDatabase {
     @Override
     public void dropDatabaseObjects(CatalogAndSchema schemaToDrop) throws LiquibaseException {
         super.dropDatabaseObjects(schemaToDrop);
-        ExecutorService executorService = Scope.getCurrentScope().getSingleton(ExecutorService.class);
-        executorService.getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+        ExecutorService.getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
     }
 }
 ```

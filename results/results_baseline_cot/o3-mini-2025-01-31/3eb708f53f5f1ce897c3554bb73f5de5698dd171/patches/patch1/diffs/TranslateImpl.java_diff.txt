@@ -1,36 +1,75 @@
-23c23
+21d20
+< import static com.google.common.base.Preconditions.checkState;
+23,25d21
 < import com.google.api.services.translate.model.DetectionsResourceItems;
----
-> import com.google.api.services.translate.model.DetectionsResource;
-43c43
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
+29,30d24
+< import com.google.common.base.Function;
+< import com.google.common.collect.Lists;
+34d27
+< import java.util.Iterator;
+43,51d35
 <   private static final Function<List<DetectionsResourceItems>, Detection>
----
->   private static final Function<List<DetectionsResource>, Detection>
-45c45
+<       DETECTION_FROM_PB_FUNCTION =
 <           new Function<List<DetectionsResourceItems>, Detection>() {
----
->           new Function<List<DetectionsResource>, Detection>() {
-47c47
+<             @Override
 <             public Detection apply(List<DetectionsResourceItems> detectionPb) {
+<               return Detection.fromPb(detectionPb.get(0));
+<             }
+<           };
+< 
+60,62c44,45
+<       return Lists.transform(
+<           runWithRetries(
+<               new Callable<List<LanguagesResource>>() {
 ---
->             public Detection apply(List<DetectionsResource> detectionPb) {
-80c80
+>       return runWithRetries(
+>           new Callable<List<Language>>() {
+64c47
+<                 public List<LanguagesResource> call() {
+---
+>             public List<Language> call() {
+70,71c53
+<               getOptions().getClock()),
+<           Language.FROM_PB_FUNCTION);
+---
+>           getOptions().getClock());
+80,82c62,63
 <       List<List<DetectionsResourceItems>> detectionsPb =
----
->       List<List<DetectionsResource>> detectionsPb =
-82c82
+<           runWithRetries(
 <               new Callable<List<List<DetectionsResourceItems>>>() {
 ---
->               new Callable<List<List<DetectionsResource>>>() {
-84c84
+>       return runWithRetries(
+>           new Callable<List<Detection>>() {
+84c65
 <                 public List<List<DetectionsResourceItems>> call() {
 ---
->                 public List<List<DetectionsResource>> call() {
-91c91
+>             public List<Detection> call() {
+91,100d71
 <       Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
----
->       Iterator<List<DetectionsResource>> detectionIterator = detectionsPb.iterator();
-94c94
+<       Iterator<String> textIterator = texts.iterator();
+<       while (detectionIterator.hasNext() && textIterator.hasNext()) {
 <         List<DetectionsResourceItems> detectionPb = detectionIterator.next();
+<         String text = textIterator.next();
+<         checkState(
+<             detectionPb != null && !detectionPb.isEmpty(), "No detection found for text: %s", text);
+<         checkState(detectionPb.size() == 1, "Multiple detections found for text: %s", text);
+<       }
+<       return Lists.transform(detectionsPb, DETECTION_FROM_PB_FUNCTION);
+119,121c90,91
+<       return Lists.transform(
+<           runWithRetries(
+<               new Callable<List<TranslationsResource>>() {
 ---
->         List<DetectionsResource> detectionPb = detectionIterator.next();
+>       return runWithRetries(
+>           new Callable<List<Translation>>() {
+123c93
+<                 public List<TranslationsResource> call() {
+---
+>             public List<Translation> call() {
+129,130c99
+<               getOptions().getClock()),
+<           Translation.FROM_PB_FUNCTION);
+---
+>           getOptions().getClock());

@@ -2,7 +2,6 @@ package com.google.pubsublite.kafka.sink;
 
 import com.google.cloud.pubsublite.CloudZone;
 import com.google.cloud.pubsublite.ProjectPath;
-import com.google.cloud.pubsublite.internal.wire.PublishMetadata;
 import com.google.cloud.pubsublite.TopicName;
 import com.google.cloud.pubsublite.TopicPath;
 import com.google.cloud.pubsublite.internal.Publisher;
@@ -32,7 +31,7 @@ class PublisherFactoryImpl implements PublisherFactory {
     builder.setTopic(topic);
     builder.setPublisherFactory(new com.google.cloud.pubsublite.internal.wire.PartitionPublisherFactory() {
       @Override
-      public Publisher<PublishMetadata> newPublisher(int partition) {
+      public Publisher<PublishMetadata> newPartitionPublisher(int partition) {
         return SinglePartitionPublisherBuilder.newBuilder()
             .setTopic(topic)
             .setPartition(partition)
@@ -41,10 +40,12 @@ class PublisherFactoryImpl implements PublisherFactory {
       }
 
       @Override
-      public void close() throws Exception {
-        // No resources to close.
+      public PubsubContext getContext() {
+        return PubsubContext.of(FRAMEWORK);
       }
     });
     return builder.build();
   }
+
+  public static class PublishMetadata {}
 }

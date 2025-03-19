@@ -23,6 +23,8 @@ import org.yaml.snakeyaml.representer.Representer;
 
 import java.util.*;
 
+import static java.lang.String.format;
+
 /**
  * YAML model representer.
  *
@@ -88,7 +90,6 @@ class ModelRepresenter extends Representer {
     return false;
   }
 
-
   private class RepresentXpp3Dom implements Represent {
     private static final String ATTRIBUTE_PREFIX = "attr/";
 
@@ -147,7 +148,7 @@ class ModelRepresenter extends Representer {
         Xpp3Dom child = node.getChild(i);
 
         if (!childName.equals(child.getName())) {
-          throw new YAMLException(String.format("child name: '%s' does not match expected name: '%s' at node %s",
+          throw new YAMLException(format("child name: '%s' does not match expected name: '%s' at node %s",
               child.getName(), childName, node));
         }
 
@@ -172,7 +173,6 @@ class ModelRepresenter extends Representer {
       "artifactId",
       "version",
       "packaging",
-
       "name",
       "description",
       "url",
@@ -185,15 +185,12 @@ class ModelRepresenter extends Representer {
       "scm",
       "issueManagement",
       "ciManagement",
-
       "properties",
       "prerequisites",
       "modules",
       "dependencyManagement",
       "dependencies",
       "distributionManagement",
-      //"repositories",
-      //"pluginRepositories",
       "build",
       "profiles",
       "reporting"
@@ -229,10 +226,10 @@ class ModelRepresenter extends Representer {
   }
 
   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
-    Set<Property> standard = super.getProperties(type);
-    Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
-    sorted.addAll(standard);
-    return sorted;
+      Set<Property> standard = super.getProperties(type);
+      Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
+      sorted.addAll(standard);
+      return sorted;
   }
 
   private class ModelPropertyComparator implements Comparator<Property> {
@@ -243,14 +240,12 @@ class ModelRepresenter extends Representer {
     }
 
     public int compare(Property o1, Property o2) {
-      // important go first
       for (String name : names) {
         int c = compareByName(o1, o2, name);
         if (c != 0) {
           return c;
         }
       }
-      // all the rest
       return o1.compareTo(o2);
     }
 
@@ -260,7 +255,7 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0; // compare further
+      return 0;
     }
   }
 }

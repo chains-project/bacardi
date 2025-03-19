@@ -1,30 +1,3 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error points to line 239 in the file UpdateChecker.java where the code attempts to access the field "status" of the GHCompare object.
-   - The message "status has private access in org.kohsuke.github.GHCompare" indicates that the field is no longer accessible directly after a dependency update.
-   - The issue arises due to a breaking change in the GitHub API dependency, where direct field access is now restricted.
-
-2. Client Code Analysis:
-   - The problematic segment is in the isAncestor method:
-     • It currently contains: 
-       GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
-     • This direct access to the private field "status" must be replaced with the new public getter method.
-   - The logic compares the status with GHCompare.Status.identical and GHCompare.Status.behind.
-   - With the updated dependency version, getCompare() returns a GHCompare object whose internal status field is now accessible via the getStatus() method, which returns a String.
-
-3. Proposed Fix:
-   - In the isAncestor method, replace the direct field access "…getCompare(...).status" with "…getCompare(...).getStatus()".
-   - Because getStatus() returns a String (e.g., "identical", "behind"), update the comparison accordingly.
-   - The method now stores the result of compare.getStatus() into a String and compares it to "identical" and "behind".
-
-4. Summary of Modifications:
-   - Modify the isAncestor method to use:
-         GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
-         String status = compare.getStatus();
-         return "identical".equals(status) || "behind".equals(status);
-   - This change preserves the function signature and overall logic while adapting to the updated dependency API.
-</code_analysis>
-
 ```java
 /*
  * The MIT License
@@ -174,6 +147,13 @@ public final class UpdateChecker {
                 }
             } else {
                 log.info("Does not seem to be an incremental release, so accepting");
+                // TODO may still be useful to select MRP versions targeted to an origin branch.
+                // (For example, select the latest backport from a stable branch rather than trunk.)
+                // The problem is that we cannot then guarantee that the POM has been flattened
+                // (this is only guaranteed for repositories which *may* produce incrementals),
+                // and loadGitHubCommit will not work for nonflattened POMs from reactor submodules:
+                // it would have to be made more complicated to resolve the parent POM(s),
+                // or we would need to switch the implementation to use Maven/Aether resolution APIs.
                 return candidate;
             }
         }
@@ -186,6 +166,7 @@ public final class UpdateChecker {
      * @return a possibly empty set of versions, sorted descending
      */
     private SortedSet<VersionAndRepo> loadVersions(String groupId, String artifactId) throws Exception {
+        // TODO consider using official Aether APIs here (could make use of local cache)
         SortedSet<VersionAndRepo> r = new TreeSet<>();
         for (String repo : repos) {
             String mavenMetadataURL = repo + groupId.replace('.', '/') + '/' + artifactId + "/maven-metadata.xml";
@@ -198,6 +179,7 @@ public final class UpdateChecker {
             Element versionsE = theElement(doc, "versions", mavenMetadataURL);
             NodeList versionEs = versionsE.getElementsByTagName("version");
             for (int i = 0; i < versionEs.getLength(); i++) {
+                // Not bothering to exclude timestamped snapshots for now, since we are working with release repositories anyway.
                 r.add(new VersionAndRepo(groupId, artifactId, new ComparableVersion(versionEs.item(i).getTextContent()), repo));
             }
         }
@@ -250,17 +232,21 @@ public final class UpdateChecker {
      * {@code curl -s -u … https://api.github.com/repos/<owner>/<repo>/compare/<branch>...<hash> | jq -r .status}
      * will return {@code identical} or {@code behind} if so, else {@code diverged} or {@code ahead}.
      * @param branch may be {@code master} or {@code forker:branch}
+     * @see <a href="https://developer.github.com/v3/repos/commits/#compare-two-commits">Compare two commits</a>
+     * @see <a href="https://stackoverflow.com/a/23970412/12916">Discussion</a>
      */
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
-            // Use the public getter getStatus() instead of accessing the private 'status' field.
             GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
-            String status = compare.getStatus();
-            return "identical".equals(status) || "behind".equals(status);
+            GHCompare.Status status = compare.getStatus();
+            return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
         } catch (FileNotFoundException x) {
             // For example, that branch does not exist in this repository.
             return false;
         }
+        // TODO check behavior when the comparison is huge (too many commits or too large diff)
+        // and perhaps fall back to cloning into a temp dir and pulling all PR refs https://gist.github.com/piscisaureus/3342247
+        // Currently https://developer.github.com/v4/object/commit/ does no better than this.
     }
 
     private static Element theElement(Document doc, String tagName, String url) throws Exception {

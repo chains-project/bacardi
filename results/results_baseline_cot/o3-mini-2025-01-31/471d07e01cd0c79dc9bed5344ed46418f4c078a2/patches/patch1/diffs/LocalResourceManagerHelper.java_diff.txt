@@ -1,0 +1,222 @@
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+25,31d8
+< import com.google.api.services.cloudresourcemanager.model.Binding;
+< import com.google.api.services.cloudresourcemanager.model.Operation;
+< import com.google.api.services.cloudresourcemanager.model.Policy;
+< import com.google.api.services.cloudresourcemanager.model.Project;
+< import com.google.api.services.cloudresourcemanager.model.SetIamPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsRequest;
+< import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsResponse;
+806a784,979
+> 
+>   // Inner static classes to simulate the missing dependency models
+> 
+>   public static class Project {
+>     private String projectId;
+>     private String name;
+>     private String createTime;
+>     private String lifecycleState;
+>     private String parent;
+>     private long projectNumber;
+>     private Map<String, String> labels;
+> 
+>     public Project() {}
+> 
+>     public String getProjectId() {
+>       return projectId;
+>     }
+> 
+>     public Project setProjectId(String projectId) {
+>       this.projectId = projectId;
+>       return this;
+>     }
+> 
+>     public String getName() {
+>       return name;
+>     }
+> 
+>     public Project setName(String name) {
+>       this.name = name;
+>       return this;
+>     }
+> 
+>     public String getCreateTime() {
+>       return createTime;
+>     }
+> 
+>     public Project setCreateTime(String createTime) {
+>       this.createTime = createTime;
+>       return this;
+>     }
+> 
+>     public String getLifecycleState() {
+>       return lifecycleState;
+>     }
+> 
+>     public Project setLifecycleState(String lifecycleState) {
+>       this.lifecycleState = lifecycleState;
+>       return this;
+>     }
+> 
+>     public String getParent() {
+>       return parent;
+>     }
+> 
+>     public Project setParent(String parent) {
+>       this.parent = parent;
+>       return this;
+>     }
+> 
+>     public long getProjectNumber() {
+>       return projectNumber;
+>     }
+> 
+>     public Project setProjectNumber(long projectNumber) {
+>       this.projectNumber = projectNumber;
+>       return this;
+>     }
+> 
+>     public Map<String, String> getLabels() {
+>       return labels;
+>     }
+> 
+>     public Project setLabels(Map<String, String> labels) {
+>       this.labels = labels;
+>       return this;
+>     }
+>   }
+> 
+>   public static class Policy {
+>     private List<Binding> bindings;
+>     private String etag;
+>     private int version;
+> 
+>     public Policy() {}
+> 
+>     public List<Binding> getBindings() {
+>       return bindings;
+>     }
+> 
+>     public Policy setBindings(List<Binding> bindings) {
+>       this.bindings = bindings;
+>       return this;
+>     }
+> 
+>     public String getEtag() {
+>       return etag;
+>     }
+> 
+>     public Policy setEtag(String etag) {
+>       this.etag = etag;
+>       return this;
+>     }
+> 
+>     public int getVersion() {
+>       return version;
+>     }
+> 
+>     public Policy setVersion(int version) {
+>       this.version = version;
+>       return this;
+>     }
+>   }
+> 
+>   public static class Binding {
+>     public Binding() {}
+>   }
+> 
+>   public static class Operation {
+>     private boolean done;
+>     private String name;
+>     private Object response;
+> 
+>     public Operation() {}
+> 
+>     public boolean isDone() {
+>       return done;
+>     }
+> 
+>     public Operation setDone(boolean done) {
+>       this.done = done;
+>       return this;
+>     }
+> 
+>     public String getName() {
+>       return name;
+>     }
+> 
+>     public Operation setName(String name) {
+>       this.name = name;
+>       return this;
+>     }
+> 
+>     public Object getResponse() {
+>       return response;
+>     }
+> 
+>     public Operation setResponse(Object response) {
+>       this.response = response;
+>       return this;
+>     }
+>   }
+> 
+>   public static class SetIamPolicyRequest {
+>     private Policy policy;
+> 
+>     public SetIamPolicyRequest() {}
+> 
+>     public Policy getPolicy() {
+>       return policy;
+>     }
+> 
+>     public SetIamPolicyRequest setPolicy(Policy policy) {
+>       this.policy = policy;
+>       return this;
+>     }
+>   }
+> 
+>   public static class TestIamPermissionsRequest {
+>     private List<String> permissions;
+> 
+>     public TestIamPermissionsRequest() {}
+> 
+>     public List<String> getPermissions() {
+>       return permissions;
+>     }
+> 
+>     public TestIamPermissionsRequest setPermissions(List<String> permissions) {
+>       this.permissions = permissions;
+>       return this;
+>     }
+>   }
+> 
+>   public static class TestIamPermissionsResponse {
+>     private List<String> permissions;
+> 
+>     public TestIamPermissionsResponse() {}
+> 
+>     public List<String> getPermissions() {
+>       return permissions;
+>     }
+> 
+>     public TestIamPermissionsResponse setPermissions(List<String> permissions) {
+>       this.permissions = permissions;
+>       return this;
+>     }
+>   }

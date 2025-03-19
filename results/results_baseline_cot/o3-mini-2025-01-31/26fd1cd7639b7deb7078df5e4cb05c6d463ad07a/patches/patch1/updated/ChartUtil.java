@@ -3,10 +3,6 @@ package io.jenkins.plugins.coverage.util;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
-
-// Removed the HtmlUnit ScriptResult import since it's no longer available.
-// import com.gargoylesoftware.htmlunit.ScriptResult;
-
 import org.jenkinsci.test.acceptance.po.PageObject;
 
 /**
@@ -30,8 +26,8 @@ public class ChartUtil {
     public static String getChartDataById(final PageObject pageObject, final String elementId) {
         if (isChartDisplayedByElementId(pageObject, elementId)) {
             Object result = pageObject.executeScript(String.format(
-                    "delete(window.Array.prototype.toJSON); " +
-                    "return JSON.stringify(echarts.getInstanceByDom(document.getElementById('%s')).getOption());",
+                    "delete(window.Array.prototype.toJSON) %n"
+                            + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
                     elementId));
             return result != null ? result.toString() : null;
         }
@@ -53,16 +49,17 @@ public class ChartUtil {
         if (isChartDisplayedByDivToolAttribute(pageObject, toolAttribute)) {
             for (int i = 0; i < MAX_ATTEMPTS; i++) {
                 Object result = pageObject.executeScript(String.format(
-                        "delete(window.Array.prototype.toJSON); " +
-                        "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div[tool='%s']\")).getOption());",
+                        "delete(window.Array.prototype.toJSON) %n"
+                                + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
                         toolAttribute));
+
                 if (result != null) {
                     return result.toString();
                 }
                 pageObject.elasticSleep(1000);
             }
         }
-        throw new java.util.NoSuchElementException("Found no trend chart with tool attribute: " + toolAttribute);
+        throw new java.util.NoSuchElementException("Found no trend chart with ID '%s''" + toolAttribute);
     }
 
     /**
@@ -79,8 +76,7 @@ public class ChartUtil {
         try {
             WebElement chart = pageObject.find(By.id(elementId));
             return chart != null && chart.isDisplayed();
-        }
-        catch (NoSuchElementException exception) {
+        } catch (NoSuchElementException exception) {
             return false;
         }
     }
@@ -99,8 +95,7 @@ public class ChartUtil {
         try {
             WebElement chart = pageObject.find(By.cssSelector("div[tool='" + toolAttribute + "']"));
             return chart != null && chart.isDisplayed();
-        }
-        catch (NoSuchElementException exception) {
+        } catch (NoSuchElementException exception) {
             return false;
         }
     }

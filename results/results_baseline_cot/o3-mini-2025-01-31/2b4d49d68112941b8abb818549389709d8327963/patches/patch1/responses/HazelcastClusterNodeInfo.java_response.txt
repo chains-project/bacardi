@@ -39,13 +39,7 @@ public class HazelcastClusterNodeInfo implements ClusterNodeInfo {
     private final boolean seniorMember;
 
     public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
-        // Retrieve the hostname attribute from the member, casting it to a String.
-        String hostNameAttr = (String) member.getAttribute(HOST_NAME_ATTRIBUTE);
-        if (hostNameAttr == null) {
-            hostNameAttr = "unknown";
-        }
-        // Use the new getAddress() method to obtain host information.
-        this.hostname = hostNameAttr + " (" + member.getAddress().getHost() + ")";
+        this.hostname = ((String) member.getAttribute(HOST_NAME_ATTRIBUTE)) + " (" + member.getSocketAddress().getHostString() + ")";
         this.nodeID = ClusteredCacheFactory.getNodeID(member);
         this.joinedTime = joinedTime;
         this.seniorMember = ClusterManager.getSeniorClusterMember().equals(nodeID);

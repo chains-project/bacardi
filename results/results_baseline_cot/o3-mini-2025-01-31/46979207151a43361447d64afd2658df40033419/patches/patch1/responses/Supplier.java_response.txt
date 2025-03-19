@@ -19,6 +19,7 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
+
 /**
  * <p>Java class for anonymous complex type.
  * 
@@ -380,7 +381,7 @@ public class Supplier implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
+        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

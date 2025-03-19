@@ -1,16 +1,3 @@
-<code_analysis>
-1. The error message states:
-   - “cannot access org.slf4j.spi.LoggingEventAware” at line 112, column 15.
-   - This indicates that some class in our code is referencing the now‐missing interface LoggingEventAware from the updated slf4j dependency.
-2. Upon reviewing the client code, we see that the test class declares a mocked log appender as:
-     @Mock private Appender<ILoggingEvent> mockLogAppender;
-   Because the generic type parameter causes the compiler to need access to LoggingEventAware (a dependency no longer present in the updated slf4j version), the code fails to compile.
-3. To fix the issue while obeying the constraints (don’t change function signatures and only remove code that directly causes a compile error), a simple modification is to remove the generic parameter from the mockLogAppender declaration. Using a raw type avoids the unwanted reference (and the associated missing type error) while still allowing the logging verification in the tests.
-4. This change is local, does not change method signatures or behavior, and circumvents the dependency’s breaking change.
-</code_analysis>
-
-Below is the complete, fixed Java class:
-
 ```java
 package uk.gov.pay.adminusers.queue.event;
 
@@ -95,7 +82,6 @@ class EventMessageHandlerTest {
     @Captor
     ArgumentCaptor<Map<String, String>> personalisationCaptor;
     
-    // Changed: Removed generic type from Appender to avoid the LoggingEventAware dependency issue
     @Mock
     private Appender mockLogAppender;
     
@@ -127,7 +113,7 @@ class EventMessageHandlerTest {
 
         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
         logger.setLevel(Level.INFO);
-        logger.addAppender(mockLogAppender);
+        logger.addAppender((Appender<ILoggingEvent>) mockLogAppender);
     }
 
     @Test
@@ -191,7 +177,7 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("paymentAmount"), is(nullValue()));
         assertThat(personalisation.get("disputeEvidenceDueDate"), is(nullValue()));
 
-        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+        verify((Appender<ILoggingEvent>) mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
@@ -228,7 +214,7 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
 
-        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+        verify((Appender<ILoggingEvent>) mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
@@ -265,7 +251,7 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
 
-        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+        verify((Appender<ILoggingEvent>) mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
@@ -302,7 +288,7 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
 
-        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+        verify((Appender<ILoggingEvent>) mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));

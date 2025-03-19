@@ -1,15 +1,3 @@
-<code_analysis>
-1. The error message indicates that the class ScriptResult and its package (com.gargoylesoftware.htmlunit.ScriptResult) can no longer be found. This suggests that a dependency update (likely HtmlUnit) removed or relocated the ScriptResult class.
-2. In the client code, ScriptResult is used in two methods (getChartDataById and getDataOfOnlyChartOnPageWithGivenToolAttribute) to process the result of pageObject.executeScript. Since ScriptResult is no longer available, we need to access the JavaScript result directly.
-3. To fix the issue while keeping the same function signatures, we can remove any references to ScriptResult and simply use the Object returned by pageObject.executeScript. If the result is not null, we convert it to a string.
-4. The specific modifications are:
-   - Remove the import for com.gargoylesoftware.htmlunit.ScriptResult.
-   - In getChartDataById, replace the creation of a ScriptResult instance and call to getJavaScriptResult() with a direct cast to string (if non-null).
-   - In getDataOfOnlyChartOnPageWithGivenToolAttribute, apply a similar change, directly checking and converting the result.
-</code_analysis>
-
-Below is the complete fixed class:
-
 ```java
 package io.jenkins.plugins.coverage.util;
 
@@ -59,7 +47,7 @@ public class ChartUtil {
      * @return data as json
      */
     public static String getDataOfOnlyChartOnPageWithGivenToolAttribute(final PageObject pageObject,
-                                                                          final String toolAttribute) {
+            final String toolAttribute) {
         if (isChartDisplayedByDivToolAttribute(pageObject, toolAttribute)) {
             for (int i = 0; i < MAX_ATTEMPTS; i++) {
                 Object result = pageObject.executeScript(String.format(
@@ -90,8 +78,7 @@ public class ChartUtil {
         try {
             WebElement chart = pageObject.find(By.id(elementId));
             return chart != null && chart.isDisplayed();
-        }
-        catch (NoSuchElementException exception) {
+        } catch (NoSuchElementException exception) {
             return false;
         }
     }
@@ -110,12 +97,9 @@ public class ChartUtil {
         try {
             WebElement chart = pageObject.find(By.cssSelector("div[tool='" + toolAttribute + "']"));
             return chart != null && chart.isDisplayed();
-        }
-        catch (NoSuchElementException exception) {
+        } catch (NoSuchElementException exception) {
             return false;
         }
     }
 }
 ```
-
-This patch removes the dependency on ScriptResult and directly handles the object returned from executeScript, which resolves the compilation errors caused by the dependency update.

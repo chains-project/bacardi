@@ -1,27 +1,3 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error indicates that the class Maven31DependencyGraphBuilder (imported from org.apache.maven.shared.dependency.graph.internal) cannot be found.
-   - This happens at the line where a default dependency graph builder is instantiated in the setGraph method.
-   - The breaking dependency update has removed or relocated the Maven31DependencyGraphBuilder, so the client code must now use an alternative provided by the updated dependency version.
-
-2. Client Code Review:
-   - The problematic code is in the setGraph(DependencyGraphBuilder graph) method:
-       this.graph = Optional.ofNullable(graph).orElse(new Maven31DependencyGraphBuilder());
-   - The import statement for Maven31DependencyGraphBuilder also must be updated.
-   - Using a default dependency graph builder from the new dependency version is necessary.
-
-3. Proposed Fix:
-   - Replace the instantiation of Maven31DependencyGraphBuilder with a new default implementation available in the updated dependency.
-   - For example, use DefaultDependencyGraphBuilder from org.apache.maven.shared.dependency.graph.
-   - Update the import statement accordingly.
-   - No function signatures are altered, and the rest of the code remains intact.
-
-4. Modification Summary:
-   - Remove the import for org.apache.maven.shared.dependency.graph.internal.Maven31DependencyGraphBuilder.
-   - Add an import for org.apache.maven.shared.dependency.graph.DefaultDependencyGraphBuilder.
-   - Update setGraph() to instantiate DefaultDependencyGraphBuilder when no graph is provided.
-</code_analysis>
-
 ```java
 /*
  * Copyright (C) 2008-2022 Mycila (mathieu.carbou@gmail.com)
@@ -55,7 +31,7 @@ import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilderException;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
-import org.apache.maven.shared.dependency.graph.DefaultDependencyGraphBuilder;
+import org.apache.maven.shared.dependency.graph.internal.MavenDependencyGraphBuilder;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -189,10 +165,6 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
     getLog().info(String.format("%s: %d", INFO_DEPS_DISCOVERED, dependencies.size()));
 
     return artifacts;
-
-    // tempting, but does not resolve dependencies after the scope in which this
-    // plugin is invoked
-    // return project.getArtifacts();
   }
 
   protected Set<MavenProject> getProjects() {
@@ -208,7 +180,7 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
   }
 
   private void setGraph(DependencyGraphBuilder graph) {
-    this.graph = Optional.ofNullable(graph).orElse(new DefaultDependencyGraphBuilder());
+    this.graph = Optional.ofNullable(graph).orElse(new MavenDependencyGraphBuilder());
   }
 
   private ProjectBuilder getProjectBuilder() {

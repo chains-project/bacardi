@@ -41,6 +41,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * Helper class for building Artifact/License mappings from a maven project
+ * (multi module or single).
+ *
+ * @author Royce Remer
+ */
 public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
 
   private Set<MavenProject> projects;
@@ -102,7 +108,6 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
   protected Set<License> getLicensesFromArtifact(final Artifact artifact) {
     Set<License> licenses = new HashSet<License>();
     try {
-      // The build method now returns a MavenProject directly, so we remove the .getProject() call.
       MavenProject project = getProjectBuilder().build(artifact, getBuildingRequest());
       licenses.addAll(project.getLicenses());
     } catch (ProjectBuildingException ex) {
@@ -116,7 +121,8 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
    * Get mapping of Licenses to a set of artifacts presenting that license.
    *
    * @param dependencies Set<Artifact> to collate License entries from
-   * @return Map<License, Set < Artifact>> the same artifacts passed in, keyed by License.
+   * @return Map<License, Set < Artifact>> the same artifacts passed in, keyed by
+   * License.
    */
   protected Map<License, Set<Artifact>> getLicenseMapFromArtifacts(final Set<Artifact> dependencies) {
     final ConcurrentMap<License, Set<Artifact>> map = new ConcurrentHashMap<License, Set<Artifact>>();
@@ -165,10 +171,6 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
     getLog().info(String.format("%s: %d", INFO_DEPS_DISCOVERED, dependencies.size()));
 
     return artifacts;
-
-    // tempting, but does not resolve dependencies after the scope in which this
-    // plugin is invoked
-    // return project.getArtifacts();
   }
 
   private MavenSession getSession() {

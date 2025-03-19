@@ -38,6 +38,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  * &lt;/complexType&gt;
  * </pre>
  * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "MovementTax", propOrder = {

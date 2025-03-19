@@ -16,31 +16,6 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
-/**
- * <p>Java class for AddressStructurePT complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType name="AddressStructurePT"&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}BuildingNumber" minOccurs="0"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}StreetName" minOccurs="0"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}AddressDetail"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}City"/&gt;
- *         &lt;element name="PostalCode" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PostalCodePT"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Region" minOccurs="0"/&gt;
- *         &lt;element name="Country" type="{http://www.w3.org/2001/XMLSchema}anyType"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
- */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "AddressStructurePT", propOrder = {
     "buildingNumber",
@@ -239,7 +214,7 @@ public class AddressStructurePT implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
+        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

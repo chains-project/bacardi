@@ -45,15 +45,16 @@ public final class DigestedFlowable extends Flowable<ByteBuffer> {
     @Override
     public void subscribeActual(final Subscriber<? super ByteBuffer> subscriber) {
         final MessageDigest sha = Digests.SHA256.get();
-        Flowable.fromPublisher(this.origin)
-            .map(buf -> {
+        Flowable.fromPublisher(this.origin).map(
+            buf -> {
                 sha.update(new Remaining(buf, true).bytes());
                 return buf;
-            })
-            .doOnComplete(() -> this.dig.set(
-                new Digest.Sha256(toHexString(sha.digest()))
-            ))
-            .subscribe(subscriber);
+            }
+        ).doOnComplete(
+            () -> this.dig.set(
+                new Digest.Sha256(bytesToHex(sha.digest()))
+            )
+        ).subscribe(subscriber);
     }
 
     /**
@@ -64,18 +65,15 @@ public final class DigestedFlowable extends Flowable<ByteBuffer> {
     public Digest digest() {
         return Objects.requireNonNull(this.dig.get(), "Digest is not yet calculated.");
     }
-    
-    /**
-     * Converts a byte array to its hexadecimal string representation.
-     *
-     * @param bytes The byte array.
-     * @return The hexadecimal string.
-     */
-    private static String toHexString(final byte[] bytes) {
-        final StringBuilder hex = new StringBuilder();
-        for (final byte b : bytes) {
-            hex.append(String.format("%02x", b));
+
+    private static String bytesToHex(final byte[] bytes) {
+        char[] hexArray = "0123456789abcdef".toCharArray();
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
-        return hex.toString();
+        return new String(hexChars);
     }
 }

@@ -9,11 +9,11 @@ import java.util.Arrays;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.AllOf;
 import org.hamcrest.core.IsEqual;
+import org.hamcrest.core.StringContains;
+import static org.hamcrest.CoreMatchers.not;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.not;
 
 /**
  * Tests for {@link Tag.Valid}.
@@ -60,8 +60,8 @@ class TagValidTest {
             throwable.getMessage(),
             new AllOf<>(
                 Arrays.asList(
-                    containsString("Invalid tag"),
-                    not(containsString(original))
+                    new StringContains("Invalid tag"),
+                    not(new StringContains(original))
                 )
             )
         );

@@ -1,24 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the class ClosedInputStream (imported from org.apache.commons.io.input) cannot be found. This is because a dependency update in Apache Commons IO removed or relocated that class.
-   - The error occurs in the import statement and in the toInputStream() method (line 401) where ClosedInputStream is instantiated.
-
-2. Review the client code:
-   - The import "org.apache.commons.io.input.ClosedInputStream" is present at the top.
-   - The toInputStream() method returns a ClosedInputStream instance when there are no bytes (count == 0). Its purpose is to provide an InputStream that immediately indicates end-of-stream.
-   - Because ClosedInputStream is no longer available, the code needs to provide an equivalent empty InputStream.
-
-3. Consider potential fixes:
-   - Remove or replace the import for ClosedInputStream since it no longer exists in the updated dependency.
-   - In the toInputStream() method, instead of returning a ClosedInputStream, return a new ByteArrayInputStream(EMPTY_BYTE_ARRAY) which effectively behaves as an empty stream.
-   - These changes satisfy the constraints: no function signature changes, and only the minimal code necessary is modified.
-
-4. Plan the necessary changes:
-   - Remove the import statement for ClosedInputStream.
-   - Modify the toInputStream() method: check if count == 0, and if so, return a new ByteArrayInputStream(EMPTY_BYTE_ARRAY) instead of using ClosedInputStream.
-   - Ensure these changes have no side effects on other functionalities.
-</code_analysis>
-
 ```java
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -49,6 +28,27 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * This class implements an output stream in which the data is
+ * written into a byte array. The buffer automatically grows as data
+ * is written to it.
+ * <p>
+ * The data can be retrieved using <code>toByteArray()</code> and
+ * <code>toString()</code>.
+ * <p>
+ * Closing a {@code ByteArrayOutputStream} has no effect. The methods in
+ * this class can be called after the stream has been closed without
+ * generating an {@code IOException}.
+ * <p>
+ * This is an alternative implementation of the {@link java.io.ByteArrayOutputStream}
+ * class. The original implementation only allocates 32 bytes at the beginning.
+ * As this class is designed for heavy duty it starts at 1024 bytes. In contrast
+ * to the original it doesn't reallocate the whole memory block but allocates
+ * additional buffers. This way no buffers need to be garbage collected and
+ * the contents don't have to be copied to the new buffer. This class is
+ * designed to behave exactly like the original. The only exception is the
+ * deprecated toString(int) method that has been ignored.
+ */
 public class ByteArrayOutputStream extends OutputStream
 {
 
@@ -126,7 +126,7 @@ public class ByteArrayOutputStream extends OutputStream
     {
         if ( currentBufferIndex < buffers.size() - 1 )
         {
-            // Recycling old buffer
+            //Recycling old buffer
             filledBufferSum += currentBuffer.length;
 
             currentBufferIndex++;
@@ -134,7 +134,7 @@ public class ByteArrayOutputStream extends OutputStream
         }
         else
         {
-            // Creating new buffer
+            //Creating new buffer
             int newBufferSize;
             if ( currentBuffer == null )
             {
@@ -269,7 +269,7 @@ public class ByteArrayOutputStream extends OutputStream
     @Override
     public void close() throws IOException
     {
-        // nop
+        //nop
     }
 
     /**
@@ -286,7 +286,7 @@ public class ByteArrayOutputStream extends OutputStream
         }
         else
         {
-            // Throw away old buffers
+            //Throw away old buffers
             currentBuffer = null;
             int size = buffers.get( 0 ).length;
             buffers.clear();

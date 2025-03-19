@@ -1,32 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the constructor for org.hamcrest.core.StringContains is being called with two parameters (a boolean and a String), but the updated dependency version only supports a single String parameter.
-   - The error occurs in ManifestRefTest.java at lines 57 and 58 in the failsToResolveInvalid() method.
-   - This suggests that the updated Hamcrest version no longer includes the old constructor with the extra boolean flag.
-
-2. Review the client code:
-   - In the failsToResolveInvalid method, two instances of new StringContains are created with boolean flags (true, "Unsupported reference") and (false, string).
-   - The rest of the test methods use other classes and constructors that are not affected by this dependency update.
-
-3. Consider potential fixes:
-   - Remove the boolean parameters from the StringContains constructor calls, and pass only the String. This aligns with the new Hamcrest API.
-   - There is no need to change any method signatures or remove any annotations.
-   - The fix is localized to the instantiation of StringContains in failsToResolveInvalid.
-
-4. Plan necessary changes:
-   - Replace:
-     new StringContains(true, "Unsupported reference")
-     with:
-     new StringContains("Unsupported reference")
-   - Replace:
-     new StringContains(false, string)
-     with:
-     new StringContains(string)
-   - Ensure that the imports remain valid and no functionality is removed.
-
-The following patch updates the test class accordingly.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
@@ -41,7 +12,6 @@ import java.util.Arrays;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.AllOf;
-import org.hamcrest.core.StringContains;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -84,8 +54,8 @@ public final class ManifestRefTest {
             throwable.getMessage(),
             new AllOf<>(
                 Arrays.asList(
-                    new StringContains("Unsupported reference"),
-                    new StringContains(string)
+                    Matchers.containsString("Unsupported reference"),
+                    Matchers.containsString(string)
                 )
             )
         );

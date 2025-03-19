@@ -3,8 +3,8 @@ package com.example.web;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.mvc.RedirectScoped;
 import javax.inject.Named;
+import jakarta.mvc.RedirectScoped;
 
 /**
  * Used to transport messages back to the client.
@@ -92,7 +92,7 @@ public class AlertMessage implements Serializable {
         private String message;
         private String field;
         
-        public Error() {}
+        public Error(){}
 
         private Error(String field, String code, String message) {
             this.field = field;
@@ -123,5 +123,7 @@ public class AlertMessage implements Serializable {
         public void setField(String field) {
             this.field = field;
         }
+
     }
+
 }

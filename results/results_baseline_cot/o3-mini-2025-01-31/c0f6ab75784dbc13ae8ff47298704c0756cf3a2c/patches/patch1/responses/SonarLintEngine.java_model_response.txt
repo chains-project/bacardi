@@ -1,30 +1,3 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error indicates that the method "addEnabledLanguages(Set<Language>)" is no longer available on the builder for AnalysisEngineConfiguration.
-   - The error occurs at line 163 in the method buildAnalysisEngineConfiguration().
-   - The dependency update has likely replaced "addEnabledLanguages" with a different method name (e.g., "setEnabledLanguages") that accepts the set of languages.
-
-2. Client Code Review:
-   - The problematic call is in the buildAnalysisEngineConfiguration() method:
-     • AnalysisEngineConfiguration.builder().addEnabledLanguages(globalConfig.getEnabledLanguages()).
-   - Other parts of the code use a mix of "add" and "set" methods when configuring the engine.
-   - The rest of the method invocations (setClientPid, setExtraProperties, etc.) follow the "setX" pattern.
-
-3. Potential Fix:
-   - Replace the call to addEnabledLanguages() with setEnabledLanguages() in the buildAnalysisEngineConfiguration() method.
-   - This change aligns with the new dependency where the builder expects a setter for enabled languages.
-   - No change to function signatures or removal of other code is required.
-
-4. Necessary Changes:
-   - In buildAnalysisEngineConfiguration(), change:
-       .addEnabledLanguages(globalConfig.getEnabledLanguages())
-     to:
-       .setEnabledLanguages(globalConfig.getEnabledLanguages())
-   - No additional changes or imports are needed.
-
-Below is the complete, fixed Java class:
-</code_analysis>
-
 ```java
 package sorald.sonar;
 
@@ -73,6 +46,7 @@ import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoadResult;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader.Configuration;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInfo;
+import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInstancesLoader;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginRequirementsCheckResult;
 import org.sonarsource.sonarlint.core.rule.extractor.SonarLintRuleDefinition;
 import sorald.FileUtils;

@@ -24,6 +24,7 @@ class JadlerHandler extends AbstractHandler {
 
     private final RequestManager requestManager;
 
+    
     /**
      * @param requestManager request manager instance to retrieve stub responses
      */
@@ -31,6 +32,7 @@ class JadlerHandler extends AbstractHandler {
         Validate.notNull(requestManager, "requestManager cannot be null");
         this.requestManager = requestManager;
     }
+
 
     @Override
     public void handle(final String target, final Request baseRequest, final HttpServletRequest request,
@@ -48,6 +50,7 @@ class JadlerHandler extends AbstractHandler {
         this.insertResponseBody(stubResponse.getBody(), response);
     }
 
+    
     private void insertResponseBody(final byte[] body, final HttpServletResponse response) throws IOException {
         if (body.length > 0) {
             final OutputStream os = response.getOutputStream();
@@ -55,13 +58,16 @@ class JadlerHandler extends AbstractHandler {
         }
     }
 
+    
     private void insertResponseHeaders(final KeyValues headers, final HttpServletResponse response) {
         for (final String key: headers.getKeys()) {
+            
             for (final String value: headers.getValues(key)) {
                 response.addHeader(key, value);
             }
         }
     }
+
 
     private void processDelay(final long delay) {
         if (delay > 0) {

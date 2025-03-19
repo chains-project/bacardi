@@ -1,10 +1,3 @@
-<code_analysis>
-1. The error message indicates that the constructor for org.hamcrest.core.StringContains is now defined to accept only a single String argument, whereas the current code is using a constructor with two parameters (a boolean and a String). These errors occur in the failsOnDigestMismatch() test method.
-2. In the client code, two assertions in failsOnDigestMismatch() incorrectly pass a boolean value (true) as the first argument to the StringContains constructor. The error message points this out at the two specific occurrences.
-3. The necessary fix is to remove the boolean parameter from these constructor calls. The updated dependency now expects only the substring to be checked.
-4. This change does not modify any method signature or other parts of the test logic. It simply aligns the constructor usage with the updated dependency.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com

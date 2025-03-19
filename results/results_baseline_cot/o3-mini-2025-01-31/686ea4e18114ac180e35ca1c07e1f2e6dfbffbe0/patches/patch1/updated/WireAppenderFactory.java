@@ -9,22 +9,17 @@ import ch.qos.logback.core.Layout;
 import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.DeferredProcessingAware;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import io.dropwizard.logback.AbstractAppenderFactory;
-import io.dropwizard.logback.async.AsyncAppenderFactory;
-import io.dropwizard.logback.filter.LevelFilterFactory;
-import io.dropwizard.logback.layout.LayoutFactory;
-import io.dropwizard.logback.access.layout.LogbackAccessRequestLayoutFactory;
+import io.dropwizard.request.logging.layout.LogbackAccessRequestLayoutFactory;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Production console appender using logging to JSON.
- */
 @JsonTypeName("json-console")
-public class WireAppenderFactory<T extends DeferredProcessingAware> extends AbstractAppenderFactory<T> {
+public class WireAppenderFactory<T extends DeferredProcessingAware> {
 
-    @Override
+    private String threshold = "INFO";
+
     public Appender<T> build(
             LoggerContext loggerContext,
             String serviceName,
@@ -38,7 +33,6 @@ public class WireAppenderFactory<T extends DeferredProcessingAware> extends Abst
 
         final Filter<T> levelFilter = levelFilterFactory.build(threshold);
         Layout<T> layout;
-        // this is quite ugly hack to achieve just a single name for the logger
         if (layoutFactory instanceof LogbackAccessRequestLayoutFactory) {
             layout = prepareAccessEventLayout(levelFilter);
         } else {
@@ -51,9 +45,10 @@ public class WireAppenderFactory<T extends DeferredProcessingAware> extends Abst
         return appender;
     }
 
-    // we know that T is either ILoggingEvent or IAccessEvent
-    // so this is in a fact checked cast
-    // moreover thanks to the generics erasure during runtime, its safe anyway
+    protected List<FilterFactory<T>> getFilterFactories() {
+        return Collections.emptyList();
+    }
+
     @SuppressWarnings("unchecked")
     private Layout<T> prepareAccessEventLayout(Filter<T> levelFilter) {
         List<Filter<IAccessEvent>> ac = getFilterFactories().stream()
@@ -72,4 +67,17 @@ public class WireAppenderFactory<T extends DeferredProcessingAware> extends Abst
         return (Layout<T>) new LoggingEventJsonLayout(ac);
     }
 
+    public interface LayoutFactory<T> {
+    }
+
+    public interface LevelFilterFactory<T> {
+        Filter<T> build(String threshold);
+    }
+
+    public interface AsyncAppenderFactory<T> {
+    }
+
+    public interface FilterFactory<T> {
+        Filter<T> build();
+    }
 }

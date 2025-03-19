@@ -8,7 +8,8 @@ import com.wire.xenon.crypto.Crypto;
 import com.wire.xenon.factories.CryptoFactory;
 import com.wire.xenon.factories.StorageFactory;
 import com.wire.xenon.state.State;
-import jakarta.ws.rs.client.Client; // Updated import from javax to jakarta
+import jakarta.ws.rs.client.Client;
+
 import java.io.IOException;
 import java.util.UUID;
 

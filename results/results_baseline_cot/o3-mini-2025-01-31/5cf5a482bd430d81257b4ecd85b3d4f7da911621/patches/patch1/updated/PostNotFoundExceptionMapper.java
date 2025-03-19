@@ -22,10 +22,10 @@ import javax.ws.rs.ext.Provider;
 @Provider
 public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFoundException> {
 
-    @Inject 
-    Logger log;
-    
-    @Inject 
+    @Inject Logger log;
+    //private static Logger log = Logger.getLogger(PostNotFoundExceptionMapper.class.getName());
+
+    @Inject
     Models models;
 
     @Override

@@ -1,24 +1,3 @@
-<code_analysis>
-1. Issue Identified:
-   - The error messages indicate that the constructor for org.hamcrest.core.StringContains is being called with two arguments (a boolean and a String), whereas the updated version of the dependency now only provides a constructor that accepts a single String.
-   - The failing lines are in the tests where new StringContains is constructed with a boolean flag (presumably used for case sensitivity) and a substring.
-
-2. Client Code Review:
-   - In the method largeImagePullWorks, the code calls:
-     new StringContains(false, String.format("Status: Downloaded newer image for %s", this.remote()))
-   - In the method largeImageUploadWorks, the code calls:
-     new StringContains(false, "Pushed")
-   - With the dependency update, these two-argument constructors no longer exist and must be updated to use the single-argument constructor.
-
-3. Potential Fix:
-   - Remove the boolean parameter from the constructor calls. This will default the matching to case-sensitive behavior, which is acceptable given that the tests compare fixed String literal values.
-   - No other changes are needed, and function signatures remain unaffected.
-
-4. Change Plan:
-   - Replace new StringContains(false, ...) with new StringContains(...) by removing the boolean argument in both tests.
-   - Keep all existing imports and code structure to ensure proper functionality.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com

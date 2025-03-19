@@ -1,19 +1,8 @@
-<code_analysis>
-1. The error message indicates that the constructor for org.hamcrest.core.StringContains now expects only a single String argument rather than a boolean and a String. The specific errors are on the lines where StringContains is instantiated with two parameters. This implies a breaking change in the dependency update (likely an update of the Hamcrest library).
-
-2. In the client code, in the tests largeImagePullWorks() and largeImageUploadWorks(), the following lines are problematic:
-   - In largeImagePullWorks(): new StringContains(false, String.format(...))
-   - In largeImageUploadWorks(): new StringContains(false, "Pushed")
-   These calls no longer match the updated constructor signature.
-
-3. To fix this issue, we need to remove the boolean argument. Since the older boolean was used to indicate case-sensitivity and by default the new constructor uses case-sensitive matching, removing it should maintain the intended behavior.
-
-4. The necessary changes are:
-   - Replace new StringContains(false, String.format(...)) with new StringContains(String.format(...))
-   - Replace new StringContains(false, "Pushed") with new StringContains("Pushed")
-   No other changes are necessary, and function signatures must remain unchanged.
-</code_analysis>
-
+<repair_strategy>
+1. The failure is caused by a change in the StringContains API where the constructor now only accepts a single String argument (the substring to match) instead of a boolean and a String.
+2. To fix the error, remove the boolean parameter from both instantiations of StringContains in the largeImagePullWorks and largeImageUploadWorks methods.
+3. This minimal change fixes the compilation error while keeping the rest of the client code unchanged.
+</repair_strategy>
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
@@ -41,7 +30,7 @@ import org.junit.jupiter.api.io.TempDir;
  * Integration test for large file pushing scenario of {@link DockerSlice}.
  *
  * @since 0.3
- */
+*/
 @DockerClientSupport
 @DisabledOnOs(OS.WINDOWS)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
@@ -83,7 +72,9 @@ public final class LargeImageITCase {
             final String output = this.client.run("pull", this.remote());
             MatcherAssert.assertThat(
                 output,
-                new StringContains(String.format("Status: Downloaded newer image for %s", this.remote()))
+                new StringContains(
+                    String.format("Status: Downloaded newer image for %s", this.remote())
+                )
             );
         } finally {
             this.client.run("rmi", this.remote());

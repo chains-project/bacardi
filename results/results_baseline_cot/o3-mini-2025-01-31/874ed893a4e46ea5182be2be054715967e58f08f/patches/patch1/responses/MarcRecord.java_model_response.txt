@@ -1,9 +1,19 @@
 ```java
+/*
+<repair_strategy>
+1. The new version of the Jackson API now throws com.fasterxml.jackson.core.JacksonException in writeValueAsString().
+2. Previously the code was catching JsonProcessingException, which no longer covers JacksonException.
+3. To fix the issue, update the catch block in asJson() to catch JacksonException.
+4. Also add the necessary import for JacksonException.
+5. This minimal change ensures compatibility with the new dependency while keeping the client code unchanged.
+</repair_strategy>
+*/
+
 package de.gwdg.metadataqa.marc.dao;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JacksonException; // Added for new API exception
 import de.gwdg.metadataqa.marc.Extractable;
 import de.gwdg.metadataqa.marc.MarcFactory;
 import de.gwdg.metadataqa.marc.MarcSubfield;
@@ -20,6 +30,7 @@ import de.gwdg.metadataqa.marc.model.SolrFieldType;
 import de.gwdg.metadataqa.marc.model.validation.ValidationError;
 import de.gwdg.metadataqa.marc.model.validation.ValidationErrorType;
 import de.gwdg.metadataqa.marc.utils.marcspec.legacy.MarcSpec;
+
 import de.gwdg.metadataqa.marc.utils.unimarc.UnimarcConverter;
 
 import java.io.Serializable;
@@ -419,7 +430,7 @@ public class MarcRecord implements Extractable, Validatable, Serializable {
           : field.getTag();
 
         map.computeIfAbsent(tag, s -> new ArrayList<Map<String, Object>>());
-        ((ArrayList<Map<String, Object>>) map.get(tag)).add(fieldMap);
+        ((ArrayList)map.get(tag)).add(fieldMap);
       }
     }
 

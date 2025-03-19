@@ -2,6 +2,7 @@
  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
  * https://github.com/artipie/docker-adapter/LICENSE.txt
  */
+
 package com.artipie.docker.ref;
 
 import com.artipie.docker.Digest;
@@ -10,11 +11,16 @@ import java.util.Arrays;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.AllOf;
+import org.hamcrest.core.StringContains;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+/**
+ * Test case for {@link ManifestRef}.
+ * @since 0.1
+ */
 public final class ManifestRefTest {
 
     @Test
@@ -46,11 +52,9 @@ public final class ManifestRefTest {
         );
         MatcherAssert.assertThat(
             throwable.getMessage(),
-            new AllOf<>(
-                Arrays.asList(
-                    Matchers.containsString("Unsupported reference"),
-                    Matchers.not(Matchers.containsString(string))
-                )
+            AllOf.allOf(
+                Matchers.containsString("Unsupported reference"),
+                Matchers.not(Matchers.containsString(string))
             )
         );
     }

@@ -1,31 +1,68 @@
-11a12,13
+9c9
+< 
+---
+> import java.util.Optional;
+11c11
+< 
+---
 > import org.spongepowered.api.command.Command;
-> import org.spongepowered.api.command.CommandExecutor;
-14,17c16,17
+13,17c13,18
+< import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.args.GenericArguments;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
+> import org.spongepowered.api.command.CommandException;
+> import org.spongepowered.api.command.CommandExecutor;
 > import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.CommandParameters;
 > import org.spongepowered.api.command.parameter.Parameter;
-21,22d20
+> import org.spongepowered.api.command.source.CommandSource;
+20,23c21
+< 
 < import static org.spongepowered.api.command.args.GenericArguments.flags;
 < import static org.spongepowered.api.command.args.GenericArguments.string;
-51c49
+< import static org.spongepowered.api.text.Text.of;
+---
+> import org.spongepowered.api.text.Text;
+36,39c34,37
+<     @Override
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+---
+>     public CommandResult execute(CommandContext context) throws CommandException {
+>         Optional<CommandSource> optSrc = context.cause().first(CommandSource.class);
+>         if (!optSrc.isPresent() || !(optSrc.get() instanceof Player)) {
+>             plugin.sendMessage(optSrc.orElse(null), "no-console");
+42,48c40
+< 
+<         UUID uniqueId = ((Player) src).getUniqueId();
+<         if (core.getCooldownService().isTracked(uniqueId)) {
+<             plugin.sendMessage(src, "cooldown");
+<             return CommandResult.empty();
+<         }
+< 
+---
+>         CommandSource src = optSrc.get();
+50,51c42,43
+<         String targetSkin = args.<String>getOne("skin").get();
 <         boolean keepSkin = args.hasAny("keep");
 ---
->         boolean keepSkin = args.<Boolean>getOne("keep").orElse(false);
-76,77c74,75
+>         String targetSkin = context.requireOne("skin");
+>         boolean keepSkin = context.hasAny("keep");
+75,77c67,68
+<     @Override
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
 ---
->     public Command buildSpec() {
+>     public Command.Parameterized buildSpec() {
 >         return Command.builder()
-79,81c77,78
+79,81c70,71
 <                 .arguments(
 <                         string(of("skin")),
 <                         flags().flag("keep").buildWith(GenericArguments.none()))
 ---
->                 .addParameter(Parameter.string().key("skin").build())
->                 .addParameter(Parameter.bool().key("keep").optional().build())
+>                 .addParameter(CommandParameters.string(Text.of("skin")))
+>                 .addParameter(Parameter.flags().flag("keep").buildWith(CommandParameters.none()))

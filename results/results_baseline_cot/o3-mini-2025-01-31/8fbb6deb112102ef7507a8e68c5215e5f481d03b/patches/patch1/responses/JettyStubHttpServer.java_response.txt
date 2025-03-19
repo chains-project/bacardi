@@ -8,11 +8,10 @@ import net.jadler.RequestManager;
 import net.jadler.stubbing.server.StubHttpServer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.Validate;
+import org.eclipse.jetty.server.Connector;
 
 /**
  * Default stub http server implementation using Jetty as an http server.
@@ -29,14 +28,9 @@ public class JettyStubHttpServer implements StubHttpServer {
     
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
-        
-        // Prepare HTTP configuration with desired settings.
-        HttpConfiguration httpConfig = new HttpConfiguration();
-        httpConfig.setSendServerVersion(false);
-        httpConfig.setSendDateHeader(true);
+        // The methods setSendServerVersion and setSendDateHeader are no longer available in the updated Jetty API.
 
-        // Use ServerConnector (the replacement for SelectChannelConnector in newer Jetty versions)
-        this.httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+        this.httpConnector = new ServerConnector(server);
         this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);
     }
@@ -47,6 +41,7 @@ public class JettyStubHttpServer implements StubHttpServer {
     @Override
     public void registerRequestManager(final RequestManager ruleProvider) {
         Validate.notNull(ruleProvider, "ruleProvider cannot be null");
+
         server.setHandler(new JadlerHandler(ruleProvider));
     }
     
@@ -59,7 +54,7 @@ public class JettyStubHttpServer implements StubHttpServer {
         server.start();
         logger.debug("jetty started");
     }
-    
+
     /**
      * {@inheritDoc}
      */

@@ -1,10 +1,3 @@
-<code_analysis>
-1. The error message indicates that the constructor for StringStartsWith is being called with a boolean and a String, but the updated Hamcrest dependency now only accepts a single String argument. The error occurs on the line where new StringStartsWith(false, "/v2/test/blobs/uploads/") is used.
-2. In the client code, the problematic area is in the isUploadStarted() method, where the false parameter is passed to StringStartsWith. The boolean flag is no longer supported in the constructor.
-3. To fix this issue, we remove the boolean argument and only pass the expected prefix string to StringStartsWith.
-4. This change is localized only to the StringStartsWith instantiation in the isUploadStarted() method, ensuring all other parts of the code remain unchanged and that the function signatures are preserved.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com

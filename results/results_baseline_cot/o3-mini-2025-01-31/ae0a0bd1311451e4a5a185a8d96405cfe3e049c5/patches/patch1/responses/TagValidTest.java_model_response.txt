@@ -1,12 +1,3 @@
-<code_analysis>
-1. The error message indicates that the StringContains constructor is now defined to accept only a single String argument, but the test is attempting to pass a boolean and a String. The two problematic lines are in the second parameterized test, where new StringContains(true, "Invalid tag") and new StringContains(false, original) are used.
-2. In the client code, these constructors are used to check if the exception message contains "Invalid tag" and simultaneously does not include the invalid tag value. With the breaking dependency update (likely a newer version of Hamcrest), these constructors have been changed or removed.
-3. To fix the issue:
-   - Replace use of new StringContains(true, "Invalid tag") with a matcher that asserts the message contains the substring "Invalid tag" (e.g. using containsString("Invalid tag") from org.hamcrest.CoreMatchers).
-   - Replace new StringContains(false, original) with a matcher that asserts that the message does not contain the substring original (e.g. using not(containsString(original)) from org.hamcrest.CoreMatchers).
-4. Change necessary imports by adding static imports for containsString and not. This ensures that the matcher calls are consistent with the updated Hamcrest dependency.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
@@ -19,11 +10,11 @@ import java.util.Arrays;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.AllOf;
 import org.hamcrest.core.IsEqual;
+import org.hamcrest.core.StringContains;
+import static org.hamcrest.CoreMatchers.not;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.not;
 
 /**
  * Tests for {@link Tag.Valid}.
@@ -70,8 +61,8 @@ class TagValidTest {
             throwable.getMessage(),
             new AllOf<>(
                 Arrays.asList(
-                    containsString("Invalid tag"),
-                    not(containsString(original))
+                    new StringContains("Invalid tag"),
+                    not(new StringContains(original))
                 )
             )
         );

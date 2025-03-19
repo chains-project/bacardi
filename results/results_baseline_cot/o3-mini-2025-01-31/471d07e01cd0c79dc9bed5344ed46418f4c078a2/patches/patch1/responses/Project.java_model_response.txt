@@ -26,9 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-// Import the correct package for Project from the updated dependency
-import com.google.api.services.cloudresourcemanager.v1.model.Project as ApiProject;
-
 /**
  * A Google Cloud Resource Manager project object.
  *
@@ -147,26 +144,7 @@ public class Project extends ProjectInfo {
   /**
    * Marks the project identified by the specified project ID for deletion.
    *
-   * <p>This method will only affect the project if the following criteria are met:
-   *
-   * <ul>
-   *   <li>The project does not have a billing account associated with it.
-   *   <li>The project has a lifecycle state of {@link ProjectInfo.State#ACTIVE}.
-   * </ul>
-   *
-   * This method changes the project's lifecycle state from {@link ProjectInfo.State#ACTIVE} to
-   * {@link ProjectInfo.State#DELETE_REQUESTED}. The deletion starts at an unspecified time, at
-   * which point the lifecycle state changes to {@link ProjectInfo.State#DELETE_IN_PROGRESS}. Until
-   * the deletion completes, you can check the lifecycle state checked by retrieving the project
-   * with {@link ResourceManager#get}, and the project remains visible to {@link
-   * ResourceManager#list}. However, you cannot update the project. After the deletion completes,
-   * the project is not retrievable by the {@link ResourceManager#get} and {@link
-   * ResourceManager#list} methods. The caller must have modify permissions for this project.
-   *
    * @throws ResourceManagerException upon failure
-   * @see <a href=
-   *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/delete">Cloud
-   *     Resource Manager delete</a>
    */
   public void delete() {
     resourceManager.delete(getProjectId());
@@ -175,15 +153,7 @@ public class Project extends ProjectInfo {
   /**
    * Restores the project identified by the specified project ID.
    *
-   * <p>You can only use this method for a project that has a lifecycle state of {@link
-   * ProjectInfo.State#DELETE_REQUESTED}. After deletion starts, as indicated by a lifecycle state
-   * of {@link ProjectInfo.State#DELETE_IN_PROGRESS}, the project cannot be restored. The caller
-   * must have modify permissions for this project.
-   *
    * @throws ResourceManagerException upon failure (including when the project can't be restored)
-   * @see <a href=
-   *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/undelete">Cloud
-   *     Resource Manager undelete</a>
    */
   public void undelete() {
     resourceManager.undelete(getProjectId());
@@ -192,13 +162,8 @@ public class Project extends ProjectInfo {
   /**
    * Replaces the attributes of the project with the attributes of this project.
    *
-   * <p>The caller must have modify permissions for this project.
-   *
    * @return the Project representing the new project metadata
    * @throws ResourceManagerException upon failure
-   * @see <a href=
-   *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/update">Cloud
-   *     Resource Manager update</a>
    */
   public Project replace() {
     return resourceManager.replace(this);
@@ -210,9 +175,6 @@ public class Project extends ProjectInfo {
    *
    * @return the IAM policy for the project
    * @throws ResourceManagerException upon failure
-   * @see <a href=
-   *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/getIamPolicy">
-   *     Resource Manager getIamPolicy</a>
    */
   public Policy getPolicy() {
     return resourceManager.getPolicy(getProjectId());
@@ -220,36 +182,20 @@ public class Project extends ProjectInfo {
 
   /**
    * Sets the IAM access control policy for this project. Replaces any existing policy. It is
-   * recommended that you use the read-modify-write pattern. See code samples and important details
-   * of replacing policies in the documentation for {@link ResourceManager#replacePolicy}.
+   * recommended that you use the read-modify-write pattern.
    *
    * @return the newly set IAM policy for this project
    * @throws ResourceManagerException upon failure
-   * @see <a href=
-   *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/setIamPolicy">
-   *     Resource Manager setIamPolicy</a>
    */
   public Policy replacePolicy(Policy newPolicy) {
     return resourceManager.replacePolicy(getProjectId(), newPolicy);
   }
 
   /**
-   * Returns the permissions that a caller has on this project. You typically don't call this method
-   * if you're using Google Cloud Platform directly to manage permissions. This method is intended
-   * for integration with your proprietary software, such as a customized graphical user interface.
-   * For example, the Cloud Platform Console tests IAM permissions internally to determine which UI
-   * should be available to the logged-in user. Each service that supports IAM lists the possible
-   * permissions; see the <i>Supported Cloud Platform services</i> page below for links to these
-   * lists.
+   * Returns the permissions that a caller has on this project.
    *
-   * @return a list of booleans representing whether the caller has the permissions specified (in
-   *     the order of the given permissions)
+   * @return a list of booleans representing whether the caller has the permissions specified
    * @throws ResourceManagerException upon failure
-   * @see <a href=
-   *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/testIamPermissions">
-   *     Resource Manager testIamPermissions</a>
-   * @see <a href= "https://cloud.google.com/iam/#supported_cloud_platform_services">Supported Cloud
-   *     Platform Services</a>
    */
   List<Boolean> testPermissions(List<String> permissions) {
     return resourceManager.testPermissions(getProjectId(), permissions);
@@ -284,7 +230,7 @@ public class Project extends ProjectInfo {
 
   static Project fromPb(
       ResourceManager resourceManager,
-      ApiProject answer) { // Updated to use the correct class from the new dependency
+      com.google.cloud.resourcemanager.v3.Project answer) {
     ProjectInfo info = ProjectInfo.fromPb(answer);
     return new Project(resourceManager, new ProjectInfo.BuilderImpl(info));
   }

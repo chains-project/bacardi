@@ -46,7 +46,7 @@ public class ChartUtil {
      * @return data as json
      */
     public static String getDataOfOnlyChartOnPageWithGivenToolAttribute(final PageObject pageObject,
-                                                                          final String toolAttribute) {
+            final String toolAttribute) {
         if (isChartDisplayedByDivToolAttribute(pageObject, toolAttribute)) {
             for (int i = 0; i < MAX_ATTEMPTS; i++) {
                 Object result = pageObject.executeScript(String.format(
@@ -77,8 +77,7 @@ public class ChartUtil {
         try {
             WebElement chart = pageObject.find(By.id(elementId));
             return chart != null && chart.isDisplayed();
-        }
-        catch (NoSuchElementException exception) {
+        } catch (NoSuchElementException exception) {
             return false;
         }
     }
@@ -97,8 +96,7 @@ public class ChartUtil {
         try {
             WebElement chart = pageObject.find(By.cssSelector("div[tool='" + toolAttribute + "']"));
             return chart != null && chart.isDisplayed();
-        }
-        catch (NoSuchElementException exception) {
+        } catch (NoSuchElementException exception) {
             return false;
         }
     }

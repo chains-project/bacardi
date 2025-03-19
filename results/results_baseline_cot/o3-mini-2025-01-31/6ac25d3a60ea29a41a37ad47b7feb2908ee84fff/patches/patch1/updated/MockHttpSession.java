@@ -21,8 +21,6 @@ package org.apache.myfaces.tobago.internal.mock.servlet;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpSession;
-// Removed import for HttpSessionContext as it no longer exists in the updated dependency.
-// import jakarta.servlet.http.HttpSessionContext;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +37,7 @@ public class MockHttpSession implements HttpSession {
 
   @Override
   public Enumeration<String> getAttributeNames() {
-    return new Vector(attributes.keySet()).elements();
+    return new Vector<>(attributes.keySet()).elements();
   }
 
   @Override
@@ -62,25 +60,20 @@ public class MockHttpSession implements HttpSession {
     return 0;
   }
 
-  // Removed getSessionContext() since HttpSessionContext has been removed in the updated dependency.
-  /*
+  /** @deprecated */
   @Deprecated
-  @Override
   public HttpSessionContext getSessionContext() {
     return null;
   }
-  */
 
   /** @deprecated */
   @Deprecated
-  @Override
   public Object getValue(final String s) {
     return null;
   }
 
   /** @deprecated */
   @Deprecated
-  @Override
   public String[] getValueNames() {
     return new String[0];
   }
@@ -96,7 +89,6 @@ public class MockHttpSession implements HttpSession {
 
   /** @deprecated */
   @Deprecated
-  @Override
   public void putValue(final String s, final Object o) {
   }
 
@@ -105,7 +97,6 @@ public class MockHttpSession implements HttpSession {
     attributes.remove(s);
   }
 
-  @Override
   public void removeValue(final String s) {
   }
 
@@ -121,5 +112,9 @@ public class MockHttpSession implements HttpSession {
   @Override
   public ServletContext getServletContext() {
     return null;
+  }
+
+  @Deprecated
+  public static interface HttpSessionContext {
   }
 }

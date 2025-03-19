@@ -1,25 +1,3 @@
-<code_analysis>
-1. Issue Identification:
-   - The error messages indicate that methods such as setDataSource, setClassLoader, setLocations, and setValidateOnMigrate are no longer available on the Flyway class.
-   - Additionally, the constructor Flyway() without parameters is no longer available.
-   - This indicates a breaking change in the Flyway API due to a dependency update.
-
-2. Code Review:
-   - The problematic code is in the flyway() bean definition. It attempts to create a Flyway instance using the default constructor and then sets properties using methods that no longer exist.
-   - The error mentions Flyway’s constructor and several setter methods that have been removed in favor of the builder API (Flyway.configure()).
-
-3. Potential Fix:
-   - Replace the construction of Flyway by calling Flyway.configure() and then chaining the necessary configuration methods (dataSource, classLoader, locations, validateOnMigrate) before calling load().
-   - This approach is coherent with the newer Flyway API, ensuring that the bean is properly created and will still call its migrate() method as specified by the initMethod attribute.
-
-4. Necessary Changes:
-   - Remove the old "new Flyway()" constructor and the subsequent setter calls.
-   - Use Flyway.configure() to set the required properties and then call load() to produce the Flyway instance.
-   - Ensure that the overall function signature remains the same, and no other parts of the class are modified.
-
-Below is the complete, fixed Java class:
-</code_analysis>
-
 ```java
 package org.nem.specific.deploy.appconfig;
 
@@ -131,7 +109,7 @@ public class NisAppConfig {
 				.dataSource(this.dataSource())
 				.classLoader(NisAppConfig.class.getClassLoader())
 				.locations(prop.getProperty("flyway.locations"))
-				.validateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate")))
+				.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
 				.load();
 	}
 

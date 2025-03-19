@@ -1,6 +1,8 @@
-62,63c62,63
+12a13
+> import static org.hamcrest.CoreMatchers.not;
+62,63c63,64
 <                     new StringContains(true, "Invalid tag"),
 <                     new StringContains(false, original)
 ---
->                     StringContains.containsString("Invalid tag"),
->                     StringContains.containsString(original)
+>                     new StringContains("Invalid tag"),
+>                     not(new StringContains(original))

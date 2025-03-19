@@ -9,8 +9,8 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import io.vavr.control.Validation;
-
 import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.utility.cache.TypeCache;
 import net.bytebuddy.dynamic.scaffold.TypeValidation;
 import net.bytebuddy.implementation.Implementation;
 import net.bytebuddy.implementation.MethodDelegation;
@@ -18,16 +18,13 @@ import net.bytebuddy.implementation.auxiliary.AuxiliaryType;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
 import net.bytebuddy.implementation.bind.annotation.This;
-import static net.bytebuddy.matcher.ElementMatchers.any;
-
 import org.assertj.core.util.CheckReturnValue;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
 
+import static net.bytebuddy.matcher.ElementMatchers.any;
 import static org.assertj.core.util.Arrays.array;
 import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrategy;
 
@@ -37,19 +34,17 @@ public class VavrAssumptions {
      * This NamingStrategy takes the original class's name and adds a suffix to distinguish it.
      * The default is ByteBuddy but for debugging purposes, it makes sense to add AssertJ as a name.
      */
-    private static final ByteBuddy BYTE_BUDDY = new ByteBuddy()
-            .with(TypeValidation.DISABLED)
+    private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED)
             .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
 
     private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
 
-    private static final TypeCache<SimpleKey, Class<?>> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
+    private static final TypeCache<Class<?>, Class<?>> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
 
     private static final class AssumptionMethodInterceptor {
 
         @RuntimeType
-        public static Object intercept(@This AbstractVavrAssert<?, ?> assertion,
-                                       @SuperCall Callable<Object> proxy) throws Exception {
+        public static Object intercept(@This AbstractVavrAssert<?, ?> assertion, @SuperCall Callable<Object> proxy) throws Exception {
             try {
                 Object result = proxy.call();
                 if (result != assertion && result instanceof AbstractVavrAssert) {
@@ -204,9 +199,8 @@ public class VavrAssumptions {
 
     @SuppressWarnings("unchecked")
     private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass) {
-        SimpleKey cacheKey = new SimpleKey(assertClass);
         return (Class<ASSERTION>) CACHE.findOrInsert(VavrAssumptions.class.getClassLoader(),
-                cacheKey,
+                assertClass,
                 () -> generateAssumptionClass(assertClass));
     }
 
@@ -246,7 +240,7 @@ public class VavrAssumptions {
                 .newInstance("assumption was not met due to: " + e.getMessage(), e);
     }
 
-    // for methods that change the object under test (e.g. extracting)
+    // for method that change the object under test (e.g. extracting)
     private static AbstractVavrAssert<?, ?> asAssumption(AbstractVavrAssert<?, ?> assertion) {
         // @format:off
         Object actual = assertion.actual();
@@ -261,45 +255,5 @@ public class VavrAssumptions {
         // should not arrive here
         throw new IllegalArgumentException("Unsupported assumption creation for " + assertion.getClass());
     }
-    
-    // Minimal implementation of TypeCache similar to the missing dependency
-    private static class TypeCache<K, V> {
-        private final ConcurrentHashMap<K, V> cache = new ConcurrentHashMap<>();
 
-        public V findOrInsert(ClassLoader classLoader, K key, Supplier<V> supplier) {
-            return cache.computeIfAbsent(key, k -> supplier.get());
-        }
-
-        public static class WithInlineExpunction<K, V> extends TypeCache<K, V> {
-            public WithInlineExpunction(Sort sort) {
-                // ignore sort, using simple caching
-            }
-        }
-
-        public enum Sort {
-            SOFT
-        }
-    }
-
-    // Minimal implementation of SimpleKey
-    private static class SimpleKey {
-        private final Class<?> type;
-
-        public SimpleKey(Class<?> type) {
-            this.type = type;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            SimpleKey simpleKey = (SimpleKey) o;
-            return type.equals(simpleKey.type);
-        }
-
-        @Override
-        public int hashCode() {
-            return type.hashCode();
-        }
-    }
 }

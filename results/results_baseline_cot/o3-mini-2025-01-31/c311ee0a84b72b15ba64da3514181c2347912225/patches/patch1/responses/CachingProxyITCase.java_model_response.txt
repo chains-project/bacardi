@@ -1,22 +1,9 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error indicates that the constructor for org.hamcrest.core.StringContains no longer accepts a boolean followed by a String. It now only accepts a single String argument.
-   - The error is found on line 170 in the method imagePulled(...).
-   - This change indicates an update in the Hamcrest dependency version which removed or changed the two-parameter constructor.
-
-2. Client Code Review:
-   - The method imagePulled uses the constructor new StringContains(false, String.format(...)) which is now incompatible with the new Hamcrest version.
-   - The intent is to match a substring within the output, and previously the boolean might have been used to indicate case sensitivity.
-
-3. Potential Fix:
-   - Remove the boolean argument and simply use new StringContains(String.format("Status: Downloaded newer image for %s", image)).
-   - This change respects the function signature and uses the updated constructor from the Hamcrest dependency.
-
-4. Changes Required:
-   - Modify the imagePulled method by removing the false parameter.
-   - Ensure that the rest of the code remains unchanged as the error is isolated to this constructor usage.
-</code_analysis>
-
+<repair_strategy>
+1. The error is due to a change in the StringContains API. The new version of StringContains only accepts a single String argument.
+2. Previously, the code used the constructor: StringContains(boolean, String), but the new API requires only: StringContains(String).
+3. To fix the issue, we remove the boolean argument in the static method imagePulled.
+4. This minimal change keeps the rest of the code intact and ensures that the class compiles.
+</repair_strategy>
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
@@ -187,9 +174,7 @@ final class CachingProxyITCase {
     }
 
     private static Matcher<String> imagePulled(final String image) {
-        return new StringContains(
-            String.format("Status: Downloaded newer image for %s", image)
-        );
+        return new StringContains(String.format("Status: Downloaded newer image for %s", image));
     }
 }
 ```

@@ -1,30 +1,3 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error message shows that the constructor call to ClientHelper is failing because the first argument is a String (credentials), whereas the updated API now requires an ItemGroup or Item as the first parameter.
-   - The existing constructor call on line 44:
-     new ClientHelper(credentials, buildListener, clientString, StandardCharsets.UTF_8.toString());
-     does not match any of the two available constructors:
-         ClientHelper(ItemGroup, String, TaskListener, Workspace) or
-         ClientHelper(Item, String, TaskListener, Workspace).
-
-2. Client Code Review:
-   - The code retrieves the client name (clientString) and credentials.
-   - The incorrect call to ClientHelper is inside the if-block that checks if the provided client is valid.
-   - The issue arises from the breaking dependency update in the perforce plugin.
-
-3. Potential Fixes:
-   - Modify the ClientHelper constructor call to use the correct parameter order.
-   - Use build.getProject() (which is an Item) as the first argument since AbstractBuild's project is a valid hudson.model.Item.
-   - Replace the fourth parameter, previously a charset String ("UTF-8"), with a Workspace object. Create a new Workspace instance using the client string and encoding.
-   - Ensure the appropriate import for org.jenkinsci.plugins.p4.workspace.Workspace is added.
-
-4. Proposed Changes:
-   - Change the ClientHelper instantiation to:
-         Workspace workspace = new Workspace(clientString, StandardCharsets.UTF_8.toString());
-         ClientHelper perforceClient = new ClientHelper(build.getProject(), credentials, buildListener, workspace);
-   - This aligns with the updated dependency’s signature and preserves the original functionality.
-</code_analysis>
-
 ```java
 package org.jfrog.hudson.release.scm.perforce;
 
@@ -49,7 +22,7 @@ import java.util.logging.Logger;
  * Interacts with Perforce various release operations.
  * Using the updated perforce plugin - P4.
  *
- * @author
+ * @author Aviad Shikloshi
  */
 public class P4Manager extends AbstractPerforceManager<PerforceScm> {
 
@@ -70,8 +43,7 @@ public class P4Manager extends AbstractPerforceManager<PerforceScm> {
         try {
             String clientString = getClientString();
             if (connection.isClient(clientString)) {
-                Workspace workspace = new Workspace(clientString, StandardCharsets.UTF_8.toString());
-                ClientHelper perforceClient = new ClientHelper(build.getProject(), credentials, buildListener, workspace);
+                ClientHelper perforceClient = new ClientHelper(build.getProject(), credentials, buildListener, new Workspace(clientString, StandardCharsets.UTF_8.toString()));
                 IClient client = perforceClient.getClient();
                 try {
                     this.perforce = new PerforceClient(server, client);
@@ -85,6 +57,7 @@ public class P4Manager extends AbstractPerforceManager<PerforceScm> {
         } catch (Exception e) {
             logger.log(Level.FINE, "Error occurred: ", e);
         }
+
     }
 
     @Override

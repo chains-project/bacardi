@@ -1,75 +1,13 @@
-3,25d2
-< /*-
-<  * #%L
-<  * XDEV BI Suite
-<  * %%
-<  * Copyright (C) 2011 - 2020 XDEV Software
-<  * %%
-<  * This program is free software: you can redistribute it and/or modify
-<  * it under the terms of the GNU Lesser General Public License as
-<  * published by the Free Software Foundation, either version 3 of the
-<  * License, or (at your option) any later version.
-<  * 
-<  * This program is distributed in the hope that it will be useful,
-<  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-<  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-<  * GNU General Lesser Public License for more details.
-<  * 
-<  * You should have received a copy of the GNU General Lesser Public
-<  * License along with this program.  If not, see
-<  * <http://www.gnu.org/licenses/lgpl-3.0.html>.
-<  * #L%
-<  */
-< 
-< 
-59d35
-< 
-68d43
-<  * 
-75d49
-<         
-81d54
-<         
-91d63
-<         
-101d72
-<         
-121d91
-<         
-155d124
-<         
-162d130
-<                 
-189d156
-<                 
-213d179
-<         
-235d200
-<                 
-238d202
-<         
-255d218
-<         
-295d257
-<                                         
-338d299
-<                 
-348c309,310
+24a25,32
+> /* <repair_strategy>
+>    1. The error is caused by the call to txtField.setFontSize(Float.valueOf(f.getSize())),
+>       as f.getSize() returns an int and the updated API now expects a primitive float.
+>    2. Previously, the conversion via Float.valueOf(int) was tolerated, but now the API
+>       requires a float value.
+>    3. To fix, we simply cast f.getSize() to float.
+>    4. This is the minimal change to keep the code functional and compliant with the new API.
+> </repair_strategy> */
+348c356
 <                 txtField.setFontSize(Float.valueOf(f.getSize()));
 ---
->                 // Fix: explicitly cast the font size to float to avoid the int-to-Float conversion error
 >                 txtField.setFontSize((float) f.getSize());
-353d314
-<                 
-360d320
-<         
-379d338
-<                 
-386d344
-<         
-394d351
-<         
-396d352
-<          * 
-428d383
-<         

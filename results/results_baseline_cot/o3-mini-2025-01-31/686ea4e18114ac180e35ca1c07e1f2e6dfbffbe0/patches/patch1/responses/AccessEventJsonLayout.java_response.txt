@@ -3,7 +3,6 @@ package com.wire.lithium.server.monitoring;
 import ch.qos.logback.access.spi.IAccessEvent;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.core.filter.Filter;
-
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.LinkedHashMap;
 import java.util.List;

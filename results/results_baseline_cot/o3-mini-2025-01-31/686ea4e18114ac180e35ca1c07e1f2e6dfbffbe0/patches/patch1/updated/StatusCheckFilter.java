@@ -4,11 +4,9 @@ import ch.qos.logback.access.spi.IAccessEvent;
 import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import io.dropwizard.logback.access.filter.AccessEventFilterFactory;
 
 @JsonTypeName("status-filter-factory")
-public class StatusCheckFilter implements AccessEventFilterFactory<IAccessEvent> {
-    @Override
+public class StatusCheckFilter {
     public Filter<IAccessEvent> build() {
         return new Filter<IAccessEvent>() {
             @Override

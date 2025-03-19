@@ -1,8 +1,13 @@
-14d13
+13,14d12
+< import org.hamcrest.core.AllOf;
 < import org.hamcrest.core.StringContains;
-57,58c56,57
+55,59c53,55
+<             new AllOf<>(
+<                 Arrays.asList(
 <                     new StringContains(true, "Unsupported reference"),
 <                     new StringContains(false, string)
+<                 )
 ---
->                     Matchers.containsString("Unsupported reference"),
->                     Matchers.not(Matchers.containsString(string))
+>             Matchers.allOf(
+>                 Matchers.containsString("Unsupported reference"),
+>                 Matchers.not(Matchers.containsString(string))

@@ -17,7 +17,7 @@
 package com.feedzai.commons.sql.abstraction.engine.impl.mysql;
 
 import com.feedzai.commons.sql.abstraction.engine.handler.QueryExceptionHandler;
-import com.mysql.cj.jdbc.exceptions.MySQLTimeoutException;  // Updated import for MySQL Connector/J 8.x
+import com.mysql.cj.jdbc.exceptions.MySQLTimeoutException;
 
 import java.sql.SQLException;
 

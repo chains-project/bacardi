@@ -18,8 +18,7 @@ import org.kohsuke.stapler.DataBoundSetter;
 
 import java.io.IOException;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.*;
 
 @SuppressWarnings("unused")
 public class CreateServerStep extends AbstractStepImpl {
@@ -34,6 +33,7 @@ public class CreateServerStep extends AbstractStepImpl {
     private Integer timeout;
     private Integer retry;
     private String url;
+
 
     @DataBoundConstructor
     public CreateServerStep(String id) {

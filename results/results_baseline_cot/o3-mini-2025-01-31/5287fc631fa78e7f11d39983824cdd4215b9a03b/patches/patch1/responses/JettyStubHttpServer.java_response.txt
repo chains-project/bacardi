@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2012 - 2016 Jadler contributors
- * This program is made available under the terms of the MIT License.
- */
 package net.jadler.stubbing.server.jetty;
 
 import net.jadler.RequestManager;
@@ -29,13 +25,9 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
-
-        // Create an HttpConfiguration to set server version and date header options.
         HttpConfiguration httpConfig = new HttpConfiguration();
         httpConfig.setSendServerVersion(false);
         httpConfig.setSendDateHeader(true);
-
-        // Use ServerConnector instead of the removed SelectChannelConnector.
         this.httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
         this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);
@@ -47,7 +39,6 @@ public class JettyStubHttpServer implements StubHttpServer {
     @Override
     public void registerRequestManager(final RequestManager ruleProvider) {
         Validate.notNull(ruleProvider, "ruleProvider cannot be null");
-
         server.setHandler(new JadlerHandler(ruleProvider));
     }
 

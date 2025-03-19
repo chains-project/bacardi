@@ -1,11 +1,3 @@
-<code_analysis>
-1. The error message indicates a failure due to an incorrect constructor call for the Hamcrest class StringStartsWith. Previously, the constructor accepted a boolean (likely for case sensitivity) and a string, but after a dependency update, the constructor now only accepts a single string.
-2. In the client code, this occurs in the isUploadStarted() method when constructing the StringStartsWith matcher for the "Location" header:
-   new StringStartsWith(false, "/v2/test/blobs/uploads/")
-3. The fix involves removing the boolean parameter from the constructor call to match the updated dependency's API.
-4. This change should resolve the compilation error without modifying any function signatures or unrelated code.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com

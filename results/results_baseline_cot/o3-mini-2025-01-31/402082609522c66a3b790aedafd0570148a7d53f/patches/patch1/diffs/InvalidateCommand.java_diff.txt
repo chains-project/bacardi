@@ -1,24 +1,22 @@
-7c7
-< 
----
+7a8,9
 > import org.spongepowered.api.command.Command;
-9,12c9,11
+> import org.spongepowered.api.command.CommandExecutor;
+9,12c11,12
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
-> import org.spongepowered.api.command.executor.CommandExecutor;
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.source.CommandSource;
-21c20
-<     InvalidateCommand(ChangeSkinSponge plugin) {
+26c26,27
+<     public CommandResult execute(CommandSource src, CommandContext args) {
 ---
->     public InvalidateCommand(ChangeSkinSponge plugin) {
-38,39c37,39
+>     public CommandResult execute(CommandContext context) {
+>         CommandSource src = context.cause().first(CommandSource.class).orElse(null);
+38,39c39,40
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
 ---
 >     public Command buildSpec() {
->         // Build a new command using the updated Sponge API.
 >         return Command.builder()

@@ -1,25 +1,3 @@
-<code_analysis>
-1. Error Message Observations:
-   • The error indicates that the compiler cannot find the class CommandSource in package org.spongepowered.api.command.
-   • Specifically, the error is raised at lines where CommandSource is used (fields and constructor parameters).
-   • This indicates that, following the dependency update, CommandSource has been moved or renamed.
-
-2. Client Code Review:
-   • The class imports CommandSource from org.spongepowered.api.command, which is now invalid.
-   • CommandSource is used as a type for the "invoker" variable, passed to various methods.
-   • No changes to function signatures are needed.
-
-3. Potential Fix:
-   • Update the import to match the new location of CommandSource.
-   • In recent SpongeAPI updates, CommandSource has been relocated to org.spongepowered.api.command.source.CommandSource.
-   • Replace the old import with the new import without altering the existing functionality.
-
-4. Planned Changes:
-   • Remove: import org.spongepowered.api.command.CommandSource;
-   • Add: import org.spongepowered.api.command.source.CommandSource;
-   • All other code remains intact as no method signature changes are required.
-</code_analysis>
-
 ```java
 package com.github.games647.changeskin.sponge.task;
 
@@ -40,7 +18,6 @@ public class NameResolver extends SharedNameResolver {
 
     public NameResolver(ChangeSkinSponge plugin, CommandSource invoker, String targetName, Player receiver, boolean keepSkin) {
         super(plugin.getCore(), targetName, keepSkin);
-
         this.plugin = plugin;
         this.invoker = invoker;
         this.receiver = receiver;

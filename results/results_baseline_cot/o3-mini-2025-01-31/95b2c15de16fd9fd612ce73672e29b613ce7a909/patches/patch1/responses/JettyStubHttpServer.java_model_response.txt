@@ -1,35 +1,9 @@
-<code_analysis>
-1. Error Analysis:
-   - The errors indicate that methods like setSendServerVersion(boolean), setSendDateHeader(boolean), and setPort(int) as well as the class SelectChannelConnector are not found. This is due to the dependency update to a newer version of Jetty.
-   - In newer Jetty versions (Jetty 9 and above), the connector types and configuration methods have changed. Instead of using the SelectChannelConnector (in package org.eclipse.jetty.server.nio), you should use the ServerConnector (in package org.eclipse.jetty.server) along with an HttpConfiguration and HttpConnectionFactory to set options such as sending the server version and date header.
-   - The method getLocalPort() currently called on the httpConnector also requires the new ServerConnector type.
-
-2. Client Code Review:
-   - The problematic code in the constructor is where the old methods are called on the Server object (setSendServerVersion() and setSendDateHeader()).
-   - The instantiation of SelectChannelConnector and calling setPort() on it is outdated.
-   - The getPort() method uses getLocalPort() on a Connector that no longer exposes that method.
-
-3. Proposed Fix:
-   - Remove the outdated dependency on SelectChannelConnector and instead import and use ServerConnector.
-   - Create an HttpConfiguration instance to configure sendServerVersion and sendDateHeader options, then use HttpConnectionFactory.
-   - Update httpConnector to be of type ServerConnector so that getLocalPort() is available.
-   - Adjust the import statements accordingly (remove the import for org.eclipse.jetty.server.nio.SelectChannelConnector and add the necessary imports for HttpConfiguration, HttpConnectionFactory, and ServerConnector).
-
-4. Modifications Summary:
-   - Replace the use of SelectChannelConnector with ServerConnector.
-   - Remove calls to server.setSendServerVersion() and server.setSendDateHeader(), moving those settings to an HttpConfiguration.
-   - Adjust the getPort() method if necessary by ensuring the connector is of type ServerConnector.
-</code_analysis>
-
 ```java
 package net.jadler.stubbing.server.jetty;
 
 import net.jadler.RequestManager;
 import net.jadler.stubbing.server.StubHttpServer;
 import org.apache.commons.lang.Validate;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.slf4j.Logger;
@@ -50,12 +24,9 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
+        // Removed unsupported API calls setSendServerVersion and setSendDateHeader
 
-        HttpConfiguration httpConfig = new HttpConfiguration();
-        httpConfig.setSendServerVersion(false);
-        httpConfig.setSendDateHeader(true);
-
-        this.httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+        this.httpConnector = new ServerConnector(this.server);
         this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);
     }

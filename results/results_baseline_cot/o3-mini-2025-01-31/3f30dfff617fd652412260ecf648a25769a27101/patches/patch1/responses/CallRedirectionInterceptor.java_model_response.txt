@@ -1,23 +1,15 @@
-<code_analysis>
-1. The error message shows that classes from the package javax.interceptor – notably InvocationContext, AroundInvoke, and Interceptor – are not found. This indicates that after a dependency update (likely moving from Java EE to Jakarta EE), these classes have been relocated.
-2. In the client code, the problematic imports (javax.interceptor.AroundInvoke, javax.interceptor.Interceptor, javax.interceptor.InvocationContext) are used on class level and method level annotations.
-3. The planned fix is to update these imports to use the new Jakarta package names. In Jakarta EE, these classes are now located in jakarta.interceptor.
-4. No function signatures or logic are altered other than the imports. This resolves the breaking dependency caused by the updated (Jakarta) packages.
-</code_analysis>
-
 ```java
 package de.hilling.junit.cdi.scope;
 
 import de.hilling.junit.cdi.util.ReflectionsUtils;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
-
+import jakarta.interceptor.AroundInvoke;
+import jakarta.interceptor.Interceptor;
+import jakarta.interceptor.InvocationContext;
 import javax.annotation.Priority;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import jakarta.interceptor.AroundInvoke;
-import jakarta.interceptor.Interceptor;
-import jakarta.interceptor.InvocationContext;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

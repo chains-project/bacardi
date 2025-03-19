@@ -1,36 +1,33 @@
-23d22
+1,15d0
+< /**
+<  * Copyright 2019 Pinterest, Inc.
+<  * 
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  * 
+<  *    http://www.apache.org/licenses/LICENSE-2.0
+<  * 
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+23d7
 < import org.apache.thrift.transport.TFramedTransport;
-25a25
+25a10
 > import org.apache.thrift.transport.layered.TFramedTransport;
-40c40
-<    * Factory that get a TBase instance of the thrift type to be read.
----
->    * Factory that gets a TBase instance of the thrift type to be read.
-45d44
+45d29
 < 
-50c49
-<    * Factory that get a TProtocol instance.
----
->    * Factory that gets a TProtocol instance.
-53d51
+53d36
 < 
-63c61
+63c46
 <   // The framed framedTransport.
 ---
->   // The framed transport.
-80,81c78,81
+>   // The framedTransport.
+80,81c63
 <     this.framedTransport = new TFramedTransport(new TIOStreamTransport(this
 <         .byteOffsetInputStream), maxMessageSize);
 ---
->     // Updated constructor: use the new TFramedTransport from the layered package.
->     // The new TFramedTransport no longer accepts a maxMessageSize parameter.
->     this.framedTransport = new TFramedTransport(
->         new TIOStreamTransport(this.byteOffsetInputStream));
-89c89
-<    * @return next thrift message from the reader. null if no thrift message in the reader.
----
->    * @return next thrift message from the reader, or null if no thrift message is present.
-121c121
-<     // If we already at the byte offset, return.
----
->     // If we are already at the byte offset, return.
+>     this.framedTransport = new TFramedTransport(new TIOStreamTransport(this.byteOffsetInputStream), maxMessageSize);

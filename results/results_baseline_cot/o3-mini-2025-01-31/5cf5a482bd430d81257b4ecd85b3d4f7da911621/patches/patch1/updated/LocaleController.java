@@ -34,4 +34,5 @@ public class LocaleController {
         models.put("locale", locale);
         return "locale.xhtml";
     }
+
 }

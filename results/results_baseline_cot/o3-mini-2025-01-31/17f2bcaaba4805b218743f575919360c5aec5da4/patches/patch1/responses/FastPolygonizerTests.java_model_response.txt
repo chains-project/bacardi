@@ -1,27 +1,3 @@
-<code_analysis>
-1. Analyze the error message:
-   - The error indicates that the class "Ignore" cannot be found. The error occurs at the import of org.junit.Ignore as well as its usage on the testRobustnessRandomly() method.
-   - This issue is caused by a dependency update from JUnit 4 to JUnit 5. In JUnit 5, the annotation @Ignore is no longer available.
-   - Instead of @Ignore, JUnit 5 uses the @Disabled annotation.
-
-2. Review the client code:
-   - The problematic areas are the import statement "import org.junit.Ignore;" and the usage of @Ignore on the testRobustnessRandomly() method.
-   - The rest of the code uses JUnit 5’s @Test annotation from org.junit.jupiter.api, so the mixed use of JUnit 4’s @Ignore is the issue.
-
-3. Consider potential fixes:
-   - Remove the import statement for org.junit.Ignore.
-   - Replace it with an import for org.junit.jupiter.api.Disabled.
-   - Replace the @Ignore annotation with @Disabled on the testRobustnessRandomly() method.
-   - No function signatures are changed, and no other code removal is necessary.
-
-4. Planned changes:
-   - Remove the import for org.junit.Ignore.
-   - Add: import org.junit.jupiter.api.Disabled.
-   - Change @Ignore annotation preceding testRobustnessRandomly() to @Disabled.
-</code_analysis>
-
-Below is the complete fixed Java class:
-
 ```java
 package micycle.pgs;
 
@@ -155,12 +131,9 @@ class FastPolygonizerTests {
 			PShape FP = polygonize(nodedEdgesSet);
 			t2 = System.currentTimeMillis();
 			long timeFP = t2 - t1;
-			// System.out.println(timeJTS + " " + timeFP + " " + JTS.size());
 			assertEquals(JTS.size(), FP.getChildCount());
 		}
 	}
 
 }
-``` 
-
-This patch addresses the dependency update by replacing the outdated @Ignore annotation with @Disabled, ensuring the client code compiles under the updated JUnit 5 dependency.
+```

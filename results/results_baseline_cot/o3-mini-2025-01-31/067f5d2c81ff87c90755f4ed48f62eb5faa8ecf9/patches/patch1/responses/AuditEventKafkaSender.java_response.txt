@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.pinterest.singer.loggingaudit.client;
 
 import com.pinterest.singer.loggingaudit.client.common.LoggingAuditClientMetrics;
@@ -22,6 +23,7 @@ import com.pinterest.singer.loggingaudit.thrift.LoggingAuditStage;
 import com.pinterest.singer.loggingaudit.thrift.configuration.KafkaSenderConfig;
 import com.pinterest.singer.metrics.OpenTsdbMetricConverter;
 import com.pinterest.singer.utils.CommonUtils;
+
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -32,6 +34,7 @@ import org.apache.thrift.TSerializer;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +62,8 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
    *  When sender send audit events to Kafka,  it chooses a random partition and if it fails, it
    *  will choose another GOOD partition, this retry will happen at most numOfPartitionsToTrySending
    *  times before dropping the event. Note that, this is different from the retry handled by
-   *  kafka client library when sending an event to a certain partition.
+   *  kafka client
+   *  library when sending an event to a certain partition.
    */
   private static final int NUM_OF_PARTITIONS_TO_TRY_SENDING = 3;
 
@@ -159,7 +163,6 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
    * badPartitions.  When event is send out successfully or dropped, the corresponding entry in
    * this map is removed.
    */
-
   private Map<LoggingAuditHeaders, Integer> eventTriedCount = new ConcurrentHashMap<>();
 
   /**

@@ -192,8 +192,6 @@ public class IoSessionInitiator {
                 throws GeneralSecurityException {
             final SSLContext sslContext = SSLContextFactory.getInstance(sslConfig);
             final SSLFilter sslFilter = new SSLFilter(sslContext, autoStart);
-            // Removed the setUseClientMode call as it is no longer supported in the updated dependency.
-            // sslFilter.setUseClientMode(true);
             sslFilter.setCipherSuites(sslConfig.getEnabledCipherSuites() != null ? sslConfig.getEnabledCipherSuites()
                     : SSLSupport.getDefaultCipherSuites(sslContext));
             sslFilter.setEnabledProtocols(sslConfig.getEnabledProtocols() != null ? sslConfig.getEnabledProtocols()

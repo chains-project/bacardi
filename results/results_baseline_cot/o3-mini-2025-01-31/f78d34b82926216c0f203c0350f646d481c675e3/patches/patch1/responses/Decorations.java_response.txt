@@ -34,7 +34,6 @@ public class Decorations
         final int[] sec = {0};
         new BukkitRunnable()
         {
-            @Override
             public void run()
             {
                 if (sec[0] > seconds)
@@ -83,7 +82,7 @@ public class Decorations
             0,
             0,
             0.001
-        ); //XXX: 誰だよこんな引数多く設計したやつ
+        );
     }
 
     /**
@@ -183,7 +182,6 @@ public class Decorations
 
         BukkitRunnable runnable = new BukkitRunnable()
         {
-            @Override
             public void run()
             {
                 for (double i = 0; i < Math.PI * 2; i++)
@@ -209,11 +207,11 @@ public class Decorations
                 Location center = player.getLocation();
 
                 line(center.clone().add(3, 0.7, 0), center.clone().add(-1.5, 0.7, 2.3));
-                line(center.clone().add(-1.5, 0.7, 2.3), center.clone().add(-1.5, 0.7, -2.3)); //三角
+                line(center.clone().add(-1.5, 0.7, 2.3), center.clone().add(-1.5, 0.7, -2.3));
                 line(center.clone().add(3, 0.7, 0), center.clone().add(-1.5, 0.7, -2.3));
 
                 line(center.clone().add(-3, 0.7, 0), center.clone().add(1.5, 0.7, -2.3));
-                line(center.clone().add(1.5, 0.7, -2.3), center.clone().add(1.5, 0.7, 2.3)); //三角(反転)
+                line(center.clone().add(1.5, 0.7, -2.3), center.clone().add(1.5, 0.7, 2.3));
                 line(center.clone().add(-3, 0.7, 0), center.clone().add(1.5, 0.7, 2.3));
             }
         };
@@ -221,7 +219,6 @@ public class Decorations
         runnable.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0L, 1L);
         new BukkitRunnable()
         {
-            @Override
             public void run()
             {
                 runnable.cancel();
@@ -242,11 +239,15 @@ public class Decorations
 
         BukkitRunnable runnable = new BukkitRunnable()
         {
-            @Override
             public void run()
             {
                 Location c = player.getLocation().clone();
-                Location X = new Location(c.getWorld(), particle_x(time[0], radius) + c.getX(), 5.0 + c.getY(), particle_z(time[0], radius) + c.getZ());
+                Location X = new Location(
+                    c.getWorld(),
+                    particle_x(time[0], radius) + c.getX(),
+                    5.0 + c.getY(),
+                    particle_z(time[0], radius) + c.getZ()
+                );
 
                 for (int i = 0; i < 10; i++)
                     line(c, X, Particle.TOWN_AURA);
@@ -257,7 +258,6 @@ public class Decorations
         runnable.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0L, 1L);
         new BukkitRunnable()
         {
-            @Override
             public void run()
             {
                 runnable.cancel();
@@ -303,28 +303,25 @@ public class Decorations
         if (Variables.config.getBoolean("decoration.laser"))
             laser(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20));
     }
-
-    // Replacement implementation for the removed WaveCreator dependency.
+    
     private static class WaveCreator {
-        private final double amplitude;
-        private final double staticValue;
-        private final double phase;
-        private double time;
-
-        public WaveCreator(double amplitude, double staticValue, double phase) {
+        private double amplitude;
+        private double frequency;
+        private double current;
+        
+        public WaveCreator(double amplitude, double frequency, double initialPhase) {
             this.amplitude = amplitude;
-            this.staticValue = staticValue;
-            this.phase = phase;
-            this.time = 0.0;
+            this.frequency = frequency;
+            this.current = initialPhase;
         }
-
-        public double get(double step, boolean flag) {
-            this.time += step;
-            return amplitude * Math.sin(time + phase);
+        
+        public double get(double increment, boolean flag) {
+            current += increment;
+            return amplitude * Math.sin(current);
         }
-
+        
         public double getStatic() {
-            return staticValue;
+            return frequency;
         }
     }
 }

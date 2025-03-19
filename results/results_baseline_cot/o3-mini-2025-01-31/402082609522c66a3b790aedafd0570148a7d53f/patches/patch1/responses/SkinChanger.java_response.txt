@@ -3,15 +3,14 @@ package com.github.games647.changeskin.sponge.task;
 import com.github.games647.changeskin.core.model.auth.Account;
 import com.github.games647.changeskin.core.shared.task.SharedSkinChanger;
 import com.github.games647.changeskin.sponge.ChangeSkinSponge;
-
-import org.spongepowered.api.command.source.CommandSource;
+import org.spongepowered.api.audience.Audience;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class SkinChanger extends SharedSkinChanger {
 
-    private final CommandSource invoker;
+    private final Audience invoker;
 
-    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker) {
+    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, Audience invoker) {
         super(plugin.getCore(), owner, url, oldSkinUrl);
         this.invoker = invoker;
     }

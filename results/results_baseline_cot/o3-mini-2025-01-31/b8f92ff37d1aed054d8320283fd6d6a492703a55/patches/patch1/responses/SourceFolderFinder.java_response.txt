@@ -2,15 +2,15 @@ package fr.spoonlabs.flacoco.core.test.strategies.classloader.finder.classes.imp
 
 import fr.spoonlabs.flacoco.core.test.strategies.classloader.finder.classes.ClassFinder;
 import org.apache.maven.plugin.surefire.util.DirectoryScanner;
+import org.apache.maven.surefire.api.testset.TestListResolver;
 
 import java.io.File;
 import java.util.List;
 
 public class SourceFolderFinder implements ClassFinder {
 
-    private static final String DEFAULT_TEST_WILDCARD = "**/*Test.java";
-
     private String srcFolder;
+    private static final String DEFAULT_WILDCARD = "Test*.java";
 
     public SourceFolderFinder(String srcFolder) {
         this.srcFolder = srcFolder;
@@ -22,7 +22,7 @@ public class SourceFolderFinder implements ClassFinder {
     }
 
     static List<String> getClassesLoc(File testSrcFolder) {
-        DirectoryScanner directoryScanner = new DirectoryScanner(testSrcFolder, DEFAULT_TEST_WILDCARD);
+        DirectoryScanner directoryScanner = new DirectoryScanner(testSrcFolder, DEFAULT_WILDCARD);
         return directoryScanner.scan().getClasses();
     }
 }

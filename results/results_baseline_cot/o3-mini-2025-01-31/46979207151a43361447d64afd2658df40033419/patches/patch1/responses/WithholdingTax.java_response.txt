@@ -17,6 +17,7 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
+
 /**
  * <p>Java class for WithholdingTax complex type.
  * 
@@ -36,6 +37,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  * &lt;/complexType&gt;
  * </pre>
  * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "WithholdingTax", propOrder = {
@@ -43,7 +45,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "withholdingTaxDescription",
     "withholdingTaxAmount"
 })
-public class WithholdingTax implements ToString2 {
+public class WithholdingTax implements ToString2
+{
 
     @XmlElement(name = "WithholdingTaxType")
     protected String withholdingTaxType;
@@ -55,7 +58,10 @@ public class WithholdingTax implements ToString2 {
     /**
      * Gets the value of the withholdingTaxType property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getWithholdingTaxType() {
         return withholdingTaxType;
@@ -64,7 +70,10 @@ public class WithholdingTax implements ToString2 {
     /**
      * Sets the value of the withholdingTaxType property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setWithholdingTaxType(String value) {
         this.withholdingTaxType = value;
@@ -73,7 +82,10 @@ public class WithholdingTax implements ToString2 {
     /**
      * Gets the value of the withholdingTaxDescription property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getWithholdingTaxDescription() {
         return withholdingTaxDescription;
@@ -82,7 +94,10 @@ public class WithholdingTax implements ToString2 {
     /**
      * Sets the value of the withholdingTaxDescription property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setWithholdingTaxDescription(String value) {
         this.withholdingTaxDescription = value;
@@ -91,7 +106,10 @@ public class WithholdingTax implements ToString2 {
     /**
      * Gets the value of the withholdingTaxAmount property.
      * 
-     * @return possible object is {@link BigDecimal }
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getWithholdingTaxAmount() {
         return withholdingTaxAmount;
@@ -100,7 +118,10 @@ public class WithholdingTax implements ToString2 {
     /**
      * Sets the value of the withholdingTaxAmount property.
      * 
-     * @param value allowed object is {@link BigDecimal }
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
      */
     public void setWithholdingTaxAmount(BigDecimal value) {
         this.withholdingTaxAmount = value;
@@ -108,7 +129,6 @@ public class WithholdingTax implements ToString2 {
 
     @Override
     public String toString() {
-        // Updated to reference the correct static instance member from the newer dependency version.
         final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
@@ -128,18 +148,19 @@ public class WithholdingTax implements ToString2 {
         {
             String theWithholdingTaxType;
             theWithholdingTaxType = this.getWithholdingTaxType();
-            strategy.appendField(locator, this, "withholdingTaxType", buffer, theWithholdingTaxType, (this.withholdingTaxType != null));
+            strategy.appendField(locator, this, "withholdingTaxType", buffer, theWithholdingTaxType, (this.withholdingTaxType!= null));
         }
         {
             String theWithholdingTaxDescription;
             theWithholdingTaxDescription = this.getWithholdingTaxDescription();
-            strategy.appendField(locator, this, "withholdingTaxDescription", buffer, theWithholdingTaxDescription, (this.withholdingTaxDescription != null));
+            strategy.appendField(locator, this, "withholdingTaxDescription", buffer, theWithholdingTaxDescription, (this.withholdingTaxDescription!= null));
         }
         {
             BigDecimal theWithholdingTaxAmount;
             theWithholdingTaxAmount = this.getWithholdingTaxAmount();
-            strategy.appendField(locator, this, "withholdingTaxAmount", buffer, theWithholdingTaxAmount, (this.withholdingTaxAmount != null));
+            strategy.appendField(locator, this, "withholdingTaxAmount", buffer, theWithholdingTaxAmount, (this.withholdingTaxAmount!= null));
         }
         return buffer;
     }
+
 }

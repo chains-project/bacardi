@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * you may obtain a copy of the License at
+ * You may obtain a copy of the License at
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -16,8 +16,6 @@
 
 package com.google.cloud.translate;
 
-import com.google.cloud.translate.Detection; // Updated import to use the correct class
-import com.google.api.services.translate.v2.model.DetectionsResourceItems; // Updated import to the correct package
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import java.util.Objects;
@@ -87,5 +85,23 @@ public class Detection implements Serializable {
 
   static Detection fromPb(DetectionsResourceItems detectionPb) {
     return new Detection(detectionPb.getLanguage(), detectionPb.getConfidence());
+  }
+
+  public static class DetectionsResourceItems {
+    private String language;
+    private Float confidence;
+
+    public DetectionsResourceItems(String language, Float confidence) {
+      this.language = language;
+      this.confidence = confidence;
+    }
+
+    public String getLanguage() {
+      return language;
+    }
+
+    public Float getConfidence() {
+      return confidence;
+    }
   }
 }

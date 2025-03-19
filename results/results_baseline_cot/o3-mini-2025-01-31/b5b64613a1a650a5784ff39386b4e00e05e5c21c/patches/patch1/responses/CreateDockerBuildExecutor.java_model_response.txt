@@ -1,26 +1,3 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error occurs due to the method call to StringUtils.isAllBlank(kanikoImageFile, jibImageFile) which cannot be found.
-   - This indicates that the current version of Apache Commons Lang in use does not provide the isAllBlank(String, String) method.
-   - The dependency update has likely removed or renamed that method.
-
-2. Client Code Analysis:
-   - The problematic lines are the ones that check if exactly one of 'kanikoImageFile' or 'jibImageFile' is configured.
-   - The original condition uses StringUtils.isAllBlank(...) and StringUtils.isNoneBlank(...) which are not available in the current dependency version.
-   - The required logic is to throw an exception if both files are blank or both are provided.
-
-3. Proposed Fix:
-   - Replace the call to StringUtils.isAllBlank(kanikoImageFile, jibImageFile) with an equivalent check using StringUtils.isBlank() on each argument.
-   - Similarly, replace StringUtils.isNoneBlank(kanikoImageFile, jibImageFile) with a check that both are not blank using StringUtils.isNotBlank().
-   - Thus, the condition becomes:
-     (StringUtils.isBlank(kanikoImageFile) && StringUtils.isBlank(jibImageFile)) ||
-     (StringUtils.isNotBlank(kanikoImageFile) && StringUtils.isNotBlank(jibImageFile))
-   - This change adheres to all constraints, retaining the function signatures and functionality.
-
-4. Final Code:
-   - The complete Java class is provided below.
-</code_analysis>
-
 ```java
 package org.jfrog.hudson.pipeline.common.executors;
 
@@ -55,7 +32,6 @@ public class CreateDockerBuildExecutor extends BuildInfoProcessRunner {
         if (server == null) {
             throw new IllegalStateException("Artifactory server must be configured");
         }
-        // Replace calls to isAllBlank and isNoneBlank with equivalent checks using isBlank and isNotBlank.
         if ((StringUtils.isBlank(kanikoImageFile) && StringUtils.isBlank(jibImageFile)) ||
             (StringUtils.isNotBlank(kanikoImageFile) && StringUtils.isNotBlank(jibImageFile))) {
             throw new IllegalStateException("Exactly one of 'kanikoImageFile' or 'jibImageFile' must be configured");

@@ -1,12 +1,3 @@
-<code_analysis>
-1. The error message indicates that at line 88 the code is indirectly referencing the class “com.fasterxml.jackson.core.exc.StreamReadException” (which is now part of the updated Jackson dependency) but that class is not available on the classpath. This is most likely because the ObjectMapper.readValue(String, Class<T>) method now declares that it throws the new exception type.
-2. In the client code the only usage of ObjectMapper.readValue is in the fetchDownloadableFiles method where the response body is deserialized into an ExportResponse.
-3. One way to avoid the direct dependency on the new exception type is to use an alternative deserialization path. Jackson’s ObjectReader (obtained via objectMapper.readerFor(...)) has a readValue(String) method whose throws clause only declares IOException. This change avoids direct linkage to the missing StreamReadException.
-4. The planned fix is to modify the deserialization in fetchDownloadableFiles to use objectMapper.readerFor(ExportResponse.class).readValue(body) instead of objectMapper.readValue(body, ExportResponse.class). This change does not affect public function signatures and resolves the compile error caused by the outdated dependency.
-</code_analysis>
-
-Below is the complete, fixed Java class:
-
 ```java
 package io.simplelocalize.cli.client;
 
@@ -22,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -51,6 +44,7 @@ public class SimpleLocalizeClient
 
   public SimpleLocalizeClient(String baseUrl, String apiKey)
   {
+
     Objects.requireNonNull(baseUrl);
     Objects.requireNonNull(apiKey);
     this.uriFactory = new SimpleLocalizeUriFactory(baseUrl);
@@ -94,8 +88,25 @@ public class SimpleLocalizeClient
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
     throwOnError(httpResponse);
     String body = httpResponse.body();
-    // Patch: Use ObjectReader to avoid declaring the new exception type from the updated dependency.
-    ExportResponse exportResponse = objectMapper.readerFor(ExportResponse.class).readValue(body);
+    ExportResponse exportResponse;
+    try
+    {
+      Method readValueMethod = ObjectMapper.class.getMethod("readValue", String.class, Class.class);
+      exportResponse = (ExportResponse) readValueMethod.invoke(objectMapper, body, ExportResponse.class);
+    }
+    catch (InvocationTargetException e)
+    {
+      Throwable cause = e.getCause();
+      if (cause instanceof IOException)
+      {
+        throw (IOException) cause;
+      }
+      throw new IOException(cause);
+    }
+    catch (NoSuchMethodException | IllegalAccessException e)
+    {
+      throw new IOException(e);
+    }
     return exportResponse.getFiles();
   }
 
@@ -173,6 +184,4 @@ public class SimpleLocalizeClient
     return "";
   }
 }
-``` 
-
-This patch uses ObjectMapper.readerFor(ExportResponse.class).readValue(body) in fetchDownloadableFiles to avoid the broken dependency on com.fasterxml.jackson.core.exc.StreamReadException, thereby resolving the compilation error.
+```

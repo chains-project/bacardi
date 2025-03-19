@@ -23,23 +23,25 @@
 <  * SOFTWARE.
 <  */
 48a26
-> import java.util.AbstractMap.SimpleImmutableEntry;
+> import java.util.AbstractMap.SimpleEntry;
 52d29
 < import org.cactoos.map.MapEntry;
-136,138c113,115
+60,65d36
+< /**
+<  * Tests for {@link FileProxySlice}.
+<  *
+<  * @since 0.7
+<  * @checkstyle ClassDataAbstractionCouplingCheck (500 lines)
+<  */
+136,138c107,109
 <                         new MapEntry<>("header", "value"),
 <                         new MapEntry<>("Content-Length", "4"),
 <                         new MapEntry<>("Content-Length", "4")
 ---
->                         new SimpleImmutableEntry<>("header", "value"),
->                         new SimpleImmutableEntry<>("Content-Length", "4"),
->                         new SimpleImmutableEntry<>("Content-Length", "4")
-164c141,142
-<                     new RsHasStatus(RsStatus.OK), new RsHasBody(body),
----
->                     new RsHasStatus(RsStatus.OK), 
->                     new RsHasBody(body),
-166c144
+>                         new SimpleEntry<>("header", "value"),
+>                         new SimpleEntry<>("Content-Length", "4"),
+>                         new SimpleEntry<>("Content-Length", "4")
+166c137
 <                         new MapEntry<>("Content-Length", String.valueOf(body.length))
 ---
->                         new SimpleImmutableEntry<>("Content-Length", String.valueOf(body.length))
+>                         new SimpleEntry<>("Content-Length", String.valueOf(body.length))

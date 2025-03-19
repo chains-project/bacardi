@@ -15,8 +15,8 @@
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+ * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
  * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
@@ -108,7 +108,8 @@ public final class Ssh extends AbstractSshShell {
      * @throws IOException If fails
      * @since 1.4
      */
-    public Ssh(final String adr, final String user, final URL priv) throws IOException {
+    public Ssh(final String adr, final String user, final URL priv)
+        throws IOException {
         this(adr, Ssh.PORT, user, priv);
     }
 
@@ -120,7 +121,8 @@ public final class Ssh extends AbstractSshShell {
      * @throws IOException If fails
      * @since 1.4
      */
-    public Ssh(final InetAddress adr, final String user, final URL priv) throws IOException {
+    public Ssh(final InetAddress adr, final String user, final URL priv)
+        throws IOException {
         this(adr, Ssh.PORT, user, priv);
     }
 
@@ -132,7 +134,8 @@ public final class Ssh extends AbstractSshShell {
      * @throws UnknownHostException If fails
      * @since 1.4
      */
-    public Ssh(final String adr, final String user, final String priv) throws UnknownHostException {
+    public Ssh(final String adr, final String user, final String priv)
+        throws UnknownHostException {
         this(adr, Ssh.PORT, user, priv);
     }
 
@@ -144,7 +147,8 @@ public final class Ssh extends AbstractSshShell {
      * @throws UnknownHostException If fails
      * @since 1.4
      */
-    public Ssh(final InetAddress adr, final String user, final String priv) throws UnknownHostException {
+    public Ssh(final InetAddress adr, final String user, final String priv)
+        throws UnknownHostException {
         this(adr.getCanonicalHostName(), Ssh.PORT, user, priv);
     }
 
@@ -158,7 +162,8 @@ public final class Ssh extends AbstractSshShell {
      * @since 1.4
      * @checkstyle ParameterNumberCheck (6 lines)
      */
-    public Ssh(final String adr, final int prt, final String user, final URL priv) throws IOException {
+    public Ssh(final String adr, final int prt,
+        final String user, final URL priv) throws IOException {
         this(adr, prt, user, new UncheckedText(new TextOf(priv)).asString());
     }
 
@@ -172,8 +177,12 @@ public final class Ssh extends AbstractSshShell {
      * @since 1.4
      * @checkstyle ParameterNumberCheck (6 lines)
      */
-    public Ssh(final InetAddress adr, final int prt, final String user, final URL priv) throws IOException {
-        this(adr.getCanonicalHostName(), prt, user, new UncheckedText(new TextOf(priv)).asString());
+    public Ssh(final InetAddress adr, final int prt,
+        final String user, final URL priv) throws IOException {
+        this(
+            adr.getCanonicalHostName(), prt, user,
+            new UncheckedText(new TextOf(priv)).asString()
+        );
     }
 
     /**
@@ -185,7 +194,8 @@ public final class Ssh extends AbstractSshShell {
      * @throws UnknownHostException If fails
      * @checkstyle ParameterNumberCheck (6 lines)
      */
-    public Ssh(final String adr, final int prt, final String user, final String priv) throws UnknownHostException {
+    public Ssh(final String adr, final int prt,
+        final String user, final String priv) throws UnknownHostException {
         this(adr, prt, user, priv, null);
     }
 
@@ -199,8 +209,10 @@ public final class Ssh extends AbstractSshShell {
      * @throws UnknownHostException when host is unknown.
      * @checkstyle ParameterNumberCheck (6 lines)
      */
-    public Ssh(final String adr, final int prt, final String user, final String priv,
-        final String passphrs) throws UnknownHostException {
+    public Ssh(final String adr, final int prt,
+        final String user, final String priv,
+        final String passphrs
+    ) throws UnknownHostException {
         super(adr, prt, user);
         this.key = priv;
         this.passphrase = passphrs;
@@ -271,7 +283,9 @@ public final class Ssh extends AbstractSshShell {
      * @throws JSchException If fails
      */
     private Session session(final JSch sch) throws JSchException {
-        final Session session = sch.getSession(this.getLogin(), this.getAddr(), this.getPort());
+        final Session session = sch.getSession(
+            this.getLogin(), this.getAddr(), this.getPort()
+        );
         session.setConfig("StrictHostKeyChecking", "no");
         session.setTimeout((int) TimeUnit.MINUTES.toMillis(1L));
         session.setServerAliveInterval((int) TimeUnit.SECONDS.toMillis(1L));

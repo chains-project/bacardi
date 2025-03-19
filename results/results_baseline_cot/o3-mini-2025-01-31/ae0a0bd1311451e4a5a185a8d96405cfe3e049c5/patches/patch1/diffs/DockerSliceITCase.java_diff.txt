@@ -1,18 +1,29 @@
-85d84
+84,87c84
+<             new StringContains(
 <                 false,
-100d98
+<                 String.format("Status: Downloaded newer image for %s", this.image.remote())
+<             )
+---
+>             new StringContains(String.format("Status: Downloaded newer image for %s", this.image.remote()))
+99,102c96
+<             new StringContains(
 <                 false,
-123c121,123
+<                 String.format("Status: Downloaded newer image for %s", this.image.remoteByDigest())
+<             )
+---
+>             new StringContains(String.format("Status: Downloaded newer image for %s", this.image.remoteByDigest()))
+123c117
 <         return new StringContains(false, String.format("latest: digest: %s", this.image.digest()));
 ---
->         return new StringContains(
->             String.format("latest: digest: %s", this.image.digest())
->         );
-127c127,129
+>         return new StringContains(String.format("latest: digest: %s", this.image.digest()));
+127c121
 <         return new StringContains(false, String.format("%s: Pushed", this.image.layer()));
 ---
->         return new StringContains(
->             String.format("%s: Pushed", this.image.layer())
->         );
-132d133
+>         return new StringContains(String.format("%s: Pushed", this.image.layer()));
+131,134c125
+<         return new StringContains(
 <             false,
+<             String.format("%s: Layer already exists", this.image.layer())
+<         );
+---
+>         return new StringContains(String.format("%s: Layer already exists", this.image.layer()));

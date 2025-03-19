@@ -1,21 +1,3 @@
-<code_analysis>
-1. The error message indicates that the constructor for org.hamcrest.core.StringContains is being called with two arguments – a boolean and a String – but the updated version of Hamcrest expects only a single String argument. The error occurs in two locations: line 70 (in shouldPush method) and line 85 (in shouldPull method).
-
-2. In the client code, both tests use "new StringContains(false, ...)" to perform a substring match. With the updated Hamcrest dependency, this constructor no longer exists, so we need to remove the boolean argument.
-
-3. To fix the issue:
-   - Remove the boolean parameter (false) from the StringContains constructor calls.
-   - Only change the constructor calls in the test assertions, leaving everything else intact.
-
-4. The necessary changes:
-   - In the shouldPush method, replace "new StringContains(false, String.format(...))" with "new StringContains(String.format(...))".
-   - Similarly, in the shouldPull method, replace the second parameter accordingly.
-   - These modifications adhere to the constraints since they do not change any function signatures or overall logic.
-
-Below is the complete, fixed Java class:
-
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com

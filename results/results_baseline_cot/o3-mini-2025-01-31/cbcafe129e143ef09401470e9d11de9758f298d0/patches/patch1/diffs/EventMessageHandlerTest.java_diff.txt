@@ -1,53 +1,27 @@
-5,6d4
-< import ch.qos.logback.classic.spi.ILoggingEvent;
-< import ch.qos.logback.core.Appender;
-83,86c81,87
-<     @Mock
+5a6
+> import ch.qos.logback.classic.spi.LoggingEvent;
+84c85,86
 <     private Appender<ILoggingEvent> mockLogAppender;
-<     @Captor
+---
+>     private Appender<LoggingEvent> mockLogAppender;
+> 
+86c88
 <     ArgumentCaptor<ILoggingEvent> loggingEventArgumentCaptor;
 ---
-> 
->     // The log appender and logging event capture were causing dependency issues,
->     // so they have been removed.
->     // @Mock
->     // private Appender<ILoggingEvent> mockLogAppender;
->     // @Captor
->     // ArgumentCaptor<ILoggingEvent> loggingEventArgumentCaptor;
-113c114,115
-<         logger.addAppender(mockLogAppender);
----
->         // Removed adding a log appender to avoid the dependency on LoggingEventAware
->         // logger.addAppender(mockLogAppender);
-177,181c179
-<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-< 
+>     ArgumentCaptor<LoggingEvent> loggingEventArgumentCaptor;
+179c181
 <         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-<         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-<         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
 ---
->         // Removed log verification due to dependency update issues (LoggingEventAware is no longer available)
-214,218c212
-<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-< 
+>         List<LoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+216c218
 <         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-<         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-<         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
 ---
->         // Removed log verification due to dependency update issues (LoggingEventAware is no longer available)
-251,255c245
-<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-< 
+>         List<LoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+253c255
 <         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-<         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-<         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
 ---
->         // Removed log verification due to dependency update issues (LoggingEventAware is no longer available)
-288,292c278
-<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-< 
+>         List<LoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+290c292
 <         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-<         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-<         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
 ---
->         // Removed log verification due to dependency update issues (LoggingEventAware is no longer available)
+>         List<LoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();

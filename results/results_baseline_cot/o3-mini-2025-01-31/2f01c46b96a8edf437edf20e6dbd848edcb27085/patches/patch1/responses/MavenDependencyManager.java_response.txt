@@ -24,7 +24,6 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
-// Updated import: use the Xpp3Dom from the new dependency package.
 import org.apache.maven.shared.utils.xml.Xpp3Dom;
 import se.kth.depclean.core.AbstractDebloater;
 import se.kth.depclean.core.analysis.graph.DependencyGraph;
@@ -91,6 +90,11 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
   @Override
   public boolean isMaven() {
     return true;
+  }
+
+  @Override
+  public boolean isPackagingPom() {
+    return project.getPackaging().equals("pom");
   }
 
   @Override

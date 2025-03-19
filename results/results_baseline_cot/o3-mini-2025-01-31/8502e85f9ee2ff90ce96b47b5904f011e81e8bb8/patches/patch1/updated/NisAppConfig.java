@@ -104,12 +104,11 @@ public class NisAppConfig {
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
-
 		return Flyway.configure()
 				.dataSource(this.dataSource())
-				.classLoader(NisAppConfig.class.getClassLoader())
 				.locations(prop.getProperty("flyway.locations"))
-				.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
+				.classLoader(NisAppConfig.class.getClassLoader())
+				.validateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate")))
 				.load();
 	}
 

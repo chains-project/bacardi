@@ -216,7 +216,6 @@ public final class MkGithub implements Github {
      * @throws IOException If fails
      */
     public Repo randomRepo() throws IOException {
-        // Replaced Tv.TWENTY with literal 20 due to dependency update removal of Tv class
         return this.repos().create(
             new Repos.RepoCreate(
                 RandomStringUtils.randomAlphanumeric(20),

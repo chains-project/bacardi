@@ -21,6 +21,7 @@ public class LoginListener extends SharedListener {
     @Inject
     LoginListener(ChangeSkinSponge plugin) {
         super(plugin.getCore());
+
         this.plugin = plugin;
     }
 

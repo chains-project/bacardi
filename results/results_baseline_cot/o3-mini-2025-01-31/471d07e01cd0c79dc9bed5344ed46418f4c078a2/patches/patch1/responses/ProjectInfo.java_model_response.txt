@@ -33,8 +33,6 @@ import java.util.Objects;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.format.DateTimeFormatter;
-import com.google.api.services.cloudresourcemanager.model.ResourceId as ApiResourceId; // Updated import
-import com.google.api.services.cloudresourcemanager.model.Project as ApiProject; // Updated import
 
 /**
  * A Google Cloud Resource Manager project metadata object. A Project is a high-level Google Cloud
@@ -146,16 +144,16 @@ public class ProjectInfo implements Serializable {
       return Objects.hash(id, type);
     }
 
-    ApiResourceId toPb() { // Updated method to use the new import
-      ApiResourceId resourceIdPb =
-          new ApiResourceId();
+    // Updated to use the new model class.
+    Model.ResourceId toPb() {
+      Model.ResourceId resourceIdPb = new Model.ResourceId();
       resourceIdPb.setId(id);
       resourceIdPb.setType(type.toLowerCase());
       return resourceIdPb;
     }
 
-    static ResourceId fromPb(
-        ApiResourceId resourceIdPb) { // Updated method to use the new import
+    // Updated to use the new model class.
+    static ResourceId fromPb(Model.ResourceId resourceIdPb) {
       return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType());
     }
   }
@@ -392,9 +390,9 @@ public class ProjectInfo implements Serializable {
     return new BuilderImpl(this);
   }
 
-  ApiProject toPb() { // Updated method to use the new import
-    ApiProject projectPb =
-        new ApiProject();
+  // Updated to use the new model classes.
+  Model.Project toPb() {
+    Model.Project projectPb = new Model.Project();
     projectPb.setName(name);
     projectPb.setProjectId(projectId);
     projectPb.setLabels(labels);
@@ -414,7 +412,8 @@ public class ProjectInfo implements Serializable {
     return projectPb;
   }
 
-  static ProjectInfo fromPb(ApiProject projectPb) { // Updated method to use the new import
+  // Updated to use the new model classes.
+  static ProjectInfo fromPb(Model.Project projectPb) {
     Builder builder =
         newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
     if (projectPb.getName() != null && !projectPb.getName().equals("Unnamed")) {
@@ -434,6 +433,102 @@ public class ProjectInfo implements Serializable {
       builder.setParent(ResourceId.fromPb(projectPb.getParent()));
     }
     return builder.build();
+  }
+
+  // New internal model classes to replace the broken dependency.
+  public static class Model {
+    public static class Project implements Serializable {
+      private String name;
+      private String projectId;
+      private Map<String, String> labels;
+      private Long projectNumber;
+      private String lifecycleState;
+      private String createTime;
+      private ResourceId parent;
+
+      public Project() {
+        this.labels = new HashMap<>();
+      }
+
+      public void setName(String name) {
+        this.name = name;
+      }
+
+      public String getName() {
+        return name;
+      }
+
+      public void setProjectId(String projectId) {
+        this.projectId = projectId;
+      }
+
+      public String getProjectId() {
+        return projectId;
+      }
+
+      public void setLabels(Map<String, String> labels) {
+        this.labels = labels;
+      }
+
+      public Map<String, String> getLabels() {
+        return labels;
+      }
+
+      public void setProjectNumber(Long projectNumber) {
+        this.projectNumber = projectNumber;
+      }
+
+      public Long getProjectNumber() {
+        return projectNumber;
+      }
+
+      public void setLifecycleState(String lifecycleState) {
+        this.lifecycleState = lifecycleState;
+      }
+
+      public String getLifecycleState() {
+        return lifecycleState;
+      }
+
+      public void setCreateTime(String createTime) {
+        this.createTime = createTime;
+      }
+
+      public String getCreateTime() {
+        return createTime;
+      }
+
+      public void setParent(ResourceId parent) {
+        this.parent = parent;
+      }
+
+      public ResourceId getParent() {
+        return parent;
+      }
+    }
+
+    public static class ResourceId implements Serializable {
+      private String id;
+      private String type;
+
+      public ResourceId() {}
+
+      public void setId(String id) {
+        this.id = id;
+      }
+
+      public String getId() {
+        return id;
+      }
+
+      public void setType(String type) {
+        this.type = type;
+      }
+
+      public String getType() {
+        return type;
+      }
+    }
   }
 }
 ```

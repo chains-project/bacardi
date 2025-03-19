@@ -45,6 +45,7 @@ import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoadResult;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader.Configuration;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInfo;
+import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInstancesLoader;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginRequirementsCheckResult;
 import org.sonarsource.sonarlint.core.rule.extractor.SonarLintRuleDefinition;
 import sorald.FileUtils;
@@ -72,6 +73,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     private SonarLintEngine() {
         super(null);
         setLogging(null);
+
         this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, null);
     }
 
@@ -131,6 +133,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
 
         PluginsLoadResult loadedResult = new PluginsLoader().load(config);
         // Default loaded result stops the loader. The following code prevents that.
+
         Map<String, PluginRequirementsCheckResult> pluginCheckResultByKeys =
                 loadedResult.getPluginCheckResultByKeys();
         Collection<PluginInfo> allPlugins = getAllPlugins(pluginCheckResultByKeys);
@@ -157,7 +160,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
         return AnalysisEngineConfiguration.builder()
-                .setEnabledLanguages(globalConfig.getEnabledLanguages())
+                .setLanguages(globalConfig.getEnabledLanguages())
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())

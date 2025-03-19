@@ -1,33 +1,9 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error message indicates that the class ScriptResult and its package (com.gargoylesoftware.htmlunit) cannot be found. This is occurring at the lines where ScriptResult is instantiated (lines 35 and 60).
-   - This indicates that a dependency update removed or relocated the ScriptResult class, causing the current code to fail compilation.
-
-2. Client Code Review:
-   - The code calls pageObject.executeScript() and then wraps the result with a new ScriptResult instance to extract the JavaScript result.
-   - Both methods getChartDataById and getDataOfOnlyChartOnPageWithGivenToolAttribute rely on ScriptResult to convert the returned object into a String.
-   - Since ScriptResult is missing, we need to remove its usage and directly work with the returned Object.
-
-3. Potential Fixes:
-   - Remove the import for com.gargoylesoftware.htmlunit.ScriptResult.
-   - Replace the wrapping of the result in a ScriptResult instance with a direct null check and conversion (using toString() if non-null).
-   - Keep the function signatures and overall logic intact.
-
-4. Planned Changes:
-   - Remove import line for ScriptResult.
-   - In getChartDataById, replace the wrapping with:
-       if (result != null) return result.toString(); else return null;
-   - In getDataOfOnlyChartOnPageWithGivenToolAttribute, replace the ScriptResult wrapper similarly.
-   - These changes remove the dependency on the removed class while preserving functionality.
-</code_analysis>
-
 ```java
 package io.jenkins.plugins.coverage.util;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
-
 import org.jenkinsci.test.acceptance.po.PageObject;
 
 /**
@@ -54,7 +30,9 @@ public class ChartUtil {
                     "delete(window.Array.prototype.toJSON) %n"
                             + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
                     elementId));
-            return result != null ? result.toString() : null;
+            if (result != null) {
+                return result.toString();
+            }
         }
         return null;
     }
@@ -83,7 +61,7 @@ public class ChartUtil {
                 pageObject.elasticSleep(1000);
             }
         }
-        throw new java.util.NoSuchElementException("Found no trend chart with ID '" + toolAttribute + "'");
+        throw new java.util.NoSuchElementException("Found no trend chart with ID '%s''" + toolAttribute);
     }
 
     /**

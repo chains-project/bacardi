@@ -19,6 +19,7 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
+
 /**
  * <p>Java class for anonymous complex type.
  * 
@@ -35,6 +36,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
+ * 
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -63,9 +65,11 @@ public class TaxTable implements ToString2
      *    getTaxTableEntry().add(newItem);
      * </pre>
      * 
+     * 
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link TaxTableEntry }
+     * 
      * 
      */
     public List<TaxTableEntry> getTaxTableEntry() {
@@ -77,8 +81,7 @@ public class TaxTable implements ToString2
 
     @Override
     public String toString() {
-        // Updated to use the INSTANCE field from JAXBToStringStrategy instead of the removed getInstance() method.
-        final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
+        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

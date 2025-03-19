@@ -1,25 +1,3 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The compiler cannot find the symbol "Client" from "redis.clients.jedis", which indicates that the newer Jedis version has removed (or relocated) the public Client class.
-   - The errors occur at the import statement and within the multi() and pipelined() methods where "Client" is used.
-
-2. Client Code Review:
-   - The import "import redis.clients.jedis.Client;" is invalid in the updated dependency.
-   - In both multi() and pipelined(), the code retrieves the client instance via jedis.getClient() and then calls client.multi() and client.getOne(), as well as using "Client" to construct RedisGraphTransaction and RedisGraphPipeline.
-   
-3. Potential Fix:
-   - Remove the Client import.
-   - In multi() and pipelined(), remove calls to jedis.getClient() and instead call the corresponding Jedis methods directly.
-   - Specifically:
-     • In multi(), call jedis.multi() to initiate the transaction and then pass the jedis instance to create RedisGraphTransaction.
-     • In pipelined(), directly pass the jedis connection when constructing a RedisGraphPipeline.
-   - This change adheres to the constraint of not changing function signatures and only modifying code that causes dependency issues.
-
-4. Impact:
-   - The rest of the class, including sendQuery methods, remains unchanged and will continue to use the Jedis connection.
-   - The patch removes the outdated Client dependency and replaces its usage with the Jedis connection, which is available in the updated Jedis version.
-</code_analysis>
-
 ```java
 package com.redislabs.redisgraph.impl.api;
 
@@ -33,6 +11,8 @@ import com.redislabs.redisgraph.impl.graph_cache.RedisGraphCaches;
 import com.redislabs.redisgraph.impl.resultset.ResultSetImpl;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Transaction;
+import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.util.SafeEncoder;
 
@@ -161,9 +141,8 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphTransaction multi() {
         Jedis jedis = getConnection();
-        // Initiate transaction using Jedis multi command (Client no longer exists)
-        jedis.multi();
-        RedisGraphTransaction transaction = new RedisGraphTransaction(jedis, this);
+        Transaction tx = jedis.multi();
+        RedisGraphTransaction transaction = new RedisGraphTransaction(tx, this);
         transaction.setRedisGraphCaches(caches);
         return transaction;
     }
@@ -175,7 +154,8 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphPipeline pipelined() {
         Jedis jedis = getConnection();
-        RedisGraphPipeline pipeline = new RedisGraphPipeline(jedis, this);
+        Pipeline pip = jedis.pipelined();
+        RedisGraphPipeline pipeline = new RedisGraphPipeline(pip, this);
         pipeline.setRedisGraphCaches(caches);
         return pipeline;
     }
@@ -214,7 +194,7 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
             conn.close();
             throw e;
         }
-        // clear local state
+        //clear local state
         caches.removeGraphCache(graphId);
         return SafeEncoder.encode((byte[]) response);
     }
@@ -231,5 +211,6 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     public void setRedisGraphCaches(RedisGraphCaches caches) {
         this.caches = caches;
     }
+
 }
 ```

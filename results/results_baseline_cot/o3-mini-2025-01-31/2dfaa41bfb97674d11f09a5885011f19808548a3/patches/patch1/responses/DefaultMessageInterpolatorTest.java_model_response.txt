@@ -1,24 +1,3 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error indicates that the method getArgumentAt(int, Class<T>) is not found in the current version of Mockito.
-   - The error occurs at the line where unwrap is stubbed in the context() helper method (line ~318).
-   - This is due to a breaking change in the Mockito API; the getArgumentAt method has been replaced by getArgument in newer versions.
-
-2. Client Code Review:
-   - The problematic code is within the private method context(…) where the following lambda is used:
-     when(result.unwrap(any(Class.class))).
-         thenAnswer(invocation -> invocation.getArgumentAt(0, Class.class).cast(result));
-   - The method invocation.getArgumentAt(0, Class.class) must now be replaced with invocation.getArgument(0, Class.class).
-
-3. Proposed Fix:
-   - Replace invocation.getArgumentAt(0, Class.class) with invocation.getArgument(0, Class.class).
-   - This change adapts the client code to the newer Mockito API while preserving functionality.
-   - No other modifications or removals of annotations or other code parts are needed.
-
-4. Side Effects & Considerations:
-   - This patch specifically targets the dependency update issue. There is no side effect on other functionalities.
-</code_analysis>
-
 ```java
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -45,8 +24,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeThat;
 import static org.junit.Assume.assumeTrue;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.any;
 
 import java.lang.annotation.Annotation;
 import java.net.URL;
@@ -73,6 +52,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 
 /**
  * MessageResolverImpl Tester.

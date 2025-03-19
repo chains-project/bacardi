@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2012 - 2016 Jadler contributors
- * This program is made available under the terms of the MIT License.
- */
 package net.jadler.stubbing.server.jetty;
 
 import net.jadler.RequestManager;
@@ -9,7 +5,6 @@ import net.jadler.stubbing.server.StubHttpServer;
 import org.apache.commons.lang.Validate;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.slf4j.Logger;
@@ -22,7 +17,7 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
     private final Server server;
-    private final Connector httpConnector;
+    private final ServerConnector httpConnector;
 
     public JettyStubHttpServer() {
         this(0);
@@ -30,15 +25,13 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
-        // Configure HTTP settings to not send server version and to send date headers.
+        
         HttpConfiguration httpConfig = new HttpConfiguration();
         httpConfig.setSendServerVersion(false);
         httpConfig.setSendDateHeader(true);
-        
-        // Use the new ServerConnector with the HttpConfiguration and HttpConnectionFactory.
-        ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
-        connector.setPort(port);
-        this.httpConnector = connector;
+
+        this.httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+        this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);
     }
 
@@ -48,6 +41,7 @@ public class JettyStubHttpServer implements StubHttpServer {
     @Override
     public void registerRequestManager(final RequestManager ruleProvider) {
         Validate.notNull(ruleProvider, "ruleProvider cannot be null");
+
         server.setHandler(new JadlerHandler(ruleProvider));
     }
 
@@ -76,7 +70,6 @@ public class JettyStubHttpServer implements StubHttpServer {
      */
     @Override
     public int getPort() {
-        // Cast connector to ServerConnector to use getLocalPort which is not available on Connector interface.
-        return ((ServerConnector) this.httpConnector).getLocalPort();
+        return httpConnector.getLocalPort();
     }
 }

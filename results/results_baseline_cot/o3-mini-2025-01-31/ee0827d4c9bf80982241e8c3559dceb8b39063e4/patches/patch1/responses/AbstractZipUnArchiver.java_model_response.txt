@@ -1,25 +1,3 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The first error indicates that the CountingInputStream no longer provides the method getByteCount(). The new dependency version likely renamed it (e.g. to getCount()).
-   - The second and third errors state that the class BoundedInputStream cannot be found in the package org.apache.commons.io.input. This suggests that the updated dependency has removed or relocated BoundedInputStream.
-
-2. Client Code Review:
-   - The code imports and uses org.apache.commons.io.input.BoundedInputStream. Then in the execute(…) method it wraps an InputStream with BoundedInputStream and then with CountingInputStream.
-   - The call to cis.getByteCount() (line 211) is now invalid because the updated dependency has likely renamed this method.
-
-3. Potential Fixes:
-   - Change the import for BoundedInputStream to the updated location. In the newer dependency (such as in Apache Commons Compress), a similar class exists in org.apache.commons.compress.utils.BoundedInputStream.
-   - Replace the call to cis.getByteCount() with cis.getCount(), which is assumed to be the new method name to retrieve the byte count.
-   - No function signatures are modified and only the parts causing compilation errors are adjusted.
-
-4. Planned Modifications:
-   - Replace line 28 (the import statement) and references to BoundedInputStream to use the Commons Compress version.
-   - In the execute(String, File) method, replace cis.getByteCount() with cis.getCount().
-   - These changes should resolve the dependency update issues without affecting the rest of the functionality.
-</code_analysis>
-
-Below is the complete, fixed Java class:
-
 ```java
 /**
  *
@@ -42,25 +20,25 @@ package org.codehaus.plexus.archiver.zip;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.FilterInputStream;
 import java.net.URL;
 import java.util.Date;
 import java.util.Enumeration;
 import javax.annotation.Nonnull;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
-// Updated import: use BoundedInputStream from Apache Commons Compress utils
-import org.apache.commons.compress.utils.BoundedInputStream;
 import org.apache.commons.io.input.CountingInputStream;
 import org.codehaus.plexus.archiver.AbstractUnArchiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.components.io.resources.PlexusIoResource;
 
 /**
- * @author
+ * @author <a href="mailto:evenisse@codehaus.org">Emmanuel Venisse</a>
  */
 public abstract class AbstractZipUnArchiver
     extends AbstractUnArchiver
 {
+
     private static final String NATIVE_ENCODING = "native-encoding";
 
     private String encoding = "UTF8";
@@ -247,7 +225,55 @@ public abstract class AbstractZipUnArchiver
         }
     }
 
-}
-``` 
+    private static class BoundedInputStream extends FilterInputStream {
 
-This patch updates the BoundedInputStream import to use the version from Commons Compress and replaces the call to cis.getByteCount() with cis.getCount(), ensuring the client code compiles correctly with the updated dependencies.
+        private final long max;
+        private long pos;
+
+        protected BoundedInputStream(InputStream in, long max) {
+            super(in);
+            this.max = max;
+            this.pos = 0;
+        }
+
+        @Override
+        public int read() throws IOException {
+            if ( pos >= max ) {
+                return -1;
+            }
+            int result = in.read();
+            if ( result != -1 ) {
+                pos++;
+            }
+            return result;
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            if ( pos >= max ) {
+                return -1;
+            }
+            long remaining = max - pos;
+            if ( len > remaining ) {
+                len = (int) remaining;
+            }
+            int count = in.read(b, off, len);
+            if ( count > 0 ) {
+                pos += count;
+            }
+            return count;
+        }
+
+        @Override
+        public long skip(long n) throws IOException {
+            long remaining = max - pos;
+            if ( n > remaining ) {
+                n = remaining;
+            }
+            long skipped = in.skip(n);
+            pos += skipped;
+            return skipped;
+        }
+    }
+}
+```

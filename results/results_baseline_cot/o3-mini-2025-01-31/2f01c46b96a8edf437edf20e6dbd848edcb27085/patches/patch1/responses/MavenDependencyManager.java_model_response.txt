@@ -1,10 +1,3 @@
-<code_analysis>
-1. The error message indicates that the package "org.codehaus.plexus.util.xml" (and its class Xpp3Dom) is no longer available because of a breaking dependency update.
-2. In the client code the import statement for Xpp3Dom (used in the collectUsedClassesFromProcessors() method) is now invalid.
-3. To fix the issue without changing any function signatures or core logic, we update the import to reference an equivalent class provided in the updated dependency. In this patch we assume that the newer dependency now provides Xpp3Dom under the package "org.apache.maven.shared.utils.xml".
-4. This change addresses the root cause by using the correct package while keeping all other behavior intact.
-</code_analysis>
-
 ```java
 package se.kth.depclean.wrapper;
 
@@ -32,7 +25,6 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
-// Updated import: use the Xpp3Dom from the new dependency package.
 import org.apache.maven.shared.utils.xml.Xpp3Dom;
 import se.kth.depclean.core.AbstractDebloater;
 import se.kth.depclean.core.analysis.graph.DependencyGraph;
@@ -99,6 +91,11 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
   @Override
   public boolean isMaven() {
     return true;
+  }
+
+  @Override
+  public boolean isPackagingPom() {
+    return project.getPackaging().equals("pom");
   }
 
   @Override

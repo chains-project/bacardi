@@ -17,7 +17,6 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
-
 /**
  * <p>Java class for PaymentTax complex type.
  * 
@@ -187,8 +186,7 @@ public class PaymentTax implements ToString2
 
     @Override
     public String toString() {
-        // Replace the call to getInstance() with a direct instantiation.
-        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
+        final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -207,27 +205,27 @@ public class PaymentTax implements ToString2
         {
             String theTaxType;
             theTaxType = this.getTaxType();
-            strategy.appendField(locator, this, "taxType", buffer, theTaxType, (this.taxType!= null));
+            strategy.appendField(locator, this, "taxType", buffer, theTaxType, (this.taxType != null));
         }
         {
             String theTaxCountryRegion;
             theTaxCountryRegion = this.getTaxCountryRegion();
-            strategy.appendField(locator, this, "taxCountryRegion", buffer, theTaxCountryRegion, (this.taxCountryRegion!= null));
+            strategy.appendField(locator, this, "taxCountryRegion", buffer, theTaxCountryRegion, (this.taxCountryRegion != null));
         }
         {
             String theTaxCode;
             theTaxCode = this.getTaxCode();
-            strategy.appendField(locator, this, "taxCode", buffer, theTaxCode, (this.taxCode!= null));
+            strategy.appendField(locator, this, "taxCode", buffer, theTaxCode, (this.taxCode != null));
         }
         {
             BigDecimal theTaxPercentage;
             theTaxPercentage = this.getTaxPercentage();
-            strategy.appendField(locator, this, "taxPercentage", buffer, theTaxPercentage, (this.taxPercentage!= null));
+            strategy.appendField(locator, this, "taxPercentage", buffer, theTaxPercentage, (this.taxPercentage != null));
         }
         {
             BigDecimal theTaxAmount;
             theTaxAmount = this.getTaxAmount();
-            strategy.appendField(locator, this, "taxAmount", buffer, theTaxAmount, (this.taxAmount!= null));
+            strategy.appendField(locator, this, "taxAmount", buffer, theTaxAmount, (this.taxAmount != null));
         }
         return buffer;
     }

@@ -1,15 +1,59 @@
-28c28,29
+21a22
+> import java.io.FilterInputStream;
+28d28
 < import org.apache.commons.io.input.BoundedInputStream;
----
-> // Updated import: use BoundedInputStream from Apache Commons Compress utils
-> import org.apache.commons.compress.utils.BoundedInputStream;
-35c36
-<  * @author <a href="mailto:evenisse@codehaus.org">Emmanuel Venisse</a>
----
->  * @author
-40d40
-< 
 211c211
 <                         remainingSpace -= cis.getByteCount();
 ---
 >                         remainingSpace -= cis.getCount();
+226a227,276
+>     private static class BoundedInputStream extends FilterInputStream {
+> 
+>         private final long max;
+>         private long pos;
+> 
+>         protected BoundedInputStream(InputStream in, long max) {
+>             super(in);
+>             this.max = max;
+>             this.pos = 0;
+>         }
+> 
+>         @Override
+>         public int read() throws IOException {
+>             if ( pos >= max ) {
+>                 return -1;
+>             }
+>             int result = in.read();
+>             if ( result != -1 ) {
+>                 pos++;
+>             }
+>             return result;
+>         }
+> 
+>         @Override
+>         public int read(byte[] b, int off, int len) throws IOException {
+>             if ( pos >= max ) {
+>                 return -1;
+>             }
+>             long remaining = max - pos;
+>             if ( len > remaining ) {
+>                 len = (int) remaining;
+>             }
+>             int count = in.read(b, off, len);
+>             if ( count > 0 ) {
+>                 pos += count;
+>             }
+>             return count;
+>         }
+> 
+>         @Override
+>         public long skip(long n) throws IOException {
+>             long remaining = max - pos;
+>             if ( n > remaining ) {
+>                 n = remaining;
+>             }
+>             long skipped = in.skip(n);
+>             pos += skipped;
+>             return skipped;
+>         }
+>     }

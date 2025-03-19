@@ -27,11 +27,11 @@ import io.zold.api.Copies.Copy;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.cactoos.list.ListOf;
 import org.cactoos.iterable.IterableEnvelope;
 import org.cactoos.iterable.IterableOf;
 import org.cactoos.iterable.Joined;
 import org.cactoos.iterable.Mapped;
+import org.cactoos.list.ListOf;
 
 /**
  * Multiple copies of a Wallet.

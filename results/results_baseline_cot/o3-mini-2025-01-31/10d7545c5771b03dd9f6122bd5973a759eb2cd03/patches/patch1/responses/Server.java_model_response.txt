@@ -1,22 +1,5 @@
-<code_analysis>
-1. The error message indicates that the class file for io.dropwizard.core.setup.Environment could not be found. This likely means that the dependency update moved the Environment (and likely Bootstrap) classes into the io.dropwizard.core.setup package, while the client code still imports from the old package (io.dropwizard.setup).
-   
-2. In the client code, the run() and initialize() methods use the Environment and Bootstrap types. Their imports are still referencing the old packages:
-   • import io.dropwizard.setup.Environment;
-   • import io.dropwizard.setup.Bootstrap;
-   The superclass Application (from io.dropwizard.Application) now expects the new types from io.dropwizard.core.setup.
-   
-3. A viable fix is to update the import statements so that the code refers to the correct classes. We must not change any function signatures, and the @Override annotations remain valid provided that we now use the correct types.
-   
-4. The patch requires:
-   • Changing the import for Environment from io.dropwizard.setup.Environment to io.dropwizard.core.setup.Environment.
-   • Changing the import for Bootstrap from io.dropwizard.setup.Bootstrap to io.dropwizard.core.setup.Bootstrap.
-   This minimal change will resolve the missing class error caused by the dependency update.
-</code_analysis>
-
-Below is the complete, fixed Java class:
-
 ```java
+//
 // Wire
 // Copyright (C) 2016 Wire Swiss GmbH
 //
@@ -62,21 +45,19 @@ import com.wire.xenon.factories.StorageFactory;
 import com.wire.xenon.state.FileState;
 import com.wire.xenon.state.JdbiState;
 import com.wire.xenon.tools.Logger;
-import io.dropwizard.Application;
+import io.dropwizard.core.Application;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.servlets.tasks.Task;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.flywaydb.core.Flyway;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-
-// Updated imports for Dropwizard 2.x
-import io.dropwizard.core.setup.Bootstrap;
-import io.dropwizard.core.setup.Environment;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.client.Client;
@@ -321,7 +302,4 @@ public abstract class Server<Config extends Configuration> extends Application<C
         return jdbi;
     }
 }
-``` 
-
-This patch updates the import statements to reference the new Dropwizard dependency packages and resolves the compilation error.
-
+```

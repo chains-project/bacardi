@@ -18,9 +18,6 @@ public abstract class TestFrameworkStrategy {
 
 	protected FlacocoConfig config;
 
-	// Define a default wildcard pattern to replace TestListResolver.getWildcard()
-	private static final String DEFAULT_WILDCARD = "**/*.class";
-
 	public TestFrameworkStrategy(FlacocoConfig flacocoConfig) {
 		this.config = flacocoConfig;
 	}
@@ -89,14 +86,15 @@ public abstract class TestFrameworkStrategy {
 	}
 
 	protected String computeJacocoIncludes() {
+		final String wildcardPattern = "**/*.class";
 		StringBuilder includes = new StringBuilder();
 		for (String directory : config.getBinJavaDir()) {
-			DirectoryScanner directoryScanner = new DirectoryScanner(new File(directory), DEFAULT_WILDCARD);
+			DirectoryScanner directoryScanner = new DirectoryScanner(new File(directory), wildcardPattern);
 			includes.append(":").append(directoryScanner.scan().getClasses().stream().reduce((x, y) -> x + ":" + y).orElse(""));
 		}
 		if (config.isCoverTests()) {
 			for (String directory : config.getBinTestDir()) {
-				DirectoryScanner directoryScanner = new DirectoryScanner(new File(directory), DEFAULT_WILDCARD);
+				DirectoryScanner directoryScanner = new DirectoryScanner(new File(directory), wildcardPattern);
 				includes.append(":").append(directoryScanner.scan().getClasses().stream().reduce((x, y) -> x + ":" + y).orElse(""));
 			}
 		}

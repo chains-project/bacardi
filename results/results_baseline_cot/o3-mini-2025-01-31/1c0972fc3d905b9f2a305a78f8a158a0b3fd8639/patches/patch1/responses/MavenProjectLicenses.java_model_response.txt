@@ -1,14 +1,3 @@
-<code_analysis>
-1. The error message indicates that the class Maven31DependencyGraphBuilder (imported from org.apache.maven.shared.dependency.graph.internal) cannot be found. This suggests that due to a dependency update the Maven31DependencyGraphBuilder class has been removed or relocated.
-2. In the client code the fallback in the setGraph(DependencyGraphBuilder graph) method uses Maven31DependencyGraphBuilder when a null value is passed. This is now the source of the compilation error.
-3. A potential fix is to replace this fallback instantiation with one that uses a class that is available in the new dependency version. For example, the DefaultDependencyGraphBuilder from org.apache.maven.shared.dependency.graph is available and should provide the required functionality.
-4. To fix the issue:
-   - Remove the import of Maven31DependencyGraphBuilder.
-   - Add an import for DefaultDependencyGraphBuilder from the correct package.
-   - Change the fallback instantiation in setGraph() to use new DefaultDependencyGraphBuilder() instead of new Maven31DependencyGraphBuilder().
-This change adheres to the constraints (no changes to function signatures, no unnecessary code removal) and addresses the root cause of the error.
-</code_analysis>
-
 ```java
 /*
  * Copyright (C) 2008-2022 Mycila (mathieu.carbou@gmail.com)
@@ -176,6 +165,10 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
     getLog().info(String.format("%s: %d", INFO_DEPS_DISCOVERED, dependencies.size()));
 
     return artifacts;
+
+    // tempting, but does not resolve dependencies after the scope in which this
+    // plugin is invoked
+    // return project.getArtifacts();
   }
 
   protected Set<MavenProject> getProjects() {
@@ -191,7 +184,6 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
   }
 
   private void setGraph(DependencyGraphBuilder graph) {
-    // Replace the missing Maven31DependencyGraphBuilder with DefaultDependencyGraphBuilder.
     this.graph = Optional.ofNullable(graph).orElse(new DefaultDependencyGraphBuilder());
   }
 

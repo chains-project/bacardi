@@ -1,17 +1,3 @@
-<code_analysis>
-1. The error messages indicate that several Hazelcast classes (Member, Cluster, and MaxSizeConfig) can no longer be found in their previous packages. This is likely due to an update of the Hazelcast dependency which reorganized or removed these classes.
-   • The errors referencing com.hazelcast.core.Member and com.hazelcast.core.Cluster (e.g. lines 30, 149, 501, 655) show that these classes have been relocated. In the new version, they are available under com.hazelcast.cluster (i.e. import com.hazelcast.cluster.Member and import com.hazelcast.cluster.Cluster).
-   • The error for com.hazelcast.config.MaxSizeConfig (line 27) indicates that this class has been removed. In newer Hazelcast versions, cache eviction size is configured via an EvictionConfig together with a MaxSizePolicy.
-2. In the client code, the usage of MaxSizeConfig is in the createCache() method where a new MaxSizeConfig is passed to the dynamic map configuration. Similarly, the code refers to Member and Cluster in various methods. In addition, the getNodeID() method calls member.getStringAttribute(...); in the new API, the method has been replaced with getAttribute().
-3. To fix the issues:
-   • Update the import statements so that Member and Cluster are imported from com.hazelcast.cluster instead of com.hazelcast.core.
-   • Replace usage of MaxSizeConfig with a new EvictionConfig and set its size and maximum size policy accordingly.
-   • Replace member.getStringAttribute(...) with member.getAttribute(...) (casting or converting as needed) in getNodeID.
-4. The patch makes only the necessary changes – modifying only the parts of the code affected by the dependency update and following the prescribed constraints.
-</code_analysis>
-
-Below is the complete fixed Java class:
-
 ```java
 /*
  * Copyright (C) 2007-2009 Jive Software. All rights reserved.
@@ -33,16 +19,17 @@ package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
+import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.EvictionConfig;
-import com.hazelcast.config.MaxSizePolicy;
+import com.hazelcast.config.EvictionConfig.MaximumSizePolicy;
 import com.hazelcast.config.MemberAttributeConfig;
 import com.hazelcast.config.MemcacheProtocolConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.config.RestApiConfig;
 import com.hazelcast.cluster.Cluster;
-import com.hazelcast.cluster.Member;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.cluster.Member;
 import org.jivesoftware.openfire.JMXManager;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterEventListener;
@@ -296,14 +283,13 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         final long openfireMaxCacheSizeInBytes = CacheFactory.getMaxCacheSize(name);
         final int hazelcastMaxCacheSizeInMegaBytes = openfireMaxCacheSizeInBytes < 0 ? Integer.MAX_VALUE : Math.max((int) openfireMaxCacheSizeInBytes / 1024 / 1024, 1);
         // It's only possible to create a dynamic config if a static one doesn't already exist
-        final com.hazelcast.config.MapConfig staticConfig = hazelcast.getConfig().getMapConfigOrNull(name);
+        final MapConfig staticConfig = hazelcast.getConfig().getMapConfigOrNull(name);
         if (staticConfig == null) {
-            final com.hazelcast.config.MapConfig dynamicConfig = new com.hazelcast.config.MapConfig(name);
+            final MapConfig dynamicConfig = new MapConfig(name);
             dynamicConfig.setTimeToLiveSeconds(hazelcastLifetimeInSeconds);
-            // Use EvictionConfig in place of the removed MaxSizeConfig.
             EvictionConfig evictionConfig = new EvictionConfig();
+            evictionConfig.setMaximumSizePolicy(MaximumSizePolicy.USED_HEAP_SIZE);
             evictionConfig.setSize(hazelcastMaxCacheSizeInMegaBytes);
-            evictionConfig.setMaximumSizePolicy(MaxSizePolicy.USED_HEAP_SIZE);
             dynamicConfig.setEvictionConfig(evictionConfig);
             logger.debug("Creating dynamic map config for cache={}, dynamicConfig={}", name, dynamicConfig);
             hazelcast.getConfig().addMapConfig(dynamicConfig);
@@ -393,7 +379,6 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
                 members.add(member);
             }
         }
-
 
         if (!members.isEmpty()) {
             // Asynchronously execute the task on the other cluster members
@@ -672,9 +657,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
     }
 
     public static NodeID getNodeID(final Member member) {
-        Object attr = member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
-        String nodeIdStr = (attr != null) ? attr.toString() : "";
-        return NodeID.getInstance(nodeIdStr.getBytes(StandardCharsets.UTF_8));
+        return NodeID.getInstance(member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
     }
 
     static void fireLeftClusterAndWaitToComplete(final Duration timeout) {
@@ -719,6 +702,4 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
     }
 
 }
-``` 
-
-This patch updates the imports and adjusts the affected code (in createCache and getNodeID) so that the class compiles correctly with the updated Hazelcast dependency.
+```

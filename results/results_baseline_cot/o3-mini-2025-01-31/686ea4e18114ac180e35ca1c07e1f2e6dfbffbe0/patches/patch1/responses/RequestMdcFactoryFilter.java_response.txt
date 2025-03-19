@@ -5,7 +5,6 @@ import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.ext.Provider;
 import javax.annotation.Nullable;
 import org.slf4j.MDC;
-
 import java.util.UUID;
 
 /**

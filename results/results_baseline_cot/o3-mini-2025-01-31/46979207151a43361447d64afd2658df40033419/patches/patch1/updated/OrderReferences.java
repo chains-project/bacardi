@@ -36,13 +36,15 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  * &lt;/complexType&gt;
  * </pre>
  * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "OrderReferences", propOrder = {
     "originatingON",
     "orderDate"
 })
-public class OrderReferences implements ToString2 {
+public class OrderReferences implements ToString2
+{
 
     @XmlElement(name = "OriginatingON")
     protected String originatingON;
@@ -53,7 +55,10 @@ public class OrderReferences implements ToString2 {
     /**
      * Gets the value of the originatingON property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getOriginatingON() {
         return originatingON;
@@ -62,7 +67,10 @@ public class OrderReferences implements ToString2 {
     /**
      * Sets the value of the originatingON property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setOriginatingON(String value) {
         this.originatingON = value;
@@ -71,7 +79,10 @@ public class OrderReferences implements ToString2 {
     /**
      * Gets the value of the orderDate property.
      * 
-     * @return possible object is {@link XMLGregorianCalendar }
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public XMLGregorianCalendar getOrderDate() {
         return orderDate;
@@ -80,7 +91,10 @@ public class OrderReferences implements ToString2 {
     /**
      * Sets the value of the orderDate property.
      * 
-     * @param value allowed object is {@link XMLGregorianCalendar }
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public void setOrderDate(XMLGregorianCalendar value) {
         this.orderDate = value;
@@ -88,7 +102,6 @@ public class OrderReferences implements ToString2 {
 
     @Override
     public String toString() {
-        // Updated to use INSTANCE rather than the missing getInstance() method.
         final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
@@ -117,4 +130,5 @@ public class OrderReferences implements ToString2 {
         }
         return buffer;
     }
+
 }

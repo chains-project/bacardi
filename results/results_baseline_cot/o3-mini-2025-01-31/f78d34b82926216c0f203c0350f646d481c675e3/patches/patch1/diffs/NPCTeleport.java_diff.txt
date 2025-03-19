@@ -1,42 +1,43 @@
 3d2
 < import develop.p2p.lib.*;
-72d70
-<             @Override
-89d86
+91a91
+>             @Override
+165a166
+>             @Override
+180c181
+<                             .get(0.01, true);
+---
+>                             .get(0.01, count[0] < 20);
+235d235
 < 
-120d116
-<                         @Override
-199d194
-<                         @Override
-228d222
-<             @Override
-235d228
-< 
-260a254,280
+247c247
+<         return Math.sin(time) * radius * Math.cos(Math.PI / 180 * 360.0);
+---
+>         return Math.sin(time) * radius * Math.cos(Math.toRadians(360.0));
+260a261,286
 >     
->     /**
->      * Minimal stub implementation of WaveCreator to replace the missing dependency.
->      */
->     private static class WaveCreator {
->         private final double a;
->         private final double b;
->         private final double c;
+>     public static class WaveCreator {
+>         private final double min;
+>         private final double max;
+>         private final double factor;
 >         
->         public WaveCreator(double a, double b, double c) {
->             this.a = a;
->             this.b = b;
->             this.c = c;
->         }
->         
->         public double get(double factor, boolean flag) {
->             if (flag) {
->                 return factor * (b - a) + c;
->             } else {
->                 return (a + b) / 2.0;
->             }
+>         public WaveCreator(double min, double max, double factor) {
+>             this.min = min;
+>             this.max = max;
+>             this.factor = factor;
 >         }
 >         
 >         public double getStatic() {
->             return (a + b) / 2.0;
+>             return (min + max) / 2.0;
+>         }
+>         
+>         public double get(double input, boolean flag) {
+>             double normalized;
+>             if (flag) {
+>                 normalized = (Math.sin(factor * input) + 1) / 2.0;
+>             } else {
+>                 normalized = (Math.cos(factor * input) + 1) / 2.0;
+>             }
+>             return min + (max - min) * normalized;
 >         }
 >     }

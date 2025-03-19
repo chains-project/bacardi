@@ -1,17 +1,16 @@
 12a13
 > import com.github.games647.changeskin.sponge.LoginListener;
-21c22,23
-< import org.spongepowered.api.Platform.Type;
----
-> 
-> // Updated imports for Sponge API 8+
-23,24c25,26
+16d16
+< 
+19d18
+< 
+23,24c22,23
 < import org.spongepowered.api.command.CommandManager;
 < import org.spongepowered.api.command.CommandSource;
 ---
 > import org.spongepowered.api.command.manager.CommandManager;
 > import org.spongepowered.api.command.source.CommandSource;
-27,33c29,36
+27,34c26,32
 < import org.spongepowered.api.event.game.state.GameInitializationEvent;
 < import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 < import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
@@ -19,62 +18,49 @@
 < import org.spongepowered.api.network.ChannelRegistrar;
 < import org.spongepowered.api.plugin.Plugin;
 < import org.spongepowered.api.text.serializer.TextSerializers;
+< 
 ---
 > import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
-> import org.spongepowered.api.event.lifecycle.StartEngineEvent;
-> import org.spongepowered.api.event.lifecycle.StopEngineEvent;
-> import org.spongepowered.api.network.channel.ChannelRegistrar;
+> import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+> import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 > import org.spongepowered.api.network.channel.ChannelBinding.RawDataChannel;
-> // Removed: import org.spongepowered.api.plugin.Plugin;
-> 
-> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-40,41c43
+> import org.spongepowered.api.network.channel.ChannelRegistrar;
+> import org.spongepowered.api.plugin.meta.Plugin;
+> import org.spongepowered.api.text.serializer.legacy.LegacyComponentSerializer;
+40c38
 < @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
-<         url = PomData.URL, description = PomData.DESCRIPTION)
 ---
-> // Removing @Plugin annotation because it no longer exists in the updated dependency.
-62,63c64,65
+> @Plugin(id = PomData.ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+62c60
 <     public void onPreInit(GamePreInitializationEvent preInitEvent) {
-<         //load config and database
 ---
->     public void onPreInit(ConstructPluginEvent event) {
->         // Load config and database
-73,74c75,76
+>     public void onPreInit(ConstructPluginEvent preInitEvent) {
+73c71
 <     public void onInit(GameInitializationEvent initEvent) {
-<         if (!initialized)
 ---
->     public void onInit(StartEngineEvent event) {
->         if (!initialized) {
-75a78
->         }
-79c82
-<         //command and event register
+>     public void onInit(RegisterCommandEvent initEvent) {
+77c75
+<         CommandManager cmdManager = Sponge.getCommandManager();
 ---
->         // Command and event registration
-84,85c87
+>         CommandManager cmdManager = Sponge.server().commandManager();
+84,85c82
 <         cmdManager.register(this, injector.getInstance(InvalidateCommand.class)
 <                 .buildSpec(), "skininvalidate", "skin-invalidate");
 ---
 >         cmdManager.register(this, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
-89c91
-<         //incoming channel
+87c84
+<         Sponge.getEventManager().registerListeners(this, injector.getInstance(LoginListener.class));
 ---
->         // Incoming channel registration
-95,96c97,98
-<         updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
-<         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
+>         Sponge.eventManager().registerListeners(this, injector.getInstance(LoginListener.class));
+90c87
+<         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
 ---
->         updateChannel.addListener(org.spongepowered.api.Platform.Type.SERVER, injector.getInstance(UpdateSkinListener.class));
->         permChannel.addListener(org.spongepowered.api.Platform.Type.SERVER, injector.getInstance(CheckPermissionListener.class));
-100c102
+>         ChannelRegistrar channelReg = Sponge.server().channelRegistrar();
+100c97
 <     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
 ---
->     public void onShutdown(StopEngineEvent event) {
-114c116
-<         //disallow - not whitelisted or blacklisted
----
->         // Disallow - not whitelisted or blacklisted
-145c147
+>     public void onShutdown(StoppingEngineEvent stoppingServerEvent) {
+145c142
 <             receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
 ---
->             receiver.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(message));
+>             receiver.sendMessage(LegacyComponentSerializer.legacySection().deserialize(message));

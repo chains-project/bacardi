@@ -1,28 +1,3 @@
-<code_analysis>
-1. Examination of the error message:
-   - The errors indicate that the no-argument constructor for Flyway is no longer available.
-   - The methods setDataSource, setClassLoader, setLocations, and setValidateOnMigrate are not found on the Flyway instance.
-   - This suggests that the Flyway API has been updated so that these configuration methods must now be called via a FluentConfiguration obtained from Flyway.configure().
-
-2. Review of the client code:
-   - The problematic code is in the flyway() bean (lines around 108–112).
-   - In the current code, a new Flyway instance is created with the no-argument constructor and then initialized by calling the setter methods.
-   - With the updated Flyway dependency, we must use the new configuration API.
-
-3. Potential fixes:
-   - Replace the new Flyway() and subsequent setter calls with a call to Flyway.configure().
-   - Chain the configuration methods (dataSource(...), classLoader(...), locations(...), validateOnMigrate(...)) on the FluentConfiguration, and then call load() to produce a Flyway instance.
-   - No other function signature should change.
-
-4. Necessary modifications:
-   - Change the flyway() bean to use Flyway.configure() instead of new Flyway().
-   - Ensure that the properties are still loaded from the "db.properties" file.
-   - Return the correctly configured Flyway instance with initMethod "migrate".
-
-Following is the complete patched class:
-
-</code_analysis>
-
 ```java
 package org.nem.specific.deploy.appconfig;
 
@@ -134,7 +109,7 @@ public class NisAppConfig {
 				.dataSource(this.dataSource())
 				.classLoader(NisAppConfig.class.getClassLoader())
 				.locations(prop.getProperty("flyway.locations"))
-				.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
+				.validateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate")))
 				.load();
 	}
 

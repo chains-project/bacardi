@@ -41,16 +41,15 @@ public class DateTime extends DateAndTime {
     return new Timestamp(super.past(atMost, unit, referenceDate).getTime());
   }
 
-  // The "between" method no longer overrides a method in the updated dependency.
-  // A custom implementation is provided to return a random Timestamp between the given dates.
   public Timestamp between(Date from, Date to) throws IllegalArgumentException {
-    long start = from.getTime();
-    long end = to.getTime();
-    if (start > end) {
-      throw new IllegalArgumentException("Invalid date range: start date is after end date.");
+    if (from.after(to)) {
+      throw new IllegalArgumentException("Invalid date range: 'from' is after 'to'");
     }
-    long randomMillis = ThreadLocalRandom.current().nextLong(start, end);
-    return new Timestamp(randomMillis);
+    long startMillis = from.getTime();
+    long endMillis = to.getTime();
+    long diff = endMillis - startMillis;
+    long randomOffset = ThreadLocalRandom.current().nextLong(diff + 1);
+    return new Timestamp(startMillis + randomOffset);
   }
 
   @Override

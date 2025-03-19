@@ -42,7 +42,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "taxTableEntry"
 })
 @XmlRootElement(name = "TaxTable")
-public class TaxTable implements ToString2 {
+public class TaxTable implements ToString2
+{
 
     @XmlElement(name = "TaxTableEntry", required = true)
     protected List<TaxTableEntry> taxTableEntry;
@@ -76,7 +77,6 @@ public class TaxTable implements ToString2 {
 
     @Override
     public String toString() {
-        // Replaced getInstance() with INSTANCE from the updated dependency
         final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
@@ -93,9 +93,11 @@ public class TaxTable implements ToString2 {
 
     @Override
     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-        List<TaxTableEntry> theTaxTableEntry;
-        theTaxTableEntry = (((this.taxTableEntry != null) && (!this.taxTableEntry.isEmpty())) ? this.getTaxTableEntry() : null);
-        strategy.appendField(locator, this, "taxTableEntry", buffer, theTaxTableEntry, ((this.taxTableEntry != null) && (!this.taxTableEntry.isEmpty())));
+        {
+            List<TaxTableEntry> theTaxTableEntry;
+            theTaxTableEntry = (((this.taxTableEntry!= null)&&(!this.taxTableEntry.isEmpty()))?this.getTaxTableEntry():null);
+            strategy.appendField(locator, this, "taxTableEntry", buffer, theTaxTableEntry, ((this.taxTableEntry!= null)&&(!this.taxTableEntry.isEmpty())));
+        }
         return buffer;
     }
 

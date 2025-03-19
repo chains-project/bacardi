@@ -28,22 +28,69 @@
 <  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 <  * OF THE POSSIBILITY OF SUCH DAMAGE.
 <  */
-48c19,22
+37a9
+> import java.util.Arrays;
+48d19
 < import org.hamcrest.Matchers;
----
-> import static org.hamcrest.CoreMatchers.equalTo;
-> import static org.hamcrest.CoreMatchers.not;
-> import static org.hamcrest.CoreMatchers.notNullValue;
-> import static org.hamcrest.core.IsCollectionContaining.hasItem;
-210c184
-<         return this.assertHeader(name, Matchers.hasItems(value));
----
->         return this.assertHeader(name, hasItem(value));
-246c220
-<             Matchers.not(Matchers.emptyIterableOf(String.class))
----
->             not(equalTo(Collections.emptyList()))
-284c258
-<             Matchers.notNullValue()
----
->             notNullValue()
+327d297
+<         @Override
+332a303,361
+>     private static final class Matchers {
+>         static <T> Matcher<Iterable<T>> hasItems(final T... items) {
+>             return new CustomMatcher<Iterable<T>>(
+>                 "iterable containing items " + Arrays.toString(items)
+>             ) {
+>                 @Override
+>                 public boolean matches(final Object item) {
+>                     if (!(item instanceof Iterable)) {
+>                         return false;
+>                     }
+>                     Iterable<?> iterable = (Iterable<?>) item;
+>                     for (T element : items) {
+>                         boolean found = false;
+>                         for (Object actual : iterable) {
+>                             if ((element == null && actual == null) ||
+>                                 (element != null && element.equals(actual))) {
+>                                 found = true;
+>                                 break;
+>                             }
+>                         }
+>                         if (!found) {
+>                             return false;
+>                         }
+>                     }
+>                     return true;
+>                 }
+>             };
+>         }
+> 
+>         static <T> Matcher<Iterable<T>> emptyIterableOf(final Class<T> clazz) {
+>             return new CustomMatcher<Iterable<T>>("an empty iterable") {
+>                 @Override
+>                 public boolean matches(final Object item) {
+>                     if (!(item instanceof Iterable)) {
+>                         return false;
+>                     }
+>                     return !((Iterable<?>) item).iterator().hasNext();
+>                 }
+>             };
+>         }
+> 
+>         static <T> Matcher<T> notNullValue() {
+>             return new CustomMatcher<T>("not null") {
+>                 @Override
+>                 public boolean matches(final Object item) {
+>                     return item != null;
+>                 }
+>             };
+>         }
+> 
+>         static <T> Matcher<T> not(final Matcher<T> matcher) {
+>             return new CustomMatcher<T>("not " + matcher.toString()) {
+>                 @Override
+>                 public boolean matches(final Object item) {
+>                     return !matcher.matches(item);
+>                 }
+>             };
+>         }
+>     }

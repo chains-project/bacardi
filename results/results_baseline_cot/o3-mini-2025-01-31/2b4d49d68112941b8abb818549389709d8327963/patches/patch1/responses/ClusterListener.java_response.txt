@@ -16,7 +16,7 @@
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.cluster.Cluster;
-import com.hazelcast.map.listener.EntryListener;
+import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.LifecycleEvent;
 import com.hazelcast.core.LifecycleEvent.LifecycleState;
 import com.hazelcast.core.LifecycleListener;
@@ -73,6 +73,7 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
     private boolean isSenior;
 
     ClusterListener(final Cluster cluster) {
+
         this.cluster = cluster;
         for (final Member member : cluster.getMembers()) {
             clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(member),
@@ -82,9 +83,9 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
 
     private void addEntryListener(final Cache<?, ?> cache, final EntryListener listener) {
         if (cache instanceof CacheWrapper) {
-            final Cache wrapped = ((CacheWrapper) cache).getWrappedCache();
+            final Cache wrapped = ((CacheWrapper)cache).getWrappedCache();
             if (wrapped instanceof ClusteredCache) {
-                ((ClusteredCache) wrapped).addEntryListener(listener);
+                ((ClusteredCache)wrapped).addEntryListener(listener);
                 // Keep track of the listener that we added to the cache
                 entryListeners.put(cache, listener);
             }
@@ -160,6 +161,7 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         final NodeID nodeID = ClusteredCacheFactory.getNodeID(event.getMember());
         if (event.getMember().localMember()) { // We left and re-joined the cluster
             joinCluster();
+
         } else {
             if (wasSenior && !isSenior) {
                 logger.warn("Recovering from split-brain; firing leftCluster()/joinedCluster() events");

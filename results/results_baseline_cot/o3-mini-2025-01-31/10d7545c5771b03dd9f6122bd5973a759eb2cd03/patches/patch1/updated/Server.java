@@ -1,3 +1,4 @@
+//
 // Wire
 // Copyright (C) 2016 Wire Swiss GmbH
 //
@@ -43,21 +44,19 @@ import com.wire.xenon.factories.StorageFactory;
 import com.wire.xenon.state.FileState;
 import com.wire.xenon.state.JdbiState;
 import com.wire.xenon.tools.Logger;
-import io.dropwizard.Application;
+import io.dropwizard.core.Application;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.servlets.tasks.Task;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.flywaydb.core.Flyway;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-
-// Updated imports for Dropwizard 2.x
-import io.dropwizard.core.setup.Bootstrap;
-import io.dropwizard.core.setup.Environment;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.client.Client;

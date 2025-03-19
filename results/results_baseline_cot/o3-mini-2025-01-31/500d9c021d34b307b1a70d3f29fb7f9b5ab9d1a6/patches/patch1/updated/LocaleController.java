@@ -2,18 +2,14 @@ package com.example.web;
 
 import java.util.Locale;
 import java.util.logging.Logger;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.mvc.MvcContext;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
 
-/**
- *
- * @author hantsy
- */
 @Path("locale")
 @Controller
 @RequestScoped
@@ -34,5 +30,4 @@ public class LocaleController {
         models.put("locale", locale);
         return "locale.xhtml";
     }
-
 }

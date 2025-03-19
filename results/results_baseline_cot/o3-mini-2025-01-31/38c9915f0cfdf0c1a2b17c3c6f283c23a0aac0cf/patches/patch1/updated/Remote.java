@@ -24,9 +24,9 @@
 
 package io.zold.api;
 
-import java.util.UUID;
 import org.cactoos.iterable.Repeated;
 import org.cactoos.Text;
+import java.util.UUID;
 
 /**
  * Remote node.
@@ -95,25 +95,16 @@ public interface Remote {
         public Wallet pull(final long id) {
             return new Wallet.Fake(id);
         }
+    }
 
-        /**
-         * Replacement for the removed org.cactoos.text.RandomText.
-         */
-        private static final class RandomText implements Text {
-            @Override
-            public String asString() throws Exception {
-                // Generate a random string using UUID.
-                return UUID.randomUUID().toString();
-            }
+    final class RandomText implements Text {
 
-            @Override
-            public String toString() {
-                try {
-                    return this.asString();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
+        public RandomText() {
+        }
+
+        @Override
+        public String asString() throws Exception {
+            return UUID.randomUUID().toString();
         }
     }
 }

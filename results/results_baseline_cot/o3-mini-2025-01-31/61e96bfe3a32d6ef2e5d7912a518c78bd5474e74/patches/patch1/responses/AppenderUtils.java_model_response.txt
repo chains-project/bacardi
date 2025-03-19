@@ -1,28 +1,3 @@
-<code_analysis>
-1. Error message analysis:
-   - The compiler complains that methods annotated with @Override (init, doEncode, and close) are no longer defined in the updated dependency’s Encoder API. In addition, the new version of the Encoder interface now requires an implementation of the footerBytes() method.
-   - Specifically, the error “... does not override or implement a method from a supertype” is issued for init, doEncode, and close because the updated version of Logback’s Encoder interface no longer declares these methods.
-   - The error “... does not override abstract method footerBytes()...” requires that we now provide an implementation for footerBytes().
-
-2. Client code review:
-   - The inner class LogMessageEncoder extends EncoderBase<LogMessage> and implements init(OutputStream), doEncode(LogMessage) and close(), all marked with @Override. In prior dependency versions these methods belonged to the Encoder API.
-   - With the breaking dependency update the Encoder API now expects a stateless interface that requires an encode(LogMessage) method (returning a byte[]) and footerBytes(), while the init, doEncode, and close methods no longer override a supertype.
-
-3. Potential fixes:
-   - Remove the @Override annotations from methods that no longer exist (init, doEncode, close).
-   - Instead, implement the new abstract method required by the dependency: footerBytes().
-   - Adapt our encoder logic to the new API by switching from the old methods (init/doEncode) to a stateless encode(LogMessage) implementation that returns the serialized bytes. We can perform serialization in a new encode method by writing the LogMessage to a ByteArrayOutputStream wrapped by TFastFramedTransport and TBinaryProtocol.
-   - No change is made to the public API of AppenderUtils.
-
-4. Planned modifications:
-   - Remove init, doEncode, and close from LogMessageEncoder.
-   - Introduce a new public method encode(LogMessage) that returns a byte array.
-   - Implement public byte[] footerBytes() returning null.
-   - Retain the RollingFileAppender creation code in createFileRollingThriftAppender unchanged.
-</code_analysis>
-
-Below is the complete, fixed Java class:
-
 ```java
 /**
  * Copyright 2019 Pinterest, Inc.
@@ -60,6 +35,7 @@ import org.apache.thrift.transport.TTransport;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Utils to create logback appenders
@@ -76,29 +52,49 @@ public class AppenderUtils {
    */
   public static class LogMessageEncoder extends EncoderBase<LogMessage> {
 
-    /**
-     * New encode method for the updated Encoder API.
-     * It serializes the LogMessage into a byte array using Thrift.
-     */
-    @Override
+    private TTransport framedTransport;
+    private TProtocol protocol;
+    private OutputStream os;
+
+    public void init(OutputStream os) {
+      this.os = os;
+      // Use the TFastFramedTransport to be compatible with singer_thrift log.
+      final int bufferCapacity = 10;
+      framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);
+      protocol = new TBinaryProtocol(framedTransport);
+    }
+
+    public void doEncode(LogMessage logMessage) throws IOException {
+      try {
+        logMessage.write(protocol);
+        framedTransport.flush();
+      } catch (TException e) {
+        throw new IOException(e);
+      }
+    }
+
+    public void close() throws IOException {
+      framedTransport.close();
+    }
+
+    public byte[] headerBytes() {
+      return null;
+    }
+
     public byte[] encode(LogMessage logMessage) throws IOException {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       final int bufferCapacity = 10;
       TTransport transport = new TFastFramedTransport(new TIOStreamTransport(baos), bufferCapacity);
-      TProtocol protocol = new TBinaryProtocol(transport);
+      TProtocol proto = new TBinaryProtocol(transport);
       try {
-        logMessage.write(protocol);
-        transport.flush();
+        logMessage.write(proto);
       } catch (TException e) {
         throw new IOException(e);
       }
+      transport.flush();
       return baos.toByteArray();
     }
 
-    /**
-     * Implementation of footerBytes required by the updated Encoder API.
-     */
-    @Override
     public byte[] footerBytes() {
       return null;
     }
@@ -112,7 +108,7 @@ public class AppenderUtils {
    * @param topic the topic name for the current appender.
    * @param rotateThresholdKBytes threshold in kilobytes to rotate after.
    * @param context the logback context.
-   * @param maxRetentionHours maximum history hours for file retention.
+   * @param maxRetentionHours maximum retention period in hours.
    */
   public static Appender<LogMessage> createFileRollingThriftAppender(
       File basePath,
@@ -152,6 +148,4 @@ public class AppenderUtils {
     return appender;
   }
 }
-``` 
-
-In this patch, the obsolete methods (init, doEncode, and close) have been removed and replaced with a new encode(LogMessage) method matching the updated dependency API. The required footerBytes() is also implemented to satisfy the abstract contract.
+```

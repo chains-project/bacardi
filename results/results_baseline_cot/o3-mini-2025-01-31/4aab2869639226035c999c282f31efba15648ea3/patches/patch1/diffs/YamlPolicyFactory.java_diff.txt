@@ -1,11 +1,24 @@
-9c9
+7a8
+> import com.amihaiemil.eoyaml.YamlMapping;
+9c10
 < import com.artipie.asto.factory.Storages;
 ---
-> import com.artipie.asto.Storages;
-43,44c43,45
+> import com.artipie.asto.fs.FileStorage;
+11a13
+> import java.nio.file.Paths;
+40a43,46
+>             final YamlMapping yamlConfig = Yaml.createYamlInput(sub.toString()).readYamlMapping();
+>             final String type = sub.string("type");
+>             if ("fs".equalsIgnoreCase(type)) {
+>                 final String path = yamlConfig.string("path");
+42,46c48
+<                 new BlockingStorage(
 <                     new Storages().newStorage(
 <                         sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
+<                     )
+<                 )
 ---
->                     Storages.newStorage(
->                         sub.string("type"),
->                         Yaml.createYamlInput(sub.toString()).readYamlMapping()
+>                     new BlockingStorage(new FileStorage(Paths.get(path)))
+47a50,51
+>             }
+>             throw new UnsupportedOperationException("Unsupported storage type: " + type);

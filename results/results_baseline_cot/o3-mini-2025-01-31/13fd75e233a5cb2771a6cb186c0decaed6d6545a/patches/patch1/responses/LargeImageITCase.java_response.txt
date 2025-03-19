@@ -24,7 +24,7 @@ import org.junit.jupiter.api.io.TempDir;
  * Integration test for large file pushing scenario of {@link DockerSlice}.
  *
  * @since 0.3
- */
+*/
 @DockerClientSupport
 @DisabledOnOs(OS.WINDOWS)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
@@ -66,7 +66,9 @@ public final class LargeImageITCase {
             final String output = this.client.run("pull", this.remote());
             MatcherAssert.assertThat(
                 output,
-                new StringContains(String.format("Status: Downloaded newer image for %s", this.remote()))
+                new StringContains(
+                    String.format("Status: Downloaded newer image for %s", this.remote())
+                )
             );
         } finally {
             this.client.run("rmi", this.remote());

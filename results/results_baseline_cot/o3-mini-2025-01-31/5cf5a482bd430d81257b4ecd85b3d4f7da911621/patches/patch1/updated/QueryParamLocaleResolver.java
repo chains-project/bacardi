@@ -1,4 +1,5 @@
 package com.example.web;
+// https://www.mvc-spec.org/learn/cookbook/custom_localeresolver_en.html
 
 import java.util.Locale;
 import java.util.logging.Level;
@@ -11,7 +12,7 @@ import jakarta.mvc.locale.LocaleResolverContext;
 import javax.ws.rs.core.UriInfo;
 
 /**
- * Resolver to get the {@link Locale} to use from the request's query parameter <i>lang</i>.
+ * Resolver to get the {@link Locale} to use from the requests query param <i>lang</i>.
  *
  * In case there is no request param with this name, the {@link Locale} will be resolved by a higher prioritised
  * implementation.

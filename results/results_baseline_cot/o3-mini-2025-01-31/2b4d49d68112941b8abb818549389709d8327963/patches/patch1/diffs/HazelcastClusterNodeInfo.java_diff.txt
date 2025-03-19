@@ -2,13 +2,7 @@
 < import com.hazelcast.core.Member;
 ---
 > import com.hazelcast.cluster.Member;
-42c42,48
+42c42
 <         this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";
 ---
->         // Retrieve the hostname attribute from the member, casting it to a String.
->         String hostNameAttr = (String) member.getAttribute(HOST_NAME_ATTRIBUTE);
->         if (hostNameAttr == null) {
->             hostNameAttr = "unknown";
->         }
->         // Use the new getAddress() method to obtain host information.
->         this.hostname = hostNameAttr + " (" + member.getAddress().getHost() + ")";
+>         this.hostname = ((String) member.getAttribute(HOST_NAME_ATTRIBUTE)) + " (" + member.getSocketAddress().getHostString() + ")";
