@@ -7,28 +7,12 @@ the following client code fails:
   {{ client_code }}
 ```
 
-the following line in the code triggers the error:
-```java
-  {{ buggy_line }}
-```
-
 with the following error message:
 {{ error_message }}
 {{ additional_info }}
 
-the new library version includes the following changes, where `--` indicates a removal and `++` indicates an addition:
+The error is caused by a change in the API of the dependency. The new library version includes the following changes:
 {{ bump_description }}
-
-Before proposing a fix, please analyze the situation and plan your approach within <repair_strategy> tags:
-
-1. Identify the specific API changes that are causing the failure in the client code.
-2. Compare the old and new API versions, noting any changes in method signatures, return types, or parameter lists.
-3. Determine which parts of the client code need to be updated to accommodate these API changes.
-4. Consider any constraints or requirements for the fix (e.g., not changing function signatures, potential import adjustments).
-5. Plan the minimal set of changes needed to fix the issue while keeping the code functional and compliant with the new API.
-6. Consider potential side effects of the proposed changes on other parts of the code.
-7. Ensure that the planned changes will result in a complete and compilable class.
-8. If applicable, note any additional imports that may be needed due to the API changes.
 
  propose a patch that can be applied to the code to fix the issue.
  Return only a complete and compilable class in a fenced code block.
