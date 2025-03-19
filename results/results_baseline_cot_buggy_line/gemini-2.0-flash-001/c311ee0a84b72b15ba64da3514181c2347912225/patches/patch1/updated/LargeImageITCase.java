@@ -12,7 +12,7 @@ import com.artipie.docker.junit.DockerClientSupport;
 import com.artipie.docker.junit.DockerRepository;
 import java.nio.file.Path;
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.core.StringContains;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,7 +66,7 @@ public final class LargeImageITCase {
             final String output = this.client.run("pull", this.remote());
             MatcherAssert.assertThat(
                 output,
-                new StringContains(
+                Matchers.containsString(
                     String.format("Status: Downloaded newer image for %s", this.remote())
                 )
             );
@@ -80,7 +80,7 @@ public final class LargeImageITCase {
         try {
             this.buildImage();
             final String output = this.client.run("push", this.remote());
-            MatcherAssert.assertThat(output, new StringContains("Pushed"));
+            MatcherAssert.assertThat(output, Matchers.containsString("Pushed"));
         } finally {
             this.client.run("rmi", this.remote());
         }

@@ -31,7 +31,7 @@ public class ChartUtil {
                             + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
                     elementId));
             // ScriptResult scriptResult = new ScriptResult(result);
-            return result != null ? result.toString() : null;
+            return String.valueOf(result);
         }
         return null;
     }
@@ -55,7 +55,7 @@ public class ChartUtil {
                                 + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
                         toolAttribute));
 
-                //Object scriptResult = new ScriptResult(result).getJavaScriptResult();
+                // Object scriptResult = new ScriptResult(result).getJavaScriptResult();
                 if (result != null) {
                     return result.toString();
                 }

@@ -19,14 +19,17 @@ package com.google.cloud.resourcemanager;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.cloud.Policy;
-import com.google.cloud.resourcemanager.v3.ProjectInfo;
-import com.google.cloud.resourcemanager.v3.ProjectInfo.State;
-import com.google.cloud.resourcemanager.v3.ResourceId;
+import com.google.cloud.resourcemanager.ResourceManager.ProjectGetOption;
+import com.google.cloud.resourcemanager.v3.ProjectName;
+import com.google.cloud.resourcemanager.v3.ProjectsClient;
+import com.google.cloud.resourcemanager.v3.ProjectsSettings;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A Google Cloud Resource Manager project object.

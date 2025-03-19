@@ -19,16 +19,14 @@ package com.google.cloud.resourcemanager.spi.v1beta1;
 import com.google.cloud.ServiceRpc;
 import com.google.cloud.Tuple;
 import com.google.cloud.resourcemanager.ResourceManagerException;
-import com.google.common.collect.ImmutableList;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
 import com.google.cloud.resourcemanager.v1beta1.model.Constraint;
 import com.google.cloud.resourcemanager.v1beta1.model.OrgPolicy;
 import com.google.cloud.resourcemanager.v1beta1.model.Policy;
 import com.google.cloud.resourcemanager.v1beta1.model.Project;
+import com.google.common.collect.ImmutableList;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /** @deprecated v3 GAPIC client of ResourceManager is now available */
 @Deprecated

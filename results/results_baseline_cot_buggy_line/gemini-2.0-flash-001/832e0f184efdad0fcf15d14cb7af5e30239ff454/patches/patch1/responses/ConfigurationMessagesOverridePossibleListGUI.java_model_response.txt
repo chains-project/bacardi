@@ -8,6 +8,7 @@ import java.util.Map;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.conversations.ConversationFactory;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -26,8 +27,6 @@ import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;
 import fr.minuskube.inv.content.Pagination;
 import fr.minuskube.inv.content.SlotIterator;
-
-import org.bukkit.enchantments.Enchantment;
 
 public class ConfigurationMessagesOverridePossibleListGUI implements InventoryProvider {
 
@@ -72,9 +71,9 @@ public class ConfigurationMessagesOverridePossibleListGUI implements InventoryPr
 				if (messagesConfig.getString("Overrides." + entry.getKey()) != null) {
 					lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwcConfigGUIMessagesAlreadyOverriden"));
 					currentEntryMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					Enchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get().getEnchant();
-					if (powerEnchantment != null) {
-						currentEntryMeta.addEnchant(powerEnchantment, 1, false);
+					Enchantment power = XEnchantment.matchXEnchantment("power").get().getEnchant();
+					if (power != null) {
+						currentEntryMeta.addEnchant(power, 1, false);
 					}
 				}
 				lore.add(CommonDefinitions.getMessage("wwcConfigGUIMessagesOverrideOriginalLabel") + ": " + messagesConfig.getString("Messages." + entry.getKey()));

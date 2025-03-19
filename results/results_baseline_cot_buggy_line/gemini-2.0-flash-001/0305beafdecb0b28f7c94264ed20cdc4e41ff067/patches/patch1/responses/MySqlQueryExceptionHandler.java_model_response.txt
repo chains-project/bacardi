@@ -36,7 +36,9 @@ public class MySqlQueryExceptionHandler extends QueryExceptionHandler {
 
     @Override
     public boolean isTimeoutException(final SQLException exception) {
-        return (exception.getMessage() != null && exception.getMessage().contains("Timeout")) || super.isTimeoutException(exception);
+        return (exception.getClass().getName().equals("com.mysql.cj.jdbc.exceptions.MySQLTimeoutException") ||
+                exception.getClass().getName().equals("com.mysql.jdbc.exceptions.MySQLTimeoutException")) ||
+                super.isTimeoutException(exception);
     }
 
     @Override

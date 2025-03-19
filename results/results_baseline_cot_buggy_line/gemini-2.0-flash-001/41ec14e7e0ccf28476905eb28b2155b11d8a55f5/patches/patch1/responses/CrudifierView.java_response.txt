@@ -37,8 +37,8 @@ import com.premiumminds.wicket.crudifier.IObjectRenderer;
 import com.premiumminds.wicket.crudifier.LabelProperty;
 import com.premiumminds.wicket.crudifier.form.CrudifierEntitySettings;
 
-import java.beans.IntrospectionException;
 import java.beans.Introspector;
+import java.beans.IntrospectionException;
 
 public class CrudifierView<T> extends Panel implements IGenericComponent<T, CrudifierView<T>> {
 	private static final long serialVersionUID = -151637566983702881L;

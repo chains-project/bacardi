@@ -160,22 +160,22 @@ public class PubnubStreamingService {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
+new SubscribeCallback() {
+```
+```java
+import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
+```
+```java
 @Override
 ```
 ```java
 import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
 ```
 ```java
-new SubscribeCallback() {
-```
-```java
 public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
 ```
 ```java
-@Override
-```
-```java
-import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
+public void user(PubNub pubnub, PNUserResult pnUserResult) {
 ```
 ```java
 public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
@@ -184,30 +184,31 @@ public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
 import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
 ```
 ```java
-public void user(PubNub pubnub, PNUserResult pnUserResult) {
+PNConfiguration pnConfiguration = new PNConfiguration();
 ```
 ```java
-PNConfiguration pnConfiguration = new PNConfiguration();
+@Override
 ```
 
 
  And here is the error message:
-[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[98,17] method does not override or implement a method from a supertype
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[50,39] <anonymous info.bitrich.xchangestream.service.pubnub.PubnubStreamingService$1> is not abstract and does not override abstract method file(com.pubnub.api.PubNub,com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult) in com.pubnub.api.callbacks.SubscribeCallback
+
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[16,53] cannot find symbol
+  symbol:   class PNSpaceResult
+  location: package com.pubnub.api.models.consumer.pubsub.objects
+
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[93,17] method does not override or implement a method from a supertype
 
 [ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[15,53] cannot find symbol
   symbol:   class PNMembershipResult
   location: package com.pubnub.api.models.consumer.pubsub.objects
 
-[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[50,39] <anonymous info.bitrich.xchangestream.service.pubnub.PubnubStreamingService$1> is not abstract and does not override abstract method file(com.pubnub.api.PubNub,com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult) in com.pubnub.api.callbacks.SubscribeCallback
-
 [ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[99,50] cannot find symbol
   symbol: class PNSpaceResult
 
-[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[93,17] method does not override or implement a method from a supertype
-
-[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[16,53] cannot find symbol
-  symbol:   class PNSpaceResult
-  location: package com.pubnub.api.models.consumer.pubsub.objects
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[94,49] cannot find symbol
+  symbol: class PNUserResult
 
 [ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[104,55] cannot find symbol
   symbol: class PNMembershipResult
@@ -216,14 +217,13 @@ PNConfiguration pnConfiguration = new PNConfiguration();
   symbol:   class PNUserResult
   location: package com.pubnub.api.models.consumer.pubsub.objects
 
-[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[94,49] cannot find symbol
-  symbol: class PNUserResult
-
 [ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[40,39] no suitable constructor found for PNConfiguration(no arguments)
     constructor com.pubnub.api.PNConfiguration.PNConfiguration(com.pubnub.api.UserId) is not applicable
       (actual and formal argument lists differ in length)
     constructor com.pubnub.api.PNConfiguration.PNConfiguration(java.lang.String) is not applicable
       (actual and formal argument lists differ in length)
+
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[98,17] method does not override or implement a method from a supertype
 
 
 

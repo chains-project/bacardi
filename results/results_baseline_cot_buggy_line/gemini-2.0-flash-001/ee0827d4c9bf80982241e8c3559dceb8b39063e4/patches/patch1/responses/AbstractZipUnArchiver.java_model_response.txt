@@ -30,7 +30,6 @@ import org.apache.commons.io.input.CountingInputStream;
 import org.codehaus.plexus.archiver.AbstractUnArchiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.components.io.resources.PlexusIoResource;
-import org.apache.commons.io.input.BoundedInputStream;
 
 /**
  * @author <a href="mailto:evenisse@codehaus.org">Emmanuel Venisse</a>
@@ -202,8 +201,8 @@ public abstract class AbstractZipUnArchiver
                 {
                     try ( InputStream in = zipFile.getInputStream( ze ) )
                     {
-                        BoundedInputStream bis = new BoundedInputStream( in, remainingSpace + 1 );
-                        CountingInputStream cis = new CountingInputStream( bis );
+                        // BoundedInputStream bis = new BoundedInputStream( in, remainingSpace + 1 );
+                        CountingInputStream cis = new CountingInputStream( in );
                         extractFile( getSourceFile(), outputDirectory, cis,
                                      ze.getName(), new Date( ze.getTime() ), ze.isDirectory(),
                                      ze.getUnixMode() != 0 ? ze.getUnixMode() : null,

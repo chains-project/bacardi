@@ -9,12 +9,13 @@ import com.artipie.asto.ext.Digests;
 import com.artipie.docker.Digest;
 import io.reactivex.Flowable;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
+import org.apache.commons.codec.binary.Hex;
+import java.io.IOException;
 
 /**
  * {@link Flowable} that calculates digest of origin {@link Publisher} bytes when they pass by.
@@ -53,18 +54,13 @@ public final class DigestedFlowable extends Flowable<ByteBuffer> {
             }
         ).doOnComplete(
             () -> {
-                byte[] digestBytes = sha.digest();
-                StringBuilder hexString = new StringBuilder(2 * digestBytes.length);
-                for (byte b : digestBytes) {
-                    String hex = Integer.toHexString(0xff & b);
-                    if (hex.length() == 1) {
-                        hexString.append('0');
-                    }
-                    hexString.append(hex);
+                try {
+                    this.dig.set(
+                        new Digest.Sha256(new String(Hex.encodeHex(sha.digest())))
+                    );
+                } catch (final Exception ex) {
+                    throw new IllegalStateException("Failed to calculate digest", ex);
                 }
-                this.dig.set(
-                    new Digest.Sha256(hexString.toString())
-                );
             }
         ).subscribe(subscriber);
     }

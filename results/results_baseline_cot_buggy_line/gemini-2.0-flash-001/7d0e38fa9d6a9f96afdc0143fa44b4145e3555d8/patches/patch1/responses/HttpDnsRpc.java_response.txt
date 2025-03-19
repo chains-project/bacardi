@@ -286,7 +286,7 @@ public class HttpDnsRpc implements DnsRpc {
       throws IOException {
     // options are fields, page token, dns name, type
     return dns.resourceRecordSets()
-        .list(this.options.getProjectId(), zoneName)
+        .list(this.options.getProjectId(), zoneName, "global")
         .setFields(Option.FIELDS.getString(options))
         .setPageToken(Option.PAGE_TOKEN.getString(options))
         .setMaxResults(Option.PAGE_SIZE.getInt(options))

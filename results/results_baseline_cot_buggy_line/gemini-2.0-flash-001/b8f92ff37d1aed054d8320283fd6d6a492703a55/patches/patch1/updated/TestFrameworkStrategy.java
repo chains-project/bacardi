@@ -89,12 +89,12 @@ public abstract class TestFrameworkStrategy {
 	protected String computeJacocoIncludes() {
 		StringBuilder includes = new StringBuilder();
 		for (String directory : config.getBinJavaDir()) {
-			DirectoryScanner directoryScanner = new DirectoryScanner(new File(directory), ResolvedTestList.fromWildcardInclusions());
+			DirectoryScanner directoryScanner = new DirectoryScanner(new File(directory), ResolvedTestList.fromWildcard());
 			includes.append(":").append(directoryScanner.scan().getClasses().stream().reduce((x, y) -> x + ":" + y).orElse(""));
 		}
 		if (config.isCoverTests()) {
 			for (String directory : config.getBinTestDir()) {
-				DirectoryScanner directoryScanner = new DirectoryScanner(new File(directory), ResolvedTestList.fromWildcardInclusions());
+				DirectoryScanner directoryScanner = new DirectoryScanner(new File(directory), ResolvedTestList.fromWildcard());
 				includes.append(":").append(directoryScanner.scan().getClasses().stream().reduce((x, y) -> x + ":" + y).orElse(""));
 			}
 		}

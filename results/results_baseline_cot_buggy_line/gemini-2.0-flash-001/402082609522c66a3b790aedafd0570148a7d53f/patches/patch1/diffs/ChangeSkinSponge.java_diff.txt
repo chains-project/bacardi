@@ -2,67 +2,46 @@
 < import org.spongepowered.api.Platform.Type;
 ---
 > import org.spongepowered.api.Platform;
-23,24c23,25
+23,24c23
 < import org.spongepowered.api.command.CommandManager;
 < import org.spongepowered.api.command.CommandSource;
 ---
 > import org.spongepowered.api.command.Command;
-> import org.spongepowered.api.command.CommandResult;
-> import org.spongepowered.api.command.parameter.CommandContext;
-27,31c28,31
+27,31c26,30
 < import org.spongepowered.api.event.game.state.GameInitializationEvent;
 < import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 < import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 < import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
 < import org.spongepowered.api.network.ChannelRegistrar;
 ---
-> import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
-> import org.spongepowered.api.event.lifecycle.StoppingServerEvent;
+> import org.spongepowered.api.event.lifecycle.GameInitializationEvent;
+> import org.spongepowered.api.event.lifecycle.GamePreInitializationEvent;
+> import org.spongepowered.api.event.lifecycle.GameStoppingServerEvent;
+> import org.spongepowered.api.network.channel.ChannelRegistry;
 > import org.spongepowered.api.network.channel.raw.RawDataChannel;
-> import org.spongepowered.api.network.channel.raw.RawDataChannel.Listener;
-42c42
+42c41
 < public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
 ---
 > public class ChangeSkinSponge implements PlatformPlugin<org.spongepowered.api.command.CommandSource> {
-62c62
-<     public void onPreInit(GamePreInitializationEvent preInitEvent) {
----
->     public void onPreInit(ConstructPluginEvent preInitEvent) {
-73c73
-<     public void onInit(GameInitializationEvent initEvent) {
----
->     public void onInit(org.spongepowered.api.event.lifecycle.StartedEngineEvent<org.spongepowered.api.Server> initEvent) {
-77c77
+77c76
 <         CommandManager cmdManager = Sponge.getCommandManager();
 ---
 >         org.spongepowered.api.command.CommandManager cmdManager = Sponge.getCommandManager();
-90c90
+90c89
 <         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
 ---
->         org.spongepowered.api.network.channel.ChannelRegistry channelReg = Sponge.getChannelRegistry();
-93,96c93,96
-<         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
-<         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
+>         ChannelRegistry channelReg = Sponge.getChannelRegistry();
+95,96c94,95
 <         updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
 <         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
 ---
->         RawDataChannel updateChannel = channelReg.findChannel(this, updateChannelName).orElseGet(() -> channelReg.createRawChannel(new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL)));
->         RawDataChannel permChannel = channelReg.findChannel(this, permissionChannelName).orElseGet(() -> channelReg.createRawChannel(new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL)));
->         updateChannel.addListener(injector.getInstance(UpdateSkinListener.class));
->         permChannel.addListener(injector.getInstance(CheckPermissionListener.class));
-100c100
-<     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
----
->     public void onShutdown(StoppingServerEvent stoppingServerEvent) {
-109c109
+>         updateChannel.addListener(Platform.Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+>         permChannel.addListener(Platform.Type.SERVER, injector.getInstance(CheckPermissionListener.class));
+109c108
 <     public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
 ---
 >     public boolean hasSkinPermission(org.spongepowered.api.command.CommandSource invoker, UUID uuid, boolean sendMessage) {
-142c142
+142c141
 <     public void sendMessage(CommandSource receiver, String key) {
 ---
 >     public void sendMessage(org.spongepowered.api.command.CommandSource receiver, String key) {
-145c145
-<             receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
----
->             receiver.sendMessage(TextSerializers.FORMATTING_CODE.deserialize(message));

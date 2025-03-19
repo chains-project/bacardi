@@ -454,16 +454,16 @@ public class NisAppConfig {
 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
 ```
 ```java
-final org.flywaydb.core.Flyway flyway = new Flyway();
-```
-```java
 flyway.setDataSource(this.dataSource());
 ```
 ```java
-flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+flyway.setLocations(prop.getProperty("flyway.locations"));
 ```
 ```java
-flyway.setLocations(prop.getProperty("flyway.locations"));
+final org.flywaydb.core.Flyway flyway = new Flyway();
+```
+```java
+flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 ```
 
 
@@ -472,21 +472,21 @@ flyway.setLocations(prop.getProperty("flyway.locations"));
   symbol:   method setClassLoader(java.lang.ClassLoader)
   location: variable flyway of type org.flywaydb.core.Flyway
 
+[ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[109,23] cannot find symbol
+  symbol:   method setDataSource(javax.sql.DataSource)
+  location: variable flyway of type org.flywaydb.core.Flyway
+
+[ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[111,23] cannot find symbol
+  symbol:   method setLocations(java.lang.String)
+  location: variable flyway of type org.flywaydb.core.Flyway
+
 [ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[108,57] constructor Flyway in class org.flywaydb.core.Flyway cannot be applied to given types;
   required: org.flywaydb.core.api.configuration.Configuration
   found: no arguments
   reason: actual and formal argument lists differ in length
 
-[ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[109,23] cannot find symbol
-  symbol:   method setDataSource(javax.sql.DataSource)
-  location: variable flyway of type org.flywaydb.core.Flyway
-
 [ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[112,23] cannot find symbol
   symbol:   method setValidateOnMigrate(java.lang.Boolean)
-  location: variable flyway of type org.flywaydb.core.Flyway
-
-[ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[111,23] cannot find symbol
-  symbol:   method setLocations(java.lang.String)
   location: variable flyway of type org.flywaydb.core.Flyway
 
 

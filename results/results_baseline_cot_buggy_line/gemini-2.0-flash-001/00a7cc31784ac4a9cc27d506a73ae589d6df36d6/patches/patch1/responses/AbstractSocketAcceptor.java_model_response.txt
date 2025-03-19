@@ -139,9 +139,6 @@ public abstract class AbstractSocketAcceptor extends SessionConnector implements
                 : SSLSupport.getDefaultCipherSuites(sslContext));
         sslFilter.setEnabledProtocols(sslConfig.getEnabledProtocols() != null ? sslConfig.getEnabledProtocols()
                 : SSLSupport.getSupportedProtocols(sslContext));
-        // The method setUseClientMode is removed from SSLFilter class in newer version of mina.
-        // The client mode is determined by the SSLContext.
-        // sslFilter.setUseClientMode(false);
         ioFilterChainBuilder.addLast(SSLSupport.FILTER_NAME, sslFilter);
     }
 

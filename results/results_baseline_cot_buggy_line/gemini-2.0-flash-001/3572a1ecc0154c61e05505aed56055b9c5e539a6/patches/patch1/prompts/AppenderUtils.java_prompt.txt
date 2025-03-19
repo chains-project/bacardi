@@ -139,21 +139,21 @@ public class AppenderUtils {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-import org.apache.thrift.transport.TFastFramedTransport;
+framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
 ```
 ```java
-framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
+import org.apache.thrift.transport.TFastFramedTransport;
 ```
 
 
  And here is the error message:
-[ERROR] /singer/thrift-logger/src/main/java/com/pinterest/singer/client/logback/AppenderUtils.java:[30,35] cannot find symbol
-  symbol:   class TFastFramedTransport
-  location: package org.apache.thrift.transport
-
 [ERROR] /singer/thrift-logger/src/main/java/com/pinterest/singer/client/logback/AppenderUtils.java:[63,29] cannot find symbol
   symbol:   class TFastFramedTransport
   location: class com.pinterest.singer.client.logback.AppenderUtils.LogMessageEncoder
+
+[ERROR] /singer/thrift-logger/src/main/java/com/pinterest/singer/client/logback/AppenderUtils.java:[30,35] cannot find symbol
+  symbol:   class TFastFramedTransport
+  location: package org.apache.thrift.transport
 
 
 

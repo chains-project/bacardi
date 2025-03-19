@@ -12,9 +12,10 @@ import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
-import org.apache.commons.codec.binary.Hex;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
+import org.apache.commons.codec.binary.Hex;
+import java.io.IOException;
 
 /**
  * {@link Flowable} that calculates digest of origin {@link Publisher} bytes when they pass by.
@@ -52,9 +53,15 @@ public final class DigestedFlowable extends Flowable<ByteBuffer> {
                 return buf;
             }
         ).doOnComplete(
-            () -> this.dig.set(
-                new Digest.Sha256(new String(Hex.encodeHex(sha.digest())))
-            )
+            () -> {
+                try {
+                    this.dig.set(
+                        new Digest.Sha256(new String(Hex.encodeHex(sha.digest())))
+                    );
+                } catch (final Exception ex) {
+                    throw new IllegalStateException(ex);
+                }
+            }
         ).subscribe(subscriber);
     }
 

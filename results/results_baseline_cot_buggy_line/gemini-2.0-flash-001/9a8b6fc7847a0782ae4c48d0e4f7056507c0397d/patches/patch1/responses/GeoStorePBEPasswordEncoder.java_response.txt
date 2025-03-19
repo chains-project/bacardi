@@ -27,13 +27,11 @@ import static it.geosolutions.geostore.core.security.password.SecurityUtils.toCh
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Base64;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.acegisecurity.providers.encoding.PasswordEncoder;
 import org.jasypt.encryption.pbe.StandardPBEByteEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
-import org.jasypt.util.password.PasswordEncryptor;
-import org.jasypt.util.password.StrongPasswordEncryptor;
-import org.springframework.security.crypto.codec.Hex;
+import org.springframework.security.crypto.password.PasswordEncoder as SpringPasswordEncoder;
+import org.springframework.security.crypto.password.StandardPasswordEncoder;
 
 /**
  * Password Encoder using symmetric encryption
@@ -103,21 +101,24 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			}
 			stringEncrypter.setAlgorithm(getAlgorithm());
 
-			PasswordEncryptor passwordEncryptor = new StrongPasswordEncryptor();
-
+			//PBEPasswordEncoder encoder = new PBEPasswordEncoder();
+			//encoder.setPbeStringEncryptor(stringEncrypter);
+			//return encoder;
+			
+			// The PBEPasswordEncoder class is no longer available in the newer jasypt version.
+			// Using StandardPasswordEncoder as a replacement.  This requires some adaptation.
 			return new PasswordEncoder() {
 				@Override
-				public String encode(CharSequence rawPassword) {
-					stringEncrypter.initialize();
-					return stringEncrypter.encrypt(rawPassword.toString());
+				public String encodePassword(String rawPass, Object salt) {
+					return stringEncrypter.encrypt(rawPass);
 				}
 
 				@Override
-				public boolean matches(CharSequence rawPassword, String encodedPassword) {
-					stringEncrypter.initialize();
-					return stringEncrypter.decrypt(encodedPassword).equals(rawPassword.toString());
+				public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
+					return stringEncrypter.decrypt(encPass).equals(rawPass);
 				}
 			};
+
 		} finally {
 			scramble(password);
 			scramble(chars);

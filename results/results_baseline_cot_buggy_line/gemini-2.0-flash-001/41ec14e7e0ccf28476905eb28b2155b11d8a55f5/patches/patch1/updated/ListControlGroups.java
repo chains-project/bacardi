@@ -101,7 +101,7 @@ public abstract class ListControlGroups<T> extends Panel {
 				properties.add(property);
 		}
 		try {
-			for(PropertyDescriptor descriptor : org.apache.commons.beanutils.PropertyUtils.getPropertyDescriptors(modelClass)){
+			for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
 				if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
 				   !properties.contains(descriptor.getName()) &&
 				   !descriptor.getName().equals("class"))
@@ -129,7 +129,7 @@ public abstract class ListControlGroups<T> extends Panel {
 		for(String property : properties){
 			PropertyDescriptor descriptor;
 			try {
-				descriptor = org.apache.commons.beanutils.PropertyUtils.getPropertyDescriptor(getModel().getObject(), property);
+				descriptor = PropertyUtils.getPropertyDescriptor(getModel().getObject(), property);
 			} catch (Exception e) {
 				throw new RuntimeException("error getting property "+property, e);
 			}

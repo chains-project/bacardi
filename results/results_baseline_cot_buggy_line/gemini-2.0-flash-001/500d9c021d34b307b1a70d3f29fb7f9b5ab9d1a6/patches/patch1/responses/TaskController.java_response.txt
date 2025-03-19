@@ -11,6 +11,7 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
+import jakarta.mvc.View;
 import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.binding.ParamError;
 import jakarta.mvc.security.CsrfProtected;
@@ -25,8 +26,8 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import jakarta.mvc.Viewable;
+import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
+import org.eclipse.krazo.engine.Viewable;
 
 @Path("tasks")
 @Controller
@@ -49,7 +50,7 @@ public class TaskController {
     AlertMessage flashMessage;
 
     @GET
-    @jakarta.mvc.View("tasks.xhtml")
+    @View("tasks.xhtml")
     public void allTasks() {
         log.log(Level.INFO, "fetching all tasks");
 

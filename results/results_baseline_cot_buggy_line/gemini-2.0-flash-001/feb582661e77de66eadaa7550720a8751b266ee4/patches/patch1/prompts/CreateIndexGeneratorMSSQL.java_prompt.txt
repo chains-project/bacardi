@@ -97,21 +97,21 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-import liquibase.util.StringUtils;
+if (StringUtils.trimToNull(statement.getTablespace()) != null) {
 ```
 ```java
-if (StringUtils.trimToNull(statement.getTablespace()) != null) {
+import liquibase.util.StringUtils;
 ```
 
 
  And here is the error message:
-[ERROR] /liquibase-mssql/src/java/liquibase/ext/mssql/sqlgenerator/CreateIndexGeneratorMSSQL.java:[12,22] cannot find symbol
-  symbol:   class StringUtils
-  location: package liquibase.util
-
 [ERROR] /liquibase-mssql/src/java/liquibase/ext/mssql/sqlgenerator/CreateIndexGeneratorMSSQL.java:[77,9] cannot find symbol
   symbol:   variable StringUtils
   location: class liquibase.ext.mssql.sqlgenerator.CreateIndexGeneratorMSSQL
+
+[ERROR] /liquibase-mssql/src/java/liquibase/ext/mssql/sqlgenerator/CreateIndexGeneratorMSSQL.java:[12,22] cannot find symbol
+  symbol:   class StringUtils
+  location: package liquibase.util
 
 
 

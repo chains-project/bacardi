@@ -7,33 +7,35 @@
 50c49
 <   private BooleanConstraint booleanConstraint;
 ---
->   private Object booleanConstraint;
-114,115c113,117
+>   private Boolean booleanConstraint;
+114,115c113,118
 <     ListConstraint toProtobuf() {
 <       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
 ---
->     Object toProtobuf() {
->       com.google.api.services.cloudresourcemanager.model.ListConstraint listConstraint = new com.google.api.services.cloudresourcemanager.model.ListConstraint();
+>     com.google.api.services.cloudresourcemanager.model.ListConstraint toProtobuf() {
+>       com.google.api.services.cloudresourcemanager.model.ListConstraint listConstraint =
+>           new com.google.api.services.cloudresourcemanager.model.ListConstraint();
 >       listConstraint.setSuggestedValue(suggestedValue);
 >       listConstraint.setSupportsUnder(supportsUnder);
 >       return listConstraint;
-118c120
+118c121,122
 <     static Constraints fromProtobuf(ListConstraint listConstraint) {
 ---
->     static Constraints fromProtobuf(com.google.api.services.cloudresourcemanager.model.ListConstraint listConstraint) {
-125c127
+>     static Constraints fromProtobuf(
+>         com.google.api.services.cloudresourcemanager.model.ListConstraint listConstraint) {
+125c129
 <     private BooleanConstraint booleanConstraint;
 ---
->     private Object booleanConstraint;
-147c149
+>     private Boolean booleanConstraint;
+147c151
 <     Builder setBooleanConstraint(BooleanConstraint booleanConstraint) {
 ---
->     Builder setBooleanConstraint(Object booleanConstraint) {
-198c200
+>     Builder setBooleanConstraint(Boolean booleanConstraint) {
+198c202,203
 <   public BooleanConstraint getBooleanConstraint() {
 ---
->   public Object getBooleanConstraint() {
-273c275
-<       constraintProto.setListConstraint(constraints.toProtobuf());
----
->       constraintProto.setListConstraint((com.google.api.services.cloudresourcemanager.model.ListConstraint) constraints.toProtobuf());
+>   @Nullable
+>   public Boolean getBooleanConstraint() {
+294a300,301
+> 
+>   public static class Boolean {}

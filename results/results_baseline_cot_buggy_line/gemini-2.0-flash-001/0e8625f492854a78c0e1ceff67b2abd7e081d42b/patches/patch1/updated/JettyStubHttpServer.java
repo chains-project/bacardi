@@ -30,8 +30,9 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
-        server.setSendServerVersion(false);
-        server.setSendDateHeader(true);
+        // The methods setSendServerVersion and setSendDateHeader are no longer available directly on the Server class.
+        // They are now managed by the ServerConnector.  Since we are creating a new ServerConnector, these settings
+        // are not needed.
 
         this.httpConnector = new ServerConnector(server);
         this.httpConnector.setPort(port);

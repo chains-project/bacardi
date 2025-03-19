@@ -96,23 +96,32 @@ public class Language implements Serializable {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
-```
-```java
-new Function<LanguagesResource, Language>() {
+import com.google.api.services.translate.model.LanguagesResource;
 ```
 ```java
 static Language fromPb(LanguagesResource languagePb) {
 ```
 ```java
-import com.google.api.services.translate.model.LanguagesResource;
+public Language apply(LanguagesResource languagePb) {
 ```
 ```java
-public Language apply(LanguagesResource languagePb) {
+static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
+```
+```java
+new Function<LanguagesResource, Language>() {
 ```
 
 
  And here is the error message:
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[19,47] package com.google.api.services.translate.model does not exist
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[84,26] cannot find symbol
+  symbol:   class LanguagesResource
+  location: class com.google.cloud.translate.Language
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[39,31] cannot find symbol
+  symbol: class LanguagesResource
+
 [ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[36,25] cannot find symbol
   symbol:   class LanguagesResource
   location: class com.google.cloud.translate.Language
@@ -120,15 +129,6 @@ public Language apply(LanguagesResource languagePb) {
 [ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[37,20] cannot find symbol
   symbol:   class LanguagesResource
   location: class com.google.cloud.translate.Language
-
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[84,26] cannot find symbol
-  symbol:   class LanguagesResource
-  location: class com.google.cloud.translate.Language
-
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[19,47] package com.google.api.services.translate.model does not exist
-
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[39,31] cannot find symbol
-  symbol: class LanguagesResource
 
 
 

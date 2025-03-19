@@ -43,7 +43,7 @@ public class DeferredScatterOutputStream implements ScatterGatherBackingStore
     public void writeOut( byte[] data, int offset, int length ) throws IOException
     {
         OutputStream out = dfos.getOutputStream();
-        out.write( data, offset, length );
+        out.write(data, offset, length);
     }
 
     @Override

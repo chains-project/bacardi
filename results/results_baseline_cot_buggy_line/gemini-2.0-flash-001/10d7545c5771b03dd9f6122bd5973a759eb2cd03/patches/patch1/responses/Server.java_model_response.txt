@@ -49,8 +49,7 @@ import io.dropwizard.Application;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
-import io.dropwizard.core.Configuration;
-import io.dropwizard.core.ConfiguredBundle;
+import io.dropwizard.core.Managed;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import io.dropwizard.servlets.tasks.Task;
@@ -129,7 +128,7 @@ public abstract class Server<Config extends Configuration> extends Application<C
     }
 
     @Override
-    public void run(final Config config, Environment env) throws Exception {
+    public void run(final Config config, final Environment env) throws Exception {
         this.config = config;
         this.environment = env;
 

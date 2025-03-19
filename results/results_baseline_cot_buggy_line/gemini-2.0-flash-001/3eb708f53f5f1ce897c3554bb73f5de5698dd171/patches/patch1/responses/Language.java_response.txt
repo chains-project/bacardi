@@ -16,7 +16,7 @@
 
 package com.google.cloud.translate;
 
-import com.google.cloud.translate.v3.TranslateLanguage;
+import com.google.cloud.translate.spi.v2.TranslateRpc;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
@@ -33,10 +33,10 @@ import java.util.Objects;
 public class Language implements Serializable {
 
   private static final long serialVersionUID = 5205240279371907020L;
-  static final Function<TranslateLanguage, Language> FROM_PB_FUNCTION =
-      new Function<TranslateLanguage, Language>() {
+  static final Function<TranslateRpc.Language, Language> FROM_PB_FUNCTION =
+      new Function<TranslateRpc.Language, Language>() {
         @Override
-        public Language apply(TranslateLanguage languagePb) {
+        public Language apply(TranslateRpc.Language languagePb) {
           return Language.fromPb(languagePb);
         }
       };
@@ -81,7 +81,7 @@ public class Language implements Serializable {
     return Objects.equals(code, other.code) && Objects.equals(name, other.name);
   }
 
-  static Language fromPb(TranslateLanguage languagePb) {
-    return new Language(languagePb.getLanguageCode(), languagePb.getDisplayName());
+  static Language fromPb(TranslateRpc.Language languagePb) {
+    return new Language(languagePb.getCode(), languagePb.getName());
   }
 }

@@ -46,7 +46,7 @@ public class ConstraintInfo {
         }
       };
 
-  private Object booleanConstraint;
+  private Boolean booleanConstraint;
   private String constraintDefault;
   private String description;
   private String displayName;
@@ -110,21 +110,23 @@ public class ConstraintInfo {
           && Objects.equals(supportsUnder, that.supportsUnder);
     }
 
-    Object toProtobuf() {
-      com.google.api.services.cloudresourcemanager.model.ListConstraint listConstraint = new com.google.api.services.cloudresourcemanager.model.ListConstraint();
+    com.google.api.services.cloudresourcemanager.model.ListConstraint toProtobuf() {
+      com.google.api.services.cloudresourcemanager.model.ListConstraint listConstraint =
+          new com.google.api.services.cloudresourcemanager.model.ListConstraint();
       listConstraint.setSuggestedValue(suggestedValue);
       listConstraint.setSupportsUnder(supportsUnder);
       return listConstraint;
     }
 
-    static Constraints fromProtobuf(com.google.api.services.cloudresourcemanager.model.ListConstraint listConstraint) {
+    static Constraints fromProtobuf(
+        com.google.api.services.cloudresourcemanager.model.ListConstraint listConstraint) {
       return new Constraints(listConstraint.getSuggestedValue(), listConstraint.getSupportsUnder());
     }
   }
 
   /** Builder for {@code ConstraintInfo}. */
   static class Builder {
-    private Object booleanConstraint;
+    private Boolean booleanConstraint;
     private String constraintDefault;
     private String description;
     private String displayName;
@@ -146,7 +148,7 @@ public class ConstraintInfo {
       this.version = info.version;
     }
 
-    Builder setBooleanConstraint(Object booleanConstraint) {
+    Builder setBooleanConstraint(Boolean booleanConstraint) {
       this.booleanConstraint = booleanConstraint;
       return this;
     }
@@ -197,7 +199,8 @@ public class ConstraintInfo {
   }
 
   /** Returns the boolean constraint to check whether the constraint is enforced or not. */
-  public Object getBooleanConstraint() {
+  @Nullable
+  public Boolean getBooleanConstraint() {
     return booleanConstraint;
   }
 
@@ -272,7 +275,7 @@ public class ConstraintInfo {
     constraintProto.setDescription(description);
     constraintProto.setDisplayName(displayName);
     if (constraints != null) {
-      constraintProto.setListConstraint((com.google.api.services.cloudresourcemanager.model.ListConstraint) constraints.toProtobuf());
+      constraintProto.setListConstraint(constraints.toProtobuf());
     }
     constraintProto.setName(name);
     constraintProto.setVersion(version);
@@ -294,4 +297,6 @@ public class ConstraintInfo {
     builder.setVersion(constraintProtobuf.getVersion());
     return builder.build();
   }
+
+  public static class Boolean {}
 }

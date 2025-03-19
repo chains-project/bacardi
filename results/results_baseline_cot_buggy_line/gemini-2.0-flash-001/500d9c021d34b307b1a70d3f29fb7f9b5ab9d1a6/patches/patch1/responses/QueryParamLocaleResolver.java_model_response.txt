@@ -9,9 +9,8 @@ import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.mvc.locale.LocaleResolver;
-import jakarta.mvc.MvcContext;
+import jakarta.mvc.locale.LocaleResolverContext;
 import jakarta.ws.rs.core.UriInfo;
-import jakarta.ws.rs.core.Request;
 
 /**
  * Resolver to get the {@link Locale} to use from the requests query param <i>lang</i>.
@@ -35,17 +34,13 @@ import jakarta.ws.rs.core.Request;
 @Priority(1)
 @ApplicationScoped
 public class QueryParamLocaleResolver implements LocaleResolver {
-
+    
     @Inject
     Logger log;
-
-    @Inject
-    private MvcContext mvcContext;
-
+    
     @Override
-    public Locale resolveLocale() {
-        UriInfo uriInfo = mvcContext.getUriInfo();
-        final String queryLang = uriInfo
+    public Locale resolveLocale(final LocaleResolverContext context) {
+        final String queryLang = context.getUriInfo()
                 .getQueryParameters()
                 .getFirst("lang");
         log.log(Level.INFO, "QueryParamLocaleResolver::resolveLocale:lang:{0}", queryLang);

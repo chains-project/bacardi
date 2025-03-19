@@ -1,4 +1,5 @@
-4,10c4,5
+3,11c3,8
+< import redis.clients.jedis.Response;
 < import redis.clients.jedis.commands.BasicRedisPipeline;
 < import redis.clients.jedis.commands.BinaryRedisPipeline;
 < import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
@@ -6,19 +7,27 @@
 < import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;
 < import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
 < import redis.clients.jedis.commands.RedisPipeline;
+< import redis.clients.jedis.commands.ScriptingCommandsPipeline;
 ---
-> import redis.clients.jedis.commands.BasicCommandsPipeline;
+> import redis.clients.jedis.commands.BasicCommands;
+> import redis.clients.jedis.commands.BasicPipeline;
 > import redis.clients.jedis.commands.BinaryScriptingCommands;
-11a7,9
-> import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
-> import redis.clients.jedis.commands.RedisBinaryCommandsPipeline;
-> import redis.clients.jedis.commands.RedisCommandsPipeline;
-21,24c19,21
+> import redis.clients.jedis.commands.MultiKeyBinaryCommands;
+> import redis.clients.jedis.commands.MultiKeyCommands;
+> import redis.clients.jedis.commands.ScriptingCommands;
+16a14,15
+> import redis.clients.jedis.Response;
+> 
+21,24c20,26
 <         MultiKeyBinaryRedisPipeline,
 <         MultiKeyCommandsPipeline, ClusterPipeline,
 <         BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
 <         BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
 ---
->         MultiKeyCommandsPipeline,
->         BinaryScriptingCommands, ScriptingCommandsPipeline,
->         BasicCommandsPipeline, RedisBinaryCommandsPipeline, RedisCommandsPipeline, Closeable {
+>         MultiKeyBinaryCommands,
+>         MultiKeyCommands,
+>         BinaryScriptingCommands,
+>         ScriptingCommands,
+>         BasicCommands,
+>         BasicPipeline,
+>         Closeable {

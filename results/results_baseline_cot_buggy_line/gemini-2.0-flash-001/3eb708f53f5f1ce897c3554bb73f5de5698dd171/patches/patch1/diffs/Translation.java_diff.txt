@@ -1,18 +1,23 @@
-19c19
+13,14d12
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+19c17
 < import com.google.api.services.translate.model.TranslationsResource;
 ---
 > import com.google.cloud.translate.spi.v2.TranslateRpc;
-37,38c37,38
+24a23
+> import javax.annotation.Nullable;
+37,38c36,37
 <   static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
 <       new Function<TranslationsResource, Translation>() {
 ---
 >   static final Function<TranslateRpc.Translation, Translation> FROM_PB_FUNCTION =
 >       new Function<TranslateRpc.Translation, Translation>() {
-40c40
+40c39
 <         public Translation apply(TranslationsResource translationPb) {
 ---
 >         public Translation apply(TranslateRpc.Translation translationPb) {
-106c106
+106c105
 <   static Translation fromPb(TranslationsResource translationPb) {
 ---
 >   static Translation fromPb(TranslateRpc.Translation translationPb) {

@@ -48,7 +48,7 @@ public class ReleaseBundleDeleteExecutor implements Executor {
                                                      String cityName, boolean dryRun, boolean deleteFromDist) throws IOException {
         DeleteReleaseBundleRequest request;
         if (StringUtils.isNotBlank(distRules)) {
-            if (!CollectionUtils.isEmpty(countryCodes) || (!StringUtils.isBlank(siteName) || !StringUtils.isBlank(cityName))) {
+            if (!CollectionUtils.isEmpty(countryCodes) || (!(StringUtils.isBlank(siteName) && StringUtils.isBlank(cityName)))) {
                 throw new IOException("The distRules input can't be used with site, city or country codes");
             }
             ObjectMapper mapper = createMapper();

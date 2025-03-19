@@ -407,34 +407,22 @@ public class API implements WireAPI {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-import javax.ws.rs.client.Entity;
-```
-```java
-public API(Client httpClient, String token) {
-```
-```java
-private final WebTarget prekeys;
-```
-```java
-import javax.ws.rs.NotSupportedException;
-```
-```java
-private final WebTarget messages;
-```
-```java
 private final WebTarget conversation;
-```
-```java
-private final WebTarget client;
-```
-```java
-public API(Client httpClient, String token, String wireHost) {
 ```
 ```java
 import javax.ws.rs.client.WebTarget;
 ```
 ```java
-import javax.ws.rs.core.*;
+import javax.ws.rs.NotSupportedException;
+```
+```java
+import javax.ws.rs.client.Invocation;
+```
+```java
+private final WebTarget assets;
+```
+```java
+import javax.ws.rs.client.Entity;
 ```
 ```java
 private final WebTarget users;
@@ -443,51 +431,47 @@ private final WebTarget users;
 private final Client httpClient;
 ```
 ```java
-private final WebTarget assets;
+public API(Client httpClient, String token) {
 ```
 ```java
-import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.*;
 ```
 ```java
-public Response status() {
+private final WebTarget client;
+```
+```java
+private final WebTarget messages;
+```
+```java
+private final WebTarget prekeys;
+```
+```java
+public API(Client httpClient, String token, String wireHost) {
 ```
 ```java
 private final WebTarget bot;
 ```
+```java
+public Response status() {
+```
 
 
  And here is the error message:
-[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[41,26] package javax.ws.rs.client does not exist
-
-[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[66,16] cannot find symbol
-  symbol:   class Client
-  location: class com.wire.lithium.API
-
-[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[58,19] cannot find symbol
-  symbol:   class WebTarget
-  location: class com.wire.lithium.API
-
-[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[39,19] package javax.ws.rs does not exist
-
-[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[55,19] cannot find symbol
-  symbol:   class WebTarget
-  location: class com.wire.lithium.API
-
 [ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[60,19] cannot find symbol
   symbol:   class WebTarget
   location: class com.wire.lithium.API
 
-[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[57,19] cannot find symbol
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[43,26] package javax.ws.rs.client does not exist
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[39,19] package javax.ws.rs does not exist
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[42,26] package javax.ws.rs.client does not exist
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[56,19] cannot find symbol
   symbol:   class WebTarget
   location: class com.wire.lithium.API
 
-[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[70,16] cannot find symbol
-  symbol:   class Client
-  location: class com.wire.lithium.API
-
-[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[43,26] package javax.ws.rs.client does not exist
-
-[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[44,1] package javax.ws.rs.core does not exist
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[41,26] package javax.ws.rs.client does not exist
 
 [ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[59,19] cannot find symbol
   symbol:   class WebTarget
@@ -497,18 +481,34 @@ private final WebTarget bot;
   symbol:   class Client
   location: class com.wire.lithium.API
 
-[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[56,19] cannot find symbol
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[66,16] cannot find symbol
+  symbol:   class Client
+  location: class com.wire.lithium.API
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[44,1] package javax.ws.rs.core does not exist
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[57,19] cannot find symbol
   symbol:   class WebTarget
   location: class com.wire.lithium.API
 
-[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[42,26] package javax.ws.rs.client does not exist
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[55,19] cannot find symbol
+  symbol:   class WebTarget
+  location: class com.wire.lithium.API
 
-[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[105,12] cannot find symbol
-  symbol:   class Response
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[58,19] cannot find symbol
+  symbol:   class WebTarget
+  location: class com.wire.lithium.API
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[70,16] cannot find symbol
+  symbol:   class Client
   location: class com.wire.lithium.API
 
 [ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[61,19] cannot find symbol
   symbol:   class WebTarget
+  location: class com.wire.lithium.API
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[105,12] cannot find symbol
+  symbol:   class Response
   location: class com.wire.lithium.API
 
 

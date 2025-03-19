@@ -1,11 +1,21 @@
-13,14d12
-<  * See the License for the specific language governing permissions and
-<  * limitations under the License.
-20d17
+20d19
 < import com.google.cloud.pubsublite.PublishMetadata;
-27a25
-> import com.google.cloud.pubsublite.proto.PubsubMessage;
-36c34
+27a27
+> import com.google.cloud.pubsublite.proto.PubsubMessageMetadata;
+36c36
 <   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
 ---
->   public Publisher<PubsubMessage> newPublisher(Map<String, String> params) {
+>   public Publisher<PubsubMessageMetadata> newPublisher(Map<String, String> params) {
+49c49,50
+<         partition ->
+---
+>         partition -> {
+>           SinglePartitionPublisherBuilder.Builder singlePartitionBuilder =
+52,54c53,55
+<                 .setPartition(partition)
+<                 .setContext(PubsubContext.of(FRAMEWORK))
+<                 .build());
+---
+>                   .setPartition(partition);
+>           return singlePartitionBuilder.build();
+>         });

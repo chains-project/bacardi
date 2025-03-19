@@ -9,7 +9,6 @@ import com.artipie.http.Headers;
 import com.artipie.http.Response;
 import com.artipie.http.auth.AuthScheme;
 import com.artipie.http.auth.Authentication;
-import com.artipie.http.auth.User;
 import com.artipie.http.rs.StandardRs;
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -55,7 +54,14 @@ class AuthScopeSliceTest {
                 new AuthScheme.Result() {
                     @Override
                     public Optional<Authentication.User> user() {
-                        return Optional.of(new User("alice"));
+                        return Optional.of(
+                            new Authentication.User() {
+                                @Override
+                                public String name() {
+                                    return "alice";
+                                }
+                            }
+                        );
                     }
 
                     @Override

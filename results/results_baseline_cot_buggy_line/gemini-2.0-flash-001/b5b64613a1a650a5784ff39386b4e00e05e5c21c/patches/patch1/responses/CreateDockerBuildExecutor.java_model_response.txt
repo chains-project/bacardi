@@ -32,7 +32,10 @@ public class CreateDockerBuildExecutor extends BuildInfoProcessRunner {
         if (server == null) {
             throw new IllegalStateException("Artifactory server must be configured");
         }
-        if ((StringUtils.isAllBlank(kanikoImageFile) && StringUtils.isAllBlank(jibImageFile)) || (StringUtils.isNoneBlank(kanikoImageFile) && StringUtils.isNoneBlank(jibImageFile))) {
+        boolean bothBlank = StringUtils.isAllBlank(kanikoImageFile, jibImageFile);
+        boolean bothNotBlank = StringUtils.isNoneBlank(kanikoImageFile, jibImageFile);
+
+        if (bothBlank || bothNotBlank) {
             throw new IllegalStateException("Exactly one of 'kanikoImageFile' or 'jibImageFile' must be configured");
         }
         CommonDeployer deployer = new CommonDeployer();

@@ -16,6 +16,8 @@
 
 package com.google.cloud.translate;
 
+import com.google.cloud.translate.v3.DetectLanguageResponse;
+import com.google.cloud.translate.v3.DetectedLanguage;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import java.util.Objects;
@@ -83,7 +85,11 @@ public class Detection implements Serializable {
     return Objects.equals(language, other.language) && Objects.equals(confidence, other.confidence);
   }
 
-  static Detection fromPb(String language, Float confidence) {
-    return new Detection(language, confidence);
+  static Detection fromPb(DetectLanguageResponse detectionPb) {
+    if (detectionPb.getLanguagesList() != null && !detectionPb.getLanguagesList().isEmpty()) {
+      DetectedLanguage detectedLanguage = detectionPb.getLanguagesList().get(0);
+      return new Detection(detectedLanguage.getLanguageCode(), detectedLanguage.getConfidence());
+    }
+    return null;
   }
 }

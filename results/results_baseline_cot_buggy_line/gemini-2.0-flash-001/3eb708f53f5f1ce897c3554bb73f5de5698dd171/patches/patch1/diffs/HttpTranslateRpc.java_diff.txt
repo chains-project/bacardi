@@ -1,51 +1,49 @@
-25,28d24
-< import com.google.api.services.translate.Translate;
+26,27c26,28
 < import com.google.api.services.translate.model.DetectionsResourceItems;
 < import com.google.api.services.translate.model.LanguagesResource;
-< import com.google.api.services.translate.model.TranslationsResource;
-38a35,42
-> import com.google.cloud.translate.v2.Translate;
-> import com.google.cloud.translate.v2.Translate.Detections;
-> import com.google.cloud.translate.v2.Translate.Languages;
-> import com.google.cloud.translate.v2.Translate.Translations;
-> import com.google.cloud.translate.v2.model.DetectionsResourceItems;
-> import com.google.cloud.translate.v2.model.LanguagesResource;
-> import com.google.cloud.translate.v2.model.TranslationsResource;
-> 
-51c55
-<             .setRootUrl(options.getHost())
 ---
->             .setEndpoint(options.getHost())
-71,73c75,78
+> import com.google.api.services.translate.model.DetectionsListResponse;
+> import com.google.api.services.translate.model.LanguagesListResponse;
+> import com.google.api.services.translate.model.TranslationsListResponse;
+69c70
+<   public List<List<DetectionsResourceItems>> detect(List<String> texts) {
+---
+>   public List<List<DetectionsListResponse.Detections>> detect(List<String> texts) {
+71,73c72,74
 <       List<List<DetectionsResourceItems>> detections =
 <           translate.detections().list(texts).setKey(options.getApiKey()).execute().getDetections();
 <       return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
 ---
->       Detections detections = translate.detections();
->       List<List<DetectionsResourceItems>> detectionsList =
->           detections.list(texts).setKey(options.getApiKey()).execute().getDetections();
->       return detectionsList != null ? detectionsList : ImmutableList.<List<DetectionsResourceItems>>of();
-82,84c87,89
-<       List<LanguagesResource> languages =
-<           translate
-<               .languages()
+>       DetectionsListResponse detectionsListResponse = translate.detections().list(texts).setKey(options.getApiKey()).execute();
+>       List<List<DetectionsListResponse.Detections>> detections = detectionsListResponse.getDetections();
+>       return detections != null ? detections : ImmutableList.<List<DetectionsListResponse.Detections>>of();
+80c81
+<   public List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
 ---
->       Languages languages = translate.languages();
->       List<LanguagesResource> languagesList =
->           languages
-92c97
+>   public List<LanguagesListResponse.Languages> listSupportedLanguages(Map<Option, ?> optionMap) {
+82c83
+<       List<LanguagesResource> languages =
+---
+>       LanguagesListResponse languagesListResponse =
+90,92c91,93
+<               .execute()
+<               .getLanguages();
 <       return languages != null ? languages : ImmutableList.<LanguagesResource>of();
 ---
->       return languagesList != null ? languagesList : ImmutableList.<LanguagesResource>of();
-104,106c109,111
+>               .execute();
+>       List<LanguagesListResponse.Languages> languages = languagesListResponse.getLanguages();
+>       return languages != null ? languages : ImmutableList.<LanguagesListResponse.Languages>of();
+104,107c105
 <       List<TranslationsResource> translations =
 <           translate
 <               .translations()
+<               .list(texts, targetLanguage)
 ---
->       Translations translations = translate.translations();
->       List<TranslationsResource> translationsList =
->           translations
-115c120
-<           translations != null ? translations : ImmutableList.<TranslationsResource>of(),
+>       TranslationsListResponse translationsListResponse = translate.translations().list(texts, targetLanguage)
+112,113c110,112
+<               .execute()
+<               .getTranslations();
 ---
->           translationsList != null ? translationsList : ImmutableList.<TranslationsResource>of(),
+>               .execute();
+>       List<TranslationsResource> translations = translationsListResponse.getTranslations();
+> 

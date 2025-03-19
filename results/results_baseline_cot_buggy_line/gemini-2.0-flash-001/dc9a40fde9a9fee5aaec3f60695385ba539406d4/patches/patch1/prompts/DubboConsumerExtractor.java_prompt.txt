@@ -58,17 +58,17 @@ public class DubboConsumerExtractor extends DubboExtractor {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-FutureContext.getContext().setCompatibleFuture(asyncRpcResult);
+RpcContext.getContext().setFuture(asyncRpcResult);
 ```
 ```java
-RpcContext.getContext().setFuture(asyncRpcResult);
+FutureContext.getContext().setCompatibleFuture(asyncRpcResult);
 ```
 
 
  And here is the error message:
-[ERROR] /arex-agent-java/arex-instrumentation/dubbo/arex-dubbo-apache-v2/src/main/java/io/arex/inst/dubbo/apache/v2/DubboConsumerExtractor.java:[45,60] incompatible types: org.apache.dubbo.rpc.AsyncRpcResult cannot be converted to java.util.concurrent.CompletableFuture<?>
-
 [ERROR] /arex-agent-java/arex-instrumentation/dubbo/arex-dubbo-apache-v2/src/main/java/io/arex/inst/dubbo/apache/v2/DubboConsumerExtractor.java:[43,47] incompatible types: org.apache.dubbo.rpc.AsyncRpcResult cannot be converted to java.util.concurrent.CompletableFuture<?>
+
+[ERROR] /arex-agent-java/arex-instrumentation/dubbo/arex-dubbo-apache-v2/src/main/java/io/arex/inst/dubbo/apache/v2/DubboConsumerExtractor.java:[45,60] incompatible types: org.apache.dubbo.rpc.AsyncRpcResult cannot be converted to java.util.concurrent.CompletableFuture<?>
 
 
 

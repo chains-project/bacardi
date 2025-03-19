@@ -84,54 +84,54 @@ public class WireAppenderFactory<T extends DeferredProcessingAware> extends Abst
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-public class WireAppenderFactory<T extends DeferredProcessingAware> extends AbstractAppenderFactory<T> {
-```
-```java
-import io.dropwizard.logging.async.AsyncAppenderFactory;
-```
-```java
-import io.dropwizard.logging.filter.LevelFilterFactory;
-```
-```java
 AsyncAppenderFactory<T> asyncAppenderFactory) {
 ```
 ```java
-import io.dropwizard.logging.AbstractAppenderFactory;
-```
-```java
-LevelFilterFactory<T> levelFilterFactory,
+LayoutFactory<T> layoutFactory,
 ```
 ```java
 import io.dropwizard.logging.layout.LayoutFactory;
 ```
 ```java
-LayoutFactory<T> layoutFactory,
+import io.dropwizard.logging.filter.LevelFilterFactory;
+```
+```java
+LevelFilterFactory<T> levelFilterFactory,
+```
+```java
+import io.dropwizard.logging.async.AsyncAppenderFactory;
+```
+```java
+public class WireAppenderFactory<T extends DeferredProcessingAware> extends AbstractAppenderFactory<T> {
+```
+```java
+import io.dropwizard.logging.AbstractAppenderFactory;
 ```
 
 
  And here is the error message:
-[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/WireAppenderFactory.java:[25,77] cannot find symbol
-  symbol: class AbstractAppenderFactory
-
-[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/WireAppenderFactory.java:[13,35] package io.dropwizard.logging.async does not exist
-
-[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/WireAppenderFactory.java:[14,36] package io.dropwizard.logging.filter does not exist
-
 [ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/WireAppenderFactory.java:[33,13] cannot find symbol
   symbol:   class AsyncAppenderFactory
   location: class com.wire.lithium.server.monitoring.WireAppenderFactory<T>
 
-[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/WireAppenderFactory.java:[12,29] package io.dropwizard.logging does not exist
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/WireAppenderFactory.java:[31,13] cannot find symbol
+  symbol:   class LayoutFactory
+  location: class com.wire.lithium.server.monitoring.WireAppenderFactory<T>
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/WireAppenderFactory.java:[15,36] package io.dropwizard.logging.layout does not exist
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/WireAppenderFactory.java:[14,36] package io.dropwizard.logging.filter does not exist
 
 [ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/WireAppenderFactory.java:[32,13] cannot find symbol
   symbol:   class LevelFilterFactory
   location: class com.wire.lithium.server.monitoring.WireAppenderFactory<T>
 
-[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/WireAppenderFactory.java:[15,36] package io.dropwizard.logging.layout does not exist
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/WireAppenderFactory.java:[13,35] package io.dropwizard.logging.async does not exist
 
-[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/WireAppenderFactory.java:[31,13] cannot find symbol
-  symbol:   class LayoutFactory
-  location: class com.wire.lithium.server.monitoring.WireAppenderFactory<T>
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/WireAppenderFactory.java:[25,77] cannot find symbol
+  symbol: class AbstractAppenderFactory
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/WireAppenderFactory.java:[12,29] package io.dropwizard.logging does not exist
 
 
 

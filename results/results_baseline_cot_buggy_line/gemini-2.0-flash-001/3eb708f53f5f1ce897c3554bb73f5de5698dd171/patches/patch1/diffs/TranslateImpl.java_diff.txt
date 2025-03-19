@@ -30,30 +30,26 @@
 <                 public List<LanguagesResource> call() {
 ---
 >                 public List<Language> call() {
-71c73
-<           Language.FROM_PB_FUNCTION);
----
->           Language::fromPb);
 80c82
 <       List<List<DetectionsResourceItems>> detectionsPb =
 ---
->       List<List<Detection>> detectionsPb =
+>       List<List<com.google.cloud.translate.Detection>> detectionsPb =
 82c84
 <               new Callable<List<List<DetectionsResourceItems>>>() {
 ---
->               new Callable<List<List<Detection>>>() {
+>               new Callable<List<List<com.google.cloud.translate.Detection>>>() {
 84c86
 <                 public List<List<DetectionsResourceItems>> call() {
 ---
->                 public List<List<Detection>> call() {
+>                 public List<List<com.google.cloud.translate.Detection>> call() {
 91c93
 <       Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
 ---
->       Iterator<List<Detection>> detectionIterator = detectionsPb.iterator();
+>       Iterator<List<com.google.cloud.translate.Detection>> detectionIterator = detectionsPb.iterator();
 94c96
 <         List<DetectionsResourceItems> detectionPb = detectionIterator.next();
 ---
->         List<Detection> detectionPb = detectionIterator.next();
+>         List<com.google.cloud.translate.Detection> detectionPb = detectionIterator.next();
 121c123
 <               new Callable<List<TranslationsResource>>() {
 ---
@@ -62,7 +58,3 @@
 <                 public List<TranslationsResource> call() {
 ---
 >                 public List<Translation> call() {
-130c132
-<           Translation.FROM_PB_FUNCTION);
----
->           Translation::fromPb);

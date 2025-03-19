@@ -37,8 +37,8 @@ class JadlerHandler extends AbstractHandler {
 
 
     @Override
-    public void handle(final String target, final Request baseRequest, final HttpServletRequest request,
-                       final HttpServletResponse response) throws IOException, ServletException {
+    public void handle(String target, Request baseRequest, HttpServletRequest request,
+                       HttpServletResponse response) throws IOException, ServletException {
 
         final net.jadler.Request req = RequestUtils.convert(request);
         final StubResponse stubResponse = this.requestManager.provideStubResponseFor(req);

@@ -1,179 +1,73 @@
-33,40c33,36
-< import org.cactoos.iterable.LengthOf;
-< import org.cactoos.list.ListOf;
+21,22c21,22
+<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+<  * SOFTWARE.
+---
+>  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+>  * THE SOFTWARE.
+31a32
+> import org.cactoos.Scalar;
+35,38c36,38
 < import org.cactoos.scalar.IoCheckedScalar;
 < import org.cactoos.scalar.ItemAt;
 < import org.cactoos.scalar.StickyScalar;
 < import org.cactoos.scalar.UncheckedScalar;
-< import org.cactoos.text.FormattedText;
-< import org.cactoos.text.SplitText;
 ---
-> import org.cactoos.iterable.IterableOf;
-> import org.cactoos.iterable.Mapped;
-> import org.cactoos.scalar.Unchecked;
-> import org.cactoos.text.Split;
-42c38
-< import org.cactoos.text.TrimmedText;
----
-> import org.cactoos.text.Trimmed;
-44a41,45
-> import org.cactoos.scalar.Checked;
+> import org.cactoos.scalar.IoChecked;
 > import org.cactoos.scalar.Sticky;
-> import org.cactoos.iterable.LengthOf;
-> import org.cactoos.list.ListOf;
-> import org.cactoos.scalar.ItemAt;
-88c89
+> import org.cactoos.scalar.Unchecked;
+88c88
 <     private final IoCheckedScalar<String> transaction;
 ---
->     private final Checked<String, IOException> transaction;
-95,96c96,97
+>     private final IoChecked<String> transaction;
+95,96c95,96
 <         this.transaction = new IoCheckedScalar<>(
 <             new StickyScalar<>(
 ---
->         this.transaction = new Checked<>(
+>         this.transaction = new IoChecked<>(
 >             new Sticky<>(
-99c100
-<                         new TrimmedText(
----
->                         new Trimmed(
-109c110
-<                             new SplitText(trnsct, ";")
----
->                             new Mapped<>(TextOf::new, new Split(trnsct, ";"))
-114c115
-<                             new FormattedText(
----
->                             String.format(
-118c119
-<                             ).asString()
----
->                             )
-123c124
-<             )
----
->             ), IOException.class
-131c132
+131,132c131,132
 <             new IoCheckedScalar<>(
+<                 new ItemAt<>(
 ---
->             new Checked<>(
-133,134c134,135
-<                     0, new SplitText(this.transaction.value(), ";")
-<                 )
----
->                     0, new Mapped<>(TextOf::new, new Split(this.transaction.value(), ";"))
->                 ), IOException.class
-140c141,142
-<                     new FormattedText(
----
->                     new TextOf(
->                         String.format(
-144a147
->                     )
-156c159
+>             new IoChecked<>(
+>                 new org.cactoos.scalar.ItemAt<>(
+156,157c156,157
 <                 new IoCheckedScalar<>(
+<                     new ItemAt<>(
 ---
->                 new Checked<>(
-158,159c161,162
-<                         1, new SplitText(this.transaction.value(), ";")
-<                     )
----
->                         1, new Mapped<>(TextOf::new, new Split(this.transaction.value(), ";"))
->                     ), IOException.class
-169c172
+>                 new IoChecked<>(
+>                     new org.cactoos.scalar.ItemAt<>(
+169,170c169,170
 <             new IoCheckedScalar<>(
+<                 new ItemAt<>(
 ---
->             new Checked<>(
-171,172c174,175
-<                     2, new SplitText(this.transaction.value(), ";")
-<                 )
----
->                     2, new Mapped<>(TextOf::new, new Split(this.transaction.value(), ";"))
->                 ), IOException.class
-178c181,182
-<                     new FormattedText(
----
->                     new TextOf(
->                         String.format(
-182a187
->                     )
-193c198
+>             new IoChecked<>(
+>                 new org.cactoos.scalar.ItemAt<>(
+193,194c193,194
 <             new IoCheckedScalar<>(
+<                 new ItemAt<>(
 ---
->             new Checked<>(
-196,197c201,202
-<                     3, new SplitText(this.transaction.value(), ";")
-<                 )
----
->                     3, new Mapped<>(TextOf::new, new Split(this.transaction.value(), ";"))
->                 ), IOException.class
-213c218
+>             new IoChecked<>(
+>                 new org.cactoos.scalar.ItemAt<>(
+213,214c213,214
 <             new IoCheckedScalar<>(
+<                 new ItemAt<>(
 ---
->             new Checked<>(
-216,217c221,222
-<                     4, new SplitText(this.transaction.value(), ";")
-<                 )
----
->                     4, new Mapped<>(TextOf::new, new Split(this.transaction.value(), ";"))
->                 ), IOException.class
-223c228,229
-<                     new FormattedText(
----
->                     new TextOf(
->                         String.format(
-227a234
->                     )
-237c244
+>             new IoChecked<>(
+>                 new org.cactoos.scalar.ItemAt<>(
+237,238c237,238
 <             new IoCheckedScalar<>(
+<                 new ItemAt<>(
 ---
->             new Checked<>(
-240,241c247,248
-<                     5, new SplitText(this.transaction.value(), ";")
-<                 )
----
->                     5, new Mapped<>(TextOf::new, new Split(this.transaction.value(), ";"))
->                 ), IOException.class
-247c254,255
-<                     new FormattedText(
----
->                     new TextOf(
->                         String.format(
-251a260
->                     )
-261c270
+>             new IoChecked<>(
+>                 new org.cactoos.scalar.ItemAt<>(
+261,262c261,262
 <             new IoCheckedScalar<>(
+<                 new ItemAt<>(
 ---
->             new Checked<>(
-264,265c273,274
-<                     6, new SplitText(this.transaction.value(), ";")
-<                 )
----
->                     6, new Mapped<>(TextOf::new, new Split(this.transaction.value(), ";"))
->                 ), IOException.class
-273c282,283
-<                     new FormattedText(
----
->                     new TextOf(
->                         String.format(
-277a288
->                     )
-286c297
+>             new IoChecked<>(
+>                 new org.cactoos.scalar.ItemAt<>(
+286c286
 <         return new UncheckedScalar<>(this.transaction).value();
 ---
 >         return new Unchecked<>(this.transaction).value();
-299c310,314
-<         return this.transaction.equals(that.transaction);
----
->         try {
->             return this.transaction.value().equals(that.transaction.value());
->         } catch (IOException e) {
->             throw new IllegalStateException(e);
->         }
-304c319,323
-<         return this.transaction.hashCode();
----
->         try {
->             return this.transaction.value().hashCode();
->         } catch (IOException e) {
->             throw new IllegalStateException(e);
->         }

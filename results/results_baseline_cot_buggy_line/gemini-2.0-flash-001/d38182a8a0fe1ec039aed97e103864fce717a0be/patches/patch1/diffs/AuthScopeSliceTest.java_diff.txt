@@ -1,6 +1,11 @@
-11a12
-> import com.artipie.http.auth.User;
-57c58
+57c57,64
 <                         return Optional.of(new Authentication.User("alice"));
 ---
->                         return Optional.of(new User("alice"));
+>                         return Optional.of(
+>                             new Authentication.User() {
+>                                 @Override
+>                                 public String name() {
+>                                     return "alice";
+>                                 }
+>                             }
+>                         );
