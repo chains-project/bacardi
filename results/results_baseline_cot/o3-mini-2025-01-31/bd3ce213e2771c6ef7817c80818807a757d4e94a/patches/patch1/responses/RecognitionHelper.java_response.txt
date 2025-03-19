@@ -16,6 +16,7 @@ import java.util.TreeMap;
 import org.apache.commons.io.FileUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import de.uniwue.config.ProjectConfiguration;
@@ -37,6 +38,7 @@ public class RecognitionHelper {
      * Possible values: { Binary, Gray }
      */
     private String projectImageType;
+
 
     /**
      * Object to use generic functionalities
@@ -120,9 +122,9 @@ public class RecognitionHelper {
     public void initialize(List<String> pageIds) throws IOException {
         // Init the listener for image modification
         imagesLastModified = new HashMap<>();
-        for (String pageId : pageIds) {
+        for(String pageId: pageIds) {
             final String pageXML = projConf.OCR_DIR + pageId + projConf.CONF_EXT;
-            imagesLastModified.put(pageXML, new File(pageXML).lastModified());
+            imagesLastModified.put(pageXML,new File(pageXML).lastModified());
         }
     }
 
@@ -158,13 +160,13 @@ public class RecognitionHelper {
             return progress;
 
         int modifiedCount = 0;
-        if (imagesLastModified != null) {
-            for (String pagexml : imagesLastModified.keySet()) {
-                if (imagesLastModified.get(pagexml) < new File(pagexml).lastModified()) {
+        if(imagesLastModified != null) {
+            for(String pagexml : imagesLastModified.keySet()) {
+                if(imagesLastModified.get(pagexml) < new File(pagexml).lastModified()) {
                     modifiedCount++;
                 }
             }
-            progress = (modifiedCount * 100) / imagesLastModified.size();
+            progress = (modifiedCount*100) / imagesLastModified.size();
         } else {
             progress = -1;
         }
@@ -177,10 +179,10 @@ public class RecognitionHelper {
      * @return List of checkpoints
      * @throws IOException
      */
-    public List<String> extractModelsOfJoinedString(String joinedckptString) {
-        String[] checkpoints = joinedckptString.split(ProjectConfiguration.MODEL_EXT + " ");
+    public List<String> extractModelsOfJoinedString(String joinedckptString){
+        String [] checkpoints = joinedckptString.split(ProjectConfiguration.MODEL_EXT + " ");
         List<String> ckptList = new ArrayList<>();
-        Iterator<String> ckptIterator = Arrays.asList(checkpoints).iterator();
+        Iterator <String> ckptIterator= Arrays.asList(checkpoints).iterator();
         while (ckptIterator.hasNext()) {
             String ckpt = ckptIterator.next();
             if (ckptIterator.hasNext())
@@ -189,7 +191,6 @@ public class RecognitionHelper {
         }
         return ckptList;
     }
-
     /**
      * Executes OCR on a list of pages
      * Achieved with the help of the external python program "calamary-predict"
@@ -210,19 +211,19 @@ public class RecognitionHelper {
             List<String> skewparams = new ArrayList<>();
             skewparams.add("skewestimate");
             final int maxskewIndex = cmdArgsWork.indexOf("--maxskew");
-            if (maxskewIndex > -1) {
+            if(maxskewIndex > -1) {
                 skewparams.add(cmdArgsWork.remove(maxskewIndex));
                 skewparams.add(cmdArgsWork.remove(maxskewIndex));
             }
             final int skewstepsIndex = cmdArgsWork.indexOf("--skewsteps");
-            if (skewstepsIndex > -1) {
+            if(skewstepsIndex > -1) {
                 skewparams.add(cmdArgsWork.remove(skewstepsIndex));
                 skewparams.add(cmdArgsWork.remove(skewstepsIndex));
             }
 
             // Create temp json file with all segment images (to not overload parameter list)
             // Temp file in a temp folder named "skew-<random numbers>.json"
-            File segmentListFile = File.createTempFile("skew-", ".json");
+            File segmentListFile = File.createTempFile("skew-",".json");
             skewparams.add(segmentListFile.toString());
             segmentListFile.deleteOnExit(); // Delete if OCR4all terminates
             ObjectMapper mapper = new ObjectMapper();
@@ -233,10 +234,10 @@ public class RecognitionHelper {
                         projConf.getImageExtensionByType(projectImageType));
                 final String pageXML = projConf.OCR_DIR + pageId + projConf.CONF_EXT;
                 pageList.add(pageXML);
+
                 // Add affected line segment images with their absolute path to the json file
                 dataList.add(pageList);
             }
-            // Use ObjectMapper directly to write the JSON content, avoiding the dependency on StreamWriteException.
             mapper.writeValue(segmentListFile, dataList);
 
             processHandler = new ProcessHandler();
@@ -246,6 +247,7 @@ public class RecognitionHelper {
             cmdArgsWork.remove("--estimate_skew");
         }
 
+
         //// Recognize
         // Reset recognition data
         deleteOldFiles(pageIds);
@@ -254,7 +256,7 @@ public class RecognitionHelper {
         int index;
         if (cmdArgsWork.contains("--checkpoint")) {
             index = cmdArgsWork.indexOf("--checkpoint");
-            for (String ckpt : extractModelsOfJoinedString(cmdArgsWork.get(index + 1))) {
+            for(String ckpt : extractModelsOfJoinedString(cmdArgsWork.get(index + 1))) {
                 if (!new File(ckpt).exists())
                     throw new IOException("Model does not exist under the specified path");
             }
@@ -262,12 +264,12 @@ public class RecognitionHelper {
 
         List<String> command = new ArrayList<>();
         // Ugly hack but helpers will be rewritten for the next release anyways. Don't use as basis for future code!
-        if (cmdArgsWork.contains("--data.output_glyphs")) {
+        if(cmdArgsWork.contains("--data.output_glyphs")){
             cmdArgsWork.remove("--data.output_glyphs");
             command.add("--data.output_glyphs");
             command.add("True");
         }
-        if (cmdArgsWork.contains("--data.output_confidences")) {
+        if(cmdArgsWork.contains("--data.output_confidences")){
             cmdArgsWork.remove("--data.output_confidences");
             command.add("--data.output_confidences");
             command.add("True");
@@ -276,7 +278,7 @@ public class RecognitionHelper {
         command.add("--data.images");
         // Create temp json file with all segment images (to not overload parameter list)
         // Temp file in a temp folder named "calamari-<random numbers>.json"
-        File segmentListFile = File.createTempFile("calamari-", ".files");
+        File segmentListFile = File.createTempFile("calamari-",".files");
         segmentListFile.deleteOnExit();
 
         List<String> content = new ArrayList<>();
@@ -288,7 +290,7 @@ public class RecognitionHelper {
         Files.write(segmentListFile.toPath(), content, StandardOpenOption.APPEND);
         command.add(segmentListFile.toString());
 
-        // Add checkpoints
+        //Add checkpoints
         Iterator<String> cmdArgsIterator = cmdArgsWork.iterator();
         while (cmdArgsIterator.hasNext()) {
             String arg = cmdArgsIterator.next();
@@ -375,7 +377,7 @@ public class RecognitionHelper {
      */
     public void deleteOldFiles(List<String> pageIds) throws IOException {
         // Delete potential TextEquivs already existing in the page xmls
-        for (String pageId : pageIds) {
+        for(String pageId : pageIds) {
             File pageXML = new File(projConf.OCR_DIR + pageId + projConf.CONF_EXT);
             if (!pageXML.exists())
                 return;
@@ -398,9 +400,9 @@ public class RecognitionHelper {
      *
      * @throws IOException
      */
-    public void createSkippedSegments() throws IOException {
-        for (String pageId : processState.keySet()) {
-            for (String segmentId : processState.get(pageId).keySet()) {
+    public void createSkippedSegments() throws IOException{
+        for(String pageId : processState.keySet()) {
+            for(String segmentId :processState.get(pageId).keySet()) {
                 for (String lineSegmentId : processState.get(pageId).get(segmentId).keySet()) {
                     if (processState.get(pageId).get(segmentId).get(lineSegmentId))
                         continue;
@@ -451,7 +453,7 @@ public class RecognitionHelper {
      * @return Map of models (key = modelName | value = path)
      * @throws IOException
      */
-    public static TreeMap<String, String> listModels() throws IOException {
+    public static TreeMap<String, String> listModels() throws IOException{
         TreeMap<String, String> models = new TreeMap<String, String>();
 
         File modelsDir = new File(ProjectConfiguration.PROJ_MODEL_DIR);
@@ -460,18 +462,18 @@ public class RecognitionHelper {
 
         // Add all models to map (follow symbolic links on the filesystem due to Docker container)
         Files.walk(Paths.get(ProjectConfiguration.PROJ_MODEL_DIR), FileVisitOption.FOLLOW_LINKS)
-            .map(Path::toFile)
-            .filter(fileEntry -> fileEntry.getName().endsWith(ProjectConfiguration.MODEL_EXT))
-            .forEach(
-                fileEntry -> {
-                    // Remove OS path and model extension from display string (only display significant information)
-                    String modelName = fileEntry.getAbsolutePath();
-                    modelName = modelName.replace(ProjectConfiguration.PROJ_MODEL_DEFAULT_DIR, "");
-                    modelName = modelName.replace(ProjectConfiguration.PROJ_MODEL_CUSTOM_DIR, "");
-                    modelName = modelName.replace(ProjectConfiguration.MODEL_EXT, "");
+        .map(Path::toFile)
+        .filter(fileEntry -> fileEntry.getName().endsWith(ProjectConfiguration.MODEL_EXT))
+        .forEach(
+            fileEntry -> {
+                // Remove OS path and model extension from display string (only display significant information)
+                String modelName = fileEntry.getAbsolutePath();
+                modelName = modelName.replace(ProjectConfiguration.PROJ_MODEL_DEFAULT_DIR, "");
+                modelName = modelName.replace(ProjectConfiguration.PROJ_MODEL_CUSTOM_DIR, "");
+                modelName = modelName.replace(ProjectConfiguration.MODEL_EXT, "");
 
-                    models.put(modelName, fileEntry.getAbsolutePath());
-                });
+                models.put(modelName, fileEntry.getAbsolutePath());
+        });
 
         return models;
     }

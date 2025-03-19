@@ -1,12 +1,3 @@
-<code_analysis>
-1. The error message indicates that the method annotated with @Override does not match any method in the current supertype. This typically happens when the signature of the method in the dependency (in this case, Jetty’s AbstractHandler) has changed.
-2. On inspecting the code, the handle method is declared as:
-   • handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
-   In earlier versions, this correctly overrode the method in AbstractHandler. However, after a dependency update (likely Jetty upgrading to a version that has migrated from the javax.servlet API to the jakarta.servlet API), the expected parameter types for the servlet objects have changed.
-3. The fix is to update the imports so that HttpServletRequest, HttpServletResponse, and ServletException are imported from jakarta.servlet instead of javax.servlet. This way, the handle method exactly matches the signature from the updated dependency.
-4. This solution complies with the constraints: we do not change any function signatures, we only update the import statements to use the correct classes as defined by the new dependency version.
-</code_analysis>
-
 ```java
 /*
  * Copyright (c) 2012 - 2016 Jadler contributors
@@ -34,6 +25,7 @@ class JadlerHandler extends AbstractHandler {
 
     private final RequestManager requestManager;
 
+    
     /**
      * @param requestManager request manager instance to retrieve stub responses
      */
@@ -41,6 +33,7 @@ class JadlerHandler extends AbstractHandler {
         Validate.notNull(requestManager, "requestManager cannot be null");
         this.requestManager = requestManager;
     }
+
 
     @Override
     public void handle(final String target, final Request baseRequest, final HttpServletRequest request,
@@ -58,6 +51,7 @@ class JadlerHandler extends AbstractHandler {
         this.insertResponseBody(stubResponse.getBody(), response);
     }
 
+    
     private void insertResponseBody(final byte[] body, final HttpServletResponse response) throws IOException {
         if (body.length > 0) {
             final OutputStream os = response.getOutputStream();
@@ -65,13 +59,16 @@ class JadlerHandler extends AbstractHandler {
         }
     }
 
+    
     private void insertResponseHeaders(final KeyValues headers, final HttpServletResponse response) {
         for (final String key: headers.getKeys()) {
+            
             for (final String value: headers.getValues(key)) {
                 response.addHeader(key, value);
             }
         }
     }
+
 
     private void processDelay(final long delay) {
         if (delay > 0) {

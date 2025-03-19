@@ -3,14 +3,10 @@ package org.openpdfsign;
 import com.beust.jcommander.Strings;
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.enumerations.SignatureLevel;
-import eu.europa.esig.dss.model.DSSDocument;
-import eu.europa.esig.dss.model.FileDocument;
-import eu.europa.esig.dss.model.InMemoryDocument;
-import eu.europa.esig.dss.model.SignatureValue;
-import eu.europa.esig.dss.model.ToBeSigned;
+import eu.europa.esig.dss.enumerations.CertificationPermission;
+import eu.europa.esig.dss.model.*;
 import eu.europa.esig.dss.pades.PAdESSignatureParameters;
 import eu.europa.esig.dss.pades.SignatureImageParameters;
-import eu.europa.esig.dss.pades.TableSignatureFieldParameters;
 import eu.europa.esig.dss.pades.signature.PAdESService;
 import eu.europa.esig.dss.pdf.pdfbox.PdfBoxNativeObjectFactory;
 import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
@@ -34,33 +30,37 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 @Slf4j
 public class Signer {
 
-    // see PDRectangle
+    //see PDRectangle
     private static final float POINTS_PER_INCH = 72;
     private static final float POINTS_PER_MM = 1 / (10 * 2.54f) * POINTS_PER_INCH;
 
     public void signPdf(Path pdfFile, Path outputFile, byte[] keyStore, char[] keyStorePassword, boolean binary, SignatureParameters params) throws IOException {
         boolean visibleSignature = params.getPage() != null;
-        // https://github.com/apache/pdfbox/blob/trunk/examples/src/main/java/org/apache/pdfbox/examples/signature/CreateVisibleSignature2.java
-        // https://ec.europa.eu/cefdigital/DSS/webapp-demo/doc/dss-documentation.html
+        //https://github.com/apache/pdfbox/blob/trunk/examples/src/main/java/org/apache/pdfbox/examples/signature/CreateVisibleSignature2.java
+        //https://ec.europa.eu/cefdigital/DSS/webapp-demo/doc/dss-documentation.html
+        //load PDF file
+        //PDDocument doc = PDDocument.load(pdfFile.toFile());
 
-        // Load PDF file in DSSDocument format
+        //load PDF file in DSSDocument format
         DSSDocument toSignDocument = new FileDocument(pdfFile.toFile());
 
-        // Load certificate and private key
+        //load certificate and private key
         JKSSignatureToken signingToken = new JKSSignatureToken(keyStore, new KeyStore.PasswordProtection(keyStorePassword));
 
         log.debug("Keystore created for signing");
-        // PAdES parameters
+        //PAdES parameters
         PAdESSignatureParameters signatureParameters = new PAdESSignatureParameters();
-        // signatureParameters.bLevel().setSigningDate(new Date());
+        //signatureParameters.bLevel().setSigningDate(new Date());
         String keyAlias = "alias";
         if (signingToken.getKeys().get(0) instanceof KSPrivateKeyEntry) {
             keyAlias = ((KSPrivateKeyEntry) signingToken.getKeys().get(0)).getAlias();
         }
+        ;
         signatureParameters.setSigningCertificate(signingToken.getKey(keyAlias).getCertificate());
         signatureParameters.setCertificateChain(signingToken.getKey(keyAlias).getCertificateChain());
         if (params.getUseTimestamp() || !params.getTSA().isEmpty()) {
@@ -68,8 +68,7 @@ public class Signer {
         } else {
             signatureParameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_B);
         }
-        // Removed the setPermission call for CertificationPermission due to its removal in the updated dependency version.
-        // signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
+        signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
 
         // Create common certificate verifier
         CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
@@ -87,7 +86,7 @@ public class Signer {
             if (!Strings.isStringEmpty(params.getImageFile())) {
                 imageParameters.setImage(new InMemoryDocument(Files.readAllBytes(Paths.get(params.getImageFile()))));
             } else {
-                imageParameters.setImage(new InMemoryDocument(IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("signature.png"))));
+                imageParameters.setImage(new InMemoryDocument((IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("signature.png")))));
             }
 
             if (params.getPage() < 0) {
@@ -96,6 +95,7 @@ public class Signer {
                 fieldParameters.setPage(pageCount + (1 + params.getPage()));
                 pdDocument.close();
                 log.debug("PDF page count: " + pageCount);
+
             } else {
                 fieldParameters.setPage(params.getPage());
             }
@@ -103,8 +103,10 @@ public class Signer {
             fieldParameters.setOriginY(params.getTop() * POINTS_PER_MM * 10f);
             fieldParameters.setWidth(params.getWidth() * POINTS_PER_MM * 10f);
 
-            // Respect local timezone when setting the signature date
+            // Get the SignedInfo segment that need to be signed.
+            // respect local timezone
             DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneId.systemDefault());
+            // user-provided timezone, if any
             if (params.getTimezone() != null) {
                 formatter = formatter.withZone(ZoneId.of(params.getTimezone()));
             }
@@ -118,33 +120,40 @@ public class Signer {
 
             signatureParameters.setImageParameters(imageParameters);
 
+
             PdfBoxNativeObjectFactory pdfBoxNativeObjectFactory = new PdfBoxNativeTableObjectFactory();
             service.setPdfObjFactory(pdfBoxNativeObjectFactory);
             log.debug("Visible signature parameters set");
         }
 
-        // Configure TSP source if timestamp or TSA URL is provided
+        //https://gist.github.com/Manouchehri/fd754e402d98430243455713efada710
+        //only use TSP source, if parameter is set
+        //if it is set to an url, us this
+        //otherwise, default
         if (params.getUseTimestamp() || params.getTSA() != null) {
             CompositeTSPSource compositeTSPSource = new CompositeTSPSource();
             Map<String, TSPSource> tspSources = new HashMap<>();
             compositeTSPSource.setTspSources(tspSources);
             if (params.getTSA().isEmpty()) {
-                Arrays.stream(Configuration.getInstance().getProperties().getStringArray("tsp_sources"))
-                      .forEach(source -> tspSources.put(source, new OnlineTSPSource(source)));
+                Arrays.stream(Configuration.getInstance().getProperties().getStringArray("tsp_sources")).forEach(source -> {
+                    tspSources.put(source, new OnlineTSPSource(source));
+                });
             } else {
-                params.getTSA().stream().forEach(source -> tspSources.put(source, new OnlineTSPSource(source)));
+                params.getTSA().stream().forEach(source -> {
+                    tspSources.put(source, new OnlineTSPSource(source));
+                });
             }
             service.setTspSource(compositeTSPSource);
         }
 
         ToBeSigned dataToSign = service.getDataToSign(toSignDocument, signatureParameters);
 
-        // Obtain the signature value for the signed information using the private key and specified algorithm
+        // This function obtains the signature value for signed information using the
+        // private key and specified algorithm
         DigestAlgorithm digestAlgorithm = signatureParameters.getDigestAlgorithm();
         log.debug("Data to be signed loaded");
         SignatureValue signatureValue = signingToken.sign(dataToSign, digestAlgorithm, signingToken.getKey(keyAlias));
 
-        // Optionally, validate the signature value
         /*if (service.isValidSignatureValue(dataToSign, signatureValue, signingToken.getKey("alias").getCertificate())) {
             log.debug("is true");
         }*/

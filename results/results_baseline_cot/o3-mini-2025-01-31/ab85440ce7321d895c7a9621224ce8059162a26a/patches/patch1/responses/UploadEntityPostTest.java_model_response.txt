@@ -1,23 +1,3 @@
-<code_analysis>
-1. Error Analysis:
-   - The error indicates that the constructor for org.hamcrest.core.StringStartsWith no longer accepts a boolean as its first argument. It now only accepts a single String parameter.
-   - The error message points to the line where new StringStartsWith(false, "/v2/test/blobs/uploads/") is used.
-   - The updated dependency version of Hamcrest (org.hamcrest:hamcrest-core) no longer supports the two-argument constructor with a boolean flag.
-
-2. Client Code Review:
-   - In the method isUploadStarted(), the code calls new StringStartsWith(false, "/v2/test/blobs/uploads/"), which triggers the error.
-   - With the dependency update, this needs to be replaced with new StringStartsWith("/v2/test/blobs/uploads/").
-
-3. Considerations for Fix:
-   - Do not change any function signatures.
-   - Modify only the instantiation of StringStartsWith by removing the boolean parameter.
-   - Ensure that the correct import (org.hamcrest.core.StringStartsWith) is used.
-
-4. Proposed Changes:
-   - Replace the constructor call to new StringStartsWith(false, "/v2/test/blobs/uploads/") with new StringStartsWith("/v2/test/blobs/uploads/").
-   - Verify that the rest of the code remains intact and that the test behavior is unchanged.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com

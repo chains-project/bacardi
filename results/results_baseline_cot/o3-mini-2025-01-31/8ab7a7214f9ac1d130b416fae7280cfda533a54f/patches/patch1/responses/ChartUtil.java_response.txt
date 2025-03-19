@@ -7,10 +7,10 @@ import org.openqa.selenium.WebElement;
 import org.jenkinsci.test.acceptance.po.PageObject;
 
 /**
- * Charts are displayed on multiple PageObjects. This util provides some helper methods to deal with charts.
+ * Charts are displayed one multiple PageObjects. This util provides some helper methods to deal with charts.
  */
-// TODO: Move this code to ATH so we can reuse it from other plugins
 @SuppressWarnings("hideutilityclassconstructor")
+// TODO: Move this code to ATH so we can reuse it from other plugins
 public class ChartUtil {
     private static final int MAX_ATTEMPTS = 5;
 
@@ -28,7 +28,7 @@ public class ChartUtil {
         if (isChartDisplayedByElementId(pageObject, elementId)) {
             Object result = pageObject.executeScript(String.format(
                     "delete(window.Array.prototype.toJSON) %n"
-                    + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
+                            + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
                     elementId));
             return result != null ? result.toString() : null;
         }
@@ -51,9 +51,8 @@ public class ChartUtil {
             for (int i = 0; i < MAX_ATTEMPTS; i++) {
                 Object result = pageObject.executeScript(String.format(
                         "delete(window.Array.prototype.toJSON) %n"
-                        + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
+                                + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
                         toolAttribute));
-
                 if (result != null) {
                     return result.toString();
                 }
@@ -102,4 +101,5 @@ public class ChartUtil {
             return false;
         }
     }
+
 }

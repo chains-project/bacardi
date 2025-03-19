@@ -1,12 +1,3 @@
-<code_analysis>
-1. The error message indicates that the constructor for org.hamcrest.core.StringContains no longer accepts two arguments (a boolean flag and a String). Previously, the code passed a boolean (likely for case sensitivity) and the expected substring, but the updated dependency now requires only a single String argument.
-2. In the client code, the errors occur in two places:
-   - In the largeImagePullWorks() test method, the assertion uses new StringContains(false, String.format(...)).
-   - In the largeImageUploadWorks() test method, the assertion again uses new StringContains(false, "Pushed").
-3. The required modifications are to remove the boolean flag from the StringContains constructor calls. This change adheres to the function signatures and leverages the updated version of the dependency.
-4. The patch will update the two test assertions by removing the first boolean argument and keeping only the expected substring.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
@@ -76,9 +67,7 @@ public final class LargeImageITCase {
             final String output = this.client.run("pull", this.remote());
             MatcherAssert.assertThat(
                 output,
-                new StringContains(
-                    String.format("Status: Downloaded newer image for %s", this.remote())
-                )
+                new StringContains(String.format("Status: Downloaded newer image for %s", this.remote()))
             );
         } finally {
             this.client.run("rmi", this.remote());

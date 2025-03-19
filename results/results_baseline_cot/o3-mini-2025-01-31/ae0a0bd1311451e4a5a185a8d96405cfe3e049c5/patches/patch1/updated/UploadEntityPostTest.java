@@ -26,13 +26,6 @@ import org.hamcrest.core.StringStartsWith;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- * Tests for {@link DockerSlice}.
- * Upload PUT endpoint.
- *
- * @since 0.2
- * @checkstyle ClassDataAbstractionCouplingCheck (2 lines)
- */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class UploadEntityPostTest {
 

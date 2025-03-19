@@ -57,22 +57,23 @@ public class CrudifierView<T> extends Panel implements IGenericComponent<T, Crud
 			@Override
 			protected void onConfigure() {
 				super.onConfigure();
+
 				setVisible(!getDefaultModelObjectAsString().isEmpty());
 			}
 		});
-	}
 
+	}
 	@Override
 	protected void onConfigure() {
 		super.onConfigure();
 
 		RepeatingView view = new RepeatingView("control");
-		if (getModelObject() != null) {
-			for (final String property : getPropertiesByOrder(getModelObject().getClass())) {
+		if(null != getModelObject()) {
+			for(final String property : getPropertiesByOrder(getModelObject().getClass())){
 				WebMarkupContainer control = new WebMarkupContainer(view.newChildId());
 				view.addOrReplace(control);
 
-				StringResourceModel stringResourceModel = new StringResourceModel("controls." + property + ".label", this, getModel());
+				StringResourceModel stringResourceModel = new StringResourceModel("controls."+property+".label", this, getModel());
 				stringResourceModel.setDefaultValue("Unknown");
 				control.addOrReplace(new Label("label", stringResourceModel));
 				control.addOrReplace(new LabelProperty("input", new PropertyModel<Object>(getModel(), property), renderers) {
@@ -80,7 +81,7 @@ public class CrudifierView<T> extends Panel implements IGenericComponent<T, Crud
 
 					@Override
 					protected String getResourceString(String key, String defaultValue) {
-						return getLocalizer().getStringIgnoreSettings("controls." + property + "." + key, CrudifierView.this, null, defaultValue);
+						return getLocalizer().getStringIgnoreSettings("controls."+property+"."+key, CrudifierView.this, null, defaultValue);
 					}
 				});
 			}
@@ -96,22 +97,20 @@ public class CrudifierView<T> extends Panel implements IGenericComponent<T, Crud
 	private Set<String> getPropertiesByOrder(Class<?> modelClass) {
 		Set<String> properties = new LinkedHashSet<String>();
 
-		for (String property : entitySettings.getOrderOfFields()) {
-			if (!entitySettings.getHiddenFields().contains(property)) {
+		for(String property : entitySettings.getOrderOfFields()){
+			if(!entitySettings.getHiddenFields().contains(property))
 				properties.add(property);
-			}
 		}
 		try {
 			BeanInfo beanInfo = Introspector.getBeanInfo(modelClass);
-			for (PropertyDescriptor descriptor : beanInfo.getPropertyDescriptors()) {
-				if (!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
-						!properties.contains(descriptor.getName()) &&
-						!descriptor.getName().equals("class")) {
+			for(PropertyDescriptor descriptor : beanInfo.getPropertyDescriptors()){
+				if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
+				   !properties.contains(descriptor.getName()) &&
+				   !descriptor.getName().equals("class"))
 					properties.add(descriptor.getName());
-				}
 			}
 		} catch (IntrospectionException e) {
-			throw new RuntimeException("Error while introspecting class " + modelClass.getName(), e);
+			throw new RuntimeException(e);
 		}
 
 		return properties;

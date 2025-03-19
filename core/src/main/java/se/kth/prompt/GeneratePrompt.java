@@ -53,7 +53,7 @@ public class GeneratePrompt {
                 promptTemplate.setPromptModel(promptModel);
                 break;
             case BASELINE_COT_BUGGY:
-                promptTemplate = new BasePromptAnthropicBuggyTemplate();
+                promptTemplate = new BaseLineBuggyCotTemplate();
                 promptTemplate.setPromptModel(promptModel);
                 break;
             case BASELINE_API_DIFF:

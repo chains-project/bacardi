@@ -1,8 +1,6 @@
-30c30
+30d29
 < import java.util.List;
----
-> import java.util.Arrays;
-32,44d31
+32,44d30
 < import org.cactoos.Text;
 < import org.cactoos.iterable.LengthOf;
 < import org.cactoos.list.ListOf;
@@ -16,29 +14,13 @@
 < import org.cactoos.text.TrimmedText;
 < import org.cactoos.text.UncheckedText;
 < import org.cactoos.time.ZonedDateTimeOf;
-60d46
+60d45
 <         //@checkstyle LineLengthCheck (1 line)
-77,78c63
-<     private static final Pattern DTLS =
-<         Pattern.compile("[A-Za-z0-9 -.]{1,512}");
----
->     private static final Pattern DTLS = Pattern.compile("[A-Za-z0-9 -.]{1,512}");
-86c71
-<      * String representation of transaction.
----
->      * The original transaction string.
-88c73,78
+88c73
 <     private final IoCheckedScalar<String> transaction;
 ---
 >     private final String transaction;
-> 
->     /**
->      * The split parts of the transaction.
->      */
->     private final String[] parts;
-92a83
->      * @throws IOException if the transaction string is invalid
-94,105c85,92
+94,102c79,80
 <     RtTransaction(final String trnsct) {
 <         this.transaction = new IoCheckedScalar<>(
 <             new StickyScalar<>(
@@ -48,19 +30,10 @@
 <                             new TextOf(trnsct)
 <                         ).asString().isEmpty()
 <                     ) {
-<                         throw new IOException(
-<                             "Invalid transaction string: string is empty"
-<                         );
 ---
 >     RtTransaction(final String trnsct) throws IOException {
->         if (trnsct == null || trnsct.trim().isEmpty()) {
->             throw new IOException("Invalid transaction string: string is empty");
->         }
->         String[] fields = trnsct.split(";", -1);
->         if (fields.length != 7) {
->             throw new IOException(String.format(
->                 "Invalid transaction string: expected 7 fields, but found %d", fields.length));
-107,124c94,95
+>         if (trnsct.trim().isEmpty()) {
+107,115c85,87
 <                     final List<Text> pieces =
 <                         new ListOf<>(
 <                             new SplitText(trnsct, ";")
@@ -70,19 +43,25 @@
 <                         throw new IOException(
 <                             new FormattedText(
 <                                 // @checkstyle LineLength (1 line)
-<                                 "Invalid transaction string: expected 7 fields, but found %d",
+---
+>         String[] pieces = trnsct.split(";");
+>         if (pieces.length != 7) {
+>             throw new IOException(String.format(
+117,121c89,90
 <                                 pieces.size()
 <                             ).asString()
 <                         );
 <                     }
 <                     return trnsct;
-<                 }
+---
+>                 pieces.length
+>             ));
+123,124c92
 <             )
 <         );
 ---
 >         this.transaction = trnsct;
->         this.parts = fields;
-130,136c101
+130,136c98,99
 <         final String ident = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
@@ -91,24 +70,24 @@
 <             ).value()
 <         ).asString();
 ---
->         final String ident = this.parts[0].trim();
-138,141c103
+>         String[] parts = this.transaction.split(";");
+>         String ident = parts[0];
+138,141c101
 <             throw new IOException(
 <                 new UncheckedText(
 <                     new FormattedText(
 <                         // @checkstyle LineLength (1 line)
 ---
 >             throw new IOException(String.format(
-143,146c105
-<                         ident
+144,146c104
 <                     )
 <                 ).asString()
 <             );
 ---
->                 ident));
-148d106
+>             ));
+148d105
 <         // @checkstyle MagicNumber (1 line)
-154,163c112,117
+154,163c111,112
 <         return new ZonedDateTimeOf(
 <             new UncheckedText(
 <                 new IoCheckedScalar<>(
@@ -120,13 +99,9 @@
 <             DateTimeFormatter.ISO_OFFSET_DATE_TIME
 <         ).value();
 ---
->         final String timeStr = this.parts[1].trim();
->         try {
->             return ZonedDateTime.parse(timeStr, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
->         } catch (Exception e) {
->             throw new IOException("Invalid time format: " + timeStr, e);
->         }
-168,174c122
+>         String[] parts = this.transaction.split(";");
+>         return ZonedDateTime.parse(parts[1], DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+168,174c117,118
 <         final String amnt = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
@@ -135,24 +110,24 @@
 <             ).value()
 <         ).asString();
 ---
->         final String amnt = this.parts[2].trim();
-176,179c124
+>         String[] parts = this.transaction.split(";");
+>         String amnt = parts[2];
+176,179c120
 <             throw new IOException(
 <                 new UncheckedText(
 <                     new FormattedText(
 <                         // @checkstyle LineLength (1 line)
 ---
 >             throw new IOException(String.format(
-181,184c126
-<                         amnt
+182,184c123
 <                     )
 <                 ).asString()
 <             );
 ---
->                 amnt));
-186d127
+>             ));
+186d124
 <         // @checkstyle MagicNumber (1 line)
-192,201c133,134
+192,200c130,131
 <         final String prefix = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
@@ -162,19 +137,10 @@
 <             ).value()
 <         ).asString();
 <         //@checkstyle MagicNumberCheck (1 line)
-<         if (prefix.length() < 8 || prefix.length() > 32) {
 ---
->         final String pfx = this.parts[3].trim();
->         if (pfx.length() < 8 || pfx.length() > 32) {
-204c137
-<         if (!RtTransaction.PREFIX.matcher(prefix).matches()) {
----
->         if (!RtTransaction.PREFIX.matcher(pfx).matches()) {
-207c140
-<         return prefix;
----
->         return pfx;
-212,229c145,148
+>         String[] parts = this.transaction.split(";");
+>         String prefix = parts[3];
+212,219c143,144
 <         final String bnf = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
@@ -183,26 +149,23 @@
 <                 )
 <             ).value()
 <         ).asString();
-<         if (!RtTransaction.HEX.matcher(bnf).matches()) {
+---
+>         String[] parts = this.transaction.split(";");
+>         String bnf = parts[4];
+221,224c146
 <             throw new IOException(
 <                 new UncheckedText(
 <                     new FormattedText(
 <                         // @checkstyle LineLength (1 line)
-<                         "Invalid bnf string '%s', expecting hex string with 16 symbols",
-<                         bnf
+---
+>             throw new IOException(String.format(
+227,229c149
 <                     )
 <                 ).asString()
 <             );
 ---
->         final String bnfStr = this.parts[4].trim();
->         if (!RtTransaction.HEX.matcher(bnfStr).matches()) {
->             throw new IOException(String.format(
->                 "Invalid bnf string '%s', expecting hex string with 16 symbols", bnfStr));
-231c150
-<         return bnf;
----
->         return bnfStr;
-236,248c155,157
+>             ));
+236,243c156,157
 <         final String dtls = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
@@ -211,27 +174,23 @@
 <                 )
 <             ).value()
 <         ).asString();
-<         if (!RtTransaction.DTLS.matcher(dtls).matches()) {
+---
+>         String[] parts = this.transaction.split(";");
+>         String dtls = parts[5];
+245,248c159
 <             throw new IOException(
 <                 new UncheckedText(
 <                     new FormattedText(
 <                         // @checkstyle LineLength (1 line)
 ---
->         final String dtlsStr = this.parts[5].trim();
->         if (!RtTransaction.DTLS.matcher(dtlsStr).matches()) {
 >             throw new IOException(String.format(
-250,253c159
-<                         dtls, RtTransaction.DTLS
+251,253c162
 <                     )
 <                 ).asString()
 <             );
 ---
->                 dtlsStr, DTLS.pattern()));
-255c161
-<         return dtls;
----
->         return dtlsStr;
-260,279c166,169
+>             ));
+260,274c169,172
 <         final String sign = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
@@ -247,17 +206,18 @@
 <                 new UncheckedText(
 <                     new FormattedText(
 <                         // @checkstyle LineLength (1 line)
-<                         "Invalid signature '%s', expecting base64 string with 684 characters",
-<                         sign
+---
+>         String[] parts = this.transaction.split(";");
+>         String sign = parts[6];
+>         if (sign.length() != 684 || !RtTransaction.SIGN.matcher(sign).matches()) {
+>             throw new IOException(String.format(
+277,279c175
 <                     )
 <                 ).asString()
 <             );
 ---
->         final String sign = this.parts[6].trim();
->         if (sign.length() != 684 || !RtTransaction.SIGN.matcher(sign).matches()) {
->             throw new IOException(String.format(
->                 "Invalid signature '%s', expecting base64 string with 684 characters", sign));
-286c176
+>             ));
+286c182
 <         return new UncheckedScalar<>(this.transaction).value();
 ---
 >         return this.transaction;

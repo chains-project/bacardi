@@ -1,24 +1,3 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error indicates that an object of type AsyncRpcResult is being passed to methods expecting a CompletableFuture.
-   - Specifically, the calls to RpcContext.getContext().setFuture(...) and FutureContext.getContext().setCompatibleFuture(...) (around lines 43 and 45) are causing the problem because the type of asyncRpcResult is no longer compatible with the expected CompletableFuture<?> in the updated dependency version.
-
-2. Client Code Review:
-   - The method replay() creates an AsyncRpcResult via AsyncRpcResult.newDefaultAsyncResult(...).
-   - Later, it attempts to set this asyncRpcResult on RpcContext and FutureContext, but the new dependency update requires a CompletableFuture.
-   - This indicates that, in the new version, AsyncRpcResult no longer directly implements or extends CompletableFuture.
-
-3. Potential Fix:
-   - Modify the replay() method so that instead of passing asyncRpcResult directly to setFuture and setCompatibleFuture, we obtain its underlying CompletableFuture.
-   - It is assumed that AsyncRpcResult now provides a method (for example, getCompletableFuture()) that returns a CompletableFuture object.
-
-4. Necessary Changes:
-   - Introduce a local variable to hold the CompletableFuture obtained from asyncRpcResult.getCompletableFuture().
-   - Replace the calls of setFuture(asyncRpcResult) and setCompatibleFuture(asyncRpcResult) with the new future.
-   - Ensure the import for java.util.concurrent.CompletableFuture is added.
-   - Do not alter any function signatures or remove code that is not directly causing the error.
-</code_analysis>
-
 ```java
 package io.arex.inst.dubbo.apache.v2;
 
@@ -31,9 +10,9 @@ import org.apache.dubbo.rpc.AsyncRpcResult;
 import org.apache.dubbo.rpc.Invocation;
 import org.apache.dubbo.rpc.RpcContext;
 import org.apache.dubbo.rpc.RpcInvocation;
+import org.apache.dubbo.rpc.Result;
 import org.apache.dubbo.rpc.support.RpcUtils;
-import org.apache.dubbo.rpc.FutureContext;
-
+import org.apache.dubbo.rpc.future.FutureContext;
 import java.util.concurrent.CompletableFuture;
 
 public class DubboConsumerExtractor extends DubboExtractor {
@@ -46,12 +25,10 @@ public class DubboConsumerExtractor extends DubboExtractor {
     public void record(Result result) {
         adapter.execute(result, makeMocker());
     }
-
     private Mocker makeMocker() {
         Mocker mocker = MockUtils.createDubboConsumer(adapter.getServiceOperation());
         return buildMocker(mocker, adapter, null, null);
     }
-
     public MockResult replay() {
         MockResult mockResult = null;
         Object result = MockUtils.replayBody(makeMocker());
@@ -70,11 +47,9 @@ public class DubboConsumerExtractor extends DubboExtractor {
                 RpcInvocation rpcInv = (RpcInvocation) invocation;
                 rpcInv.setInvokeMode(RpcUtils.getInvokeMode(adapter.getUrl(), invocation));
             }
-            // Convert asyncRpcResult to a CompletableFuture as required by the updated dependency.
-            CompletableFuture<?> completableFuture = asyncRpcResult.getCompletableFuture();
-            RpcContext.getContext().setFuture(completableFuture);
-            // Save for 2.6.x compatibility, for example, TraceFilter in Zipkin uses com.alibaba.xxx.FutureAdapter.
-            FutureContext.getContext().setCompatibleFuture(completableFuture);
+            RpcContext.getContext().setFuture(asyncRpcResult.getAppResponseFuture());
+            // save for 2.6.x compatibility, for example, TraceFilter in Zipkin uses com.alibaba.xxx.FutureAdapter
+            FutureContext.getContext().setCompatibleFuture(asyncRpcResult.getAppResponseFuture());
         }
         return mockResult;
     }

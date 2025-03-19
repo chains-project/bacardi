@@ -1,26 +1,3 @@
-<code_analysis>
-1. Error Analysis:
-   - The error message indicates that the JAX-RS classes in the "javax.ws.rs.container" and "javax.ws.rs.ext" packages are no longer available. This is likely due to a dependency update from Java EE (javax) to Jakarta EE (jakarta).
-   - Additionally, the code’s dependency on "io.dropwizard.util.Strings" is causing an error because that class is not found in the updated dependency.
-   - The errors point to missing types: ContainerRequestContext, ContainerRequestFilter, Provider, and Strings.
-
-2. Client Code Review:
-   - The problematic imports include javax.ws.rs.container.ContainerRequestContext, javax.ws.rs.container.ContainerRequestFilter, and javax.ws.rs.ext.Provider.
-   - The code also uses Strings.isNullOrEmpty from io.dropwizard.util, which now needs to be replaced.
-
-3. Proposed Fix:
-   - Update the JAX-RS imports to use the new Jakarta packages (i.e. jakarta.ws.rs.container and jakarta.ws.rs.ext).
-   - Remove the dependency on io.dropwizard.util.Strings and replace its usage by a standard null or empty string check (value != null && !value.isEmpty()).
-   - All function signatures are preserved, and the @Override annotation remains since the method still overrides ContainerRequestFilter.filter() in Jakarta.
-
-4. Modifications:
-   - Change import statements for ContainerRequestContext, ContainerRequestFilter, and Provider to their jakarta counterparts.
-   - Remove the import for io.dropwizard.util.Strings.
-   - Replace the usage of Strings.isNullOrEmpty in addIfNotNull with a native null and emptiness check.
-
-These changes address the broken dependency updates without altering the intended functionality of the class.
-</code_analysis>
-
 ```java
 package com.wire.lithium.server.monitoring;
 
@@ -29,7 +6,6 @@ import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.ext.Provider;
 import javax.annotation.Nullable;
 import org.slf4j.MDC;
-
 import java.util.UUID;
 
 /**

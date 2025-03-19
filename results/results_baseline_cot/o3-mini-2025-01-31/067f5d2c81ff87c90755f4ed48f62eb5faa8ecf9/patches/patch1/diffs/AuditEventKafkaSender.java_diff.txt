@@ -1,25 +1,16 @@
-16d15
-< 
-26d24
-< 
-33a32
+33a34
 > import org.apache.thrift.transport.TTransportException;
-36d34
-< 
-64,65c62
-<    *  kafka client
-<    *  library when sending an event to a certain partition.
----
->    *  kafka client library when sending an event to a certain partition.
-121c118
+121c122
 <   private TSerializer serializer = new TSerializer();
 ---
 >   private TSerializer serializer;
-185a183,187
+165d165
+< 
+185a186,190
 >     try {
 >       this.serializer = new TSerializer();
 >     } catch (TTransportException e) {
 >       throw new RuntimeException("Failed to initialize TSerializer", e);
 >     }
-187d188
+187d191
 < 

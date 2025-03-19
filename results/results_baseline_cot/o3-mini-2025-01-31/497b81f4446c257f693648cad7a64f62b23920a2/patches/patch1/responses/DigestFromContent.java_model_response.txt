@@ -1,25 +1,3 @@
-<code_analysis>
-1. Error Message Examination:
-   - The error messages indicate that the packages org.cactoos.io and org.cactoos.text are no longer available. Specifically, the error messages mention that classes from these packages (BytesOf and HexOf) are not found.
-   - The error points to the import lines (lines 16 and 17) and the use of HexOf on line 61.
-   - This suggests that due to a dependency update (likely the cactoos library update), these classes have been removed or relocated.
-
-2. Client Code Review:
-   - The problematic areas are the imports of org.cactoos.io.BytesOf and org.cactoos.text.HexOf, as well as their usage in the lambda that creates a new Digest.Sha256.
-   - The code uses these classes solely to convert the byte array output of sha.digest() to a hexadecimal string.
-
-3. Potential Fixes:
-   - Replace the dependency on the missing cactoos classes by implementing an equivalent hexadecimal conversion using standard Java.
-   - Create a helper method (e.g. bytesToHex) to convert the resulting byte array from sha.digest() into its hexadecimal string representation.
-   - Remove the imports for the missing dependency packages.
-
-4. Planned Modifications:
-   - Remove the import statements for org.cactoos.io.BytesOf and org.cactoos.text.HexOf.
-   - Replace the use of new HexOf(new BytesOf(sha.digest())).asString() with a call to a helper method, which iterates through the byte array and formats it as a hexadecimal string.
-   - Add a private static helper method bytesToHex(byte[]) that performs the conversion.
-   - Ensure no change in function signatures or core logic of the class.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
@@ -84,18 +62,13 @@ public final class DigestFromContent {
             )
             .to(SingleInterop.get()).toCompletableFuture();
     }
-
-    /**
-     * Converts a byte array to a hexadecimal string.
-     * @param bytes byte array to convert.
-     * @return Hexadecimal string representation.
-     */
+    
     private static String bytesToHex(final byte[] bytes) {
-        final StringBuilder hexString = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         for (final byte b : bytes) {
-            hexString.append(String.format("%02x", b));
+            sb.append(String.format("%02x", b & 0xff));
         }
-        return hexString.toString();
+        return sb.toString();
     }
 }
 ```

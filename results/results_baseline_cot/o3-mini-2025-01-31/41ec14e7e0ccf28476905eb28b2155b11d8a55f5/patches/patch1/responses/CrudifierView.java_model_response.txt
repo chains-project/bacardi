@@ -1,28 +1,3 @@
-<code_analysis>
-1. Error message analysis:
-   - The error indicates that the symbol "PropertyUtils" from the package "org.apache.commons.beanutils" cannot be found because the package does not exist. This shows that the dependency on Apache Commons BeanUtils has been removed or updated.
-   - The specific error occurs in the method getPropertiesByOrder at the call to PropertyUtils.getPropertyDescriptors(modelClass).
-
-2. Client code review:
-   - The code imports "org.apache.commons.beanutils.PropertyUtils" and uses it to obtain property descriptors from the model class.
-   - The problematic use of PropertyUtils is in the loop:
-     for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){ ... }
-   - This breaks after the dependency update.
-
-3. Potential fixes:
-   - Remove the import for "org.apache.commons.beanutils.PropertyUtils".
-   - Replace PropertyUtils.getPropertyDescriptors(modelClass) with Java’s built-in bean introspection using java.beans.Introspector.
-   - Add necessary imports such as java.beans.Introspector, java.beans.BeanInfo, and java.beans.IntrospectionException.
-   - Handle the checked IntrospectionException within the getPropertiesByOrder method.
-   - Ensure that the method signature remains unchanged and only modify the internals for compatibility.
-
-4. Planned modifications:
-   - Remove the dependency on Apache Commons BeanUtils.
-   - Add the appropriate imports from the java.beans package.
-   - Modify the getPropertiesByOrder method to use Introspector.getBeanInfo(modelClass).getPropertyDescriptors().
-   - Catch any potential IntrospectionException and rethrow a RuntimeException as needed.
-</code_analysis>
-
 ```java
 /**
  * Copyright (C) 2014 Premium Minds.
@@ -83,22 +58,23 @@ public class CrudifierView<T> extends Panel implements IGenericComponent<T, Crud
 			@Override
 			protected void onConfigure() {
 				super.onConfigure();
+
 				setVisible(!getDefaultModelObjectAsString().isEmpty());
 			}
 		});
-	}
 
+	}
 	@Override
 	protected void onConfigure() {
 		super.onConfigure();
 
 		RepeatingView view = new RepeatingView("control");
-		if (getModelObject() != null) {
-			for (final String property : getPropertiesByOrder(getModelObject().getClass())) {
+		if(null != getModelObject()) {
+			for(final String property : getPropertiesByOrder(getModelObject().getClass())){
 				WebMarkupContainer control = new WebMarkupContainer(view.newChildId());
 				view.addOrReplace(control);
 
-				StringResourceModel stringResourceModel = new StringResourceModel("controls." + property + ".label", this, getModel());
+				StringResourceModel stringResourceModel = new StringResourceModel("controls."+property+".label", this, getModel());
 				stringResourceModel.setDefaultValue("Unknown");
 				control.addOrReplace(new Label("label", stringResourceModel));
 				control.addOrReplace(new LabelProperty("input", new PropertyModel<Object>(getModel(), property), renderers) {
@@ -106,7 +82,7 @@ public class CrudifierView<T> extends Panel implements IGenericComponent<T, Crud
 
 					@Override
 					protected String getResourceString(String key, String defaultValue) {
-						return getLocalizer().getStringIgnoreSettings("controls." + property + "." + key, CrudifierView.this, null, defaultValue);
+						return getLocalizer().getStringIgnoreSettings("controls."+property+"."+key, CrudifierView.this, null, defaultValue);
 					}
 				});
 			}
@@ -122,22 +98,20 @@ public class CrudifierView<T> extends Panel implements IGenericComponent<T, Crud
 	private Set<String> getPropertiesByOrder(Class<?> modelClass) {
 		Set<String> properties = new LinkedHashSet<String>();
 
-		for (String property : entitySettings.getOrderOfFields()) {
-			if (!entitySettings.getHiddenFields().contains(property)) {
+		for(String property : entitySettings.getOrderOfFields()){
+			if(!entitySettings.getHiddenFields().contains(property))
 				properties.add(property);
-			}
 		}
 		try {
 			BeanInfo beanInfo = Introspector.getBeanInfo(modelClass);
-			for (PropertyDescriptor descriptor : beanInfo.getPropertyDescriptors()) {
-				if (!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
-						!properties.contains(descriptor.getName()) &&
-						!descriptor.getName().equals("class")) {
+			for(PropertyDescriptor descriptor : beanInfo.getPropertyDescriptors()){
+				if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
+				   !properties.contains(descriptor.getName()) &&
+				   !descriptor.getName().equals("class"))
 					properties.add(descriptor.getName());
-				}
 			}
 		} catch (IntrospectionException e) {
-			throw new RuntimeException("Error while introspecting class " + modelClass.getName(), e);
+			throw new RuntimeException(e);
 		}
 
 		return properties;

@@ -1,3 +1,7 @@
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
 package com.artipie.docker.misc;
 
 import com.artipie.asto.Content;
@@ -59,14 +63,14 @@ public final class DigestFromContent {
     }
 
     /**
-     * Converts a byte array to a hexadecimal string.
-     * @param bytes array of bytes
-     * @return hexadecimal string representation
+     * Converts a byte array to its hexadecimal string representation.
+     * @param bytes Byte array.
+     * @return Hexadecimal string.
      */
     private static String bytesToHex(final byte[] bytes) {
-        final StringBuilder hexString = new StringBuilder(2 * bytes.length);
+        StringBuilder hexString = new StringBuilder(2 * bytes.length);
         for (final byte b : bytes) {
-            final String hex = Integer.toHexString(0xff & b);
+            String hex = Integer.toHexString(0xff & b);
             if (hex.length() == 1) {
                 hexString.append('0');
             }

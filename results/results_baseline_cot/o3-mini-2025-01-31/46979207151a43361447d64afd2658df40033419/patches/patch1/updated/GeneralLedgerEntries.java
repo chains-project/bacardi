@@ -5,7 +5,6 @@
 // Generated on: 2023.08.18 at 08:13:47 AM GMT 
 //
 
-
 package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
 
 import java.math.BigDecimal;
@@ -223,7 +222,7 @@ public class GeneralLedgerEntries implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
+        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -419,7 +418,7 @@ public class GeneralLedgerEntries implements ToString2
 
         @Override
         public String toString() {
-            final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
+            final ToStringStrategy2 strategy = new JAXBToStringStrategy();
             final StringBuilder buffer = new StringBuilder();
             append(null, buffer, strategy);
             return buffer.toString();
@@ -809,7 +808,7 @@ public class GeneralLedgerEntries implements ToString2
 
             @Override
             public String toString() {
-                final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
+                final ToStringStrategy2 strategy = new JAXBToStringStrategy();
                 final StringBuilder buffer = new StringBuilder();
                 append(null, buffer, strategy);
                 return buffer.toString();
@@ -1110,7 +1109,7 @@ public class GeneralLedgerEntries implements ToString2
 
                 @Override
                 public String toString() {
-                    final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
+                    final ToStringStrategy2 strategy = new JAXBToStringStrategy();
                     final StringBuilder buffer = new StringBuilder();
                     append(null, buffer, strategy);
                     return buffer.toString();

@@ -1,28 +1,3 @@
-<code_analysis>
-1. Error Message:
-   - The error occurs at line 70 when calling the method query1NN(double[]) on an instance of KDTree.
-   - The method query1NN(double[]) was available in the older version of tinspin’s KDTree, but it has been removed or renamed in the newer dependency version.
-   - The update in the dependency now provides a method (for example, queryKNN) to perform nearest-neighbor queries.
-
-2. Client Code Review:
-   - In the method prunePointsWithinDistance(List<PVector> points, double distanceTolerance), the code checks:
-     if (tree.size() == 0 || tree.query1NN(coords).dist() > distanceTolerance)
-   - This call to query1NN(...) is now invalid because the updated tinspin dependency no longer includes the method query1NN.
-   - We need to replace query1NN(coords).dist() with the equivalent nearest neighbor query using the new API.
-
-3. Potential Fix:
-   - Replace the query1NN call with a call to queryKNN(coords, 1) and then obtain the nearest neighbor’s distance.
-   - For instance, tree.queryKNN(coords, 1) returns a list from which we can extract the first element and call getDistance() to obtain the distance.
-   - Since Java’s || operator short-circuits, it is safe to call the queryKNN method only when tree.size() != 0.
-
-4. Necessary Changes:
-   - Modify the predicate in the for-loop in prunePointsWithinDistance() from:
-       tree.query1NN(coords).dist()
-     to:
-       tree.queryKNN(coords, 1).get(0).getDistance()
-   - No other changes to function signatures or imports are needed.
-</code_analysis>
-
 ```java
 package micycle.pgs;
 
@@ -93,7 +68,8 @@ public final class PGS_PointSet {
 		final List<PVector> newPoints = new ArrayList<>();
 		for (PVector p : points) {
 			final double[] coords = new double[] { p.x, p.y };
-			if (tree.size() == 0 || tree.queryKNN(coords, 1).get(0).getDistance() > distanceTolerance) {
+			// Use queryKNN in place of the removed query1NN API.
+			if (tree.size() == 0 || tree.queryKNN(coords, 1).get(0).d > distanceTolerance) {
 				tree.insert(coords, p);
 				newPoints.add(p);
 			}
@@ -628,7 +604,6 @@ public final class PGS_PointSet {
 	 * @return
 	 */
 	public static List<PVector> plasticLDS(double xMin, double yMin, double xMax, double yMax, int n) {
-		// https://github.com/Atrix256/SampleZoo/blob/master/src/families/_2d/samples/irrational_numbers/irrational_numbers.cpp
 		final double w = xMax - xMin;
 		final double h = yMax - yMin;
 		final double p = 1.32471795724474602596; // plastic constant

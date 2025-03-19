@@ -23,7 +23,7 @@ import com.artipie.http.rs.RsWithStatus;
 import com.artipie.http.rs.StandardRs;
 import com.artipie.http.slice.SliceSimple;
 import java.net.URI;
-import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
@@ -34,12 +34,6 @@ import org.hamcrest.core.IsEqual;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- * Tests for {@link FileProxySlice}.
- *
- * @since 0.7
- * @checkstyle ClassDataAbstractionCouplingCheck (500 lines)
- */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 final class FileProxySliceTest {
 
@@ -110,9 +104,9 @@ final class FileProxySliceTest {
                 Matchers.allOf(
                     new RsHasBody(body),
                     new RsHasHeaders(
-                        new SimpleImmutableEntry<>("header", "value"),
-                        new SimpleImmutableEntry<>("Content-Length", "4"),
-                        new SimpleImmutableEntry<>("Content-Length", "4")
+                        new SimpleEntry<>("header", "value"),
+                        new SimpleEntry<>("Content-Length", "4"),
+                        new SimpleEntry<>("Content-Length", "4")
                     )
                 ),
                 new RequestLine(RqMethod.GET, String.format("/%s", key))
@@ -138,10 +132,9 @@ final class FileProxySliceTest {
             ),
             new SliceHasResponse(
                 Matchers.allOf(
-                    new RsHasStatus(RsStatus.OK), 
-                    new RsHasBody(body),
+                    new RsHasStatus(RsStatus.OK), new RsHasBody(body),
                     new RsHasHeaders(
-                        new SimpleImmutableEntry<>("Content-Length", String.valueOf(body.length))
+                        new SimpleEntry<>("Content-Length", String.valueOf(body.length))
                     )
                 ),
                 new RequestLine(RqMethod.GET, String.format("/%s", key))

@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -41,6 +43,7 @@ public class SimpleLocalizeClient
 
   public SimpleLocalizeClient(String baseUrl, String apiKey)
   {
+
     Objects.requireNonNull(baseUrl);
     Objects.requireNonNull(apiKey);
     this.uriFactory = new SimpleLocalizeUriFactory(baseUrl);
@@ -84,8 +87,25 @@ public class SimpleLocalizeClient
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
     throwOnError(httpResponse);
     String body = httpResponse.body();
-    // Patch: Use ObjectReader to avoid declaring the new exception type from the updated dependency.
-    ExportResponse exportResponse = objectMapper.readerFor(ExportResponse.class).readValue(body);
+    ExportResponse exportResponse;
+    try
+    {
+      Method readValueMethod = ObjectMapper.class.getMethod("readValue", String.class, Class.class);
+      exportResponse = (ExportResponse) readValueMethod.invoke(objectMapper, body, ExportResponse.class);
+    }
+    catch (InvocationTargetException e)
+    {
+      Throwable cause = e.getCause();
+      if (cause instanceof IOException)
+      {
+        throw (IOException) cause;
+      }
+      throw new IOException(cause);
+    }
+    catch (NoSuchMethodException | IllegalAccessException e)
+    {
+      throw new IOException(e);
+    }
     return exportResponse.getFiles();
   }
 

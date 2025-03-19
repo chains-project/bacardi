@@ -1,12 +1,3 @@
-<code_analysis>
-1. The error message indicates that the constructor for org.hamcrest.core.StringContains no longer accepts two arguments (a boolean and a String) as it once did. Instead, it now only takes a single String argument. The error occurs in the imagePulled method on line 170.
-2. In the client code, within the imagePulled method, the instantiation of StringContains is passing two arguments:
-   new StringContains(false, String.format("Status: Downloaded newer image for %s", image));
-   This is now invalid with the updated dependency.
-3. To fix the issue, we remove the boolean parameter and only pass the formatted String to the StringContains constructor. This change is minimal and adheres to the constraints.
-4. The necessary modification is solely in the imagePulled method.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com

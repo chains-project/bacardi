@@ -1,10 +1,26 @@
-218,219c218,219
+168,169d167
+<   // Model elements order {
+<   //TODO move to polyglot-common, or to org.apache.maven:maven-model
+198,199d195
+<           //"repositories",
+<           //"pluginRepositories",
+212d207
+<   //}
+214,216d208
+<   /*
+<    * Change the default order. Important data goes first.
+<    */
+218,219c210,211
 <   protected Set<Property> getProperties(Class<? extends Object> type)
 <           throws IntrospectionException {
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) {
 >     try {
-232a233,235
+232a225,227
 >     } catch (IntrospectionException e) {
->       throw new IllegalStateException("Failed to introspect properties for type: " + type, e);
+>       throw new YAMLException(e);
 >     }
+268c263
+<       return 0;// compare further
+---
+>       return 0;

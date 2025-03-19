@@ -10,12 +10,13 @@ import net.jadler.stubbing.StubResponse;
 import org.apache.commons.lang.Validate;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.io.OutputStream;
+
 
 /**
  * Jetty Handler which handles all http communication by returning an http response according to a stub response
@@ -25,6 +26,7 @@ class JadlerHandler extends AbstractHandler {
 
     private final RequestManager requestManager;
 
+
     /**
      * @param requestManager request manager instance to retrieve stub responses
      */
@@ -32,6 +34,7 @@ class JadlerHandler extends AbstractHandler {
         Validate.notNull(requestManager, "requestManager cannot be null");
         this.requestManager = requestManager;
     }
+
 
     @Override
     public void handle(final String target, final Request baseRequest, final HttpServletRequest request,
@@ -49,6 +52,7 @@ class JadlerHandler extends AbstractHandler {
         this.insertResponseBody(stubResponse.getBody(), response);
     }
 
+
     private void insertResponseBody(final byte[] body, final HttpServletResponse response) throws IOException {
         if (body.length > 0) {
             final OutputStream os = response.getOutputStream();
@@ -56,13 +60,16 @@ class JadlerHandler extends AbstractHandler {
         }
     }
 
+
     private void insertResponseHeaders(final KeyValues headers, final HttpServletResponse response) {
         for (final String key : headers.getKeys()) {
+
             for (final String value : headers.getValues(key)) {
                 response.addHeader(key, value);
             }
         }
     }
+
 
     private void processDelay(final long delay) {
         if (delay > 0) {

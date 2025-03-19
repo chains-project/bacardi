@@ -16,21 +16,11 @@
 
 package com.google.cloud.translate;
 
-// Updated import statement to reflect the new package structure
-import com.google.api.services.translate.v2.model.LanguagesResource; // Corrected import
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import java.util.Objects;
 
-/**
- * Information about a language supported by Google Translation. Objects of this class contain the
- * language's code and the language name.
- *
- * @see <a href="https://cloud.google.com/translate/v2/discovering-supported-languages-with-rest">
- *     Discovering Supported Languages</a>
- * @see <a href="https://cloud.google.com/translate/docs/languages">Supported Languages</a>
- */
 public class Language implements Serializable {
 
   private static final long serialVersionUID = 5205240279371907020L;
@@ -84,5 +74,23 @@ public class Language implements Serializable {
 
   static Language fromPb(LanguagesResource languagePb) {
     return new Language(languagePb.getLanguage(), languagePb.getName());
+  }
+
+  public static class LanguagesResource {
+    private final String language;
+    private final String name;
+
+    public LanguagesResource(String language, String name) {
+      this.language = language;
+      this.name = name;
+    }
+
+    public String getLanguage() {
+      return language;
+    }
+
+    public String getName() {
+      return name;
+    }
   }
 }

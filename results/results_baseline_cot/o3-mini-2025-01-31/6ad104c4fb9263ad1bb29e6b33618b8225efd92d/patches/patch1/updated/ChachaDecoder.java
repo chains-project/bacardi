@@ -14,7 +14,9 @@ public class ChachaDecoder {
   private final ChaChaEngine decryptCipher;
 
   public ChachaDecoder(byte[] key, byte[] nonce) throws IOException {
+
     this.decryptCipher = new ChaChaEngine(20);
+
     this.decryptCipher.init(false, new ParametersWithIV(new KeyParameter(key), nonce));
   }
 

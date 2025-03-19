@@ -1,27 +1,3 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error messages indicate that the compiler cannot find the class FilterFactory from the package io.dropwizard.logging.filter.
-   - The import "io.dropwizard.logging.filter.FilterFactory" is no longer available in the updated dependency.
-   - This shows that the dependency update has relocated or removed the FilterFactory interface.
-
-2. Client Code Analysis:
-   - The class StatusCheckFilter implements FilterFactory<IAccessEvent> and overrides the build() method.
-   - The failure originates from the import and use of FilterFactory from the now-nonexistent package.
-   
-3. Potential Fix:
-   - Update the import and implemented interface to match the new location provided by the updated dependency.
-   - In Dropwizard’s newer versions (especially for access logging), the filter factory interface has been moved to a different package.
-   - A common migration is to use io.dropwizard.logback.access.filter.AccessEventFilterFactory instead of io.dropwizard.logging.filter.FilterFactory.
-   - This change aligns with the new dependency structure without needing to change the functionality.
-   - The build() method signature remains the same and still returns a Filter<IAccessEvent>.
-   
-4. Specific Modifications:
-   - Remove "import io.dropwizard.logging.filter.FilterFactory;".
-   - Add "import io.dropwizard.logback.access.filter.AccessEventFilterFactory;".
-   - Change the class to implement AccessEventFilterFactory<IAccessEvent> instead of FilterFactory<IAccessEvent>.
-   - No removal of the @Override annotations is needed as the build() method still properly overrides the method from the new interface.
-</code_analysis>
-
 ```java
 package com.wire.lithium.server.monitoring;
 
@@ -29,11 +5,9 @@ import ch.qos.logback.access.spi.IAccessEvent;
 import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import io.dropwizard.logback.access.filter.AccessEventFilterFactory;
 
 @JsonTypeName("status-filter-factory")
-public class StatusCheckFilter implements AccessEventFilterFactory<IAccessEvent> {
-    @Override
+public class StatusCheckFilter {
     public Filter<IAccessEvent> build() {
         return new Filter<IAccessEvent>() {
             @Override

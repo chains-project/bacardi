@@ -1,12 +1,3 @@
-<code_analysis>
-1. The error message indicates that the constructor for org.hamcrest.core.StringContains is now defined to accept only a single java.lang.String argument instead of two (a boolean and a String). The error occurs at several lines where new StringContains(false, String.format(...)) is used.
-2. In the client code, the problematic areas are in the test methods (shouldPullPushedByTag, shouldPullPushedByDigest) and the private matcher methods (manifestPushed, layersPushed, layersAlreadyExist), where the boolean parameter “false” is passed to StringContains.
-3. To fix this, we need to remove the extra boolean parameter and call the constructor with only the substring to match. This aligns with the updated Hamcrest dependency.
-4. The specific modifications are:
-   - Replace new StringContains(false, String.format(...)) with new StringContains(String.format(...)) in all relevant locations.
-   - All other code is left unchanged to preserve functionality.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
@@ -132,9 +123,7 @@ final class DockerSliceITCase {
     }
 
     private Matcher<String> layersAlreadyExist() {
-        return new StringContains(
-            String.format("%s: Layer already exists", this.image.layer())
-        );
+        return new StringContains(String.format("%s: Layer already exists", this.image.layer()));
     }
 }
 ```

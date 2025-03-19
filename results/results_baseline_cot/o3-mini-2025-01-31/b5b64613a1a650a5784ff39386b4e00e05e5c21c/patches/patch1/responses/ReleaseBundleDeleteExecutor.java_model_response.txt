@@ -1,10 +1,3 @@
-<code_analysis>
-1. The error message indicates that the call to StringUtils.isAllBlank(siteName, cityName) cannot be found. This is because the updated version of Apache Commons Lang3 no longer includes a method with that signature.
-2. In the client code, the problematic line is in the createRequest() method where it checks if the siteName and cityName are all blank using StringUtils.isAllBlank.
-3. Since the intended logic is to ensure that both siteName and cityName are blank when distRules is provided (i.e., no extra site, city, or country codes), we can replace the check with an equivalent one using available methods. In this case, checking whether either siteName or cityName is non-blank (using StringUtils.isNotBlank) achieves the same effect.
-4. The patch involves replacing the call to StringUtils.isAllBlank(siteName, cityName) with a check that either siteName or cityName is not blank. This change adheres to the function signature constraints and maintains the intended functionality.
-</code_analysis>
-
 ```java
 package org.jfrog.hudson.pipeline.common.executors;
 
@@ -56,9 +49,7 @@ public class ReleaseBundleDeleteExecutor implements Executor {
                                                      String cityName, boolean dryRun, boolean deleteFromDist) throws IOException {
         DeleteReleaseBundleRequest request;
         if (StringUtils.isNotBlank(distRules)) {
-            // Replace the removed "isAllBlank" method with equivalent logic:
-            // Check if either siteName or cityName is not blank.
-            if (!CollectionUtils.isEmpty(countryCodes) || StringUtils.isNotBlank(siteName) || StringUtils.isNotBlank(cityName)) {
+            if (!CollectionUtils.isEmpty(countryCodes) || !(StringUtils.isBlank(siteName) && StringUtils.isBlank(cityName))) {
                 throw new IOException("The distRules input can't be used with site, city or country codes");
             }
             ObjectMapper mapper = createMapper();

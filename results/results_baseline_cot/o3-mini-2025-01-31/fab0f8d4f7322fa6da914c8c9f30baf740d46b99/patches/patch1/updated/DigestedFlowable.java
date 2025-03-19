@@ -1,7 +1,10 @@
 /*
- * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
- * https://github.com/artipie/docker-adapter/LICENSE.txt
- */
+<repair_strategy>
+1. Remove dependency on external libraries: org.cactoos.io.BytesOf and org.cactoos.text.HexOf.
+2. Introduce a private static method bytesToHex to convert the byte array returned by sha.digest() into a hexadecimal string.
+3. Replace "new HexOf(new BytesOf(sha.digest())).asString()" with "bytesToHex(sha.digest())" in the doOnComplete block.
+</repair_strategy>
+*/
 package com.artipie.docker.misc;
 
 import com.artipie.asto.Remaining;
@@ -65,17 +68,17 @@ public final class DigestedFlowable extends Flowable<ByteBuffer> {
     public Digest digest() {
         return Objects.requireNonNull(this.dig.get(), "Digest is not yet calculated.");
     }
-
+    
     /**
-     * Converts a byte array to its hexadecimal string representation.
+     * Converts a byte array to a hexadecimal string.
      *
-     * @param bytes Byte array to convert.
-     * @return Hexadecimal string.
+     * @param bytes the byte array to convert
+     * @return a hexadecimal representation of the byte array
      */
     private static String bytesToHex(final byte[] bytes) {
-        StringBuilder hexString = new StringBuilder(2 * bytes.length);
-        for (byte b : bytes) {
-            hexString.append(String.format("%02x", b & 0xff));
+        final StringBuilder hexString = new StringBuilder();
+        for (final byte b : bytes) {
+            hexString.append(String.format("%02x", b));
         }
         return hexString.toString();
     }

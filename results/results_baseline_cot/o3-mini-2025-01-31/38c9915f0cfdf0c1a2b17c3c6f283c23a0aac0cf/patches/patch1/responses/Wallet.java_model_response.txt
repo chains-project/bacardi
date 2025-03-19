@@ -1,54 +1,42 @@
-<code_analysis>
-1. Examine the error message:
-   - The compiler cannot find the classes UncheckedScalar and CheckedScalar in the package org.cactoos.scalar, nor SplitText in org.cactoos.text, nor Filtered in org.cactoos.collection.
-   - The errors occur where these classes are imported and used (lines around the id() method and in merge()).
-   - It appears that a dependency update in cactoos has either renamed or relocated these classes.
-
-2. Review the client code:
-   - The import for Filtered should now point to org.cactoos.iterable.Filtered rather than org.cactoos.collection.Filtered.
-   - The classes CheckedScalar and UncheckedScalar have been removed or renamed. In the newer version, their functionality is provided by IoChecked and Unchecked (in the same package).
-   - Similarly, SplitText now resides in org.cactoos.text.split.SplitText.
-   - The affected methods are id() in the File implementation and the lambda in merge() which uses UncheckedScalar.
-
-3. Consider potential fixes:
-   - Update the import for Filtered to org.cactoos.iterable.Filtered.
-   - Replace the import for CheckedScalar with IoChecked and update its usage in the id() method, removing the extra lambda parameter since IoChecked automatically wraps exceptions.
-   - Replace the import for UncheckedScalar with Unchecked in the merge() method.
-   - Update the import for SplitText to org.cactoos.text.split.SplitText (the new package location).
-
-4. Necessary modifications:
-   - Change the import statements accordingly.
-   - In the id() method, replace:
-       new CheckedScalar<>( ... , e -> new IOException(e) ).value();
-     with:
-       new IoChecked<>( () -> ... ).value();
-   - In the merge() method, replace:
-       new UncheckedScalar<>( new Or( ... ) ).value();
-     with:
-       new Unchecked<>( new Or( ... ) ).value();
-   - These changes respect the existing function signatures and only update the dependency usages.
-</code_analysis>
-
-Below is the patched complete Java class:
-
 ```java
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2018-2023 Yegor Bugayenko
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package io.zold.api;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
-import org.cactoos.iterable.Filtered;
+import java.util.ArrayList;
+import java.util.List;
 import org.cactoos.iterable.IterableOf;
 import org.cactoos.iterable.Joined;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Skipped;
 import org.cactoos.list.ListOf;
-import org.cactoos.scalar.IoChecked;
 import org.cactoos.scalar.Or;
-import org.cactoos.scalar.Unchecked;
 import org.cactoos.text.FormattedText;
-import org.cactoos.text.split.SplitText;
 import org.cactoos.text.TextOf;
 import org.cactoos.text.UncheckedText;
 
@@ -174,7 +162,48 @@ public interface Wallet {
 
         @Override
         public Wallet merge(final Wallet other) {
-            return other;
+            try {
+                if (other.id() != this.id()) {
+                    throw new IOException(
+                        new UncheckedText(
+                            new FormattedText(
+                                "Wallet ID mismatch, ours is %d, theirs is %d",
+                                other.id(),
+                                this.id()
+                            )
+                        ).asString()
+                    );
+                }
+                final Iterable<Transaction> ledger = this.ledger();
+                List<Transaction> candidates = new ArrayList<>();
+                for (Transaction incoming : other.ledger()) {
+                    boolean found = false;
+                    for (Transaction origin : ledger) {
+                        boolean condition;
+                        try {
+                            condition = incoming.equals(origin)
+                                || (incoming.id() == origin.id() && incoming.bnf().equals(origin.bnf()))
+                                || (incoming.id() == origin.id() && incoming.amount() < 0L)
+                                || incoming.prefix().equals(origin.prefix());
+                        } catch (Exception ex) {
+                            throw new IOException(ex);
+                        }
+                        if (condition) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        candidates.add(incoming);
+                    }
+                }
+                return new Wallet.Fake(
+                    this.id(),
+                    new Joined<Transaction>(ledger, candidates)
+                );
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
         }
 
         @Override
@@ -209,18 +238,16 @@ public interface Wallet {
 
         @Override
         public long id() throws IOException {
-            return new IoChecked<>(
-                () -> Long.parseUnsignedLong(
-                    new ListOf<>(
-                        new SplitText(
-                            new TextOf(this.path),
-                            "\n"
-                        )
-                    ).get(2).asString(),
-                    // @checkstyle MagicNumber (1 line)
-                    16
-                )
-            ).value();
+            try {
+                String content = new TextOf(this.path).asString();
+                String[] lines = content.split("\n");
+                if (lines.length <= 2) {
+                    throw new IOException("Not enough lines in wallet file");
+                }
+                return Long.parseUnsignedLong(lines[2], 16);
+            } catch (Exception e) {
+                throw new IOException(e);
+            }
         }
 
         @Override
@@ -254,22 +281,28 @@ public interface Wallet {
                 );
             }
             final Iterable<Transaction> ledger = this.ledger();
-            final Iterable<Transaction> candidates = new Filtered<>(
-                incoming -> new Filtered<>(
-                    origin -> new Unchecked<>(
-                        new Or(
-                            () -> incoming.equals(origin),
-                            () -> incoming.id() == origin.id()
-                                && incoming.bnf().equals(origin.bnf()),
-                            () -> incoming.id() == origin.id()
-                                && incoming.amount() < 0L,
-                            () -> incoming.prefix().equals(origin.prefix())
-                        )
-                    ).value(),
-                    ledger
-                ).isEmpty(),
-                other.ledger()
-            );
+            List<Transaction> candidates = new ArrayList<>();
+            for (Transaction incoming : other.ledger()) {
+                boolean found = false;
+                for (Transaction origin : ledger) {
+                    boolean condition;
+                    try {
+                        condition = incoming.equals(origin)
+                            || (incoming.id() == origin.id() && incoming.bnf().equals(origin.bnf()))
+                            || (incoming.id() == origin.id() && incoming.amount() < 0L)
+                            || incoming.prefix().equals(origin.prefix());
+                    } catch (Exception ex) {
+                        throw new IOException(ex);
+                    }
+                    if (condition) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    candidates.add(incoming);
+                }
+            }
             return new Wallet.Fake(
                 this.id(),
                 new Joined<Transaction>(ledger, candidates)
@@ -278,19 +311,20 @@ public interface Wallet {
 
         @Override
         public Iterable<Transaction> ledger() {
-            return new Mapped<>(
-                txt -> new RtTransaction(txt.asString()),
-                new Skipped<>(
-                    new ListOf<>(
-                        new SplitText(
-                            new TextOf(this.path),
-                            "\\n"
-                        )
-                    ),
-                    // @checkstyle MagicNumberCheck (1 line)
-                    5
-                )
-            );
+            try {
+                String content = new TextOf(this.path).asString();
+                String[] parts = content.split("\\n");
+                List<org.cactoos.text.Text> texts = new ArrayList<>();
+                for (int i = 5; i < parts.length; i++) {
+                    texts.add(new TextOf(parts[i]));
+                }
+                return new Mapped<>(
+                    txt -> new RtTransaction(txt.asString()),
+                    new ListOf<>(texts)
+                );
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
         }
 
         // @todo #54:30min Implement key method. This should return the

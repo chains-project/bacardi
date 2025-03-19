@@ -61,6 +61,6 @@ class InitiatorProxyIoHandler extends AbstractProxyIoHandler {
 
     @Override
     public void proxySessionOpened(IoSession ioSession) throws Exception {
-        // SSL handshake initiation is now automatically handled by the updated SSLFilter implementation.
+        // Handshake initiation removed due to updated SSLFilter API.
     }
 }

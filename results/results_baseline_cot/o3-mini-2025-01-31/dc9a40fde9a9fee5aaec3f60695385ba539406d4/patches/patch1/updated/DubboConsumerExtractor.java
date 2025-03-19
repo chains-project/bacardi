@@ -9,9 +9,9 @@ import org.apache.dubbo.rpc.AsyncRpcResult;
 import org.apache.dubbo.rpc.Invocation;
 import org.apache.dubbo.rpc.RpcContext;
 import org.apache.dubbo.rpc.RpcInvocation;
+import org.apache.dubbo.rpc.Result;
 import org.apache.dubbo.rpc.support.RpcUtils;
-import org.apache.dubbo.rpc.FutureContext;
-
+import org.apache.dubbo.rpc.future.FutureContext;
 import java.util.concurrent.CompletableFuture;
 
 public class DubboConsumerExtractor extends DubboExtractor {
@@ -24,12 +24,10 @@ public class DubboConsumerExtractor extends DubboExtractor {
     public void record(Result result) {
         adapter.execute(result, makeMocker());
     }
-
     private Mocker makeMocker() {
         Mocker mocker = MockUtils.createDubboConsumer(adapter.getServiceOperation());
         return buildMocker(mocker, adapter, null, null);
     }
-
     public MockResult replay() {
         MockResult mockResult = null;
         Object result = MockUtils.replayBody(makeMocker());
@@ -48,11 +46,9 @@ public class DubboConsumerExtractor extends DubboExtractor {
                 RpcInvocation rpcInv = (RpcInvocation) invocation;
                 rpcInv.setInvokeMode(RpcUtils.getInvokeMode(adapter.getUrl(), invocation));
             }
-            // Convert asyncRpcResult to a CompletableFuture as required by the updated dependency.
-            CompletableFuture<?> completableFuture = asyncRpcResult.getCompletableFuture();
-            RpcContext.getContext().setFuture(completableFuture);
-            // Save for 2.6.x compatibility, for example, TraceFilter in Zipkin uses com.alibaba.xxx.FutureAdapter.
-            FutureContext.getContext().setCompatibleFuture(completableFuture);
+            RpcContext.getContext().setFuture(asyncRpcResult.getAppResponseFuture());
+            // save for 2.6.x compatibility, for example, TraceFilter in Zipkin uses com.alibaba.xxx.FutureAdapter
+            FutureContext.getContext().setCompatibleFuture(asyncRpcResult.getAppResponseFuture());
         }
         return mockResult;
     }

@@ -27,9 +27,9 @@ import ch.qos.logback.core.util.FileSize;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.apache.thrift.transport.TTransport;
-import org.apache.thrift.transport.TFramedTransport;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,7 +57,7 @@ public class AppenderUtils {
     @Override
     public void init(OutputStream os) {
       this.os = os;
-      // Use TFramedTransport for compatibility with singer_thrift log.
+      // Use the TFramedTransport to be compatible with singer_thrift log.
       framedTransport = new TFramedTransport(new TIOStreamTransport(os));
       protocol = new TBinaryProtocol(framedTransport);
     }
@@ -66,7 +66,8 @@ public class AppenderUtils {
     public void doEncode(LogMessage logMessage) throws IOException {
       try {
         logMessage.write(protocol);
-        framedTransport.flush();
+        // Flush the underlying OutputStream as TFramedTransport does not expose flush()
+        os.flush();
       } catch (TException e) {
         throw new IOException(e);
       }

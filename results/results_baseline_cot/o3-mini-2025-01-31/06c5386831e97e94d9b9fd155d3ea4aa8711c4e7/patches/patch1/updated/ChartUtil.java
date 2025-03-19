@@ -3,14 +3,13 @@ package io.jenkins.plugins.coverage.util;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
-
 import org.jenkinsci.test.acceptance.po.PageObject;
 
 /**
  * Charts are displayed on multiple PageObjects. This util provides some helper methods to deal with charts.
  */
-// TODO: Move this code to ATH so we can reuse it from other plugins
 @SuppressWarnings("hideutilityclassconstructor")
+// TODO: Move this code to ATH so we can reuse it from other plugins
 public class ChartUtil {
     private static final int MAX_ATTEMPTS = 5;
 
@@ -51,16 +50,15 @@ public class ChartUtil {
             for (int i = 0; i < MAX_ATTEMPTS; i++) {
                 Object result = pageObject.executeScript(String.format(
                         "delete(window.Array.prototype.toJSON) %n"
-                    + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div[tool='%s']\")).getOption())",
+                        + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
                         toolAttribute));
-
                 if (result != null) {
                     return result.toString();
                 }
                 pageObject.elasticSleep(1000);
             }
         }
-        throw new java.util.NoSuchElementException("Found no trend chart with ID '" + toolAttribute + "'");
+        throw new java.util.NoSuchElementException("Found no trend chart with ID '%s''" + toolAttribute);
     }
 
     /**
@@ -77,7 +75,8 @@ public class ChartUtil {
         try {
             WebElement chart = pageObject.find(By.id(elementId));
             return chart != null && chart.isDisplayed();
-        } catch (NoSuchElementException exception) {
+        }
+        catch (NoSuchElementException exception) {
             return false;
         }
     }
@@ -96,8 +95,10 @@ public class ChartUtil {
         try {
             WebElement chart = pageObject.find(By.cssSelector("div[tool='" + toolAttribute + "']"));
             return chart != null && chart.isDisplayed();
-        } catch (NoSuchElementException exception) {
+        }
+        catch (NoSuchElementException exception) {
             return false;
         }
     }
+
 }

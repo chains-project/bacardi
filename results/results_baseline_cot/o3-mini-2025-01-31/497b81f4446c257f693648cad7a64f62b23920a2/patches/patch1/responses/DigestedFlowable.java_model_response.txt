@@ -1,25 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the packages "org.cactoos.io" and "org.cactoos.text" (and the classes BytesOf and HexOf) are no longer available in the updated dependency version.
-   - Specifically, the error is thrown on the lines where these classes are imported and used (line 15, 16, and 57).
-
-2. Review the client code:
-   - The client code uses "new HexOf(new BytesOf(sha.digest())).asString()" to convert the byte array resulting from sha.digest() into a hexadecimal string.
-   - The missing classes suggest that the cactoos library (or a portion of it) was removed or refactored in the dependency update.
-
-3. Consider potential fixes:
-   - Remove the imports and usage of org.cactoos.io.BytesOf and org.cactoos.text.HexOf.
-   - Replace the conversion logic with an equivalent method that converts a byte array to a hex string using standard Java code.
-   - This change does not affect the function signatures and adheres to the constraints.
-
-4. Plan the necessary changes:
-   - Remove import statements for BytesOf and HexOf.
-   - Create a private static helper method (e.g., bytesToHex) to perform the conversion of byte array to hexadecimal string.
-   - Replace the usage in doOnComplete() with a call to bytesToHex(sha.digest()).
-
-The following patch implements these modifications. It removes the dependency on the missing classes and provides an equivalent implementation that compiles and functions correctly.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
@@ -68,15 +46,25 @@ public final class DigestedFlowable extends Flowable<ByteBuffer> {
     @Override
     public void subscribeActual(final Subscriber<? super ByteBuffer> subscriber) {
         final MessageDigest sha = Digests.SHA256.get();
-        Flowable.fromPublisher(this.origin)
-            .map(buf -> {
+        Flowable.fromPublisher(this.origin).map(
+            buf -> {
                 sha.update(new Remaining(buf, true).bytes());
                 return buf;
-            })
-            .doOnComplete(() -> this.dig.set(
-                new Digest.Sha256(bytesToHex(sha.digest()))
-            ))
-            .subscribe(subscriber);
+            }
+        ).doOnComplete(
+            () -> {
+                final byte[] digestBytes = sha.digest();
+                final StringBuilder hexString = new StringBuilder();
+                for (final byte b : digestBytes) {
+                    final String hex = Integer.toHexString(0xff & b);
+                    if (hex.length() == 1) {
+                        hexString.append('0');
+                    }
+                    hexString.append(hex);
+                }
+                this.dig.set(new Digest.Sha256(hexString.toString()));
+            }
+        ).subscribe(subscriber);
     }
 
     /**
@@ -86,20 +74,6 @@ public final class DigestedFlowable extends Flowable<ByteBuffer> {
      */
     public Digest digest() {
         return Objects.requireNonNull(this.dig.get(), "Digest is not yet calculated.");
-    }
-    
-    /**
-     * Converts a byte array to a hexadecimal string.
-     *
-     * @param bytes The byte array.
-     * @return Hexadecimal string representation of the byte array.
-     */
-    private static String bytesToHex(final byte[] bytes) {
-        final StringBuilder hexString = new StringBuilder();
-        for (final byte b : bytes) {
-            hexString.append(String.format("%02x", b));
-        }
-        return hexString.toString();
     }
 }
 ```

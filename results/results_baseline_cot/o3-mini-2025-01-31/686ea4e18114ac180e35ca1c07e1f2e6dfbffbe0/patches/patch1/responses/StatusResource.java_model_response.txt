@@ -1,28 +1,27 @@
-<code_analysis>
-1. Examination of the error message:
-   - The errors indicate that the compiler cannot find the classes and packages for JAX-RS annotations and core classes (e.g., Produces, Path, Response, MediaType) that are imported from javax.ws.rs and javax.ws.rs.core.
-   - This typically happens when an upgraded dependency has migrated the JAX-RS API from the javax namespace to the jakarta namespace.
-   - The errors point to lines involving annotations and imports (lines 24-32), meaning the import statements are now outdated.
-
-2. Review of the client code:
-   - The client code uses annotations like @GET, @Path, and @Produces from the javax.ws.rs package.
-   - The Response and MediaType classes are also imported from javax.ws.rs.core.
-   - The failing imports suggest that the dependency update replaces these with jakarta.ws.rs equivalents.
-
-3. Proposed modifications:
-   - Replace all javax.ws.rs and javax.ws.rs.core imports with their corresponding jakarta.ws.rs and jakarta.ws.rs.core imports.
-   - Ensure that the annotations and classes from the updated dependency are being correctly imported.
-   - No other code changes are necessary since the method signatures and functionality remain intact.
-
-4. Conclusion:
-   - The patch involves updating the import statements to reflect the new Jakarta namespace, thus resolving the dependency errors.
-</code_analysis>
-
 ```java
+//
+// Wire
+// Copyright (C) 2016 Wire Swiss GmbH
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see http://www.gnu.org/licenses/.
+//
+
 package com.wire.lithium.server.monitoring;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -36,7 +35,9 @@ public class StatusResource {
     @GET
     @ApiOperation(value = "Status")
     public Response statusEmpty() {
-        return Response.ok().build();
+        return Response
+                .ok()
+                .build();
     }
 }
 ```

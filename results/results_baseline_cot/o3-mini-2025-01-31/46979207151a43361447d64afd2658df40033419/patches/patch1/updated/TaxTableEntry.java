@@ -20,33 +20,6 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
-/**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxType"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxCountryRegion"/&gt;
- *         &lt;element name="TaxCode" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxTableEntryTaxCode"/&gt;
- *         &lt;element name="Description" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFPTtextTypeMandatoryMax255Car"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxExpirationDate" minOccurs="0"/&gt;
- *         &lt;choice&gt;
- *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPercentage"/&gt;
- *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxAmount"/&gt;
- *         &lt;/choice&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
- */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "taxType",
@@ -247,7 +220,6 @@ public class TaxTableEntry implements ToString2
 
     @Override
     public String toString() {
-        // Updated to use the INSTANCE constant instead of getInstance()
         final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
@@ -267,37 +239,37 @@ public class TaxTableEntry implements ToString2
         {
             String theTaxType;
             theTaxType = this.getTaxType();
-            strategy.appendField(locator, this, "taxType", buffer, theTaxType, (this.taxType != null));
+            strategy.appendField(locator, this, "taxType", buffer, theTaxType, (this.taxType!= null));
         }
         {
             String theTaxCountryRegion;
             theTaxCountryRegion = this.getTaxCountryRegion();
-            strategy.appendField(locator, this, "taxCountryRegion", buffer, theTaxCountryRegion, (this.taxCountryRegion != null));
+            strategy.appendField(locator, this, "taxCountryRegion", buffer, theTaxCountryRegion, (this.taxCountryRegion!= null));
         }
         {
             String theTaxCode;
             theTaxCode = this.getTaxCode();
-            strategy.appendField(locator, this, "taxCode", buffer, theTaxCode, (this.taxCode != null));
+            strategy.appendField(locator, this, "taxCode", buffer, theTaxCode, (this.taxCode!= null));
         }
         {
             String theDescription;
             theDescription = this.getDescription();
-            strategy.appendField(locator, this, "description", buffer, theDescription, (this.description != null));
+            strategy.appendField(locator, this, "description", buffer, theDescription, (this.description!= null));
         }
         {
             XMLGregorianCalendar theTaxExpirationDate;
             theTaxExpirationDate = this.getTaxExpirationDate();
-            strategy.appendField(locator, this, "taxExpirationDate", buffer, theTaxExpirationDate, (this.taxExpirationDate != null));
+            strategy.appendField(locator, this, "taxExpirationDate", buffer, theTaxExpirationDate, (this.taxExpirationDate!= null));
         }
         {
             BigDecimal theTaxPercentage;
             theTaxPercentage = this.getTaxPercentage();
-            strategy.appendField(locator, this, "taxPercentage", buffer, theTaxPercentage, (this.taxPercentage != null));
+            strategy.appendField(locator, this, "taxPercentage", buffer, theTaxPercentage, (this.taxPercentage!= null));
         }
         {
             BigDecimal theTaxAmount;
             theTaxAmount = this.getTaxAmount();
-            strategy.appendField(locator, this, "taxAmount", buffer, theTaxAmount, (this.taxAmount != null));
+            strategy.appendField(locator, this, "taxAmount", buffer, theTaxAmount, (this.taxAmount!= null));
         }
         return buffer;
     }

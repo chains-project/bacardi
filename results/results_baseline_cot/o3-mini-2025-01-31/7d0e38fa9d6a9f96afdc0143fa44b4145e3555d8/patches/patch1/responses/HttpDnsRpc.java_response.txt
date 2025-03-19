@@ -147,7 +147,8 @@ public class HttpDnsRpc implements DnsRpc {
         RpcBatch.Callback<Change> callback,
         Map<DnsRpc.Option, ?> options) {
       try {
-        applyChangeRequestCall(zoneName, change, options).queue(batch, toJsonCallback(callback));
+        applyChangeRequestCall(zoneName, change, options)
+            .queue(batch, toJsonCallback(callback));
       } catch (IOException ex) {
         throw translate(ex, false);
       }
@@ -229,7 +230,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.ManagedZones.Get getZoneCall(String zoneName, Map<Option, ?> options)
       throws IOException {
     return dns.managedZones()
-        .get(this.options.getProjectId(), zoneName, "")
+        .get(this.options.getProjectId(), zoneName, null)
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -246,7 +247,7 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.ManagedZones.List listZonesCall(Map<DnsRpc.Option, ?> options) throws IOException {
     return dns.managedZones()
-        .list(this.options.getProjectId(), "")
+        .list(this.options.getProjectId(), null)
         .setFields(Option.FIELDS.getString(options))
         .setMaxResults(Option.PAGE_SIZE.getInt(options))
         .setDnsName(Option.DNS_NAME.getString(options))
@@ -268,7 +269,7 @@ public class HttpDnsRpc implements DnsRpc {
   }
 
   private Dns.ManagedZones.Delete deleteZoneCall(String zoneName) throws IOException {
-    return dns.managedZones().delete(this.options.getProjectId(), zoneName, "");
+    return dns.managedZones().delete(this.options.getProjectId(), zoneName, null);
   }
 
   @Override
@@ -284,9 +285,8 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.ResourceRecordSets.List listRecordSetsCall(String zoneName, Map<Option, ?> options)
       throws IOException {
-    // options are fields, page token, dns name, type
     return dns.resourceRecordSets()
-        .list(this.options.getProjectId(), zoneName, "")
+        .list(this.options.getProjectId(), zoneName, null)
         .setFields(Option.FIELDS.getString(options))
         .setPageToken(Option.PAGE_TOKEN.getString(options))
         .setMaxResults(Option.PAGE_SIZE.getInt(options))
@@ -305,7 +305,7 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.Projects.Get getProjectCall(Map<Option, ?> options) throws IOException {
     return dns.projects()
-        .get(this.options.getProjectId(), "")
+        .get(this.options.getProjectId(), null)
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -322,7 +322,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.Changes.Create applyChangeRequestCall(
       String zoneName, Change changeRequest, Map<Option, ?> options) throws IOException {
     return dns.changes()
-        .create(this.options.getProjectId(), zoneName, "", changeRequest)
+        .create(this.options.getProjectId(), zoneName, null, changeRequest)
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -349,7 +349,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.Changes.Get getChangeRequestCall(
       String zoneName, String changeRequestId, Map<Option, ?> options) throws IOException {
     return dns.changes()
-        .get(this.options.getProjectId(), zoneName, changeRequestId, "")
+        .get(this.options.getProjectId(), zoneName, changeRequestId, null)
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -366,15 +366,13 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.Changes.List listChangeRequestsCall(String zoneName, Map<Option, ?> options)
       throws IOException {
-    // options are fields, page token, page size, sort order
     Dns.Changes.List request =
         dns.changes()
-            .list(this.options.getProjectId(), zoneName, "")
+            .list(this.options.getProjectId(), zoneName, null)
             .setFields(Option.FIELDS.getString(options))
             .setMaxResults(Option.PAGE_SIZE.getInt(options))
             .setPageToken(Option.PAGE_TOKEN.getString(options));
     if (Option.SORTING_ORDER.getString(options) != null) {
-      // todo check and change if more sorting options are implemented, issue #604
       request = request.setSortBy(SORT_BY).setSortOrder(Option.SORTING_ORDER.getString(options));
     }
     return request;

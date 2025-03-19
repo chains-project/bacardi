@@ -19,6 +19,7 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
+
 /**
  * <p>Java class for anonymous complex type.
  * 
@@ -52,6 +53,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
+ * 
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -233,6 +235,7 @@ public class AuditFile implements ToString2
      * &lt;/complexType&gt;
      * </pre>
      * 
+     * 
      */
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlType(name = "", propOrder = {
@@ -271,9 +274,11 @@ public class AuditFile implements ToString2
          *    getGeneralLedger().add(newItem);
          * </pre>
          * 
+         * 
          * <p>
          * Objects of the following type(s) are allowed in the list
          * {@link GeneralLedger }
+         * 
          * 
          */
         public List<GeneralLedger> getGeneralLedger() {
@@ -298,9 +303,11 @@ public class AuditFile implements ToString2
          *    getCustomer().add(newItem);
          * </pre>
          * 
+         * 
          * <p>
          * Objects of the following type(s) are allowed in the list
          * {@link Customer }
+         * 
          * 
          */
         public List<Customer> getCustomer() {
@@ -325,9 +332,11 @@ public class AuditFile implements ToString2
          *    getSupplier().add(newItem);
          * </pre>
          * 
+         * 
          * <p>
          * Objects of the following type(s) are allowed in the list
          * {@link Supplier }
+         * 
          * 
          */
         public List<Supplier> getSupplier() {
@@ -352,9 +361,11 @@ public class AuditFile implements ToString2
          *    getProduct().add(newItem);
          * </pre>
          * 
+         * 
          * <p>
          * Objects of the following type(s) are allowed in the list
          * {@link Product }
+         * 
          * 
          */
         public List<Product> getProduct() {

@@ -1,34 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The compiler cannot find the classes in the old command API packages (e.g. org.spongepowered.api.command.args.CommandContext, org.spongepowered.api.command.spec.CommandSpec, and org.spongepowered.api.command.spec.CommandExecutor). This indicates that in the updated Sponge dependency these classes have moved (or been renamed).
-   - The errors point to imports in lines 9–12 and usage in buildSpec() where CommandSpec.builder() is called.
-
-2. Review the client code:
-   - The class implements a command using the old Sponge API “spec” classes. In the method buildSpec() the code calls CommandSpec.builder() to register a permission and an executor.
-   - Since the new Sponge API no longer has these packages, we must update the imports and the builder call accordingly.
-   
-3. Consider potential fixes:
-   - Update the import for CommandSource from the old package to the new location (org.spongepowered.api.command.source.CommandSource).
-   - Change the import for CommandContext to the new API package (org.spongepowered.api.command.parameter.CommandContext).
-   - Replace the old CommandSpec and CommandExecutor imports (from org.spongepowered.api.command.spec) with the new ones. In the updated API the “CommandSpec” has been replaced by the “Command” interface and its builder (i.e. Command.builder()). Similarly, CommandExecutor now lives in a different package (org.spongepowered.api.command.executor.CommandExecutor).
-   - In buildSpec(), change CommandSpec.builder() to Command.builder() and update chained methods accordingly.
-   - No function signatures are modified; we remove the @Override annotation only if a method no longer overrides one. Here it is still valid for our buildSpec() method since our own ChangeSkinCommand interface can be updated to expect a Command return type.
-
-4. Plan the necessary changes:
-   - Remove the following imports:
-       • org.spongepowered.api.command.args.CommandContext;
-       • org.spongepowered.api.command.spec.CommandSpec;
-       • org.spongepowered.api.command.spec.CommandExecutor;
-   - Add these imports:
-       • org.spongepowered.api.command.source.CommandSource;
-       • org.spongepowered.api.command.parameter.CommandContext;
-       • org.spongepowered.api.command.executor.CommandExecutor;
-       • org.spongepowered.api.command.Command;  (this replaces CommandSpec)
-   - In buildSpec(), replace the call to CommandSpec.builder() with Command.builder() and return a Command object.
-   
-Following these updates, the complete class is presented below.
-</code_analysis>
-
 ```java
 package com.github.games647.changeskin.sponge.command;
 
@@ -36,9 +5,10 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import com.github.games647.changeskin.sponge.PomData;
 import com.github.games647.changeskin.sponge.task.SkinInvalidator;
 import com.google.inject.Inject;
+
 import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.CommandExecutor;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.executor.CommandExecutor;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
@@ -49,12 +19,13 @@ public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
     private final ChangeSkinSponge plugin;
 
     @Inject
-    public InvalidateCommand(ChangeSkinSponge plugin) {
+    InvalidateCommand(ChangeSkinSponge plugin) {
         this.plugin = plugin;
     }
 
     @Override
-    public CommandResult execute(CommandSource src, CommandContext args) {
+    public CommandResult execute(CommandContext context) {
+        CommandSource src = context.cause().first(CommandSource.class).orElse(null);
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
             return CommandResult.empty();
@@ -67,7 +38,6 @@ public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
 
     @Override
     public Command buildSpec() {
-        // Build a new command using the updated Sponge API.
         return Command.builder()
                 .executor(this)
                 .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base")

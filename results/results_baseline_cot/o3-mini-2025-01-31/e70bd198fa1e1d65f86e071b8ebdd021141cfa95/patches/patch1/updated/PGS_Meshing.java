@@ -160,7 +160,6 @@ public class PGS_Meshing {
 			}
 		});
 
-		// Use KDTree directly instead of PointIndex as the dependency update removed PointIndex.
 		final KDTree<Vertex> tree = KDTree.create(2, (p1, p2) -> {
 			final double deltaX = p1[0] - p2[0];
 			final double deltaY = p1[1] - p2[1];
@@ -545,6 +544,7 @@ public class PGS_Meshing {
 				} catch (Exception e) { // catch occasional noded error
 					continue;
 				}
+
 			}
 			return true; // is not hole; keep=true
 		}).collect(Collectors.toList());

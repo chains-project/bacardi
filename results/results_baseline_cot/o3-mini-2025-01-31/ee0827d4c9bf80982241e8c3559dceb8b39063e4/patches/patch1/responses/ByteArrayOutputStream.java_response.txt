@@ -27,6 +27,27 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * This class implements an output stream in which the data is
+ * written into a byte array. The buffer automatically grows as data
+ * is written to it.
+ * <p>
+ * The data can be retrieved using <code>toByteArray()</code> and
+ * <code>toString()</code>.
+ * <p>
+ * Closing a {@code ByteArrayOutputStream} has no effect. The methods in
+ * this class can be called after the stream has been closed without
+ * generating an {@code IOException}.
+ * <p>
+ * This is an alternative implementation of the {@link java.io.ByteArrayOutputStream}
+ * class. The original implementation only allocates 32 bytes at the beginning.
+ * As this class is designed for heavy duty it starts at 1024 bytes. In contrast
+ * to the original it doesn't reallocate the whole memory block but allocates
+ * additional buffers. This way no buffers need to be garbage collected and
+ * the contents don't have to be copied to the new buffer. This class is
+ * designed to behave exactly like the original. The only exception is the
+ * deprecated toString(int) method that has been ignored.
+ */
 public class ByteArrayOutputStream extends OutputStream
 {
 
@@ -104,7 +125,7 @@ public class ByteArrayOutputStream extends OutputStream
     {
         if ( currentBufferIndex < buffers.size() - 1 )
         {
-            // Recycling old buffer
+            //Recycling old buffer
             filledBufferSum += currentBuffer.length;
 
             currentBufferIndex++;
@@ -112,7 +133,7 @@ public class ByteArrayOutputStream extends OutputStream
         }
         else
         {
-            // Creating new buffer
+            //Creating new buffer
             int newBufferSize;
             if ( currentBuffer == null )
             {
@@ -247,7 +268,7 @@ public class ByteArrayOutputStream extends OutputStream
     @Override
     public void close() throws IOException
     {
-        // nop
+        //nop
     }
 
     /**
@@ -264,7 +285,7 @@ public class ByteArrayOutputStream extends OutputStream
         }
         else
         {
-            // Throw away old buffers
+            //Throw away old buffers
             currentBuffer = null;
             int size = buffers.get( 0 ).length;
             buffers.clear();

@@ -16,6 +16,7 @@ public class SkinUploader extends SharedUploader {
 
     public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {
         super(plugin.getCore(), owner, url);
+
         this.plugin = plugin;
         this.invoker = invoker;
     }

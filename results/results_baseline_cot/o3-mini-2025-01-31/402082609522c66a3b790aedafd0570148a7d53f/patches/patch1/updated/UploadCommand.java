@@ -6,16 +6,19 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import com.github.games647.changeskin.sponge.PomData;
 import com.github.games647.changeskin.sponge.task.SkinUploader;
 import com.google.inject.Inject;
+
 import java.util.List;
+
+import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.source.CommandSource;
-import org.spongepowered.api.command.CommandContext;
-import org.spongepowered.api.command.executor.CommandExecutor;
-import org.spongepowered.api.command.CommandSpec;
+import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.scheduler.Task;
 
-public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
+import net.kyori.adventure.text.Component;
+
+public class UploadCommand implements ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
     private final ChangeSkinCore core;
@@ -26,7 +29,6 @@ public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
         this.core = core;
     }
 
-    @Override
     public CommandResult execute(CommandSource src, CommandContext args) {
         String url = args.<String>getOne("url").get();
         if (url.startsWith("http://") || url.startsWith("https://")) {
@@ -45,11 +47,14 @@ public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
         return CommandResult.success();
     }
 
-    @Override
-    public CommandSpec buildSpec() {
-        return CommandSpec.builder()
-                .executor(this)
-                .arguments(Parameter.string().key("url").build())
+    public Command buildSpec() {
+        return Command.builder()
+                .executor(context -> {
+                    CommandSource src = context.cause().first(CommandSource.class)
+                            .orElseThrow(() -> new IllegalStateException("No CommandSource found."));
+                    return this.execute(src, context);
+                })
+                .addParameter(Parameter.string().key("url").build())
                 .permission(PomData.ARTIFACT_ID + ".command.skinupload.base")
                 .build();
     }

@@ -1,12 +1,3 @@
-<code_analysis>
-1. The error message indicates that the package org.bouncycastle.crypto.tls no longer exists in the updated dependency version. Specifically, the classes AlertDescription and TlsFatalAlert are missing from the expected package.
-2. In the client code, these classes are imported and used to throw an exception when the MAC check fails. The problematic imports are:
-   - import org.bouncycastle.crypto.tls.AlertDescription;
-   - import org.bouncycastle.crypto.tls.TlsFatalAlert;
-3. A common change in dependency updates is that certain classes may have been moved to new packages. In this case, the TLS-related classes have been relocated to org.bouncycastle.tls.
-4. The modification required is to update the import statements to the new package while leaving the rest of the code untouched as required.
-</code_analysis>
-
 ```java
 package io.github.hapjava.server.impl.crypto;
 
@@ -24,7 +15,9 @@ public class ChachaDecoder {
   private final ChaChaEngine decryptCipher;
 
   public ChachaDecoder(byte[] key, byte[] nonce) throws IOException {
+
     this.decryptCipher = new ChaChaEngine(20);
+
     this.decryptCipher.init(false, new ParametersWithIV(new KeyParameter(key), nonce));
   }
 

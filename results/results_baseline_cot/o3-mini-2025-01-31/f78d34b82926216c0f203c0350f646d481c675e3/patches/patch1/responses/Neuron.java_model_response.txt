@@ -1,31 +1,8 @@
-<code_analysis>
-1. Error message analysis:
-   - The error indicates that the package "develop.p2p.lib" (and its class LearnMath with the sigmoid method) no longer exists.
-   - Specifically, the import on line 5 and the call to sigmoid(sum) (line 50) are failing because the dependency has been removed or relocated in the updated version.
-   
-2. Client code review:
-   - The code imports the static method "sigmoid" from "develop.p2p.lib.LearnMath", which now causes a compilation error.
-   - The method call "setValue(sigmoid(sum))" cannot resolve the sigmoid function.
-   
-3. Potential fixes:
-   - Remove the faulty static import and provide a local implementation of the sigmoid function.
-   - Ensure that the function signature of input methods and others remains unchanged.
-   - Add a private static method sigmoid(double) that computes 1 / (1 + exp(-x)) as replacement for the removed dependency.
-   
-4. Plan for modifications:
-   - Remove the import line for develop.p2p.lib.LearnMath.sigmoid.
-   - Add a private static sigmoid method within the Neuron class.
-   - This patch fixes the dependency issue while preserving the overall functionality.
-</code_analysis>
-
 ```java
 package ml.peya.plugins.Learn;
 
 import java.util.ArrayList;
 
-/**
- * 重みを突っ込む器。
- */
 public class Neuron
 {
     /**
@@ -79,12 +56,6 @@ public class Neuron
         sum += value;
     }
     
-    /**
-     * Local implementation of the sigmoid function.
-     *
-     * @param x the input value
-     * @return the sigmoid of x
-     */
     private static double sigmoid(double x)
     {
         return 1.0 / (1.0 + Math.exp(-x));

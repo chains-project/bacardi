@@ -1,38 +1,17 @@
-<code_analysis>
-1. Examine the error message:
-   - The compiler complains that classes under the package “javax.servlet” (e.g. DispatcherType and FilterRegistration) are missing. It also complains that the method addFilter is being given an AbstractConfigFilter that cannot be converted to the expected Filter type.
-   - Since recent dependency updates (e.g. Dropwizard with Jetty 11) have migrated to the Jakarta Servlet API (jakarta.servlet.*), the old javax.servlet packages are no longer available.
-   - The error appears around the call to addFilter in registerFilter (line 76, column 33) and when referencing DispatcherType.
-
-2. Review the client code:
-   - The problematic areas are the import statements that reference javax.servlet.DispatcherType and javax.servlet.FilterRegistration.
-   - The call to environment.servlets().addFilter(filter.getClass().getName(), filter) must now supply a filter which implements jakarta.servlet.Filter.
-
-3. Consider potential fixes:
-   - Update the imports from javax.servlet.* to jakarta.servlet.* so that the code compiles with the newer dependency versions.
-   - In addition, ensure that addFilter is given a filter of type jakarta.servlet.Filter. If AbstractConfigFilter already implements jakarta.servlet.Filter after the dependency update but the compiler does not automatically convert the type, an explicit cast may be necessary.
-   - No function signatures are changed and no extra code is removed unless it causes compilation errors.
-
-4. Plan the necessary changes:
-   - Replace:
-       import javax.servlet.DispatcherType;
-       import javax.servlet.FilterRegistration;
-     with:
-       import jakarta.servlet.DispatcherType;
-       import jakarta.servlet.FilterRegistration;
-   - In the registerFilter method, cast the AbstractConfigFilter to jakarta.servlet.Filter when passing it to addFilter.
-   - These changes ensure that the code now properly references the Jakarta Servlet API that is used in newer Dropwizard versions and related dependencies.
-</code_analysis>
-
-Below is the complete, fixed Java class:
-
 ```java
 package org.pac4j.dropwizard;
 
+import java.io.IOException;
 import java.util.EnumSet;
 
 import jakarta.servlet.DispatcherType;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
 import jakarta.servlet.FilterRegistration;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 
 import org.pac4j.core.config.Config;
 import org.pac4j.dropwizard.Pac4jFactory.ServletCallbackFilterConfiguration;
@@ -103,12 +82,35 @@ public final class J2EHelper {
         filter.setConfigOnly(config);
 
         final FilterRegistration.Dynamic filterRegistration = environment
-                .servlets().addFilter(filter.getClass().getName(), (jakarta.servlet.Filter) filter);
+                .servlets().addFilter(filter.getClass().getName(), new JakartaFilterAdapter(filter));
 
         filterRegistration.addMappingForUrlPatterns(
                 EnumSet.of(DispatcherType.REQUEST), true, mapping);
     }
-}
-``` 
 
-This patch updates the imports to the jakarta.servlet API and casts the filter appropriately when registering it, thereby resolving the dependency update issues.
+    private static class JakartaFilterAdapter implements Filter {
+
+        private final AbstractConfigFilter delegate;
+
+        JakartaFilterAdapter(AbstractConfigFilter delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public void init(FilterConfig filterConfig) throws ServletException {
+            delegate.init(filterConfig);
+        }
+
+        @Override
+        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+                throws IOException, ServletException {
+            delegate.doFilter(request, response, chain);
+        }
+
+        @Override
+        public void destroy() {
+            delegate.destroy();
+        }
+    }
+}
+```

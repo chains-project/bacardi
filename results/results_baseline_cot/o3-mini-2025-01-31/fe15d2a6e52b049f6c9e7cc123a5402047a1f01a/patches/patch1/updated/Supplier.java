@@ -5,7 +5,7 @@
 // Generated on: 2023.08.19 at 10:48:51 PM GMT 
 //
 
-package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +19,37 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
+
+/**
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierID"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}AccountID"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierTaxID"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CompanyName"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Contact" minOccurs="0"/&gt;
+ *         &lt;element name="BillingAddress" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierAddressStructure"/&gt;
+ *         &lt;element name="ShipFromAddress" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierAddressStructure" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Telephone" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Fax" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Email" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Website" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SelfBillingIndicator"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "supplierID",
@@ -35,7 +66,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "selfBillingIndicator"
 })
 @XmlRootElement(name = "Supplier")
-public class Supplier implements ToString2 {
+public class Supplier implements ToString2
+{
 
     @XmlElement(name = "SupplierID", required = true)
     protected String supplierID;
@@ -62,54 +94,172 @@ public class Supplier implements ToString2 {
     @XmlElement(name = "SelfBillingIndicator")
     protected int selfBillingIndicator;
 
+    /**
+     * Gets the value of the supplierID property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
     public String getSupplierID() {
         return supplierID;
     }
 
+    /**
+     * Sets the value of the supplierID property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setSupplierID(String value) {
         this.supplierID = value;
     }
 
+    /**
+     * Gets the value of the accountID property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
     public String getAccountID() {
         return accountID;
     }
 
+    /**
+     * Sets the value of the accountID property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setAccountID(String value) {
         this.accountID = value;
     }
 
+    /**
+     * Gets the value of the supplierTaxID property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
     public String getSupplierTaxID() {
         return supplierTaxID;
     }
 
+    /**
+     * Sets the value of the supplierTaxID property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setSupplierTaxID(String value) {
         this.supplierTaxID = value;
     }
 
+    /**
+     * Gets the value of the companyName property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
     public String getCompanyName() {
         return companyName;
     }
 
+    /**
+     * Sets the value of the companyName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setCompanyName(String value) {
         this.companyName = value;
     }
 
+    /**
+     * Gets the value of the contact property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
     public String getContact() {
         return contact;
     }
 
+    /**
+     * Sets the value of the contact property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setContact(String value) {
         this.contact = value;
     }
 
+    /**
+     * Gets the value of the billingAddress property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link SupplierAddressStructure }
+     *     
+     */
     public SupplierAddressStructure getBillingAddress() {
         return billingAddress;
     }
 
+    /**
+     * Sets the value of the billingAddress property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link SupplierAddressStructure }
+     *     
+     */
     public void setBillingAddress(SupplierAddressStructure value) {
         this.billingAddress = value;
     }
 
+    /**
+     * Gets the value of the shipFromAddress property.
+     * 
+     * <p>
+     * This accessor method returns a reference to the live list,
+     * not a snapshot. Therefore any modification you make to the
+     * returned list will be present inside the JAXB object.
+     * This is why there is not a <CODE>set</CODE> method for the shipFromAddress property.
+     * 
+     * <p>
+     * For example, to add a new item, do as follows:
+     * <pre>
+     *    getShipFromAddress().add(newItem);
+     * </pre>
+     * 
+     * 
+     * <p>
+     * Objects of the following type(s) are allowed in the list
+     * {@link SupplierAddressStructure }
+     * 
+     * 
+     */
     public List<SupplierAddressStructure> getShipFromAddress() {
         if (shipFromAddress == null) {
             shipFromAddress = new ArrayList<SupplierAddressStructure>();
@@ -117,42 +267,114 @@ public class Supplier implements ToString2 {
         return this.shipFromAddress;
     }
 
+    /**
+     * Gets the value of the telephone property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
     public String getTelephone() {
         return telephone;
     }
 
+    /**
+     * Sets the value of the telephone property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setTelephone(String value) {
         this.telephone = value;
     }
 
+    /**
+     * Gets the value of the fax property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
     public String getFax() {
         return fax;
     }
 
+    /**
+     * Sets the value of the fax property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setFax(String value) {
         this.fax = value;
     }
 
+    /**
+     * Gets the value of the email property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
     public String getEmail() {
         return email;
     }
 
+    /**
+     * Sets the value of the email property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setEmail(String value) {
         this.email = value;
     }
 
+    /**
+     * Gets the value of the website property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
     public String getWebsite() {
         return website;
     }
 
+    /**
+     * Sets the value of the website property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setWebsite(String value) {
         this.website = value;
     }
 
+    /**
+     * Gets the value of the selfBillingIndicator property.
+     * 
+     */
     public int getSelfBillingIndicator() {
         return selfBillingIndicator;
     }
 
+    /**
+     * Sets the value of the selfBillingIndicator property.
+     * 
+     */
     public void setSelfBillingIndicator(int value) {
         this.selfBillingIndicator = value;
     }
@@ -237,4 +459,5 @@ public class Supplier implements ToString2 {
         }
         return buffer;
     }
+
 }

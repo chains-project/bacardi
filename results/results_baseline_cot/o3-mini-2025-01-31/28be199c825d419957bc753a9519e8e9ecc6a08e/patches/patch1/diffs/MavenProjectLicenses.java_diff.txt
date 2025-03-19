@@ -1,17 +1,9 @@
-44,49d43
-< /**
-<  * Helper class for building Artifact/License mappings from a maven project
-<  * (multi module or single).
-<  *
-<  * @author Royce Remer
-<  */
-111c105,106
+111c111
 <       MavenProject project = getProjectBuilder().build(artifact, getBuildingRequest()).getProject();
 ---
->       // The build method now returns a MavenProject directly, so we remove the .getProject() call.
 >       MavenProject project = getProjectBuilder().build(artifact, getBuildingRequest());
-124,125c119
-<    * @return Map<License, Set < Artifact>> the same artifacts passed in, keyed by
-<    * License.
----
->    * @return Map<License, Set < Artifact>> the same artifacts passed in, keyed by License.
+174,177d173
+< 
+<     // tempting, but does not resolve dependencies after the scope in which this
+<     // plugin is invoked
+<     // return project.getArtifacts();

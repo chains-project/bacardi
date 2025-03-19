@@ -1,24 +1,9 @@
-<code_analysis>
-1. Error message analysis:
-   - The error occurs at line 163 where the builder method addEnabledLanguages(Set<Language>) is called on AnalysisEngineConfiguration.Builder.
-   - The updated dependency version no longer provides a method named addEnabledLanguages(Set<Language>), causing a compilation error.
-   - The dependency update (likely a newer version of SonarLint’s analysis API) removed or renamed the method.
-
-2. Client code review:
-   - The buildAnalysisEngineConfiguration() method in SonarLintEngine calls .addEnabledLanguages(globalConfig.getEnabledLanguages()).
-   - The rest of the code is unaffected; only this builder call must be corrected.
-   
-3. Potential fixes:
-   - Replace addEnabledLanguages(...) with the new API method. Following the pattern of other setter methods (setClientPid, setExtraProperties, etc.), it makes sense to replace it with setEnabledLanguages(...).
-   - No function signatures are modified, and only the dependency-specific method call is updated.
-   
-4. Necessary changes:
-   - Modify the buildAnalysisEngineConfiguration() method by replacing the addEnabledLanguages(...) call with setEnabledLanguages(...).
-   - Ensure that proper imports and method calls remain unchanged, adhering to the new dependency version’s API.
-</code_analysis>
-
-Below is the complete fixed Java class:
-
+<repair_strategy>
+1. The error indicates that AnalysisEngineConfiguration.Builder no longer provides the method addEnabledLanguages(Set<Language>).
+2. The updated API replaces addEnabledLanguages with setEnabledLanguages.
+3. We update the buildAnalysisEngineConfiguration() method to use setEnabledLanguages(globalConfig.getEnabledLanguages()) in place of addEnabledLanguages.
+4. This change is minimal and preserves the intended behavior while resolving the compilation error.
+</repair_strategy>
 ```java
 package sorald.sonar;
 
@@ -67,6 +52,7 @@ import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoadResult;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader.Configuration;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInfo;
+import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInstancesLoader;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginRequirementsCheckResult;
 import org.sonarsource.sonarlint.core.rule.extractor.SonarLintRuleDefinition;
 import sorald.FileUtils;
@@ -310,5 +296,3 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     }
 }
 ```
-
-This patch replaces .addEnabledLanguages(...) with .setEnabledLanguages(...), which aligns with the new dependency’s API and resolves the compilation error.

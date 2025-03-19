@@ -1,10 +1,3 @@
-<code_analysis>
-1. The error message indicates that the constructor for StringContains is being used with two parameters (a boolean and a String), but the updated dependency now only accepts a single String argument. The errors are reported at lines 87 and 95 in the "failsOnDigestMismatch" test method.
-2. In the client code, the calls to new StringContains(true, "...") are causing the compilation errors. The boolean parameter (likely used for case-insensitivity in an older version) is no longer valid.
-3. To fix the issue, we must remove the boolean argument and pass only the expected substring to the StringContains constructor. This complies with the updated dependency's API.
-4. The planned changes are to modify the two occurrences of new StringContains(boolean, String) to new StringContains(String), which adheres to the constraints without changing function signatures or unnecessary code.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com

@@ -31,7 +31,6 @@ public class CreateDockerBuildExecutor extends BuildInfoProcessRunner {
         if (server == null) {
             throw new IllegalStateException("Artifactory server must be configured");
         }
-        // Replace calls to isAllBlank and isNoneBlank with equivalent checks using isBlank and isNotBlank.
         if ((StringUtils.isBlank(kanikoImageFile) && StringUtils.isBlank(jibImageFile)) ||
             (StringUtils.isNotBlank(kanikoImageFile) && StringUtils.isNotBlank(jibImageFile))) {
             throw new IllegalStateException("Exactly one of 'kanikoImageFile' or 'jibImageFile' must be configured");

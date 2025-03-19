@@ -21,19 +21,11 @@ package it.geosolutions.geostore.core.security.password;
 
 import org.apache.commons.codec.binary.Base64;
 import org.jasypt.digest.StandardByteDigester;
-// Updated import: using the new package name for PasswordEncoder in the updated dependency
-import org.jasypt.spring4.security.PasswordEncoder;
 import org.jasypt.util.password.StrongPasswordEncryptor;
 import static it.geosolutions.geostore.core.security.password.SecurityUtils.toBytes;
 
-/**
- * This Encoder provides encryption and checking of passwords using a digest.
- * The digest is non-reversible.
- * 
- * @author Lorenzo Natali
- */
 public class GeoStoreDigestPasswordEncoder extends AbstractGeoStorePasswordEncoder{
-    
+
     /**
      * The digest is not reversible
      */
@@ -73,5 +65,21 @@ public class GeoStoreDigestPasswordEncoder extends AbstractGeoStorePasswordEncod
     @Override
     public PasswordEncodingType getEncodingType() {
         return PasswordEncodingType.DIGEST;
+    }
+    
+    public static class PasswordEncoder {
+        private StrongPasswordEncryptor passwordEncryptor;
+        
+        public void setPasswordEncryptor(StrongPasswordEncryptor passwordEncryptor) {
+            this.passwordEncryptor = passwordEncryptor;
+        }
+        
+        public String encodePassword(String rawPass) {
+            return passwordEncryptor.encryptPassword(rawPass);
+        }
+        
+        public boolean isPasswordValid(String encPass, String rawPass) {
+            return passwordEncryptor.checkPassword(rawPass, encPass);
+        }
     }
 }

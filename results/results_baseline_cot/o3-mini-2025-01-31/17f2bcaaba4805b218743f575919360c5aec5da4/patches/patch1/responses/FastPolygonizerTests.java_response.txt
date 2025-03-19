@@ -130,7 +130,6 @@ class FastPolygonizerTests {
 			PShape FP = polygonize(nodedEdgesSet);
 			t2 = System.currentTimeMillis();
 			long timeFP = t2 - t1;
-			// System.out.println(timeJTS + " " + timeFP + " " + JTS.size());
 			assertEquals(JTS.size(), FP.getChildCount());
 		}
 	}

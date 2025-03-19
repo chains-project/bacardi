@@ -6,10 +6,7 @@ import com.github.games647.changeskin.sponge.task.SkinApplier;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
-
-import java.nio.ByteBuffer;
 import java.util.Optional;
-
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.source.CommandSource;
@@ -22,17 +19,8 @@ public class UpdateSkinListener {
     @Inject
     private ChangeSkinSponge plugin;
 
-    // Note: This method no longer overrides an interface method in the new API.
-    public void handlePayload(ByteBuffer data, RemoteConnection connection, Type side) {
-        byte[] payload;
-        if (data.hasArray()) {
-            payload = data.array();
-        } else {
-            payload = new byte[data.remaining()];
-            data.get(payload);
-        }
-
-        ByteArrayDataInput dataInput = ByteStreams.newDataInput(payload);
+    public void handlePayload(byte[] data, RemoteConnection connection, Type side) {
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data);
         SkinUpdateMessage updateMessage = new SkinUpdateMessage();
         updateMessage.readFrom(dataInput);
 

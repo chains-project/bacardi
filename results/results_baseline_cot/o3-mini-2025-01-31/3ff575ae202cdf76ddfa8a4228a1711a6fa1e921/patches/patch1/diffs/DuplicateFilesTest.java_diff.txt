@@ -3,55 +3,8 @@
 < import java.io.FileReader;
 17a16
 > import org.codehaus.plexus.logging.LoggerManager;
-23,24c22
-< public class DuplicateFilesTest
-<     extends PlexusTestCase
----
-> public class DuplicateFilesTest extends PlexusTestCase
-26d23
-< 
-33,34c30
-<     public void setUp()
-<         throws Exception
----
->     public void setUp() throws Exception
-37c33,35
+37c36,37
 <         getContainer().getLoggerManager().setThreshold( Logger.LEVEL_DEBUG );
 ---
->         // Instead of getContainer().getLoggerManager(), lookup the LoggerManager from the container.
->         LoggerManager loggerManager = (LoggerManager) lookup(LoggerManager.ROLE);
->         loggerManager.setThreshold(Logger.LEVEL_DEBUG);
-40,41c38
-<     public void testZipArchiver()
-<         throws Exception
----
->     public void testZipArchiver() throws Exception
-66,67c63
-<     public void testDirArchiver()
-<         throws Exception
----
->     public void testDirArchiver() throws Exception
-72d67
-< 
-75,76c70
-<     public void testTarArchiver()
-<         throws Exception
----
->     public void testTarArchiver() throws Exception
-96,97c90
-<     private File createArchive( Archiver archiver, String outputFileExt )
-<         throws Exception
----
->     private File createArchive(Archiver archiver, String outputFileExt) throws Exception
-126,127c119
-<     private void testArchive( File archive, String role )
-<         throws Exception
----
->     private void testArchive(File archive, String role) throws Exception
-142,143c134
-<     private void testFinalFile( String path )
-<         throws Exception
----
->     private void testFinalFile(String path) throws Exception
-155d145
-< 
+>         LoggerManager loggerManager = (LoggerManager) lookup( LoggerManager.ROLE );
+>         loggerManager.setThreshold( Logger.LEVEL_DEBUG );

@@ -1,32 +1,9 @@
-<code_analysis>
-1. Error Message:
-   - The compiler error indicates that the symbol Matchers (i.e. org.hamcrest.Matchers) cannot be found. The error occurs on line 34 in the hasPath method, where the code calls Matchers.<URI>hasProperty("rawPath", path).
-   - This suggests that after a dependency update (likely to a newer version of Hamcrest), the Matchers class no longer provides the hasProperty method (or Matchers itself has been removed/relocated).
-
-2. Client Code Review:
-   - The methods hasPath and hasQuery both call a static method hasProperty via Matchers on a URI.
-   - The rest of the code is unaffected.
-   - The import for org.hamcrest.Matchers is now invalid with the updated dependency.
-
-3. Proposed Fix Plan:
-   - Replace the usage of Matchers.<URI>hasProperty(...) with the appropriate method from the updated dependency. In Hamcrest, the bean property matcher is available in org.hamcrest.beans.HasPropertyMatcher.
-   - Remove the now-unused import "org.hamcrest.Matchers" and add an import for org.hamcrest.beans.HasPropertyMatcher.
-   - This change requires no change to any function signature, and only affects the internal call that was causing the compilation error.
-
-4. Specific Modifications:
-   - Remove: import org.hamcrest.Matchers;
-   - Replace Matchers.<URI>hasProperty("rawPath", path) with HasPropertyMatcher.hasProperty("rawPath", path).
-   - Do the same for the hasQuery method.
-   - Add: import org.hamcrest.beans.HasPropertyMatcher;
-   - This resolves the missing symbol error while preserving functionality.
-</code_analysis>
-
 ```java
 package com.jcabi.http.mock;
 
 import java.net.URI;
 import org.hamcrest.Matcher;
-import org.hamcrest.beans.HasPropertyMatcher;
+import org.hamcrest.beans.HasPropertyWithValue;
 
 /**
  * Convenient set of matchers for {@link MkQuery}.
@@ -77,7 +54,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasPath(final Matcher<String> path) {
         return new MkQueryUriMatcher(
-            HasPropertyMatcher.hasProperty("rawPath", path)
+            HasPropertyWithValue.hasProperty("rawPath", path)
         );
     }
 
@@ -89,8 +66,9 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasQuery(final Matcher<String> query) {
         return new MkQueryUriMatcher(
-            HasPropertyMatcher.hasProperty("rawQuery", query)
+            HasPropertyWithValue.hasProperty("rawQuery", query)
         );
     }
+
 }
 ```

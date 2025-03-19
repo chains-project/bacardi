@@ -1,22 +1,3 @@
-/*******************************************************************************
- * Copyright (c) quickfixengine.org  All rights reserved.
- *
- * This file is part of the QuickFIX FIX Engine
- *
- * This file may be distributed under the terms of the quickfixengine.org
- * license as defined by quickfixengine.org and appearing in the file
- * LICENSE included in the packaging of this file.
- *
- * This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING
- * THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A
- * PARTICULAR PURPOSE.
- *
- * See http://www.quickfixengine.org/LICENSE for licensing information.
- *
- * Contact ask@quickfixengine.org if any conditions of this licensing
- * are not clear to you.
- ******************************************************************************/
-
 package quickfix.mina.ssl;
 
 import java.net.InetSocketAddress;
@@ -30,20 +11,13 @@ import org.apache.mina.filter.ssl.SslFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * An extended SSL filter based on MINA {@link SslFilter} that applies
- * some adaptations.
- */
 public class SSLFilter extends SslFilter {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
     private boolean useSNI;
-    
-    // Define the missing constant from the previous dependency version.
     private static final String PEER_ADDRESS = "PEER_ADDRESS";
 
     public SSLFilter(SSLContext sslContext, boolean autoStart) {
-        // Updated constructor call to use only SSLContext as required by the new version.
         super(sslContext);
     }
 
@@ -51,24 +25,14 @@ public class SSLFilter extends SslFilter {
         super(sslContext);
     }
 
-    /**
-     * Called from {@link SslFilter#onPreAdd} every time a new
-     * session is created which makes it impossible to override enabled cipher
-     * suites configuration.
-     */
     @Override
     public void setEnabledCipherSuites(String[] cipherSuites) {
-        // Intentionally left blank to disable automatic cipher suite configuration
     }
 
     public void setCipherSuites(String[] cipherSuites) {
         super.setEnabledCipherSuites(cipherSuites);
     }
 
-    /**
-     * Called before filter is added into the chain.
-     * We activate Server Name Indication if it is enabled in the session config.
-     */
     @Override
     public void onPreAdd(IoFilterChain parent, String name, NextFilter nextFilter)
         throws SSLException {
@@ -78,7 +42,6 @@ public class SSLFilter extends SslFilter {
             SocketAddress remoteAddress = session.getRemoteAddress();
 
             if (remoteAddress instanceof InetSocketAddress) {
-                // Activate the SNI support in the JSSE SSLEngine
                 log.info("Activating TLS SNI support for peer address: {}", remoteAddress);
                 session.setAttribute(PEER_ADDRESS, remoteAddress);
             }

@@ -6,6 +6,7 @@ import com.jcabi.http.Response;
 import com.jcabi.log.Logger;
 import java.net.HttpCookie;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -16,10 +17,6 @@ import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
 
 /**
  * REST response.
@@ -181,7 +178,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, hasItem(value));
+        return this.assertHeader(name, Matchers.hasItems(value));
     }
 
     /**
@@ -217,7 +214,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            not(equalTo(Collections.emptyList()))
+            Matchers.not(Matchers.emptyIterableOf(String.class))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -255,7 +252,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            notNullValue()
+            Matchers.notNullValue()
         );
         assert cookie != null;
         return cookie;
@@ -298,10 +295,68 @@ public final class RestResponse extends AbstractResponse {
             this.status = sts;
         }
 
-        @Override
         public boolean matches(final Object resp) {
             return Response.class.cast(resp).status() == this.status;
         }
     }
 
+    private static final class Matchers {
+        static <T> Matcher<Iterable<T>> hasItems(final T... items) {
+            return new CustomMatcher<Iterable<T>>(
+                "iterable containing items " + Arrays.toString(items)
+            ) {
+                @Override
+                public boolean matches(final Object item) {
+                    if (!(item instanceof Iterable)) {
+                        return false;
+                    }
+                    Iterable<?> iterable = (Iterable<?>) item;
+                    for (T element : items) {
+                        boolean found = false;
+                        for (Object actual : iterable) {
+                            if ((element == null && actual == null) ||
+                                (element != null && element.equals(actual))) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            };
+        }
+
+        static <T> Matcher<Iterable<T>> emptyIterableOf(final Class<T> clazz) {
+            return new CustomMatcher<Iterable<T>>("an empty iterable") {
+                @Override
+                public boolean matches(final Object item) {
+                    if (!(item instanceof Iterable)) {
+                        return false;
+                    }
+                    return !((Iterable<?>) item).iterator().hasNext();
+                }
+            };
+        }
+
+        static <T> Matcher<T> notNullValue() {
+            return new CustomMatcher<T>("not null") {
+                @Override
+                public boolean matches(final Object item) {
+                    return item != null;
+                }
+            };
+        }
+
+        static <T> Matcher<T> not(final Matcher<T> matcher) {
+            return new CustomMatcher<T>("not " + matcher.toString()) {
+                @Override
+                public boolean matches(final Object item) {
+                    return !matcher.matches(item);
+                }
+            };
+        }
+    }
 }

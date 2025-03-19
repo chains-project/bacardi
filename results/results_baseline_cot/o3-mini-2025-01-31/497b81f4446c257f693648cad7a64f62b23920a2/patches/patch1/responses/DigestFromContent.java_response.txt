@@ -61,17 +61,12 @@ public final class DigestFromContent {
             )
             .to(SingleInterop.get()).toCompletableFuture();
     }
-
-    /**
-     * Converts a byte array to a hexadecimal string.
-     * @param bytes byte array to convert.
-     * @return Hexadecimal string representation.
-     */
+    
     private static String bytesToHex(final byte[] bytes) {
-        final StringBuilder hexString = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         for (final byte b : bytes) {
-            hexString.append(String.format("%02x", b));
+            sb.append(String.format("%02x", b & 0xff));
         }
-        return hexString.toString();
+        return sb.toString();
     }
 }

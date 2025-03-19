@@ -15,8 +15,9 @@ import com.artipie.http.Headers;
 import com.artipie.http.Response;
 import com.artipie.http.Slice;
 import com.artipie.http.auth.Authentication;
-import com.artipie.http.auth.AuthUser;
 import com.artipie.http.auth.BasicAuthScheme;
+import com.artipie.http.auth.BearerAuthScheme;
+import com.artipie.http.auth.AuthUser;
 import com.artipie.http.auth.Permissions;
 import com.artipie.http.headers.Authorization;
 import com.artipie.http.headers.Header;
@@ -346,7 +347,7 @@ public final class AuthTest {
             return new DockerSlice(
                 new AstoDocker(new InMemoryStorage()),
                 new Permissions.Single(TestAuthentication.ALICE.name(), action),
-                new com.artipie.http.auth.BearerAuthScheme(
+                new BearerAuthScheme(
                     token -> CompletableFuture.completedFuture(
                         Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
                             .filter(user -> token.equals(token(user)))

@@ -1,10 +1,28 @@
-44d43
-< 
-88c87,88
+14a15,16
+> import java.lang.reflect.InvocationTargetException;
+> import java.lang.reflect.Method;
+88c90,108
 <     ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
 ---
->     // Patch: Use ObjectReader to avoid declaring the new exception type from the updated dependency.
->     ExportResponse exportResponse = objectMapper.readerFor(ExportResponse.class).readValue(body);
-165,166d164
+>     ExportResponse exportResponse;
+>     try
+>     {
+>       Method readValueMethod = ObjectMapper.class.getMethod("readValue", String.class, Class.class);
+>       exportResponse = (ExportResponse) readValueMethod.invoke(objectMapper, body, ExportResponse.class);
+>     }
+>     catch (InvocationTargetException e)
+>     {
+>       Throwable cause = e.getCause();
+>       if (cause instanceof IOException)
+>       {
+>         throw (IOException) cause;
+>       }
+>       throw new IOException(cause);
+>     }
+>     catch (NoSuchMethodException | IllegalAccessException e)
+>     {
+>       throw new IOException(e);
+>     }
+165,166d184
 < 
 < 

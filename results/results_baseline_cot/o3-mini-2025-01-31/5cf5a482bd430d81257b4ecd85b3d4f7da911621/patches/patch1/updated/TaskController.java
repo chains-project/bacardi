@@ -63,6 +63,7 @@ public class TaskController {
         models.put("todotasks", todotasks);
         models.put("doingtasks", doingtasks);
         models.put("donetasks", donetasks);
+
     }
 
     @GET
@@ -86,6 +87,7 @@ public class TaskController {
 
     @POST
     @CsrfProtected
+    //@ValidateOnExecution(type = ExecutableType.NONE)
     public Response save(@Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "saving new task @{0}", form);
 
@@ -159,6 +161,7 @@ public class TaskController {
 
     @PUT
     @Path("{id}/status")
+    //@CsrfProtected
     public Response updateStatus(@PathParam(value = "id") Long id, @NotNull @FormParam(value = "status") String status) {
         log.log(Level.INFO, "updating status of the existed task@id:{0}, status:{1}", new Object[]{id, status});
 

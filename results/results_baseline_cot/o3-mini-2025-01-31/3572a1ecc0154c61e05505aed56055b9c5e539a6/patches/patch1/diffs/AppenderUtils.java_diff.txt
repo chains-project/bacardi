@@ -1,6 +1,6 @@
-30d29
+30c30
 < import org.apache.thrift.transport.TFastFramedTransport;
-32a32
+---
 > import org.apache.thrift.transport.TFramedTransport;
 60,64c60,61
 <       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
@@ -9,5 +9,10 @@
 <       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
 <           bufferCapacity);
 ---
->       // Use TFramedTransport for compatibility with singer_thrift log.
+>       // Use the TFramedTransport to be compatible with singer_thrift log.
 >       framedTransport = new TFramedTransport(new TIOStreamTransport(os));
+72c69,70
+<         framedTransport.flush();
+---
+>         // Flush the underlying OutputStream as TFramedTransport does not expose flush()
+>         os.flush();

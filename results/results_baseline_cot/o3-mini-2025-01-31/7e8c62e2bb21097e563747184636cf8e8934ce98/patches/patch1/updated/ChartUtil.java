@@ -7,7 +7,7 @@ import org.openqa.selenium.WebElement;
 import org.jenkinsci.test.acceptance.po.PageObject;
 
 /**
- * Charts are displayed on multiple PageObjects. This util provides some helper methods to deal with charts.
+ * Charts are displayed one multiple PageObjects. This util provides some helper methods to deal with charts.
  */
 @SuppressWarnings("hideutilityclassconstructor")
 // TODO: Move this code to ATH so we can reuse it from other plugins
@@ -53,13 +53,14 @@ public class ChartUtil {
                         "delete(window.Array.prototype.toJSON) %n"
                                 + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
                         toolAttribute));
+
                 if (result != null) {
                     return result.toString();
                 }
                 pageObject.elasticSleep(1000);
             }
         }
-        throw new java.util.NoSuchElementException("Found no trend chart with tool attribute '" + toolAttribute + "'");
+        throw new java.util.NoSuchElementException("Found no trend chart with ID '%s''" + toolAttribute);
     }
 
     /**

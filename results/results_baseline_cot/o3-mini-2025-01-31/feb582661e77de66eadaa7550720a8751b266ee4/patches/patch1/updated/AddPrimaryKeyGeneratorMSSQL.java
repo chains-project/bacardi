@@ -32,7 +32,6 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
     if (statement instanceof AddPrimaryKeyStatementMSSQL && ((AddPrimaryKeyStatementMSSQL) statement).getFillFactor() != null) {
       return generateMSSQLSql((AddPrimaryKeyStatementMSSQL) statement, database, sqlGeneratorChain);
     }
-
     return super.generateSql(statement, database, sqlGeneratorChain);
   }
 
@@ -65,17 +64,18 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
     // the only new feature being added is support for fillFactor
     sql += " WITH (FILLFACTOR = " + statement.getFillFactor() + ")";
 
-    // Replace StringUtils.trimToNull() with manual trimming check using core Java methods
-    if (statement.getTablespace() != null && !statement.getTablespace().trim().isEmpty() && database.supportsTablespaces()) {
-      sql += " ON " + statement.getTablespace().trim();
+    String tablespace = statement.getTablespace();
+    if (tablespace != null && !tablespace.trim().isEmpty() && database.supportsTablespaces()) {
+      sql += " ON " + tablespace.trim();
     }
 
     if (statement.getForIndexName() != null) {
-      sql += " USING INDEX " +
-              database.escapeObjectName(statement.getForIndexCatalogName(),
-                                          statement.getForIndexSchemaName(),
-                                          statement.getForIndexName(),
-                                          Index.class);
+      sql += " USING INDEX " + database.escapeObjectName(
+          statement.getForIndexCatalogName(),
+          statement.getForIndexSchemaName(),
+          statement.getForIndexName(),
+          Index.class
+      );
     }
 
     return new Sql[] {

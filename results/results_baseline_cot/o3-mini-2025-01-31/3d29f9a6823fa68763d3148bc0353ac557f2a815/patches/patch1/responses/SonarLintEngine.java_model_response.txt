@@ -1,25 +1,3 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error indicates that the method addEnabledLanguages(Set<Language>) is not found in AnalysisEngineConfiguration.Builder.
-   - It occurs in the buildAnalysisEngineConfiguration() method when attempting to add enabled languages.
-   - The likely cause is an updated dependency where the method has been renamed or replaced (for example, with setEnabledLanguages).
-
-2. Client Code Review:
-   - The problematic call is in the buildAnalysisEngineConfiguration() method:
-     • .addEnabledLanguages(globalConfig.getEnabledLanguages())
-   - The StandaloneGlobalConfiguration still provides the enabled languages, so the fix must be applied on the builder call.
-   - No other function signatures are affected.
-
-3. Proposed Fix:
-   - Replace the call to addEnabledLanguages(...) with setEnabledLanguages(...).
-   - This adheres to constraints as it does not change any function signatures. Only a single builder method is changed.
-   - No unwanted @Override annotations need removal, and imports remain correct.
-
-4. Considerations:
-   - The new setEnabledLanguages method from the updated dependency should accept the same Set<Language> parameter as getEnabledLanguages() provides.
-   - The change is isolated to this builder method call, so it should not have any adverse side effects.
-</code_analysis>
-
 ```java
 package sorald.sonar;
 
@@ -68,6 +46,7 @@ import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoadResult;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader.Configuration;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInfo;
+import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInstancesLoader;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginRequirementsCheckResult;
 import org.sonarsource.sonarlint.core.rule.extractor.SonarLintRuleDefinition;
 import sorald.FileUtils;

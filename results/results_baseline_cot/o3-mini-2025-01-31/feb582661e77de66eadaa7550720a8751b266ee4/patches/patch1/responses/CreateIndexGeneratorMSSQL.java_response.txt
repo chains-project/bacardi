@@ -72,12 +72,13 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
     if (statement.getFillFactor() != null) {
       builder.append(" WITH (FILLFACTOR = ").append(statement.getFillFactor()).append(")");
     }
-    // Replace StringUtils.trimToNull with a manual non-null & non-empty check.
-    if (statement.getTablespace() != null && !statement.getTablespace().trim().isEmpty()) {
-      builder.append(" ON ").append(statement.getTablespace());
+    // This block simplified, since we know we have MSSQLDatabase
+    String tablespace = statement.getTablespace();
+    if (tablespace != null && !tablespace.trim().isEmpty()) {
+      builder.append(" ON ").append(tablespace);
     }
 
-    return new Sql[]{new UnparsedSql(builder.toString(), getAffectedIndex(statement))};
+    return new Sql[] { new UnparsedSql(builder.toString(), getAffectedIndex(statement)) };
   }
 
   @Override

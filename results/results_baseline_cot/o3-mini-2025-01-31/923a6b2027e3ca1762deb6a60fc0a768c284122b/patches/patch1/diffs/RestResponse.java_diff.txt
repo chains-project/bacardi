@@ -28,27 +28,27 @@
 <  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 <  * OF THE POSSIBILITY OF SUCH DAMAGE.
 <  */
-48c19,22
+48c19,21
 < import org.hamcrest.Matchers;
 ---
-> import static org.hamcrest.CoreMatchers.not;
-> import static org.hamcrest.CoreMatchers.notNullValue;
-> import static org.hamcrest.collection.IsEmptyCollection.empty;
-> import static org.hamcrest.collection.IsIterableContaining.hasItem;
-165c139,140
-<             ), this.binary(),
+> import org.hamcrest.CoreMatchers;
+> import org.hamcrest.collection.IsEmptyIterable;
+> import org.hamcrest.collection.IsIterableContaining;
+60,61c33,34
+<  *   .assertBody(Matchers.containsString("hello, world!"))
+<  *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
 ---
->             ),
->             this.binary(),
-210c185
+>  *   .assertBody(CoreMatchers.containsString("hello, world!"))
+>  *   .assertHeader("Content-Type", IsIterableContaining.hasItem("text/plain"))
+210c183
 <         return this.assertHeader(name, Matchers.hasItems(value));
 ---
->         return this.assertHeader(name, hasItem(value));
-246c221
+>         return this.assertHeader(name, IsIterableContaining.hasItem(value));
+246c219
 <             Matchers.not(Matchers.emptyIterableOf(String.class))
 ---
->             not(empty())
-284c259
+>             CoreMatchers.not(IsEmptyIterable.emptyIterable())
+284c257
 <             Matchers.notNullValue()
 ---
->             notNullValue()
+>             CoreMatchers.notNullValue()

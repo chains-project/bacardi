@@ -165,8 +165,6 @@ class ModelRepresenter extends Representer {
     }
   }
 
-  // Model elements order {
-  //TODO move to polyglot-common, or to org.apache.maven:maven-model
   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
       "modelEncoding",
       "modelVersion",
@@ -195,8 +193,6 @@ class ModelRepresenter extends Representer {
       "dependencyManagement",
       "dependencies",
       "distributionManagement",
-      //"repositories",
-      //"pluginRepositories",
       "build",
       "profiles",
       "reporting"
@@ -209,11 +205,7 @@ class ModelRepresenter extends Representer {
       "groupId", "artifactId", "version", "type", "classifier", "scope"));
   private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
       "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
-  //}
 
-  /*
-   * Change the default order. Important data goes first.
-   */
   @Override
   protected Set<Property> getProperties(Class<? extends Object> type) {
     try {
@@ -231,7 +223,7 @@ class ModelRepresenter extends Representer {
         return super.getProperties(type);
       }
     } catch (IntrospectionException e) {
-      throw new IllegalStateException("Failed to introspect properties for type: " + type, e);
+      throw new YAMLException(e);
     }
   }
 
@@ -268,7 +260,7 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0;// compare further
+      return 0;
     }
   }
 }

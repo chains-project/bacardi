@@ -1,14 +1,3 @@
-<code_analysis>
-1. The error message “method does not override or implement a method from a supertype” indicates that the @Override annotation on the handle method is invalid because the method signature does not match any method in the current superclass. This typically occurs when a dependency update changes the types in a method’s signature.
-2. In this case, the likely cause is that the updated Jetty dependency has migrated from the javax.servlet API to the jakarta.servlet API. The AbstractHandler class now expects method parameters of type jakarta.servlet.http.HttpServletRequest and jakarta.servlet.http.HttpServletResponse instead of the older javax.servlet versions. Since the client code still imports and uses javax.servlet classes, the handle method signature does not match the new one in AbstractHandler.
-3. To fix this, we need to update the servlet API imports in the client code from the javax.servlet package to the jakarta.servlet package. This change will align the method signature with the updated dependency so that the @Override annotation is valid.
-4. The specific modifications are:
-   - Replace "import javax.servlet.ServletException;" with "import jakarta.servlet.ServletException;"
-   - Replace "import javax.servlet.http.HttpServletRequest;" with "import jakarta.servlet.http.HttpServletRequest;"
-   - Replace "import javax.servlet.http.HttpServletResponse;" with "import jakarta.servlet.http.HttpServletResponse;"
-   - All other code remains unchanged.
-</code_analysis>
-
 ```java
 /*
  * Copyright (c) 2012 - 2016 Jadler contributors
@@ -22,7 +11,6 @@ import net.jadler.stubbing.StubResponse;
 import org.apache.commons.lang.Validate;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

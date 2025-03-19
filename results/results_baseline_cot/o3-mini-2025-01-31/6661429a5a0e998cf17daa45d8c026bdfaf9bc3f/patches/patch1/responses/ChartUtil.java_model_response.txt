@@ -1,37 +1,15 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error indicates that the package "com.gargoylesoftware.htmlunit" (and thus its class ScriptResult) does not exist. This means that after a dependency update the HtmlUnit dependency (or its API) is no longer available, or its API has been changed.
-   - The errors occur on the lines where ScriptResult is instantiated (lines 35 and 60) and its methods are used.
-
-2. Client Code Review:
-   - In the method getChartDataById, the code executes a script and then creates a ScriptResult object from the result, calling getJavaScriptResult().toString() on it.
-   - Similarly, in the method getDataOfOnlyChartOnPageWithGivenToolAttribute, ScriptResult is again used to retrieve a JavaScript result.
-   - The rest of the code, including the function signatures, should remain unchanged.
-
-3. Proposed Fix:
-   - Remove the dependency on ScriptResult since it is no longer available.
-   - Instead, use the object returned by pageObject.executeScript() directly. If the result is not null, convert it to a string.
-   - Remove the import for com.gargoylesoftware.htmlunit.ScriptResult.
-   - Ensure that behavior remains the same and that the methods return the JavaScript execution result as a string.
-
-4. Specific Modifications:
-   - Remove the import for ScriptResult.
-   - Replace the instantiation of ScriptResult with a null-check and conversion of the returned script execution result to a string.
-   - No changes are made to function signatures or other functionality.
-</code_analysis>
-
 ```java
 package io.jenkins.plugins.coverage.util;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
+
 import org.jenkinsci.test.acceptance.po.PageObject;
 
 /**
- * Charts are displayed on multiple PageObjects. This util provides some helper methods to deal with charts.
+ * Charts are displayed one multiple PageObjects. This util provides some helper methods to deal with charts.
  */
-// The warning suppression below is preserved.
 @SuppressWarnings("hideutilityclassconstructor")
 // TODO: Move this code to ATH so we can reuse it from other plugins
 public class ChartUtil {
@@ -51,7 +29,7 @@ public class ChartUtil {
         if (isChartDisplayedByElementId(pageObject, elementId)) {
             Object result = pageObject.executeScript(String.format(
                     "delete(window.Array.prototype.toJSON) %n"
-                    + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
+                            + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
                     elementId));
             return result != null ? result.toString() : null;
         }
@@ -74,7 +52,7 @@ public class ChartUtil {
             for (int i = 0; i < MAX_ATTEMPTS; i++) {
                 Object result = pageObject.executeScript(String.format(
                         "delete(window.Array.prototype.toJSON) %n"
-                        + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
+                                + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
                         toolAttribute));
 
                 if (result != null) {
@@ -100,7 +78,8 @@ public class ChartUtil {
         try {
             WebElement chart = pageObject.find(By.id(elementId));
             return chart != null && chart.isDisplayed();
-        } catch (NoSuchElementException exception) {
+        }
+        catch (NoSuchElementException exception) {
             return false;
         }
     }
@@ -119,7 +98,8 @@ public class ChartUtil {
         try {
             WebElement chart = pageObject.find(By.cssSelector("div[tool='" + toolAttribute + "']"));
             return chart != null && chart.isDisplayed();
-        } catch (NoSuchElementException exception) {
+        }
+        catch (NoSuchElementException exception) {
             return false;
         }
     }

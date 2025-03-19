@@ -1,27 +1,3 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The compilation error indicates that the class Matchers from the package org.hamcrest cannot be found.
-   - The error occurs at the import statement (line 48) and in subsequent code that calls methods such as Matchers.hasItems(...), Matchers.not(...), Matchers.emptyIterableOf(...), and Matchers.notNullValue().
-   - This suggests that after a dependency update (likely a change from using hamcrest‑library to only hamcrest‑core), the class org.hamcrest.Matchers is no longer available.
-
-2. Client Code Review:
-   - The import "import org.hamcrest.Matchers;" is used to access several matcher methods.
-   - In assertHeader(String, String) the code calls Matchers.hasItems(value).
-   - In follow() the code calls Matchers.not(Matchers.emptyIterableOf(String.class)).
-   - In cookie(String) the code calls Matchers.notNullValue().
-   - With the dependency change, these calls must be modified to use available matchers.
-
-3. Proposed Fix:
-   - Remove the import for org.hamcrest.Matchers.
-   - Replace Matchers.hasItems(value) with hasItem(value) which is available in org.hamcrest.core.IsCollectionContaining (as a static import).
-   - Replace Matchers.not(Matchers.emptyIterableOf(String.class)) with not(equalTo(Collections.emptyList())) which correctly asserts that the header list isn’t empty.
-   - Replace Matchers.notNullValue() with notNullValue() imported from org.hamcrest.CoreMatchers.
-   - Add appropriate static imports (from org.hamcrest.CoreMatchers and org.hamcrest.core.IsCollectionContaining) so that the code compiles against the updated dependency.
-   - No function signatures or logic are changed, only the references to the matcher methods.
-
-4. The patch below reflects these changes and ensures the full class compiles with the updated Hamcrest dependency.
-</code_analysis>
-
 ```java
 package com.jcabi.http.response;
 
@@ -31,6 +7,7 @@ import com.jcabi.http.Response;
 import com.jcabi.log.Logger;
 import java.net.HttpCookie;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -41,10 +18,6 @@ import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
 
 /**
  * REST response.
@@ -206,7 +179,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, hasItem(value));
+        return this.assertHeader(name, Matchers.hasItems(value));
     }
 
     /**
@@ -242,7 +215,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            not(equalTo(Collections.emptyList()))
+            Matchers.not(Matchers.emptyIterableOf(String.class))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -280,7 +253,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            notNullValue()
+            Matchers.notNullValue()
         );
         assert cookie != null;
         return cookie;
@@ -323,11 +296,69 @@ public final class RestResponse extends AbstractResponse {
             this.status = sts;
         }
 
-        @Override
         public boolean matches(final Object resp) {
             return Response.class.cast(resp).status() == this.status;
         }
     }
 
+    private static final class Matchers {
+        static <T> Matcher<Iterable<T>> hasItems(final T... items) {
+            return new CustomMatcher<Iterable<T>>(
+                "iterable containing items " + Arrays.toString(items)
+            ) {
+                @Override
+                public boolean matches(final Object item) {
+                    if (!(item instanceof Iterable)) {
+                        return false;
+                    }
+                    Iterable<?> iterable = (Iterable<?>) item;
+                    for (T element : items) {
+                        boolean found = false;
+                        for (Object actual : iterable) {
+                            if ((element == null && actual == null) ||
+                                (element != null && element.equals(actual))) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            };
+        }
+
+        static <T> Matcher<Iterable<T>> emptyIterableOf(final Class<T> clazz) {
+            return new CustomMatcher<Iterable<T>>("an empty iterable") {
+                @Override
+                public boolean matches(final Object item) {
+                    if (!(item instanceof Iterable)) {
+                        return false;
+                    }
+                    return !((Iterable<?>) item).iterator().hasNext();
+                }
+            };
+        }
+
+        static <T> Matcher<T> notNullValue() {
+            return new CustomMatcher<T>("not null") {
+                @Override
+                public boolean matches(final Object item) {
+                    return item != null;
+                }
+            };
+        }
+
+        static <T> Matcher<T> not(final Matcher<T> matcher) {
+            return new CustomMatcher<T>("not " + matcher.toString()) {
+                @Override
+                public boolean matches(final Object item) {
+                    return !matcher.matches(item);
+                }
+            };
+        }
+    }
 }
 ```

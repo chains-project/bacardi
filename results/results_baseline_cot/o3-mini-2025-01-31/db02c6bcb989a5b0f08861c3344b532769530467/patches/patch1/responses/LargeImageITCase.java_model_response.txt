@@ -1,12 +1,3 @@
-<code_analysis>
-1. The error message indicates that the constructor for StringContains is now expecting a single String argument rather than a boolean and a String. The error occurs at the two assertion lines: one in the largeImagePullWorks() test and one in the largeImageUploadWorks() test. This change is due to an update in the Hamcrest dependency where the two-argument constructor (with a boolean flag for case sensitivity) is no longer available.
-2. In the client code, the problematic lines are:
-   - In largeImagePullWorks(): new StringContains(false, String.format("Status: Downloaded newer image for %s", this.remote()))
-   - In largeImageUploadWorks(): new StringContains(false, "Pushed")
-3. The fix is to remove the false argument from both constructors, as the new constructor only takes the expected substring (which performs a case-sensitive match by default).
-4. The necessary changes are simply to remove the boolean parameter. This will update the assertions to use new StringContains(String) while maintaining the original intent.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com

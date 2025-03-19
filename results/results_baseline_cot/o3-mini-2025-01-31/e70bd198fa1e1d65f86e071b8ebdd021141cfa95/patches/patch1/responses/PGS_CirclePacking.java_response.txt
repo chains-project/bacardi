@@ -23,6 +23,8 @@ import org.locationtech.jts.util.GeometricShapeFactory;
 import org.tinfour.common.IIncrementalTin;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
+import org.tinspin.index.DistanceFunction;
+import org.tinspin.index.PointEntry;
 import org.tinspin.index.covertree.CoverTree;
 
 import micycle.pgs.commons.FrontChainPacker;
@@ -52,6 +54,11 @@ import processing.core.PVector;
  */
 public final class PGS_CirclePacking {
 
+	/*-
+	 * Roadmap (see/implement): 'A LINEARIZED CIRCLE PACKING ALGORITHM'? 
+	 * 'A note on circle packing' Young Joon AHN.
+	 */
+
 	private PGS_CirclePacking() {
 	}
 
@@ -72,7 +79,7 @@ public final class PGS_CirclePacking {
 	 *                       when this ratio is reached.
 	 * @return A list of PVectors, where each PVector represents a circle. The x and
 	 *         y components of the PVector represent the center of the circle, and
-	 *         .z represents the radius of the circle.
+	 *         the z component represents the radius of the circle.
 	 * @since 1.4.0
 	 */
 	public static List<PVector> obstaclePack(PShape shape, Collection<PVector> pointObstacles, double areaCoverRatio) {
@@ -117,9 +124,7 @@ public final class PGS_CirclePacking {
 	public static List<PVector> trinscribedPack(PShape shape, int points, int refinements) {
 		final List<PVector> steinerPoints = PGS_Processing.generateRandomPoints(shape, points);
 		final IIncrementalTin tin = PGS_Triangulation.delaunayTriangulationMesh(shape, steinerPoints, true, refinements, true);
-		return StreamSupport.stream(tin.triangles().spliterator(), false)
-				.filter(filterBorderTriangles)
-				.map(t -> inCircle(t))
+		return StreamSupport.stream(tin.triangles().spliterator(), false).filter(filterBorderTriangles).map(t -> inCircle(t))
 				.collect(Collectors.toList());
 	}
 
@@ -201,13 +206,12 @@ public final class PGS_CirclePacking {
 		List<PVector> steinerPoints = PGS_Processing.generateRandomPoints(shape, points, seed);
 		if (triangulatePoints) {
 			final IIncrementalTin tin = PGS_Triangulation.delaunayTriangulationMesh(shape, steinerPoints, true, 1, true);
-			steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false)
-					.filter(filterBorderTriangles)
-					.map(PGS_CirclePacking::centroid)
-					.collect(Collectors.toList());
+			steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false).filter(filterBorderTriangles)
+					.map(PGS_CirclePacking::centroid).collect(Collectors.toList());
 		}
 
-		// Model shape vertices as circles of radius 0, to constrain packed circles within shape edge
+		// Model shape vertices as circles of radius 0, to constrain packed circles
+		// within shape edge
 		final List<PVector> vertices = PGS_Conversion.toPVector(shape);
 		Collections.shuffle(vertices); // shuffle vertices to reduce tree imbalance during insertion
 		vertices.forEach(p -> tree.insert(new double[] { p.x, p.y, 0 }, p));
@@ -219,10 +223,10 @@ public final class PGS_CirclePacking {
 		float largestR = 0; // the radius of the largest circle in the tree
 
 		for (PVector p : steinerPoints) {
-			final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+			final PointEntry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
 
 			/*
-			 * nn.dist() does not return the radius (since it's a distance metric used to
+			 * nn.distance() does not return the radius (since it's a distance metric used to
 			 * find nearest circle), so calculate maximum radius for candidate circle using
 			 * 2d euclidean distance between center points minus radius of nearest circle.
 			 */
@@ -278,6 +282,7 @@ public final class PGS_CirclePacking {
 				if (pointLocator.locate(PGS.coordFromPVector(p)) != Location.EXTERIOR) {
 					return false;
 				}
+
 				// if center point not in circle, check whether circle overlaps with shape using
 				// intersects() (somewhat slower)
 				circleFactory.setCentre(PGS.coordFromPVector(p));
@@ -637,14 +642,15 @@ public final class PGS_CirclePacking {
 	 * @param p2 3D point representing the second circle (x2, y2, r2)
 	 * @return the distance between the two points based on the custom metric
 	 */
-	private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {
+	private static final DistanceFunction circleDistanceMetric = (p1, p2) -> {
+		// from https://stackoverflow.com/a/21975136/
 		final double dx = p1[0] - p2[0];
 		final double dy = p1[1] - p2[1];
 		final double dz = p1[2] - p2[2];
 
 		double euclideanDistance = Math.sqrt(dx * dx + dy * dy);
 		double absZDifference = Math.abs(dz);
-		return euclideanDistance + absZDifference;
+		return euclideanDistance + absZDifference; // negative if inside
 	};
 
 	/**
@@ -655,14 +661,4 @@ public final class PGS_CirclePacking {
 			&& !t.getEdgeA().isConstrainedRegionBorder() && !t.getEdgeB().isConstrainedRegionBorder()
 			&& !t.getEdgeC().isConstrainedRegionBorder();
 
-	// --- Internal interface definitions to replace missing dependency types ---
-	@FunctionalInterface
-	public static interface PointDistanceFunction {
-		double distance(double[] p1, double[] p2);
-	}
-
-	public static interface PointEntryDist<T> {
-		T value();
-		double dist();
-	}
 }

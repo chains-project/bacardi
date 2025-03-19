@@ -1,16 +1,3 @@
-<code_analysis>
-1. The error message indicates that the JAX-RS classes cannot be found (e.g., Response, Path, GET, Produces, and MediaType). This is because the dependency update has moved these classes from the "javax.ws.rs" and "javax.ws.rs.core" packages to the "jakarta.ws.rs" and "jakarta.ws.rs.core" packages.
-2. In the client code, the problematic import statements (lines importing javax.ws.rs.* and javax.ws.rs.core.*) need to be updated. The rest of the code correctly uses JAX-RS annotations and classes.
-3. The fix involves updating the import statements to the corresponding jakarta packages. No function signatures or business logic should be changed.
-4. The modifications required are:
-   - Replace "javax.ws.rs.GET" with "jakarta.ws.rs.GET".
-   - Replace "javax.ws.rs.Path" with "jakarta.ws.rs.Path".
-   - Replace "javax.ws.rs.Produces" with "jakarta.ws.rs.Produces".
-   - Replace "javax.ws.rs.core.MediaType" with "jakarta.ws.rs.core.MediaType".
-   - Replace "javax.ws.rs.core.Response" with "jakarta.ws.rs.core.Response".
-This patch addresses the root cause of the error by aligning the package names with the updated dependency version.
-</code_analysis>
-
 ```java
 package com.wire.lithium.server.monitoring;
 

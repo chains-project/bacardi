@@ -146,6 +146,13 @@ public final class UpdateChecker {
                 }
             } else {
                 log.info("Does not seem to be an incremental release, so accepting");
+                // TODO may still be useful to select MRP versions targeted to an origin branch.
+                // (For example, select the latest backport from a stable branch rather than trunk.)
+                // The problem is that we cannot then guarantee that the POM has been flattened
+                // (this is only guaranteed for repositories which *may* produce incrementals),
+                // and loadGitHubCommit will not work for nonflattened POMs from reactor submodules:
+                // it would have to be made more complicated to resolve the parent POM(s),
+                // or we would need to switch the implementation to use Maven/Aether resolution APIs.
                 return candidate;
             }
         }
@@ -158,6 +165,7 @@ public final class UpdateChecker {
      * @return a possibly empty set of versions, sorted descending
      */
     private SortedSet<VersionAndRepo> loadVersions(String groupId, String artifactId) throws Exception {
+        // TODO consider using official Aether APIs here (could make use of local cache)
         SortedSet<VersionAndRepo> r = new TreeSet<>();
         for (String repo : repos) {
             String mavenMetadataURL = repo + groupId.replace('.', '/') + '/' + artifactId + "/maven-metadata.xml";
@@ -170,6 +178,7 @@ public final class UpdateChecker {
             Element versionsE = theElement(doc, "versions", mavenMetadataURL);
             NodeList versionEs = versionsE.getElementsByTagName("version");
             for (int i = 0; i < versionEs.getLength(); i++) {
+                // Not bothering to exclude timestamped snapshots for now, since we are working with release repositories anyway.
                 r.add(new VersionAndRepo(groupId, artifactId, new ComparableVersion(versionEs.item(i).getTextContent()), repo));
             }
         }
@@ -222,17 +231,21 @@ public final class UpdateChecker {
      * {@code curl -s -u … https://api.github.com/repos/<owner>/<repo>/compare/<branch>...<hash> | jq -r .status}
      * will return {@code identical} or {@code behind} if so, else {@code diverged} or {@code ahead}.
      * @param branch may be {@code master} or {@code forker:branch}
+     * @see <a href="https://developer.github.com/v3/repos/commits/#compare-two-commits">Compare two commits</a>
+     * @see <a href="https://stackoverflow.com/a/23970412/12916">Discussion</a>
      */
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
-            // Use the public getter getStatus() instead of accessing the private 'status' field.
             GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
-            String status = compare.getStatus();
-            return "identical".equals(status) || "behind".equals(status);
+            GHCompare.Status status = compare.getStatus();
+            return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
         } catch (FileNotFoundException x) {
             // For example, that branch does not exist in this repository.
             return false;
         }
+        // TODO check behavior when the comparison is huge (too many commits or too large diff)
+        // and perhaps fall back to cloning into a temp dir and pulling all PR refs https://gist.github.com/piscisaureus/3342247
+        // Currently https://developer.github.com/v4/object/commit/ does no better than this.
     }
 
     private static Element theElement(Document doc, String tagName, String url) throws Exception {

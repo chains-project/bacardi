@@ -38,6 +38,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  * &lt;/complexType&gt;
  * </pre>
  * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Payment", propOrder = {
@@ -45,7 +46,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "paymentAmount",
     "paymentDate"
 })
-public class Payment implements ToString2 {
+public class Payment implements ToString2
+{
 
     @XmlElement(name = "PaymentMechanism", required = true)
     protected String paymentMechanism;
@@ -61,6 +63,7 @@ public class Payment implements ToString2 {
      * @return
      *     possible object is
      *     {@link String }
+     *     
      */
     public String getPaymentMechanism() {
         return paymentMechanism;
@@ -72,6 +75,7 @@ public class Payment implements ToString2 {
      * @param value
      *     allowed object is
      *     {@link String }
+     *     
      */
     public void setPaymentMechanism(String value) {
         this.paymentMechanism = value;
@@ -83,6 +87,7 @@ public class Payment implements ToString2 {
      * @return
      *     possible object is
      *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getPaymentAmount() {
         return paymentAmount;
@@ -94,6 +99,7 @@ public class Payment implements ToString2 {
      * @param value
      *     allowed object is
      *     {@link BigDecimal }
+     *     
      */
     public void setPaymentAmount(BigDecimal value) {
         this.paymentAmount = value;
@@ -105,6 +111,7 @@ public class Payment implements ToString2 {
      * @return
      *     possible object is
      *     {@link XMLGregorianCalendar }
+     *     
      */
     public XMLGregorianCalendar getPaymentDate() {
         return paymentDate;
@@ -116,6 +123,7 @@ public class Payment implements ToString2 {
      * @param value
      *     allowed object is
      *     {@link XMLGregorianCalendar }
+     *     
      */
     public void setPaymentDate(XMLGregorianCalendar value) {
         this.paymentDate = value;

@@ -9,20 +9,20 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
-
-import java.util.UUID;
-
+import io.netty.buffer.ByteBuf;
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.network.RemoteConnection;
-import org.spongepowered.api.network.channel.ChannelBuf;
 import org.spongepowered.api.network.channel.ChannelRegistrar;
-import org.spongepowered.api.network.channel.ChannelBinding.RawDataChannel;
+import org.spongepowered.api.network.channel.raw.RawDataChannel;
+import org.spongepowered.api.network.channel.raw.RawDataChannel.RawDataHandler;
+
+import java.util.UUID;
 
 import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
 import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 
-public class CheckPermissionListener {
+public class CheckPermissionListener implements RawDataHandler {
 
     private final ChangeSkinSponge plugin;
     private final RawDataChannel permissionsResultChannel;
@@ -35,10 +35,11 @@ public class CheckPermissionListener {
         permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
     }
 
-    // Removed the @Override annotation since RawDataListener no longer exists.
-    public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
-
-        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+    @Override
+    public void handlePayload(ByteBuf data, RemoteConnection connection, Type side) {
+        byte[] bytes = new byte[data.readableBytes()];
+        data.getBytes(data.readerIndex(), bytes);
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(bytes);
         CheckPermMessage checkMessage = new CheckPermMessage();
         checkMessage.readFrom(dataInput);
 
@@ -79,6 +80,6 @@ public class CheckPermissionListener {
     private void sendResultMessage(Player receiver, PermResultMessage resultMessage) {
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
         resultMessage.writeTo(dataOutput);
-        permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+        permissionsResultChannel.sendTo(receiver, buf -> buf.writeBytes(dataOutput.toByteArray()));
     }
 }

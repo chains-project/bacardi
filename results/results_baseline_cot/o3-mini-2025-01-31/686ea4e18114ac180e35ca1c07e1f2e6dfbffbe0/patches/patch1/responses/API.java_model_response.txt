@@ -1,31 +1,3 @@
-<code_analysis>
-1. Issue Identified:
-   - The error messages indicate that the packages and classes under "javax.ws.rs.client" and "javax.ws.rs.core" are no longer found. This is due to a breaking dependency update where JAX-RS packages have moved from the "javax" namespace to the "jakarta" namespace in Jakarta EE 9+. Specifically, classes like Client, WebTarget, Response, and others now reside under "jakarta.ws.rs.client" and "jakarta.ws.rs.core".
-
-2. Client Code Review:
-   - The client code imports several JAX-RS classes from "javax.ws.rs.*". For example, it imports javax.ws.rs.NotSupportedException, javax.ws.rs.client.Client, javax.ws.rs.client.WebTarget, etc.
-   - The code uses these types extensively (e.g., in the API constructor and in various methods), so they need to be updated to the newer "jakarta" namespaces.
-
-3. Potential Fix Constraints:
-   - We must not change any function signatures.
-   - We only remove the @Override annotation if needed. In this case, the issue is solely with the package names.
-   - The correct fix is to update the import statements so that the new dependency is referenced.
-   - There is no need to remove existing code (unless it directly causes compilation errors), only update the imports.
-
-4. Planned Changes:
-   - Replace all import statements for JAX-RS classes from "javax.ws.rs.*" with the corresponding new package paths "jakarta.ws.rs.*". This includes:
-     • javax.ws.rs.NotSupportedException → jakarta.ws.rs.NotSupportedException
-     • javax.ws.rs.client.Client → jakarta.ws.rs.client.Client
-     • javax.ws.rs.client.Entity → jakarta.ws.rs.client.Entity
-     • javax.ws.rs.client.Invocation → jakarta.ws.rs.client.Invocation
-     • javax.ws.rs.client.WebTarget → jakarta.ws.rs.client.WebTarget
-     • javax.ws.rs.core.* → jakarta.ws.rs.core.*
-   - Verify that no other changes are required and that all function signatures remain untouched.
-   - Confirm that the rest of the class remains unchanged, ensuring it compiles correctly with the updated dependencies.
-</code_analysis>
-
-Below is the complete, fixed Java class:
-
 ```java
 package com.wire.lithium;
 
@@ -45,16 +17,18 @@ import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.media.multipart.BodyPart;
 import org.glassfish.jersey.media.multipart.MultiPart;
-
 import javax.annotation.Nullable;
-
 import jakarta.ws.rs.NotSupportedException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.*;
-
+import jakarta.ws.rs.core.Feature;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.MultivaluedMap;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -410,5 +384,3 @@ public class API implements WireAPI {
     }
 }
 ```
-
-This patch updates the import statements to reference the new jakarta.ws.rs packages, resolving the compilation errors caused by the breaking dependency update.

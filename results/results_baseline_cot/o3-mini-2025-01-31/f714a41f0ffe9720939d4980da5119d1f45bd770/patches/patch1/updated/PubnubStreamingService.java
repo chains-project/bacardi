@@ -11,8 +11,8 @@ import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
-import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
 import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
+import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -23,7 +23,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Created by Lukas Zaoralek on 14.11.17. */
 public class PubnubStreamingService {
   private static final Logger LOG = LoggerFactory.getLogger(PubnubStreamingService.class);
 
@@ -35,8 +34,8 @@ public class PubnubStreamingService {
   public PubnubStreamingService(String publicKey) {
     mapper = new ObjectMapper();
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    // Use the new constructor that accepts a String to set the subscribe key.
     PNConfiguration pnConfiguration = new PNConfiguration(publicKey);
+    pnConfiguration.setSubscribeKey(publicKey);
     pubnub = new PubNub(pnConfiguration);
     pnStatusCategory = PNStatusCategory.PNDisconnectedCategory;
   }
@@ -54,9 +53,9 @@ public class PubnubStreamingService {
                       pnStatusCategory.toString(),
                       pnStatus.getStatusCode());
                   if (pnStatusCategory == PNStatusCategory.PNConnectedCategory) {
-                    // e.onComplete(); // Uncomment if needed in your implementation.
+                    //              e.onComplete();
                   } else if (pnStatus.isError()) {
-                    // e.onError(pnStatus.getErrorData().getThrowable()); // Uncomment if needed.
+                    //              e.onError(pnStatus.getErrorData().getThrowable());
                   }
                 }
 
@@ -88,16 +87,15 @@ public class PubnubStreamingService {
                   LOG.debug("PubNub signal: {}", pnSignalResult.toString());
                 }
 
-                // Implement the new abstract method from the updated dependency.
-                @Override
-                public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
-                  LOG.debug("PubNub file event: {}", pnFileEventResult.toString());
-                }
-
                 @Override
                 public void messageAction(
                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
                   LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
+                }
+
+                @Override
+                public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
+                  LOG.debug("PubNub file: {}", pnFileEventResult.toString());
                 }
               });
           e.onComplete();

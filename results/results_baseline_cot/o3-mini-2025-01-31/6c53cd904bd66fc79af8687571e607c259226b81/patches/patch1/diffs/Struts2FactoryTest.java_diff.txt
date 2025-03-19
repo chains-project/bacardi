@@ -1,4 +1,22 @@
 19c19
 < import org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter;
 ---
-> import org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter; // Updated import to new package
+> import org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter;
+27a28
+> import javax.inject.Singleton;
+30,34d30
+< /**
+<  * Test for Struts2Factory
+<  *
+<  * @author benmccann.com
+<  */
+54d49
+<               // Struts 2 setup
+56c51
+<                   .in(com.google.inject.Singleton.class);
+---
+>                   .in(Singleton.class);
+77c72
+<     assertEquals(TODAY, s2Factory.buildBean(Date.class, null));
+---
+>     assertEquals(TODAY, s2Factory.createBean(Date.class, null));

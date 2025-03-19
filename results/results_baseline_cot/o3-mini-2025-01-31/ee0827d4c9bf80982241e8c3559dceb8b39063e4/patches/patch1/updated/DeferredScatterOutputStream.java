@@ -1,20 +1,3 @@
-/*
- *  Licensed to the Apache Software Foundation (ASF) under one or more
- *  contributor license agreements.  See the NOTICE file distributed with
- *  this work for additional information regarding copyright ownership.
- *  The ASF licenses this file to You under the Apache License, Version 2.0
- *  (the "License"); you may not use this file except in compliance with
- *  the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
- */
 package org.codehaus.plexus.archiver.zip;
 
 import java.io.File;
@@ -41,10 +24,15 @@ public class DeferredScatterOutputStream implements ScatterGatherBackingStore
     @Override
     public void writeOut( byte[] data, int offset, int length ) throws IOException
     {
-        // The dependency update removed the method write(byte[], int, int)
-        // Use a loop to write each byte individually using write(int)
-        for (int i = offset; i < offset + length; i++) {
-            dfos.write(data[i]);
+        if (offset == 0 && length == data.length)
+        {
+            dfos.write(data);
+        }
+        else
+        {
+            byte[] chunk = new byte[length];
+            System.arraycopy(data, offset, chunk, 0, length);
+            dfos.write(chunk);
         }
     }
 
@@ -63,4 +51,5 @@ public class DeferredScatterOutputStream implements ScatterGatherBackingStore
             file.delete();
         }
     }
+
 }

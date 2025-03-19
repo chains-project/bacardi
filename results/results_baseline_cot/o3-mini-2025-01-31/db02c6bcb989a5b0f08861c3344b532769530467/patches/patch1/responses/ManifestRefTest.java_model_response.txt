@@ -1,19 +1,9 @@
-<code_analysis>
-1. The error message indicates that the constructor for StringContains is now defined to take only a single String argument, whereas the client code is providing two parameters (a boolean and a String). This change is a result of a dependency update in the Hamcrest library.
-2. The problematic lines are in the failsToResolveInvalid method, where two instances of StringContains are constructed with a boolean parameter (e.g., new StringContains(true, "Unsupported reference")). The updated API no longer supports this signature.
-3. To fix the issue, we can replace these constructions with the appropriate Hamcrest matchers. Specifically, we can use Matchers.containsString("...") to check that a string contains a substring and wrap one of them with Matchers.not(…) to ensure that a substring is not present.
-4. The required changes are:
-   - Replace new StringContains(true, "Unsupported reference") with Matchers.containsString("Unsupported reference").
-   - Replace new StringContains(false, string) with Matchers.not(Matchers.containsString(string)).
-   - Remove the unused import for org.hamcrest.core.StringContains if desired.
-These changes comply with the constraints and address the direct cause of the compilation error.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
  * https://github.com/artipie/docker-adapter/LICENSE.txt
  */
+
 package com.artipie.docker.ref;
 
 import com.artipie.docker.Digest;
@@ -22,11 +12,16 @@ import java.util.Arrays;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.AllOf;
+import org.hamcrest.core.StringContains;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+/**
+ * Test case for {@link ManifestRef}.
+ * @since 0.1
+ */
 public final class ManifestRefTest {
 
     @Test
@@ -58,11 +53,9 @@ public final class ManifestRefTest {
         );
         MatcherAssert.assertThat(
             throwable.getMessage(),
-            new AllOf<>(
-                Arrays.asList(
-                    Matchers.containsString("Unsupported reference"),
-                    Matchers.not(Matchers.containsString(string))
-                )
+            AllOf.allOf(
+                Matchers.containsString("Unsupported reference"),
+                Matchers.not(Matchers.containsString(string))
             )
         );
     }

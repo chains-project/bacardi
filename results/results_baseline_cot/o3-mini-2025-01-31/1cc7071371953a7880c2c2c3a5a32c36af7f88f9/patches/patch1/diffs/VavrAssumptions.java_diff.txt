@@ -11,7 +11,7 @@
 <  *
 <  * Copyright 2017-2022 the original author or authors.
 <  */
-24,33c12,22
+24,33c12,20
 < import org.assertj.core.internal.bytebuddy.ByteBuddy;
 < import org.assertj.core.internal.bytebuddy.TypeCache;
 < import org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey;
@@ -23,8 +23,8 @@
 < import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall;
 < import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This;
 ---
-> 
 > import net.bytebuddy.ByteBuddy;
+> import net.bytebuddy.utility.cache.TypeCache;
 > import net.bytebuddy.dynamic.scaffold.TypeValidation;
 > import net.bytebuddy.implementation.Implementation;
 > import net.bytebuddy.implementation.MethodDelegation;
@@ -32,69 +32,17 @@
 > import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 > import net.bytebuddy.implementation.bind.annotation.SuperCall;
 > import net.bytebuddy.implementation.bind.annotation.This;
-> import static net.bytebuddy.matcher.ElementMatchers.any;
-> 
-38a28,29
-> import java.util.concurrent.ConcurrentHashMap;
-> import java.util.function.Supplier;
-40d30
+40c27
 < import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;
-50c40,41
-<     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED)
 ---
->     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy()
->             .with(TypeValidation.DISABLED)
-55c46
+> import static net.bytebuddy.matcher.ElementMatchers.any;
+55c42
 <     private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
 ---
->     private static final TypeCache<SimpleKey, Class<?>> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
-60c51,52
-<         public static Object intercept(@This AbstractVavrAssert<?, ?> assertion, @SuperCall Callable<Object> proxy) throws Exception {
+>     private static final TypeCache<Class<?>, Class<?>> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
+215d201
+<         SimpleKey cacheKey = new SimpleKey(assertClass);
+217c203
+<                 cacheKey,
 ---
->         public static Object intercept(@This AbstractVavrAssert<?, ?> assertion,
->                                        @SuperCall Callable<Object> proxy) throws Exception {
-257c249
-<     // for method that change the object under test (e.g. extracting)
----
->     // for methods that change the object under test (e.g. extracting)
-272a265,304
->     // Minimal implementation of TypeCache similar to the missing dependency
->     private static class TypeCache<K, V> {
->         private final ConcurrentHashMap<K, V> cache = new ConcurrentHashMap<>();
-> 
->         public V findOrInsert(ClassLoader classLoader, K key, Supplier<V> supplier) {
->             return cache.computeIfAbsent(key, k -> supplier.get());
->         }
-> 
->         public static class WithInlineExpunction<K, V> extends TypeCache<K, V> {
->             public WithInlineExpunction(Sort sort) {
->                 // ignore sort, using simple caching
->             }
->         }
-> 
->         public enum Sort {
->             SOFT
->         }
->     }
-> 
->     // Minimal implementation of SimpleKey
->     private static class SimpleKey {
->         private final Class<?> type;
-> 
->         public SimpleKey(Class<?> type) {
->             this.type = type;
->         }
-> 
->         @Override
->         public boolean equals(Object o) {
->             if (this == o) return true;
->             if (o == null || getClass() != o.getClass()) return false;
->             SimpleKey simpleKey = (SimpleKey) o;
->             return type.equals(simpleKey.type);
->         }
-> 
->         @Override
->         public int hashCode() {
->             return type.hashCode();
->         }
->     }
+>                 assertClass,

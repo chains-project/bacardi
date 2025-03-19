@@ -22,47 +22,63 @@
 <  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 <  * SOFTWARE.
 <  */
-37,38c14
+37,38d13
 < import org.cactoos.scalar.IoCheckedScalar;
 < import org.cactoos.scalar.SolidScalar;
----
-> import org.cactoos.scalar.Sticky;
-40c16
+40d14
 < import org.cactoos.text.JoinedText;
+51c25
+<      * Path containing wallets.
 ---
-> import org.cactoos.text.Joined;
-53c29
+>      * Base path containing wallets.
+53c27
 <     private final IoCheckedScalar<Path> path;
 ---
->     private final Scalar<Path> path;
-103,105c79
+>     private final Path path;
+98d71
+<      * @param random Randomizer
+99a73
+>      * @param random Randomizer
+101,105c75,76
+<     public WalletsIn(final Scalar<Path> pth, final String ext,
+<         final Random random) {
 <         this.path = new IoCheckedScalar<>(
 <             new SolidScalar<>(pth)
 <         );
 ---
->         this.path = new Sticky<>(pth);
-118,119c92,94
+>     public WalletsIn(final Scalar<Path> pth, final String ext, final Random random) {
+>         this.path = safePath(pth);
+118,120c89,90
 <         final Path wpth = this.path.value().resolve(
 <             new JoinedText(
+<                 ".",
 ---
->         final Path base = this.base();
->         final Path wpth = base.resolve(
->             new Joined(
-156c131
+>         final Path wpth = this.path.resolve(
+>             String.join(".",
+123c93
+<             ).asString()
+---
+>             )
+144,145c114
+<     public Wallet create(final long id, final String pubkey, final String
+<         network) throws IOException {
+---
+>     public Wallet create(final long id, final String pubkey, final String network) throws IOException {
+156c125
 <                 new Filtered<>(this.filter, new Directory(this.path.value()))
 ---
->                 new Filtered<>(this.filter, new Directory(this.base()))
-161a137,149
->     
+>                 new Filtered<>(this.filter, new Directory(this.path))
+161a131,143
+> 
 >     /**
->      * Returns the base path from the scalar, wrapping any exception into an IOException.
->      * @return Base path.
->      * @throws IOException if obtaining the path fails.
+>      * Safely retrieves the Path from the given Scalar.
+>      * @param scalar The scalar to evaluate.
+>      * @return The evaluated Path.
 >      */
->     private Path base() throws IOException {
+>     private static Path safePath(final Scalar<Path> scalar) {
 >         try {
->             return this.path.value();
+>             return scalar.value();
 >         } catch (final Exception ex) {
->             throw new IOException(ex);
+>             throw new IllegalStateException(ex);
 >         }
 >     }

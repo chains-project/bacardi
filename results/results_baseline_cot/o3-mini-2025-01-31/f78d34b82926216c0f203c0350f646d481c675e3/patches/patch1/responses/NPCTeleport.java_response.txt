@@ -68,6 +68,7 @@ public class NPCTeleport
 
         new BukkitRunnable()
         {
+            @Override
             public void run()
             {
                 now[0]++;
@@ -84,8 +85,10 @@ public class NPCTeleport
             }
         }.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, (long) (10 * ((1.5 / count) * sec)));
 
+
         new BukkitRunnable()
         {
+            @Override
             public void run()
             {
                 for (double i = 0; i < Math.PI * 2; i++)
@@ -114,6 +117,7 @@ public class NPCTeleport
                     float finalHead = head;
                     new BukkitRunnable()
                     {
+                        @Override
                         public void run()
                         {
                             Bukkit.getOnlinePlayers().parallelStream().filter(p -> p.hasPermission("psac.viewnpc"))
@@ -159,6 +163,7 @@ public class NPCTeleport
         final int[] count = {0};
         BukkitRunnable r = new BukkitRunnable()
         {
+            @Override
             public void run()
             {
                 double speed = 0.0;
@@ -173,7 +178,7 @@ public class NPCTeleport
 
                     if (config.getBoolean("npc.wave"))
                         rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
-                            .get(0.01, true);
+                            .get(0.01, count[0] < 20);
 
                     final Location center = player.getLocation();
                     final Location n = new Location(
@@ -192,6 +197,7 @@ public class NPCTeleport
                     NPC.setArmor(player, target, arm);
                     new BukkitRunnable()
                     {
+                        @Override
                         public void run()
                         {
                             Bukkit.getOnlinePlayers()
@@ -220,6 +226,7 @@ public class NPCTeleport
 
         new BukkitRunnable()
         {
+            @Override
             public void run()
             {
                 r.cancel();
@@ -237,7 +244,7 @@ public class NPCTeleport
      */
     private static double auraBotZPos(double time, double radius)
     {
-        return Math.sin(time) * radius * Math.cos(Math.PI / 180 * 360.0);
+        return Math.sin(time) * radius * Math.cos(Math.toRadians(360.0));
     }
 
     /**
@@ -252,30 +259,29 @@ public class NPCTeleport
         return Math.cos(time) * radius;
     }
     
-    /**
-     * Minimal stub implementation of WaveCreator to replace the missing dependency.
-     */
-    private static class WaveCreator {
-        private final double a;
-        private final double b;
-        private final double c;
+    public static class WaveCreator {
+        private final double min;
+        private final double max;
+        private final double factor;
         
-        public WaveCreator(double a, double b, double c) {
-            this.a = a;
-            this.b = b;
-            this.c = c;
-        }
-        
-        public double get(double factor, boolean flag) {
-            if (flag) {
-                return factor * (b - a) + c;
-            } else {
-                return (a + b) / 2.0;
-            }
+        public WaveCreator(double min, double max, double factor) {
+            this.min = min;
+            this.max = max;
+            this.factor = factor;
         }
         
         public double getStatic() {
-            return (a + b) / 2.0;
+            return (min + max) / 2.0;
+        }
+        
+        public double get(double input, boolean flag) {
+            double normalized;
+            if (flag) {
+                normalized = (Math.sin(factor * input) + 1) / 2.0;
+            } else {
+                normalized = (Math.cos(factor * input) + 1) / 2.0;
+            }
+            return min + (max - min) * normalized;
         }
     }
 }

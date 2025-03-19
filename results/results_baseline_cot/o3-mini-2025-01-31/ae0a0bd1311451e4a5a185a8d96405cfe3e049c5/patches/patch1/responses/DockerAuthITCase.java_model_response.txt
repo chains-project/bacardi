@@ -1,13 +1,3 @@
-<code_analysis>
-1. The error message indicates that the constructor for org.hamcrest.core.StringContains is now defined to take only a single String as an argument, instead of the previous version which accepted a boolean (likely indicating case sensitivity) along with a String. The error occurs at two lines (70 and 85) where a constructor call with two arguments (boolean and String) is used.
-2. In the client code, the problematic lines are the two assertThat calls inside the shouldPush and shouldPull methods. They instantiate new StringContains with two parameters: a boolean (false) and a formatted String.
-3. To fix the issue, we need to remove the boolean parameter because the updated dependency expects a single String argument. This change does not alter the overall test logic, only adapts to the new constructor requirements.
-4. The necessary modifications are:
-   - In shouldPush, change new StringContains(false, String.format(...)) to new StringContains(String.format(...)).
-   - In shouldPull, change new StringContains(false, String.format(...)) to new StringContains(String.format(...)).
-The remaining code can remain unaltered.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com

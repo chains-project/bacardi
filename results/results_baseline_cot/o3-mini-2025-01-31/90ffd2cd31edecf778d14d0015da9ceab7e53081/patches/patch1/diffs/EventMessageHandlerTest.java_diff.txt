@@ -1,42 +1,43 @@
-6d5
-< import ch.qos.logback.core.Appender;
-83,86c82,83
-<     @Mock
+82a83
+>     
+84c85,86
 <     private Appender<ILoggingEvent> mockLogAppender;
-<     @Captor
+---
+>     private Appender mockLogAppender;
+> 
+86c88
 <     ArgumentCaptor<ILoggingEvent> loggingEventArgumentCaptor;
 ---
-> 
->     // Removed mockLogAppender and its logging event captor to avoid dependency on LoggingEventAware
-113c110
-<         logger.addAppender(mockLogAppender);
+>     ArgumentCaptor<Object> loggingEventArgumentCaptor;
+179,181c181,183
+<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+<         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+<         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
 ---
->         // Removed addition of any Appender to avoid dependency on LoggingEventAware
-176,181d172
-< 
-<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-< 
+>         List<Object> logStatement = loggingEventArgumentCaptor.getAllValues();
+>         assertThat(((ILoggingEvent) logStatement.get(0)).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+>         assertThat(((ILoggingEvent) logStatement.get(1)).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
+216,218c218,220
 <         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
 <         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
 <         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
-213,218d203
-< 
-<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-< 
+---
+>         List<Object> logStatement = loggingEventArgumentCaptor.getAllValues();
+>         assertThat(((ILoggingEvent) logStatement.get(0)).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+>         assertThat(((ILoggingEvent) logStatement.get(1)).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
+253,255c255,257
 <         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
 <         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
 <         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
-250,255d234
-< 
-<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-< 
+---
+>         List<Object> logStatement = loggingEventArgumentCaptor.getAllValues();
+>         assertThat(((ILoggingEvent) logStatement.get(0)).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+>         assertThat(((ILoggingEvent) logStatement.get(1)).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
+290,292c292,294
 <         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
 <         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
 <         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
-287,292d265
-< 
-<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-< 
-<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-<         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-<         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
+---
+>         List<Object> logStatement = loggingEventArgumentCaptor.getAllValues();
+>         assertThat(((ILoggingEvent) logStatement.get(0)).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+>         assertThat(((ILoggingEvent) logStatement.get(1)).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));

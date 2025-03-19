@@ -11,6 +11,7 @@ import java.util.Arrays;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.AllOf;
+import org.hamcrest.core.StringContains;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -51,9 +52,11 @@ public final class ManifestRefTest {
         );
         MatcherAssert.assertThat(
             throwable.getMessage(),
-            Matchers.allOf(
-                Matchers.containsString("Unsupported reference"),
-                Matchers.not(Matchers.containsString(string))
+            new AllOf<>(
+                Arrays.asList(
+                    new StringContains("Unsupported reference"),
+                    Matchers.not(new StringContains(string))
+                )
             )
         );
     }

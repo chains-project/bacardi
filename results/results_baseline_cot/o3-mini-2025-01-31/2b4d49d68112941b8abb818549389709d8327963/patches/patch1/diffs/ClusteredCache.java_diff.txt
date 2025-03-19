@@ -1,17 +1,27 @@
-18,21c18,20
+18,21c18,24
 < import com.hazelcast.core.EntryEvent;
 < import com.hazelcast.core.EntryListener;
 < import com.hazelcast.core.IMap;
 < import com.hazelcast.core.MapEvent;
 ---
 > import com.hazelcast.map.IMap;
+> import com.hazelcast.map.LocalMapStats;
 > import com.hazelcast.map.listener.EntryEvent;
 > import com.hazelcast.map.listener.EntryListener;
-23c22
+> import com.hazelcast.map.listener.MapClearedListener;
+> import com.hazelcast.map.listener.MapEvictedListener;
+> import com.hazelcast.map.listener.MapEvent;
+23d25
 < import com.hazelcast.monitor.LocalMapStats;
----
-> import com.hazelcast.map.LocalMapStats;
-88,104c87,88
+45,48d46
+< /**
+<  * Clustered implementation of the Cache interface using Hazelcast.
+<  *
+<  */
+85,142c83,84
+<     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode)
+<     {
+<         final EntryListener<K, V> listener = new EntryListener<K, V>() {
 <             @Override
 <             public void mapEvicted(MapEvent event) {
 <                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
@@ -29,6 +39,131 @@
 <                     clusteredCacheEntryListener.mapCleared(eventNodeId);
 <                 }
 <             }
+< 
+<             @Override
+<             public void entryUpdated(EntryEvent event) {
+<                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+<                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+<                     logger.trace("Processing entry update event of node '{}' for key '{}'", eventNodeId, event.getKey());
+<                     clusteredCacheEntryListener.entryUpdated((K) event.getKey(), (V) event.getOldValue(), (V) event.getValue(), eventNodeId);
+<                 }
+<             }
+< 
+<             @Override
+<             public void entryRemoved(EntryEvent event) {
+<                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+<                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+<                     logger.trace("Processing entry removed event of node '{}' for key '{}'", eventNodeId, event.getKey());
+<                     clusteredCacheEntryListener.entryRemoved((K) event.getKey(), (V) event.getOldValue(), eventNodeId);
+<                 }
+<             }
+< 
+<             @Override
+<             public void entryEvicted(EntryEvent event) {
+<                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+<                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+<                     logger.trace("Processing entry evicted event of node '{}' for key '{}'", eventNodeId, event.getKey());
+<                     clusteredCacheEntryListener.entryEvicted((K) event.getKey(), (V) event.getOldValue(), eventNodeId);
+<                 }
+<             }
+< 
+<             @Override
+<             public void entryAdded(EntryEvent event) {
+<                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+<                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+<                     logger.trace("Processing entry added event of node '{}' for key '{}'", eventNodeId, event.getKey());
+<                     clusteredCacheEntryListener.entryAdded((K) event.getKey(), (V) event.getValue(), eventNodeId);
+<                 }
+<             }
+<         };
+< 
 ---
->             // The following methods (mapEvicted and mapCleared) have been removed because
->             // the updated Hazelcast API no longer supports these events.
+>     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode) {
+>         CombinedEntryListener<K, V> listener = new CombinedEntryListener<>(clusteredCacheEntryListener, includeEventsFromLocalNode, logger);
+168c110,112
+<         if (object == null) { return null; }
+---
+>         if (object == null) {
+>             return null;
+>         }
+224,225d167
+< 
+<         // Instances are likely all loaded by the same class loader. For resource usage optimization, let's test just one, not all.
+235c177
+<     public Collection<V> values() {
+---
+>     public java.util.Collection<V> values() {
+327,329c269
+<             && lastPluginClassLoaderWarning.isBefore(Instant.now().minus(pluginClassLoaderWarningSupression)) )
+<         {
+<             // Try to determine what plugin loaded the offending class.
+---
+>             && lastPluginClassLoaderWarning.isBefore(Instant.now().minus(pluginClassLoaderWarningSupression))) {
+348a289,355
+> 
+>     private static class CombinedEntryListener<K, V> implements EntryListener<K, V>, MapClearedListener, MapEvictedListener {
+> 
+>         private final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener;
+>         private final boolean includeEventsFromLocalNode;
+>         private final Logger logger;
+> 
+>         CombinedEntryListener(ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, boolean includeEventsFromLocalNode, Logger logger) {
+>             this.clusteredCacheEntryListener = clusteredCacheEntryListener;
+>             this.includeEventsFromLocalNode = includeEventsFromLocalNode;
+>             this.logger = logger;
+>         }
+> 
+>         @Override
+>         public void entryAdded(EntryEvent<K, V> event) {
+>             if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+>                 final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+>                 logger.trace("Processing entry added event of node '{}' for key '{}'", eventNodeId, event.getKey());
+>                 clusteredCacheEntryListener.entryAdded(event.getKey(), event.getValue(), eventNodeId);
+>             }
+>         }
+> 
+>         @Override
+>         public void entryUpdated(EntryEvent<K, V> event) {
+>             if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+>                 final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+>                 logger.trace("Processing entry update event of node '{}' for key '{}'", eventNodeId, event.getKey());
+>                 clusteredCacheEntryListener.entryUpdated(event.getKey(), event.getOldValue(), event.getValue(), eventNodeId);
+>             }
+>         }
+> 
+>         @Override
+>         public void entryRemoved(EntryEvent<K, V> event) {
+>             if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+>                 final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+>                 logger.trace("Processing entry removed event of node '{}' for key '{}'", eventNodeId, event.getKey());
+>                 clusteredCacheEntryListener.entryRemoved(event.getKey(), event.getOldValue(), eventNodeId);
+>             }
+>         }
+> 
+>         @Override
+>         public void entryEvicted(EntryEvent<K, V> event) {
+>             if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+>                 final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+>                 logger.trace("Processing entry evicted event of node '{}' for key '{}'", eventNodeId, event.getKey());
+>                 clusteredCacheEntryListener.entryEvicted(event.getKey(), event.getOldValue(), eventNodeId);
+>             }
+>         }
+> 
+>         @Override
+>         public void mapCleared(MapEvent event) {
+>             if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+>                 final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+>                 logger.trace("Processing map cleared event of node '{}'", eventNodeId);
+>                 clusteredCacheEntryListener.mapCleared(eventNodeId);
+>             }
+>         }
+> 
+>         @Override
+>         public void mapEvicted(MapEvent event) {
+>             if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+>                 final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+>                 logger.trace("Processing map evicted event of node '{}'", eventNodeId);
+>                 clusteredCacheEntryListener.mapEvicted(eventNodeId);
+>             }
+>         }
+>     }

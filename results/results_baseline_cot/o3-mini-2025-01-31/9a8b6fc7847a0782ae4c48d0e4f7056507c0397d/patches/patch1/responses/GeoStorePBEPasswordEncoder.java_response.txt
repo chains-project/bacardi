@@ -1,5 +1,16 @@
 package it.geosolutions.geostore.core.security.password;
 
+import static it.geosolutions.geostore.core.security.password.SecurityUtils.scramble;
+import static it.geosolutions.geostore.core.security.password.SecurityUtils.toBytes;
+import static it.geosolutions.geostore.core.security.password.SecurityUtils.toChars;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Base64;
+import org.acegisecurity.providers.encoding.PasswordEncoder;
+import org.jasypt.encryption.pbe.StandardPBEByteEncryptor;
+import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
+
 /*
  *  Copyright (C) 2007 - 2011 GeoSolutions S.A.S.
  *  http://www.geo-solutions.it
@@ -20,29 +31,6 @@ package it.geosolutions.geostore.core.security.password;
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import static it.geosolutions.geostore.core.security.password.SecurityUtils.scramble;
-import static it.geosolutions.geostore.core.security.password.SecurityUtils.toBytes;
-import static it.geosolutions.geostore.core.security.password.SecurityUtils.toChars;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Base64;
-import org.acegisecurity.providers.encoding.PasswordEncoder;
-import org.jasypt.encryption.pbe.StandardPBEByteEncryptor;
-import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
-
-/**
- * Password Encoder using symmetric encryption
- * 
- * The salt parameter is not used, this implementation computes a random salt as
- * default.
- * 
- * {@link #isPasswordValid(String, String, Object)}
- * {@link #encodePassword(String, Object)}
- * 
- * @author Lorenzo Natali
- * 
- */
 public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder {
 
 	StandardPBEStringEncryptor stringEncrypter;
@@ -88,6 +76,7 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 	@Override
 	protected PasswordEncoder createStringEncoder() {
 		byte[] password = lookupPasswordFromKeyStore();
+
 		char[] chars = toChars(password);
 		try {
 			stringEncrypter = new StandardPBEStringEncryptor();
@@ -98,7 +87,6 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			}
 			stringEncrypter.setAlgorithm(getAlgorithm());
 
-			// Replace the removed PBEPasswordEncoder with an inline implementation
 			return new PasswordEncoder() {
 				@Override
 				public String encodePassword(String rawPass, Object salt) {
@@ -108,9 +96,9 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 				@Override
 				public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
 					try {
-						String decrypted = stringEncrypter.decrypt(encPass);
+						String decrypted = stringEncrypter.decrypt(removePrefix(encPass));
 						return decrypted.equals(rawPass);
-					} catch (Exception ex) {
+					} catch(Exception ex) {
 						return false;
 					}
 				}
@@ -135,7 +123,6 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 		byteEncrypter.setAlgorithm(getAlgorithm());
 
 		return new CharArrayPasswordEncoder() {
-
 			@Override
 			public boolean isPasswordValid(String encPass, char[] rawPass, Object salt) {
 				byte[] decoded = Base64.getDecoder().decode(encPass.getBytes());
@@ -165,14 +152,12 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 	byte[] lookupPasswordFromKeyStore() {
 		try {
 			if (!keystoreProvider.containsAlias(getKeyAliasInKeyStore())) {
-				throw new RuntimeException("Keystore: "
-						+ keystoreProvider.getFile() + " does not"
+				throw new RuntimeException("Keystore: " + keystoreProvider.getFile() + " does not"
 						+ " contain alias: " + getKeyAliasInKeyStore());
 			}
 			return keystoreProvider.getSecretKey(getKeyAliasInKeyStore()).getEncoded();
 		} catch (IOException e) {
-			throw new RuntimeException("Cannot find alias: "
-					+ getKeyAliasInKeyStore() + " in "
+			throw new RuntimeException("Cannot find alias: " + getKeyAliasInKeyStore() + " in "
 					+ keystoreProvider.getFile().getAbsolutePath());
 		}
 	}
@@ -187,6 +172,7 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			// not initialized
 			getStringEncoder();
 		}
+
 		return stringEncrypter.decrypt(removePrefix(encPass));
 	}
 

@@ -1,29 +1,32 @@
 12d11
 < import liquibase.util.StringUtils;
-55c54,55
+36d34
+< 
+55c53,54
 <       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) + " ADD PRIMARY KEY (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
 ---
 >       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) +
 >             " ADD PRIMARY KEY (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
-57c57,58
+57c56,57
 <       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) + " ADD CONSTRAINT " + database.escapeConstraintName(statement.getConstraintName())+" PRIMARY KEY";
 ---
 >       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) +
 >             " ADD CONSTRAINT " + database.escapeConstraintName(statement.getConstraintName()) + " PRIMARY KEY";
-67,68c68,70
+67,68c67,69
 <     if (StringUtils.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
 <       sql += " ON "+statement.getTablespace();
 ---
->     // Replace StringUtils.trimToNull() with manual trimming check using core Java methods
->     if (statement.getTablespace() != null && !statement.getTablespace().trim().isEmpty() && database.supportsTablespaces()) {
->       sql += " ON " + statement.getTablespace().trim();
-72c74,78
+>     String tablespace = statement.getTablespace();
+>     if (tablespace != null && !tablespace.trim().isEmpty() && database.supportsTablespaces()) {
+>       sql += " ON " + tablespace.trim();
+72c73,78
 <       sql += " USING INDEX "+database.escapeObjectName(statement.getForIndexCatalogName(), statement.getForIndexSchemaName(), statement.getForIndexName(), Index.class);
 ---
->       sql += " USING INDEX " +
->               database.escapeObjectName(statement.getForIndexCatalogName(),
->                                           statement.getForIndexSchemaName(),
->                                           statement.getForIndexName(),
->                                           Index.class);
+>       sql += " USING INDEX " + database.escapeObjectName(
+>           statement.getForIndexCatalogName(),
+>           statement.getForIndexSchemaName(),
+>           statement.getForIndexName(),
+>           Index.class
+>       );
 84d89
 < 
