@@ -1,6 +1,41 @@
-8d7
+6,13d5
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
 < import javax.mvc.UriRef;
-52c51
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.MvcBinding;
+< import javax.mvc.binding.ParamError;
+< import javax.mvc.security.CsrfProtected;
+< import javax.validation.constraints.NotBlank;
+24d15
+< @Controller
+29,37d19
+<     BindingResult bindingResult;
+< 
+<     @Inject
+<     Models models;
+< 
+<     @Inject
+<     AlertMessage flashMessage;
+< 
+<     @Inject
+46d27
+<     @CsrfProtected
+49,59c30,32
+<             @MvcBinding
+<             @NotBlank String greeting) {
+<         if (bindingResult.isFailed()) {
 <             AlertMessage alert = AlertMessage.danger("Validation voilations!");
+<             bindingResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+<                         alert.addError(t.getParamName(), "", t.getMessage());
+<                     });
+<             models.put("errors", alert);
+<             log.info("mvc binding failed.");
 ---
->             AlertMessage alert = AlertMessage.danger("Validation violations!");
+>             String greeting) {
+>         if (greeting == null || greeting.isBlank()) {
+>             log.info("Validation violations!");
+64d36
+<         flashMessage.notify(AlertMessage.Type.success, "Message:" + greeting);

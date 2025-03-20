@@ -1,7 +1,6 @@
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.configuration.Configuration;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -106,12 +105,12 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		Configuration configuration = Flyway.configure()
+		final Flyway flyway = Flyway.configure()
 				.dataSource(this.dataSource())
 				.locations(prop.getProperty("flyway.locations"))
-				.validateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate")));
-
-		return new Flyway(configuration);
+				.validateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate")))
+				.load();
+		return flyway;
 	}
 
 	@Bean

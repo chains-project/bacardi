@@ -68,7 +68,6 @@ public class NPCTeleport
 
         new BukkitRunnable()
         {
-            @Override
             public void run()
             {
                 now[0]++;
@@ -103,15 +102,19 @@ public class NPCTeleport
 
                     n.setPitch(50);
 
+                    float head = ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f;
+
+                    if (head < 0)
+                        head *= 2;
+
                     NPC.setLocation(n, target);
                     connection.sendPacket(new PacketPlayOutEntityTeleport(target));
-                    connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f));
+                    connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) head));
 
                     NPC.setArmor(player, target, arm);
-                    float finalHead = ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f;
+                    float finalHead = head;
                     new BukkitRunnable()
                     {
-                        @Override
                         public void run()
                         {
                             Bukkit.getOnlinePlayers().parallelStream().filter(p -> p.hasPermission("psac.viewnpc"))
@@ -152,12 +155,6 @@ public class NPCTeleport
         final double radius = reachMode ? config.getDouble("npc.reachRange"): config.getDoubleList("npc.range")
             .get(new Random().nextInt(config.getDoubleList("npc.range").size()));
 
-        // Assuming WaveCreator is now in a different package or has been removed, we will replace it with a placeholder
-        // You need to implement the logic of WaveCreator or find the new equivalent class
-        final double waveMin = config.getDouble("npc.waveMin");
-        final double waveMax = 100.0; // Placeholder value
-        final double waveFrequency = 10.0; // Placeholder value
-
         final int[] count = {0};
         BukkitRunnable r = new BukkitRunnable()
         {
@@ -173,18 +170,17 @@ public class NPCTeleport
                 {
                     double rangeTmp = radius;
 
-                    // Placeholder for wave effect logic
                     if (config.getBoolean("npc.wave"))
-                        rangeTmp = radius; // Replace with actual wave calculation logic
+                        rangeTmp = radius - 0.1; // Adjusted to remove WaveCreator dependency
 
                     final Location center = player.getLocation();
                     final Location n = new Location(
                         center.getWorld(),
                         auraBotXPos(time[0], rangeTmp + speed) + center.getX(),
-                        center.getY() + 1.0, // Placeholder for wave effect
+                        center.getY() + 1.0, // Adjusted to remove WaveCreator dependency
                         auraBotZPos(time[0], rangeTmp + speed) + center.getZ(),
-                        (float) waveFrequency,
-                        (float) waveMax
+                        0.0f,
+                        0.0f
                     );
 
                     NPC.setLocation(n, target);
@@ -194,7 +190,6 @@ public class NPCTeleport
                     NPC.setArmor(player, target, arm);
                     new BukkitRunnable()
                     {
-                        @Override
                         public void run()
                         {
                             Bukkit.getOnlinePlayers()
@@ -214,14 +209,13 @@ public class NPCTeleport
                     if (meta == null) continue;
                     meta.setNpcLocation(n.toVector());
                 }
-                time[0] += config.getDouble("npc.time"); // Placeholder for wave effect
+                time[0] += config.getDouble("npc.time");
             }
         };
         r.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, 1);
 
         new BukkitRunnable()
         {
-            @Override
             public void run()
             {
                 r.cancel();

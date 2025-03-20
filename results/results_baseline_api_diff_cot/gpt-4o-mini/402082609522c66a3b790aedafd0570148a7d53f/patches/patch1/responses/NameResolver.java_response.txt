@@ -6,12 +6,12 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import java.util.UUID;
 
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.command.CommandSource; // This import is removed as CommandSource no longer exists
+import org.spongepowered.api.command.CommandSource; // Adjusted import based on new API
 
 public class NameResolver extends SharedNameResolver {
 
     private final ChangeSkinSponge plugin;
-    private final Object invoker; // Changed from CommandSource to Object as CommandSource is removed
+    private final Object invoker; // Changed type to Object as CommandSource is removed
     private final Player receiver;
     private final boolean keepSkin;
 
@@ -20,14 +20,14 @@ public class NameResolver extends SharedNameResolver {
         super(plugin.getCore(), targetName, keepSkin);
 
         this.plugin = plugin;
-        this.invoker = invoker; // Updated to use Object type
+        this.invoker = invoker;
         this.receiver = receiver;
         this.keepSkin = keepSkin;
     }
 
     @Override
     public void sendMessageInvoker(String id) {
-        plugin.sendMessage(invoker, id); // This may need to be updated based on how messages are sent now
+        plugin.sendMessage(invoker, id);
     }
 
     @Override
@@ -39,6 +39,6 @@ public class NameResolver extends SharedNameResolver {
     @Override
     protected void scheduleDownloader(UUID uuid) {
         //run this is the same thread
-        new SkinDownloader(plugin, invoker, receiver, uuid, keepSkin).run();
+        new SkinDownloader(plugin, (CommandSource) invoker, receiver, uuid, keepSkin).run();
     }
 }

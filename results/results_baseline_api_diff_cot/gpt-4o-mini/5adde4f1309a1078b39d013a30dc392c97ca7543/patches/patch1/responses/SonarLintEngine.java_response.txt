@@ -43,6 +43,7 @@ import org.sonarsource.sonarlint.core.commons.progress.ProgressMonitor;
 import org.sonarsource.sonarlint.core.plugin.commons.LoadedPlugins;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoadResult;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader;
+import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader.Configuration;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInfo;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInstancesLoader;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginRequirementsCheckResult;
@@ -125,7 +126,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
 
     private static LoadedPluginsThatDoesNotCloseLoader getLoadedPlugins() {
         var config =
-                new PluginsLoader.Configuration(
+                new Configuration(
                         globalConfig.getPluginPaths(),
                         globalConfig.getEnabledLanguages(),
                         Optional.ofNullable(globalConfig.getNodeJsVersion()));
@@ -158,8 +159,9 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     }
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
+        Language[] enabledLanguagesArray = globalConfig.getEnabledLanguages().toArray(new Language[0]);
         return AnalysisEngineConfiguration.builder()
-                .addEnabledLanguages(globalConfig.getEnabledLanguages().toArray(new Language[0])) // Updated to use array
+                .addEnabledLanguages(enabledLanguagesArray)
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())

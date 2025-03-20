@@ -12,7 +12,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
-import com.github.javaparser.printer.PrettyPrinterConfiguration;
+import com.github.javaparser.printer.PrettyPrintVisitor; // Updated import
 import org.btrplace.safeplace.spec.Constraint;
 import org.btrplace.safeplace.spec.SpecScanner;
 import org.btrplace.safeplace.testing.Bench;
@@ -84,6 +84,16 @@ public class DSN {
 
         Path p = Paths.get(root, "testing-speed-notrans.csv");
         Files.deleteIfExists(p);
+
+     /*   for (int i = 10; i <= 30; i+=2) {
+            Bench.transitions = false;
+            Bench.population = 100;
+            Bench.scale = i;
+            System.out.println("--- scaling factor " + i + "; transitions= " + Bench.transitions +" ---");
+            Bench.report = new CSVReport(p,"");
+            System.out.println(sc.test(Bench.class).stream().mapToInt(TestCampaign::go).sum());
+        }*/
+
 
         //GOGO
         p = Paths.get(root, "testing-speed-notrans.csv");
@@ -322,7 +332,7 @@ public class DSN {
 
       private final List<Integer> l;
 
-      private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
+      private final PrettyPrintVisitor noComments = new PrettyPrintVisitor(); // Updated to use PrettyPrintVisitor
 
         UnitTestsVisitor(List<Integer> numbers) {
             this.l = numbers;

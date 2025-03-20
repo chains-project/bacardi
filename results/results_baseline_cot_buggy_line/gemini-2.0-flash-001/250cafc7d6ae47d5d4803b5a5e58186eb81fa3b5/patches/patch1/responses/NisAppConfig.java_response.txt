@@ -1,6 +1,7 @@
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -39,7 +40,6 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.*;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
 
 @Configuration
 @ComponentScan(basePackages = {
@@ -112,7 +112,7 @@ public class NisAppConfig {
 		configuration.locations(prop.getProperty("flyway.locations"));
 		configuration.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 
-		final Flyway flyway = new Flyway(configuration);
+		final org.flywaydb.core.Flyway flyway = new Flyway(configuration);
 		return flyway;
 	}
 

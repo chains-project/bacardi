@@ -3,12 +3,9 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met: 1) Redistributions of source code must retain the above
- * copyright notice, this list of conditions and the following
- * disclaimer. 2) Redistributions in binary form must reproduce the above
- * copyright notice, this list of conditions and the following
- * disclaimer in the documentation and/or other materials provided
+ * modification, are permitted provided that the following conditions are met: 1) Redistributions of source code must retain the above
+ * copyright notice, this list of conditions and the following disclaimer. 2) Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided
  * with the distribution. 3) Neither the name of the jcabi.com nor
  * the names of its contributors may be used to endorse or promote
  * products derived from this software without specific prior written
@@ -31,7 +28,7 @@ package com.jcabi.http.mock;
 
 import java.net.URI;
 import org.hamcrest.Matcher;
-import org.hamcrest.Matchers; // This import will be removed
+import org.hamcrest.Matchers;
 
 /**
  * Convenient set of matchers for {@link MkQuery}.
@@ -82,7 +79,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasPath(final Matcher<String> path) {
         return new MkQueryUriMatcher(
-            org.hamcrest.core.Is.<URI>hasProperty("rawPath", path) // Updated to use Is class
+            Matchers.hasProperty("rawPath", path)
         );
     }
 
@@ -94,7 +91,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasQuery(final Matcher<String> query) {
         return new MkQueryUriMatcher(
-            org.hamcrest.core.Is.<URI>hasProperty("rawQuery", query) // Updated to use Is class
+            Matchers.hasProperty("rawQuery", query)
         );
     }
 

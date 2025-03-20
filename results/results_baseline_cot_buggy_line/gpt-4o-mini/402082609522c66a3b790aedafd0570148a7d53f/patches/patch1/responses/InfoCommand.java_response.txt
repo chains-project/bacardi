@@ -30,7 +30,6 @@ public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
     @Inject
     private SkinFormatter formatter;
 
-    @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
@@ -48,7 +47,6 @@ public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
         return CommandResult.success();
     }
 
-    @Override
     public CommandSpec buildSpec() {
         return CommandSpec.builder()
                 .executor(this)

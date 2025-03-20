@@ -23,17 +23,13 @@ public class SkinUploader extends SharedUploader {
         this.invoker = invoker;
     }
 
-    @Override
     public void sendMessageInvoker(String key) {
         plugin.sendMessage(invoker, key);
     }
 
-    @Override
     protected void scheduleChangeTask(String oldSkinUrl) {
         Runnable task = new SkinChanger(plugin, owner, url, oldSkinUrl, invoker);
         Task.builder().delay(1, TimeUnit.MINUTES).execute(task).async().submit(plugin);
     }
 }
-``` 
-
-In this fix, I have updated the import statement for `CommandSource` to reflect the new package structure in the updated API. The class remains fully functional and compilable while adhering to the constraints provided.
+```

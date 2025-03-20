@@ -240,7 +240,7 @@ public class RecognitionHelper {
 				dataList.add(pageList);
 			}
 			ObjectWriter writer = mapper.writer();
-			writer.writeValue(segmentListFile.toPath().toFile(), dataList); // Updated to use Path
+			writer.writeValue(new File(segmentListFile.toString()), dataList);
 
             processHandler = new ProcessHandler();
             processHandler.setFetchProcessConsole(true);

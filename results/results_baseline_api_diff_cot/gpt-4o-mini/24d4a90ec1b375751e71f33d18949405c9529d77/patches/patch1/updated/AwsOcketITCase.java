@@ -20,7 +20,7 @@
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
  * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS AND
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
  * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
@@ -79,7 +79,7 @@ public final class AwsOcketITCase {
         final Bucket bucket = this.rule.bucket();
         final String name = "test-44.txt";
         final Ocket.Text ocket = new Ocket.Text(bucket.ocket(name));
-        final String data = RandomStringUtils.random(100 * 1000); // Replaced Tv.HUNDRED * Tv.THOUSAND
+        final String data = RandomStringUtils.random(100 * 1000);
         ocket.write(data);
         try {
             MatcherAssert.assertThat(ocket.read(), Matchers.equalTo(data));

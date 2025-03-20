@@ -1,10 +1,6 @@
-6c6
-<  * You may obtain a copy of the License at
----
->  * you may obtain a copy of the License at
 33a34,35
-> import org.apache.thrift.protocol.TProtocolFactory; // Added import for TProtocolFactory
-> import org.apache.thrift.transport.TTransportException; // Added import for TTransportException
+> import org.apache.thrift.protocol.TProtocolFactory;
+> import org.apache.thrift.transport.TTransportException;
 60,66d61
 <   /**
 <    *  When sender send audit events to Kafka,  it chooses a random partition and if it fails, it
@@ -61,7 +57,7 @@
 <    */
 <   private TSerializer serializer = new TSerializer();
 ---
->   private TSerializer serializer; // Changed to be initialized in the constructor
+>   private TSerializer serializer;
 123,125d79
 <   /**
 <    *  flag to control the start and stop of the executing thread.
@@ -107,7 +103,7 @@
 <    *  topic.
 <    */
 185a108
->     this.serializer = new TSerializer(); // Initialize serializer here
+>     this.serializer = new TSerializer(new TProtocolFactory()); // Updated constructor
 188d110
 < 
 198d119

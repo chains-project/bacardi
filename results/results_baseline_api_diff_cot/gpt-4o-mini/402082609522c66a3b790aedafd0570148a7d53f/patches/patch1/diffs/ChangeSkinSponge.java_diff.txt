@@ -1,37 +1,58 @@
-23d22
+23,25c23
 < import org.spongepowered.api.command.CommandManager;
-27,31c26,28
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.config.ConfigDir;
+---
+> import org.spongepowered.api.command.CommandCause;
+27,29c25,26
 < import org.spongepowered.api.event.game.state.GameInitializationEvent;
 < import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 < import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
-< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
-< import org.spongepowered.api.network.ChannelRegistrar;
 ---
-> import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
-> import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent;
-> import org.spongepowered.api.network.RawDataChannel;
-53d49
+> import org.spongepowered.api.event.lifecycle.GameInitializationEvent;
+> import org.spongepowered.api.event.lifecycle.GameStoppingEvent;
+32c29,30
+< import org.spongepowered.api.plugin.Plugin;
+---
+> import org.spongepowered.plugin.PluginContainer;
+> import org.spongepowered.api.text.Text;
+40,42c38
+< @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+<         url = PomData.URL, description = PomData.DESCRIPTION)
+< public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
+---
+> public class ChangeSkinSponge implements PlatformPlugin<CommandCause> {
+53d48
 <     //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
-62c58
-<     public void onPreInit(GamePreInitializationEvent preInitEvent) {
----
->     public void onPreInit(RegisterRegistryEvent preInitEvent) {
-73c69
-<     public void onInit(GameInitializationEvent initEvent) {
----
->     public void onInit(RegisterCommandEvent initEvent) {
-77,78d72
+63d57
+<         //load config and database
+77,78d70
 <         CommandManager cmdManager = Sponge.getCommandManager();
 < 
-79a74,76
->         var cmdManager = Sponge.getCommandManager();
-> 
->         // Register commands using the new API
-90c87
-<         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
+80,85c72,76
+<         cmdManager.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+<         cmdManager.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+<         cmdManager.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+<         cmdManager.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+<         cmdManager.register(this, injector.getInstance(InvalidateCommand.class)
+<                 .buildSpec(), "skininvalidate", "skin-invalidate");
 ---
->         var channelReg = Sponge.getChannelRegistrar();
-100c97
+>         Sponge.getCommandManager().register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+>         Sponge.getCommandManager().register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+>         Sponge.getCommandManager().register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+>         Sponge.getCommandManager().register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+>         Sponge.getCommandManager().register(this, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
+100c91
 <     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
 ---
->     public void onShutdown(RegisterRegistryEvent stoppingServerEvent) {
+>     public void onShutdown(GameStoppingEvent stoppingServerEvent) {
+109c100
+<     public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
+---
+>     public boolean hasSkinPermission(CommandCause invoker, UUID uuid, boolean sendMessage) {
+114d104
+<         //disallow - not whitelisted or blacklisted
+142c132
+<     public void sendMessage(CommandSource receiver, String key) {
+---
+>     public void sendMessage(CommandCause receiver, String key) {

@@ -10,10 +10,11 @@ import com.redislabs.redisgraph.impl.graph_cache.RedisGraphCaches;
 import com.redislabs.redisgraph.impl.resultset.ResultSetImpl;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPooled;
 import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.util.SafeEncoder;
 import redis.clients.jedis.commands.RedisCommand;
+import redis.clients.jedis.Protocol;
+import redis.clients.jedis.util.CommandArguments;
 
 /**
  * An implementation of RedisGraphContext. Allows sending RedisGraph and some Redis commands,
@@ -140,16 +141,11 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphTransaction multi() {
         Jedis jedis = getConnection();
-        //Client client = jedis.getClient(); //jedis.getClient() is no longer available
-        RedisCommand client = jedis;
-        if (jedis instanceof JedisPooled) {
-            client = ((JedisPooled) jedis).getPool().getResource();
-        }
-        client.multi();
-        client.getOne();
-        RedisGraphTransaction transaction = new RedisGraphTransaction((Jedis) client, this);
-        transaction.setRedisGraphCaches(caches);
-        return transaction;
+        redis.clients.jedis.Transaction transaction = jedis.multi();
+        transaction.getOne();
+        RedisGraphTransaction transactionWrapper = new RedisGraphTransaction(transaction.getClient(), this);
+        transactionWrapper.setRedisGraphCaches(caches);
+        return transactionWrapper;
     }
 
     /**
@@ -159,14 +155,10 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphPipeline pipelined() {
         Jedis jedis = getConnection();
-        //Client client = jedis.getClient(); //jedis.getClient() is no longer available
-        RedisCommand client = jedis;
-        if (jedis instanceof JedisPooled) {
-            client = ((JedisPooled) jedis).getPool().getResource();
-        }
-        RedisGraphPipeline pipeline = new RedisGraphPipeline((Jedis) client, this);
-        pipeline.setRedisGraphCaches(caches);
-        return pipeline;
+        redis.clients.jedis.Pipeline pipeline = jedis.pipelined();
+        RedisGraphPipeline pipelineWrapper = new RedisGraphPipeline(pipeline.getClient(), this);
+        pipelineWrapper.setRedisGraphCaches(caches);
+        return pipelineWrapper;
     }
 
     /**

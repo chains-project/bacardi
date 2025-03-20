@@ -7,7 +7,6 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
-
 import java.util.Locale;
 import java.util.logging.Logger;
 

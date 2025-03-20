@@ -62,22 +62,16 @@ public class ClasspathScanner {
     private boolean shouldScan(String s) {
         final String packagesToScan = System.getenv(PACKAGE_TO_SCAN);
         if (packagesToScan == null || packagesToScan.isEmpty()) {
-            return new FilterBuilder().include(".+\\.class").apply(s);
+            return new FilterBuilder().include(".+\\.class").apply(s) != null;
         }
         final String[] packages = packagesToScan.split(",");
         for (String packageToScan : packages) {
             String regex = String.format(".?\\.??%s\\..+\\.class", packageToScan);
-            if (new FilterBuilder().include(regex).apply(s)) {
+            if (new FilterBuilder().include(regex).apply(s) != null) {
                 return true;
             }
         }
         return false;
     }
 }
-``` 
-
-### Changes Made:
-1. The `apply` method of `FilterBuilder` was removed because it no longer exists in the updated version of the Reflections library. Instead, we can use the `matches` method to check if the string matches the filter.
-2. The `shouldScan` method was updated to use `matches` instead of `apply` for both instances where the error was reported. 
-
-This should resolve the compilation errors while maintaining the original functionality of the class.
+```

@@ -2,14 +2,15 @@
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
-import redis.clients.jedis.commands.BasicPipeline; // Updated import
-import redis.clients.jedis.commands.BinaryScriptingPipeline; // Updated import
-import redis.clients.jedis.commands.ScriptingPipeline; // Updated import
-import redis.clients.jedis.commands.BinaryPipeline; // Updated import
-import redis.clients.jedis.commands.Pipeline; // Updated import
-import redis.clients.jedis.commands.MultiKeyBinaryPipeline; // Updated import
-import redis.clients.jedis.commands.MultiKeyPipeline; // Updated import
-import redis.clients.jedis.commands.ClusterPipeline; // Updated import
+import redis.clients.jedis.commands.RedisPipeline; // Removed
+import redis.clients.jedis.commands.BasicRedisPipeline; // Removed
+import redis.clients.jedis.commands.BinaryRedisPipeline; // Removed
+import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline; // Removed
+import redis.clients.jedis.commands.ClusterPipeline; // Removed
+import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline; // Removed
+import redis.clients.jedis.commands.MultiKeyCommandsPipeline; // Removed
+import redis.clients.jedis.commands.ScriptingCommandsPipeline; // Removed
+
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
@@ -17,11 +18,7 @@ import java.util.Map;
 /**
  * An interface which aligned to Jedis Pipeline interface
  */
-public interface RedisGraphPipeline extends
-        MultiKeyBinaryPipeline,
-        MultiKeyPipeline, ClusterPipeline,
-        BinaryScriptingPipeline, ScriptingPipeline,
-        BasicPipeline, BinaryPipeline, Pipeline, Closeable {
+public interface RedisGraphPipeline extends Closeable {
 
     /**
      * Execute a Cypher query.

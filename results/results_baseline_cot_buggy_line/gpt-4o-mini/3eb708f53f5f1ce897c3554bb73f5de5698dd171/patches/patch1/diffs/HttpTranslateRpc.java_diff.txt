@@ -1,16 +1,77 @@
-26c26
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+25,28c9,12
+< import com.google.api.services.translate.Translate;
 < import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
 ---
-> import com.google.api.services.translate.model.DetectionsResource;
-69c69
+> import com.google.cloud.translate.Translate;
+> import com.google.cloud.translate.model.Detection;
+> import com.google.cloud.translate.model.Language;
+> import com.google.cloud.translate.model.Translation;
+69c53
 <   public List<List<DetectionsResourceItems>> detect(List<String> texts) {
 ---
->   public List<List<DetectionsResource>> detect(List<String> texts) {
-71c71
+>   public List<List<Detection>> detect(List<String> texts) {
+71c55
 <       List<List<DetectionsResourceItems>> detections =
 ---
->       List<List<DetectionsResource>> detections =
-73c73
+>       List<List<Detection>> detections =
+73c57
 <       return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
 ---
->       return detections != null ? detections : ImmutableList.<List<DetectionsResource>>of();
+>       return detections != null ? detections : ImmutableList.<List<Detection>>of();
+80c64
+<   public List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
+---
+>   public List<Language> listSupportedLanguages(Map<Option, ?> optionMap) {
+82c66
+<       List<LanguagesResource> languages =
+---
+>       List<Language> languages =
+92c76
+<       return languages != null ? languages : ImmutableList.<LanguagesResource>of();
+---
+>       return languages != null ? languages : ImmutableList.<Language>of();
+99c83
+<   public List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap) {
+---
+>   public List<Translation> translate(List<String> texts, Map<Option, ?> optionMap) {
+104c88
+<       List<TranslationsResource> translations =
+---
+>       List<Translation> translations =
+115,116c99,100
+<           translations != null ? translations : ImmutableList.<TranslationsResource>of(),
+<           new Function<TranslationsResource, TranslationsResource>() {
+---
+>           translations != null ? translations : ImmutableList.<Translation>of(),
+>           new Function<Translation, Translation>() {
+118,120c102,104
+<             public TranslationsResource apply(TranslationsResource translationsResource) {
+<               if (translationsResource.getDetectedSourceLanguage() == null) {
+<                 translationsResource.setDetectedSourceLanguage(sourceLanguage);
+---
+>             public Translation apply(Translation translation) {
+>               if (translation.getDetectedSourceLanguage() == null) {
+>                 translation.setDetectedSourceLanguage(sourceLanguage);
+122c106
+<               return translationsResource;
+---
+>               return translation;

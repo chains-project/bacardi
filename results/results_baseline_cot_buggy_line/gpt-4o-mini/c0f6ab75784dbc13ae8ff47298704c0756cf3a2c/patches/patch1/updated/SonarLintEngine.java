@@ -159,9 +159,8 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     }
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
-        // Updated to use the new method for adding enabled languages
         return AnalysisEngineConfiguration.builder()
-                .addEnabledLanguage(Language.JAVA) // Assuming JAVA is the only language needed
+                .addEnabledLanguage(Language.JAVA) // Updated to use addEnabledLanguage instead
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())

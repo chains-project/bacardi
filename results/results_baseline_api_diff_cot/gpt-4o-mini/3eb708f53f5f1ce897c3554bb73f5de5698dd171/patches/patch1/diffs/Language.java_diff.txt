@@ -1,24 +1,39 @@
-6c6
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
 <  * You may obtain a copy of the License at
----
->  * you may obtain a copy of the License at
-19c19
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+19,21d2
 < import com.google.api.services.translate.model.LanguagesResource;
----
-> import com.google.api.services.translate.v3.model.Language as V3Language; // Updated import for new API
-36,37c36,37
+< import com.google.common.base.Function;
+< import com.google.common.base.MoreObjects;
+36,42d16
 <   static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
 <       new Function<LanguagesResource, Language>() {
----
->   static final Function<V3Language, Language> FROM_PB_FUNCTION = // Updated to use new Language class
->       new Function<V3Language, Language>() {
-39c39
+<         @Override
 <         public Language apply(LanguagesResource languagePb) {
+<           return Language.fromPb(languagePb);
+<         }
+<       };
+64c38
+<     return MoreObjects.toStringHelper(this).add("code", code).add("name", name).toString();
 ---
->         public Language apply(V3Language languagePb) {
-84,85c84,85
+>     return com.google.common.base.MoreObjects.toStringHelper(this).add("code", code).add("name", name).toString();
+84,85c58,59
 <   static Language fromPb(LanguagesResource languagePb) {
 <     return new Language(languagePb.getLanguage(), languagePb.getName());
 ---
->   static Language fromPb(V3Language languagePb) { // Updated to use new Language class
->     return new Language(languagePb.getLanguageCode(), languagePb.getDisplayName()); // Updated method calls
+>   static Language fromPb(String languageCode, String languageName) {
+>     return new Language(languageCode, languageName);

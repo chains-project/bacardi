@@ -17,7 +17,6 @@
 
 package com.google.cloud.translate.spi.v2;
 
-import com.google.cloud.ServiceRpc;
 import java.util.List;
 import java.util.Map;
 
@@ -72,14 +71,6 @@ public interface TranslateRpc extends ServiceRpc {
    * @return a list of resources containing translation information, in the same order of the
    *     provided texts
    */
-  List<Map<String, String>> translate(List<String> texts, Map<Option, ?> optionMap);
+  List<String> translate(List<String> texts, Map<Option, ?> optionMap);
 }
-``` 
-
-### Changes Made:
-1. Removed the imports for `LanguagesResource`, `TranslationsResource`, and `DetectionsResourceItems` as they no longer exist in the updated API.
-2. Updated the return type of `listSupportedLanguages` to `List<String>` to reflect that it now returns a list of language codes instead of `LanguagesResource`.
-3. Updated the return type of `detect` to `List<List<String>>` to reflect that it now returns a list of lists of language codes instead of `DetectionsResourceItems`.
-4. Updated the return type of `translate` to `List<Map<String, String>>` to reflect that it now returns a list of maps containing translation information instead of `TranslationsResource`. 
-
-These changes ensure that the class compiles successfully with the new API while maintaining the original method signatures.
+```

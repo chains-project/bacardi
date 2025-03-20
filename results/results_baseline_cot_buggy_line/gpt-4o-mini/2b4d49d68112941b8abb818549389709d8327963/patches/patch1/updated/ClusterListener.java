@@ -1,21 +1,6 @@
-/*
- * Copyright (C) 1999-2009 Jive Software. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * you may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.jivesoftware.openfire.plugin.util.cache;
 
-import com.hazelcast.core.Cluster;
+import com.hazelcast.cluster.Cluster;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.LifecycleEvent;
 import com.hazelcast.core.LifecycleListener;
@@ -150,7 +135,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         done = true;
     }
 
-    @Override
     public void memberAdded(final MembershipEvent event) {
         logger.info("Received a Hazelcast memberAdded event {}", event);
 
@@ -223,7 +207,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         return !failed;
     }
 
-    @Override
     public void memberRemoved(final MembershipEvent event) {
         logger.info("Received a Hazelcast memberRemoved event {}", event);
 
@@ -257,7 +240,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         return new ArrayList<>(clusterNodesInfo.values());
     }
 
-    @Override
     public void stateChanged(final LifecycleEvent event) {
         if (event.getState().equals(LifecycleEvent.LifecycleState.SHUTDOWN)) {
             leaveCluster();
@@ -266,7 +248,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         }
     }
 
-    @Override
     public void memberAttributeChanged(final MemberAttributeEvent event) {
         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
         isSenior = isSeniorClusterMember();

@@ -1,8 +1,7 @@
-17c17
-< import org.yaml.snakeyaml.representer.Representer;
----
+16a17
 > import org.yaml.snakeyaml.constructor.Constructor;
-37c37
+37c38,39
 <     yaml = new Yaml(constructor, new Representer(), new DumperOptions(), new ModelResolver());
 ---
->     yaml = new Yaml(constructor, new DumperOptions(), new ModelResolver());
+>     Representer representer = new Representer();
+>     yaml = new Yaml(new Constructor(), representer, new DumperOptions(), new ModelResolver());

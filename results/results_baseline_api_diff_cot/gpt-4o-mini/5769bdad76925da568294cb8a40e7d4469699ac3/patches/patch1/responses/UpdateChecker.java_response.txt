@@ -1,27 +1,3 @@
-/*
- * The MIT License
- *
- * Copyright 2018 CloudBees, Inc.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
-
 package io.jenkins.tools.incrementals.lib;
 
 import java.io.FileNotFoundException;
@@ -39,7 +15,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.kohsuke.github.GHCompare;
 import org.kohsuke.github.GitHub;
-import org.kohsuke.github.GHRepository; // Importing GHRepository for the new API
+import org.kohsuke.github.GHRepository; // Added import for GHRepository
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -80,7 +56,7 @@ public final class UpdateChecker {
         /** Sort by version descending. */
         @Override public int compareTo(VersionAndRepo o) {
             assert o.groupId.equals(groupId) && o.artifactId.equals(artifactId);
-            return o.version.compareTo(o.version);
+            return o.version.compareTo(version);
         }
         /** @return for example: {@code https://repo/net/nowhere/lib/1.23/} */
         public String baseURL() {
@@ -159,6 +135,7 @@ public final class UpdateChecker {
      * @return a possibly empty set of versions, sorted descending
      */
     private SortedSet<VersionAndRepo> loadVersions(String groupId, String artifactId) throws Exception {
+        // TODO consider using official Aether APIs here (could make use of local cache)
         SortedSet<VersionAndRepo> r = new TreeSet<>();
         for (String repo : repos) {
             String mavenMetadataURL = repo + groupId.replace('.', '/') + '/' + artifactId + "/maven-metadata.xml";
@@ -228,7 +205,7 @@ public final class UpdateChecker {
      */
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
-            GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).compare(branch, ghc.hash).getStatus(); // Updated to use getStatus()
+            GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).compare(branch, ghc.hash).getStatus(); // Updated method call
             return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
         } catch (FileNotFoundException x) {
             // For example, that branch does not exist in this repository.

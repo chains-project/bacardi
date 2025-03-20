@@ -69,7 +69,6 @@ public class ConfigurationMessagesOverridePossibleListGUI implements InventoryPr
 				if (messagesConfig.getString("Overrides." + entry.getKey()) != null) {
 					lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwcConfigGUIMessagesAlreadyOverriden"));
 					currentEntryMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					// Updated to use the new method to get the enchantment
 					currentEntryMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
 				}
 				lore.add(CommonDefinitions.getMessage("wwcConfigGUIMessagesOverrideOriginalLabel") + ": " + messagesConfig.getString("Messages." + entry.getKey()));

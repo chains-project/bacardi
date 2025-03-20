@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * you may obtain a copy of the License at
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -20,8 +20,5 @@ import java.util.Map;
 
 interface PublisherFactory {
 
-  // Since PublishMetadata has been removed, we need to replace it with the appropriate type.
-  // Assuming the new API has a different class for publish metadata, we will use a placeholder type.
-  // Replace 'NewPublishMetadata' with the actual class name from the updated API.
-  Publisher<NewPublishMetadata> newPublisher(Map<String, String> params);
+  Publisher<Object> newPublisher(Map<String, String> params);
 }

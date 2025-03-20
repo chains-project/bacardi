@@ -34,10 +34,10 @@ public class YamlModelReader extends ModelReaderSupport {
   private final Yaml yaml;
 
   public YamlModelReader() {
+    DumperOptions options = new DumperOptions();
+    Representer representer = new Representer(options);
     ModelConstructor constructor = new ModelConstructor();
-    DumperOptions dumperOptions = new DumperOptions();
-    Representer representer = new Representer(dumperOptions);
-    yaml = new Yaml(constructor, representer, dumperOptions, new ModelResolver());
+    yaml = new Yaml(constructor, representer, options, new ModelResolver());
   }
 
   public Model read(Reader input, Map<String, ?> options) throws IOException, ModelParseException {

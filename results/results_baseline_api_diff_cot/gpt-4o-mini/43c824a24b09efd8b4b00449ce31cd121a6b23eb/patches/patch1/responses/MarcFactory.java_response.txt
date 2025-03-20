@@ -64,10 +64,10 @@ public class MarcFactory {
 
   public static BibliographicRecord create(JsonPathCache cache, MarcVersion version) {
     var marcRecord = new Marc21Record();
-    for (String path : schema.getPaths()) { // Updated to use String instead of JsonBranch
-      if (path.getParent() != null)
+    for (String path : schema.getPaths()) { // Updated to use String path instead of JsonBranch
+      if (path == null)
         continue;
-      switch (path.getLabel()) {
+      switch (path) {
         case "leader":
           marcRecord.setLeader(new Leader(extractFirst(cache, path)));
           break;
@@ -93,7 +93,7 @@ public class MarcFactory {
             new Control008(extractFirst(cache, path), marcRecord));
           break;
         default:
-          JSONArray fieldInstances = (JSONArray) cache.getFragment(path.getJsonPath());
+          JSONArray fieldInstances = (JSONArray) cache.getFragment(path); // Updated to use String path
           for (var fieldInsanceNr = 0; fieldInsanceNr < fieldInstances.size(); fieldInsanceNr++) {
             var fieldInstance = (Map) fieldInstances.get(fieldInsanceNr);
             var field = MapToDatafield.parse(fieldInstance, version);
@@ -101,7 +101,7 @@ public class MarcFactory {
               marcRecord.addDataField(field);
               field.setMarcRecord(marcRecord);
             } else {
-              marcRecord.addUnhandledTags(path.getLabel());
+              marcRecord.addUnhandledTags(path);
             }
           }
           break;
@@ -310,7 +310,7 @@ public class MarcFactory {
     return field;
   }
 
-  private static List<String> extractList(JsonPathCache cache, String path) { // Updated to use String instead of JsonBranch
+  private static List<String> extractList(JsonPathCache cache, String path) { // Updated to use String path
     List<XmlFieldInstance> instances = cache.get(path);
     List<String> values = new ArrayList<>();
     if (instances != null)
@@ -319,7 +319,7 @@ public class MarcFactory {
     return values;
   }
 
-  private static String extractFirst(JsonPathCache cache, String path) { // Updated to use String instead of JsonBranch
+  private static String extractFirst(JsonPathCache cache, String path) { // Updated to use String path
     List<String> list = extractList(cache, path);
     if (!list.isEmpty())
       return list.get(0);

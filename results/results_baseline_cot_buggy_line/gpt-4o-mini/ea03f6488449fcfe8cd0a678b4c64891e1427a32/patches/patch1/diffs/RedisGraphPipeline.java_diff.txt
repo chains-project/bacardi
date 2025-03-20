@@ -1,4 +1,4 @@
-4,12c4,11
+4,11c4,11
 < import redis.clients.jedis.commands.BasicRedisPipeline;
 < import redis.clients.jedis.commands.BinaryRedisPipeline;
 < import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
@@ -7,23 +7,20 @@
 < import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
 < import redis.clients.jedis.commands.RedisPipeline;
 < import redis.clients.jedis.commands.ScriptingCommandsPipeline;
-< 
 ---
-> import redis.clients.jedis.commands.BasicPipeline; // Updated import
-> import redis.clients.jedis.commands.BinaryScriptingPipeline; // Updated import
-> import redis.clients.jedis.commands.ScriptingPipeline; // Updated import
-> import redis.clients.jedis.commands.BinaryPipeline; // Updated import
-> import redis.clients.jedis.commands.Pipeline; // Updated import
-> import redis.clients.jedis.commands.MultiKeyBinaryPipeline; // Updated import
-> import redis.clients.jedis.commands.MultiKeyPipeline; // Updated import
-> import redis.clients.jedis.commands.ClusterPipeline; // Updated import
-21,24c20,23
+> import redis.clients.jedis.commands.RedisPipeline; // Removed
+> import redis.clients.jedis.commands.BasicRedisPipeline; // Removed
+> import redis.clients.jedis.commands.BinaryRedisPipeline; // Removed
+> import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline; // Removed
+> import redis.clients.jedis.commands.ClusterPipeline; // Removed
+> import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline; // Removed
+> import redis.clients.jedis.commands.MultiKeyCommandsPipeline; // Removed
+> import redis.clients.jedis.commands.ScriptingCommandsPipeline; // Removed
+20,24c20
+< public interface RedisGraphPipeline extends
 <         MultiKeyBinaryRedisPipeline,
 <         MultiKeyCommandsPipeline, ClusterPipeline,
 <         BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
 <         BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
 ---
->         MultiKeyBinaryPipeline,
->         MultiKeyPipeline, ClusterPipeline,
->         BinaryScriptingPipeline, ScriptingPipeline,
->         BasicPipeline, BinaryPipeline, Pipeline, Closeable {
+> public interface RedisGraphPipeline extends Closeable {

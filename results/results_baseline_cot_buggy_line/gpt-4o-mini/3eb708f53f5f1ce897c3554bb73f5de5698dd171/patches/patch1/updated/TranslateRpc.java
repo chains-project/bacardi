@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * you may obtain a copy of the License at
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -16,10 +16,6 @@
 
 package com.google.cloud.translate.spi.v2;
 
-import com.google.api.services.translate.model.DetectionsResource;
-import com.google.api.services.translate.model.Languages;
-import com.google.api.services.translate.model.Translations;
-import com.google.cloud.ServiceRpc;
 import java.util.List;
 import java.util.Map;
 
@@ -56,7 +52,7 @@ public interface TranslateRpc extends ServiceRpc {
    *
    * @param optionMap options to listing language translations
    */
-  List<Languages> listSupportedLanguages(Map<Option, ?> optionMap);
+  List<String> listSupportedLanguages(Map<Option, ?> optionMap);
 
   /**
    * Detects the language of the provided texts.
@@ -64,7 +60,7 @@ public interface TranslateRpc extends ServiceRpc {
    * @param texts the texts to translate
    * @return a list of lists of detections, one list of detections for each provided text, in order
    */
-  List<List<DetectionsResource>> detect(List<String> texts);
+  List<List<String>> detect(List<String> texts);
 
   /**
    * Translates the provided texts.
@@ -74,5 +70,5 @@ public interface TranslateRpc extends ServiceRpc {
    * @return a list of resources containing translation information, in the same order of the
    *     provided texts
    */
-  List<Translations> translate(List<String> texts, Map<Option, ?> optionMap);
+  List<String> translate(List<String> texts, Map<Option, ?> optionMap);
 }

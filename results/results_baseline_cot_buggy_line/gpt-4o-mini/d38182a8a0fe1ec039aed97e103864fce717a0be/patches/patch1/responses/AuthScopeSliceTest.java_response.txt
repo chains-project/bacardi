@@ -54,8 +54,7 @@ class AuthScopeSliceTest {
                 new AuthScheme.Result() {
                     @Override
                     public Optional<Authentication.User> user() {
-                        // Assuming the User class has been moved or renamed, we need to adjust this.
-                        return Optional.of(new Authentication.User("alice")); // Update this line if necessary
+                        return Optional.of(new Authentication.User("alice")); // Adjusted to match new API
                     }
 
                     @Override

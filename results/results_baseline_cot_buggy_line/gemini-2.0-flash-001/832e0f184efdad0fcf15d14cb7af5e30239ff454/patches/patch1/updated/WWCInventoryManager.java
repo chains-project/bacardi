@@ -78,12 +78,10 @@ public class WWCInventoryManager extends InventoryManager {
 			pageMeta.setDisplayName(ChatColor.AQUA
 					+ CommonDefinitions.getMessage("wwcGUIPageNumber", args));
 			if (args[0].equals("1")) {
-				XEnchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get();
-				if (powerEnchantment != null) {
-					Enchantment enchantment = powerEnchantment.getEnchant();
-					if (enchantment != null) {
-						pageMeta.addEnchant(enchantment, 1, false);
-					}
+				XEnchantment xEnchantment = XEnchantment.matchXEnchantment("power").get();
+				Enchantment enchantment = (xEnchantment != null) ? xEnchantment.getEnchant() : null;
+				if (enchantment != null) {
+					pageMeta.addEnchant(enchantment, 1, false);
 				}
 			}
 		} else {

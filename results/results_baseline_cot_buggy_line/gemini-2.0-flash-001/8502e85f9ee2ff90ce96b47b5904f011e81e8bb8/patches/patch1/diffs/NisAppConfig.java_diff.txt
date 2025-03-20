@@ -1,4 +1,4 @@
-41a42
+3a4
 > import org.flywaydb.core.api.configuration.FluentConfiguration;
 108,112c109,115
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
@@ -7,10 +7,10 @@
 <                 flyway.setLocations(prop.getProperty("flyway.locations"));
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 ---
->                 FluentConfiguration configuration = new FluentConfiguration();
->                 configuration.dataSource(this.dataSource());
->                 configuration.classLoader(NisAppConfig.class.getClassLoader());
->                 configuration.locations(prop.getProperty("flyway.locations"));
->                 configuration.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 FluentConfiguration fluentConfiguration = new FluentConfiguration();
+>                 fluentConfiguration.dataSource(this.dataSource());
+>                 fluentConfiguration.classLoader(NisAppConfig.class.getClassLoader());
+>                 fluentConfiguration.locations(prop.getProperty("flyway.locations"));
+>                 fluentConfiguration.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 > 
->                 final Flyway flyway = new Flyway(configuration);
+>                 final org.flywaydb.core.Flyway flyway = new Flyway(fluentConfiguration);

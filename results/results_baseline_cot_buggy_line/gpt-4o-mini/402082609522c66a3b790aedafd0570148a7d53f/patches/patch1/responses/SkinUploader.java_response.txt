@@ -4,16 +4,18 @@ import com.github.games647.changeskin.core.model.auth.Account;
 import com.github.games647.changeskin.core.shared.task.SharedUploader;
 import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
-// Updated import for CommandSource based on the new dependency version
-import org.spongepowered.api.command.CommandSource; // Ensure this is the correct import for the updated version
+import java.util.concurrent.TimeUnit;
+
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.CommandSource; // Adjusted import for new API
 import org.spongepowered.api.scheduler.Task;
 
 public class SkinUploader extends SharedUploader {
 
     private final ChangeSkinSponge plugin;
-    private final CommandSource invoker;
+    private final Object invoker; // Changed type to Object to accommodate API changes
 
-    public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {
+    public SkinUploader(ChangeSkinSponge plugin, Object invoker, Account owner, String url) { // Updated parameter type
         super(plugin.getCore(), owner, url);
 
         this.plugin = plugin;

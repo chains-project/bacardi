@@ -1,73 +1,82 @@
-21,22c21,22
+1,23d0
+< /*
+<  * The MIT License (MIT)
+<  *
+<  * Copyright (c) 2018-2023 Yegor Bugayenko
+<  *
+<  * Permission is hereby granted, free of charge, to any person obtaining a copy
+<  * of this software and associated documentation files (the "Software"), to deal
+<  * in the Software without restriction, including without limitation the rights
+<  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+<  *
+<  * The above copyright notice and this permission notice shall be included
+<  * in all copies or substantial portions of the Software.
+<  *
+<  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+<  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 <  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 <  * SOFTWARE.
----
->  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
->  * THE SOFTWARE.
-31a32
-> import org.cactoos.Scalar;
-35,38c36,38
+<  */
+32a10
+> import org.cactoos.iterable.IterableOf;
+35c13
 < import org.cactoos.scalar.IoCheckedScalar;
-< import org.cactoos.scalar.ItemAt;
+---
+> import org.cactoos.scalar.IoChecked;
+37,38c15,16
 < import org.cactoos.scalar.StickyScalar;
 < import org.cactoos.scalar.UncheckedScalar;
 ---
-> import org.cactoos.scalar.IoChecked;
 > import org.cactoos.scalar.Sticky;
 > import org.cactoos.scalar.Unchecked;
-88c88
+88c66
 <     private final IoCheckedScalar<String> transaction;
 ---
 >     private final IoChecked<String> transaction;
-95,96c95,96
+95,96c73,74
 <         this.transaction = new IoCheckedScalar<>(
 <             new StickyScalar<>(
 ---
 >         this.transaction = new IoChecked<>(
 >             new Sticky<>(
-131,132c131,132
+112c90
+<                     if (new LengthOf(pieces).intValue() != 7) {
+---
+>                     if (new LengthOf(new IterableOf<>(pieces)).intValue() != 7) {
+131c109
 <             new IoCheckedScalar<>(
-<                 new ItemAt<>(
 ---
 >             new IoChecked<>(
->                 new org.cactoos.scalar.ItemAt<>(
-156,157c156,157
+156c134
 <                 new IoCheckedScalar<>(
-<                     new ItemAt<>(
 ---
 >                 new IoChecked<>(
->                     new org.cactoos.scalar.ItemAt<>(
-169,170c169,170
+169c147
 <             new IoCheckedScalar<>(
-<                 new ItemAt<>(
 ---
 >             new IoChecked<>(
->                 new org.cactoos.scalar.ItemAt<>(
-193,194c193,194
+193c171
 <             new IoCheckedScalar<>(
-<                 new ItemAt<>(
 ---
 >             new IoChecked<>(
->                 new org.cactoos.scalar.ItemAt<>(
-213,214c213,214
+213c191
 <             new IoCheckedScalar<>(
-<                 new ItemAt<>(
 ---
 >             new IoChecked<>(
->                 new org.cactoos.scalar.ItemAt<>(
-237,238c237,238
+237c215
 <             new IoCheckedScalar<>(
-<                 new ItemAt<>(
 ---
 >             new IoChecked<>(
->                 new org.cactoos.scalar.ItemAt<>(
-261,262c261,262
+261c239
 <             new IoCheckedScalar<>(
-<                 new ItemAt<>(
 ---
 >             new IoChecked<>(
->                 new org.cactoos.scalar.ItemAt<>(
-286c286
+286c264
 <         return new UncheckedScalar<>(this.transaction).value();
 ---
 >         return new Unchecked<>(this.transaction).value();

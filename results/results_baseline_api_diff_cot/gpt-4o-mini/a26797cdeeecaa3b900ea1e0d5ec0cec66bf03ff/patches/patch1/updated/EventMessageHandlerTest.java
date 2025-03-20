@@ -13,6 +13,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.client.ledger.model.LedgerTransaction;
 import uk.gov.pay.adminusers.client.ledger.service.LedgerService;
@@ -107,8 +108,8 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        var logger = LoggerFactory.getLogger(EventMessageHandler.class);
-        logger.info("Logger initialized");
+        Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
+        logger.setLevel(Level.INFO);
         logger.addAppender(mockLogAppender);
     }
 

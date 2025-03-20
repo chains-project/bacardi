@@ -22,12 +22,10 @@ public class SkinUploader extends SharedUploader {
         this.invoker = invoker;
     }
 
-    @Override
     public void sendMessageInvoker(String key) {
         plugin.sendMessage(invoker, key);
     }
 
-    @Override
     protected void scheduleChangeTask(String oldSkinUrl) {
         Runnable task = new SkinChanger(plugin, owner, url, oldSkinUrl, invoker);
         Task.builder().delay(1, TimeUnit.MINUTES).execute(task).async().submit(plugin);

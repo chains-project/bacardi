@@ -11,9 +11,10 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.scheduler.Task;
 
-public class InvalidateCommand implements CommandExecutor {
+public class InvalidateCommand implements ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
 
@@ -22,23 +23,22 @@ public class InvalidateCommand implements CommandExecutor {
         this.plugin = plugin;
     }
 
-    @Override
     public CommandResult execute(CommandSource src, CommandContext args) {
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
-            return CommandResult.success(); // Updated to return success instead of empty
+            return CommandResult.success();
         }
 
         Player receiver = (Player) src;
-        Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(plugin); // Removed async() as it was removed in the new API
+        Scheduler scheduler = Scheduler.builder().executor(plugin).build();
+        Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(scheduler);
         return CommandResult.success();
     }
 
-    public Command buildSpec() {
+    public Command.Builder buildSpec() {
         return Command.builder()
                 .executor(this)
-                .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base")
-                .build();
+                .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base");
     }
 }
 ```

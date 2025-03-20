@@ -1,62 +1,182 @@
-30c30
+1,16d0
+< /*
+<  * Copyright (C) 2007-2009 Jive Software. All rights reserved.
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+22d5
+< import com.hazelcast.config.MaxSizeConfig;
+27d9
+< import com.hazelcast.core.Cluster;
+30c12,13
 < import com.hazelcast.core.Member;
 ---
-> import com.hazelcast.cluster.Member; // Updated import
-149c149
-<     private static Cluster cluster = null;
+> import com.hazelcast.cluster.Cluster;
+> import com.hazelcast.cluster.Member;
+75,80d57
+< /**
+<  * CacheFactory implementation to use when using Hazelcast in cluster mode.
+<  *
+<  * @author Tom Evans
+<  * @author Gaston Dombiak
+<  */
+137,140d113
+<     /**
+<      * Keep serialization strategy the server was using before we set our strategy. We will
+<      * restore old strategy when plugin is unloaded.
+<      */
+142,145d114
+< 
+<     /**
+<      * Storage for cache statistics
+<      */
+154,156d122
+<     /**
+<      * Keeps that running state. Initial state is stopped.
+<      */
+158,161d123
+< 
+<     /**
+<      * Used to limit the amount of duplicate warnings logged.
+<      */
+166c128
+<         pluginClassLoaderWarnings.setMaxLifetime(Duration.ofHours(1).toMillis()); // Minimum duration between logged warnings.
 ---
->     private static com.hazelcast.cluster.Cluster cluster; // Updated type
-331c331
-<             final Member oldest = cluster.getMembers().iterator().next();
+>         pluginClassLoaderWarnings.setMaxLifetime(Duration.ofHours(1).toMillis());
+174d135
+<         // Set the serialization strategy to use for transmitting objects between node clusters
+178d138
+<         // Store previous class loader (in case we change it)
+205d164
+<                 // CacheFactory is now using clustered caches. We can add our listeners.
+230d188
+<             // Restore previous class loader
+238d195
+<         // Stop the cache services.
+240d196
+<         // Update the running state of the cluster
+243,244d198
+<         // Fire the leftClusterEvent before we leave the cluster - we need to access the clustered data before the
+<         // cluster is shutdown so it can be copied in to the non-clustered, DefaultCache
+246d199
+<         // Stop the cluster
+255d207
+<         // Reset packet router to use to deliver packets to remote cluster nodes
+257d208
+<         // Reset the session locator to use
+259d209
+<         // Set the old serialization strategy was using before clustering was loaded
+265d214
+<         // Check if cluster is being started up
+267d215
+<             // Wait until cluster is fully started (or failed)
+271d218
+<                 // Ignore
+277d223
+<         // Determine the time to live. Note that in Hazelcast 0 means "forever", not -1
+280d225
+<         // Determine the max cache size. Note that in Hazelcast the max cache size must be positive and is in megabytes
+283d227
+<         // It's only possible to create a dynamic config if a static one doesn't already exist
+288c232
+<             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
 ---
->             final com.hazelcast.cluster.Member oldest = cluster.getMembers().iterator().next(); // Updated type
-370,372c370,372
-<         final Set<Member> members = new HashSet<>();
-<         final Member current = cluster.getLocalMember();
-<         for (final Member member : cluster.getMembers()) {
+>             dynamicConfig.setMaxSizeConfig(new com.hazelcast.config.MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, com.hazelcast.config.MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+294d237
+<         // TODO: Better genericize this method in CacheFactoryStrategy so we can stop suppressing this warning
+324d266
+<         // No longer depends on license code so just return a big number
+347,353d288
+<     /**
+<      * Gets the pseudo-synchronized time from the cluster. While the cluster members may
+<      * have varying system times, this method is expected to return a timestamp that is
+<      * synchronized (or nearly so; best effort) across the cluster.
+<      *
+<      * @return Synchronized time for all cluster members
+<      */
+359,363d293
+<     /*
+<      * Execute the given task on the other (non-local) cluster members.
+<      * Note that this method does not provide the result set for the given
+<      * task, as the task is run asynchronously across the cluster.
+<      */
+366d295
+< 
+378d306
+< 
+380d307
+<             // Asynchronously execute the task on the other cluster members
+389,393d315
+<     /*
+<      * Execute the given task on the given cluster member.
+<      * Note that this method does not provide the result set for the given
+<      * task, as the task is run asynchronously across the cluster.
+<      */
+400d321
+<         // Check that the requested member was found
+402d322
+<             // Asynchronously execute the task on the target member
+413,417d332
+<     /*
+<      * Execute the given task on the designated cluster members.
+<      * Note that this method blocks for up to MAX_CLUSTER_EXECUTION_TIME
+<      * (seconds) per member until the task is run on all members.
+<      */
+432d346
+<             // Asynchronously execute the task on the other cluster members
+454,458d367
+<     /*
+<      * Execute the given task on the designated cluster member.
+<      * Note that this method blocks for up to MAX_CLUSTER_EXECUTION_TIME
+<      * (seconds) until the task is run on the given member.
+<      */
+466d374
+<         // Check that the requested member was found
+468d375
+<             // Asynchronously execute the task on the target member
+514d420
+<             // Create the cacheStats map if necessary.
+522,524d427
+<                 // The following information is published:
+<                 // current size, max size, num elements, cache
+<                 // hits, cache misses.
+533d435
+<             // Publish message
+548d449
+<         // TODO: Update CacheFactoryStrategy so the signature is getLock(final Serializable key, Cache<Serializable, Serializable> cache)
+553,561d453
+<     /**
+<      * ClusterTasks that are executed should not be provided by a plugin. These will cause issues related to class
+<      * loading when the providing plugin is reloaded. This method verifies if an instance of a task is
+<      * loaded by a plugin class loader, and logs a warning to the log files when it is. The amount of warnings logged is
+<      * limited by a time interval.
+<      *
+<      * @param o the instance for which to verify the class loader
+<      * @see <a href="https://github.com/igniterealtime/openfire-hazelcast-plugin/issues/74">Issue #74: Warn against usage of plugin-provided classes in Hazelcast</a>
+<      */
+566d457
+<             // Try to determine what plugin loaded the offending class.
+583c474
+<             pluginClassLoaderWarnings.put(o.getClass().getName(), Instant.now()); // Note that this Instant is unused.
 ---
->         final Set<com.hazelcast.cluster.Member> members = new HashSet<>(); // Updated type
->         final com.hazelcast.cluster.Member current = cluster.getLocalMember(); // Updated type
->         for (final com.hazelcast.cluster.Member member : cluster.getMembers()) { // Updated type
-399c399
-<         final Member member = getMember(nodeID);
----
->         final com.hazelcast.cluster.Member member = getMember(nodeID); // Updated type
-423,425c423,425
-<         final Set<Member> members = new HashSet<>();
-<         final Member current = cluster.getLocalMember();
-<         for (final Member member : cluster.getMembers()) {
----
->         final Set<com.hazelcast.cluster.Member> members = new HashSet<>(); // Updated type
->         final com.hazelcast.cluster.Member current = cluster.getLocalMember(); // Updated type
->         for (final com.hazelcast.cluster.Member member : cluster.getMembers()) { // Updated type
-436c436
-<                 final Map<Member, ? extends Future<T>> futures = hazelcast.getExecutorService(HAZELCAST_EXECUTOR_SERVICE_NAME.getValue()).submitToMembers(new CallableTask<>(task), members);
----
->                 final Map<com.hazelcast.cluster.Member, ? extends Future<T>> futures = hazelcast.getExecutorService(HAZELCAST_EXECUTOR_SERVICE_NAME.getValue()).submitToMembers(new CallableTask<>(task), members); // Updated type
-464c464
-<         final Member member = getMember(nodeID);
----
->         final com.hazelcast.cluster.Member member = getMember(nodeID); // Updated type
-494c494
-<         final Member member = getMember(nodeID);
----
->         final com.hazelcast.cluster.Member member = getMember(nodeID); // Updated type
-501c501
-<     private Member getMember(final byte[] nodeID) {
----
->     private com.hazelcast.cluster.Member getMember(final byte[] nodeID) { // Updated return type
-503c503
-<         for (final Member member : cluster.getMembers()) {
----
->         for (final com.hazelcast.cluster.Member member : cluster.getMembers()) { // Updated type
-655,656c655,656
-<     public static NodeID getNodeID(final Member member) {
-<         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
----
->     public static NodeID getNodeID(final com.hazelcast.cluster.Member member) { // Updated parameter type
->         return NodeID.getInstance(member.getUuid().toString().getBytes(StandardCharsets.UTF_8)); // Updated method call
-701,703d700
+>             pluginClassLoaderWarnings.put(o.getClass().getName(), Instant.now());
+684,685d574
+<             // Add a listener at the ultimate end of the list of all listeners, to detect that left-cluster event handling
+<             // has been invoked for all before proceeding.
+699d587
+< 
+701,703d588
 < 
 < 
 < 

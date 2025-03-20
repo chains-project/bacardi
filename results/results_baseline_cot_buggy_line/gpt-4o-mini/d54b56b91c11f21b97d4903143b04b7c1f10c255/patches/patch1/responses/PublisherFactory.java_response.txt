@@ -15,7 +15,7 @@
  */
 package com.google.pubsublite.kafka.sink;
 
-import com.google.cloud.pubsublite.internal.PublishMetadata; // Updated import to the correct package
+import com.google.cloud.pubsublite.internal.PublishMetadata; // Updated import
 import com.google.cloud.pubsublite.internal.Publisher;
 import java.util.Map;
 

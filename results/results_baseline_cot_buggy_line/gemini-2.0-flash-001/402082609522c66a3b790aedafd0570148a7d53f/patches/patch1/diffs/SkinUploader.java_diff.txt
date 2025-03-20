@@ -1,17 +1,24 @@
-9,10c9
+9c9,10
 < import org.spongepowered.api.command.CommandSource;
-< import org.spongepowered.api.scheduler.Task;
 ---
+> import org.spongepowered.api.command.CommandCause;
 > import org.spongepowered.api.entity.living.player.Player;
-15c14
+11a13,14
+> import org.spongepowered.api.service.permission.Subject;
+> 
+15c18
 <     private final CommandSource invoker;
 ---
->     private final Player invoker;
-17c16
+>     private final Subject invoker;
+17c20
 <     public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {
 ---
->     public SkinUploader(ChangeSkinSponge plugin, Player invoker, Account owner, String url) {
-32c31
-<         Task.builder().delay(1, TimeUnit.MINUTES).execute(task).async().submit(plugin);
+>     public SkinUploader(ChangeSkinSponge plugin, Subject invoker, Account owner, String url) {
+26c29,33
+<         plugin.sendMessage(invoker, key);
 ---
->         org.spongepowered.api.scheduler.Task.builder().delay(1, TimeUnit.MINUTES).execute(task).async().submit(plugin);
+>         if (invoker instanceof Player) {
+>             plugin.sendMessage((Player) invoker, key);
+>         } else {
+>             plugin.getPluginLogger().info(key);
+>         }

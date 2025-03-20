@@ -12,7 +12,8 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
-import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration;
+import com.github.javaparser.printer.DefaultPrettyPrinter;
+import com.github.javaparser.printer.DefaultPrettyPrinterConfiguration;
 import org.btrplace.safeplace.spec.Constraint;
 import org.btrplace.safeplace.spec.SpecScanner;
 import org.btrplace.safeplace.testing.Bench;
@@ -332,7 +333,8 @@ public class DSN {
 
       private final List<Integer> l;
 
-      private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
+      private final DefaultPrettyPrinterConfiguration noComments = new DefaultPrettyPrinterConfiguration().setPrintComments(false);
+      private final DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter(noComments);
 
         UnitTestsVisitor(List<Integer> numbers) {
             this.l = numbers;
@@ -341,7 +343,7 @@ public class DSN {
         @Override
         public void visit(MethodDeclaration n, Void arg) {
             System.out.println(n.getNameAsString());
-            if (n.toString(noComments).contains("solve")) {
+            if (n.toString().contains("solve")) {
                 n.getRange().ifPresent(r -> l.add(r.end.line - r.begin.line));
             }
             super.visit(n, arg);

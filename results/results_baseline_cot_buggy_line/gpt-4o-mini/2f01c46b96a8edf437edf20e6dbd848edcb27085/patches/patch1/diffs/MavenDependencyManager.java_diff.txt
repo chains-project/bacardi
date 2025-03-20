@@ -1,4 +1,14 @@
 27c27
 < import org.codehaus.plexus.util.xml.Xpp3Dom;
 ---
-> import org.codehaus.plexus.util.xml.Xpp3Dom; // Ensure this import is correct based on the updated dependency
+> import org.codehaus.plexus.util.xml.XmlDom;
+162c162
+<         .map(exec -> (Xpp3Dom) exec.getConfiguration())
+---
+>         .map(exec -> (XmlDom) exec.getConfiguration())
+164,165c164,165
+<         .map(Xpp3Dom::getChildren)
+<         .map(arr -> Arrays.stream(arr).map(Xpp3Dom::getValue).collect(Collectors.toSet()))
+---
+>         .map(XmlDom::getChildren)
+>         .map(arr -> Arrays.stream(arr).map(XmlDom::getValue).collect(Collectors.toSet()))

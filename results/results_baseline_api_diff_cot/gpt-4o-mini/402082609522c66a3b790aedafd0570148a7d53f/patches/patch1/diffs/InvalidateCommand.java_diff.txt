@@ -5,22 +5,32 @@
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.Command;
-16c15
+13a13
+> import org.spongepowered.api.scheduler.Scheduler;
+16c16
 < public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
 ---
-> public class InvalidateCommand implements CommandExecutor {
+> public class InvalidateCommand implements ChangeSkinCommand {
+25d24
+<     @Override
 29c28
 <             return CommandResult.empty();
 ---
->             return CommandResult.success(); // Updated to return success instead of empty
-33c32
+>             return CommandResult.success();
+33c32,33
 <         Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
 ---
->         Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(plugin); // Removed async() as it was removed in the new API
-37,39c36,37
+>         Scheduler scheduler = Scheduler.builder().executor(plugin).build();
+>         Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(scheduler);
+37,39c37,38
 <     @Override
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
 ---
->     public Command buildSpec() {
+>     public Command.Builder buildSpec() {
 >         return Command.builder()
+41,42c40
+<                 .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base")
+<                 .build();
+---
+>                 .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base");

@@ -1,11 +1,15 @@
-111,115c111,114
-<         if (random.nextBoolean())
-<         {
+106c106
+<             : RandomWordUtils.getRandomWord();
+---
+>             : RandomStringUtils.randomAlphabetic(5); // Fallback to a simple random string
+109c109
+<             : RandomWordUtils.getRandomWord();
+---
+>             : RandomStringUtils.randomAlphabetic(5); // Fallback to a simple random string
+113,114c113,115
 <             first = develop.p2p.lib.LeetConverter.convert(first);
 <             last = develop.p2p.lib.LeetConverter.convert(last);
-<         }
 ---
->         // Removed the dependency on develop.p2p.lib.LeetConverter
->         // Assuming we want to keep the functionality, we can replace it with a simple transformation
->         first = first.replaceAll("[aeiou]", "1"); // Example transformation
->         last = last.replaceAll("[aeiou]", "1"); // Example transformation
+>             // Removed LeetConverter as it is not available
+>             // first = develop.p2p.lib.LeetConverter.convert(first);
+>             // last = develop.p2p.lib.LeetConverter.convert(last);

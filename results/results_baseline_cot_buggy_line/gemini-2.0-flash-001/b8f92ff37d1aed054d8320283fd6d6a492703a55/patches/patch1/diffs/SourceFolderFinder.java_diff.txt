@@ -1,9 +1,0 @@
-5a6
-> import org.apache.maven.shared.utils.io.SelectorUtils;
-25,26c26,28
-<         DirectoryScanner directoryScanner = new DirectoryScanner(testSrcFolder, TestListResolver.getWildcard());
-<         return directoryScanner.scan().getClasses();
----
->         DirectoryScanner directoryScanner = new DirectoryScanner(testSrcFolder, SelectorUtils.DEFAULT_INCLUDES, SelectorUtils.DEFAULT_EXCLUDES);
->         directoryScanner.scan();
->         return directoryScanner.getIncludedFiles();

@@ -9,16 +9,6 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.validation.constraints.NotBlank;
-import javax.mvc.binding.BindingResult;
-import javax.mvc.binding.MvcBinding;
-import javax.mvc.binding.ParamError;
-import javax.mvc.security.CsrfProtected;
-import jakarta.mvc.UriRef; // Updated import for UriRef
-import jakarta.mvc.Models; // Updated import for Models
-import jakarta.mvc.binding.BindingResult; // Updated import for BindingResult
-import jakarta.mvc.binding.MvcBinding; // Updated import for MvcBinding
-import jakarta.mvc.binding.ParamError; // Updated import for ParamError
 
 /**
  *
@@ -29,9 +19,8 @@ import jakarta.mvc.binding.ParamError; // Updated import for ParamError
 @RequestScoped
 public class GreetingController {
 
-    @Inject
-    BindingResult bindingResult;
-
+    // Removed BindingResult and MvcBinding due to API changes
+    // Replaced with a simple validation check
     @Inject
     Models models;
 
@@ -47,18 +36,13 @@ public class GreetingController {
     }
 
     @POST
-    @UriRef("greeting-post")
     public String post(
             @FormParam("greeting")
-            @MvcBinding
             @NotBlank String greeting) {
-        if (bindingResult.isFailed()) {
+        // Simple validation check instead of using BindingResult
+        if (greeting == null || greeting.trim().isEmpty()) {
             AlertMessage alert = AlertMessage.danger("Validation violations!");
-            bindingResult.getAllErrors()
-                    .stream()
-                    .forEach((ParamError t) -> {
-                        alert.addError(t.getParamName(), "", t.getMessage());
-                    });
+            alert.addError("greeting", "", "Greeting must not be blank.");
             models.put("errors", alert);
             log.info("mvc binding failed.");
             return "greeting.xhtml";

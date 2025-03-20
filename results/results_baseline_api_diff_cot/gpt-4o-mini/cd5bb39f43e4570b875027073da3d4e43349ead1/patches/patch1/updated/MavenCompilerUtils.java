@@ -18,7 +18,6 @@ package org.simplify4u.plugins.utils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.repository.RepositorySystem;
-import org.codehaus.plexus.util.xml.XmlDom;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -67,24 +66,19 @@ public final class MavenCompilerUtils {
         if (config == null) {
             return emptySet();
         }
-        if (config instanceof XmlDom) {
-            return stream(((XmlDom) config).getChildren("annotationProcessorPaths"))
+        if (config instanceof org.codehaus.plexus.util.xml.Xpp3Dom) {
+            return stream(((org.codehaus.plexus.util.xml.Xpp3Dom) config).getChildren("annotationProcessorPaths"))
                     .flatMap(aggregate -> stream(aggregate.getChildren("path")))
                     .map(processor -> system.createArtifact(
                             extractChildValue(processor, "groupId"),
                             extractChildValue(processor, "artifactId"),
                             extractChildValue(processor, "version"),
                             PACKAGING))
-                    // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
-                    // therefore there is little use in logging incomplete paths that are filtered out.
                     .filter(a -> !a.getGroupId().isEmpty())
                     .filter(a -> !a.getArtifactId().isEmpty())
                     .filter(a -> !a.getVersion().isEmpty())
                     .collect(Collectors.toSet());
         }
-        // It is expected that this will never occur due to all Configuration instances of all plugins being provided as
-        // XML document. If this happens to occur on very old plugin versions, we can safely add the type support and
-        // simply return an empty set.
         throw new UnsupportedOperationException("Please report that an unsupported type of configuration container" +
                 " was encountered: " + config.getClass());
     }
@@ -96,8 +90,8 @@ public final class MavenCompilerUtils {
      * @param name the child node name
      * @return Returns child value if child node present or otherwise empty string.
      */
-    private static String extractChildValue(XmlDom node, String name) {
-        final XmlDom child = node.getChild(name);
-        return child == null ? "" : child.getText();
+    private static String extractChildValue(org.codehaus.plexus.util.xml.Xpp3Dom node, String name) {
+        final org.codehaus.plexus.util.xml.Xpp3Dom child = node.getChild(name);
+        return child == null ? "" : child.getValue();
     }
 }

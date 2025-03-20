@@ -1,26 +1,13 @@
-/*
- * Copyright 2016 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- */
-
 package com.google.cloud.translate;
 
-import com.google.cloud.translate.spi.v2.TranslateRpc;
+import com.google.cloud.translate.v3.Translation;
+import com.google.cloud.translate.v3.TranslateTextResponse;
+import com.google.cloud.translate.v3.Translation.Builder;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
 
 /**
  * Information about a translation. Objects of this class contain the translated text and the source
@@ -30,14 +17,14 @@ import javax.annotation.Nullable;
  * @see <a href="https://cloud.google.com/translate/v2/translating-text-with-rest">Translating
  *     Text</a>
  */
-public class Translation implements Serializable {
+public class TranslationInfo implements Serializable {
 
   private static final long serialVersionUID = 2556017420486245581L;
-  static final Function<TranslateRpc.Translation, Translation> FROM_PB_FUNCTION =
-      new Function<TranslateRpc.Translation, Translation>() {
+  static final Function<TranslateTextResponse, TranslationInfo> FROM_PB_FUNCTION =
+      new Function<TranslateTextResponse, TranslationInfo>() {
         @Override
-        public Translation apply(TranslateRpc.Translation translationPb) {
-          return Translation.fromPb(translationPb);
+        public TranslationInfo apply(TranslateTextResponse translationPb) {
+          return TranslationInfo.fromPb(translationPb);
         }
       };
 
@@ -45,7 +32,7 @@ public class Translation implements Serializable {
   private final String sourceLanguage;
   private final String model;
 
-  private Translation(String translatedText, String sourceLanguage, String model) {
+  private TranslationInfo(String translatedText, String sourceLanguage, String model) {
     this.translatedText = translatedText;
     this.sourceLanguage = sourceLanguage;
     this.model = model;
@@ -94,18 +81,20 @@ public class Translation implements Serializable {
     if (obj == this) {
       return true;
     }
-    if (obj == null || !obj.getClass().equals(Translation.class)) {
+    if (obj == null || !obj.getClass().equals(TranslationInfo.class)) {
       return false;
     }
-    Translation other = (Translation) obj;
+    TranslationInfo other = (TranslationInfo) obj;
     return Objects.equals(translatedText, other.translatedText)
         && Objects.equals(sourceLanguage, other.sourceLanguage);
   }
 
-  static Translation fromPb(TranslateRpc.Translation translationPb) {
-    return new Translation(
-        translationPb.getTranslatedText(),
-        translationPb.getDetectedSourceLanguage(),
-        translationPb.getModel());
+  static TranslationInfo fromPb(TranslateTextResponse translationPb) {
+    if (translationPb.getTranslationsCount() > 0) {
+      Translation translation = translationPb.getTranslations(0);
+      return new TranslationInfo(
+          translation.getTranslatedText(), translation.getSourceLanguageCode(), translation.getModel());
+    }
+    return new TranslationInfo("", "", "");
   }
 }

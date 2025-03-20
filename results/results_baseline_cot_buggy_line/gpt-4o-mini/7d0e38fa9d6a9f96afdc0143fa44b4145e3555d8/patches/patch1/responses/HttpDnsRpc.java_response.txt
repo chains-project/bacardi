@@ -1,19 +1,3 @@
-/*
- * Copyright 2016 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.google.cloud.dns.spi.v1;
 
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
@@ -268,7 +252,7 @@ public class HttpDnsRpc implements DnsRpc {
   }
 
   private Dns.ManagedZones.Delete deleteZoneCall(String zoneName) throws IOException {
-    return dns.managedZones().delete(this.options.getProjectId(), zoneName, ""); // Added empty string for the missing parameter
+    return dns.managedZones().delete(this.options.getProjectId(), zoneName, null);
   }
 
   @Override
@@ -286,7 +270,7 @@ public class HttpDnsRpc implements DnsRpc {
       throws IOException {
     // options are fields, page token, dns name, type
     return dns.resourceRecordSets()
-        .list(this.options.getProjectId(), zoneName, "") // Added empty string for the missing parameter
+        .list(this.options.getProjectId(), zoneName, null)
         .setFields(Option.FIELDS.getString(options))
         .setPageToken(Option.PAGE_TOKEN.getString(options))
         .setMaxResults(Option.PAGE_SIZE.getInt(options))
@@ -305,7 +289,8 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.Projects.Get getProjectCall(Map<Option, ?> options) throws IOException {
     return dns.projects()
-        .get(this.options.getProjectId(), ""); // Added empty string for the missing parameter
+        .get(this.options.getProjectId(), null)
+        .setFields(Option.FIELDS.getString(options));
   }
 
   @Override
@@ -321,7 +306,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.Changes.Create applyChangeRequestCall(
       String zoneName, Change changeRequest, Map<Option, ?> options) throws IOException {
     return dns.changes()
-        .create(this.options.getProjectId(), zoneName, changeRequest, "") // Added empty string for the missing parameter
+        .create(this.options.getProjectId(), zoneName, changeRequest, null)
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -348,7 +333,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.Changes.Get getChangeRequestCall(
       String zoneName, String changeRequestId, Map<Option, ?> options) throws IOException {
     return dns.changes()
-        .get(this.options.getProjectId(), zoneName, changeRequestId, "") // Added empty string for the missing parameter
+        .get(this.options.getProjectId(), zoneName, changeRequestId, null)
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -368,7 +353,7 @@ public class HttpDnsRpc implements DnsRpc {
     // options are fields, page token, page size, sort order
     Dns.Changes.List request =
         dns.changes()
-            .list(this.options.getProjectId(), zoneName, "") // Added empty string for the missing parameter
+            .list(this.options.getProjectId(), zoneName, null)
             .setFields(Option.FIELDS.getString(options))
             .setMaxResults(Option.PAGE_SIZE.getInt(options))
             .setPageToken(Option.PAGE_TOKEN.getString(options));

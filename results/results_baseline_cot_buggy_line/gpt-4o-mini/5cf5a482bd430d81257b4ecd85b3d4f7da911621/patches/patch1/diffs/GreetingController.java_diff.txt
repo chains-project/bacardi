@@ -5,18 +5,27 @@
 < import javax.mvc.binding.ParamError;
 < import javax.mvc.security.CsrfProtected;
 < import javax.validation.constraints.NotBlank;
-17a12,21
-> import javax.validation.constraints.NotBlank;
-> import javax.mvc.binding.BindingResult;
-> import javax.mvc.binding.MvcBinding;
-> import javax.mvc.binding.ParamError;
-> import javax.mvc.security.CsrfProtected;
-> import jakarta.mvc.UriRef; // Updated import for UriRef
-> import jakarta.mvc.Models; // Updated import for Models
-> import jakarta.mvc.binding.BindingResult; // Updated import for BindingResult
-> import jakarta.mvc.binding.MvcBinding; // Updated import for MvcBinding
-> import jakarta.mvc.binding.ParamError; // Updated import for ParamError
-52c56
-<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
+28,30c22,23
+<     @Inject
+<     BindingResult bindingResult;
+< 
 ---
+>     // Removed BindingResult and MvcBinding due to API changes
+>     // Replaced with a simple validation check
+46d38
+<     @UriRef("greeting-post")
+49d40
+<             @MvcBinding
+51,57c42,45
+<         if (bindingResult.isFailed()) {
+<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
+<             bindingResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+<                         alert.addError(t.getParamName(), "", t.getMessage());
+<                     });
+---
+>         // Simple validation check instead of using BindingResult
+>         if (greeting == null || greeting.trim().isEmpty()) {
 >             AlertMessage alert = AlertMessage.danger("Validation violations!");
+>             alert.addError("greeting", "", "Greeting must not be blank.");

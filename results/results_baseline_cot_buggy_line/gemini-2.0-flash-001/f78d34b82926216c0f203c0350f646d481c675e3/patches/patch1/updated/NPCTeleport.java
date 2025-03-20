@@ -143,6 +143,29 @@ public class NPCTeleport
         }.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, 1);
     }
 
+    private static class WaveCreator {
+        private final double min;
+        private final double max;
+        private final double waveLength;
+
+        public WaveCreator(double min, double max, double waveLength) {
+            this.min = min;
+            this.max = max;
+            this.waveLength = waveLength;
+        }
+
+        public double get(double time, boolean increase) {
+            double wave = Math.sin(time * waveLength);
+            double range = max - min;
+            double offset = range / 2 * (wave + 1);
+            return min + offset;
+        }
+
+        public double getStatic() {
+            return waveLength;
+        }
+    }
+
     /**
      * AuraBotのテレポート。
      *
@@ -157,8 +180,7 @@ public class NPCTeleport
         final double radius = reachMode ? config.getDouble("npc.reachRange"): config.getDoubleList("npc.range")
             .get(new Random().nextInt(config.getDoubleList("npc.range").size()));
 
-        // The class WaveCreator is not available. Removing the lines that use it.
-        // WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
+        WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
 
         final int[] count = {0};
         BukkitRunnable r = new BukkitRunnable()
@@ -175,21 +197,18 @@ public class NPCTeleport
                 {
                     double rangeTmp = radius;
 
-                    // The class WaveCreator is not available. Removing the lines that use it.
-                    // if (config.getBoolean("npc.wave"))
-                    //    rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
-                    //        .get(0.01, true);
+                    if (config.getBoolean("npc.wave"))
+                        rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
+                            .get(0.01, true);
 
                     final Location center = player.getLocation();
                     final Location n = new Location(
                         center.getWorld(),
                         auraBotXPos(time[0], rangeTmp + speed) + center.getX(),
-                        // The class WaveCreator is not available. Removing the lines that use it.
-                        // center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
-                        center.getY() + 1.5, // Replaced with a constant value
+                        center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
                         auraBotZPos(time[0], rangeTmp + speed) + center.getZ(),
-                        center.getYaw(), // Replaced with a constant value
-                        center.getPitch() // Replaced with a constant value
+                        (float) ypp.getStatic(),
+                        (float) ypp.get(4.5, false)
                     );
 
                     NPC.setLocation(n, target);
@@ -219,11 +238,9 @@ public class NPCTeleport
                     if (meta == null) continue;
                     meta.setNpcLocation(n.toVector());
                 }
-                // The class WaveCreator is not available. Removing the lines that use it.
-                // time[0] += config.getDouble("npc.time") + (config.getBoolean("npc.speed.wave")
-                //    ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
-                //    : 0.0);
-                time[0] += config.getDouble("npc.time"); // Replaced with a constant value
+                time[0] += config.getDouble("npc.time") + (config.getBoolean("npc.speed.wave")
+                    ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
+                    : 0.0);
             }
         };
         r.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, 1);

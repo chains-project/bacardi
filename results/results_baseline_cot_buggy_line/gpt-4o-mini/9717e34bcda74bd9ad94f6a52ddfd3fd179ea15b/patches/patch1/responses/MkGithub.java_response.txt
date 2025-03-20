@@ -3,8 +3,8 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met: 1) Redistributions of source code must retain the above
+ * modification, are permitted provided that the following conditions
+ * are met: 1) Redistributions of source code must retain the above
  * copyright notice, this list of conditions and the following
  * disclaimer. 2) Redistributions in binary form must reproduce the above
  * copyright notice, this list of conditions and the following
@@ -20,7 +20,7 @@
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
  * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS AND
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
  * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
@@ -191,8 +191,8 @@ public final class MkGithub implements Github {
     @Override
     public JsonObject emojis() {
         return Json.createObjectBuilder()
-            .add("+1", "http://locahost/up")
-            .add("-1", "http://locahost/down")
+            .add("+1", "http://localhost/up")
+            .add("-1", "http://localhost/down")
             .build();
     }
 
@@ -219,7 +219,7 @@ public final class MkGithub implements Github {
     public Repo randomRepo() throws IOException {
         return this.repos().create(
             new Repos.RepoCreate(
-                RandomStringUtils.randomAlphanumeric(20), // Updated to use a literal instead of Tv.TWENTY
+                RandomStringUtils.randomAlphanumeric(20),
                 true
             )
         );

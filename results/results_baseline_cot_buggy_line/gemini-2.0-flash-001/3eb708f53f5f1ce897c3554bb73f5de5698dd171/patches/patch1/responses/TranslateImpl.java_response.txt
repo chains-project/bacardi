@@ -1,19 +1,3 @@
-/*
- * Copyright 2016 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.google.cloud.translate;
 
 import static com.google.cloud.RetryHelper.runWithRetries;
@@ -32,22 +16,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import com.google.cloud.translate.Detection;
-import com.google.cloud.translate.Language;
-import com.google.cloud.translate.TranslateException;
-import com.google.cloud.translate.TranslateOptions;
-import com.google.cloud.translate.Translation;
 
 final class TranslateImpl extends BaseService<TranslateOptions> implements Translate {
 
   private final TranslateRpc translateRpc;
 
-  private static final Function<List<com.google.cloud.translate.Detection>, Detection>
+  private static final Function<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionItem>, Detection>
       DETECTION_FROM_PB_FUNCTION =
-          new Function<List<com.google.cloud.translate.Detection>, Detection>() {
+          new Function<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionItem>, Detection>() {
             @Override
-            public Detection apply(List<com.google.cloud.translate.Detection> detectionPb) {
-              return detectionPb.get(0);
+            public Detection apply(List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionItem> detectionPb) {
+              return Detection.fromPb(detectionPb.get(0));
             }
           };
 
@@ -61,9 +40,9 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<Language>>() {
+              new Callable<List<com.google.cloud.translate.spi.v2.TranslateRpc.Language>>() {
                 @Override
-                public List<Language> call() {
+                public List<com.google.cloud.translate.spi.v2.TranslateRpc.Language> call() {
                   return translateRpc.listSupportedLanguages(optionMap(options));
                 }
               },
@@ -79,21 +58,21 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   @Override
   public List<Detection> detect(final List<String> texts) {
     try {
-      List<List<com.google.cloud.translate.Detection>> detectionsPb =
+      List<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionItem>> detectionsPb =
           runWithRetries(
-              new Callable<List<List<com.google.cloud.translate.Detection>>>() {
+              new Callable<List<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionItem>>>() {
                 @Override
-                public List<List<com.google.cloud.translate.Detection>> call() {
+                public List<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionItem>> call() {
                   return translateRpc.detect(texts);
                 }
               },
               getOptions().getRetrySettings(),
               EXCEPTION_HANDLER,
               getOptions().getClock());
-      Iterator<List<com.google.cloud.translate.Detection>> detectionIterator = detectionsPb.iterator();
+      Iterator<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionItem>> detectionIterator = detectionsPb.iterator();
       Iterator<String> textIterator = texts.iterator();
       while (detectionIterator.hasNext() && textIterator.hasNext()) {
-        List<com.google.cloud.translate.Detection> detectionPb = detectionIterator.next();
+        List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionItem> detectionPb = detectionIterator.next();
         String text = textIterator.next();
         checkState(
             detectionPb != null && !detectionPb.isEmpty(), "No detection found for text: %s", text);
@@ -120,9 +99,9 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<Translation>>() {
+              new Callable<List<com.google.cloud.translate.spi.v2.TranslateRpc.Translation>>() {
                 @Override
-                public List<Translation> call() {
+                public List<com.google.cloud.translate.spi.v2.TranslateRpc.Translation> call() {
                   return translateRpc.translate(texts, optionMap(options));
                 }
               },

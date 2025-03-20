@@ -1,42 +1,39 @@
-6c6
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
 <  * You may obtain a copy of the License at
----
->  * you may obtain a copy of the License at
-19c19
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+19c3
 < import com.google.api.services.translate.model.TranslationsResource;
 ---
 > import com.google.api.services.translate.v3.model.Translation; // Updated import
-34c34
-< public class Translation implements Serializable {
----
-> public class TranslationInfo implements Serializable { // Renamed class to avoid conflict with new Translation class
-37,38c37,38
+37,38c21,22
 <   static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
 <       new Function<TranslationsResource, Translation>() {
 ---
->   static final Function<Translation, TranslationInfo> FROM_PB_FUNCTION = // Updated function type
->       new Function<Translation, TranslationInfo>() {
-40,41c40,41
+>   static final Function<com.google.api.services.translate.v3.model.Translation, Translation> FROM_PB_FUNCTION = // Updated type
+>       new Function<com.google.api.services.translate.v3.model.Translation, Translation>() { // Updated type
+40c24
 <         public Translation apply(TranslationsResource translationPb) {
-<           return Translation.fromPb(translationPb);
 ---
->         public TranslationInfo apply(Translation translationPb) {
->           return TranslationInfo.fromPb(translationPb);
-49c49
-<   private Translation(String translatedText, String sourceLanguage, String model) {
----
->   private TranslationInfo(String translatedText, String sourceLanguage, String model) {
-98c98
-<     if (obj == null || !obj.getClass().equals(Translation.class)) {
----
->     if (obj == null || !obj.getClass().equals(TranslationInfo.class)) {
-101c101
-<     Translation other = (Translation) obj;
----
->     TranslationInfo other = (TranslationInfo) obj;
-106,107c106,107
+>         public Translation apply(com.google.api.services.translate.v3.model.Translation translationPb) { // Updated type
+106c90
 <   static Translation fromPb(TranslationsResource translationPb) {
-<     return new Translation(
 ---
->   static TranslationInfo fromPb(Translation translationPb) { // Updated method to accept new Translation type
->     return new TranslationInfo(
+>   static Translation fromPb(com.google.api.services.translate.v3.model.Translation translationPb) { // Updated type
+110c94
+<         translationPb.getModel());
+---
+>         translationPb.getModel()); // Updated method call

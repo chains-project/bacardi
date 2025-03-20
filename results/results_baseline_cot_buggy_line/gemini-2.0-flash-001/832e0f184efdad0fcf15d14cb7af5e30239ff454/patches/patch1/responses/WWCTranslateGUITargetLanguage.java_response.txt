@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.enchantments.Enchantment;
 
 import com.cryptomorin.xseries.XEnchantment;
 import com.cryptomorin.xseries.XMaterial;
@@ -78,9 +79,9 @@ public class WWCTranslateGUITargetLanguage implements InventoryProvider {
 				/* Add Glow Effect */
 				currentLangMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 				if (currTranslator.getOutLangCode().equals(main.getSupportedTranslatorLanguages().get(i).getLangCode())) {
-					XEnchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get();
-					if (powerEnchantment != null) {
-						currentLangMeta.addEnchant(powerEnchantment.getEnchant(), 1, false);
+					Enchantment ench = XEnchantment.matchXEnchantment("power").get().getEnchant();
+					if (ench != null) {
+						currentLangMeta.addEnchant(ench, 1, false);
 					}
 					lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceOrTargetTranslationAlreadyActive"));
 				}

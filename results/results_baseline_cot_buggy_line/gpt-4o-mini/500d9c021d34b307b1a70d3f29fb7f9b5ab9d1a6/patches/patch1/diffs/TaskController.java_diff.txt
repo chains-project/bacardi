@@ -1,14 +1,54 @@
-66d65
+12,19d11
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.View;
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.ParamError;
+< import javax.mvc.security.CsrfProtected;
+< import javax.validation.Valid;
+< import javax.validation.constraints.NotNull;
+30a23,26
+> import javax.mvc.Models;
+> import javax.mvc.View;
+> import javax.validation.Valid;
+> import javax.validation.constraints.NotNull;
+33d28
+< @Controller
+43,46d37
+<     @Inject
+<     private BindingResult validationResult;
 < 
-90d88
+<     @Inject
+89,90d79
+<     @CsrfProtected
 <     //@ValidateOnExecution(type = ExecutableType.NONE)
-95c93
+94,99c83,87
+<         if (validationResult.isFailed()) {
 <             AlertMessage alert = AlertMessage.danger("Validation voilations!");
+<             validationResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+<                         alert.addError(t.getParamName(), "", t.getMessage());
 ---
+>         if (form.hasErrors()) {
 >             AlertMessage alert = AlertMessage.danger("Validation violations!");
-139c137
+>             form.getErrors()
+>                     .forEach((String paramName, String message) -> {
+>                         alert.addError(paramName, "", message);
+134d121
+<     @CsrfProtected
+138,143c125,129
+<         if (validationResult.isFailed()) {
 <             AlertMessage alert = AlertMessage.danger("Validation voilations!");
+<             validationResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+<                         alert.addError(t.getParamName(), "", t.getMessage());
 ---
+>         if (form.hasErrors()) {
 >             AlertMessage alert = AlertMessage.danger("Validation violations!");
-164d161
+>             form.getErrors()
+>                     .forEach((String paramName, String message) -> {
+>                         alert.addError(paramName, "", message);
+164d149
 <     //@CsrfProtected

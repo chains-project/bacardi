@@ -34,7 +34,6 @@ public class Decorations
         final int[] sec = {0};
         new BukkitRunnable()
         {
-            @Override
             public void run()
             {
                 if (sec[0] > (seconds))
@@ -148,6 +147,7 @@ public class Decorations
         );
 
         particle(n);
+
     }
 
     /**
@@ -168,6 +168,7 @@ public class Decorations
         );
 
         particle(n, 5, particle);
+
     }
 
     /**
@@ -179,13 +180,12 @@ public class Decorations
     public static void magic(Player player, int seconds)
     {
         final int[] count = {0};
-        // Updated to use a local WaveCreator class or alternative if the original is not available
-        // Assuming a new implementation or alternative is available
-        WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1); // Ensure this class is available in the new dependency
+        double waveAmplitude = 0.8;
+        double waveFrequency = 1.8;
+        double waveSpeed = 0.1;
 
         BukkitRunnable runnable = new BukkitRunnable()
         {
-            @Override
             public void run()
             {
                 for (double i = 0; i < Math.PI * 2; i++)
@@ -196,7 +196,7 @@ public class Decorations
 
                     circle(center.add(0, 0.7, 0), count[0], 2.7, Particle.ENCHANTMENT_TABLE);
 
-                    circle(center.clone().add(0, wave.get(0.01, false), 0), count[0], wave.getStatic());
+                    circle(center.clone().add(0, waveAmplitude, 0), count[0], waveFrequency);
 
                     circle(center.clone().add(3.2, 0.7, 3.2), count[0], 1.5);
                     circle(center.clone().add(-3.2, 0.7, -3.2), count[0], 1.5);
@@ -223,12 +223,12 @@ public class Decorations
         runnable.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0L, 1L);
         new BukkitRunnable()
         {
-            @Override
             public void run()
             {
                 runnable.cancel();
             }
         }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), seconds);
+
     }
 
     /**
@@ -239,12 +239,12 @@ public class Decorations
      */
     public static void laser(Player player, int sec)
     {
+
         final double[] time = {0.0};
         final double radius = 2.5;
 
         BukkitRunnable runnable = new BukkitRunnable()
         {
-            @Override
             public void run()
             {
                 Location c = player.getLocation().clone();
@@ -259,7 +259,6 @@ public class Decorations
         runnable.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0L, 1L);
         new BukkitRunnable()
         {
-            @Override
             public void run()
             {
                 runnable.cancel();
@@ -305,4 +304,5 @@ public class Decorations
         if (Variables.config.getBoolean("decoration.laser"))
             laser(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20));
     }
+
 }

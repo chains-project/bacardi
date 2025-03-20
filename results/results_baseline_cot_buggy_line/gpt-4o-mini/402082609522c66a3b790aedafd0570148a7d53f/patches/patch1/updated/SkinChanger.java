@@ -5,8 +5,7 @@ import com.github.games647.changeskin.core.shared.task.SharedSkinChanger;
 import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.text.serializer.TextSerializers;
-import org.spongepowered.api.text.Text; // Added import for Text
+import org.spongepowered.api.text.Texts;
 
 public class SkinChanger extends SharedSkinChanger {
 
@@ -18,9 +17,7 @@ public class SkinChanger extends SharedSkinChanger {
         this.invoker = invoker;
     }
 
-    @Override
     protected void sendMessageInvoker(String localeMessage) {
-        // Updated to use Text instead of the previous method
-        invoker.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage));
+        invoker.sendMessage(Texts.of(localeMessage));
     }
 }
