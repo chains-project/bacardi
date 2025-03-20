@@ -1,50 +1,3 @@
-<fix_planning>
-1. **Analysis of the Problem:**
-   - The issue stems from the removal of several classes in the `com.google.api.services.translate.model` package:
-     - `DetectionsResourceItems`
-     - `LanguagesResource`
-     - `TranslationsResource`
-   - These classes were used extensively in the `TranslateImpl` class for handling translation, detection, and language listing operations.
-
-2. **Affected Lines:**
-   - Lines importing the removed classes:
-     ```java
-     import com.google.api.services.translate.model.DetectionsResourceItems;
-     import com.google.api.services.translate.model.LanguagesResource;
-     import com.google.api.services.translate.model.TranslationsResource;
-     ```
-   - Lines using the removed classes:
-     ```java
-     private static final Function<List<DetectionsResourceItems>, Detection> DETECTION_FROM_PB_FUNCTION;
-     new Callable<List<List<DetectionsResourceItems>>>() { ... }
-     new Function<List<DetectionsResourceItems>, Detection>() { ... }
-     List<List<DetectionsResourceItems>> detectionsPb;
-     Iterator<List<DetectionsResourceItems>> detectionIterator;
-     List<DetectionsResourceItems> detectionPb;
-     new Callable<List<LanguagesResource>>() { ... }
-     new Callable<List<TranslationsResource>>() { ... }
-     ```
-
-3. **Proposed Fixes:**
-   - Replace the removed classes with their new equivalents or alternative approaches:
-     - Use `Detection` directly instead of `DetectionsResourceItems`.
-     - Use `Language` directly instead of `LanguagesResource`.
-     - Use `Translation` directly instead of `TranslationsResource`.
-   - Update the function signatures and variable types accordingly.
-
-4. **Potential Side Effects:**
-   - The changes might require adjustments in the `Detection`, `Language`, and `Translation` classes to ensure compatibility with the new API.
-   - The `translateRpc` interface might need to be updated to return the new types.
-
-5. **Adherence to Constraints:**
-   - The function signatures remain unchanged.
-   - No existing code is removed unless it directly causes a compilation error.
-   - The fix addresses missing imports by using the correct package or class.
-
-6. **Final Summary:**
-   - The best solution is to replace the removed classes with their new equivalents or alternative approaches, ensuring the code compiles and functions correctly with the updated dependency version.
-</fix_planning>
-
 ```java
 /*
  * Copyright 2016 Google LLC
@@ -85,12 +38,12 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
 
   private final TranslateRpc translateRpc;
 
-  private static final Function<List<Detection>, Detection>
+  private static final Function<List<Map<String, Object>>, Detection>
       DETECTION_FROM_PB_FUNCTION =
-          new Function<List<Detection>, Detection>() {
+          new Function<List<Map<String, Object>>, Detection>() {
             @Override
-            public Detection apply(List<Detection> detectionPb) {
-              return detectionPb.get(0);
+            public Detection apply(List<Map<String, Object>> detectionPb) {
+              return Detection.fromPb(detectionPb.get(0));
             }
           };
 
@@ -104,9 +57,9 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<Language>>() {
+              new Callable<List<Map<String, Object>>>() {
                 @Override
-                public List<Language> call() {
+                public List<Map<String, Object>> call() {
                   return translateRpc.listSupportedLanguages(optionMap(options));
                 }
               },
@@ -122,21 +75,21 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   @Override
   public List<Detection> detect(final List<String> texts) {
     try {
-      List<List<Detection>> detectionsPb =
+      List<List<Map<String, Object>>> detectionsPb =
           runWithRetries(
-              new Callable<List<List<Detection>>>() {
+              new Callable<List<List<Map<String, Object>>>>() {
                 @Override
-                public List<List<Detection>> call() {
+                public List<List<Map<String, Object>>> call() {
                   return translateRpc.detect(texts);
                 }
               },
               getOptions().getRetrySettings(),
               EXCEPTION_HANDLER,
               getOptions().getClock());
-      Iterator<List<Detection>> detectionIterator = detectionsPb.iterator();
+      Iterator<List<Map<String, Object>>> detectionIterator = detectionsPb.iterator();
       Iterator<String> textIterator = texts.iterator();
       while (detectionIterator.hasNext() && textIterator.hasNext()) {
-        List<Detection> detectionPb = detectionIterator.next();
+        List<Map<String, Object>> detectionPb = detectionIterator.next();
         String text = textIterator.next();
         checkState(
             detectionPb != null && !detectionPb.isEmpty(), "No detection found for text: %s", text);
@@ -163,9 +116,9 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<Translation>>() {
+              new Callable<List<Map<String, Object>>>() {
                 @Override
-                public List<Translation> call() {
+                public List<Map<String, Object>> call() {
                   return translateRpc.translate(texts, optionMap(options));
                 }
               },

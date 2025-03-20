@@ -204,7 +204,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     }
 
     @Override
-    public Set<Map.Entry<K, V> entrySet() {
+    public Set<Map.Entry<K, V>> entrySet() {
         return map.entrySet();
     }
 

@@ -1,14 +1,26 @@
-18c18
+18,19c18,21
 < import com.hazelcast.core.Cluster;
+< import com.hazelcast.core.EntryListener;
 ---
 > import com.hazelcast.cluster.Cluster;
-23,26c23,26
+> import com.hazelcast.cluster.Member;
+> import com.hazelcast.cluster.MembershipEvent;
+> import com.hazelcast.cluster.MembershipListener;
+23,26d24
 < import com.hazelcast.core.Member;
 < import com.hazelcast.core.MemberAttributeEvent;
 < import com.hazelcast.core.MembershipEvent;
 < import com.hazelcast.core.MembershipListener;
+76d73
+< 
+154d150
+<     @Override
+227d222
+<     @Override
+261d255
+<     @Override
+270,271c264
+<     @Override
+<     public void memberAttributeChanged(final MemberAttributeEvent event) {
 ---
-> import com.hazelcast.cluster.Member;
-> import com.hazelcast.cluster.MemberAttributeEvent;
-> import com.hazelcast.cluster.MembershipEvent;
-> import com.hazelcast.cluster.MembershipListener;
+>     public void memberAttributeChanged(final MembershipEvent event) {

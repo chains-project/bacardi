@@ -1,29 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs in the line `super(Model.class);` because the `Constructor(Class<T>)` constructor has been removed in the new version of SnakeYAML.
-   b. The API changes show that the new version requires a `LoaderOptions` parameter in the constructor.
-   c. Affected line: `super(Model.class);`
-   d. Potential fixes:
-      - Create a new `LoaderOptions` instance and pass it along with `Model.class` to the super constructor
-      - Use the new constructor `Constructor(Class<T>, LoaderOptions)`
-   e. Side effects:
-      - Need to ensure the `LoaderOptions` is properly configured
-      - No other functionality should be affected
-   f. Constraints check:
-      - Does not change method signatures
-      - Creates a new variable for `LoaderOptions`
-      - Maintains all existing code
-      - Adheres to all constraints
-   g. Chosen fix:
-      - Create a `LoaderOptions` instance and use the new constructor
-      - This is the most straightforward solution that directly addresses the API change
-
-2. Implementation:
-   - Add import for `org.yaml.snakeyaml.LoaderOptions`
-   - Create `LoaderOptions` instance in constructor
-   - Modify super constructor call
-</fix_planning>
-
 ```java
 /**
  * Copyright (c) 2012 to original author or authors
@@ -68,7 +42,7 @@ public final class ModelConstructor extends Constructor {
   private final Map<Class<?>, Construct> pomConstructors = new HashMap<>();
 
   public ModelConstructor() {
-    super(Model.class, new LoaderOptions());
+    super(new TypeDescription(Model.class), new LoaderOptions());
 
     yamlConstructors.put(XPP3DOM_TAG, new ConstructXpp3Dom());
     yamlClassConstructors.put(NodeId.mapping, new MavenObjectConstruct());

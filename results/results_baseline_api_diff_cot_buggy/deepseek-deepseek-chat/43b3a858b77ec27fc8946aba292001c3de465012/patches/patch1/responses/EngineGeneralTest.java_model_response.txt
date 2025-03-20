@@ -1,27 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs because the Logger interface from ch.qos.logback.classic.Logger has been removed in the new version.
-   b. The specific API change is the removal of Logger.ROOT_LOGGER_NAME and the setLevel() method from the Logger interface.
-   c. Affected line: ((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);
-   d. Potential fixes:
-      - Use org.slf4j.LoggerFactory directly with the root logger name as a string
-      - Update the logging configuration to use the new API
-   e. Side effects:
-      - The change might affect logging behavior if the new API works differently
-      - Need to ensure the logging level is still set correctly
-   f. Constraints check:
-      - The proposed change doesn't modify method signatures
-      - It maintains the same functionality
-      - It uses the correct package from the newer dependency version
-   g. Final solution:
-      - Replace the Logger.ROOT_LOGGER_NAME with the string "ROOT" and use LoggerFactory directly
-      - This is the best solution as it uses the current API while maintaining the same functionality
-
-2. The fix will be to modify the line to use the string "ROOT" instead of Logger.ROOT_LOGGER_NAME
-
-3. The complete fixed Java class will be output with this change.
-</fix_planning>
-
 ```java
 /*
  * Copyright 2014 Feedzai
@@ -41,12 +17,13 @@
 package com.feedzai.commons.sql.abstraction.engine.impl.abs;
 
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import com.feedzai.commons.sql.abstraction.ddl.AlterColumn;
 import com.feedzai.commons.sql.abstraction.ddl.DbColumn;
 import com.feedzai.commons.sql.abstraction.ddl.DbColumnConstraint;
 import com.feedzai.commons.sql.abstraction.ddl.DbColumnType;
 import com.feedzai.commons.sql.abstraction.ddl.DbEntity;
-import com.f feedzai.commons.sql.abstraction.ddl.Rename;
+import com.feedzai.commons.sql.abstraction.ddl.Rename;
 import com.feedzai.commons.sql.abstraction.dml.Expression;
 import com.feedzai.commons.sql.abstraction.dml.K;
 import com.feedzai.commons.sql.abstraction.dml.Query;
@@ -63,7 +40,6 @@ import com.feedzai.commons.sql.abstraction.engine.ConnectionResetException;
 import com.feedzai.commons.sql.abstraction.engine.DatabaseEngine;
 import com.feedzai.commons.sql.abstraction.engine.DatabaseEngineException;
 import com.feedzai.commons.sql.abstraction.engine.DatabaseEngineRuntimeException;
-import com.feedzai.commons.sql.abstraction.exceptions.DatabaseEngineUniqueConstraintViolationException;
 import com.feedzai.commons.sql.abstraction.engine.DatabaseFactory;
 import com.feedzai.commons.sql.abstraction.engine.DatabaseFactoryException;
 import com.feedzai.commons.sql.abstraction.engine.MappedEntity;
@@ -202,7 +178,7 @@ public class EngineGeneralTest {
 
     @BeforeClass
     public static void initStatic() {
-        ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger("ROOT")).setLevel(Level.TRACE);
+        LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME).atLevel(Level.TRACE);
     }
 
     @Before
@@ -318,120 +294,4 @@ public class EngineGeneralTest {
                 .addColumn("COL1", INT)
                 .addColumn("COL2", BOOLEAN)
                 .addColumn("COL3", DOUBLE)
-                .addColumn("COL4", LONG)
-                .addColumn("COL5", STRING)
-                .pkFields("COL1", "COL3")
-                .addIndex("COL4")
-                .addIndex("COL3")
-                .build();
-
-        engine.addEntity(entity);
-    }
-
-    @Test
-    public void createEntityWithTheSameNameButLowerCasedTest() throws DatabaseEngineException {
-        DbEntity entity = dbEntity()
-                .name("TEST")
-                .addColumn("COL1", INT)
-                .addColumn("COL2", BOOLEAN)
-                .addColumn("COL3", DOUBLE)
-                .addColumn("COL4", LONG)
-                .addColumn("COL5", STRING)
-                .pkFields("COL1", "COL3")
-                .build();
-
-        engine.addEntity(entity);
-
-        DbEntity entity2 = dbEntity()
-                .name("test")
-                .addColumn("COL1", INT)
-                .addColumn("COL2", BOOLEAN)
-                .addColumn("COL3", DOUBLE)
-                .addColumn("COL4", LONG)
-                .addColumn("COL5", STRING)
-                .pkFields("COL1", "COL3")
-                .build();
-
-        engine.addEntity(entity2);
-
-    }
-
-    @Test
-    public void createEntityWithSequencesTest() throws DatabaseEngineException {
-
-        DbEntity entity = dbEntity()
-                .name("TEST")
-                .addColumn("COL1", INT, true)
-                .addColumn("COL2", BOOLEAN)
-                .addColumn("COL3", DOUBLE)
-                .addColumn("COL4", LONG)
-                .addColumn("COL5", STRING)
-                .pkFields("COL1")
-                .build();
-
-        engine.addEntity(entity);
-    }
-
-    @Test
-    public void createEntityWithIndexesTest() throws DatabaseEngineException {
-
-        DbEntity entity = dbEntity()
-                .name("TEST")
-                .addColumn("COL1", INT, true)
-                .addColumn("COL2", BOOLEAN)
-                .addColumn("COL3", DOUBLE)
-                .addColumn("COL4", LONG)
-                .addColumn("COL5", STRING)
-                .addIndex("COL4")
-                .pkFields("COL1")
-                .build();
-
-        engine.addEntity(entity);
-    }
-
-    @Test
-    public void insertWithControlledTransactionTest() throws Exception {
-        create5ColumnsEntity();
-
-        EntityEntry entry = entry().set("COL1", 2).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS").build();
-
-        engine.beginTransaction();
-
-        try {
-
-            engine.persist("TEST", entry);
-            engine.commit();
-        } finally {
-            if (engine.isTransactionActive()) {
-                engine.rollback();
-            }
-        }
-
-        List<Map<String, ResultColumn>> query = engine.query(select(all()).from(table("TEST")));
-
-        assertTrue("COL1 exists", query.get(0).containsKey("COL1");
-        assertEquals("COL1 ok?", 2, (int) query.get(0).get("COL1").toInt());
-
-        assertTrue("COL2 exists", query.get(0).containsKey("COL2");
-        assertFalse("COL2 ok?", query.get(0).get("COL2").toBoolean());
-
-        assertTrue("COL3 exists", query.get(0).containsKey("COL3");
-        assertEquals("COL3 ok?", 2D, query.get(0).get("COL3").toDouble(), 0);
-
-        assertTrue("COL4 exists", query.get(0).containsKey("COL4");
-        assertEquals("COL4 ok?", 3L, (long) query.get(0).get("COL4").toLong());
-
-        assertTrue("COL5 exists", query.get(0).containsKey("COL5");
-        assertEquals("COL5  ok?", "ADEUS", query.get(0).get("COL5").toString());
-    }
-
-    @Test
-    public void insertWithAutoCommitTest() throws Exception {
-        create5ColumnsEntity();
-
-        EntityEntry entry = entry().set("COL1", 2).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS")
-                .build();
-
-        engine.persist("TEST", entry);
-
-        List
+                .

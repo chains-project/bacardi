@@ -1,42 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. Relevant API changes:
-      - Constructor Flyway() removed, new constructor Flyway(Configuration) added
-      - Methods setClassLoader, setDataSource, setLocations, setValidateOnMigrate removed from Flyway class
-      - New methods added to ClassicConfiguration class for configuration
-
-   b. Specific API changes causing issues:
-      - Direct instantiation of Flyway with no-arg constructor
-      - Direct method calls on Flyway instance for configuration
-
-   c. Affected lines:
-      - Line 108: final org.flywaydb.core.Flyway flyway = new Flyway();
-      - Line 109: flyway.setDataSource(this.dataSource());
-      - Line 110: flyway.setClassLoader(NisAppConfig.class.getClassLoader());
-      - Line 111: flyway.setLocations(prop.getProperty("flyway.locations"));
-      - Line 112: flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-
-   d. Proposed fixes:
-      - Create ClassicConfiguration instance
-      - Configure ClassicConfiguration instance with required settings
-      - Create Flyway instance with configured ClassicConfiguration
-
-   e. Potential side effects:
-      - Configuration approach is more verbose but more flexible
-      - No functional changes expected
-
-   f. Constraints check:
-      - Method signature remains unchanged
-      - No code removed
-      - No existing code modified except for the affected lines
-      - All constraints satisfied
-
-   g. Final summary:
-      - Best solution is to use ClassicConfiguration for Flyway configuration
-      - Maintains functionality while adhering to new API
-      - Follows recommended approach in new Flyway version
-</fix_planning>
-
 ```java
 package org.nem.specific.deploy.appconfig;
 
@@ -145,11 +106,12 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		org.flywaydb.core.api.configuration.ClassicConfiguration configuration = new org.flywaydb.core.api.configuration.ClassicConfiguration();
+		final org.flywaydb.core.api.configuration.ClassicConfiguration configuration = new org.flywaydb.core.api.configuration.ClassicConfiguration();
 		configuration.setDataSource(this.dataSource());
 		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
 		configuration.setLocations(org.flywaydb.core.api.Location.parse(prop.getProperty("flyway.locations")));
 		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+
 		return new Flyway(configuration);
 	}
 
@@ -263,7 +225,7 @@ public class NisAppConfig {
 
 	@Bean
 	public SynchronizedPoxFacade poxFacade() {
-		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
+		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
 	}
 
 	@Bean
@@ -283,7 +245,7 @@ public class NisAppConfig {
 		final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<ImportanceCalculator>>() {
 			{
 				this.put(BlockChainFeature.PROOF_OF_IMPORTANCE,
-						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions);
+						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
 				this.put(BlockChainFeature.PROOF_OF_STAKE, PosImportanceCalculator::new);
 			}
 		};
@@ -458,4 +420,26 @@ public class NisAppConfig {
 	@Bean
 	public EnumSet<ObserverOption> observerOptions() {
 		final EnumSet<ObserverOption> observerOptions = EnumSet.noneOf(ObserverOption.class);
-		if (
+		if (this.nisConfiguration().isFeatureSupported(NodeFeature.HISTORICAL_ACCOUNT_DATA)) {
+			observerOptions.add(ObserverOption.NoHistoricalDataPruning);
+		}
+
+		final BlockChainConfiguration blockChainConfiguration = this.nisConfiguration().getBlockChainConfiguration();
+		if (blockChainConfiguration.isBlockChainFeatureSupported(BlockChainFeature.PROOF_OF_STAKE)) {
+			observerOptions.add(ObserverOption.NoOutlinkObserver);
+		}
+
+		return observerOptions;
+	}
+
+	@Bean
+	public Function<Address, Collection<Address>> cosignatoryLookup() {
+		return a -> this.accountStateCache().findStateByAddress(a).getMultisigLinks().getCosignatories();
+	}
+
+	@Bean
+	public MosaicIdCache mosaicIdCache() {
+		return new SynchronizedMosaicIdCache(new DefaultMosaicIdCache());
+	}
+}
+```

@@ -1,34 +1,3 @@
-<fix_planning>
-1. **Relevant parts of the code and API changes:**
-   - The class `com.google.cloud.pubsublite.PublishMetadata` has been removed.
-   - The code uses `Publisher<PublishMetadata>` and imports `PublishMetadata`.
-
-2. **Specific API changes causing the issue:**
-   - The removal of `PublishMetadata` class causes compilation errors in the code where it is used.
-
-3. **Affected lines of code:**
-   - `import com.google.cloud.pubsublite.PublishMetadata;`
-   - `private @Nullable Publisher<PublishMetadata> publisher;`
-
-4. **Proposed fixes:**
-   - Remove the import of `PublishMetadata`.
-   - Replace `Publisher<PublishMetadata>` with `Publisher<MessageMetadata>` if `MessageMetadata` is the new class that replaces `PublishMetadata`. However, since the exact replacement class is not provided, we will use `Publisher<Void>` as a generic solution.
-
-5. **Potential side effects:**
-   - Using `Publisher<Void>` might lose some metadata information if `PublishMetadata` was used to carry specific data. However, this is a minimal change that adheres to the constraints.
-
-6. **Adherence to constraints:**
-   - The function signatures remain unchanged.
-   - No new variables are created.
-   - The `@Override` annotations are retained as they are still valid.
-   - The import is removed as it is no longer needed.
-   - No existing code is removed except for the problematic import.
-   - All code is included in the final output.
-
-7. **Final summary:**
-   - The best solution is to replace `Publisher<PublishMetadata>` with `Publisher<Void>` and remove the import of `PublishMetadata`. This is a minimal change that fixes the compilation error while adhering to all constraints.
-</fix_planning>
-
 ```java
 /*
  * Copyright 2020 Google LLC
@@ -71,7 +40,7 @@ import org.apache.kafka.connect.sink.SinkTask;
 public class PubSubLiteSinkTask extends SinkTask {
 
   private final PublisherFactory factory;
-  private @Nullable Publisher<Void> publisher;
+  private @Nullable Publisher<Message> publisher;
 
   @VisibleForTesting
   PubSubLiteSinkTask(PublisherFactory factory) {

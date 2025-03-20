@@ -1,32 +1,3 @@
-<fix_planning>
-1. **Analysis of the Problem:**
-   - The error occurs because the class `liquibase.util.StringUtils` has been removed in the new version of the dependency.
-   - The method `trimToNull` has been moved to `liquibase.util.StringUtil` and `liquibase.repackaged.org.apache.commons.lang3.StringUtils`.
-   - The affected lines are:
-     ```java
-     import liquibase.util.StringUtils;
-     ```
-     ```java
-     if (StringUtils.trimToNull(statement.getTablespace()) != null) {
-     ```
-
-2. **Proposed Fixes:**
-   - Replace the import statement with `import liquibase.util.StringUtil;` or `import liquibase.repackaged.org.apache.commons.lang3.StringUtils;`.
-   - Replace `StringUtils.trimToNull` with `StringUtil.trimToNull` or `StringUtils.trimToNull` depending on the chosen import.
-
-3. **Potential Side Effects:**
-   - The change should not have any side effects as the functionality of `trimToNull` remains the same in the new classes.
-
-4. **Adherence to Constraints:**
-   - The proposed changes adhere to all constraints:
-     - No method signatures are changed.
-     - No existing code is removed.
-     - The correct package is used in accordance with the newer dependency version.
-
-5. **Final Summary:**
-   - The best solution is to replace the import with `import liquibase.util.StringUtil;` and use `StringUtil.trimToNull` because it is the direct replacement in the same package hierarchy.
-</fix_planning>
-
 ```java
 package liquibase.ext.mssql.sqlgenerator;
 

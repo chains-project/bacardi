@@ -10,7 +10,6 @@ import com.redislabs.redisgraph.impl.graph_cache.RedisGraphCaches;
 import com.redislabs.redisgraph.impl.resultset.ResultSetImpl;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Connection;
 import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.util.SafeEncoder;
 
@@ -139,10 +138,8 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphTransaction multi() {
         Jedis jedis = getConnection();
-        Connection connection = jedis.getClient();
-        connection.multi();
-        connection.getOne();
-        RedisGraphTransaction transaction = new RedisGraphTransaction(connection, this);
+        jedis.multi();
+        RedisGraphTransaction transaction = new RedisGraphTransaction(jedis, this);
         transaction.setRedisGraphCaches(caches);
         return transaction;
     }
@@ -154,8 +151,7 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphPipeline pipelined() {
         Jedis jedis = getConnection();
-        Connection connection = jedis.getClient();
-        RedisGraphPipeline pipeline = new RedisGraphPipeline(connection, this);
+        RedisGraphPipeline pipeline = new RedisGraphPipeline(jedis, this);
         pipeline.setRedisGraphCaches(caches);
         return pipeline;
     }

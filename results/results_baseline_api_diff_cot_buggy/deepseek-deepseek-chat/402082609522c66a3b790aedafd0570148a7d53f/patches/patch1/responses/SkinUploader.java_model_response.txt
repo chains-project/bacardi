@@ -1,29 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs because the `CommandSource` class from `org.spongepowered.api.command` has been removed in the new version of the dependency.
-   b. The specific API change causing the issue is the removal of the `CommandSource` class.
-   c. Affected lines:
-      - Import statement: `import org.spongepowered.api.command.CommandSource;`
-      - Field declaration: `private final CommandSource invoker;`
-      - Constructor parameter: `public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url)`
-   d. Potential fixes:
-      - Replace `CommandSource` with its replacement class `CommandCause` from `org.spongepowered.api.command` package.
-      - Update the import statement to use the new class.
-   e. Side effects:
-      - The new class `CommandCause` might have different methods or behavior, but since we're only passing it through to other methods, this should be safe.
-   f. Constraints check:
-      - The function signatures remain unchanged.
-      - No methods are removed.
-      - The fix only updates the type and import.
-      - All other code remains intact.
-   g. Final summary:
-      - The best solution is to replace `CommandSource` with `CommandCause` as it's the direct replacement in the new API version. This maintains the same functionality while fixing the compilation errors.
-
-2. Proposed changes:
-   - Replace `import org.spongepowered.api.command.CommandSource;` with `import org.spongepowered.api.command.CommandCause;`
-   - Replace `CommandSource` with `CommandCause` in the field declaration and constructor parameter.
-</fix_planning>
-
 ```java
 package com.github.games647.changeskin.sponge.task;
 
@@ -33,15 +7,23 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.concurrent.TimeUnit;
 
-import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.source.ConsoleSource;
+import org.spongepowered.api.command.source.RemoteSource;
+import org.spongepowered.api.command.source.CommandBlockSource;
+import org.spongepowered.api.command.source.ProxySource;
+import org.spongepowered.api.command.source.RconSource;
+import org.spongepowered.api.command.source.SignSource;
+import org.spongepowered.api.command.source.User;
 import org.spongepowered.api.scheduler.Task;
 
 public class SkinUploader extends SharedUploader {
 
     private final ChangeSkinSponge plugin;
-    private final CommandCause invoker;
+    private final User invoker;
 
-    public SkinUploader(ChangeSkinSponge plugin, CommandCause invoker, Account owner, String url) {
+    public SkinUploader(ChangeSkinSponge plugin, User invoker, Account owner, String url) {
         super(plugin.getCore(), owner, url);
 
         this.plugin = plugin;

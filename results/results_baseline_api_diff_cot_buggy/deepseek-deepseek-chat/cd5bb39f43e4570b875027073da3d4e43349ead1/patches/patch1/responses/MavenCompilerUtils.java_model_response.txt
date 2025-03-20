@@ -1,35 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs because the `Xpp3Dom` class and its methods have been removed in the new version of the dependency.
-   b. The specific API changes causing the issue are:
-      - Removal of `Xpp3Dom` class
-      - Removal of `getChild(String)` method
-      - Removal of `getValue()` method
-   c. Affected lines:
-      - `import org.codehaus.plexus.util.xml.Xpp3Dom;`
-      - `private static String extractChildValue(Xpp3Dom node, String name)`
-      - `final Xpp3Dom child = node.getChild(name);`
-      - `return child == null ? "" : child.getValue();`
-   d. Potential fixes:
-      - Replace `Xpp3Dom` with an equivalent XML parsing class from a different library
-      - Use Maven's built-in `org.apache.maven.plugins.plugin.descriptor.PluginDescriptor` for configuration parsing
-      - Implement custom XML parsing logic
-   e. Side effects:
-      - Changing the XML parsing mechanism might affect other parts of the code that rely on the same configuration
-      - Using a different library might require additional dependencies
-   f. Constraints check:
-      - The function signature remains unchanged
-      - No existing code is removed
-      - All code is included in the final output
-   g. Chosen fix:
-      - Replace `Xpp3Dom` with `org.apache.maven.shared.utils.xml.Xpp3Dom` from the `maven-shared-utils` library, which provides similar functionality
-      - This is the best solution because it maintains compatibility with Maven's ecosystem and requires minimal code changes
-
-2. Implementation:
-   - Replace the import statement
-   - Keep the existing code structure but use the new `Xpp3Dom` class
-</fix_planning>
-
 ```java
 /*
  * Copyright 2019 Danny van Heumen

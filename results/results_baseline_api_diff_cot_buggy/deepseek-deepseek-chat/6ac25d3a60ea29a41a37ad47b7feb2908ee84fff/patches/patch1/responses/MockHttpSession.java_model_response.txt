@@ -1,32 +1,3 @@
-<fix_planning>
-1. **Analysis of the Problem:**
-   - **Relevant Code Parts:**
-     ```java
-     import jakarta.servlet.http.HttpSessionContext;
-     ```
-     ```java
-     public HttpSessionContext getSessionContext() {
-     ```
-   - **API Changes:**
-     - The class `jakarta.servlet.http.HttpSessionContext` has been removed in the new version of the dependency.
-   - **Affected Lines of Code:**
-     - The import statement for `HttpSessionContext`.
-     - The method `getSessionContext()` in the `MockHttpSession` class.
-   - **Proposed Fixes:**
-     - Remove the import statement for `HttpSessionContext`.
-     - Remove the `@Override` annotation from the `getSessionContext()` method since it no longer overrides a method in the updated dependency version.
-   - **Potential Side Effects:**
-     - The `getSessionContext()` method is marked as deprecated, so removing the `@Override` annotation should not affect the functionality of the code.
-   - **Adherence to Constraints:**
-     - The function signature of `getSessionContext()` remains unchanged.
-     - No new variables are introduced.
-     - The `@Override` annotation is removed only because the method no longer overrides a method in the updated dependency version.
-     - The import statement is removed as it directly causes a compilation error.
-     - No existing code is removed unless it directly causes a compilation error.
-   - **Final Summary:**
-     - The best solution is to remove the import statement for `HttpSessionContext` and remove the `@Override` annotation from the `getSessionContext()` method. This adheres to all constraints and resolves the compilation errors.
-</fix_planning>
-
 ```java
 /*
  * Licensed to the Apache Software Foundation (ASF) under one

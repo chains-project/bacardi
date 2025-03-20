@@ -1,26 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs in the line `FopFactory fopFactory = FopFactory.newInstance();` because the `newInstance()` method without arguments has been removed in the new version of the dependency.
-   b. The API changes show that `FopFactory.newInstance()` has been removed and replaced with several overloaded methods that require arguments.
-   c. Affected line: `FopFactory fopFactory = FopFactory.newInstance();`
-   d. Potential fixes:
-      - Use `FopFactory.newInstance(new URI(""))` to create a default instance
-      - Use `FopFactory.newInstance(new File(""))` if a configuration file is available
-      - Use `FopFactory.newInstance(new FopFactoryConfig())` if a configuration object is available
-   e. Side effects:
-      - Using an empty URI or File might not provide the desired configuration
-      - Need to ensure the default configuration is sufficient for the application
-   f. Constraints check:
-      - The fix adheres to all constraints as it only modifies the instantiation of FopFactory
-      - No method signatures are changed
-      - No existing code is removed
-   g. Chosen fix:
-      - Use `FopFactory.newInstance(new URI(""))` as it provides a simple way to create a default instance without requiring additional configuration files or objects
-
-2. Fix implementation:
-   Replace `FopFactory fopFactory = FopFactory.newInstance();` with `FopFactory fopFactory = FopFactory.newInstance(new URI(""));`
-</fix_planning>
-
 ```java
 /*
  * Copyright (C) 2017 Premium Minds.
@@ -136,7 +113,7 @@ public abstract class FOPPDFTransformer {
         StreamSource transformSource = new StreamSource(templateStream);
 
         // create an instance of fop factory
-        FopFactory fopFactory = FopFactory.newInstance(new URI(""));
+        FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
         // a user agent is needed for transformation
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
         // to store output

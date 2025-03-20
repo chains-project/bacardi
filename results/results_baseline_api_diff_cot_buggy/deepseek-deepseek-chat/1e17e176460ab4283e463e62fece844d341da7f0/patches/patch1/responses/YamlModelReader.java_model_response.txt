@@ -1,17 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. Relevant code: `yaml = new Yaml(constructor, new Representer(), new DumperOptions(), new ModelResolver());`
-   b. API changes: The `Representer()` constructor has been removed and replaced with `Representer(DumperOptions)`.
-   c. Affected lines: Line 37 where `new Representer()` is called.
-   d. Proposed fix: Replace `new Representer()` with `new Representer(new DumperOptions())`.
-   e. Side effects: The change aligns with the new API and maintains the same functionality.
-   f. Constraints check: The fix adheres to all constraints - it doesn't change method signatures, doesn't remove existing code, and uses the correct API.
-   g. Final summary: The best solution is to update the `Representer` instantiation to use the new constructor with `DumperOptions` parameter, as this directly addresses the API change while maintaining the original functionality.
-
-2. Fix application:
-   Modify line 37 to use the new `Representer` constructor with `DumperOptions` parameter.
-</fix_planning>
-
 ```java
 /**
  * Copyright (c) 2012 to original author or authors
@@ -49,7 +35,8 @@ public class YamlModelReader extends ModelReaderSupport {
 
   public YamlModelReader() {
     ModelConstructor constructor = new ModelConstructor();
-    yaml = new Yaml(constructor, new Representer(new DumperOptions()), new DumperOptions(), new ModelResolver());
+    DumperOptions dumperOptions = new DumperOptions();
+    yaml = new Yaml(constructor, new Representer(dumperOptions), dumperOptions, new ModelResolver());
   }
 
   public Model read(Reader input, Map<String, ?> options) throws IOException, ModelParseException {

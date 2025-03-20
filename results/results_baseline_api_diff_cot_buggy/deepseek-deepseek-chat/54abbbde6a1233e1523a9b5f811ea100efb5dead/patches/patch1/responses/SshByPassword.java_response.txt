@@ -30,7 +30,6 @@
 package com.jcabi.ssh;
 
 import com.jcabi.aspects.RetryOnFailure;
-import com.jcabi.log.Logger;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;

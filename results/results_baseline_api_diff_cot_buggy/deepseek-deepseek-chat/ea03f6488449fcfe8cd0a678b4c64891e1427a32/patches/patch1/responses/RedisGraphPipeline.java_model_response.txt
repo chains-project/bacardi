@@ -1,44 +1,8 @@
-<fix_planning>
-1. Analysis:
-   a. The error messages indicate that several classes from the `redis.clients.jedis.commands` package cannot be found. The API changes show that these classes have been removed in the new version of the dependency.
-   b. The specific API changes causing the issue are:
-      - `BinaryRedisPipeline` removed
-      - `BinaryScriptingCommandsPipeline` removed
-      - `RedisPipeline` removed
-      - `BasicRedisPipeline` removed
-      - `MultiKeyCommandsPipeline` removed
-      - `ClusterPipeline` removed (replaced by an interface)
-      - `MultiKeyBinaryRedisPipeline` removed
-      - `ScriptingCommandsPipeline` removed
-   c. Affected lines of code:
-      - Import statements for the removed classes
-      - Interface inheritance list where these classes are referenced
-   d. Potential fixes:
-      - Remove the import statements for the removed classes
-      - Remove the interface inheritance of the removed classes
-      - Keep only the essential interfaces that are still available
-   e. Side effects:
-      - The interface may lose some functionality if the removed interfaces provided methods that are not available in the remaining interfaces
-      - Need to ensure that the remaining interfaces provide all necessary methods
-   f. Constraints check:
-      - The fix adheres to all constraints:
-        - No method signatures are changed
-        - No existing code is removed except for the problematic imports and interface inheritance
-        - All other code remains unchanged
-   g. Final summary:
-      - The best solution is to remove the problematic imports and interface inheritance, keeping only the essential interfaces that are still available in the new version of the dependency. This maintains the core functionality while fixing the compilation errors.
-
-2. Proposed changes:
-   - Remove all import statements for the removed classes
-   - Remove the interface inheritance of the removed classes
-   - Keep only the `Closeable` interface in the inheritance list
-</fix_planning>
-
 ```java
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
-
+import redis.clients.jedis.ClusterPipeline;
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
@@ -154,7 +118,6 @@ public interface RedisGraphPipeline extends Closeable {
      */
     Response<String> deleteGraph(String graphId);
 
-    
     /**
      * Synchronize pipeline by reading all responses. This operation close the pipeline. Whenever
      * possible try to avoid using this version and use Pipeline.sync() as it won't go through all the
@@ -169,7 +132,6 @@ public interface RedisGraphPipeline extends Closeable {
      * commands you execute.
      */
     public void sync();
-    
     
     /**
      * Blocks until all the previous write commands are successfully transferred and acknowledged by

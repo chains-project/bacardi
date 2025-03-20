@@ -1,33 +1,3 @@
-<fix_planning>
-1. **Relevant parts of the code and API changes:**
-   - The code uses `javax.mvc.Models`, which has been removed in the new version of the dependency.
-   - The new version introduces `jakarta.mvc.Models`.
-
-2. **Specific API changes causing the issue:**
-   - The class `javax.mvc.Models` has been removed and replaced by `jakarta.mvc.Models`.
-
-3. **Affected lines of code:**
-   - `import javax.mvc.Models;`
-   - `Models models;`
-
-4. **Proposed fixes for each affected line:**
-   - Replace `import javax.mvc.Models;` with `import jakarta.mvc.Models;`.
-   - No change needed for `Models models;` as the class name remains the same, only the package changes.
-
-5. **Potential side effects of the proposed changes:**
-   - The change in import statement should not have any side effects as long as the new package provides the same functionality.
-
-6. **Adherence to constraints:**
-   - The function signature of `toResponse` remains unchanged.
-   - No variables are created or removed.
-   - The `@Override` annotation is retained as the method still overrides a method in the updated dependency version.
-   - The correct package is used in accordance with the newer dependency version.
-   - No existing code is removed, only the import statement is updated.
-
-7. **Final summary of the chosen fix:**
-   - The fix involves updating the import statement to use the new package `jakarta.mvc.Models`. This is the best solution as it directly addresses the API change without altering the functionality or structure of the code.
-</fix_planning>
-
 ```java
 /*
  * To change this license header, choose License Headers in Project Properties.

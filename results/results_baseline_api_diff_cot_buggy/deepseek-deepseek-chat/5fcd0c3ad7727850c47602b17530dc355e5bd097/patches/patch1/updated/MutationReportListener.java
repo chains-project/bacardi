@@ -102,7 +102,7 @@ public class MutationReportListener implements MutationResultListener {
   private MutationTestSummaryData createSummaryData(
       final CoverageDatabase coverage, final ClassMutationResults data) {
     return new MutationTestSummaryData(data.getFileName(),
-        data.getMutations(), coverage.getClassInfo(data.getMutatedClass().asInternalName()));
+        data.getMutations(), coverage.getClassInfo(data.getMutatedClass()));
   }
 
   private void updatePackageSummary(

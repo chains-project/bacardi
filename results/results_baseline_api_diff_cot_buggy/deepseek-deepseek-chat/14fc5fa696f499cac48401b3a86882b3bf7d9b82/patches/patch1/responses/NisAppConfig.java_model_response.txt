@@ -1,43 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. Relevant code:
-   ```java
-   final org.flywaydb.core.Flyway flyway = new Flyway();
-   flyway.setDataSource(this.dataSource());
-   flyway.setClassLoader(NisAppConfig.class.getClassLoader());
-   flyway.setLocations(prop.getProperty("flyway.locations"));
-   flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-   ```
-   b. API changes causing issues:
-   - Flyway() constructor removed
-   - setDataSource() method removed
-   - setClassLoader() method removed
-   - setLocations() method removed
-   - setValidateOnMigrate() method removed
-   c. Affected lines: 108-112
-   d. Proposed fixes:
-   - Use Flyway.configure() to create configuration
-   - Use ClassicConfiguration for setting properties
-   - Create Flyway instance with configuration
-   e. Potential side effects:
-   - New configuration approach might require different property handling
-   - Need to ensure all properties are properly set
-   f. Constraints check:
-   - Function signature remains unchanged
-   - No existing code removed
-   - All required imports are present
-   g. Final solution:
-   - Use Flyway.configure() pattern
-   - Create ClassicConfiguration instance
-   - Set properties on configuration
-   - Create Flyway with configuration
-   This is the best solution as it follows the new API pattern while maintaining all functionality.
-
-2. Fix implementation:
-   - Replace the existing Flyway initialization code with new configuration pattern
-   - Keep all other code unchanged
-</fix_planning>
-
 ```java
 package org.nem.specific.deploy.appconfig;
 
@@ -146,13 +106,13 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final org.flywaydb.core.api.configuration.ClassicConfiguration configuration = Flyway.configure()
+		final Flyway flyway = Flyway.configure()
 				.dataSource(this.dataSource())
 				.classLoader(NisAppConfig.class.getClassLoader())
-				.locations(prop.getProperty("flyway.locations"))
-				.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-
-		return new Flyway(configuration);
+				.locations(prop.getProperty("flyway.locations").split(","))
+				.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
+				.load();
+		return flyway;
 	}
 
 	@Bean
@@ -266,7 +226,7 @@ public class NisAppConfig {
 
 	@Bean
 	public SynchronizedPoxFacade poxFacade() {
-		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
+		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
 	}
 
 	@Bean
@@ -289,7 +249,7 @@ public class NisAppConfig {
 		final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<ImportanceCalculator>>() {
 			{
 				this.put(BlockChainFeature.PROOF_OF_IMPORTANCE,
-						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
+						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions);
 				this.put(BlockChainFeature.PROOF_OF_STAKE, PosImportanceCalculator::new);
 			}
 		};

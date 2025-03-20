@@ -195,16 +195,16 @@ public interface Wallet {
 
         @Override
         public long id() throws IOException {
-            try {
-                return Long.parseUnsignedLong(
-                    new ListOf<>(
-                        new TextOf(this.path).asString().split("\n")
-                    ).get(2),
-                    16
-                );
-            } catch (NumberFormatException e) {
-                throw new IOException(e);
-            }
+            return Long.parseUnsignedLong(
+                new ListOf<>(
+                    new org.cactoos.text.Split(
+                        new TextOf(this.path),
+                        "\n"
+                    )
+                ).get(2).asString(),
+                // @checkstyle MagicNumber (1 line)
+                16
+            );
         }
 
         @Override
@@ -252,11 +252,15 @@ public interface Wallet {
         @Override
         public Iterable<Transaction> ledger() {
             return new Mapped<>(
-                txt -> new RtTransaction(txt),
+                txt -> new RtTransaction(txt.asString()),
                 new Skipped<>(
                     new ListOf<>(
-                        new TextOf(this.path).asString().split("\\n")
+                        new org.cactoos.text.Split(
+                            new TextOf(this.path),
+                            "\\n"
+                        )
                     ),
+                    // @checkstyle MagicNumberCheck (1 line)
                     5
                 )
             );

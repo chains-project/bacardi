@@ -1,29 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs because the `org.hamcrest.Matchers` class has been removed in the new version of the dependency.
-   b. The specific API change causing the issue is the removal of the `org.hamcrest.Matchers` class.
-   c. Affected lines of code:
-      - `import org.hamcrest.Matchers;`
-      - Lines using `Matchers` static methods:
-        - `assertHeader(name, Matchers.hasItems(value))`
-        - `assertHeader(HttpHeaders.LOCATION, Matchers.not(Matchers.emptyIterableOf(String.class)))`
-        - `assertThat(cookie, Matchers.notNullValue())`
-   d. Potential fixes:
-      - Replace `Matchers` with equivalent methods from `org.hamcrest.CoreMatchers`
-      - Update import statement to use `org.hamcrest.CoreMatchers`
-   e. Side effects:
-      - The functionality remains the same as `CoreMatchers` contains equivalent methods
-      - No breaking changes in behavior
-   f. Constraints check:
-      - Function signatures remain unchanged
-      - No methods removed
-      - Correct import package used
-      - All code included
-   g. Final summary:
-      - Replace `org.hamcrest.Matchers` with `org.hamcrest.CoreMatchers`
-      - This is the best solution as it maintains functionality while using the correct package from the updated dependency
-</fix_planning>
-
 ```java
 /*
  * Copyright (c) 2011-2022, jcabi.com
@@ -72,7 +46,9 @@ import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.CoreMatchers;
+import org.hamcrest.core.IsCollectionContaining;
+import org.hamcrest.core.IsNot;
+import org.hamcrest.core.StringContains;
 
 /**
  * REST response.
@@ -234,12 +210,12 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, CoreMatchers.hasItems(value));
+        return this.assertHeader(name, IsCollectionContaining.hasItems(value));
     }
 
     /**
      * Jump to a new location.
-     * @极uri Destination to jump to
+     * @param uri Destination to jump to
      * @return New request
      */
     @SuppressWarnings("PMD.UseConcurrentHashMap")
@@ -264,13 +240,13 @@ public final class RestResponse extends AbstractResponse {
     }
 
     /**
-    极 Follow LOCATION header.
+     * Follow LOCATION header.
      * @return New request
      */
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            CoreMatchers.not(CoreMatchers.emptyIterableOf(String.class))
+            IsNot.not(Collections.emptyList())
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -282,7 +258,7 @@ public final class RestResponse extends AbstractResponse {
      * @param name Cookie name
      * @return Cookie found
      */
-    @SuppressWarnings("PM极.UseConcurrentHashMap")
+    @SuppressWarnings("PMD.UseConcurrentHashMap")
     public Cookie cookie(final String name) {
         final Map<String, List<String>> headers = this.headers();
         MatcherAssert.assertThat(
@@ -295,67 +271,4 @@ public final class RestResponse extends AbstractResponse {
         while (iterator.hasNext()) {
             final String obj = iterator.next();
             for (final HttpCookie candidate : HttpCookie.parse(obj)) {
-                if (candidate.getName().equals(name)) {
-                    cookie = RestResponse.cookie(candidate);
-                    break;
-                }
-            }
-        }
-        MatcherAssert.assertThat(
-            Logger.format(
-                "cookie '%s' not found in Set-Cookie header: '%s'",
-                name,
-                cookies
-            ),
-            cookie,
-            CoreMatchers.notNullValue()
-        );
-        assert cookie != null;
-        return cookie;
-    }
-
-    /**
-     * Convert HTTP cookie to a standard one.
-     * @param cookie HTTP cookie
-     * @return Regular one
-     */
-    private static Cookie cookie(final HttpCookie cookie) {
-        return new Cookie(
-            cookie.getName(),
-            cookie.getValue(),
-            cookie.getPath(),
-            cookie.getDomain(),
-            cookie.getVersion()
-        );
-    }
-
-    /**
-     * Status matcher.
-     *
-     * @since 1.2
-     */
-    private static final class StatusMatch extends CustomMatcher<Response> {
-
-        /**
-         * HTTP status to check.
-         */
-        private final transient int status;
-
-        /**
-         * Ctor.
-         * @param msg Message to show
-         * @param sts HTTP status to check
-         */
-        StatusMatch(final String msg, final int sts) {
-            super(msg);
-            this.status = sts;
-        }
-
-        @Override
-        public boolean matches(final Object resp) {
-            return Response.class.cast(resp).status() == this.status;
-        }
-    }
-
-}
-```
+                if (candidate.getName().equals(name)

@@ -1,36 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs in the line:
-      ```java
-      data.getMutations(), coverage.getClassInfo(Collections.singleton(data.getMutatedClass())));
-      ```
-   b. The API changes indicate that the `getClassInfo(Collection)` method has been removed from various coverage-related classes, including `CoverageDatabase`.
-   c. The affected line is:
-      ```java
-      coverage.getClassInfo(Collections.singleton(data.getMutatedClass()))
-      ```
-   d. Potential fixes:
-      - Since the `getClassInfo(Collection)` method is removed, we need to find an alternative way to get class information.
-      - The new API includes `ClassInfoVisitor.getClassInfo(ClassName, byte[], long)`, but this requires different parameters.
-      - We can try to get the class name directly from `data.getMutatedClass()` and use it to fetch the class info.
-   e. Side effects:
-      - The new implementation might require additional parameters or different handling of class information.
-      - The fix should maintain the same functionality while adapting to the new API.
-   f. Constraints check:
-      - The function signature remains unchanged.
-      - No existing code is removed.
-      - The fix adheres to all given constraints.
-   g. Final summary:
-      - The best solution is to modify the way class information is retrieved by using the class name directly from `data.getMutatedClass()`.
-
-2. Proposed fix:
-   - Replace the problematic line with:
-     ```java
-     coverage.getClassInfo(data.getMutatedClass().asInternalName())
-     ```
-   - This assumes that `getClassInfo(String)` is available in the new API.
-</fix_planning>
-
 ```java
 package org.pitest.elements;
 
@@ -136,7 +103,7 @@ public class MutationReportListener implements MutationResultListener {
   private MutationTestSummaryData createSummaryData(
       final CoverageDatabase coverage, final ClassMutationResults data) {
     return new MutationTestSummaryData(data.getFileName(),
-        data.getMutations(), coverage.getClassInfo(data.getMutatedClass().asInternalName()));
+        data.getMutations(), coverage.getClassInfo(data.getMutatedClass()));
   }
 
   private void updatePackageSummary(

@@ -1,55 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. Relevant code:
-      ```java
-      final org.flywaydb.core.Flyway flyway = new Flyway();
-      flyway.setDataSource(this.dataSource());
-      flyway.setClassLoader(NisAppConfig.class.getClassLoader());
-      flyway.setLocations(prop.getProperty("flyway.locations"));
-      flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-      ```
-   b. API changes causing issues:
-      - Flyway() constructor removed
-      - setDataSource(DataSource) removed
-      - setClassLoader(ClassLoader) removed
-      - setLocations(String) removed
-      - setValidateOnMigrate(Boolean) removed
-      - New ClassicConfiguration class added for configuration
-
-   c. Affected lines:
-      - Line 108: Flyway instantiation
-      - Line 109: setDataSource()
-      - Line 110: setClassLoader()
-      - Line 111: setLocations()
-      - Line 112: setValidateOnMigrate()
-
-   d. Proposed fixes:
-      - Use ClassicConfiguration for configuration
-      - Create Flyway instance with configuration
-      - Use new method names and parameter types
-      - Convert locations string to array
-
-   e. Potential side effects:
-      - Configuration changes might affect migration behavior
-      - Location parsing might need adjustment
-      - Validation behavior should remain the same
-
-   f. Constraints check:
-      - Function signatures remain unchanged
-      - No code removed except error-causing parts
-      - All existing functionality preserved
-      - New variables added for clarity
-
-   g. Final solution:
-      Use ClassicConfiguration to configure Flyway before instantiation, converting all settings to new API format.
-
-2. Fix implementation:
-   - Create ClassicConfiguration instance
-   - Set all properties using new API
-   - Instantiate Flyway with configuration
-   - Convert locations string to array
-</fix_planning>
-
 ```java
 package org.nem.specific.deploy.appconfig;
 
@@ -161,7 +109,7 @@ public class NisAppConfig {
 		final org.flywaydb.core.api.configuration.ClassicConfiguration configuration = new org.flywaydb.core.api.configuration.ClassicConfiguration();
 		configuration.setDataSource(this.dataSource());
 		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
-		configuration.setLocations(org.flywaydb.core.api.Location.forPaths(prop.getProperty("flyway.locations")));
+		configuration.setLocations(org.flywaydb.core.api.Location.parse(prop.getProperty("flyway.locations")));
 		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 		return new Flyway(configuration);
 	}

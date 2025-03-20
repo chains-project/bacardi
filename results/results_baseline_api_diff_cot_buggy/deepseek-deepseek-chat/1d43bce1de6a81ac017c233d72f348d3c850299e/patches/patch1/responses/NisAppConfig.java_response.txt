@@ -34,8 +34,6 @@ import org.springframework.context.annotation.*;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.flywaydb.core.api.configuration.ClassicConfiguration;
-import org.flywaydb.core.api.Location;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -107,12 +105,13 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final ClassicConfiguration configuration = new ClassicConfiguration();
-		configuration.setDataSource(this.dataSource());
-		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
-		configuration.setLocations(new Location[] { new Location(prop.getProperty("flyway.locations")) });
-		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		return new Flyway(configuration);
+		final org.flywaydb.core.Flyway flyway = Flyway.configure()
+				.dataSource(this.dataSource())
+				.classLoader(NisAppConfig.class.getClassLoader())
+				.locations(prop.getProperty("flyway.locations"))
+				.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
+				.load();
+		return flyway;
 	}
 
 	@Bean
@@ -225,7 +224,7 @@ public class NisAppConfig {
 
 	@Bean
 	public SynchronizedPoxFacade poxFacade() {
-		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
+		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
 	}
 
 	@Bean
@@ -245,7 +244,7 @@ public class NisAppConfig {
 		final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<ImportanceCalculator>>() {
 			{
 				this.put(BlockChainFeature.PROOF_OF_IMPORTANCE,
-						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions);
+						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
 				this.put(BlockChainFeature.PROOF_OF_STAKE, PosImportanceCalculator::new);
 			}
 		};

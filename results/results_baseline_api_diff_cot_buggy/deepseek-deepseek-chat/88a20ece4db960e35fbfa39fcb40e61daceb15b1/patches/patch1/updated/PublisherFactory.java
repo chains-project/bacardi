@@ -20,5 +20,5 @@ import java.util.Map;
 
 interface PublisherFactory {
 
-  Publisher newPublisher(Map<String, String> params);
+  Publisher<Void> newPublisher(Map<String, String> params);
 }

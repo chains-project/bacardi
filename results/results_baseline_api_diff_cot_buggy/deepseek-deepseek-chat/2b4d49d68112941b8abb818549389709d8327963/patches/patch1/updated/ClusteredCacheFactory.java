@@ -267,6 +267,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
             try {
                 Thread.sleep(250);
             } catch (final InterruptedException e) {
+                // Ignore
             }
         }
         if (state == State.stopped) {
@@ -283,7 +284,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         if (staticConfig == null) {
             final MapConfig dynamicConfig = new MapConfig(name);
             dynamicConfig.setTimeToLiveSeconds(hazelcastLifetimeInSeconds);
-            dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+            dynamicConfig.setMaxSizeConfig(new com.hazelcast.config.MaxSizePolicy(hazelcastMaxCacheSizeInMegaBytes, com.hazelcast.config.MaxSizePolicy.USED_HEAP_SIZE));
             logger.debug("Creating dynamic map config for cache={}, dynamicConfig={}", name, dynamicConfig);
             hazelcast.getConfig().addMapConfig(dynamicConfig);
         } else {
@@ -425,7 +426,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
                 members.add(member);
             }
         }
-        final Collection<T] result = new ArrayList<>();
+        final Collection<T> result = new ArrayList<>();
         if (!members.isEmpty()) {
             // Asynchronously execute the task on the other cluster members
             try {
@@ -690,8 +691,9 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
             }
         } catch (final Exception e) {
             logger.error("Unexpected exception waiting for clustering to shut down", e);
-        } finally
+        } finally {
             ClusterManager.removeListener(clusterEventListener);
         }
     }
+
 }

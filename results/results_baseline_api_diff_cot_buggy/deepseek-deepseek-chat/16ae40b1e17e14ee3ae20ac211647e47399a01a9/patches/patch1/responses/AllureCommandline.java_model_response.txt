@@ -1,27 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs because the package `net.lingala.zip4j.core` no longer exists in the new version of the dependency. The class `ZipFile` has been moved to `net.lingala.zip4j.ZipFile`.
-   b. The specific API changes causing the issue are:
-      - Class `net.lingala.zip4j.core.ZipFile` has been removed
-      - Interface `net.lingala.zip4j.ZipFile` has been added
-   c. Affected lines of code:
-      - Import statement: `import net.lingala.zip4j.core.ZipFile;`
-      - Usage in `unpack` method: `final ZipFile zipFile = new ZipFile(file);`
-   d. Potential fixes:
-      - Change import to: `import net.lingala.zip4j.ZipFile;`
-      - Modify the instantiation of ZipFile to use the new API
-   e. Side effects:
-      - The new ZipFile API might have different behavior, but the basic functionality of extracting files should remain the same
-   f. Constraints check:
-      - The fix adheres to all constraints as it only changes the import and instantiation without modifying method signatures or removing existing code
-   g. Final summary:
-      - The best solution is to update the import statement and modify the ZipFile instantiation to use the new package and API
-
-2. Proposed changes:
-   - Update import statement to use new package
-   - Modify ZipFile instantiation to use new API
-</fix_planning>
-
 ```java
 /*
  *  Copyright 2021 Qameta Software OÜ
@@ -180,7 +156,7 @@ public class AllureCommandline {
                 new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
         buildingRequest.setResolveDependencies(false);
 
-        final Dependency cliDep = new Dependency;
+        final Dependency cliDep = new Dependency();
         cliDep.setGroupId("io.qameta.allure");
         cliDep.setArtifactId("allure-commandline");
         cliDep.setVersion(version);

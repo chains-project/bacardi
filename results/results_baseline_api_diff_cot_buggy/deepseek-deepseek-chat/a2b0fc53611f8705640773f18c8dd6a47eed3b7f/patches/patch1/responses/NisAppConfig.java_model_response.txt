@@ -1,45 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. Relevant code:
-   ```java
-   final org.flywaydb.core.Flyway flyway = new Flyway();
-   flyway.setDataSource(this.dataSource());
-   flyway.setClassLoader(NisAppConfig.class.getClassLoader());
-   flyway.setLocations(prop.getProperty("flyway.locations"));
-   flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-   ```
-   b. API changes causing issues:
-   - Flyway() constructor removed
-   - setDataSource(DataSource) removed
-   - setClassLoader(ClassLoader) removed
-   - setLocations(String) removed
-   - setValidateOnMigrate(boolean) removed
-   c. Affected lines:
-   - Line 108: Flyway constructor
-   - Line 109: setDataSource()
-   - Line 110: setClassLoader()
-   - Line 111: setLocations()
-   - Line 112: setValidateOnMigrate()
-   d. Proposed fixes:
-   - Use Flyway.configure() to create configuration
-   - Use ClassicConfiguration methods instead of Flyway methods
-   - Create Flyway instance with configuration
-   e. Side effects:
-   - No functional changes expected
-   - Configuration approach is more modern and flexible
-   f. Constraints check:
-   - Function signatures remain unchanged
-   - No code removed
-   - No unnecessary imports added
-   g. Final summary:
-   The best solution is to use the new configuration-based approach, which is the recommended way in newer Flyway versions. This maintains functionality while adhering to the new API.
-
-2. Fix implementation:
-   - Create configuration using Flyway.configure()
-   - Set properties using ClassicConfiguration methods
-   - Create Flyway instance with configuration
-</fix_planning>
-
 ```java
 package org.nem.specific.deploy.appconfig;
 
@@ -148,13 +106,12 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final Flyway flyway = Flyway.configure()
-			.dataSource(this.dataSource())
-			.classLoader(NisAppConfig.class.getClassLoader())
-			.locations(prop.getProperty("flyway.locations"))
-			.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
-			.load();
-		return flyway;
+		final org.flywaydb.core.api.configuration.ClassicConfiguration configuration = new org.flywaydb.core.api.configuration.ClassicConfiguration();
+		configuration.setDataSource(this.dataSource());
+		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+		configuration.setLocations(org.flywaydb.core.api.Location.parse(prop.getProperty("flyway.locations")));
+		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		return new Flyway(configuration);
 	}
 
 	@Bean
@@ -315,7 +272,7 @@ public class NisAppConfig {
 		return getBlockDependentPoiOptions(height).getMinHarvesterBalance();
 	}
 
-	private static org.nem.nis.pox.poi.PoiOptions getBlockDependentPoiOptions final BlockHeight height) {
+	private static org.nem.nis.pox.poi.PoiOptions getBlockDependentPoiOptions(final BlockHeight height) {
 		return new PoiOptionsBuilder(height).create();
 	}
 

@@ -1,31 +1,3 @@
-<fix_planning>
-1. **Relevant parts of the code and API changes:**
-   - The code uses `org.cactoos.text.RandomText` in the `Fake` constructor.
-   - The `RandomText` class and all its constructors have been removed in the new version of the dependency.
-
-2. **Specific API changes causing the issue:**
-   - The removal of the `RandomText` class and its constructors.
-
-3. **Affected lines of code:**
-   - `import org.cactoos.text.RandomText;`
-   - `new Repeated<>(val, new RandomText())`
-
-4. **Potential fixes for each affected line:**
-   - Replace `RandomText` with a different class or mechanism that can generate random text.
-   - Use `org.cactoos.text.TextOf` or another text generation class if available.
-
-5. **Consider any potential side effects of the proposed changes:**
-   - The replacement should generate text in a similar manner to `RandomText` to maintain the expected behavior.
-
-6. **Check if the proposed changes adhere to all the given constraints:**
-   - The function signatures remain unchanged.
-   - No existing code is removed unless it directly causes a compilation error.
-   - The fix addresses the missing import and uses the correct package or class.
-
-7. **Final summary of the chosen fix and why it's the best solution:**
-   - Replace `RandomText` with `TextOf` and use a simple string to generate text. This is a straightforward replacement that maintains the functionality without requiring complex changes.
-</fix_planning>
-
 ```java
 /*
  * The MIT License (MIT)
@@ -55,6 +27,7 @@ package io.zold.api;
 
 import org.cactoos.iterable.Repeated;
 import org.cactoos.text.TextOf;
+import org.cactoos.text.UncheckedText;
 
 /**
  * Remote node.
@@ -97,7 +70,7 @@ public interface Remote {
          */
         public Fake(final int val) {
             this(new RtScore(
-                new Repeated<>(val, new TextOf("random"))
+                new Repeated<>(val, new UncheckedText(new TextOf("random")))
             ));
         }
 

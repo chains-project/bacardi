@@ -33,7 +33,6 @@ import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.inspector.TagInspector;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 
@@ -63,7 +62,7 @@ public class AbstractTest {
 
     public <T extends MockBaseEntity> T createMockEntity(Class<T> clazz, String path) {
         final LoaderOptions loadingConfig = new LoaderOptions();
-        loadingConfig.setTagInspector(new TagInspector());
+        loadingConfig.setTagInspector(tag -> true);
 
         final Representer representer = new Representer(new DumperOptions());
         final Tag zoneIdTag = new Tag("!ZoneId");

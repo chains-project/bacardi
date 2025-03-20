@@ -55,13 +55,23 @@ final class RegionITCase {
     private static final String SECRET =
         System.getProperty("failsafe.sdb.secret");
 
+    /**
+     * Constant for value 10.
+     */
+    private static final int TEN = 10;
+
+    /**
+     * Constant for value 8.
+     */
+    private static final int EIGHT = 8;
+
     @Test
     void putsAndRemovesIndividualItems() {
         final Domain domain = this.domain();
         try {
-            final String name = RandomStringUtils.randomAlphanumeric(10);
-            final String attr = RandomStringUtils.randomAlphabetic(8);
-            final String value = RandomStringUtils.randomAlphanumeric(10);
+            final String name = RandomStringUtils.randomAlphanumeric(TEN);
+            final String attr = RandomStringUtils.randomAlphabetic(EIGHT);
+            final String value = RandomStringUtils.randomAlphanumeric(TEN);
             for (int idx = 0; idx < 2; ++idx) {
                 domain.item(name).put(attr, value);
                 MatcherAssert.assertThat(
@@ -107,7 +117,7 @@ final class RegionITCase {
     void selectsManyItems() {
         final Domain domain = this.domain();
         try {
-            for (int idx = 0; idx < 10; ++idx) {
+            for (int idx = 0; idx < TEN; ++idx) {
                 domain.item(String.format("i-%d", idx)).put("hey", "");
             }
             MatcherAssert.assertThat(
@@ -116,7 +126,7 @@ final class RegionITCase {
                         String.format("SELECT * FROM `%s`", domain.name())
                     ).withConsistentRead(true)
                 ),
-                Matchers.iterableWithSize(10)
+                Matchers.iterableWithSize(TEN)
             );
         } finally {
             domain.drop();

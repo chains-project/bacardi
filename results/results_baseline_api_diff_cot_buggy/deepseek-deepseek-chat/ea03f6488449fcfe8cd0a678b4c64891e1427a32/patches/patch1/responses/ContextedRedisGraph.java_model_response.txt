@@ -1,33 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. Relevant code parts:
-      - `Client client = jedis.getClient();` appears multiple times
-      - `import redis.clients.jedis.Client;`
-   b. API changes causing the issue:
-      - Class `redis.clients.jedis.Client` has been removed
-      - Method `redis.clients.jedis.Jedis.getClient()` has been added
-   c. Affected lines:
-      - All lines where `Client` is used or imported
-   d. Proposed fixes:
-      - Replace `Client` with `Connection` from the new API
-      - Update the import statement
-   e. Potential side effects:
-      - Need to ensure `Connection` provides the same functionality as `Client`
-   f. Constraints check:
-      - Function signatures remain unchanged
-      - Only necessary changes are made
-      - All code is included
-   g. Final summary:
-      - Replace `Client` with `Connection` as it's the new equivalent in the updated API
-      - Update import statement
-      - This is the most straightforward fix that maintains functionality
-
-2. Implementation:
-   - Replace `Client` with `Connection`
-   - Update import statement
-   - Keep all other code unchanged
-</fix_planning>
-
 ```java
 package com.redislabs.redisgraph.impl.api;
 
@@ -41,7 +11,6 @@ import com.redislabs.redisgraph.impl.graph_cache.RedisGraphCaches;
 import com.redislabs.redisgraph.impl.resultset.ResultSetImpl;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Connection;
 import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.util.SafeEncoder;
 
@@ -170,10 +139,8 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphTransaction multi() {
         Jedis jedis = getConnection();
-        Connection connection = jedis.getClient();
-        connection.multi();
-        connection.getOne();
-        RedisGraphTransaction transaction = new RedisGraphTransaction(connection, this);
+        jedis.multi();
+        RedisGraphTransaction transaction = new RedisGraphTransaction(jedis, this);
         transaction.setRedisGraphCaches(caches);
         return transaction;
     }
@@ -185,8 +152,7 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphPipeline pipelined() {
         Jedis jedis = getConnection();
-        Connection connection = jedis.getClient();
-        RedisGraphPipeline pipeline = new RedisGraphPipeline(connection, this);
+        RedisGraphPipeline pipeline = new RedisGraphPipeline(jedis, this);
         pipeline.setRedisGraphCaches(caches);
         return pipeline;
     }

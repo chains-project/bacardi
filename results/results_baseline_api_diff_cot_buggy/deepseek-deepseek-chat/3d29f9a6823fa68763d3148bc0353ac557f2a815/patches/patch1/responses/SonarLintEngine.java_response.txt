@@ -159,13 +159,17 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     }
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
-        return AnalysisEngineConfiguration.builder()
-                .setEnabledLanguages(globalConfig.getEnabledLanguages())
+        AnalysisEngineConfiguration.Builder builder = AnalysisEngineConfiguration.builder()
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())
-                .setModulesProvider(globalConfig.getModulesProvider())
-                .build();
+                .setModulesProvider(globalConfig.getModulesProvider());
+
+        for (Language language : globalConfig.getEnabledLanguages()) {
+            builder.addEnabledLanguage(language);
+        }
+
+        return builder.build();
     }
 
     /** Get or creates the one and only instance of this class. */
@@ -228,7 +232,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
             throw SonarLintWrappedException.wrap(e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw SonarLintWrappedException.wwrap(e);
+            throw SonarLintWrappedException.wrap(e);
         }
     }
 

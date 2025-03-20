@@ -27,18 +27,6 @@ import org.reactivestreams.Publisher;
  */
 class AuthScopeSliceTest {
 
-    private static final class User {
-        private final String name;
-
-        User(String name) {
-            this.name = name;
-        }
-
-        String name() {
-            return this.name;
-        }
-    }
-
     @Test
     void testScope() {
         final String line = "GET /resource.txt HTTP/1.1";
@@ -64,8 +52,14 @@ class AuthScopeSliceTest {
             },
             (headers, rline) -> CompletableFuture.completedFuture(
                 new AuthScheme.Result() {
-                    public Optional<User> user() {
-                        return Optional.of(new User("alice"));
+                    @Override
+                    public Optional<Authentication.User> user() {
+                        return Optional.of(new Authentication.User() {
+                            @Override
+                            public String name() {
+                                return "alice";
+                            }
+                        });
                     }
 
                     @Override

@@ -1,34 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs because `org.hamcrest.Matchers` has been removed in the new version of the dependency.
-   b. The specific API change is the removal of the `Matchers` class.
-   c. Affected lines:
-      - Line 48: `import org.hamcrest.Matchers;`
-      - Lines using `Matchers` class methods: 
-        - `assertHeader(name, Matchers.hasItems(value))`
-        - `assertHeader(HttpHeaders.LOCATION, Matchers.not(Matchers.emptyIterableOf(String.class)))`
-        - `assertThat(cookie, Matchers.notNullValue())`
-   d. Potential fixes:
-      - Replace `Matchers` with equivalent methods from the new Hamcrest API
-      - Use static imports for specific matchers
-      - Use alternative matchers from the new API
-   e. Side effects:
-      - Need to ensure the new matchers provide equivalent functionality
-      - May require additional imports
-   f. Constraints check:
-      - Function signatures remain unchanged
-      - No code removal except for the problematic import
-      - All other code remains intact
-   g. Chosen fix:
-      - Replace `Matchers` with specific matcher imports from the new Hamcrest API
-      - Use static imports for commonly used matchers
-      - This solution maintains functionality while adhering to constraints
-
-2. Implementation:
-   - Replace `import org.hamcrest.Matchers;` with specific matcher imports
-   - Update method calls to use new matcher imports
-</fix_planning>
-
 ```java
 /*
  * Copyright (c) 2011-2017, jcabi.com
@@ -77,10 +46,9 @@ import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.emptyIterable;
-import static org.hamcrest.Matchers.notNullValue;
+import org.hamcrest.core.IsCollectionContaining;
+import org.hamcrest.core.IsNull;
+import org.hamcrest.core.StringContains;
 
 /**
  * REST response.
@@ -242,7 +210,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, hasItems(value));
+        return this.assertHeader(name, IsCollectionContaining.hasItems(value));
     }
 
     /**
@@ -278,7 +246,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            not(emptyIterable())
+            IsCollectionContaining.hasItems()
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -316,7 +284,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            notNullValue()
+            IsNull.notNullValue()
         );
         assert cookie != null;
         return cookie;

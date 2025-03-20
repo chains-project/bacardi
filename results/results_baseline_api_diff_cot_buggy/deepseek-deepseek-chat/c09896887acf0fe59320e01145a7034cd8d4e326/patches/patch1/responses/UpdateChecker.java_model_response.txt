@@ -1,32 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs in the line accessing `GHCompare.Status status` which is now private in the new API version.
-   b. The specific API change is that `GHCompare.Status` is no longer publicly accessible.
-   c. Affected line:
-      ```java
-      GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
-      ```
-   d. Potential fixes:
-      - Use the public `getStatus()` method instead of directly accessing the private status field
-      - Modify the comparison logic to use the new API methods
-   e. Side effects:
-      - The fix maintains the same functionality but uses the new API correctly
-      - No other parts of the code are affected
-   f. Constraints check:
-      - The function signature remains unchanged
-      - No existing code is removed
-      - No new imports are needed
-      - The fix adheres to all constraints
-   g. Final solution:
-      - Replace direct field access with the `getStatus()` method call
-      - This is the best solution as it uses the official API method and maintains the same functionality
-
-2. Fix:
-   ```java
-   GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).getStatus();
-   ```
-</fix_planning>
-
 ```java
 /*
  * The MIT License
@@ -158,7 +129,7 @@ public final class UpdateChecker {
             log.info("Found no candidates");
             return null;
         }
-        log.info("Found " + candidates.size() + " candidates from " + candidates.first() + " down to " + candidates.last());
+        log.info("Found " + candidates.size + " candidates from " + candidates.first() + " down to " + candidates.last());
         for (VersionAndRepo candidate : candidates) {
             if (candidate.version.compareTo(currentV) <= 0) {
                 log.info("Stopping search at " + candidate + " since it is no newer than " + currentV);
@@ -190,7 +161,7 @@ public final class UpdateChecker {
             try {
                 doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mavenMetadataURL);
             } catch (FileNotFoundException x) {
-                continue;
+                continue; // not even defined in this repo, fine
             }
             Element versionsE = theElement(doc, "versions", mavenMetadataURL);
             NodeList versionEs = versionsE.getElementsByTagName("version");
@@ -241,8 +212,9 @@ public final class UpdateChecker {
 
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
-            GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).getStatus();
-            return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
+            GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
+            String status = compare.getStatus();
+            return "identical".equals(status) || "behind".equals(status);
         } catch (FileNotFoundException x) {
             return false;
         }

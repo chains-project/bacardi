@@ -1,35 +1,3 @@
-<fix_planning>
-1. **Analysis of the Problem:**
-   - The errors indicate that several classes from the `javax.mvc.event` package are no longer available in the new version of the dependency.
-   - The API changes show that these classes have been moved to the `jakarta.mvc.event` package and some have been converted from classes to interfaces.
-   - The specific API changes causing the issue are:
-     - `javax.mvc.event.ControllerRedirectEvent` → `jakarta.mvc.event.ControllerRedirectEvent`
-     - `javax.mvc.event.BeforeProcessViewEvent` → `jakarta.mvc.event.BeforeProcessViewEvent`
-     - `javax.mvc.event.AfterControllerEvent` → `jakarta.mvc.event.AfterControllerEvent`
-     - `javax.mvc.event.BeforeControllerEvent` → `jakarta.mvc.event.BeforeControllerEvent`
-     - `javax.mvc.event.AfterProcessViewEvent` → `jakarta.mvc.event.AfterProcessViewEvent`
-
-2. **Affected Lines of Code:**
-   - Import statements for `javax.mvc.event` classes.
-   - Method signatures that use these classes as parameters.
-
-3. **Proposed Fixes:**
-   - Update the import statements to use the `jakarta.mvc.event` package.
-   - No changes are needed for method signatures since the class names remain the same, only the package has changed.
-
-4. **Potential Side Effects:**
-   - None, as the method signatures and functionality remain unchanged.
-
-5. **Adherence to Constraints:**
-   - The proposed changes adhere to all constraints:
-     - Function signatures remain unchanged.
-     - No code is removed.
-     - Correct imports are used.
-
-6. **Final Summary:**
-   - The best solution is to update the import statements to reflect the new package names. This is a straightforward fix that resolves the compilation errors without altering the functionality of the code.
-</fix_planning>
-
 ```java
 package com.example;
 
@@ -66,7 +34,7 @@ public class MvcEventListener {
         LOGGER.info(() -> "AfterProcessViewEvent:: " + event);
     }
     
-     private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
+    private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
         LOGGER.info(() -> "ControllerRedirectEvent:: " + event);
     }
 

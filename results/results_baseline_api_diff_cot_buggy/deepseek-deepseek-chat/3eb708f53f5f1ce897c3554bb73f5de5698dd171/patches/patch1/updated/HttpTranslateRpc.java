@@ -1,19 +1,3 @@
-/*
- * Copyright 2016 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.google.cloud.translate.spi.v2;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -65,50 +49,58 @@ public class HttpTranslateRpc implements TranslateRpc {
     return genericUrl;
   }
 
-  public List<List<Map<String, String>>> detect(List<String> texts) {
+  @Override
+  public List<List<DetectLanguageResponse>> detect(List<String> texts) {
     try {
-      DetectLanguageResponse response = translate.projects().locations()
-          .detectLanguage("projects/" + options.getProjectId(), texts)
-          .execute();
-      return response.getDetections() != null ? response.getDetections() : ImmutableList.of();
+      List<List<DetectLanguageResponse>> detections =
+          translate.projects().locations().detectLanguage("projects/" + options.getProjectId(), texts)
+              .setKey(options.getApiKey()).execute().getDetections();
+      return detections != null ? detections : ImmutableList.<List<DetectLanguageResponse>>of();
     } catch (IOException ex) {
       throw translate(ex);
     }
   }
 
-  public List<Map<String, String>> listSupportedLanguages(Map<Option, ?> optionMap) {
+  @Override
+  public List<SupportedLanguages> listSupportedLanguages(Map<Option, ?> optionMap) {
     try {
-      SupportedLanguages response = translate.projects().locations()
-          .getSupportedLanguages("projects/" + options.getProjectId())
-          .setTargetLanguage(firstNonNull(
-              Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
-          .execute();
-      return response.getLanguages() != null ? response.getLanguages() : ImmutableList.of();
+      List<SupportedLanguages> languages =
+          translate.projects().locations().getSupportedLanguages("projects/" + options.getProjectId())
+              .setKey(options.getApiKey())
+              .setTarget(
+                  firstNonNull(
+                      Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
+              .execute()
+              .getLanguages();
+      return languages != null ? languages : ImmutableList.<SupportedLanguages>of();
     } catch (IOException ex) {
       throw translate(ex);
     }
   }
 
-  public List<Map<String, String>> translate(List<String> texts, Map<Option, ?> optionMap) {
+  @Override
+  public List<Translation> translate(List<String> texts, Map<Option, ?> optionMap) {
     try {
       String targetLanguage =
           firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
       final String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
-      
-      List<Translation> translations = translate.projects().locations()
-          .translateText("projects/" + options.getProjectId(), texts)
-          .setTargetLanguageCode(targetLanguage)
-          .setSourceLanguageCode(sourceLanguage)
-          .setModel(Option.MODEL.getString(optionMap))
-          .setFormat(Option.FORMAT.getString(optionMap))
-          .execute()
-          .getTranslations();
-      
+      List<Translation> translations =
+          translate.projects().locations().translateText("projects/" + options.getProjectId(), texts, targetLanguage)
+              .setSource(sourceLanguage)
+              .setKey(options.getApiKey())
+              .setModel(Option.MODEL.getString(optionMap))
+              .setFormat(Option.FORMAT.getString(optionMap))
+              .execute()
+              .getTranslations();
       return Lists.transform(
           translations != null ? translations : ImmutableList.<Translation>of(),
-          new Function<Translation, Map<String, String>>() {
-            public Map<String, String> apply(Translation translation) {
-              return translation.getModel();
+          new Function<Translation, Translation>() {
+            @Override
+            public Translation apply(Translation translation) {
+              if (translation.getDetectedSourceLanguage() == null) {
+                translation.setDetectedSourceLanguage(sourceLanguage);
+              }
+              return translation;
             }
           });
     } catch (IOException ex) {

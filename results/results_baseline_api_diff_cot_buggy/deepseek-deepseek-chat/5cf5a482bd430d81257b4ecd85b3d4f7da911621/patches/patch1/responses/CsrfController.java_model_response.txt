@@ -1,57 +1,3 @@
-<fix_planning>
-1. **Analysis of the Problem:**
-   - The code is using classes and annotations from the `javax.mvc` package, which have been removed in the new version of the dependency.
-   - The new version of the dependency uses the `jakarta.mvc` package instead.
-   - The specific API changes causing the issue are:
-     - `javax.mvc.binding.BindingResult` → Removed
-     - `javax.mvc.Controller` → Removed
-     - `javax.mvc.binding.ParamError` → Removed
-     - `javax.mvc.Models` → Removed
-     - `javax.mvc.UriRef` → Removed
-     - `javax.mvc.binding.MvcBinding` → Removed
-     - `javax.mvc.security.CsrfProtected` → Removed
-     - New interfaces in `jakarta.mvc` package: `Controller`, `Models`, `UriRef`, `MvcBinding`, `CsrfProtected`
-
-2. **Affected Lines of Code:**
-   - Import statements:
-     ```java
-     import javax.mvc.binding.BindingResult;
-     import javax.mvc.Controller;
-     import javax.mvc.binding.ParamError;
-     import javax.mvc.Models;
-     import javax.mvc.UriRef;
-     import javax.mvc.binding.MvcBinding;
-     import javax.mvc.security.CsrfProtected;
-     ```
-   - Class and field declarations:
-     ```java
-     BindingResult bindingResult;
-     @Controller
-     Models models;
-     @MvcBinding
-     @CsrfProtected
-     ```
-
-3. **Proposed Fixes:**
-   - Replace `javax.mvc` imports with `jakarta.mvc` imports.
-   - Replace `BindingResult` with an alternative approach if available, or remove it if not used.
-   - Replace `@Controller` with `jakarta.mvc.Controller`.
-   - Replace `Models` with `jakarta.mvc.Models`.
-   - Replace `@MvcBinding` with `jakarta.mvc.binding.MvcBinding`.
-   - Replace `@CsrfProtected` with `jakarta.mvc.security.CsrfProtected`.
-
-4. **Potential Side Effects:**
-   - The removal of `BindingResult` might affect the validation logic. However, since the new API does not provide a direct replacement, we need to ensure that the validation logic is still functional.
-
-5. **Adherence to Constraints:**
-   - The function signatures remain unchanged.
-   - No existing code is removed unless it directly causes a compilation error.
-   - All necessary imports are updated to the new package.
-
-6. **Final Summary:**
-   - The best solution is to update the imports and annotations to use the `jakarta.mvc` package. This ensures compatibility with the new version of the dependency while maintaining the functionality of the code.
-</fix_planning>
-
 ```java
 package com.example.web;
 
@@ -61,7 +7,9 @@ import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.mvc.UriRef;
+import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.binding.MvcBinding;
+import jakarta.mvc.binding.ParamError;
 import jakarta.mvc.security.CsrfProtected;
 import javax.validation.constraints.NotBlank;
 import javax.ws.rs.FormParam;
@@ -77,6 +25,9 @@ import javax.ws.rs.Path;
 @Controller
 @RequestScoped
 public class CsrfController {
+
+    @Inject
+    BindingResult bindingResult;
 
     @Inject
     Models models;
@@ -98,9 +49,9 @@ public class CsrfController {
             @FormParam("greeting")
             @MvcBinding
             @NotBlank String greeting) {
-        if (models.get("errors") != null) {
+        if (bindingResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            models.get("errors")
+            bindingResult.getAllErrors()
                     .stream()
                     .forEach((ParamError t) -> {
                         alert.addError(t.getParamName(), "", t.getMessage());

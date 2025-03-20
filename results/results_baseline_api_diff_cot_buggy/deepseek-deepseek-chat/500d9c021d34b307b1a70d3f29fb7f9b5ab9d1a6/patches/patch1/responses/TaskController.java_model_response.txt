@@ -1,31 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The code uses classes and annotations from the `javax.mvc` package, which has been replaced by `jakarta.mvc` in the new version.
-   b. The specific API changes causing the issue are:
-      - `javax.mvc.Models` → `jakarta.mvc.Models`
-      - `javax.mvc.View` → `jakarta.mvc.View`
-      - `javax.mvc.binding.BindingResult` → `jakarta.mvc.binding.BindingResult`
-      - `javax.mvc.security.CsrfProtected` → `jakarta.mvc.security.CsrfProtected`
-      - `javax.mvc.Controller` → `jakarta.mvc.Controller`
-      - `javax.mvc.binding.ParamError` → `jakarta.mvc.binding.ParamError`
-   c. Affected lines:
-      - Import statements for `javax.mvc` packages
-      - Class fields `Models models` and `BindingResult validationResult`
-      - Annotations `@View`, `@CsrfProtected`, and `@Controller`
-   d. Proposed fixes:
-      - Replace `javax.mvc` imports with `jakarta.mvc`
-      - Update class fields to use `jakarta.mvc` types
-      - Update annotations to use `jakarta.mvc` types
-   e. Potential side effects:
-      - None, as the functionality remains the same, only the package names change
-   f. Constraints adherence:
-      - Function signatures remain unchanged
-      - No code is removed
-      - All imports are updated correctly
-   g. Final summary:
-      - The best solution is to update all `javax.mvc` references to `jakarta.mvc` to align with the new dependency version.
-</fix_planning>
-
 ```java
 package com.example.web;
 
@@ -116,7 +88,6 @@ public class TaskController {
 
     @POST
     @CsrfProtected
-    //@ValidateOnExecution(type = ExecutableType.NONE)
     public Response save(@Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "saving new task @{0}", form);
 
@@ -190,7 +161,6 @@ public class TaskController {
 
     @PUT
     @Path("{id}/status")
-    //@CsrfProtected
     public Response updateStatus(@PathParam(value = "id") Long id, @NotNull @FormParam(value = "status") String status) {
         log.log(Level.INFO, "updating status of the existed task@id:{0}, status:{1}", new Object[]{id, status});
 
