@@ -1,14 +1,14 @@
 27c27
 < import org.codehaus.plexus.util.xml.Xpp3Dom;
 ---
-> import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
+> import org.apache.maven.plugin.Plugin;
 162c162
 <         .map(exec -> (Xpp3Dom) exec.getConfiguration())
 ---
->         .map(exec -> (PluginParameterExpressionEvaluator) exec.getConfiguration())
+>         .map(exec -> exec.getConfiguration())
 164,165c164,165
 <         .map(Xpp3Dom::getChildren)
 <         .map(arr -> Arrays.stream(arr).map(Xpp3Dom::getValue).collect(Collectors.toSet()))
 ---
->         .map(PluginParameterExpressionEvaluator::getChildren)
->         .map(arr -> Arrays.stream(arr).map(PluginParameterExpressionEvaluator::getValue).collect(Collectors.toSet()))
+>         .map(processors -> processors.getChildren())
+>         .map(arr -> Arrays.stream(arr).map(processor -> processor.getValue()).collect(Collectors.toSet()))

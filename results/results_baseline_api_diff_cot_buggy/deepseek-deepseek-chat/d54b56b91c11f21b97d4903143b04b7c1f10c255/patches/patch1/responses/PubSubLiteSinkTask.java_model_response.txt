@@ -1,23 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs because the class `PublishMetadata` has been removed in the new version of the dependency.
-   b. The specific API change causing the issue is the removal of `com.google.cloud.pubsublite.PublishMetadata`.
-   c. Affected lines:
-      - `import com.google.cloud.pubsublite.PublishMetadata;`
-      - `private @Nullable Publisher<PublishMetadata> publisher;`
-   d. Potential fixes:
-      - Remove the import statement for `PublishMetadata`.
-      - Change the type of `publisher` to use a different type that is compatible with the new API.
-   e. Side effects:
-      - The change might affect how the publisher is used in the code, but since the functionality of `Publisher` is still required, we need to find a suitable replacement type.
-   f. Constraints adherence:
-      - The function signatures remain unchanged.
-      - No existing code is removed unless it directly causes a compilation error.
-      - The fix addresses the missing import and the type change.
-   g. Final summary:
-      - The best solution is to remove the import for `PublishMetadata` and change the type of `publisher` to `Publisher<?>` since the specific type `PublishMetadata` is no longer available. This change adheres to the constraints and maintains the functionality of the code.
-</fix_planning>
-
 ```java
 /*
  * Copyright 2020 Google LLC
@@ -60,7 +40,7 @@ import org.apache.kafka.connect.sink.SinkTask;
 public class PubSubLiteSinkTask extends SinkTask {
 
   private final PublisherFactory factory;
-  private @Nullable Publisher<?> publisher;
+  private @Nullable Publisher<Void> publisher;
 
   @VisibleForTesting
   PubSubLiteSinkTask(PublisherFactory factory) {

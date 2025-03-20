@@ -1,27 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. Relevant parts of the code and API changes:
-      - The code imports `develop.p2p.lib.LearnMath.sigmoid` and uses `sigmoid(sum)`.
-      - The API changes indicate that `develop.p2p.lib.LearnMath.sigmoid(double)` has been removed and replaced with `tokyo.peya.lib.LearnMath.sigmoid(double)`.
-   b. Specific API changes causing the issue:
-      - The import statement `import static develop.p2p.lib.LearnMath.sigmoid;` is invalid because the package `develop.p2p.lib` no longer exists.
-      - The method `sigmoid(sum)` cannot be found because it is no longer in the `develop.p2p.lib.LearnMath` class.
-   c. Affected lines of code:
-      - `import static develop.p2p.lib.LearnMath.sigmoid;`
-      - `setValue(sigmoid(sum));`
-   d. Proposed fixes:
-      - Replace the import statement with `import static tokyo.peya.lib.LearnMath.sigmoid;`.
-      - No changes needed for `setValue(sigmoid(sum));` as the method signature remains the same.
-   e. Potential side effects:
-      - None, as the method `sigmoid(double)` is still available in the new package with the same signature.
-   f. Adherence to constraints:
-      - The function signatures remain unchanged.
-      - No existing code is removed.
-      - The correct package is used in the import statement.
-   g. Final summary:
-      - The best solution is to update the import statement to use the new package `tokyo.peya.lib.LearnMath.sigmoid`. This fixes the compilation error without altering the functionality of the code.
-</fix_planning>
-
 ```java
 package ml.peya.plugins.Learn;
 

@@ -1,32 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs because `org.mockito.runners.MockitoJUnitRunner` has been removed in the new version of Mockito.
-   b. The specific API changes causing the issue are:
-      - Removal of `org.mockito.runners.MockitoJUnitRunner` class
-      - Removal of `org.mockito.runners.MockitoJUnitRunner(java.lang.Class)` constructor
-   c. Affected lines:
-      - `import org.mockito.runners.MockitoJUnitRunner;`
-      - `@RunWith(MockitoJUnitRunner.class)`
-   d. Potential fixes:
-      - Replace `org.mockito.runners.MockitoJUnitRunner` with `org.mockito.junit.MockitoJUnitRunner` which is the new location in Mockito 2.x+
-   e. Side effects:
-      - The fix is straightforward and should not introduce any side effects as it's just a package relocation
-   f. Constraints check:
-      - The fix adheres to all constraints:
-        - No method signatures are changed
-        - No variables are created
-        - No @Override annotations are removed
-        - Correct import is used
-        - No code is removed except the problematic import
-        - All code is included
-   g. Final summary:
-      - The best solution is to update the import to use the new package location of MockitoJUnitRunner. This is a simple package relocation fix that maintains all functionality while resolving the compilation error.
-
-2. Fix:
-   - Replace `import org.mockito.runners.MockitoJUnitRunner;` with `import org.mockito.junit.MockitoJUnitRunner;`
-   - Keep `@RunWith(MockitoJUnitRunner.class)` as is since the annotation name hasn't changed, just its package location
-</fix_planning>
-
 ```java
 package com.pholser.junit.quickcheck.internal.generator;
 

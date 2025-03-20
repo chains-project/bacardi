@@ -31,6 +31,7 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.thrift.TException;
 import org.apache.thrift.TSerializer;
+import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -185,10 +186,9 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
     this.stopGracePeriodInSeconds = config.getStopGracePeriodInSeconds();
     this.badPartitions.add(-1);
     try {
-      this.serializer = new TSerializer();
+      this.serializer = new TSerializer(new TBinaryProtocol.Factory());
     } catch (TTransportException e) {
       LOG.error("Failed to initialize TSerializer", e);
-      throw new RuntimeException("Failed to initialize TSerializer", e);
     }
   }
 

@@ -16,14 +16,12 @@
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.cluster.Cluster;
-import com.hazelcast.core.EntryListener;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MembershipEvent;
+import com.hazelcast.cluster.MembershipListener;
 import com.hazelcast.core.LifecycleEvent;
 import com.hazelcast.core.LifecycleEvent.LifecycleState;
 import com.hazelcast.core.LifecycleListener;
-import com.hazelcast.cluster.Member;
-import com.hazelcast.cluster.MemberAttributeEvent;
-import com.hazelcast.cluster.MembershipEvent;
-import com.hazelcast.cluster.MembershipListener;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterManager;
 import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
@@ -73,7 +71,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
     private boolean isSenior;
 
     ClusterListener(final Cluster cluster) {
-
         this.cluster = cluster;
         for (final Member member : cluster.getMembers()) {
             clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(member),
@@ -151,7 +148,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         done = true;
     }
 
-    @Override
     public void memberAdded(final MembershipEvent event) {
         logger.info("Received a Hazelcast memberAdded event {}", event);
 
@@ -224,7 +220,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         return !failed;
     }
 
-    @Override
     public void memberRemoved(final MembershipEvent event) {
         logger.info("Received a Hazelcast memberRemoved event {}", event);
 
@@ -258,7 +253,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         return new ArrayList<>(clusterNodesInfo.values());
     }
 
-    @Override
     public void stateChanged(final LifecycleEvent event) {
         if (event.getState().equals(LifecycleState.SHUTDOWN)) {
             leaveCluster();
@@ -267,8 +261,7 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         }
     }
 
-    @Override
-    public void memberAttributeChanged(final MemberAttributeEvent event) {
+    public void memberAttributeChanged(final MembershipEvent event) {
         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
         isSenior = isSeniorClusterMember();
         final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));

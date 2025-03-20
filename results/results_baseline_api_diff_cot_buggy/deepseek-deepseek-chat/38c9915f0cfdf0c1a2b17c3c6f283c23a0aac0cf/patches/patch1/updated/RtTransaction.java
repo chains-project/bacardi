@@ -29,9 +29,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.function.Supplier;
 import org.cactoos.Text;
-import org.cactoos.scalar.LengthOf;
 import org.cactoos.list.ListOf;
 import org.cactoos.scalar.ItemAt;
 import org.cactoos.text.FormattedText;
@@ -80,36 +78,34 @@ final class RtTransaction implements Transaction {
     /**
      * String representation of transaction.
      */
-    private final Supplier<String> transaction;
+    private final String transaction;
 
     /**
      * Ctor.
      * @param trnsct String representation of transaction
      */
     RtTransaction(final String trnsct) {
-        this.transaction = () -> {
-            if (trnsct.trim().isEmpty()) {
-                throw new IllegalArgumentException(
-                    "Invalid transaction string: string is empty"
-                );
-            }
-            final List<String> pieces = List.of(trnsct.split(";"));
-            if (pieces.size() != 7) {
-                throw new IllegalArgumentException(
-                    String.format(
-                        "Invalid transaction string: expected 7 fields, but found %d",
-                        pieces.size()
-                    )
-                );
-            }
-            return trnsct;
-        };
+        this.transaction = trnsct;
+        if (trnsct.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                "Invalid transaction string: string is empty"
+            );
+        }
+        final List<String> pieces = List.of(trnsct.split(";"));
+        if (pieces.size() != 7) {
+            throw new IllegalArgumentException(
+                String.format(
+                    "Invalid transaction string: expected 7 fields, but found %d",
+                    pieces.size()
+                )
+            );
+        }
     }
 
     @Override
     @SuppressWarnings("PMD.ShortMethodName")
     public int id() throws IOException {
-        final String ident = List.of(this.transaction.get().split(";")).get(0);
+        final String ident = this.transaction.split(";")[0];
         if (!RtTransaction.IDENT.matcher(ident).matches()) {
             throw new IOException(
                 String.format(
@@ -124,14 +120,14 @@ final class RtTransaction implements Transaction {
     @Override
     public ZonedDateTime time() throws IOException {
         return new ZonedDateTimeOf(
-            List.of(this.transaction.get().split(";")).get(1),
+            this.transaction.split(";")[1],
             DateTimeFormatter.ISO_OFFSET_DATE_TIME
         ).value();
     }
 
     @Override
     public long amount() throws IOException {
-        final String amnt = List.of(this.transaction.get().split(";")).get(2);
+        final String amnt = this.transaction.split(";")[2];
         if (!RtTransaction.HEX.matcher(amnt).matches()) {
             throw new IOException(
                 String.format(
@@ -145,7 +141,7 @@ final class RtTransaction implements Transaction {
 
     @Override
     public String prefix() throws IOException {
-        final String prefix = List.of(this.transaction.get().split(";")).get(3);
+        final String prefix = this.transaction.split(";")[3];
         if (prefix.length() < 8 || prefix.length() > 32) {
             throw new IOException("Invalid prefix size");
         }
@@ -157,7 +153,7 @@ final class RtTransaction implements Transaction {
 
     @Override
     public String bnf() throws IOException {
-        final String bnf = List.of(this.transaction.get().split(";")).get(4);
+        final String bnf = this.transaction.split(";")[4];
         if (!RtTransaction.HEX.matcher(bnf).matches()) {
             throw new IOException(
                 String.format(
@@ -171,7 +167,7 @@ final class RtTransaction implements Transaction {
 
     @Override
     public String details() throws IOException {
-        final String dtls = List.of(this.transaction.get().split(";")).get(5);
+        final String dtls = this.transaction.split(";")[5];
         if (!RtTransaction.DTLS.matcher(dtls).matches()) {
             throw new IOException(
                 String.format(
@@ -185,8 +181,9 @@ final class RtTransaction implements Transaction {
 
     @Override
     public String signature() throws IOException {
-        final String sign = List.of(this.transaction.get().split(";")).get(6);
-        if (sign.length() != 684 || !RtTransaction.SIGN.matcher(sign).matches()) {
+        final String sign = this.transaction.split(";")[6];
+        if (sign.length() != 684
+            || !RtTransaction.SIGN.matcher(sign).matches()) {
             throw new IOException(
                 String.format(
                     "Invalid signature '%s', expecting base64 string with 684 characters",
@@ -199,7 +196,7 @@ final class RtTransaction implements Transaction {
 
     @Override
     public String toString() {
-        return this.transaction.get();
+        return this.transaction;
     }
 
     @Override
@@ -212,11 +209,11 @@ final class RtTransaction implements Transaction {
             return false;
         }
         final RtTransaction that = (RtTransaction) obj;
-        return this.transaction.get().equals(that.transaction.get());
+        return this.transaction.equals(that.transaction);
     }
 
     @Override
     public int hashCode() {
-        return this.transaction.get().hashCode();
+        return this.transaction.hashCode();
     }
 }

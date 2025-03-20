@@ -1,4 +1,4 @@
-6,12c6,9
+6,12c6,12
 < import javax.mvc.Controller;
 < import javax.mvc.Models;
 < import javax.mvc.UriRef;
@@ -10,27 +10,7 @@
 > import jakarta.mvc.Controller;
 > import jakarta.mvc.Models;
 > import jakarta.mvc.UriRef;
+> import jakarta.mvc.binding.BindingResult;
+> import jakarta.mvc.binding.MvcBinding;
+> import jakarta.mvc.binding.ParamError;
 > import jakarta.mvc.security.CsrfProtected;
-29,31d25
-<     BindingResult bindingResult;
-< 
-<     @Inject
-49c43
-<             @MvcBinding
----
->             @jakarta.mvc.binding.MvcBinding
-51,62c45
-<         if (bindingResult.isFailed()) {
-<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-<             bindingResult.getAllErrors()
-<                     .stream()
-<                     .forEach((ParamError t) -> {
-<                         alert.addError(t.getParamName(), "", t.getMessage());
-<                     });
-<             models.put("errors", alert);
-<             log.info("mvc binding failed.");
-<             return "csrf.xhtml";
-<         }
-< 
----
->         // Validation logic removed due to missing BindingResult and ParamError

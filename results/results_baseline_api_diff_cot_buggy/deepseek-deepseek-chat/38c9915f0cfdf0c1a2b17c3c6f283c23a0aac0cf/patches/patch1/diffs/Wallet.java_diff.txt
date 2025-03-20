@@ -8,31 +8,21 @@
 < import org.cactoos.scalar.UncheckedScalar;
 40d37
 < import org.cactoos.text.SplitText;
-201,202c198,199
+201,202c198
 <             return new CheckedScalar<>(
 <                 () -> Long.parseUnsignedLong(
 ---
->             try {
->                 return Long.parseUnsignedLong(
-204,209c201,202
+>             return Long.parseUnsignedLong(
+204c200
 <                         new SplitText(
-<                             new TextOf(this.path),
-<                             "\n"
-<                         )
-<                     ).get(2).asString(),
-<                     // @checkstyle MagicNumber (1 line)
 ---
->                         new TextOf(this.path).asString().split("\n")
->                     ).get(2),
-211,213c204,207
+>                     new org.cactoos.text.Split(
+211,213c207
 <                 ),
 <                 e -> new IOException(e)
 <             ).value();
 ---
->                 );
->             } catch (NumberFormatException e) {
->                 throw new IOException(e);
->             }
+>             );
 224,232d217
 <         // @todo #16:30min Following transactions should be ignored according
 <         //  to the whitepaper:
@@ -50,20 +40,11 @@
 >                     origin -> new Or(
 257d240
 <                         )
-272c255
-<                 txt -> new RtTransaction(txt.asString()),
----
->                 txt -> new RtTransaction(txt),
-275,278c258
+275c258
 <                         new SplitText(
-<                             new TextOf(this.path),
-<                             "\\n"
-<                         )
 ---
->                         new TextOf(this.path).asString().split("\\n")
-280d259
-<                     // @checkstyle MagicNumberCheck (1 line)
-286,288d264
+>                         new org.cactoos.text.Split(
+286,288d268
 <         // @todo #54:30min Implement key method. This should return the
 <         //  public RSA key of the wallet owner in Base64. Also add a unit test
 <         //  to replace WalletTest.keyIsNotYetImplemented().

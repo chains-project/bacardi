@@ -1,27 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs because the Logger interface from ch.qos.logback.classic has been removed in the new version
-   b. The specific API change is the removal of the Logger interface and its setLevel() method
-   c. Affected line: ((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);
-   
-2. Proposed fixes:
-   a. Replace with direct SLF4J logging configuration using LoggerFactory
-   b. Use the root logger directly from LoggerFactory
-   c. Consider using Logback's LoggerContext for more control if needed
-   
-3. Side effects:
-   a. The change might affect logging behavior if other parts of the code rely on Logback-specific features
-   b. The logging level change might not persist if the logger is reconfigured elsewhere
-   
-4. Constraints check:
-   a. The fix doesn't change any method signatures
-   b. No existing code is removed
-   c. The fix uses standard SLF4J API which should be compatible with newer versions
-   
-5. Chosen solution:
-   Replace the Logback-specific logger configuration with standard SLF4J API using LoggerFactory.getILoggerFactory() to set the root logger level. This is the most compatible solution that adheres to all constraints while providing equivalent functionality.
-</fix_planning>
-
 ```java
 /*
  * Copyright 2014 Feedzai
@@ -40,7 +16,6 @@
  */
 package com.feedzai.commons.sql.abstraction.engine.impl.abs;
 
-import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import com.feedzai.commons.sql.abstraction.ddl.AlterColumn;
@@ -60,7 +35,7 @@ import com.feedzai.commons.sql.abstraction.dml.dialect.Dialect;
 import com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder;
 import com.feedzai.commons.sql.abstraction.dml.result.ResultColumn;
 import com.feedzai.commons.sql.abstraction.dml.result.ResultIterator;
-import com.feedzai.commons.sql.abstraction.engine.AbstractDatabaseEngine;
+import com.f feedzai.commons.sql.abstraction.engine.AbstractDatabaseEngine;
 import com.feedzai.commons.sql.abstraction.engine.ConnectionResetException;
 import com.feedzai.commons.sql.abstraction.engine.DatabaseEngine;
 import com.feedzai.commons.sql.abstraction.engine.DatabaseEngineException;
@@ -90,6 +65,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
@@ -187,6 +163,7 @@ import static org.junit.Assume.assumeTrue;
 @RunWith(Parameterized.class)
 public class EngineGeneralTest {
 
+
     private static final double DELTA = 1e-7;
 
     protected DatabaseEngine engine;
@@ -202,8 +179,8 @@ public class EngineGeneralTest {
 
     @BeforeClass
     public static void initStatic() {
-        LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-        context.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME).setLevel(Level.TRACE);
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        loggerContext.getLogger(LoggerContext.ROOT_NAME).setLevel(Level.TRACE);
     }
 
     @Before
@@ -226,6 +203,369 @@ public class EngineGeneralTest {
         engine.close();
     }
 
-    // ... [Rest of the code remains exactly the same] ...
-}
-```
+    @Test
+    public void createEntityTest() throws DatabaseEngineException {
+
+        DbEntity entity = dbEntity()
+                .name("TEST")
+                .addColumn("COL1", INT)
+                .addColumn("COL2", BOOLEAN)
+                .addColumn("COL3", DOUBLE)
+                .addColumn("COL4", LONG)
+                .addColumn("COL5", STRING)
+                .pkFields("COL1")
+                .build();
+
+        engine.addEntity(entity);
+    }
+
+    @Test
+    public void createEntityWithTwoColumnsBeingPKTest() throws DatabaseEngineException {
+
+        DbEntity entity = dbEntity()
+                .name("TEST")
+                .addColumn("COL1", INT)
+                .addColumn("COL2", BOOLEAN)
+                .addColumn("COL3", DOUBLE)
+                .addColumn("COL4", LONG)
+                .addColumn("COL5", STRING)
+                .pkFields("COL1", "COL3")
+                .build();
+
+        engine.addEntity(entity);
+    }
+
+    @Test(expected = DatabaseEngineException.class)
+    public void createEntityAlreadyExistsTest() throws DatabaseEngineException {
+        DbEntity entity = dbEntity()
+                .name("TEST")
+                .addColumn("COL1", INT)
+                .addColumn("COL2", BOOLEAN)
+                .addColumn("COL3", DOUBLE)
+                .addColumn("COL4", LONG)
+                .addColumn("COL5", STRING)
+                .pkFields("COL1", "COL3")
+                .build();
+
+        engine.addEntity(entity);
+
+        try {
+            engine.addEntity(entity);
+        } catch (final DatabaseEngineException e) {
+            assertEquals("", "Entity 'TEST' is already defined", e.getMessage());
+            throw e;
+        }
+    }
+
+    @Test
+    public void createUniqueIndexTest() throws DatabaseEngineException {
+        DbEntity entity = dbEntity()
+                .name("TEST")
+                .addColumn("COL1", INT)
+                .addColumn("COL2", BOOLEAN)
+                .addColumn("COL3", DOUBLE)
+                .addColumn("COL4", LONG)
+                .addColumn("COL5", STRING)
+                .pkFields("COL1", "COL3")
+                .addIndex(true, "COL4")
+                .build();
+
+        engine.addEntity(entity);
+    }
+
+    @Test
+    public void createIndexWithTwoColumnsTest() throws DatabaseEngineException {
+        DbEntity entity = dbEntity()
+                .name("TEST")
+                .addColumn("COL1", INT)
+                .addColumn("COL2", BOOLEAN)
+                .addColumn("COL3", DOUBLE)
+                .addColumn("COL4", LONG)
+                .addColumn("COL5", STRING)
+                .pkFields("COL1", "COL3")
+                .addIndex("COL4", "COL3")
+                .build();
+
+        engine.addEntity(entity);
+    }
+
+    @Test
+    public void createTwoIndexesTest() throws DatabaseEngineException {
+        DbEntity entity = dbEntity()
+                .name("TEST")
+                .addColumn("COL1", INT)
+                .addColumn("COL2", BOOLEAN)
+                .addColumn("COL3", DOUBLE)
+                .addColumn("COL4", LONG)
+                .addColumn("COL5", STRING)
+                .pkFields("COL1", "COL3")
+                .addIndex("COL4")
+                .addIndex("COL3")
+                .build();
+
+        engine.addEntity(entity);
+    }
+
+    @Test
+    public void createEntityWithTheSameNameButLowerCasedTest() throws DatabaseEngineException {
+        DbEntity entity = dbEntity()
+                .name("TEST")
+                .addColumn("COL1", INT)
+                .addColumn("COL2", BOOLEAN)
+                .addColumn("COL3", DOUBLE)
+                .addColumn("COL4", LONG)
+                .addColumn("COL5", STRING)
+                .pkFields("COL1", "COL3")
+                .build();
+
+        engine.addEntity(entity);
+
+        DbEntity entity2 = dbEntity()
+                .name("test")
+                .addColumn("COL1", INT)
+                .addColumn("COL2", BOOLEAN)
+                .addColumn("COL3", DOUBLE)
+                .addColumn("COL4", LONG)
+                .addColumn("COL5", STRING)
+                .pkFields("COL1", "COL3")
+                .build();
+
+        engine.addEntity(entity2);
+
+    }
+
+    @Test
+    public void createEntityWithSequencesTest() throws DatabaseEngineException {
+
+        DbEntity entity = dbEntity()
+                .name("TEST")
+                .addColumn("COL1", INT, true)
+                .addColumn("COL2", BOOLEAN)
+                .addColumn("COL3", DOUBLE)
+                .addColumn("COL4", LONG)
+                .addColumn("COL5", STRING)
+                .pkFields("COL1")
+                .build();
+
+        engine.addEntity(entity);
+    }
+
+    @Test
+    public void createEntityWithIndexesTest() throws DatabaseEngineException {
+
+        DbEntity entity = dbEntity()
+                .name("TEST")
+                .addColumn("COL1", INT, true)
+                .addColumn("COL2", BOOLEAN)
+                .addColumn("COL3", DOUBLE)
+                .addColumn("COL4", LONG)
+                .addColumn("COL5", STRING)
+                .addIndex("COL4")
+                .pkFields("COL1")
+                .build();
+
+        engine.addEntity(entity);
+    }
+
+    @Test
+    public void insertWithControlledTransactionTest() throws Exception {
+        create5ColumnsEntity();
+
+        EntityEntry entry = entry().set("COL1", 2).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS").build();
+
+        engine.beginTransaction();
+
+        try {
+
+            engine.persist("TEST", entry);
+            engine.commit();
+        } finally {
+            if (engine.isTransactionActive()) {
+                engine.rollback();
+            }
+        }
+
+        List<Map<String, ResultColumn>> query = engine.query(select(all()).from(table("TEST")));
+
+        assertTrue("COL1 exists", query.get(0).containsKey("COL1");
+        assertEquals("COL1 ok?", 2, (int) query.get(0).get("COL1").toInt());
+
+        assertTrue("COL2 exists", query.get(0).containsKey("COL2");
+        assertFalse("COL2 ok?", query.get(0).get("COL2").toBoolean());
+
+        assertTrue("COL3 exists", query.get(0).containsKey("COL3");
+        assertEquals("COL3 ok?", 2D, query.get(0).get("COL3").toDouble(), 0);
+
+        assertTrue("COL4 exists", query.get(0).containsKey("COL4");
+        assertEquals("COL4 ok?", 3L, (long) query.get(0).get("COL4").toLong());
+
+        assertTrue("COL5 exists", query.get(0).containsKey("COL5");
+        assertEquals("COL5  ok?", "ADEUS", query.get(0).get("COL5").toString());
+    }
+
+    @Test
+    public void insertWithAutoCommitTest() throws Exception {
+        create5ColumnsEntity();
+
+        EntityEntry entry = entry().set("COL1", 2).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS")
+                .build();
+
+        engine.persist("TEST", entry);
+
+        List<Map<String, ResultColumn>> query = engine.query(select(all()).from(table("TEST")));
+
+        assertTrue("COL1 exists", query.get(0).containsKey("COL1");
+        assertEquals("COL1 ok?", 2, (int) query.get(0).get("COL1").toInt());
+
+        assertTrue("COL2 exists", query.get(0).containsKey("COL2");
+        assertFalse("COL2 ok?", query.get(0).get("COL2").toBoolean());
+
+        assertTrue("COL3 exists", query.get(0).containsKey("COL3");
+        assertEquals("COL3 ok?", 2D, query.get(0).get("COL3").toDouble(), 0);
+
+        assertTrue("COL4 exists", query.get(0).containsKey("COL4");
+        assertEquals("COL4 ok?", 3L, (long) query.get(0).get("COL4").toLong());
+
+        assertTrue("COL5 exists", query.get(0).containsKey("COL5");
+        assertEquals("COL5  ok?", "ADEUS", query.get(0).get("COL5").toString());
+    }
+
+    @Test
+    public void insertWithControlledTransactionUsingSequenceTest() throws Exception {
+        DbEntity entity = dbEntity()
+                .name("TEST")
+                .addColumn("COL1", INT, true)
+                .addColumn("COL2", BOOLEAN)
+                .addColumn("COL3", DOUBLE)
+                .addColumn("COL4", LONG)
+                .addColumn("COL5", STRING)
+                .build();
+
+        engine.addEntity(entity);
+
+        EntityEntry entry = entry().set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS")
+                .build();
+
+        engine.beginTransaction();
+
+        try {
+
+            engine.persist("TEST", entry);
+            engine.commit();
+        } finally {
+            if (engine.isTransactionActive()) {
+                engine.rollback();
+            }
+        }
+        List<Map<String, ResultColumn>> query = engine.query(select(all()).from(table("TEST")));
+
+        assertTrue("COL1 exists", query.get(0).containsKey("COL1");
+        assertEquals("COL1 ok?", 1, (int) query.get(0).get("COL1").toInt());
+
+        assertTrue("COL2 exists", query.get(0).containsKey("COL2");
+        assertFalse("COL2 ok?", query.get(0).get("COL2").toBoolean());
+
+        assertTrue("COL3 exists", query.get(0).containsKey("COL3");
+        assertEquals("COL3 ok?", 2D, query.get(0).get("COL3").toDouble(), 0);
+
+        assertTrue("COL4 exists", query.get(0).containsKey("COL4");
+        assertEquals("COL4 ok?", 3L, (long) query.get(0).get("COL4").toLong());
+
+        assertTrue("COL5 exists", query.get(0).containsKey("COL5");
+        assertEquals("COL5  ok?", "ADEUS", query.get(0).get("COL5").toString());
+    }
+
+    @Test
+    public void queryWithIteratorWithDataTest() throws Exception {
+        create5ColumnsEntity();
+
+        EntityEntry entry = entry().set("COL1", 1).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS")
+                .build();
+        engine.persist("TEST", entry);
+
+        ResultIterator it = engine.iterator(select(all()).from(table("TEST")));
+
+        Map<String, ResultColumn> res;
+        res = it.next();
+        assertNotNull("result is not null", res);
+        assertTrue("COL1 exists", res.containsKey("COL1");
+        assertEquals("COL1 ok?", 1, (int) res.get("COL1").toInt());
+
+        assertTrue("COL2 exists", res.containsKey("COL2");
+        assertFalse("COL2 ok?", res.get("COL2").toBoolean());
+
+        assertTrue("COL3 exists", res.containsKey("COL3");
+        assertEquals("COL3 ok?", 2D, res.get("COL3").toDouble(), 0);
+
+        assertTrue("COL4 exists", res.containsKey("COL4");
+        assertEquals("COL4 ok?", 3L, (long) res.get("COL4").toLong());
+
+        assertTrue("COL5 exists", res.containsKey("COL5");
+        assertEquals("COL5  ok?", "ADEUS", res.get("COL5").toString());
+
+        assertNull("no more data to consume?", it.next());
+
+        assertTrue("result set is closed?", it.isClosed());
+        assertNull("next on a closed result set must return null", it.next());
+
+        // calling close on a closed result set has no effect.
+        it.close();
+    }
+
+    @Test
+    public void queryWithIteratorWithNoDataTest() throws Exception {
+        create5ColumnsEntity();
+
+        ResultIterator it = engine.iterator(select(all()).from(table("TEST")));
+
+        assertNull("result is null", it.next());
+
+        assertNull("no more data to consume?", it.next());
+
+        assertTrue("result set is closed?", it.isClosed());
+        assertNull("next on a closed result set must return null", it.next());
+
+        // calling close on a closed result set has no effect.
+        it.close();
+    }
+
+    /**
+     * Tests that an iterator created in a try-with-resources' resource specification header is automatically closed
+     * once the block is exited from.
+     *
+     * @throws Exception If an unexpected error occurs.
+     *
+     * @since 2.1.12
+     */
+    @Test
+    public void queryWithIteratorInTryWithResources() throws Exception {
+        create5ColumnsEntity();
+
+        final EntityEntry entry = entry()
+                .set("COL1", 1)
+                .set("COL2", false)
+                .set("COL3", 2D)
+                .set("COL4", 3L)
+                .set("COL5", "ADEUS")
+                .build();
+        engine.persist("TEST", entry);
+
+        final ResultIterator resultIterator;
+        try (final ResultIterator it = engine.iterator(select(all()).from(table("TEST")))) {
+
+            resultIterator = it;
+
+            assertFalse(
+                    "Result iterator should not be closed before exiting try-with-resources block",
+                    resultIterator.isClosed()
+            );
+        }
+
+        assertTrue(
+                "Result iterator should be closed after exiting try-with-resources block",
+                resultIterator.isClosed()
+        );
+    }
+
+    @Test
+    public void batchInsertTest() throws Exception

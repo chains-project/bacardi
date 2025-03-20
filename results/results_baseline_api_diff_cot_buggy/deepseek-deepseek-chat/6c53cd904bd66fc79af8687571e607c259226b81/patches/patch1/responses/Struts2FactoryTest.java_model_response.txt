@@ -1,32 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. Relevant parts of the code:
-      - `import org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter;`
-      - `bind(StrutsPrepareAndExecuteFilter.class)`
-      - `filter("/*").through(StrutsPrepareAndExecuteFilter.class);`
-   b. API changes:
-      - `org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter` has been removed
-      - New class `org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter` has been added
-   c. Affected lines:
-      - Line 19: Import statement
-      - Line 55: Binding statement
-      - Line 57: Filter configuration statement
-   d. Proposed fixes:
-      - Replace import with `import org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter;`
-      - Keep binding and filter configuration statements as they are, just using the new class
-   e. Side effects:
-      - No side effects expected as the new class has the same functionality
-   f. Constraints check:
-      - No method signatures changed
-      - No variables created
-      - No @Override annotations removed
-      - Correct import is used
-      - No code removed
-   g. Final summary:
-      - The best solution is to update the import statement to use the new package location of StrutsPrepareAndExecuteFilter
-      - This is a straightforward fix that maintains all functionality while adhering to all constraints
-</fix_planning>
-
 ```java
 /*
  * Copyright (C) 2010 Google Inc.

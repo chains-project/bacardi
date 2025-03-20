@@ -1,31 +1,3 @@
-<fix_planning>
-1. **Analysis of the Problem:**
-   a. The error messages indicate that the `EncoderBase` class has been removed in the new version of the dependency, and the `LogMessageEncoder` class is not implementing the required methods from the `Encoder` interface.
-   b. The specific API change is the removal of `EncoderBase` and the requirement to implement methods from the `Encoder` interface.
-   c. The affected lines of code are:
-      - Line 51: `public static class LogMessageEncoder extends EncoderBase<LogMessage> {`
-      - Line 57: `@Override`
-      - Line 68: `@Override`
-      - Line 78: `@Override`
-   d. Potential fixes:
-      - Change the `LogMessageEncoder` class to implement the `Encoder` interface directly.
-      - Remove the `@Override` annotations since the methods are no longer overriding methods from `EncoderBase`.
-      - Implement the missing `footerBytes()` method required by the `Encoder` interface.
-   e. Side effects:
-      - The change to implement the `Encoder` interface directly may require additional methods to be implemented, but in this case, only `footerBytes()` is missing.
-   f. The proposed changes adhere to all constraints:
-      - The function signatures of existing methods are not changed.
-      - No existing code is removed unless it directly causes a compilation error.
-      - The `@Override` annotations are removed only where necessary.
-   g. Final summary:
-      - The best solution is to change `LogMessageEncoder` to implement the `Encoder` interface directly, remove the `@Override` annotations, and implement the `footerBytes()` method.
-
-2. **Proposed Fix:**
-   - Change `LogMessageEncoder` to implement `Encoder<LogMessage>`.
-   - Remove `@Override` annotations.
-   - Implement the `footerBytes()` method.
-</fix_planning>
-
 ```java
 /**
  * Copyright 2019 Pinterest, Inc.
@@ -104,6 +76,10 @@ public class AppenderUtils {
 
     public void close() throws IOException {
       framedTransport.close();
+    }
+
+    public byte[] headerBytes() {
+      return new byte[0];
     }
 
     public byte[] footerBytes() {

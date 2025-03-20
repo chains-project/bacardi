@@ -1,20 +1,21 @@
-108,112c108,116
+3a4,5
+> import org.flywaydb.core.api.configuration.ClassicConfiguration;
+> import org.flywaydb.core.api.Location;
+108,113c110,115
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
 <                 flyway.setLocations(prop.getProperty("flyway.locations"));
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+<                 return flyway;
 ---
->                 final org.flywaydb.core.api.configuration.ClassicConfiguration configuration = new org.flywaydb.core.api.configuration.ClassicConfiguration();
+>                 final ClassicConfiguration configuration = new ClassicConfiguration();
 >                 configuration.setDataSource(this.dataSource());
 >                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
->                 configuration.setLocations(new org.flywaydb.core.api.Location[] {
->                         new org.flywaydb.core.api.Location(prop.getProperty("flyway.locations"))
->                 });
+>                 configuration.setLocations(new Location[]{new Location(prop.getProperty("flyway.locations"))});
 >                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
->                 
->                 final org.flywaydb.core.Flyway flyway = new Flyway(configuration);
-246c250
-<                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
+>                 return new Flyway(configuration);
+226c228
+<                 return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
 ---
->                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions);
+>                 return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());

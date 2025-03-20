@@ -1,5 +1,11 @@
-218,219c218
+217,219c217,218
+<   @Override
 <   protected Set<Property> getProperties(Class<? extends Object> type)
 <           throws IntrospectionException {
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) {
+>     try {
+231a231,233
+>       }
+>     } catch (IntrospectionException e) {
+>       throw new RuntimeException(e);

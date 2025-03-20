@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.Validate;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.NetworkConnector;
 
 /**
  * Default stub http server implementation using Jetty as an http server.
@@ -21,7 +20,7 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
     private final Server server;
-    private final NetworkConnector httpConnector;
+    private final ServerConnector httpConnector;
 
     public JettyStubHttpServer() {
         this(0);
@@ -30,7 +29,6 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
-        
         HttpConfiguration httpConfig = new HttpConfiguration();
         httpConfig.setSendServerVersion(false);
         httpConfig.setSendDateHeader(true);

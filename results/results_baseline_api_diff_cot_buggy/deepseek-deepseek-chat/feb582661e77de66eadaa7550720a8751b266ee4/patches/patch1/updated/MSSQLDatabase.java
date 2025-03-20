@@ -15,6 +15,7 @@ public class MSSQLDatabase extends liquibase.database.core.MSSQLDatabase {
     @Override
     public void dropDatabaseObjects(CatalogAndSchema schemaToDrop) throws LiquibaseException {
         super.dropDatabaseObjects(schemaToDrop);
-        ExecutorService.getExecutor("default", this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+        ExecutorService executorService = new ExecutorService();
+        executorService.getExecutor(this.getConnection().getConnectionUserName(), this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
     }
 }

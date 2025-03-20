@@ -1,27 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs because the `net.lingala.zip4j.core.ZipFile` class has been removed in the new version of the dependency.
-   b. The specific API changes causing the issue are:
-      - Class `net.lingala.zip4j.core.ZipFile` has been removed
-      - New class `net.lingala.zip4j.ZipFile` has been added
-   c. Affected lines:
-      - Import statement: `import net.lingala.zip4j.core.ZipFile;`
-      - Usage in `unpack` method: `final ZipFile zipFile = new ZipFile(file);`
-   d. Proposed fixes:
-      - Change import to: `import net.lingala.zip4j.ZipFile;`
-      - Keep the usage the same since the new ZipFile class has a compatible constructor
-   e. Potential side effects:
-      - None expected, as the new ZipFile class appears to maintain the same functionality
-   f. Constraints check:
-      - The fix adheres to all constraints:
-        * No function signatures changed
-        * No code removed
-        * Correct import is used
-        * All code is included
-   g. Final summary:
-      - The best solution is to update the import statement to use the new package location of the ZipFile class while maintaining the existing usage pattern.
-</fix_planning>
-
 ```java
 /*
  *  Copyright 2021 Qameta Software OÜ
@@ -149,7 +125,7 @@ public class AllureCommandline {
     }
 
     private int execute(final CommandLine commandLine, final int timeout) throws IOException {
-        final DefaultExecutor executor = new DefaultExecutor;
+        final DefaultExecutor executor = new DefaultExecutor();
         final ExecuteWatchdog watchdog = new ExecuteWatchdog(TimeUnit.SECONDS.toMillis(timeout));
         executor.setWatchdog(watchdog);
         executor.setExitValue(0);

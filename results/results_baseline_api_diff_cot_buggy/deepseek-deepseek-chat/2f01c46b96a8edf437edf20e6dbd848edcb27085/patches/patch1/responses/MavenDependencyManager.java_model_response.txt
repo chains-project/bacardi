@@ -1,32 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs because the class `org.codehaus.plexus.util.xml.Xpp3Dom` has been removed in the new version of the dependency.
-   b. The specific API change causing the issue is the removal of the entire `Xpp3Dom` class.
-   c. Affected lines:
-      - Import statement: `import org.codehaus.plexus.util.xml.Xpp3Dom;`
-      - Usage in method: `.map(config -> (Xpp3Dom) exec.getConfiguration())`
-   d. Potential fixes:
-      - Replace `Xpp3Dom` with an equivalent class from the new version of the dependency.
-      - Use a different approach to access the configuration data.
-   e. Side effects:
-      - The new implementation might have different behavior or API.
-      - Need to ensure compatibility with the rest of the code.
-   f. Constraints check:
-      - The function signature remains unchanged.
-      - No existing code is removed except for the problematic import.
-      - The fix adheres to all constraints.
-   g. Final summary:
-      - The best solution is to replace `Xpp3Dom` with `org.apache.maven.plugin.PluginParameterExpressionEvaluator` or similar class from the Maven API that can handle plugin configurations.
-
-2. Proposed changes:
-   - Replace the import statement with the appropriate Maven API class.
-   - Modify the type casting in the `collectUsedClassesFromProcessors` method.
-
-3. Implementation:
-   - Replace `Xpp3Dom` with `org.apache.maven.plugin.PluginParameterExpressionEvaluator` or similar class.
-   - Update the type casting in the method accordingly.
-</fix_planning>
-
 ```java
 package se.kth.depclean.wrapper;
 
@@ -54,7 +25,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
-import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.Plugin;
 import se.kth.depclean.core.AbstractDebloater;
 import se.kth.depclean.core.analysis.graph.DependencyGraph;
 import se.kth.depclean.core.analysis.model.ProjectDependencyAnalysis;
@@ -189,10 +160,10 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
     getLog().debug("# collectUsedClassesFromProcessors()");
     return Optional.ofNullable(project.getPlugin("org.bsc.maven:maven-processor-plugin"))
         .map(plugin -> plugin.getExecutionsAsMap().get("process"))
-        .map(exec -> (PluginParameterExpressionEvaluator) exec.getConfiguration())
+        .map(exec -> exec.getConfiguration())
         .map(config -> config.getChild("processors"))
-        .map(PluginParameterExpressionEvaluator::getChildren)
-        .map(arr -> Arrays.stream(arr).map(PluginParameterExpressionEvaluator::getValue).collect(Collectors.toSet()))
+        .map(processors -> processors.getChildren())
+        .map(arr -> Arrays.stream(arr).map(processor -> processor.getValue()).collect(Collectors.toSet()))
         .orElse(of());
   }
 

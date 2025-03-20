@@ -20,6 +20,7 @@ import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
+import org.yaml.snakeyaml.introspector.PropertyUtils;
 
 import java.beans.IntrospectionException;
 import java.util.*;
@@ -214,32 +215,32 @@ class ModelRepresenter extends Representer {
   /*
    * Change the default order. Important data goes first.
    */
-  @Override
   protected Set<Property> getProperties(Class<? extends Object> type) {
-    if (type.isAssignableFrom(Model.class)) {
-      return sortTypeWithOrder(type, ORDER_MODEL);
-    } else if (type.isAssignableFrom(Developer.class)) {
-      return sortTypeWithOrder(type, ORDER_DEVELOPER);
-    } else if (type.isAssignableFrom(Contributor.class)) {
-      return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-    }  else if (type.isAssignableFrom(Dependency.class)) {
-      return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-    }  else if (type.isAssignableFrom(Plugin.class)) {
-      return sortTypeWithOrder(type, ORDER_PLUGIN);
-    } else {
-      return super.getProperties(type);
+    try {
+      if (type.isAssignableFrom(Model.class)) {
+        return sortTypeWithOrder(type, ORDER_MODEL);
+      } else if (type.isAssignableFrom(Developer.class)) {
+        return sortTypeWithOrder(type, ORDER_DEVELOPER);
+      } else if (type.isAssignableFrom(Contributor.class)) {
+        return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
+      }  else if (type.isAssignableFrom(Dependency.class)) {
+        return sortTypeWithOrder(type, ORDER_DEPENDENCY);
+      }  else if (type.isAssignableFrom(Plugin.class)) {
+        return sortTypeWithOrder(type, ORDER_PLUGIN);
+      } else {
+        return super.getProperties(type);
+      }
+    } catch (IntrospectionException e) {
+      throw new RuntimeException(e);
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
-      try {
-          Set<Property> standard = super.getProperties(type);
-          Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
-          sorted.addAll(standard);
-          return sorted;
-      } catch (Exception e) {
-          throw new RuntimeException("Failed to get properties for type: " + type, e);
-      }
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+          throws IntrospectionException {
+      Set<Property> standard = super.getProperties(type);
+      Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
+      sorted.addAll(standard);
+      return sorted;
   }
 
   private class ModelPropertyComparator implements Comparator<Property> {

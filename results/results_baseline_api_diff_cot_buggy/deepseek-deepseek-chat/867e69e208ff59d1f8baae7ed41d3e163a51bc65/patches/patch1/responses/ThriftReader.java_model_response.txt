@@ -1,31 +1,3 @@
-<fix_planning>
-1. **Analysis of the Problem:**
-   - The error occurs because the `TFramedTransport` class has been moved from `org.apache.thrift.transport` to `org.apache.thrift.transport.layered` in the new version of the dependency.
-   - The import statement `import org.apache.thrift.transport.TFramedTransport;` is no longer valid.
-   - The class `TFramedTransport` is used in the code to declare the `framedTransport` variable and to instantiate it in the constructor.
-
-2. **Affected Lines:**
-   - `import org.apache.thrift.transport.TFramedTransport;`
-   - `private final TFramedTransport framedTransport;`
-
-3. **Proposed Fixes:**
-   - Update the import statement to use the new package: `import org.apache.thrift.transport.layered.TFramedTransport;`
-   - No changes are needed for the declaration of `framedTransport` since the class name remains the same, only the package has changed.
-
-4. **Potential Side Effects:**
-   - The change in the import statement should not have any side effects as long as the new `TFramedTransport` class in the `org.apache.thrift.transport.layered` package has the same API as the old one.
-
-5. **Adherence to Constraints:**
-   - The proposed changes adhere to all constraints:
-     - The function signatures remain unchanged.
-     - No variables are removed or added.
-     - The import statement is updated to the correct package.
-     - No existing code is removed.
-
-6. **Final Summary:**
-   - The best solution is to update the import statement to reflect the new package location of `TFramedTransport`. This is a straightforward fix that resolves the compilation error without introducing any side effects.
-</fix_planning>
-
 ```java
 /**
  * Copyright 2019 Pinterest, Inc.

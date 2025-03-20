@@ -1,28 +1,3 @@
-<fix_planning>
-1. **Analysis of the Problem:**
-   a. The error occurs because the class `org.hamcrest.Matchers` has been removed in the new version of the dependency.
-   b. The specific API change causing the issue is the removal of the `Matchers` class.
-   c. The affected line of code is:
-      ```java
-      import org.hamcrest.Matchers;
-      ```
-   d. Potential fixes:
-      - Replace `Matchers` with the appropriate alternative class or method from the new version of the dependency.
-      - Since `Matchers` was commonly used for creating matchers, we can replace it with `CoreMatchers` or other specific matcher classes.
-   e. Side effects:
-      - The change should not affect the functionality of the code as long as the replacement provides the same matcher functionality.
-   f. The proposed changes adhere to all constraints:
-      - The function signatures remain unchanged.
-      - No existing code is removed.
-      - The fix only addresses the missing import.
-   g. Final summary:
-      - The best solution is to replace `Matchers` with `CoreMatchers` since it is a common replacement in newer versions of Hamcrest and provides similar functionality.
-
-2. **Proposed Fix:**
-   - Replace `import org.hamcrest.Matchers;` with `import org.hamcrest.CoreMatchers;`.
-   - Update the usage of `Matchers` in the code to `CoreMatchers`.
-</fix_planning>
-
 ```java
 /*
  * Copyright (c) 2011-2017, jcabi.com

@@ -1,49 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. Relevant code parts:
-      - `import org.cactoos.scalar.CheckedScalar;`
-      - `import org.cactoos.scalar.UncheckedScalar;`
-      - `import org.cactoos.text.SplitText;`
-      - `import org.cactoos.collection.Filtered;`
-      - Usage of these classes in the code
-
-   b. API changes causing issues:
-      - `CheckedScalar` and `UncheckedScalar` classes removed
-      - `SplitText` class removed
-      - `Filtered` class removed and replaced with `org.cactoos.iterable.Filtered`
-
-   c. Affected lines:
-      - Line with `CheckedScalar` usage in `id()` method
-      - Line with `UncheckedScalar` usage in `merge()` method
-      - Lines with `SplitText` usage in `id()` and `ledger()` methods
-      - Line with `Filtered` usage in `merge()` method
-
-   d. Potential fixes:
-      - Replace `CheckedScalar` with try-catch block
-      - Replace `UncheckedScalar` with direct value access
-      - Replace `SplitText` with `String.split()`
-      - Replace `Filtered` with `org.cactoos.iterable.Filtered`
-
-   e. Side effects:
-      - Try-catch block might be less elegant than `CheckedScalar`
-      - Direct value access might throw unchecked exceptions
-      - `String.split()` might have slightly different behavior
-      - New `Filtered` class might require different constructor
-
-   f. Constraint adherence:
-      - All changes maintain method signatures
-      - No existing code removed except for direct causes of errors
-      - Correct imports are used
-      - No placeholder comments used
-
-   g. Final summary:
-      The chosen fix replaces removed classes with equivalent functionality while maintaining the original behavior. This is the best solution as it:
-      - Uses standard Java features where possible
-      - Maintains compatibility with the new dependency version
-      - Preserves the original functionality
-      - Adheres to all constraints
-</fix_planning>
-
 ```java
 /*
  * The MIT License (MIT)
@@ -242,16 +196,16 @@ public interface Wallet {
 
         @Override
         public long id() throws IOException {
-            try {
-                return Long.parseUnsignedLong(
-                    new ListOf<>(
-                        new TextOf(this.path).asString().split("\n")
-                    ).get(2),
-                    16
-                );
-            } catch (NumberFormatException e) {
-                throw new IOException(e);
-            }
+            return Long.parseUnsignedLong(
+                new ListOf<>(
+                    new org.cactoos.text.Split(
+                        new TextOf(this.path),
+                        "\n"
+                    )
+                ).get(2).asString(),
+                // @checkstyle MagicNumber (1 line)
+                16
+            );
         }
 
         @Override
@@ -299,11 +253,15 @@ public interface Wallet {
         @Override
         public Iterable<Transaction> ledger() {
             return new Mapped<>(
-                txt -> new RtTransaction(txt),
+                txt -> new RtTransaction(txt.asString()),
                 new Skipped<>(
                     new ListOf<>(
-                        new TextOf(this.path).asString().split("\\n")
+                        new org.cactoos.text.Split(
+                            new TextOf(this.path),
+                            "\\n"
+                        )
                     ),
+                    // @checkstyle MagicNumberCheck (1 line)
                     5
                 )
             );

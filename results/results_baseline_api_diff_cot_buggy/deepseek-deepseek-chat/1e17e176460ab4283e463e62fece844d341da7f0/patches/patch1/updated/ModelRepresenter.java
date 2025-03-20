@@ -13,6 +13,7 @@ import org.apache.maven.model.Developer;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.error.YAMLException;
 import org.yaml.snakeyaml.introspector.Property;
 import org.yaml.snakeyaml.nodes.Node;
@@ -20,7 +21,6 @@ import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
-import org.yaml.snakeyaml.DumperOptions;
 
 import java.beans.IntrospectionException;
 import java.util.*;
@@ -92,7 +92,6 @@ class ModelRepresenter extends Representer {
     }
     return false;
   }
-
 
   private class RepresentXpp3Dom implements Represent {
     private static final String ATTRIBUTE_PREFIX = "attr/";
@@ -213,11 +212,7 @@ class ModelRepresenter extends Representer {
 		  "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
   //}
 
-  /*
-   * Change the default order. Important data goes first.
-   */
-  protected Set<Property> getProperties(Class<? extends Object> type)
-          throws IntrospectionException {
+  protected Set<Property> getProperties(Class<? extends Object> type) {
     if (type.isAssignableFrom(Model.class)) {
       return sortTypeWithOrder(type, ORDER_MODEL);
     } else if (type.isAssignableFrom(Developer.class)) {
@@ -233,8 +228,7 @@ class ModelRepresenter extends Representer {
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
-          throws IntrospectionException {
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
       Set<Property> standard = super.getProperties(type);
       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
       sorted.addAll(standard);

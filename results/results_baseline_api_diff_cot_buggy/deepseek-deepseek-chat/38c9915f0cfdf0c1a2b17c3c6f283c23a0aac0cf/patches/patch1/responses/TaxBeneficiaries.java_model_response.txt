@@ -1,18 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs because `org.cactoos.iterable.LengthOf` has been removed in the new version of the dependency.
-   b. The API changes indicate that `org.cactoos.iterable.LengthOf` has been removed and replaced with `org.cactoos.scalar.LengthOf`.
-   c. The affected line is: `new LengthOf(n.score().suffixes()).intValue() >= 16`
-   d. Potential fix: Replace `org.cactoos.iterable.LengthOf` with `org.cactoos.scalar.LengthOf` and adjust the usage accordingly.
-   e. Side effects: The functionality should remain the same since both classes are used to calculate the length of an iterable.
-   f. Constraints check: The fix adheres to all constraints as it only changes the import and the class used, without modifying the method signature or removing any code.
-   g. Summary: The best solution is to replace `org.cactoos.iterable.LengthOf` with `org.cactoos.scalar.LengthOf` since it's the direct replacement in the new API version.
-
-2. Proposed fix:
-   - Change the import from `org.cactoos.iterable.LengthOf` to `org.cactoos.scalar.LengthOf`
-   - Keep the usage of `LengthOf` the same since the constructor signature remains compatible
-</fix_planning>
-
 ```java
 /*
  * The MIT License (MIT)
@@ -62,7 +47,7 @@ public final class TaxBeneficiaries extends IterableEnvelope<Remote> {
             Comparator.comparing(Remote::score),
             new Filtered<>(
                 // @checkstyle MagicNumberCheck (1 line)
-                n -> new LengthOf(n.score().suffixes()).intValue() >= 16,
+                n -> new LengthOf(n.score().suffixes()).value().intValue() >= 16,
                 nodes
             )
         ));

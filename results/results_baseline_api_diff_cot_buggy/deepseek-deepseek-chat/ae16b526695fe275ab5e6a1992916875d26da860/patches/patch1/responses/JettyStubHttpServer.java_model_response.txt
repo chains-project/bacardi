@@ -1,51 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. Relevant code and API changes:
-      - `SelectChannelConnector` class and its constructor have been removed
-      - `Connector` class has been removed
-      - `Server.setSendServerVersion(boolean)` and `Server.setSendDateHeader(boolean)` have been removed
-      - `HttpConfiguration.setSendServerVersion(boolean)` and `HttpConfiguration.setSendDateHeader(boolean)` have been added
-      - `AbstractNetworkConnector.setPort(int)` has been added
-      - `NetworkConnector.getLocalPort()` has been added
-
-   b. Specific API changes causing issues:
-      - Use of removed classes and methods (`SelectChannelConnector`, `Connector`, `Server` methods)
-      - Need to use new classes and methods (`ServerConnector`, `HttpConfiguration`, `NetworkConnector`)
-
-   c. Affected lines:
-      - Line 14: `import org.eclipse.jetty.server.nio.SelectChannelConnector;`
-      - Line 33: `this.server.setSendServerVersion(false);`
-      - Line 34: `this.server.setSendDateHeader(true);`
-      - Line 36: `this.httpConnector = new SelectChannelConnector();`
-      - Line 37: `this.httpConnector.setPort(port);`
-      - Line 80: `return httpConnector.getLocalPort();`
-
-   d. Proposed fixes:
-      - Replace `SelectChannelConnector` with `ServerConnector`
-      - Create `HttpConfiguration` object to handle server version and date header settings
-      - Use `NetworkConnector` interface for port-related operations
-      - Update imports accordingly
-
-   e. Potential side effects:
-      - New Jetty version might have different behavior for server configuration
-      - Need to ensure compatibility with other parts of the code
-
-   f. Constraints check:
-      - Function signatures remain unchanged
-      - New variables are created for configuration
-      - Imports are updated correctly
-      - No code is removed unnecessarily
-
-   g. Final summary:
-      The best solution is to update the code to use the new Jetty API classes and methods while maintaining the same functionality. This involves replacing the removed classes with their newer equivalents and using the new configuration approach.
-
-2. Fix implementation:
-   - Replace `SelectChannelConnector` with `ServerConnector`
-   - Create `HttpConfiguration` object
-   - Update imports
-   - Modify connector setup and port handling
-</fix_planning>
-
 ```java
 /*
  * Copyright (c) 2012 - 2016 Jadler contributors
@@ -61,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.Validate;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.NetworkConnector;
 
 /**
  * Default stub http server implementation using Jetty as an http server.
@@ -70,7 +21,7 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
     private final Server server;
-    private final NetworkConnector httpConnector;
+    private final ServerConnector httpConnector;
 
     public JettyStubHttpServer() {
         this(0);
@@ -79,7 +30,6 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
-        
         HttpConfiguration httpConfig = new HttpConfiguration();
         httpConfig.setSendServerVersion(false);
         httpConfig.setSendDateHeader(true);

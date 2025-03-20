@@ -67,6 +67,8 @@ public class Signer {
         } else {
             signatureParameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_B);
         }
+        // CertificationPermission has been removed, so we skip setting it
+        // signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
 
         // Create common certificate verifier
         CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();

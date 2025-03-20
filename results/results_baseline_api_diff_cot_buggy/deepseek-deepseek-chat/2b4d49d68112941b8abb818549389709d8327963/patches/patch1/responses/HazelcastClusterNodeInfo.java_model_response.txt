@@ -1,31 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error is caused by the removal of `com.hazelcast.core.Member` class and its methods `getStringAttribute` and `getSocketAddress`.
-   b. The new API introduces `com.hazelcast.cluster.Member` interface with different methods.
-   c. Affected lines:
-      - Import statement: `import com.hazelcast.core.Member;`
-      - Constructor: `public HazelcastClusterNodeInfo(final Member member, final long joinedTime)`
-      - Line using `getStringAttribute`: `this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";`
-   d. Proposed fixes:
-      - Change import to `com.hazelcast.cluster.Member`
-      - Use `getAttribute` instead of `getStringAttribute`
-      - Use `getAddress` instead of `getSocketAddress`
-   e. Potential side effects:
-      - The `getAttribute` method returns Object instead of String, so we need to cast it
-      - The `getAddress` method returns Address instead of SocketAddress
-   f. Constraints check:
-      - Function signatures remain unchanged
-      - No code is removed
-      - Only necessary changes are made
-   g. Final summary:
-      The best solution is to update the import and use the new API methods with appropriate type casting and method calls.
-
-2. Fix plan:
-   - Update import statement
-   - Modify hostname construction using new API methods
-   - Add type casting where necessary
-</fix_planning>
-
 ```java
 /*
  * Copyright (C) 1999-2009 Jive Software. All rights reserved.
@@ -68,7 +40,7 @@ public class HazelcastClusterNodeInfo implements ClusterNodeInfo {
     private final boolean seniorMember;
 
     public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
-        this.hostname = (String) member.getAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getAddress().getHost() + ")";
+        this.hostname = member.getAddress().getHost() + " (" + member.getAddress().getHost() + ")";
         this.nodeID = ClusteredCacheFactory.getNodeID(member);
         this.joinedTime = joinedTime;
         this.seniorMember = ClusterManager.getSeniorClusterMember().equals(nodeID);

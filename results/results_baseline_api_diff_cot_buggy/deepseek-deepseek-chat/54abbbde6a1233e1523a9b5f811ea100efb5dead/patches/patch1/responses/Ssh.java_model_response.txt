@@ -1,27 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs because the class `com.jcabi.aspects.Tv` has been removed in the new version of the dependency.
-   b. The specific API change is the removal of the `Tv` class which contained constants like `SEVEN` and `MILLION`.
-   c. Affected lines:
-      - Import statement: `import com.jcabi.aspects.Tv;`
-      - Usage in annotation: `attempts = Tv.SEVEN,`
-      - Usage in code: `session.setServerAliveCountMax(Tv.MILLION);`
-   d. Potential fixes:
-      - Replace `Tv.SEVEN` with a direct integer value `7`
-      - Replace `Tv.MILLION` with a direct integer value `1000000`
-      - Remove the import statement for `Tv`
-   e. Side effects:
-      - The code will still function the same way since we're replacing constants with their actual values
-      - No functionality is lost
-   f. Constraints check:
-      - No method signatures are changed
-      - No existing code is removed except the problematic import
-      - All other code remains unchanged
-   g. Final summary:
-      - The best solution is to replace the constants with their actual values and remove the import
-      - This is the simplest solution that maintains functionality while adhering to all constraints
-</fix_planning>
-
 ```java
 /*
  * Copyright (c) 2014-2022, jcabi.com
@@ -144,7 +120,7 @@ public final class Ssh extends AbstractSshShell {
      * @param user Login
      * @param priv Private SSH key
      * @throws IOException If fails
-     * @since 极
+     * @since 1.4
      */
     public Ssh(final InetAddress adr, final String user, final URL priv)
         throws IOException {
@@ -167,7 +143,7 @@ public final class Ssh extends AbstractSshShell {
     /**
      * Constructor.
      * @param adr IP address
-     *极
+     * @param user Login
      * @param priv Private SSH key
      * @throws UnknownHostException If fails
      * @since 1.4
@@ -189,7 +165,7 @@ public final class Ssh extends AbstractSshShell {
      */
     public Ssh(final String adr, final int prt,
         final String user, final URL priv) throws IOException {
-        this(adr, pr极
+        this(adr, prt, user, new UncheckedText(new TextOf(priv)).asString());
     }
 
     /**

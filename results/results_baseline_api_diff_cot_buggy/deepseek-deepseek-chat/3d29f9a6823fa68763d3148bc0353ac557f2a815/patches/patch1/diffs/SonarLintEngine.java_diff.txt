@@ -1,8 +1,16 @@
-163c163
+162,163c162
+<         return AnalysisEngineConfiguration.builder()
 <                 .addEnabledLanguages(globalConfig.getEnabledLanguages())
 ---
->                 .setEnabledLanguages(globalConfig.getEnabledLanguages())
-231c231
-<             throw SonarLintWrappedException.wrap(e);
+>         AnalysisEngineConfiguration.Builder builder = AnalysisEngineConfiguration.builder()
+167,168c166,172
+<                 .setModulesProvider(globalConfig.getModulesProvider())
+<                 .build();
 ---
->             throw SonarLintWrappedException.wwrap(e);
+>                 .setModulesProvider(globalConfig.getModulesProvider());
+> 
+>         for (Language language : globalConfig.getEnabledLanguages()) {
+>             builder.addEnabledLanguage(language);
+>         }
+> 
+>         return builder.build();

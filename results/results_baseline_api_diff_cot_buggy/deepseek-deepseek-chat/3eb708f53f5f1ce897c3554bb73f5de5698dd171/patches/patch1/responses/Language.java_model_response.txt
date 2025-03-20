@@ -1,35 +1,3 @@
-<fix_planning>
-1. **Analysis of the Problem:**
-   - The class `LanguagesResource` from `com.google.api.services.translate.model` has been removed in the new version of the dependency.
-   - The methods `getLanguage()` and `getName()` from `LanguagesResource` have also been removed.
-   - The affected lines of code are those that reference `LanguagesResource` and its methods.
-
-2. **Affected Lines:**
-   - `import com.google.api.services.translate.model.LanguagesResource;`
-   - `static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =`
-   - `public Language apply(LanguagesResource languagePb) {`
-   - `static Language fromPb(LanguagesResource languagePb) {`
-
-3. **Proposed Fixes:**
-   - Replace `LanguagesResource` with a new class or interface that provides similar functionality.
-   - Since the exact replacement class is not provided in the API changes, we can assume that the functionality has been moved to a different class or package. For the sake of this fix, we will use a placeholder class `LanguageInfo` that provides the necessary methods `getCode()` and `getName()`.
-
-4. **Potential Side Effects:**
-   - The fix assumes the existence of a new class `LanguageInfo` that provides the required methods. If this class does not exist, the code will still fail to compile.
-   - The fix does not address any potential changes in the behavior of the methods `getCode()` and `getName()`.
-
-5. **Adherence to Constraints:**
-   - The function signatures of the methods are not changed.
-   - No existing code is removed unless it directly causes a compilation error.
-   - The fix includes all code, even unchanged portions.
-
-6. **Final Summary:**
-   - The best solution is to replace `LanguagesResource` with a new class `LanguageInfo` that provides the necessary methods. This solution adheres to all constraints and should resolve the compilation errors.
-
-**Chosen Fix:**
-- Replace `LanguagesResource` with `LanguageInfo` and update the methods accordingly.
-</fix_planning>
-
 ```java
 /*
  * Copyright 2016 Google LLC
@@ -49,6 +17,7 @@
 
 package com.google.cloud.translate;
 
+import com.google.api.services.translate.v3.model.SupportedLanguage;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
@@ -65,10 +34,10 @@ import java.util.Objects;
 public class Language implements Serializable {
 
   private static final long serialVersionUID = 5205240279371907020L;
-  static final Function<LanguageInfo, Language> FROM_PB_FUNCTION =
-      new Function<LanguageInfo, Language>() {
+  static final Function<SupportedLanguage, Language> FROM_PB_FUNCTION =
+      new Function<SupportedLanguage, Language>() {
         @Override
-        public Language apply(LanguageInfo languagePb) {
+        public Language apply(SupportedLanguage languagePb) {
           return Language.fromPb(languagePb);
         }
       };
@@ -113,26 +82,8 @@ public class Language implements Serializable {
     return Objects.equals(code, other.code) && Objects.equals(name, other.name);
   }
 
-  static Language fromPb(LanguageInfo languagePb) {
-    return new Language(languagePb.getCode(), languagePb.getName());
-  }
-}
-
-class LanguageInfo {
-  private String code;
-  private String name;
-
-  public LanguageInfo(String code, String name) {
-    this.code = code;
-    this.name = name;
-  }
-
-  public String getCode() {
-    return code;
-  }
-
-  public String getName() {
-    return name;
+  static Language fromPb(SupportedLanguage languagePb) {
+    return new Language(languagePb.getLanguageCode(), languagePb.getDisplayName());
   }
 }
 ```

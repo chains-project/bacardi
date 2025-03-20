@@ -128,7 +128,7 @@ public final class UpdateChecker {
             log.info("Found no candidates");
             return null;
         }
-        log.info("Found " + candidates.size() + " candidates from " + candidates.first() + " down to " + candidates.last());
+        log.info("Found " + candidates.size + " candidates from " + candidates.first() + " down to " + candidates.last());
         for (VersionAndRepo candidate : candidates) {
             if (candidate.version.compareTo(currentV) <= 0) {
                 log.info("Stopping search at " + candidate + " since it is no newer than " + currentV);
@@ -160,7 +160,7 @@ public final class UpdateChecker {
             try {
                 doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mavenMetadataURL);
             } catch (FileNotFoundException x) {
-                continue;
+                continue; // not even defined in this repo, fine
             }
             Element versionsE = theElement(doc, "versions", mavenMetadataURL);
             NodeList versionEs = versionsE.getElementsByTagName("version");
@@ -211,8 +211,9 @@ public final class UpdateChecker {
 
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
-            GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).getStatus();
-            return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
+            GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
+            String status = compare.getStatus();
+            return "identical".equals(status) || "behind".equals(status);
         } catch (FileNotFoundException x) {
             return false;
         }

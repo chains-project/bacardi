@@ -1,4 +1,4 @@
-12,17c12,15
+12,17c12,17
 < import javax.mvc.Controller;
 < import javax.mvc.Models;
 < import javax.mvc.View;
@@ -9,40 +9,10 @@
 > import jakarta.mvc.Controller;
 > import jakarta.mvc.Models;
 > import jakarta.mvc.View;
+> import jakarta.mvc.binding.BindingResult;
+> import jakarta.mvc.binding.ParamError;
 > import jakarta.mvc.security.CsrfProtected;
-44,46d41
-<     private BindingResult validationResult;
-< 
-<     @Inject
-66d60
-< 
-90d83
+90d89
 <     //@ValidateOnExecution(type = ExecutableType.NONE)
-94,105d86
-<         if (validationResult.isFailed()) {
-<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-<             validationResult.getAllErrors()
-<                     .stream()
-<                     .forEach((ParamError t) -> {
-<                         alert.addError(t.getParamName(), "", t.getMessage());
-<                     });
-<             models.put("errors", alert);
-<             models.put("task", form);
-<             return Response.status(BAD_REQUEST).entity("add.xhtml").build();
-<         }
-< 
-138,149d118
-<         if (validationResult.isFailed()) {
-<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-<             validationResult.getAllErrors()
-<                     .stream()
-<                     .forEach((ParamError t) -> {
-<                         alert.addError(t.getParamName(), "", t.getMessage());
-<                     });
-<             models.put("errors", alert);
-<             models.put("task", form);
-<             return Response.status(BAD_REQUEST).entity("edit.xhtml").build();
-<         }
-< 
-164d132
+164d162
 <     //@CsrfProtected

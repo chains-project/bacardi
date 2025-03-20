@@ -1,30 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs because `TFramedTransport` has been moved from `org.apache.thrift.transport` to `org.apache.thrift.transport.layered`.
-   b. The specific API changes causing the issue are:
-      - Class `org.apache.thrift.transport.TFramedTransport` has been removed
-      - Class `org.apache.thrift.transport.layered.TFramedTransport` has been added
-   c. Affected lines:
-      - Import statement: `import org.apache.thrift.transport.TFramedTransport;`
-      - Class declaration: `private static final class ByteOffsetTFramedTransport extends TFramedTransport`
-   d. Proposed fixes:
-      - Update import statement to use new package: `import org.apache.thrift.transport.layered.TFramedTransport;`
-      - Keep class declaration as is since the inheritance structure remains the same
-   e. Potential side effects:
-      - None expected as the new class maintains the same interface
-   f. Constraints check:
-      - Does not change method signatures
-      - Does not remove existing code
-      - Updates import correctly
-      - Maintains all functionality
-   g. Final summary:
-      - The best solution is to update the import statement to use the new package location while keeping the rest of the code unchanged.
-
-2. Fix implementation:
-   - Update import statement to use new package
-   - Keep all other code unchanged
-</fix_planning>
-
 ```java
 /**
  * Copyright 2019 Pinterest, Inc.
@@ -79,13 +52,11 @@ public final class SimpleThriftLogger<T extends TBase> implements Closeable {
       byteOffset = 0;
     }
 
-    @Override
     public void write(byte[] buf, int off, int len) throws TTransportException {
       super.write(buf, off, len);
       byteOffset += len;
     }
 
-    @Override
     public void flush() throws TTransportException {
       super.flush();
       // Add 4 bytes for the frame size.

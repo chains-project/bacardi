@@ -1,15 +1,13 @@
-218,219c218
+22a23
+> import org.yaml.snakeyaml.introspector.PropertyUtils;
+217,219c218,219
+<   @Override
 <   protected Set<Property> getProperties(Class<? extends Object> type)
 <           throws IntrospectionException {
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) {
-235,236c234,235
-<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
-<           throws IntrospectionException {
----
->   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
->       try {
-240a240,242
->       } catch (Exception e) {
->           throw new RuntimeException("Failed to get properties for type: " + type, e);
+>     try {
+231a232,234
 >       }
+>     } catch (IntrospectionException e) {
+>       throw new RuntimeException(e);

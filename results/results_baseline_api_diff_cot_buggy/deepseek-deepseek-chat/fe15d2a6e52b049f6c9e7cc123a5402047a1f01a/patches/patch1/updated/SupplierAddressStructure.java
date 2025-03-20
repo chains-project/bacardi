@@ -183,7 +183,7 @@ public class SupplierAddressStructure implements ToString2
      * Sets the value of the postalCode property.
      * 
      * @param value
-    极     allowed object is
+     *     allowed object is
      *     {@link String }
      *     
      */
@@ -204,7 +204,7 @@ public class SupplierAddressStructure implements ToString2
     }
 
     /**
-     * Sets the value of极 the region property.
+     * Sets the value of the region property.
      * 
      * @param value
      *     allowed object is
@@ -250,7 +250,7 @@ public class SupplierAddressStructure implements ToString2
     @Override
     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         strategy.appendStart(locator, this, buffer);
-        appendFields(l极ator, buffer, strategy);
+        appendFields(locator, buffer, strategy);
         strategy.appendEnd(locator, this, buffer);
         return buffer;
     }

@@ -1,41 +1,3 @@
-<fix_planning>
-1. **Relevant parts of the code and API changes:**
-   - The class `com.google.cloud.pubsublite.PublishMetadata` has been removed.
-   - The constructor `com.google.cloud.pubsublite.PublishMetadata()` has been removed.
-   - The affected lines are:
-     ```java
-     import com.google.cloud.pubsublite.PublishMetadata;
-     ```
-     ```java
-     Publisher<PublishMetadata> newPublisher(Map<String, String> params);
-     ```
-
-2. **Specific API changes causing the issue:**
-   - The removal of `PublishMetadata` class directly affects the import statement and the method signature.
-
-3. **Affected lines of code:**
-   - Line with the import statement.
-   - Line with the method signature using `PublishMetadata`.
-
-4. **Proposed fixes:**
-   - Since `PublishMetadata` has been removed, we need to find a suitable replacement or remove the generic type if it's no longer needed.
-   - If `PublishMetadata` was used for metadata, we might need to use a different class or remove the generic type entirely.
-
-5. **Potential side effects:**
-   - Removing the generic type might affect the functionality if `PublishMetadata` was used to pass specific metadata.
-   - If no replacement is available, the method might need to be adjusted to work without metadata.
-
-6. **Adherence to constraints:**
-   - The function signature cannot be changed, so we need to find a way to keep the signature intact while fixing the issue.
-   - We cannot remove existing code unless it directly causes a compilation error.
-
-7. **Final summary of the chosen fix:**
-   - Since `PublishMetadata` has been removed and no direct replacement is provided, the best solution is to remove the generic type from the `Publisher` interface. This will keep the method signature intact while resolving the compilation error.
-
-**Chosen Fix:**
-- Remove the generic type `PublishMetadata` from the `Publisher` interface.
-</fix_planning>
-
 ```java
 /*
  * Copyright 2020 Google LLC
@@ -59,6 +21,6 @@ import java.util.Map;
 
 interface PublisherFactory {
 
-  Publisher newPublisher(Map<String, String> params);
+  Publisher<Void> newPublisher(Map<String, String> params);
 }
 ```

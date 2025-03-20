@@ -1,26 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs in the line `.addEnabledLanguages(globalConfig.getEnabledLanguages())` where the method `addEnabledLanguages` is no longer available in the new version of the dependency.
-   b. The API changes indicate that both `addEnabledLanguages(Language[])` and `addEnabledLanguages(Collection)` methods have been removed.
-   c. Affected line: `AnalysisEngineConfiguration.builder().addEnabledLanguages(globalConfig.getEnabledLanguages())`
-   d. Potential fixes:
-      - Use a different method that sets enabled languages if available in the new API.
-      - Convert the Set of Languages to an array and use a different method if available.
-      - Check if the enabled languages can be set through a different configuration approach.
-   e. Side effects:
-      - Changing the way enabled languages are set might affect the behavior of the analysis engine.
-      - Need to ensure that the new approach is compatible with the rest of the code.
-   f. Constraints check:
-      - The fix must not change method signatures.
-      - Can create variables if needed.
-      - Must maintain all existing functionality.
-   g. Final solution:
-      - Since the exact new API method is not provided, the safest approach is to remove the line entirely if enabled languages are set elsewhere or through a different mechanism in the new API. However, since this might affect functionality, we'll assume that the enabled languages are now set through a different method or are no longer required to be explicitly set.
-
-2. Chosen fix:
-   - Remove the `.addEnabledLanguages(globalConfig.getEnabledLanguages())` line from the builder configuration, assuming that the enabled languages are now handled differently in the new API version.
-</fix_planning>
-
 ```java
 package sorald.sonar;
 
@@ -183,12 +160,17 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     }
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
-        return AnalysisEngineConfiguration.builder()
+        AnalysisEngineConfiguration.Builder builder = AnalysisEngineConfiguration.builder()
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())
-                .setModulesProvider(globalConfig.getModulesProvider())
-                .build();
+                .setModulesProvider(globalConfig.getModulesProvider());
+
+        for (Language language : globalConfig.getEnabledLanguages()) {
+            builder.addEnabledLanguage(language);
+        }
+
+        return builder.build();
     }
 
     /** Get or creates the one and only instance of this class. */
