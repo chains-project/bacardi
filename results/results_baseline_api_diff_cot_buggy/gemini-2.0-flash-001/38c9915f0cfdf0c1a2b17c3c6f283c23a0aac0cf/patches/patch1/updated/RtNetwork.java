@@ -17,8 +17,8 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * LIABILITY, WHETHER IN AN ACTION, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 package io.zold.api;
@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Sorted;
+import org.cactoos.scalar.Unchecked;
 import org.cactoos.scalar.Reduced;
 
 /**
@@ -62,26 +63,15 @@ public final class RtNetwork implements Network {
 
     @Override
     public Wallet pull(final long id) throws IOException {
-        try {
-            return new Reduced<>(
+        return new Unchecked<>(
+            new Reduced<>(
                 Wallet::merge,
                 new Mapped<>(
-                    c -> {
-                        try {
-                            return c.wallet();
-                        } catch (IOException ex) {
-                            throw new RuntimeException(ex);
-                        }
-                    },
+                    c -> c::wallet,
                     new Sorted<>(new Copies(id, this))
                 )
-            ).value();
-        } catch (RuntimeException ex) {
-            if (ex.getCause() instanceof IOException) {
-                throw (IOException) ex.getCause();
-            }
-            throw ex;
-        }
+            )
+        ).value();
     }
 
     @Override

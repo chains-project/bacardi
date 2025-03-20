@@ -1,20 +1,4 @@
 ```java
-/*
- * Copyright 2016 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.google.cloud.translate.spi.v2;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -24,9 +8,12 @@ import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.translate.v3.Translate;
-import com.google.api.services.translate.v3.model.Detections;
-import com.google.api.services.translate.v3.model.Languages;
-import com.google.api.services.translate.v3.model.Translations;
+import com.google.api.services.translate.v3.model.DetectLanguageResponse;
+import com.google.api.services.translate.v3.model.TranslateTextRequest;
+import com.google.api.services.translate.v3.model.TranslateTextResponse;
+import com.google.api.services.translate.v3.model.DetectionsResourceItems;
+import com.google.api.services.translate.v3.model.LanguagesResource;
+import com.google.api.services.translate.v3.model.TranslationsResource;
 import com.google.cloud.http.HttpTransportOptions;
 import com.google.cloud.translate.TranslateException;
 import com.google.cloud.translate.TranslateOptions;
@@ -49,7 +36,6 @@ public class HttpTranslateRpc implements TranslateRpc {
     this.options = options;
     translate =
         new Translate.Builder(transport, new JacksonFactory(), initializer)
-            .setRootUrl(options.getHost())
             .setApplicationName(options.getApplicationName())
             .build();
   }
@@ -67,55 +53,52 @@ public class HttpTranslateRpc implements TranslateRpc {
   }
 
   @Override
-  public List<List<Detections.DetectionsResourceItems>> detect(List<String> texts) {
+  public List<List<DetectionsResourceItems>> detect(List<String> texts) {
     try {
-      List<List<Detections.DetectionsResourceItems>> detections =
-          translate.detections().list(texts).setKey(options.getApiKey()).execute().getDetections();
-      return detections != null ? detections : ImmutableList.<List<Detections.DetectionsResourceItems>>of();
+      DetectLanguageResponse response = translate.projects().detectLanguage("projects/" + options.getProjectId(), new DetectLanguageRequest().setContent(texts)).execute();
+      List<List<DetectionsResourceItems>> detections = response.getDetections();
+      return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
     } catch (IOException ex) {
       throw translate(ex);
     }
   }
 
   @Override
-  public List<Languages.LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
+  public List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
     try {
-      List<Languages.LanguagesResource> languages =
+      List<LanguagesResource> languages =
           translate
-              .languages()
-              .list()
+              .projects()
+              .locations()
+              .getSupportedLanguages("projects/" + options.getProjectId())
               .setKey(options.getApiKey())
-              .setTarget(
-                  firstNonNull(
-                      Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
               .execute()
               .getLanguages();
-      return languages != null ? languages : ImmutableList.<Languages.LanguagesResource>of();
+      return languages != null ? languages : ImmutableList.<LanguagesResource>of();
     } catch (IOException ex) {
       throw translate(ex);
     }
   }
 
   @Override
-  public List<Translations.TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap) {
+  public List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap) {
     try {
       String targetLanguage =
           firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
       final String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
-      List<Translations.TranslationsResource> translations =
-          translate
-              .translations()
-              .list(texts, targetLanguage)
-              .setKey(options.getApiKey())
-              .setModel(Option.MODEL.getString(optionMap))
-              .setFormat(Option.FORMAT.getString(optionMap))
-              .execute()
-              .getTranslations();
+      TranslateTextRequest request = new TranslateTextRequest()
+          .setContents(texts)
+          .setTargetLanguage(targetLanguage)
+          .setSourceLanguage(sourceLanguage)
+          .setModel(Option.MODEL.getString(optionMap))
+          .setFormat(Option.FORMAT.getString(optionMap));
+      TranslateTextResponse response = translate.projects().locations().translateText("projects/" + options.getProjectId(), request).execute();
+      List<TranslationsResource> translations = response.getTranslations();
       return Lists.transform(
-          translations != null ? translations : ImmutableList.<Translations.TranslationsResource>of(),
-          new Function<Translations.TranslationsResource, Translations.TranslationsResource>() {
+          translations != null ? translations : ImmutableList.<TranslationsResource>of(),
+          new Function<TranslationsResource, TranslationsResource>() {
             @Override
-            public Translations.TranslationsResource apply(Translations.TranslationsResource translationsResource) {
+            public TranslationsResource apply(TranslationsResource translationsResource) {
               if (translationsResource.getDetectedSourceLanguage() == null) {
                 translationsResource.setDetectedSourceLanguage(sourceLanguage);
               }

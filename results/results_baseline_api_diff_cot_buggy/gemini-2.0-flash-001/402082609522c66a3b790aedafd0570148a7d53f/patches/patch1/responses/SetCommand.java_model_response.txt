@@ -1,48 +1,3 @@
-<fix_planning>
-a. Code and API changes:
-- The code uses `org.spongepowered.api.command.spec.CommandExecutor`, but this class has been removed. `org.spongepowered.api.command.CommandExecutor` has been added.
-- The code uses `org.spongepowered.api.command.args.CommandContext`, but this class has been removed. `org.spongepowered.api.command.parameter.CommandContext` has been added.
-- The code uses `org.spongepowered.api.command.spec.CommandSpec`, but this class has been removed.
-- The code uses `org.spongepowered.api.command.args.GenericArguments`, but this class has been removed.
-- The code uses `org.spongepowered.api.command.CommandSource`, but this class has been removed.
-
-b. Specific API changes causing the issue:
-- Removal of `org.spongepowered.api.command.spec.CommandExecutor` and addition of `org.spongepowered.api.command.CommandExecutor`.
-- Removal of `org.spongepowered.api.command.args.CommandContext` and addition of `org.spongepowered.api.command.parameter.CommandContext`.
-- Removal of `org.spongepowered.api.command.spec.CommandSpec`.
-- Removal of `org.spongepowered.api.command.args.GenericArguments`.
-- Removal of `org.spongepowered.api.command.CommandSource`.
-
-c. Affected lines of code:
-- `import org.spongepowered.api.command.spec.CommandExecutor;`
-- `import org.spongepowered.api.command.args.CommandContext;`
-- `import org.spongepowered.api.command.spec.CommandSpec;`
-- `import org.spongepowered.api.command.args.GenericArguments;`
-- `import org.spongepowered.api.command.CommandSource;`
-- `public class SetCommand implements CommandExecutor, ChangeSkinCommand {`
-- `public CommandResult execute(CommandSource src, CommandContext args) {`
-- `return CommandSpec.builder()`
-- `string(of("skin")),`
-- `flags().flag("keep").buildWith(GenericArguments.none()))`
-
-d. Proposed fixes:
-- Replace `org.spongepowered.api.command.spec.CommandExecutor` with `org.spongepowered.api.command.CommandExecutor`.
-- Replace `org.spongepowered.api.command.args.CommandContext` with `org.spongepowered.api.command.parameter.CommandContext`.
-- Since `CommandSpec` and `GenericArguments` are removed, we need to find the replacement for them. After searching, it seems that `Command.Builder` and `Command.parameter` are the replacements.
-- Since `CommandSource` is removed, we need to find the replacement for it. After searching, it seems that `CommandCause` is the replacement.
-
-e. Potential side effects:
-- The new API might have different behavior than the old one. Need to carefully examine the new API and make sure the code still works as expected.
-
-f. Adherence to constraints:
-- The function signature of `execute` method will be changed. This violates constraint 1. We need to adapt the code to the new API while keeping the original signature.
-- All other constraints are satisfied.
-
-g. Final summary:
-- Replace the imports and adapt the code to the new API.
-
-</fix_planning>
-
 ```java
 package com.github.games647.changeskin.sponge.command;
 
@@ -59,13 +14,17 @@ import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
-import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
-import net.kyori.adventure.text.Text;
+import com.google.common.collect.ImmutableList;
+import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.command.exception.CommandException;
+import org.spongepowered.api.command.CommandExecutor;
 
-import static org.spongepowered.api.command.Command.Flags.builder;
+import static org.spongepowered.api.command.parameter.CommonParameters.FLAGS;
+import static org.spongepowered.api.command.parameter.CommonParameters.STRING;
+import static org.spongepowered.api.text.Text.of;
 
 public class SetCommand implements CommandExecutor, ChangeSkinCommand {
 
@@ -79,20 +38,21 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
     }
 
     @Override
-    public CommandResult execute(CommandCause cause, CommandContext args) {
-        if (!(cause.root() instanceof Player)) {
+    public CommandResult execute(CommandContext args) throws CommandException {
+        CommandCause cause = args.cause();
+        if (!(cause instanceof Player)) {
             plugin.sendMessage(cause, "no-console");
             return CommandResult.empty();
         }
 
-        UUID uniqueId = ((Player) cause.root()).getUniqueId();
+        UUID uniqueId = ((Player) cause).getUniqueId();
         if (core.getCooldownService().isTracked(uniqueId)) {
             plugin.sendMessage(cause, "cooldown");
             return CommandResult.empty();
         }
 
-        Player receiver = (Player) cause.root();
-        String targetSkin = args.<String>getOne("skin").get();
+        Player receiver = (Player) cause;
+        String targetSkin = args.<String>one(Parameter.key("skin", String.class).build()).get();
         boolean keepSkin = args.hasAny("keep");
 
         if ("reset".equals(targetSkin)) {
@@ -119,13 +79,13 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
 
     @Override
     public Command.Builder buildSpec() {
-        Parameter.Key<String> skinKey = Parameter.key("skin", String.class);
-        Parameter skinParameter = Parameter.string().key(skinKey).build();
+        Parameter skinParam = Parameter.key("skin", String.class)
+                .build();
 
         return Command.builder()
                 .executor(this)
-                .addParameter(skinParameter)
-                .addFlag(builder().setAliases("keep").build())
+                .addParameter(skinParam)
+                .addParameter(FLAGS.flag("keep"))
                 .permission(PomData.ARTIFACT_ID + ".command.setskin.base");
     }
 }

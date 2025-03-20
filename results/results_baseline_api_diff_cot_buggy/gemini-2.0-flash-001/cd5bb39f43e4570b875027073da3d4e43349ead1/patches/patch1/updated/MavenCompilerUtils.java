@@ -18,13 +18,18 @@ package org.simplify4u.plugins.utils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.repository.RepositorySystem;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.xml.sax.InputSource;
+
+import java.io.StringReader;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
 
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptySet;
@@ -70,20 +75,28 @@ public final class MavenCompilerUtils {
         if (config == null) {
             return emptySet();
         }
-        if (config instanceof Element) {
-            return toStream(((Element) config).getElementsByTagName("annotationProcessorPaths"))
-                    .flatMap(aggregate -> toStream(aggregate.getElementsByTagName("path")))
-                    .map(processor -> system.createArtifact(
-                            extractChildValue(processor, "groupId"),
-                            extractChildValue(processor, "artifactId"),
-                            extractChildValue(processor, "version"),
-                            PACKAGING))
-                    // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
-                    // therefore there is little use in logging incomplete paths that are filtered out.
-                    .filter(a -> !a.getGroupId().isEmpty())
-                    .filter(a -> !a.getArtifactId().isEmpty())
-                    .filter(a -> !a.getVersion().isEmpty())
-                    .collect(Collectors.toSet());
+        if (config instanceof Xpp3Dom) {
+            try {
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                org.w3c.dom.Document doc = builder.parse(new InputSource(new StringReader(((Xpp3Dom) config).toString())));
+
+                return stream(getChildren(doc.getDocumentElement(), "annotationProcessorPaths"))
+                        .flatMap(aggregate -> stream(getChildren(aggregate, "path")))
+                        .map(processor -> system.createArtifact(
+                                extractChildValue(processor, "groupId"),
+                                extractChildValue(processor, "artifactId"),
+                                extractChildValue(processor, "version"),
+                                PACKAGING))
+                        // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
+                        // therefore there is little use in logging incomplete paths that are filtered out.
+                        .filter(a -> !a.getGroupId().isEmpty())
+                        .filter(a -> !a.getArtifactId().isEmpty())
+                        .filter(a -> !a.getVersion().isEmpty())
+                        .collect(Collectors.toSet());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
         // It is expected that this will never occur due to all Configuration instances of all plugins being provided as
         // XML document. If this happens to occur on very old plugin versions, we can safely add the type support and
@@ -92,12 +105,13 @@ public final class MavenCompilerUtils {
                 " was encountered: " + config.getClass());
     }
 
-    private static Stream<Element> toStream(NodeList nodeList) {
-        return stream(new Node[nodeList.getLength()])
-                .map(n -> nodeList.item(0))
-                .filter(Element.class::isInstance)
-                .map(Element.class::cast)
-                .limit(nodeList.getLength());
+    private static Element[] getChildren(Element parent, String name) {
+        NodeList nodeList = parent.getElementsByTagName(name);
+        Element[] elements = new Element[nodeList.getLength()];
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            elements[i] = (Element) nodeList.item(i);
+        }
+        return elements;
     }
 
     /**
@@ -108,19 +122,10 @@ public final class MavenCompilerUtils {
      * @return Returns child value if child node present or otherwise empty string.
      */
     private static String extractChildValue(Element node, String name) {
-        final Element child = getChildElement(node, name);
-        return child == null ? "" : child.getTextContent();
-    }
-
-    private static Element getChildElement(Element parent, String name) {
-        NodeList nodeList = parent.getElementsByTagName(name);
-        if (nodeList.getLength() == 0) {
-            return null;
+        NodeList nodeList = node.getElementsByTagName(name);
+        if (nodeList.getLength() > 0) {
+            return nodeList.item(0).getTextContent();
         }
-        Node node = nodeList.item(0);
-        if (node instanceof Element) {
-            return (Element) node;
-        }
-        return null;
+        return "";
     }
 }

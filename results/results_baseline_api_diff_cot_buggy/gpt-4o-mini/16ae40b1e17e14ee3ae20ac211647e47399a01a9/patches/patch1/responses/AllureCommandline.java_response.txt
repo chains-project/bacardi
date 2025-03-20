@@ -3,7 +3,7 @@
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *  you may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -215,7 +215,7 @@ public class AllureCommandline {
 
     private void unpack(final File file) throws IOException {
         try {
-            final ZipFile zipFile = new ZipFile(file);
+            final ZipFile zipFile = new ZipFile(file.getAbsolutePath());
             zipFile.extractAll(getInstallationDirectory().toAbsolutePath().toString());
         } catch (ZipException e) {
             throw new IOException(e);

@@ -34,6 +34,7 @@ public class DuplicateFilesTest
         throws Exception
     {
         super.setUp();
+        getContainer().getLogger().setThreshold( Logger.LEVEL_DEBUG );
     }
 
     public void testZipArchiver()

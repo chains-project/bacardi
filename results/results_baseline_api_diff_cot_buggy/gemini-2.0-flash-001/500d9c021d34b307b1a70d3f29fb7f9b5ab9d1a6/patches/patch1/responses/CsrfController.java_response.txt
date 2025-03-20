@@ -1,35 +1,37 @@
 package com.example.web;
 
 import java.util.logging.Logger;
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.mvc.UriRef;
 import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.binding.MvcBinding;
+import jakarta.mvc.binding.ParamError;
 import jakarta.mvc.security.CsrfProtected;
 import javax.validation.constraints.NotBlank;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import jakarta.mvc.binding.ParamError;
+import java.util.stream.Collectors;
+import java.util.List;
 
 /**
  *
  * @author hantsy
  */
 @Path("csrf")
-@jakarta.mvc.Controller
+@Controller
 @RequestScoped
 public class CsrfController {
 
     @Inject
-    jakarta.mvc.binding.BindingResult bindingResult;
+    BindingResult bindingResult;
 
     @Inject
-    jakarta.mvc.Models models;
+    Models models;
 
     @Inject
     AlertMessage flashMessage;
@@ -43,18 +45,19 @@ public class CsrfController {
     }
 
     @POST
-    @jakarta.mvc.security.CsrfProtected
+    @CsrfProtected
     public String post(
             @FormParam("greeting")
-            @jakarta.mvc.binding.MvcBinding
+            @MvcBinding
             @NotBlank String greeting) {
         if (bindingResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            bindingResult.getAllErrors()
-                    .stream()
-                    .forEach((ParamError t) -> {
-                        alert.addError(t.getParamName(), "", t.getMessage());
-                    });
+            List<ParamError> errors = bindingResult.getAllErrors();
+            if (errors != null) {
+                errors.stream().forEach((ParamError t) -> {
+                    alert.addError(t.getParamName(), "", t.getMessage());
+                });
+            }
             models.put("errors", alert);
             log.info("mvc binding failed.");
             return "csrf.xhtml";

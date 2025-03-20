@@ -2,6 +2,8 @@ package liquibase.ext.mssql.database;
 
 import liquibase.CatalogAndSchema;
 import liquibase.exception.LiquibaseException;
+import liquibase.database.Database;
+import liquibase.Scope;
 import liquibase.ext.mssql.statement.DropStoredProcedureStatement;
 
 public class MSSQLDatabase extends liquibase.database.core.MSSQLDatabase {
@@ -14,6 +16,7 @@ public class MSSQLDatabase extends liquibase.database.core.MSSQLDatabase {
     @Override
     public void dropDatabaseObjects(CatalogAndSchema schemaToDrop) throws LiquibaseException {
         super.dropDatabaseObjects(schemaToDrop);
-        liquibase.Scope.getCurrentScope().getSingleton(liquibase.executor.Executor.class, this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+        Database database = this;
+        Scope.getCurrentScope().getSingleton(liquibase.executor.ExecutorService.class).getExecutor(database).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
     }
 }

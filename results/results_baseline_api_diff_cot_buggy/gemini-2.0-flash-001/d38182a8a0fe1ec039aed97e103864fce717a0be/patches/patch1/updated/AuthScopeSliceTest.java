@@ -9,6 +9,7 @@ import com.artipie.http.Headers;
 import com.artipie.http.Response;
 import com.artipie.http.auth.AuthScheme;
 import com.artipie.http.auth.Authentication;
+import com.artipie.http.auth.User;
 import com.artipie.http.rs.StandardRs;
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -19,7 +20,6 @@ import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.IsEqual;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
-import com.artipie.http.auth.User;
 
 /**
  * Tests for {@link AuthScopeSlice}.
@@ -54,7 +54,7 @@ class AuthScopeSliceTest {
             (headers, rline) -> CompletableFuture.completedFuture(
                 new AuthScheme.Result() {
                     @Override
-                    public Optional<Authentication.User> user() {
+                    public Optional<User> user() {
                         return Optional.of(new User("alice"));
                     }
 

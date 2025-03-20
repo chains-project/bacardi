@@ -1,22 +1,28 @@
-14c14
+10a11
+> import java.util.UUID;
+14c15
 < import org.spongepowered.api.command.CommandSource;
 ---
 > import org.spongepowered.api.command.source.CommandSource;
-16,17c16
+16,17c17
 < import org.spongepowered.api.network.ChannelBuf;
 < import org.spongepowered.api.network.RawDataListener;
 ---
 > import org.spongepowered.api.network.channel.ChannelBuf;
-19a19
+19a20
 > import org.spongepowered.api.scheduler.TaskExecutorService;
-21c21
+21c22
 < public class UpdateSkinListener implements RawDataListener {
 ---
 > public class UpdateSkinListener {
-26d25
+26d26
 <     @Override
-36c35,36
+33c33
+<         Optional<Player> receiver = Sponge.getServer().getPlayer(playerName);
+---
+>         Optional<Player> receiver = Sponge.getServer().getPlayer(UUID.fromString(playerName));
+36c36,37
 <             Task.builder().execute(skinUpdater).submit(plugin);
 ---
->             TaskExecutorService executorService = Sponge.getScheduler().getTaskExecutor();
->             executorService.submit(skinUpdater);
+>             TaskExecutorService scheduler = Sponge.getScheduler().getTaskExecutor();
+>             scheduler.submit(skinUpdater);

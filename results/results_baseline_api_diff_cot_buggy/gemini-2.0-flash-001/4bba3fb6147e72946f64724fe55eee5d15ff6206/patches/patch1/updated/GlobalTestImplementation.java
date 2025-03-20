@@ -28,3 +28,4 @@ import java.lang.annotation.Target;
 @Value.Immutable
 public @interface GlobalTestImplementation {
 }
+

@@ -1,49 +1,30 @@
-6a7
-> import java.util.function.Predicate;
-7a9
+7a8
 > import org.spongepowered.api.command.Command;
-9,12c11
+9,12c10,11
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
-13a13
-> import org.spongepowered.api.entity.Entity;
-14a15,23
-> import org.spongepowered.api.Sponge;
-> import org.spongepowered.api.command.exception.CommandException;
 > import org.spongepowered.api.command.CommandCause;
-> import org.spongepowered.api.service.permission.Subject;
-> import org.spongepowered.api.command.CommandExecutor;
-> import org.spongepowered.api.command.parameter.Parameter;
-> import org.spongepowered.api.command.Command.Raw;
-> import org.spongepowered.api.entity.living.Agent;
-> import org.spongepowered.api.event.Cause;
-26c35,45
+16c15
+< public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class InvalidateCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
+26,28c25,27
 <     public CommandResult execute(CommandSource src, CommandContext args) {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
 ---
->     public CommandResult execute(CommandContext context) throws CommandException {
->         Cause cause = context.cause();
->         CommandCause cmdCause = cause.first(CommandCause.class).orElse(null);
-> 
->         if (cmdCause == null) {
->             plugin.sendMessage(cmdCause, "no-console");
->             return CommandResult.success();
->         }
-> 
->         Subject src = cmdCause.subject();
-> 
-29c48
-<             return CommandResult.empty();
+>     public CommandResult execute(CommandCause cause, CommandContext args) {
+>         if (!(cause.getCause().root() instanceof Player)) {
+>             plugin.sendMessage(cause, "no-console");
+32c31
+<         Player receiver = (Player) src;
 ---
->             return CommandResult.success();
-33c52
-<         Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
----
->         Sponge.asyncScheduler().submit(Task.builder().execute(new SkinInvalidator(plugin, receiver)).plugin(plugin).build());
-38,39c57,58
+>         Player receiver = (Player) cause.getCause().root();
+38,39c37,38
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
 ---

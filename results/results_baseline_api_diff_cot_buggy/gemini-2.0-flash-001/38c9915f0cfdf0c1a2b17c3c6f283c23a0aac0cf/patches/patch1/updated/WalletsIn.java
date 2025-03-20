@@ -7,7 +7,7 @@
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom this software is
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
@@ -18,8 +18,8 @@
  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package io.zold.api;
 
@@ -34,8 +34,11 @@ import org.cactoos.func.IoCheckedFunc;
 import org.cactoos.io.Directory;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.Mapped;
+import org.cactoos.scalar.Unchecked;
 import org.cactoos.text.FormattedText;
+import org.cactoos.text.Text;
 import org.cactoos.text.UncheckedText;
+import org.cactoos.text.Joined;
 
 /**
  * Wallets in path.
@@ -47,7 +50,7 @@ public final class WalletsIn implements Wallets {
     /**
      * Path containing wallets.
      */
-    private final Scalar<Path> path;
+    private final Unchecked<Path> path;
 
     /**
      * Filter for matching file extensions.
@@ -97,7 +100,7 @@ public final class WalletsIn implements Wallets {
      */
     public WalletsIn(final Scalar<Path> pth, final String ext,
         final Random random) {
-        this.path = pth;
+        this.path = new Unchecked<>(pth);
         this.filter = new IoCheckedFunc<Path, Boolean>(
             (file) -> file.toFile().isFile()
                 && FileSystems.getDefault()
@@ -111,11 +114,11 @@ public final class WalletsIn implements Wallets {
     @Override
     public Wallet create() throws IOException {
         final Path wpth = this.path.value().resolve(
-            String.format(
-                "%s.%s",
+            new Joined(
+                ".",
                 Long.toHexString(this.random.nextLong()),
                 this.ext
-            )
+            ).asString()
         );
         if (wpth.toFile().exists()) {
             throw new IOException(

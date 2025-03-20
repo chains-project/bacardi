@@ -1,6 +1,10 @@
 16a17
 > import org.yaml.snakeyaml.LoaderOptions;
-43c44
+43c44,48
 <     super(Model.class);
 ---
->     super(Model.class, new LoaderOptions());
+>     this(new LoaderOptions());
+>   }
+> 
+>   public ModelConstructor(LoaderOptions loaderOptions) {
+>     super(new TypeDescription(Model.class), loaderOptions);

@@ -42,12 +42,9 @@ import java.util.Map;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.HttpHeaders;
 import lombok.EqualsAndHashCode;
+import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers; // This import will be removed
-import org.hamcrest.core.IsNot; // New import to replace Matchers.not
-import org.hamcrest.core.IsEmptyIterable; // New import to replace Matchers.emptyIterableOf
-import org.hamcrest.core.IsNull; // New import to replace Matchers.notNullValue
 
 /**
  * REST response.
@@ -209,7 +206,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, org.hamcrest.Matchers.hasItems(value));
+        return this.assertHeader(name, Matchers.hasItem(value));
     }
 
     /**
@@ -245,7 +242,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            IsNot.not(IsEmptyIterable.emptyIterableOf(String.class))
+            Matchers.not(Matchers.emptyIterableOf(String.class))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -283,7 +280,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            IsNot.not(IsNull.notNullValue())
+            Matchers.notNullValue()
         );
         assert cookie != null;
         return cookie;
@@ -326,7 +323,6 @@ public final class RestResponse extends AbstractResponse {
             this.status = sts;
         }
 
-        @Override
         public boolean matches(final Object resp) {
             return Response.class.cast(resp).status() == this.status;
         }

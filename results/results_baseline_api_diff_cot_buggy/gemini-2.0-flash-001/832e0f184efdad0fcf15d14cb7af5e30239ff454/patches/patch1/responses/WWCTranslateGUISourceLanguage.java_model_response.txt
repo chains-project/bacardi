@@ -1,43 +1,10 @@
-<fix_planning>
-a. Relevant code and API changes:
-The code uses `XEnchantment.matchXEnchantment("power").get().parseEnchantment()` to get an `Enchantment` object. The API change indicates that `parseEnchantment()` has been removed from the `XEnchantment` class.
-
-b. Specific API changes causing the issue:
-The removal of the `parseEnchantment()` method from the `XEnchantment` class.
-
-c. Affected lines of code:
-```java
-currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
-skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
-skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
-currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
-```
-
-d. Proposed potential fixes for each affected line:
-The `parseEnchantment()` method is removed. We need to find an alternative way to get the `Enchantment` object. After researching the XSeries API, it appears that `XEnchantment` now directly holds the `Enchantment` object. Therefore, we can directly use `XEnchantment.matchXEnchantment("power").get().getEnchant()` to get the `Enchantment` object.
-
-e. Potential side effects of the proposed changes:
-The change should not have any side effects as it is simply replacing a deprecated method with its suggested alternative.
-
-f. Adherence to constraints:
-The proposed change adheres to all constraints:
-- It does not change the function signature of any method.
-- It may create variables if it simplifies the code (not needed here).
-- It does not remove the @Override annotation.
-- It addresses the missing method by using the correct alternative from the newer dependency version.
-- It does not remove any existing code unless it directly causes a compilation error.
-- It includes all code, even unchanged portions, in the final output.
-
-g. Final summary of the chosen fix:
-The best solution is to replace `XEnchantment.matchXEnchantment("power").get().parseEnchantment()` with `XEnchantment.matchXEnchantment("power").get().getEnchant()`. This directly addresses the API change by using the new method to retrieve the `Enchantment` object.
-</fix_planning>
-
 ```java
 package com.expl0itz.worldwidechat.inventory.wwctranslategui;
 
 import java.util.ArrayList;
 
 import org.bukkit.ChatColor;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -105,10 +72,16 @@ public class WWCTranslateGUISourceLanguage implements InventoryProvider {
 				ArrayList<String> lore = new ArrayList<>();
 				currentLangMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 				if (selectedSourceLanguage.equals(main.getSupportedTranslatorLanguages().get(i).getLangCode())) {
-					currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+					Enchantment power = XEnchantment.matchXEnchantment("power").get().getEnchant();
+					if (power != null) {
+						currentLangMeta.addEnchant(power, 1, false);
+					}
 					lore.add(ChatColor.GREEN + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceTranslationSelected"));
 				} else if (currTranslator.getInLangCode().equals(main.getSupportedTranslatorLanguages().get(i).getLangCode())) {
-					currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+					Enchantment power = XEnchantment.matchXEnchantment("power").get().getEnchant();
+					if (power != null) {
+						currentLangMeta.addEnchant(power, 1, false);
+					}
 					lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceOrTargetTranslationAlreadyActive"));
 				}
 				currentLangMeta.setDisplayName(main.getSupportedTranslatorLanguages().get(i).getLangName());
@@ -154,10 +127,16 @@ public class WWCTranslateGUISourceLanguage implements InventoryProvider {
 				skipSourceMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 				ArrayList<String> lore = new ArrayList<>();
 				if ((currTranslator.getInLangCode().equals("None"))) {
-					skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+					Enchantment power = XEnchantment.matchXEnchantment("power").get().getEnchant();
+					if (power != null) {
+						skipSourceMeta.addEnchant(power, 1, false);
+					}
 					lore.add(ChatColor.GREEN + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceTranslationSelected"));
 				} else if (selectedSourceLanguage.equalsIgnoreCase("None")) {
-					skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+					Enchantment power = XEnchantment.matchXEnchantment("power").get().getEnchant();
+					if (power != null) {
+						skipSourceMeta.addEnchant(power, 1, false);
+					}
 					lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceOrTargetTranslationAlreadyActive"));
 				}
 				skipSourceButton.setItemMeta(skipSourceMeta);

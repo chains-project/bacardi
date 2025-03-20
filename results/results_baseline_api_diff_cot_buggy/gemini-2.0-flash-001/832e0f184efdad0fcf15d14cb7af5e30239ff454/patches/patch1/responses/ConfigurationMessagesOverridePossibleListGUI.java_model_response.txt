@@ -1,22 +1,3 @@
-<fix_planning>
-a. The code uses `XEnchantment.matchXEnchantment("power").get().parseEnchantment()` to get an `Enchantment` object.
-b. The API change indicates that `com.cryptomorin.xseries.XEnchantment.parseEnchantment()` has been removed.
-c. The affected line is: `currentEntryMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);`
-d. Potential fixes:
-    1. Find an alternative method in `XEnchantment` to get the `Enchantment` object. After researching the XSeries API, it appears that `XEnchantment.matchXEnchantment("power").get().getEnchant()` is the correct replacement.
-e. Side effects:
-    1. The new method should return the same `Enchantment` object as the old one.
-f. Constraints:
-    1. The function signature of `init` and `update` must not change.
-    2. Variables can be created.
-    3. The `@Override` annotation must be kept.
-    4. Missing imports must be addressed.
-    5. Existing code must not be removed unless it causes an error.
-    6. All code must be included in the final output.
-g. Summary:
-The best solution is to replace `XEnchantment.matchXEnchantment("power").get().parseEnchantment()` with `XEnchantment.matchXEnchantment("power").get().getEnchant()`. This directly addresses the API change and should have no negative side effects.
-</fix_planning>
-
 ```java
 package com.expl0itz.worldwidechat.inventory.configuration;
 
@@ -45,6 +26,8 @@ import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;
 import fr.minuskube.inv.content.Pagination;
 import fr.minuskube.inv.content.SlotIterator;
+
+import org.bukkit.enchantments.Enchantment;
 
 public class ConfigurationMessagesOverridePossibleListGUI implements InventoryProvider {
 
@@ -89,7 +72,11 @@ public class ConfigurationMessagesOverridePossibleListGUI implements InventoryPr
 				if (messagesConfig.getString("Overrides." + entry.getKey()) != null) {
 					lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwcConfigGUIMessagesAlreadyOverriden"));
 					currentEntryMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					currentEntryMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+					XEnchantment xEnchantment = XEnchantment.matchXEnchantment("power").get();
+					Enchantment enchantment = (xEnchantment != null) ? xEnchantment.getEnchant() : null;
+					if (enchantment != null) {
+						currentEntryMeta.addEnchant(enchantment, 1, false);
+					}
 				}
 				lore.add(CommonDefinitions.getMessage("wwcConfigGUIMessagesOverrideOriginalLabel") + ": " + messagesConfig.getString("Messages." + entry.getKey()));
 				currentEntryMeta.setLore(lore);

@@ -14,8 +14,8 @@ import java.util.UUID;
 
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
 import org.spongepowered.api.network.channel.ChannelBuf;
+import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
 import org.spongepowered.api.network.EngineConnection;
 
 import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;

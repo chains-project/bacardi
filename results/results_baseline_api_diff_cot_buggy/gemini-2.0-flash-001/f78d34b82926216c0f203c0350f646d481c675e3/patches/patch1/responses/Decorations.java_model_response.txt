@@ -1,44 +1,3 @@
-<fix_planning>
-a. Relevant parts of the code and API changes:
-- Code:
-```java
-import develop.p2p.lib.WaveCreator;
-WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1);
-```
-- API Changes:
-```
-Class develop.p2p.lib.WaveCreator has been removed in the new version of the dependency.
-Construct tokyo.peya.lib.WaveCreator(double,double,double) has been added in the new version of the dependency.
-Constructor develop.p2p.lib.WaveCreator(double,double,double) has been removed in the new version of the dependency.
-Type reference tokyo.peya.lib.WaveCreator(double,double,double) has been added in the new version of the dependency.
-```
-
-b. Specific API changes causing the issue:
-The class `develop.p2p.lib.WaveCreator` has been removed, and `tokyo.peya.lib.WaveCreator` has been added. This means the import statement is incorrect, and the class constructor being called is no longer available in the old package.
-
-c. Affected lines of code:
-- `import develop.p2p.lib.WaveCreator;`
-- `WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1);`
-
-d. Proposed potential fixes for each affected line:
-- `import develop.p2p.lib.WaveCreator;`: Replace with `import tokyo.peya.lib.WaveCreator;`
-- `WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1);`: Replace with `tokyo.peya.lib.WaveCreator wave = new tokyo.peya.lib.WaveCreator(0.8, 1.8, 0.1);`
-
-e. Consider any potential side effects of the proposed changes:
-The code relies on the `WaveCreator` class. Changing the import and class instantiation should resolve the compilation errors without affecting the functionality, assuming the new `WaveCreator` class in `tokyo.peya.lib` provides the same functionality as the old one.
-
-f. Explicitly check if the proposed changes adhere to all the given constraints:
-1.  The function signatures are not changed.
-2.  A variable is not created, only the type is changed.
-3.  The `@Override` annotation is not present in the affected code.
-4.  The correct package is used in accordance with the newer dependency version.
-5.  No existing code is removed unless it directly causes a compilation error.
-6.  All code is included in the final output.
-
-g. Final summary of the chosen fix and why it's the best solution:
-The best solution is to replace the import statement and the class instantiation to use the new `tokyo.peya.lib.WaveCreator` class. This directly addresses the compilation errors caused by the API changes and ensures that the code uses the correct class from the updated dependency.
-</fix_planning>
-
 ```java
 package ml.peya.plugins.Objects;
 
@@ -224,7 +183,7 @@ public class Decorations
     public static void magic(Player player, int seconds)
     {
         final int[] count = {0};
-        tokyo.peya.lib.WaveCreator wave = new tokyo.peya.lib.WaveCreator(0.8, 1.8, 0.1);
+        WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1);
 
         BukkitRunnable runnable = new BukkitRunnable()
         {

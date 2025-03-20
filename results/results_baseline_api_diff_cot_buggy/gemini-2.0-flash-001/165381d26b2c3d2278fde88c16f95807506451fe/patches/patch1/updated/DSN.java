@@ -332,10 +332,11 @@ public class DSN {
 
       private final List<Integer> l;
 
-      private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
+      private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration();
 
         UnitTestsVisitor(List<Integer> numbers) {
             this.l = numbers;
+            noComments.setPrintComments(false);
         }
 
         @Override

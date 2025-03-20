@@ -1,47 +1,3 @@
-<fix_planning>
-a. Code and API changes:
-- The code uses `org.eclipse.jetty.server.nio.SelectChannelConnector`, which has been removed.
-- The code uses `org.eclipse.jetty.server.Connector`, which has been removed.
-- The code uses `httpConnector.setPort(port)`, but `Connector.setPort(int)` has been removed. `AbstractNetworkConnector.setPort(int)` has been added.
-- The code uses `httpConnector.getLocalPort()`, but `SelectChannelConnector.getLocalPort()` and `Connector.getLocalPort()` have been removed. `NetworkConnector.getLocalPort()` and `AbstractNetworkConnector.getLocalPort()` and `ServerConnector.getLocalPort()` have been added.
-- The code uses `server.setSendServerVersion(false)` and `server.setSendDateHeader(true)`, but `Server.setSendServerVersion(boolean)` and `Server.setSendDateHeader(boolean)` have been removed. `HttpConfiguration.setSendServerVersion(boolean)` and `HttpConfiguration.setSendDateHeader(boolean)` have been added.
-
-b. Specific API changes causing the issue:
-- Removal of `org.eclipse.jetty.server.nio.SelectChannelConnector` and `org.eclipse.jetty.server.Connector`.
-- Removal of `Connector.setPort(int)` and `Connector.getLocalPort()`.
-- Removal of `Server.setSendServerVersion(boolean)` and `Server.setSendDateHeader(true)`.
-
-c. Affected lines of code:
-- `import org.eclipse.jetty.server.nio.SelectChannelConnector;`
-- `this.httpConnector = new SelectChannelConnector();`
-- `this.httpConnector.setPort(port);`
-- `return httpConnector.getLocalPort();`
-- `this.server.setSendServerVersion(false);`
-- `this.server.setSendDateHeader(true);`
-
-d. Proposed fixes:
-- Replace `SelectChannelConnector` with `ServerConnector`.
-- Replace `Connector` with `ServerConnector`.
-- Use `ServerConnector.setPort(port)` instead of `Connector.setPort(port)`.
-- Use `ServerConnector.getLocalPort()` instead of `Connector.getLocalPort()`.
-- Use `HttpConfiguration` to set `sendServerVersion` and `sendDateHeader`.
-
-e. Potential side effects:
-- The change to `ServerConnector` might have subtle differences in behavior compared to `SelectChannelConnector`. However, since this is a stub server, the impact should be minimal.
-- Using `HttpConfiguration` requires creating an instance and associating it with the connector.
-
-f. Adherence to constraints:
-- The function signatures are not changed.
-- Variables can be created.
-- `@Override` annotations might need to be removed if the method no longer overrides a method in the updated dependency version.
-- Missing imports will be addressed.
-- No existing code will be removed unless it causes a compilation error.
-
-g. Final summary:
-The best solution is to replace `SelectChannelConnector` with `ServerConnector`, use `ServerConnector.setPort()` and `ServerConnector.getLocalPort()`, and use `HttpConfiguration` to set `sendServerVersion` and `sendDateHeader`. This addresses all compilation errors and adheres to the given constraints.
-
-</fix_planning>
-
 ```java
 /*
  * Copyright (c) 2012 - 2016 Jadler contributors
@@ -76,10 +32,9 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
-
-        HttpConfiguration httpConfig = new HttpConfiguration();
-        httpConfig.setSendServerVersion(false);
-        httpConfig.setSendDateHeader(true);
+        HttpConfiguration http_config = new HttpConfiguration();
+        http_config.setSendServerVersion(false);
+        http_config.setSendDateHeader(true);
 
         this.httpConnector = new ServerConnector(server);
         this.httpConnector.setPort(port);

@@ -22,6 +22,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.enchantments.Enchantment;
 
 public class WWCInventoryManager extends InventoryManager {
 	
@@ -76,7 +77,11 @@ public class WWCInventoryManager extends InventoryManager {
 			pageMeta.setDisplayName(ChatColor.AQUA
 					+ CommonDefinitions.getMessage("wwcGUIPageNumber", args));
 			if (args[0].equals("1")) {
-				pageMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchantment(), 1, false);
+				XEnchantment xEnchantment = XEnchantment.matchXEnchantment("power").get();
+				Enchantment enchantment = (xEnchantment != null) ? xEnchantment.getEnchant() : null;
+				if (enchantment != null) {
+					pageMeta.addEnchant(enchantment, 1, false);
+				}
 			}
 		} else {
 			pageMeta.setDisplayName(ChatColor.RED + "Not a valid button! This is a bug, please report it.");

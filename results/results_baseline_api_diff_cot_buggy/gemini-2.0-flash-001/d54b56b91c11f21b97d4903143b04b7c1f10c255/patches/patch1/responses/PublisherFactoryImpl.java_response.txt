@@ -24,8 +24,9 @@ import com.google.cloud.pubsublite.internal.wire.PubsubContext;
 import com.google.cloud.pubsublite.internal.wire.PubsubContext.Framework;
 import com.google.cloud.pubsublite.internal.wire.RoutingPublisherBuilder;
 import com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder;
-import java.util.Map;
 import org.apache.kafka.common.config.ConfigValue;
+
+import java.util.Map;
 
 class PublisherFactoryImpl implements PublisherFactory {
 
@@ -49,6 +50,7 @@ class PublisherFactoryImpl implements PublisherFactory {
             SinglePartitionPublisherBuilder.newBuilder()
                 .setTopic(topic)
                 .setPartition(partition)
+                // .setContext(PubsubContext.of(FRAMEWORK)) // Removed due to API change
                 .build());
     return builder.build();
   }

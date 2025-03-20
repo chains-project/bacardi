@@ -1,10 +1,18 @@
-162,163c162,167
+29a30
+> import org.sonarsource.sonarlint.core.analysis.api.AnalysisEngineConfiguration.Builder;
+162,168c163,169
 <         return AnalysisEngineConfiguration.builder()
 <                 .addEnabledLanguages(globalConfig.getEnabledLanguages())
+<                 .setClientPid(globalConfig.getClientPid())
+<                 .setExtraProperties(globalConfig.extraProperties())
+<                 .setWorkDir(globalConfig.getWorkDir())
+<                 .setModulesProvider(globalConfig.getModulesProvider())
+<                 .build();
 ---
->         AnalysisEngineConfiguration.Builder builder = AnalysisEngineConfiguration.builder();
->         Set<Language> enabledLanguages = globalConfig.getEnabledLanguages();
->         for (Language language : enabledLanguages) {
->             builder.addEnabledLanguage(language);
->         }
->         return builder
+>         Builder builder = AnalysisEngineConfiguration.builder();
+>         builder.addEnabledLanguages(globalConfig.getEnabledLanguages().toArray(new Language[0]));
+>         builder.setClientPid(globalConfig.getClientPid());
+>         builder.setExtraProperties(globalConfig.extraProperties());
+>         builder.setWorkDir(globalConfig.getWorkDir());
+>         builder.setModulesProvider(globalConfig.getModulesProvider());
+>         return builder.build();

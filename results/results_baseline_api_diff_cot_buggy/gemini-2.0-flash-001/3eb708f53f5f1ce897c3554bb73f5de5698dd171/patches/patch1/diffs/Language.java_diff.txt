@@ -1,20 +1,20 @@
-19,20d18
+19c19
 < import com.google.api.services.translate.model.LanguagesResource;
-< import com.google.common.base.Function;
-36,42d33
+---
+> import com.google.api.services.translate.model.LanguagesListResponse;
+23a24
+> import java.util.List;
+36,37c37,38
 <   static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
 <       new Function<LanguagesResource, Language>() {
-<         @Override
-<         public Language apply(LanguagesResource languagePb) {
-<           return Language.fromPb(languagePb);
-<         }
-<       };
-47c38
-<   private Language(String code, String name) {
 ---
->   public Language(String code, String name) {
-82,85d72
-<   }
-< 
+>   static final Function<com.google.api.services.translate.model.LanguagesResource, Language> FROM_PB_FUNCTION =
+>       new Function<com.google.api.services.translate.model.LanguagesResource, Language>() {
+39c40
+<         public Language apply(LanguagesResource languagePb) {
+---
+>         public Language apply(com.google.api.services.translate.model.LanguagesResource languagePb) {
+84c85
 <   static Language fromPb(LanguagesResource languagePb) {
-<     return new Language(languagePb.getLanguage(), languagePb.getName());
+---
+>   static Language fromPb(com.google.api.services.translate.model.LanguagesResource languagePb) {

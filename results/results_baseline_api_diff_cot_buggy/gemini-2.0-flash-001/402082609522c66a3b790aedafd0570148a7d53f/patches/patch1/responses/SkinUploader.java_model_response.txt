@@ -1,39 +1,3 @@
-<fix_planning>
-a. Code and API changes:
-The code uses `org.spongepowered.api.command.CommandSource`. The API changes indicate that `org.spongepowered.api.command.CommandSource` has been removed.
-
-b. Specific API changes causing the issue:
-The removal of `org.spongepowered.api.command.CommandSource` is the root cause.
-
-c. Affected lines of code:
-- `import org.spongepowered.api.command.CommandSource;`
-- `private final CommandSource invoker;`
-- `public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url)`
-
-d. Proposed fixes:
-Since `CommandSource` is removed, we need to find a suitable replacement. Looking at the Sponge API, `org.spongepowered.api.entity.living.player.Player` or `org.spongepowered.api.service.context.ContextSource` might be suitable replacements depending on the usage of `CommandSource`. Without more context on how `invoker` is used, it's difficult to choose the best replacement. However, since we are constrained to not change the method signature, we can replace `CommandSource` with `Object`. This will allow the code to compile, but may cause runtime errors if the methods that use `invoker` expect a `CommandSource`.
-
-- Replace `import org.spongepowered.api.command.CommandSource;` with `import java.lang.Object;`
-- Replace `private final CommandSource invoker;` with `private final Object invoker;`
-- Replace `public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url)` with `public SkinUploader(ChangeSkinSponge plugin, Object invoker, Account owner, String url)`
-- In `SkinChanger`, replace `CommandSource` with `Object` as well.
-
-e. Potential side effects:
-Replacing `CommandSource` with `Object` will allow the code to compile, but it might lead to runtime errors if the code relies on specific methods or properties of the `CommandSource` interface. The code using `invoker` will need to be updated to handle the `Object` type correctly.
-
-f. Adherence to constraints:
-The proposed changes adhere to all constraints:
-- The function signature of the constructor is preserved (only the type of the parameter is changed).
-- A variable is not created.
-- The `@Override` annotation is not removed.
-- The correct package is used.
-- No existing code is removed unless it directly causes a compilation error.
-- All code is included in the final output.
-
-g. Final summary:
-The best solution, given the constraints, is to replace `CommandSource` with `Object`. This allows the code to compile without changing the method signature. While this might introduce runtime errors, it's the most conservative approach that adheres to all the given constraints.
-</fix_planning>
-
 ```java
 package com.github.games647.changeskin.sponge.task;
 
@@ -43,16 +7,15 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.concurrent.TimeUnit;
 
-import java.lang.Object;
-
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
 public class SkinUploader extends SharedUploader {
 
     private final ChangeSkinSponge plugin;
-    private final Object invoker;
+    private final Player invoker;
 
-    public SkinUploader(ChangeSkinSponge plugin, Object invoker, Account owner, String url) {
+    public SkinUploader(ChangeSkinSponge plugin, Player invoker, Account owner, String url) {
         super(plugin.getCore(), owner, url);
 
         this.plugin = plugin;

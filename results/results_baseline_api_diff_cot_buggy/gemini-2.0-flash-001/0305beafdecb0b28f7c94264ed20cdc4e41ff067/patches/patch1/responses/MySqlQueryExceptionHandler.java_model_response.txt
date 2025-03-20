@@ -1,34 +1,3 @@
-<fix_planning>
-a. Code and API changes:
-- The code uses `com.mysql.jdbc.exceptions.MySQLTimeoutException`.
-- The API changes indicate that `com.mysql.jdbc.exceptions.MySQLTimeoutException` has been removed and `com.mysql.cj.jdbc.exceptions.MySQLTimeoutException` has been added.
-
-b. Specific API changes causing the issue:
-- The removal of `com.mysql.jdbc.exceptions.MySQLTimeoutException` and the introduction of `com.mysql.cj.jdbc.exceptions.MySQLTimeoutException` are causing the compilation errors.
-
-c. Affected lines of code:
-- Line 21: `import com.mysql.jdbc.exceptions.MySQLTimeoutException;`
-- Line 40: `return exception instanceof MySQLTimeoutException || super.isTimeoutException(exception);`
-
-d. Proposed fixes:
-- Line 21: Replace `import com.mysql.jdbc.exceptions.MySQLTimeoutException;` with `import com.mysql.cj.jdbc.exceptions.MySQLTimeoutException;`
-- Line 40: Replace `exception instanceof MySQLTimeoutException` with `exception instanceof com.mysql.cj.jdbc.exceptions.MySQLTimeoutException`
-
-e. Potential side effects:
-- The change in package name could potentially affect other parts of the application if they also rely on the old package. However, since the task is limited to fixing the given code, this is not a major concern.
-
-f. Adherence to constraints:
-- The function signature of `isTimeoutException` is not changed.
-- A variable is not created.
-- The `@Override` annotation is kept because the method still overrides a method in the superclass.
-- The missing import is addressed by using the correct package in accordance with the newer dependency version.
-- No existing code is removed unless it directly causes a compilation error.
-- All code is included in the final output.
-
-g. Summary:
-The best solution is to replace the old import statement with the new one and update the `instanceof` check to use the new class name. This directly addresses the compilation errors caused by the API change and adheres to all the given constraints.
-</fix_planning>
-
 ```java
 /*
  * Copyright 2019 Feedzai
@@ -50,8 +19,6 @@ package com.feedzai.commons.sql.abstraction.engine.impl.mysql;
 
 import com.feedzai.commons.sql.abstraction.engine.handler.QueryExceptionHandler;
 
-import com.mysql.cj.jdbc.exceptions.MySQLTimeoutException;
-
 import java.sql.SQLException;
 
 /**
@@ -69,7 +36,7 @@ public class MySqlQueryExceptionHandler extends QueryExceptionHandler {
 
     @Override
     public boolean isTimeoutException(final SQLException exception) {
-        return exception instanceof MySQLTimeoutException || super.isTimeoutException(exception);
+        return exception.getClass().getName().equals("com.mysql.cj.jdbc.exceptions.MySQLTimeoutException") || super.isTimeoutException(exception);
     }
 
     @Override

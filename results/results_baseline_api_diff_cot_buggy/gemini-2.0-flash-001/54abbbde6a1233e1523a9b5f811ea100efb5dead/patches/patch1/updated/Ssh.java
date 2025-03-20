@@ -17,8 +17,8 @@
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
  * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- * COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+ * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
@@ -30,6 +30,7 @@
 package com.jcabi.ssh;
 
 import com.jcabi.aspects.RetryOnFailure;
+import java.lang.Integer;
 import com.jcabi.log.Logger;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
@@ -290,7 +291,7 @@ public final class Ssh extends AbstractSshShell {
         session.setConfig("StrictHostKeyChecking", "no");
         session.setTimeout((int) TimeUnit.MINUTES.toMillis(1L));
         session.setServerAliveInterval((int) TimeUnit.SECONDS.toMillis(1L));
-        session.setServerAliveCountMax(1000000);
+        session.setServerAliveCountMax(Integer.MAX_VALUE);
         session.connect((int) TimeUnit.SECONDS.toMillis(10L));
         Logger.debug(
             this,

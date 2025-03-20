@@ -1,3 +1,4 @@
+import java.util.Locale;
 import java.util.ResourceBundle;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -29,7 +30,8 @@ public class Messages {
      * placeholder for unknown keys.
      */
     public final String get(final String key) {
-        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, request.getLocale());
+        final Locale locale = request.getLocale();
+        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, locale);
 
         return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);
     }

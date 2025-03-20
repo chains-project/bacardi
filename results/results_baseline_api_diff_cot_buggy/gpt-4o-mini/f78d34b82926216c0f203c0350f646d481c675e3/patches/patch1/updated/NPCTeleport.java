@@ -1,6 +1,6 @@
 package ml.peya.plugins.Detect;
 
-import tokyo.peya.lib.*; // Updated import to the new package
+import tokyo.peya.lib.*; // Updated import
 import ml.peya.plugins.DetectClasses.*;
 import ml.peya.plugins.Enum.*;
 import ml.peya.plugins.*;
@@ -69,7 +69,6 @@ public class NPCTeleport
 
         new BukkitRunnable()
         {
-            @Override
             public void run()
             {
                 now[0]++;
@@ -111,7 +110,6 @@ public class NPCTeleport
                     NPC.setArmor(player, target, arm);
                     new BukkitRunnable()
                     {
-                        @Override
                         public void run()
                         {
                             Bukkit.getOnlinePlayers().parallelStream().filter(p -> p.hasPermission("psac.viewnpc"))
@@ -152,7 +150,7 @@ public class NPCTeleport
         final double radius = reachMode ? config.getDouble("npc.reachRange"): config.getDoubleList("npc.range")
             .get(new Random().nextInt(config.getDoubleList("npc.range").size()));
 
-        tokyo.peya.lib.WaveCreator ypp = new tokyo.peya.lib.WaveCreator(10.0, 100.0, 10.0); // Updated to new class
+        tokyo.peya.lib.WaveCreator ypp = new tokyo.peya.lib.WaveCreator(10.0, 100.0, 10.0); // Updated constructor
 
         final int[] count = {0};
         BukkitRunnable r = new BukkitRunnable()
@@ -170,14 +168,14 @@ public class NPCTeleport
                     double rangeTmp = radius;
 
                     if (config.getBoolean("npc.wave"))
-                        rangeTmp = new tokyo.peya.lib.WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin")) // Updated to new class
+                        rangeTmp = new tokyo.peya.lib.WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin")) // Updated constructor
                             .get(0.01, true);
 
                     final Location center = player.getLocation();
                     final Location n = new Location(
                         center.getWorld(),
                         auraBotXPos(time[0], rangeTmp + speed) + center.getX(),
-                        center.getY() + new tokyo.peya.lib.WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20), // Updated to new class
+                        center.getY() + new tokyo.peya.lib.WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20), // Updated constructor
                         auraBotZPos(time[0], rangeTmp + speed) + center.getZ(),
                         (float) ypp.getStatic(),
                         (float) ypp.get(4.5, false)
@@ -190,7 +188,6 @@ public class NPCTeleport
                     NPC.setArmor(player, target, arm);
                     new BukkitRunnable()
                     {
-                        @Override
                         public void run()
                         {
                             Bukkit.getOnlinePlayers()
@@ -211,7 +208,7 @@ public class NPCTeleport
                     meta.setNpcLocation(n.toVector());
                 }
                 time[0] += config.getDouble("npc.time") + (config.getBoolean("npc.speed.wave")
-                    ? new tokyo.peya.lib.WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true) // Updated to new class
+                    ? new tokyo.peya.lib.WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true) // Updated constructor
                     : 0.0);
             }
         };
@@ -219,7 +216,6 @@ public class NPCTeleport
 
         new BukkitRunnable()
         {
-            @Override
             public void run()
             {
                 r.cancel();

@@ -1,57 +1,3 @@
-<fix_planning>
-The code is failing because of breaking changes in the `javax.validation` API. The `javax.validation` package has been replaced with `jakarta.validation`. Several classes and methods have been removed or replaced.
-
-Here's a breakdown of the issues and proposed solutions:
-
-1.  **Missing Imports:**
-    *   `javax.validation.Validator` is replaced by `jakarta.validation.Validator`.
-    *   `javax.validation.constraints.NotNull` is replaced by `jakarta.validation.constraints.NotNull`.
-    *   `javax.validation.constraints.NotEmpty` is replaced by `jakarta.validation.constraints.NotEmpty`.
-    *   `javax.validation.constraints.NotBlank` is replaced by `jakarta.validation.constraints.NotBlank`.
-    *   `javax.validation.metadata.BeanDescriptor` is replaced by `jakarta.validation.metadata.BeanDescriptor`.
-    *   `javax.validation.metadata.ConstraintDescriptor` is replaced by `jakarta.validation.metadata.ConstraintDescriptor`.
-    *   `javax.validation.metadata.ElementDescriptor` is replaced by `jakarta.validation.metadata.ElementDescriptor`.
-
-    **Solution:** Replace the `javax.validation` imports with `jakarta.validation` equivalents.
-
-2.  **`Validator.getConstraintsForClass()`:**
-    *   The method `javax.validation.Validator.getConstraintsForClass()` has been removed and replaced by `jakarta.validation.Validator.getConstraintsForClass()`.
-
-    **Solution:** Update the import and method call to use the `jakarta.validation` API.
-
-3.  **`ElementDescriptor.getConstraintDescriptors()`:**
-    *   The method `javax.validation.metadata.ElementDescriptor.getConstraintDescriptors()` has been removed and replaced by `jakarta.validation.metadata.ElementDescriptor.getConstraintDescriptors()`.
-
-    **Solution:** Update the import and method call to use the `jakarta.validation` API.
-
-4.  **`ConstraintDescriptor.getAnnotation()`:**
-    *   The method `javax.validation.metadata.ConstraintDescriptor.getAnnotation()` has been removed and replaced by `jakarta.validation.metadata.ConstraintDescriptor.getAnnotation()`.
-
-    **Solution:** Update the import and method call to use the `jakarta.validation` API.
-
-**Affected Lines and Proposed Fixes:**
-
-*   Line 37: `import javax.validation.Validator;` -> `import jakarta.validation.Validator;`
-*   Line 38: `import javax.validation.constraints.NotEmpty;` -> `import jakarta.validation.constraints.NotEmpty;`
-*   Line 39: `import javax.validation.constraints.NotBlank;` -> `import jakarta.validation.constraints.NotBlank;`
-*   Line 40: `import javax.validation.constraints.NotNull;` -> `import jakarta.validation.constraints.NotNull;`
-*   Line 41: `import javax.validation.metadata.BeanDescriptor;` -> `import jakarta.validation.metadata.BeanDescriptor;`
-*   Line 42: `import javax.validation.metadata.ConstraintDescriptor;` -> `import jakarta.validation.metadata.ConstraintDescriptor;`
-*   Line 43: `import javax.validation.metadata.ElementDescriptor;` -> `import jakarta.validation.metadata.ElementDescriptor;`
-*   Line 121: `Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();` -> `jakarta.validation.Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();`
-*   Line 122: `BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);` -> `jakarta.validation.metadata.BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);`
-*   Line 133: `ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());` -> `jakarta.validation.metadata.ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());`
-*   Line 135: `Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();` -> `java.util.Set<jakarta.validation.metadata.ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();`
-*   Line 136: `for(ConstraintDescriptor<?> constraint : constraintsSet){` -> `for(jakarta.validation.metadata.ConstraintDescriptor<?> constraint : constraintsSet){`
-*   Line 137: `if(constraint.getAnnotation() instanceof NotNull ||` -> `if(constraint.getAnnotation() instanceof jakarta.validation.constraints.NotNull ||`
-*   Line 138: `constraint.getAnnotation() instanceof NotEmpty ||` -> `constraint.getAnnotation() instanceof jakarta.validation.constraints.NotEmpty ||`
-*   Line 139: `constraint.getAnnotation() instanceof NotBlank)` -> `constraint.getAnnotation() instanceof jakarta.validation.constraints.NotBlank)`
-
-**Final Summary:**
-
-The best solution is to replace the `javax.validation` imports with `jakarta.validation` equivalents and update the code to use the new API. This will fix the compilation errors and ensure that the code works with the updated dependency. This approach adheres to all the given constraints.
-</fix_planning>
-
 ```java
 /**
  * Copyright (C) 2014 Premium Minds.
@@ -89,6 +35,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -173,8 +120,8 @@ public abstract class ListControlGroups<T> extends Panel {
 
 		Set<String> properties = getPropertiesByOrder(modelClass);
 
-		jakarta.validation.Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
-		jakarta.validation.metadata.BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
+		Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
+		BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
 		for(String property : properties){
 			PropertyDescriptor descriptor;
 			try {
@@ -185,13 +132,13 @@ public abstract class ListControlGroups<T> extends Panel {
 
 			boolean required = false;
 
-			jakarta.validation.metadata.ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+			ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
 			if(constraintDescriptor!=null){
-				java.util.Set<jakarta.validation.metadata.ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
-				for(jakarta.validation.metadata.ConstraintDescriptor<?> constraint : constraintsSet){
-					if(constraint.getAnnotation() instanceof jakarta.validation.constraints.NotNull ||
-					   constraint.getAnnotation() instanceof jakarta.validation.constraints.NotEmpty ||
-					   constraint.getAnnotation() instanceof jakarta.validation.constraints.NotBlank)
+				Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
+				for(ConstraintDescriptor<?> constraint : constraintsSet){
+					if(constraint.getAnnotation() instanceof NotNull ||
+					   constraint.getAnnotation() instanceof NotEmpty ||
+					   constraint.getAnnotation() instanceof NotBlank)
 						required = true;
 				}
 			}

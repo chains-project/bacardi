@@ -1,32 +1,3 @@
-<fix_planning>
-a. Code and API changes:
-The error occurs because `com.cryptomorin.xseries.XEnchantment.parseEnchantment()` has been removed. The code uses this method to get the `Enchantment` object from `XEnchantment`.
-
-b. Specific API changes:
-The method `parseEnchantment()` has been removed from the `XEnchantment` class. We need to find an alternative way to get the `Enchantment` object. After researching the XSeries API, it appears that `getEnchant()` is the replacement.
-
-c. Affected lines of code:
-```java
-incomingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
-outgoingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
-```
-
-d. Proposed fixes:
-Replace `parseEnchantment()` with `getEnchant()`.
-
-e. Potential side effects:
-The `getEnchant()` method should return the same `Enchantment` object as `parseEnchantment()`, so there should be no side effects.
-
-f. Adherence to constraints:
-The proposed change adheres to all constraints:
-- The function signature of any method is not changed.
-- No existing code is removed unless it directly causes a compilation or functionality error.
-- All code, even unchanged portions, is included in the final output.
-
-g. Summary:
-The best solution is to replace `parseEnchantment()` with `getEnchant()`. This fixes the compilation error and should not introduce any side effects.
-</fix_planning>
-
 ```java
 package com.expl0itz.worldwidechat.inventory.wwctranslategui;
 
@@ -34,6 +5,7 @@ import java.util.UUID;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -98,7 +70,10 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
 				ItemMeta outgoingChatMeta = outgoingChatButton.getItemMeta();
 				if (targetTranslator.getTranslatingChatOutgoing()) {
 					outgoingChatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					outgoingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+					Enchantment power = XEnchantment.matchXEnchantment("power").get().getEnchant();
+					if (power != null) {
+						outgoingChatMeta.addEnchant(power, 1, false);
+					}
 					outgoingChatMeta.setDisplayName(ChatColor.GREEN
 							+ CommonDefinitions.getMessage("wwctGUIChatOutgoingButton"));
 				} else {
@@ -120,7 +95,10 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
     			ItemMeta incomingChatMeta = incomingChatButton.getItemMeta();
     			if (targetTranslator.getTranslatingChatIncoming()) {
     				incomingChatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-    				incomingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+					Enchantment power = XEnchantment.matchXEnchantment("power").get().getEnchant();
+					if (power != null) {
+    					incomingChatMeta.addEnchant(power, 1, false);
+					}
     				incomingChatMeta.setDisplayName(ChatColor.GREEN
     						+ CommonDefinitions.getMessage("wwctGUIChatIncomingButton"));
     			} else {

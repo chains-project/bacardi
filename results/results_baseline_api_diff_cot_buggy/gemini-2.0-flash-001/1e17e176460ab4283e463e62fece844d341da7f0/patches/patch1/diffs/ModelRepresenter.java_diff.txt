@@ -1,10 +1,33 @@
 15a16
 > import org.yaml.snakeyaml.DumperOptions;
-37a39
+24a26,28
+> import java.beans.Introspector;
+> import java.beans.BeanInfo;
+> import java.beans.PropertyDescriptor;
+37a42
 >     super(new DumperOptions());
-217,219c219
-<   @Override
+218,219c223,224
 <   protected Set<Property> getProperties(Class<? extends Object> type)
 <           throws IntrospectionException {
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) {
+>     try {
+232a238,240
+>     } catch (IntrospectionException e) {
+>       throw new YAMLException(e);
+>     }
+237c245
+<       Set<Property> standard = super.getProperties(type);
+---
+>       Set<Property> standard = getPropertySet(type);
+240a249,258
+>   }
+> 
+>   private Set<Property> getPropertySet(Class<? extends Object> type) throws IntrospectionException {
+>     Set<Property> propertySet = new HashSet<>();
+>     BeanInfo beanInfo = Introspector.getBeanInfo(type);
+>     PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
+>     for (PropertyDescriptor pd : propertyDescriptors) {
+>       propertySet.add(new Property(pd));
+>     }
+>     return propertySet;

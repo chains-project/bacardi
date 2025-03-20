@@ -11,8 +11,10 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
-import jakarta.mvc.security.CsrfProtected;
 import jakarta.mvc.View;
+import jakarta.mvc.binding.BindingResult;
+import jakarta.mvc.binding.ParamError;
+import jakarta.mvc.security.CsrfProtected;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
@@ -26,8 +28,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import org.eclipse.krazo.engine.Viewable;
-import jakarta.mvc.binding.BindingResult;
-import jakarta.mvc.binding.ParamError;
 
 @Path("tasks")
 @Controller

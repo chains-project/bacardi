@@ -11,40 +11,41 @@ import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
 
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.network.RemoteConnection;
+import org.spongepowered.api.network.channel.raw.RawDataChannel;
+import org.spongepowered.api.network.channel.ChannelBuf;
+import org.spongepowered.api.network.channel.ChannelRegistrar;
+import org.spongepowered.api.network.EngineConnection;
 
 import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
 import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 
-import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
-import org.spongepowered.api.event.channel.ChannelEventListener;
-import org.spongepowered.api.event.channel.ConnectionEvent;
-import org.spongepowered.api.network.channel.PacketContext;
-import org.spongepowered.api.network.channel.ChannelBuf;
-
-public class CheckPermissionListener implements ChannelEventListener.Raw {
+public class CheckPermissionListener  {
 
     private final ChangeSkinSponge plugin;
-    private final RawPlayDataChannel permissionsResultChannel;
+    private final RawDataChannel permissionsResultChannel;
 
     @Inject
-    CheckPermissionListener(ChangeSkinSponge plugin, RawPlayDataChannel permissionsResultChannel) {
+    CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
         this.plugin = plugin;
-        this.permissionsResultChannel = permissionsResultChannel;
+
+        String combinedName = new NamespaceKey(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL).getCombinedName();
+        permissionsResultChannel = (RawDataChannel) channelRegistrar.findChannel(plugin, combinedName).orElse(channelRegistrar.createRawChannel(plugin, combinedName));
     }
 
-    public void handle(ConnectionEvent.Receive event, PacketContext context) {
-        ByteArrayDataInput dataInput = ByteStreams.newDataInput(event.data().array());
+    public void handlePayload(ChannelBuf data, EngineConnection connection, Type side) {
+
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.asByteArray());
         CheckPermMessage checkMessage = new CheckPermMessage();
         checkMessage.readFrom(dataInput);
 
         CheckPermMessage message = new CheckPermMessage();
         message.readFrom(dataInput);
 
-        checkPermissions((Player) event.connection(), message);
+        checkPermissions((Player) connection, message);
     }
 
     private void checkPermissions(Player player, CheckPermMessage permMessage) {
@@ -78,6 +79,8 @@ public class CheckPermissionListener implements ChannelEventListener.Raw {
     private void sendResultMessage(Player receiver, PermResultMessage resultMessage) {
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
         resultMessage.writeTo(dataOutput);
-        permissionsResultChannel.sendTo((org.spongepowered.api.entity.living.player.server.ServerPlayer) receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+        byte[] bytes = dataOutput.toByteArray();
+        Consumer<ChannelBuf> byteBufConsumer = channelBuf -> channelBuf.writeByteArray(bytes);
+        permissionsResultChannel.sendTo(receiver, byteBufConsumer);
     }
 }

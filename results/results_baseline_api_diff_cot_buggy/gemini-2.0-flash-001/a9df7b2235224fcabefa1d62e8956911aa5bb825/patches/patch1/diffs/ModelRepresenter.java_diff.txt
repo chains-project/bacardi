@@ -1,11 +1,21 @@
-217d216
-<   @Override
-219c218,219
+218,220c218,219
+<   protected Set<Property> getProperties(Class<? extends Object> type)
 <           throws IntrospectionException {
+<     if (type.isAssignableFrom(Model.class)) {
 ---
->           {
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
 >     try {
-231a232,234
->       }
+222,231c221,222
+<     } else if (type.isAssignableFrom(Developer.class)) {
+<       return sortTypeWithOrder(type, ORDER_DEVELOPER);
+<     } else if (type.isAssignableFrom(Contributor.class)) {
+<       return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
+<     }  else if (type.isAssignableFrom(Dependency.class)) {
+<       return sortTypeWithOrder(type, ORDER_DEPENDENCY);
+<     }  else if (type.isAssignableFrom(Plugin.class)) {
+<       return sortTypeWithOrder(type, ORDER_PLUGIN);
+<     } else {
+<       return super.getProperties(type);
+---
 >     } catch (IntrospectionException e) {
 >       throw new RuntimeException(e);

@@ -1,31 +1,3 @@
-<fix_planning>
-a. Code and API changes:
-The code uses `org.cactoos.text.RandomText`. The API changes indicate that `org.cactoos.text.RandomText` has been removed.
-
-b. Specific API changes causing the issue:
-The removal of the class `org.cactoos.text.RandomText` is the direct cause of the compilation error.
-
-c. Affected lines of code:
-- `import org.cactoos.text.RandomText;`
-- The constructor `public Fake(final int val)` which uses `new RandomText()`
-
-d. Proposed fixes:
-1. Replace `RandomText` with an alternative that provides similar functionality. `org.cactoos.text.TextOf` in combination with `java.util.UUID.randomUUID()` can be used to generate random text.
-2. Remove the import statement `import org.cactoos.text.RandomText;`
-
-e. Potential side effects:
-The replacement might slightly alter the behavior of the `Fake` class, but since it's a fake implementation, this is acceptable as long as it still provides random text.
-
-f. Adherence to constraints:
-- The function signatures of all methods remain unchanged.
-- The `@Override` annotations are kept since the methods still override interface methods.
-- No existing code is removed unless it directly causes a compilation error.
-- All code, even unchanged portions, is included in the final output.
-
-g. Summary:
-The best solution is to replace `RandomText` with `TextOf(UUID.randomUUID().toString())` to generate random text and remove the import statement. This addresses the compilation error caused by the removal of `RandomText` while maintaining the functionality of the `Fake` class.
-</fix_planning>
-
 ```java
 /*
  * The MIT License (MIT)
@@ -36,7 +8,7 @@ The best solution is to replace `RandomText` with `TextOf(UUID.randomUUID().toSt
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of this software, and to permit persons to whom the Software is
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
@@ -47,13 +19,12 @@ The best solution is to replace `RandomText` with `TextOf(UUID.randomUUID().toSt
  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 package io.zold.api;
 
-import java.util.UUID;
 import org.cactoos.iterable.Repeated;
 import org.cactoos.text.TextOf;
 
@@ -98,7 +69,7 @@ public interface Remote {
          */
         public Fake(final int val) {
             this(new RtScore(
-                new Repeated<>(val, new TextOf(UUID.randomUUID().toString()))
+                new Repeated<>(val, new TextOf("abc"))
             ));
         }
 

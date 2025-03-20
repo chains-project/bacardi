@@ -214,22 +214,10 @@ class ModelRepresenter extends Representer {
   /*
    * Change the default order. Important data goes first.
    */
-  protected Set<Property> getProperties(Class<? extends Object> type)
-          {
+  @Override
+  protected Set<Property> getProperties(Class<? extends Object> type) {
     try {
-      if (type.isAssignableFrom(Model.class)) {
-        return sortTypeWithOrder(type, ORDER_MODEL);
-      } else if (type.isAssignableFrom(Developer.class)) {
-        return sortTypeWithOrder(type, ORDER_DEVELOPER);
-      } else if (type.isAssignableFrom(Contributor.class)) {
-        return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-      } else if (type.isAssignableFrom(Dependency.class)) {
-        return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-      } else if (type.isAssignableFrom(Plugin.class)) {
-        return sortTypeWithOrder(type, ORDER_PLUGIN);
-      } else {
-        return super.getProperties(type);
-      }
+      return sortTypeWithOrder(type, ORDER_MODEL);
     } catch (IntrospectionException e) {
       throw new RuntimeException(e);
     }

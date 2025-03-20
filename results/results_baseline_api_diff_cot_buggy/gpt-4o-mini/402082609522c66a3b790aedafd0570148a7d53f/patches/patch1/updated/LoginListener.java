@@ -11,7 +11,6 @@ import java.util.UUID;
 
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
-import org.spongepowered.api.event.network.ClientConnectionEvent.Login; // Updated import
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.scheduler.Task;
 
@@ -27,7 +26,7 @@ public class LoginListener extends SharedListener {
     }
 
     @Listener
-    public void onPlayerPreLogin(Login preLoginEvent) { // Updated event type
+    public void onPlayerPreLogin(ClientConnectionEvent.Login preLoginEvent) {
         SkinStorage storage = core.getStorage();
         GameProfile profile = preLoginEvent.getProfile();
         UUID playerUUID = profile.getUniqueId();
@@ -43,7 +42,7 @@ public class LoginListener extends SharedListener {
             plugin.getApi().applyProperties(profile, targetSkin);
             save(preferences);
         } else {
-            String playerName = profile.getName().get();
+            String playerName = profile.getName().orElse("Unknown");
             if (!core.getConfig().getBoolean("restoreSkins") || !refetchSkin(playerName, preferences)) {
                 setDefaultSkin(preferences, profile);
             }
@@ -59,7 +58,6 @@ public class LoginListener extends SharedListener {
         }
     }
 
-    @Override
     protected void save(final UserPreference preferences) {
         Task.builder()
                 .async()

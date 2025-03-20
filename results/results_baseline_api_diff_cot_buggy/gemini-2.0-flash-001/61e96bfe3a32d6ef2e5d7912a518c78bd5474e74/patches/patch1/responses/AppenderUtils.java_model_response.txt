@@ -1,55 +1,4 @@
-<fix_planning>
-a. Relevant parts of the code and API changes:
-- The code defines a class `LogMessageEncoder` that extends `EncoderBase<LogMessage>`.
-- The `EncoderBase` class in the newer version of the dependency no longer has the `init`, `doEncode`, and `close` methods as abstract methods. It also requires implementing `footerBytes()` and `headerBytes()`.
-
-b. Specific API changes causing the issue:
-- The `init`, `doEncode`, and `close` methods in `EncoderBase` are no longer abstract.
-- The `EncoderBase` class now requires implementing `footerBytes()` and `headerBytes()`.
-
-c. Affected lines of code:
-- Line 51: `public static class LogMessageEncoder extends EncoderBase<LogMessage> {`
-- Line 57: `@Override public void init(OutputStream os) {`
-- Line 68: `@Override public void doEncode(LogMessage logMessage) throws IOException {`
-- Line 78: `@Override public void close() throws IOException {`
-
-d. Proposed potential fixes for each affected line:
-- Line 51: Add implementations for `headerBytes()` and `footerBytes()` to the `LogMessageEncoder` class.
-- Line 57: Remove the `@Override` annotation since `init` is no longer an abstract method in the superclass.
-- Line 68: Remove the `@Override` annotation since `doEncode` is no longer an abstract method in the superclass.
-- Line 78: Remove the `@Override` annotation since `close` is no longer an abstract method in the superclass.
-
-e. Potential side effects of the proposed changes:
-- Removing the `@Override` annotations will not have any side effects as the methods are still implementing the interface.
-- Implementing `headerBytes()` and `footerBytes()` with empty byte arrays should not affect the functionality, as the original code did not have any header or footer logic.
-
-f. Adherence to constraints:
-- The function signatures of existing methods are not changed.
-- Variables can be created if needed.
-- The `@Override` annotation is removed only when the method no longer overrides a method in the updated dependency version.
-- No existing code is removed unless it directly causes a compilation error.
-- All code, even unchanged portions, are included in the final output.
-
-g. Final summary of the chosen fix:
-The best solution is to remove the `@Override` annotations from the `init`, `doEncode`, and `close` methods, and add implementations for `headerBytes()` and `footerBytes()` that return empty byte arrays. This addresses the compilation errors caused by the API changes in the `EncoderBase` class while maintaining the original functionality of the code.
-</fix_planning>
-
 ```java
-/**
- * Copyright 2019 Pinterest, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *    http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.pinterest.singer.client.logback;
 
 import com.pinterest.singer.thrift.LogMessage;
@@ -71,6 +20,7 @@ import org.apache.thrift.transport.TTransport;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 /**
  * Utils to create logback appenders
@@ -92,15 +42,6 @@ public class AppenderUtils {
     private OutputStream os;
 
     @Override
-    public byte[] headerBytes() {
-      return new byte[0];
-    }
-
-    @Override
-    public byte[] footerBytes() {
-      return new byte[0];
-    }
-
     public void init(OutputStream os) {
       this.os = os;
       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
@@ -111,17 +52,33 @@ public class AppenderUtils {
       protocol = new TBinaryProtocol(framedTransport);
     }
 
-    public void doEncode(LogMessage logMessage) throws IOException {
+    public byte[] encode(LogMessage logMessage) throws IOException {
       try {
         logMessage.write(protocol);
         framedTransport.flush();
+        return "".getBytes(getDefaultCharset());
       } catch (TException e) {
         throw new IOException(e);
       }
     }
 
+    @Override
     public void close() throws IOException {
       framedTransport.close();
+    }
+
+    @Override
+    public byte[] headerBytes() {
+      return null;
+    }
+
+    @Override
+    public byte[] footerBytes() {
+      return null;
+    }
+
+    private Charset getDefaultCharset() {
+      return Charset.defaultCharset();
     }
   }
 

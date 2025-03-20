@@ -1,58 +1,3 @@
-<fix_planning>
-The code is failing due to breaking changes in the Sponge API related to commands and text handling. Here's a breakdown:
-
-1.  **`org.spongepowered.api.text` package and `Text.of()` method removal:**
-    *   The `org.spongepowered.api.text` package has been removed, meaning `Text`, `of`, and related classes are no longer available.
-    *   Specifically, `import static org.spongepowered.api.text.Text.of;` is causing an error.
-    *   The `Text.of(String)` method has been removed.
-    *   Affected lines: `import static org.spongepowered.api.text.Text.of;`, `arguments(string(of("skinName")))`
-    *   Fix: Replace `Text.of("skinName")` with `"skinName"` directly, as the `string` argument now accepts a string directly. Remove the import statement.
-
-2.  **`org.spongepowered.api.command.spec.CommandSpec` and `org.spongepowered.api.command.spec.CommandSpec.Builder` removal:**
-    *   The `CommandSpec` and its builder have been removed.
-    *   Affected lines: `public CommandSpec buildSpec()`, `return CommandSpec.builder()`
-    *   Fix: Use the new `Command.builder()` API. This requires significant changes to how the command is built.
-
-3.  **`org.spongepowered.api.command.spec.CommandExecutor` removal and `org.spongepowered.api.command.CommandExecutor` addition:**
-    *   `org.spongepowered.api.command.spec.CommandExecutor` has been removed, and `org.spongepowered.api.command.CommandExecutor` has been added.
-    *   Affected lines: `public class SelectCommand implements CommandExecutor, ChangeSkinCommand`
-    *   Fix: Change the implemented interface to the new `org.spongepowered.api.command.CommandExecutor`.
-
-4.  **`org.spongepowered.api.command.args.CommandContext` removal and `org.spongepowered.api.command.parameter.CommandContext` addition:**
-    *   `org.spongepowered.api.command.args.CommandContext` has been removed, and `org.spongepowered.api.command.parameter.CommandContext` has been added.
-    *   Affected lines: `public CommandResult execute(CommandSource src, CommandContext args)`
-    *   Fix: Change the type of the `args` parameter to `org.spongepowered.api.command.parameter.CommandContext`.
-
-5.  **`org.spongepowered.api.command.args.GenericArguments.string()` removal and `org.spongepowered.api.command.parameter.Parameter.string()` addition:**
-    *   `GenericArguments.string()` has been removed, and `Parameter.string()` has been added.
-    *   Affected lines: `import static org.spongepowered.api.command.args.GenericArguments.string;`, `arguments(string(of("skinName")))`
-    *   Fix: Use `Parameter.string()` to define the parameter.
-
-6.  **`org.spongepowered.api.command.CommandResult.empty()` removal:**
-    *   `CommandResult.empty()` has been removed.
-    *   Affected lines: `return CommandResult.empty();`
-    *   Fix: Replace with `return org.spongepowered.api.command.CommandResult.success();` as an empty result is semantically equivalent to a successful command execution that does nothing.
-
-7.  **`org.spongepowered.api.command.spec.CommandSpec$Builder.executor(org.spongepowered.api.command.spec.CommandExecutor)` removal and `org.spongepowered.api.command.Command$Builder.executor(org.spongepowered.api.command.CommandExecutor)` addition:**
-    *   The executor is now set on the `Command.Builder` instead of the `CommandSpec.Builder`.
-    *   Affected lines: `return CommandSpec.builder().executor(this)`
-    *   Fix: Move the executor setting to the new `Command.Builder`.
-
-8.  **`org.spongepowered.api.command.spec.CommandSpec$Builder.arguments(org.spongepowered.api.command.args.CommandElement)` removal:**
-    *   Arguments are now defined using `Parameter` and added to the command builder.
-    *   Affected lines: `arguments(string(of("skinName")))`
-    *   Fix: Define a `Parameter` and add it to the command builder.
-
-9.  **`org.spongepowered.api.command.args.CommandContext.getOne(String)` removal:**
-    *   The way to retrieve arguments from the context has changed.
-    *   Affected lines: `String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");`
-    *   Fix: Use `args.one(Parameter.key("skinName", String.class)).orElse("").toLowerCase().replace("skin-", "");`
-
-Summary:
-
-The primary changes involve migrating from the old `CommandSpec` based command registration to the new `Command` based system, using `Parameter` for argument definition, and adapting to the new `CommandContext` API. The proposed changes address all identified issues while adhering to the constraints.
-</fix_planning>
-
 ```java
 package com.github.games647.changeskin.sponge.command;
 
@@ -68,6 +13,9 @@ import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.Component;
+
 public class SelectCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
@@ -78,18 +26,19 @@ public class SelectCommand implements org.spongepowered.api.command.CommandExecu
     }
 
     @Override
-    public CommandResult execute(org.spongepowered.api.command.CommandSource src, CommandContext args) {
+    public CommandResult execute(CommandContext context) {
+        org.spongepowered.api.command.CommandSource src = context.getCause().root();
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
-            return CommandResult.success();
+            return CommandResult.empty();
         }
 
-        String skinName = args.one(Parameter.key("skinName", String.class)).orElse("").toLowerCase().replace("skin-", "");
+        String skinName = context.one(Parameter.string()).orElse("").toLowerCase().replace("skin-", "");
 
         try {
             int targetId = Integer.parseInt(skinName);
             Player receiver = (Player) src;
-            Task.builder().plugin(plugin).async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+            Task.builder().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
         } catch (NumberFormatException numberFormatException) {
             plugin.sendMessage(src, "invalid-skin-name");
         }
@@ -99,11 +48,9 @@ public class SelectCommand implements org.spongepowered.api.command.CommandExecu
 
     @Override
     public Command buildSpec() {
-        Parameter.Value<String> skinNameParam = Parameter.string().key("skinName").build();
-
         return Command.builder()
                 .executor(this)
-                .addParameter(skinNameParam)
+                .addParameter(Parameter.string().key("skinName").build())
                 .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
                 .build();
     }

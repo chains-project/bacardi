@@ -1,6 +1,6 @@
 11a12
 > import org.spongepowered.api.command.Command;
-13,17c14,16
+13,17c14,15
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.args.GenericArguments;
@@ -9,65 +9,69 @@
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.parameter.Parameter;
-> import org.spongepowered.api.command.CommandCause;
-21,23c20,22
+21,22c19,25
 < import static org.spongepowered.api.command.args.GenericArguments.flags;
 < import static org.spongepowered.api.command.args.GenericArguments.string;
-< import static org.spongepowered.api.text.Text.of;
 ---
-> import net.kyori.adventure.text.Text;
+> import com.google.common.collect.ImmutableList;
+> import org.spongepowered.api.command.CommandCause;
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.CommandExecutor;
 > 
-> import static org.spongepowered.api.command.Command.Flags.builder;
-37,39c36,38
+> import static org.spongepowered.api.command.parameter.CommonParameters.FLAGS;
+> import static org.spongepowered.api.command.parameter.CommonParameters.STRING;
+37,39c40,43
 <     public CommandResult execute(CommandSource src, CommandContext args) {
 <         if (!(src instanceof Player)) {
 <             plugin.sendMessage(src, "no-console");
 ---
->     public CommandResult execute(CommandCause cause, CommandContext args) {
->         if (!(cause.root() instanceof Player)) {
+>     public CommandResult execute(CommandContext args) throws CommandException {
+>         CommandCause cause = args.cause();
+>         if (!(cause instanceof Player)) {
 >             plugin.sendMessage(cause, "no-console");
-43c42
+43c47
 <         UUID uniqueId = ((Player) src).getUniqueId();
 ---
->         UUID uniqueId = ((Player) cause.root()).getUniqueId();
-45c44
+>         UUID uniqueId = ((Player) cause).getUniqueId();
+45c49
 <             plugin.sendMessage(src, "cooldown");
 ---
 >             plugin.sendMessage(cause, "cooldown");
-49c48
+49,50c53,54
 <         Player receiver = (Player) src;
+<         String targetSkin = args.<String>getOne("skin").get();
 ---
->         Player receiver = (Player) cause.root();
-60c59
+>         Player receiver = (Player) cause;
+>         String targetSkin = args.<String>one(Parameter.key("skin", String.class).build()).get();
+60c64
 <             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(src, targetUUID, true)) {
 ---
 >             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(cause, targetUUID, true)) {
-64,65c63,64
+64,65c68,69
 <             plugin.sendMessage(src, "skin-change-queue");
 <             Runnable skinDownloader = new SkinDownloader(plugin, src, receiver, targetUUID, keepSkin);
 ---
 >             plugin.sendMessage(cause, "skin-change-queue");
 >             Runnable skinDownloader = new SkinDownloader(plugin, cause, receiver, targetUUID, keepSkin);
-70c69
+70c74
 <         Runnable nameResolver = new NameResolver(plugin, src, targetSkin, receiver, keepSkin);
 ---
 >         Runnable nameResolver = new NameResolver(plugin, cause, targetSkin, receiver, keepSkin);
-76,77c75,79
+76,82c80,81
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
----
->     public Command.Builder buildSpec() {
->         Parameter.Key<String> skinKey = Parameter.key("skin", String.class);
->         Parameter skinParameter = Parameter.string().key(skinKey).build();
-> 
->         return Command.builder()
-79,83c81,83
+<                 .executor(this)
 <                 .arguments(
 <                         string(of("skin")),
 <                         flags().flag("keep").buildWith(GenericArguments.none()))
 <                 .permission(PomData.ARTIFACT_ID + ".command.setskin.base")
-<                 .build();
 ---
->                 .addParameter(skinParameter)
->                 .addFlag(builder().setAliases("keep").build())
+>     public Command.Builder buildSpec() {
+>         Parameter skinParam = Parameter.key("skin", String.class)
+83a83,88
+> 
+>         return Command.builder()
+>                 .executor(this)
+>                 .addParameter(skinParam)
+>                 .addParameter(FLAGS.flag("keep"))
 >                 .permission(PomData.ARTIFACT_ID + ".command.setskin.base");

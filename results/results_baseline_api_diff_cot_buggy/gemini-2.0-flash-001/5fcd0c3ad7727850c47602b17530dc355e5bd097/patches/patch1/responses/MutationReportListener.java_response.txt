@@ -9,6 +9,7 @@ import org.pitest.elements.models.PackageSummaryMap;
 import org.pitest.elements.utils.JsonParser;
 import org.pitest.util.FileUtil;
 import org.pitest.util.ResultOutputStrategy;
+import org.pitest.classinfo.ClassName; // Import ClassName
 
 import java.io.File;
 import java.io.IOException;
@@ -101,8 +102,9 @@ public class MutationReportListener implements MutationResultListener {
 
   private MutationTestSummaryData createSummaryData(
       final CoverageDatabase coverage, final ClassMutationResults data) {
+    ClassName mutatedClass = data.getMutatedClass();
     return new MutationTestSummaryData(data.getFileName(),
-        data.getMutations(), null);
+        data.getMutations(), coverage.getClassInfo(Collections.singleton(mutatedClass)));
   }
 
   private void updatePackageSummary(

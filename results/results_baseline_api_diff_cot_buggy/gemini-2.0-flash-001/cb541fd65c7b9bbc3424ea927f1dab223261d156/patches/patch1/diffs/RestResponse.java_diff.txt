@@ -1,22 +1,19 @@
-20,21c20,21
-<  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
-<  * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
----
->  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
->  * COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-48c48
+48c48,51
 < import org.hamcrest.Matchers;
 ---
-> import org.hamcrest.CoreMatchers;
-210c210
+> import static org.hamcrest.Matchers.hasItems;
+> import static org.hamcrest.Matchers.not;
+> import static org.hamcrest.Matchers.emptyIterableOf;
+> import static org.hamcrest.Matchers.notNullValue;
+210c213
 <         return this.assertHeader(name, Matchers.hasItems(value));
 ---
->         return this.assertHeader(name, CoreMatchers.hasItems(value));
-246c246
+>         return this.assertHeader(name, hasItems(value));
+246c249
 <             Matchers.not(Matchers.emptyIterableOf(String.class))
 ---
->             CoreMatchers.not(CoreMatchers.is(CoreMatchers.emptyIterable()))
-284c284
+>             not(emptyIterableOf(String.class))
+284c287
 <             Matchers.notNullValue()
 ---
->             CoreMatchers.notNullValue()
+>             notNullValue()

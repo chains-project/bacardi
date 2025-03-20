@@ -1,54 +1,4 @@
-<fix_planning>
-a. Code and API changes:
-The error occurs because `FopFactory.newInstance()` with no arguments has been removed. The error message "no suitable method found for newInstance(no arguments)" confirms this. The API changes indicate that `FopFactory.newInstance(java.net.URI)`, `FopFactory.newInstance(java.io.File)`, `FopFactory.newInstance(org.apache.fop.apps.FopFactoryConfig)`, and `FopFactory.newInstance(java.net.URI,java.io.InputStream)` are now available.
-
-b. Specific API changes causing the issue:
-The removal of the no-argument constructor `FopFactory.newInstance()` is the direct cause.
-
-c. Affected lines of code:
 ```java
-FopFactory fopFactory = FopFactory.newInstance();
-```
-
-d. Proposed potential fixes:
-1. Use `FopFactory.newInstance(java.io.File)`: This would require a `java.io.File` representing the FOP configuration file. We don't have a readily available file, and creating one might be complex.
-2. Use `FopFactory.newInstance(java.net.URI)`: Similar to the `java.io.File` option, this requires a URI for the FOP configuration.
-3. Use `FopFactory.newInstance(org.apache.fop.apps.FopFactoryConfig)`: This requires creating a `FopFactoryConfig` object, which might involve more setup.
-4. Use `FopFactory.newInstance(java.net.URI,java.io.InputStream)`: This requires a URI and an InputStream for the FOP configuration.
-
-Since we don't have a configuration file readily available, the simplest approach is to use the default configuration. According to the documentation, if no configuration is provided, FOP will use its default configuration. We can achieve this by creating a temporary file or URI that points to a non-existent resource, effectively using the default configuration. However, this might not be the intended behavior if a custom configuration was expected.
-
-A better approach is to use `FopFactoryConfig` and pass null to it.
-
-e. Potential side effects:
-Using a default configuration might change the PDF generation if a custom configuration was previously used implicitly or explicitly.
-
-f. Adherence to constraints:
-The proposed changes do not change any function signatures. They only modify the instantiation of `FopFactory`. The changes adhere to all given constraints.
-
-g. Final summary:
-The best solution is to use the `FopFactory.newInstance(org.apache.fop.apps.FopFactoryConfig)` constructor with a null argument. This will use the default FOP configuration, which is the closest to the original behavior without requiring a configuration file.
-</fix_planning>
-
-```java
-/*
- * Copyright (C) 2017 Premium Minds.
- *
- * This file is part of billy GIN.
- *
- * billy GIN is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
- * later version.
- *
- * billy GIN is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with billy GIN. If not, see <http://www.gnu.org/licenses/>.
- */
 package com.premiumminds.billy.gin.services.impl.pdf;
 
 import com.google.zxing.BarcodeFormat;
@@ -88,7 +38,7 @@ import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
-import org.apache.fop.apps.FopFactoryConfig;
+import org.apache.fop.apps.FopFactoryBuilder;
 import org.apache.xmlgraphics.util.MimeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,8 +96,8 @@ public abstract class FOPPDFTransformer {
         StreamSource transformSource = new StreamSource(templateStream);
 
         // create an instance of fop factory
-        FopFactoryConfig fopFactoryConfig = null;
-        FopFactory fopFactory = FopFactory.newInstance(fopFactoryConfig);
+        FopFactoryBuilder fopFactoryBuilder = new FopFactoryBuilder(null);
+        FopFactory fopFactory = fopFactoryBuilder.build();
         // a user agent is needed for transformation
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
         // to store output
@@ -213,7 +163,7 @@ public abstract class FOPPDFTransformer {
         throws WriterException, IOException
     {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
-        EnumMap<EncodeHintType, String, String> hints = new EnumMap<> (EncodeHintType.class);
+        EnumMap<EncodeHintType, String> hints = new EnumMap<> (EncodeHintType.class);
         hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M.name());
         hints.put(EncodeHintType.MARGIN, String.valueOf(4));
         hints.put(EncodeHintType.QR_VERSION, String.valueOf(9));

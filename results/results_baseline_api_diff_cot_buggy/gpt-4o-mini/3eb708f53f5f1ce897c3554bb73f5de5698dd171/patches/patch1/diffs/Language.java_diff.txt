@@ -1,20 +1,17 @@
-19c19
+19d18
 < import com.google.api.services.translate.model.LanguagesResource;
----
-> import com.google.api.services.translate.v3.model.Language; // Updated import to the new version
-36,37c36,37
+36,39c35,37
 <   static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
 <       new Function<LanguagesResource, Language>() {
+<         @Override
+<         public Language apply(LanguagesResource languagePb) {
 ---
 >   static final Function<com.google.api.services.translate.v3.model.Language, Language> FROM_PB_FUNCTION =
 >       new Function<com.google.api.services.translate.v3.model.Language, Language>() {
-39c39
-<         public Language apply(LanguagesResource languagePb) {
----
 >         public Language apply(com.google.api.services.translate.v3.model.Language languagePb) {
-84,85c84,85
+84,85c82,83
 <   static Language fromPb(LanguagesResource languagePb) {
 <     return new Language(languagePb.getLanguage(), languagePb.getName());
 ---
->   static Language fromPb(com.google.api.services.translate.v3.model.Language languagePb) { // Updated method parameter type
->     return new Language(languagePb.getLanguageCode(), languagePb.getDisplayName()); // Updated method calls
+>   static Language fromPb(com.google.api.services.translate.v3.model.Language languagePb) {
+>     return new Language(languagePb.getLanguageCode(), languagePb.getDisplayName());

@@ -26,6 +26,8 @@ import fr.minuskube.inv.content.InventoryProvider;
 import fr.minuskube.inv.content.Pagination;
 import fr.minuskube.inv.content.SlotIterator;
 
+import org.bukkit.enchantments.Enchantment;
+
 public class ConfigurationMessagesOverridePossibleListGUI implements InventoryProvider {
 
 	private WorldwideChat main = WorldwideChat.instance;
@@ -69,7 +71,11 @@ public class ConfigurationMessagesOverridePossibleListGUI implements InventoryPr
 				if (messagesConfig.getString("Overrides." + entry.getKey()) != null) {
 					lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwcConfigGUIMessagesAlreadyOverriden"));
 					currentEntryMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					currentEntryMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+					XEnchantment xEnchantment = XEnchantment.matchXEnchantment("power").get();
+					Enchantment enchantment = (xEnchantment != null) ? xEnchantment.getEnchant() : null;
+					if (enchantment != null) {
+						currentEntryMeta.addEnchant(enchantment, 1, false);
+					}
 				}
 				lore.add(CommonDefinitions.getMessage("wwcConfigGUIMessagesOverrideOriginalLabel") + ": " + messagesConfig.getString("Messages." + entry.getKey()));
 				currentEntryMeta.setLore(lore);
