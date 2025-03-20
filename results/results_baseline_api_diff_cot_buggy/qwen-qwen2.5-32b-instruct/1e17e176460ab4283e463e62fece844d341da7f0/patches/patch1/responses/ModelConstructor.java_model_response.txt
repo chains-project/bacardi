@@ -1,4 +1,16 @@
 ```java
+<repair_strategy>
+1. The error is caused by the removal of the constructor `Constructor(Class<T>)` in the new version of the SnakeYAML library.
+2. The new version of the library requires a `LoaderOptions` parameter in the constructor.
+3. The client code needs to be updated to use the new constructor that accepts `LoaderOptions`.
+4. The `LoaderOptions` instance can be created with default settings.
+5. The minimal change is to add the `LoaderOptions` parameter to the constructor call.
+6. No side effects are expected as the default settings should be compatible with the existing code.
+7. The class should compile and function as before, with the updated constructor call.
+8. No additional imports are needed as the `LoaderOptions` class is part of the SnakeYAML library.
+</repair_strategy>
+
+```java
 /**
  * Copyright (c) 2012 to original author or authors
  * All rights reserved. This program and the accompanying materials
@@ -36,13 +48,10 @@ public final class ModelConstructor extends Constructor {
 
   private static final Tag XPP3DOM_TAG = new Tag("!!" + Xpp3Dom.class.getName());
 
-  /**
-   * It maps the runtime class to its Construct implementation.
-   */
   private final Map<Class<?>, Construct> pomConstructors = new HashMap<>();
 
   public ModelConstructor() {
-    super(new LoaderOptions());
+    super(Model.class, new LoaderOptions());
     yamlConstructors.put(XPP3DOM_TAG, new ConstructXpp3Dom());
     yamlClassConstructors.put(NodeId.mapping, new MavenObjectConstruct());
     pomConstructors.put(Dependency.class, new ConstructDependency());
@@ -124,14 +133,19 @@ public final class ModelConstructor extends Constructor {
     desc.putListPropertyType("roles", String.class);
     addTypeDescription(desc);
 
+    desc = new TypeDescription(MailingList.class);
+    desc.putListPropertyType("otherArchives", String.class);
+    addTypeDescription(desc);
+
     // Simple types
     addTypeDescription(new TypeDescription(DistributionManagement.class));
     addTypeDescription(new TypeDescription(Scm.class));
     addTypeDescription(new TypeDescription(IssueManagement.class);
-    addTypeDescription(new TypeDescription(Parent.class));
-    addTypeDescription(new TypeDescription(Organization.class));
+    addTypeDescription(new TypeDescription(Parent.class);
+    addTypeDescription(new TypeDescription(Organization.class);
   }
 
+  @Override
   protected Construct getConstructor(Node node) {
     if (pomConstructors.containsKey(node.getType()) && node instanceof ScalarNode) {
       //construct compact form from scalar

@@ -1,30 +1,20 @@
-37d36
+31d30
+< import org.sonarsource.sonarlint.core.analysis.command.AnalyzeCommand;
+36,37d34
+< import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisConfiguration;
 < import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneGlobalConfiguration;
-39d37
-< import org.sonarsource.sonarlint.core.commons.RuleKey;
-46d43
+45,46d41
+< import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader;
 < import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader.Configuration;
-49d45
-< import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginRequirementsCheckResult;
-67c63
-<     // The only instance of this singleton class
----
->     // The only instance of this class
-77c73
+77c72
 <         this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, null);
 ---
 >         this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, logOutput);
-147c143
-<                 pluginInstancesByKeys, new PluginInstancesLoader());
----
->                 pluginInstancesByKeys, instancesLoader);
-163c159
+163c158
 <                 .addEnabledLanguages(globalConfig.getEnabledLanguages())
 ---
->                 .setLanguages(globalConfig.getEnabledLanguages())
-187,191d182
-<     }
-< 
-<     @Override
-<     public AnalysisEngine getAnalysisEngine() {
-<         return analysisEngine;
+>                 .addEnabledLanguage(Language.JAVA)
+222c217
+<                                                                             i.getRuleKey()))),
+---
+>                                                                             i.getRuleKey())),

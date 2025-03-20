@@ -1,4 +1,50 @@
-13c13
-< import javax.mvc.Models;
+1,6c1,10
+< /*
+<  * To change this license header, choose License Headers in Project Properties.
+<  * To change this template file, choose Tools | Templates
+<  * and open the template in the editor.
+<  */
+< package com.example.config;
 ---
-> import jakarta.mvc.Models;
+> <repair_strategy>
+> 1. The error is caused by the removal of the `javax.mvc.Models` class and the introduction of the `jakarta.mvc.Models` interface in the new version of the dependency.
+> 2. The client code needs to be updated to use the new `jakarta.mvc.Models` interface.
+> 3. The import statement for `javax.mvc.Models` needs to be replaced with `jakarta.mvc.Models`.
+> 4. No function signatures need to be changed, but the import statement must be updated.
+> 5. The minimal change is to update the import statement.
+> 6. There should be no side effects as the change is purely an import update.
+> 7. The class will be fully compilable after the import statement is updated.
+> 8. The new import statement for `jakarta.mvc.Models` is required.
+> </repair_strategy>
+8,38d11
+< import com.example.domain.TaskNotFoundException;
+< 
+< import java.util.logging.Level;
+< import java.util.logging.Logger;
+< import javax.inject.Inject;
+< import javax.mvc.Models;
+< import javax.ws.rs.core.Response;
+< import javax.ws.rs.ext.ExceptionMapper;
+< import javax.ws.rs.ext.Provider;
+< 
+< /**
+<  *
+<  * @author hantsy
+<  */
+< @Provider
+< public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFoundException> {
+< 
+<     @Inject Logger log;
+<     //private static Logger log = Logger.getLogger(PostNotFoundExceptionMapper.class.getName());
+< 
+<     @Inject
+<     Models models;
+< 
+<     @Override
+<     public Response toResponse(TaskNotFoundException exception) {
+<         log.log(Level.INFO, "handling exception : PostNotFoundException");
+<         models.put("error", exception.getMessage());
+<         return Response.status(Response.Status.NOT_FOUND).entity("error.xhtml").build();
+<     }
+< 
+< }

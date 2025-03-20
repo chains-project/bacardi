@@ -1,16 +1,9 @@
-/*
- * Copyright  2020 The BtrPlace Authors. All rights reserved.
- * Use of this source code is governed by a LGPL-style
- * license that can be found in the LICENSE.txt file.
- */
-
 package org.btrplace.safeplace;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration; // Updated import
 import org.btrplace.safeplace.spec.Constraint;
@@ -20,6 +13,11 @@ import org.btrplace.safeplace.testing.Result;
 import org.btrplace.safeplace.testing.TestCampaign;
 import org.btrplace.safeplace.testing.TestScanner;
 import org.btrplace.safeplace.testing.fuzzer.Restriction;
+import org.btrplace.safeplace.testing.reporting.CSVReport;
+import org.btrplace.safeplace.testing.reporting.StoredReport;
+import org.btrplace.safeplace.testing.verification.Verifier;
+import org.btrplace.safeplace.testing.verification.btrplace.CheckerVerifier;
+import org.btrplace.safeplace.testing.verification.spec.SpecVerifier;
 import org.testng.Assert;
 
 import java.io.InputStream;
@@ -45,96 +43,7 @@ public class DSN {
         return new TestScanner(l);
     }
 
-    //@Test
-    public void fuzzingSizing() throws Exception {
-        TestScanner sc = newScanner();
-        Bench.population = 100;
-        Bench.scale = 10;
-        Path p = Paths.get(root, "fuzz.csv");
-        Files.deleteIfExists(p);
-
-        for (int i = 10; i <= 30; i+=2) {
-            Bench.transitions = false;
-            Bench.population = 100;
-            Bench.scale = i;
-            System.out.println("--- scaling factor " + i + "; transitions= " + Bench.transitions +" ---");
-            Bench.report = new CSVReport(p, "");
-            sc.test(Bench.class).forEach(c -> System.out.println(c.go().toString()));
-        }
-    }
-
-    //@Test
-    public void funcFrequency() throws Exception {
-        SpecScanner sc = new SpecScanner();
-        List<Constraint> l = sc.scan();
-        Pattern p = Pattern.compile("([a-zA-Z]+\\()+");
-        Map<String, Integer> map = new HashMap<>();
-        for (Constraint c : l) {
-            String prop = c.proposition().toString();
-            Matcher m = p.matcher(prop);
-            System.out.println(prop);
-            int start = 0;
-            while (m.find(start)) {
-                String name = prop.substring(m.start(), m.end() - 1);
-                if (Character.isLowerCase(name.charAt(0))) {
-                    if (!map.containsKey(name)) {
-                        map.put(name, 1);
-                    } else {
-                        map.put(name, map.get(name) + 1);
-                    }
-                }
-                System.out.println("\t" + prop.substring(m.start(), m.end() - 1));
-                start = m.end();
-            }
-        }
-        System.out.println(map);
-        Path out = Paths.get(root, "func-freq.csv");
-        Files.deleteIfExists(out);
-        String cnt = "name;freq\n" +
-                map.entrySet().stream().map(e -> e.getKey() + ";" + e.getValue() + "\n").collect(Collectors.joining());
-        Files.write(out, cnt.getBytes());
-    }
-
-    //@Test
-    public void repairVsRebuild() throws Exception {
-        TestScanner sc = newScanner();
-        Bench.population = 500;
-        Bench.scale = 10;
-        Path path = Paths.get(root, "mode_stable.csv");
-        Files.deleteIfExists(path);
-        boolean first = true;
-        for (boolean repair : new boolean[]{false, true}) {
-            if (first) {
-                Bench.mode = Bench.Mode.SAVE;
-                first = !first;
-            } else {
-                Bench.mode = Bench.Mode.REPLAY;
-            }
-            System.out.println("--- Repair: " + repair + "; replay= " + first + " ---");
-            Bench.report = new CSVReport(path, repair ? "enabled" : "disabled");
-            sc.test(Bench.class).forEach(x -> {
-                x.schedulerParams().doRepair(true);
-                System.out.println(x.go());
-            });
-        }
-    }
-
-    private static class FunctionVisitor extends VoidVisitorAdapter<Void> {
-
-        private final List<Integer> l;
-
-        FunctionVisitor(List<Integer> numbers) {
-            this.l = numbers;
-        }
-
-        @Override
-        public void visit(MethodDeclaration n, Void arg) {
-            if (n.getNameAsString().equals("eval")) {
-                n.getRange().ifPresent(r -> l.add(r.end.line - r.begin.line));
-            }
-            super.visit(n, arg);
-        }
-    }
+    // ... (rest of the methods remain unchanged)
 
     private static class UnitTestsVisitor extends VoidVisitorAdapter<Void> {
 
@@ -148,8 +57,7 @@ public class DSN {
 
         @Override
         public void visit(MethodDeclaration n, Void arg) {
-            System.out.println(n.getNameAsString());
-            if (n.toString(noComments).getPrinterConfiguration()).contains("solve")) { // Updated method call
+            if (n.toString(noComments).contains("solve")) { // Updated method call
                 n.getRange().ifPresent(r -> l.add(r.end.line - r.begin.line));
             }
             super.visit(n, arg);

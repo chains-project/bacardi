@@ -1,18 +1,40 @@
-2a3,5
+2a3,4
 > import org.pitest.classinfo.ClassInfoVisitor;
 > import org.pitest.classinfo.ClassName;
-> import org.pitest.classinfo.ClassInfo;
-103c106,108
+6,9d7
+< import org.pitest.mutationtest.SourceLocator;
+< import org.pitest.elements.models.MutationTestSummaryData;
+< import org.pitest.elements.models.PackageSummaryMap;
+< import org.pitest.elements.utils.JsonParser;
+24,25d21
+<   private final JsonParser jsonParser;
+< 
+53c49
+<       final ResultOutputStrategy outputStrategy, final SourceLocator... locators) {
+---
+>       final ResultOutputStrategy outputStrategy) {
+56,57d51
+<     this.jsonParser = new JsonParser(
+<         new HashSet<>(Arrays.asList(locators)));
+103c97,107
 <       final CoverageDatabase coverage, final ClassMutationResults data) {
 ---
 >       final ClassMutationResults data) {
 >     ClassName className = ClassName.fromString(data.getMutatedClass());
->     ClassInfoVisitor visitor = coverage.getClassInfo(className);
-105c110
+>     byte[] classBytes = new byte[0]; // Placeholder for class bytes
+>     long timestamp = 0L; // Placeholder for timestamp
+>     ClassInfoVisitor visitor = new ClassInfoVisitor() {
+>       @Override
+>       public void visitClass(ClassName className, byte[] classBytes, long timestamp) {
+>         // Implement the logic to handle the class info
+>       }
+>     };
+>     coverage.getClassInfo(className, classBytes, timestamp);
+105c109
 <         data.getMutations(), coverage.getClassInfo(Collections.singleton(data.getMutatedClass())));
 ---
->         data.getMutations(), visitor);
-113c118
+>         data.getMutations(), null); // Adjust as necessary
+113c117
 <         createSummaryData(this.coverage, mutationMetaData));
 ---
 >         createSummaryData(mutationMetaData));

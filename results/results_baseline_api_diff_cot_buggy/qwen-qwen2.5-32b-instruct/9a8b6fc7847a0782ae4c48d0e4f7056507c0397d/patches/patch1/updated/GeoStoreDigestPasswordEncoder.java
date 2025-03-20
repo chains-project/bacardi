@@ -64,9 +64,7 @@ public class GeoStoreDigestPasswordEncoder extends AbstractGeoStorePasswordEncod
         };
     }
 
-    @Override
     public PasswordEncodingType getEncodingType() {
         return PasswordEncodingType.DIGEST;
     }
-
 }

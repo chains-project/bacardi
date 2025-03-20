@@ -3,36 +3,37 @@
 < import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 ---
 > import org.spongepowered.api.event.game.state.GameStartingServerEvent;
-30,32c29,31
+30,32c29,32
 < import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
 < import org.spongepowered.api.network.ChannelRegistrar;
 < import org.spongepowered.api.plugin.Plugin;
 ---
-> import org.spongepowered.api.network.ChannelBinding;
-> import org.spongepowered.api.network.ChannelBinding.ChannelBuilder;
+> import org.spongepowered.api.network.channel.ChannelBinding;
+> import org.spongepowered.api.network.channel.packet.PacketChannel;
 > import org.spongepowered.api.plugin.PluginContainer;
-40,41d38
+> import org.spongepowered.api.text.Text;
+40,41d39
 < @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
 <         url = PomData.URL, description = PomData.DESCRIPTION)
-62c59
+62c60
 <     public void onPreInit(GamePreInitializationEvent preInitEvent) {
 ---
 >     public void onPreInit(GameStartingServerEvent preInitEvent) {
-73c70
+73c71
 <     public void onInit(GameInitializationEvent initEvent) {
 ---
 >     public void onInit(GameStartingServerEvent initEvent) {
-90c87
+90c88
 <         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
 ---
->         ChannelBuilder channelBuilder = Sponge.getNetworkManager().createChannelBuilder();
-93,96c90,93
+>         ChannelBinding channelReg = Sponge.getChannelRegistrar();
+93,94c91,92
 <         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
 <         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
-<         updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+---
+>         PacketChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
+>         PacketChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
+96c94
 <         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
 ---
->         ChannelBinding<ByteBuf> updateChannel = channelBuilder.createChannel(updateChannelName);
->         ChannelBinding<ByteBuf> permChannel = channelBuilder.createChannel(permissionChannelName);
->         updateChannel.registerListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
->         permChannel.registerListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class);
+>         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class);

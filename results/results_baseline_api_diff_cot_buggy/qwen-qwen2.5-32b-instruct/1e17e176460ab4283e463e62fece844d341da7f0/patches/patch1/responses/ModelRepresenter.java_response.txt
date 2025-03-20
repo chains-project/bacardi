@@ -17,7 +17,6 @@ import org.yaml.snakeyaml.error.YAMLException;
 import org.yaml.snakeyaml.introspector.Property;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
-import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
 import org.yaml.snakeyaml.DumperOptions;
@@ -39,14 +38,14 @@ class ModelRepresenter extends Representer {
     super(new DumperOptions());
     this.representers.put(Xpp3Dom.class, new RepresentXpp3Dom());
     Represent stringRepresenter = this.representers.get(String.class);
-    this.representers.put(Boolean.class, stringRepresenter);
+    this.multiRepresenters.put(Boolean.class, stringRepresenter);
     this.multiRepresenters.put(Number.class, stringRepresenter);
     this.multiRepresenters.put(Date.class, stringRepresenter);
     this.multiRepresenters.put(Enum.class, stringRepresenter);
     this.multiRepresenters.put(Calendar.class, stringRepresenter);
   }
 
-  protected Set<Property> getProperties(Class<? extends Object> type) throws IntrospectionException {
+  protected Set<Property> getProperties(Class<? extends Object> type) {
     try {
       if (type.isAssignableFrom(Model.class)) {
         return sortTypeWithOrder(type, ORDER_MODEL);
@@ -62,12 +61,11 @@ class ModelRepresenter extends Representer {
         return super.getProperties(type);
       }
     } catch (IntrospectionException e) {
-      throw new YAMLException(e);
+      throw new RuntimeException(e);
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
-          throws IntrospectionException {
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
     Set<Property> standard = super.getProperties(type);
     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));
     sorted.addAll(standard);
@@ -82,7 +80,7 @@ class ModelRepresenter extends Representer {
     }
 
     public int compare(Property o1, Property o2) {
-      // important properties go first
+      // important go first
       for (String name : names) {
         int c = compareByName(o1, o2, name);
         if (c != 0) {
@@ -102,4 +100,135 @@ class ModelRepresenter extends Representer {
       return 0; // compare further
     }
   }
+
+  protected NodeTuple representJavaBeanProperty(Object javaBean, Property property,
+                                                 Object propertyValue, Tag customTag) {
+    if (property != null && property.getName().equals("pomFile")) {
+      // "pomFile" is not a part of POM http://maven.apache.org/xsd/maven-4.0.0.xsd
+      return null;
+    }
+
+    if (propertyValue == null) return null;
+    if (propertyValue instanceof Map) {
+      Map map = (Map) propertyValue;
+      if (map.isEmpty()) return null;
+    }
+    if (propertyValue instanceof List) {
+      List map = (List) propertyValue;
+      if (map.isEmpty()) return null;
+    }
+    if (javaBean instanceof Dependency) {
+      //skip optional if it is false
+      if (skipBoolean(property, "optional", propertyValue, false)) return null;
+      //skip type if it is jar
+      if (skipString(property, "type", propertyValue, "jar")) return null;
+    }
+    if (javaBean instanceof Plugin) {
+      //skip extensions if it is false
+      if (skipBoolean(property, "extensions", propertyValue, false)) return null;
+      //skip inherited if it is true
+      if (skipBoolean(property, "inherited", propertyValue, true)) return null;
+    }
+    return super.representJavaBeanProperty(javaBean, property, propertyValue, customTag);
+  }
+
+  private boolean skipString(Property property, String name, Object propertyValue, String value) {
+    if (name.equals(property.getName())) {
+      String v = (String) propertyValue;
+      return (value.equals(v));
+    }
+    return false;
+  }
+
+  private boolean skipBoolean(Property property, String name, Object propertyValue, boolean value) {
+    if (name.equals(property.getName())) {
+      Boolean v = (Boolean) propertyValue;
+      return (v.equals(value));
+    }
+    return false;
+  }
+
+  private class RepresentXpp3Dom implements Represent {
+    private static final String ATTRIBUTE_PREFIX = "attr/";
+
+    public Node representData(Object data) {
+      return representMapping(Tag.MAP, toMap((Xpp3Dom) data), null);
+    }
+
+    private Map<String, Object> toMap(Xpp3Dom node) {
+      Map<String, Object> map = new LinkedHashMap<>();
+
+      int n = node.getChildCount();
+      for (int i = 0; i < n; i++) {
+        Xpp3Dom child = node.getChild(i);
+
+        String singularName = null;
+        int childNameLength = child.getName().length();
+        if ("reportPlugins".equals(child.getName())) {
+          singularName = "plugin";
+        } else if (childNameLength > 3 && child.getName().endsWith("ies")) {
+          singularName = child.getName().substring(0, childNameLength - 3);
+        } else if (childNameLength > 1 && child.getName().endsWith("s")) {
+          singularName = child.getName().substring(0, childNameLength - 1);
+        }
+
+        Object childValue = child.getValue();
+        if (childValue == null) {
+          childValue = toMap(child);
+        }
+        map.put(child.getName(), childValue);
+      }
+
+      for (String attrName : node.getAttributeNames()) {
+        map.put(ATTRIBUTE_PREFIX + attrName, node.getAttribute(attrName));
+      }
+
+      return map;
+    }
+  }
+
+  // Model elements order {
+  private static List<String> ORDER_MODEL = new ArrayList<>(Arrays.asList(
+          "modelEncoding",
+          "modelVersion",
+          "parent",
+          "groupId",
+          "artifactId",
+          "version",
+          "packaging",
+
+          "name",
+          "description",
+          "url",
+          "inceptionYear",
+          "organization",
+          "licenses",
+          "developers",
+          "contributers",
+          "mailingLists",
+          "scm",
+          "issueManagement",
+          "ciManagement",
+
+          "properties",
+          "prerequisites",
+          "modules",
+          "dependencyManagement",
+          "dependencies",
+          "distributionManagement",
+          //"repositories",
+          //"pluginRepositories",
+          "build",
+          "profiles",
+          "reporting"
+  ));
+  private static List<String> ORDER_DEVELOPER = new ArrayList<>(Arrays.asList(
+          "name", "id", "email"));
+  private static List<String> ORDER_CONTRIBUTOR = new ArrayList<>(Arrays.asList(
+          "name", "id", "email"));
+  private static List<String> ORDER_DEPENDENCY = new ArrayList<>(Arrays.asList(
+          "groupId", "artifactId", "version", "type", "classifier", "scope"));
+  private static List<String> ORDER_PLUGIN = new ArrayList<>(Arrays.asList(
+          "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
+  //}
 }

@@ -1,64 +1,16 @@
+6c6
+<  * http://www.eclipse.org/legal/epl-v10.html
+---
+>  * http://maven.apache.org/xsd/maven-4.0.0.xsd
 16a17
 > import org.yaml.snakeyaml.introspector.BeanAccess;
-94d94
+17a19
+> import org.yaml.snakeyaml.introspector.PropertyUtils;
+94d95
 < 
-107a108
+107a109
 > 
-122,131d122
-<           boolean isList = singularName != null;
-<           if (isList) { // check for eventual list construction
-<             for (int j = 0, grandChildCount = child.getChildCount(); j < grandChildCount; j++) {
-<               String grandChildName = child.getChild(j).getName();
-<               isList &= grandChildName.equals(singularName);
-<             }
-<           }
-<           if (isList) {
-<             childValue = toList(child, singularName);
-<           } else {
-134d124
-<         }
-170c160
-<   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
----
->   private static List<String> ORDER_MODEL = new ArrayList<>(Arrays.asList(
-190,202c180,192
-<           "ciManagement",
-< 
-<           "properties",
-<           "prerequisites",
-<           "modules",
-<           "dependencyManagement",
-<           "dependencies",
-<           "distributionManagement",
-<           //"repositories",
-<           //"pluginRepositories",
-<           "build",
-<           "profiles",
-<           "reporting"
----
->           "ciManagement"
->   ));
->   private static List<String> ORDER_DEVELOPER = new ArrayList<>(Arrays.asList(
->           "name", "id", "email"
->   ));
->   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<>(Arrays.asList(
->           "name", "id", "email"
->   ));
->   private static List<String> ORDER_DEPENDENCY = new ArrayList<>(Arrays.asList(
->           "groupId", "artifactId", "version", "type", "classifier", "scope"
->   ));
->   private static List<String> ORDER_PLUGIN = new ArrayList<>(Arrays.asList(
->           "groupId", "artifactId", "version", "inherited", "extensions", "configuration"
-204,211d193
-<   private static List<String> ORDER_DEVELOPER = new ArrayList<String>(Arrays.asList(
-<                   "name", "id", "email"));
-<   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<String>(Arrays.asList(
-<                   "name", "id", "email"));
-<   private static List<String> ORDER_DEPENDENCY = new ArrayList<String>(Arrays.asList(
-<                   "groupId", "artifactId", "version", "type", "classifier", "scope"));
-<   private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
-<                   "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
-214,219c196
+214,219c216
 <   /*
 <    * Change the default order. Important data goes first.
 <    */
@@ -66,14 +18,12 @@
 <   protected Set<Property> getProperties(Class<? extends Object> type)
 <           throws IntrospectionException {
 ---
->   protected Set<Property> getProperties(Class<? extends Object> type) throws IntrospectionException {
-231c208
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+231c228
 <       return super.getProperties(type);
 ---
 >       return PropertyUtils.getProperties(type, BeanAccess.FIELD);
-237,238c214,215
+237c234
 <       Set<Property> standard = super.getProperties(type);
-<       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
 ---
 >     Set<Property> standard = PropertyUtils.getProperties(type, BeanAccess.FIELD);
->     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));

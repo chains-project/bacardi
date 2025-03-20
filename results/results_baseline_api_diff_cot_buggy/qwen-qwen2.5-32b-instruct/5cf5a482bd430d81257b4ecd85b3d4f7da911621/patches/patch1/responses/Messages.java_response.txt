@@ -4,14 +4,8 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import jakarta.mvc.annotation.Controller;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.mvc.annotation.View;
 
-/**
- * Provides I18n messages for the UI per request. To get the correct locale, the method {@link HttpServletRequest#getLocale()}
- * is used.
- *
- * @author Tobias Erdle
- */
 @RequestScoped
 @Named("msg")
 @Controller
@@ -20,7 +14,7 @@ public class Messages {
     private static final String BASE_NAME = "messages";
 
     @Inject
-    private HttpServletRequest request;
+    private LocaleResolver localeResolver;
 
     /**
      * Get the assigned message to some key based on the {@link java.util.Locale} of the current request.
@@ -30,12 +24,18 @@ public class Messages {
      * placeholder for unknown keys.
      */
     public final String get(final String key) {
-        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, request.getLocale());
+        final Locale locale = localeResolver.resolveLocale();
+        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, locale);
 
         return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);
     }
 
     private static String formatUnknownKey(final String key) {
         return String.format("???%s???", key);
+    }
+
+    @View
+    public interface LocaleResolver {
+        Locale resolveLocale();
     }
 }

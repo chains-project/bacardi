@@ -1,21 +1,10 @@
 3a4
 > import org.flywaydb.core.api.configuration.ClassicConfiguration;
-103c104
-<         @Bean(initMethod = "migrate")
+92c93
+<                 final String jdbcUrl = prop.getProperty("jdbc.url").replace("${nem.folder}", nemFolder).replace("${nem.network}",
 ---
->         @Bean
-105,106c106,112
-<                 final Properties prop = new Properties();
-<                 prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
----
->                 final ClassicConfiguration config = new ClassicConfiguration();
->                 config.setDataSource(this.dataSource());
->                 config.setLocations(prop.getProperty("flyway.locations").split(","));
->                 config.setClassLoader(NisAppConfig.class.getClassLoader());
->                 config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
->                 return new Flyway(config);
->         }
-108,113c114,121
+>                 final String jdbcUrl = prop.getProperty("jdbc.url").replace("${nem.folder}", nemFolder).replace("${nem.network",
+108,113c109,115
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
@@ -23,20 +12,16 @@
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 <                 return flyway;
 ---
->         @Bean(initMethod = "migrate")
->         public Flyway flyway() throws IOException {
 >                 final ClassicConfiguration config = new ClassicConfiguration();
 >                 config.setDataSource(this.dataSource());
 >                 config.setLocations(prop.getProperty("flyway.locations").split(","));
->                 config.setClassLoader(NisAppConfig.class.getClassLoader());
 >                 config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
->                 return new Flyway(config);
-129,130c137,138
-<                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
-<                                 this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
----
->                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
->                                 this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
-196a205,206
+>                 config.setClassLoader(NisAppConfig.class.getClassLoader());
 > 
->         // region mappers
+>                 return new Flyway(config);
+334,335c336,337
+<                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
+<                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
+---
+>                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
+>                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTINGING, () -> AlwaysVestedBalances::new);

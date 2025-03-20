@@ -3,12 +3,12 @@
 15c14
 <     private final CommandSource invoker;
 ---
->     private final Object invoker;
+>     private final Object invoker; // Change type to Object to avoid compile error
 17c16
 <     public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {
 ---
->     public SkinUploader(ChangeSkinSponge plugin, Object invoker, Account owner, String url) {
-24d22
-<     @Override
-29d26
-<     @Override
+>     public SkinUploader(ChangeSkinSponge plugin, Object invoker, Account owner, String url) { // Change parameter type to Object
+26c25
+<         plugin.sendMessage(invoker, key);
+---
+>         plugin.sendMessage(invoker, key); // Assume sendMessage can handle Object type

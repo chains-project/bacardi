@@ -33,7 +33,7 @@ import org.jclouds.byon.domain.YamlNode;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.representer.Representer;
+import org.yaml.snakeyaml.LoaderOptions;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
@@ -82,16 +82,10 @@ public class NodesFromYamlStream implements Function<ByteSource, LoadingCache<St
    @Override
    public LoadingCache<String, Node> apply(ByteSource source) {
 
-      Constructor constructor = new Constructor();
-      Representer representer = new Representer();
-      TypeDescription nodeDesc = new TypeDescription(YamlNode.class);
-      nodeDesc.putListPropertyType("tags", String.class);
-      constructor.addTypeDescription(nodeDesc);
-
-      TypeDescription configDesc = new TypeDescription(Config.class);
-      configDesc.putListPropertyType("nodes", YamlNode.class);
-      constructor.addTypeDescription(configDesc);
-      Yaml yaml = new Yaml(constructor, representer);
+      LoaderOptions options = new LoaderOptions();
+      Constructor constructor = new Constructor(options);
+      constructor.addTypeDescription(new TypeDescription(Config.class).withPropertyType("nodes", YamlNode.class));
+      Yaml yaml = new Yaml(constructor);
       Config config;
       InputStream in = null;
       try {
@@ -117,5 +111,4 @@ public class NodesFromYamlStream implements Function<ByteSource, LoadingCache<St
       return cache;
    }
 }
-```
 ```

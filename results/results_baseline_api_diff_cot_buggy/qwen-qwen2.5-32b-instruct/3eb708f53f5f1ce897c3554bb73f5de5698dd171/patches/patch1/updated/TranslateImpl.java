@@ -1,3 +1,13 @@
+<repair_strategy>
+1. The classes `TranslationsResource`, `DetectionsResourceItems`, and `LanguagesResource` have been removed from the new version of the dependency.
+2. The client code uses these classes in various method signatures and return types.
+3. We need to replace these classes with their equivalents or remove the code that uses them if they are no longer available.
+4. We must ensure that the code remains functional and compilable.
+5. We will replace the removed classes with new ones if available or remove the code that uses them.
+6. We will check for any side effects and ensure the class remains complete and compilable.
+7. We will update the imports to reflect the changes in the dependency.
+</repair_strategy>
+
 package com.google.cloud.translate;
 
 import static com.google.cloud.RetryHelper.runWithRetries;
@@ -21,11 +31,11 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
 
   private final TranslateRpc translateRpc;
 
-  private static final Function<List<Map<String, Object>>, Detection>
+  private static final Function<List<com.google.cloud.translate.Detection>, Detection>
       DETECTION_FROM_PB_FUNCTION =
-          new Function<List<Map<String, Object>>, Detection>() {
+          new Function<List<com.google.cloud.translate.Detection>, Detection>() {
             @Override
-            public Detection apply(List<Map<String, Object>> detectionPb) {
+            public Detection apply(List<com.google.cloud.translate.Detection> detectionPb) {
               return Detection.fromPb(detectionPb.get(0));
             }
           };
@@ -40,9 +50,9 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<Map<String, Object>>>() {
+              new Callable<List<com.google.cloud.translate.Language>>() {
                 @Override
-                public List<Map<String, Object>> call() {
+                public List<com.google.cloud.translate.Language> call() {
                   return translateRpc.listSupportedLanguages(optionMap(options));
                 }
               },
@@ -58,21 +68,21 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   @Override
   public List<Detection> detect(final List<String> texts) {
     try {
-      List<List<Map<String, Object>>> detectionsPb =
+      List<List<com.google.cloud.translate.Detection>> detectionsPb =
           runWithRetries(
-              new Callable<List<List<Map<String, Object>>>>() {
+              new Callable<List<List<com.google.cloud.translate.Detection>>>() {
                 @Override
-                public List<List<Map<String, Object>>> call() {
+                public List<List<com.google.cloud.translate.Detection>> call() {
                   return translateRpc.detect(texts);
                 }
               },
               getOptions().getRetrySettings(),
               EXCEPTION_HANDLER,
               getOptions().getClock());
-      Iterator<List<Map<String, Object>>> detectionIterator = detectionsPb.iterator();
+      Iterator<List<com.google.cloud.translate.Detection>> detectionIterator = detectionsPb.iterator();
       Iterator<String> textIterator = texts.iterator();
       while (detectionIterator.hasNext() && textIterator.hasNext()) {
-        List<Map<String, Object>> detectionPb = detectionIterator.next();
+        List<com.google.cloud.translate.Detection> detectionPb = detectionIterator.next();
         String text = textIterator.next();
         checkState(
             detectionPb != null && !detectionPb.isEmpty(), "No detection found for text: %s", text);
@@ -94,9 +104,9 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<Map<String, Object>>>() {
+              new Callable<List<com.google.cloud.translate.Translation>>() {
                 @Override
-                public List<Map<String, Object>> call() {
+                public List<com.google.cloud.translate.Translation> call() {
                   return translateRpc.translate(texts, optionMap(options));
                 }
               },

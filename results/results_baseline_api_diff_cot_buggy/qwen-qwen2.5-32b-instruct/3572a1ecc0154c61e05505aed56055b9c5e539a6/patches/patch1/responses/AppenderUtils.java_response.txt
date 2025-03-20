@@ -1,18 +1,3 @@
-/**
- * Copyright 2019 Pinterest, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *    http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.pinterest.singer.client.logback;
 
 import com.pinterest.singer.thrift.LogMessage;
@@ -24,11 +9,9 @@ import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import ch.qos.logback.core.util.FileSize;
-import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TIOStreamTransport;
-import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.layered.TFastFramedTransport;
 
 import java.io.File;
@@ -50,7 +33,7 @@ public class AppenderUtils {
    */
   public static class LogMessageEncoder extends EncoderBase<LogMessage> {
 
-    private TTransport framedTransport;
+    private TFastFramedTransport framedTransport;
     private TProtocol protocol;
     private OutputStream os;
 
@@ -60,7 +43,7 @@ public class AppenderUtils {
       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
       // log.
       final int bufferCapacity = 10;
-      framedTransport = new TFastFramedTransport(new TIOStreamTransport(os));
+      framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);
       protocol = new TBinaryProtocol(framedTransport);
     }
 

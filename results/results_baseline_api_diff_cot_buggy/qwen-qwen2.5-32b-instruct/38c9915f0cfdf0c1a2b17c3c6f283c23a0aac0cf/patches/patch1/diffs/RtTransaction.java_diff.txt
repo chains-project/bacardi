@@ -1,52 +1,177 @@
-33c33
+33,38d32
 < import org.cactoos.iterable.LengthOf;
----
-> import org.cactoos.scalar.LengthOf;
-36d35
+< import org.cactoos.list.ListOf;
+< import org.cactoos.scalar.IoCheckedScalar;
 < import org.cactoos.scalar.ItemAt;
-38d36
+< import org.cactoos.scalar.StickyScalar;
 < import org.cactoos.scalar.UncheckedScalar;
-43d40
-< import org.cactoos.text.UncheckedText;
-52,53c49
+52,53c46
 < @SuppressWarnings({"PMD.AvoidCatchingGenericException",
 <     "PMD.AvoidFieldNameMatchingMethodName"})
 ---
 > @SuppressWarnings({"PMD.AvoidFieldNameMatchingMethodName", "PMD.ShortMethodName"})
-104,105c100
+60d52
+<         //@checkstyle LineLengthCheck (1 line)
+77,78c69
+<     private static final Pattern DTLS =
+<         Pattern.compile("[A-Za-z0-9 -.]{1,512}");
+---
+>     private static final Pattern DTLS = Pattern.compile("[A-Za-z0-9 -.]{1,512}");
+88c79
+<     private final IoCheckedScalar<String> transaction;
+---
+>     private final String transaction;
+95,124c86
+<         this.transaction = new IoCheckedScalar<>(
+<             new StickyScalar<>(
+<                 () -> {
+<                     if (
+<                         new TrimmedText(
+<                             new TextOf(trnsct)
+<                         ).asString().isEmpty()
+<                     ) {
+<                         throw new IOException(
 <                             "Invalid transaction string: string is empty"
 <                         );
----
->                             ("Invalid transaction string: string is empty");
-112c107
+<                     }
+<                     final List<Text> pieces =
+<                         new ListOf<>(
+<                             new SplitText(trnsct, ";")
+<                         );
+<                     // @checkstyle MagicNumberCheck (1 line)
 <                     if (new LengthOf(pieces).intValue() != 7) {
----
->                     if (new LengthOf<>(pieces).intValue() != 7) {
-117c112
+<                         throw new IOException(
+<                             new FormattedText(
+<                                 // @checkstyle LineLength (1 line)
+<                                 "Invalid transaction string: expected 7 fields, but found %d",
 <                                 pieces.size()
+<                             ).asString()
+<                         );
+<                     }
+<                     return trnsct;
+<                 }
+<             )
+<         );
 ---
->                                 new LengthOf<>(pieces)
-180c175
-<                         "Invalid amount '%s' expecting 64-bit signed hex string with 16 symbols",
+>         this.transaction = trnsct;
+128d89
+<     @SuppressWarnings("PMD.ShortMethodName")
+130,136c91
+<         final String ident = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     0, new SplitText(this.transaction.value(), ";")
+<                 )
+<             ).value()
+<         ).asString();
 ---
->                         "Invalid amount '%s', expecting 64-bit signed hex string with 16 symbols",
-195d189
+>         final String ident = this.transaction.split(";")[0];
+139d93
+<                 new UncheckedText(
+141d94
+<                         // @checkstyle LineLength (1 line)
+144d96
+<                     )
+148d99
+<         // @checkstyle MagicNumber (1 line)
+155,161c106
+<             new UncheckedText(
+<                 new IoCheckedScalar<>(
+<                     new ItemAt<>(
+<                         1, new SplitText(this.transaction.value(), ";")
+<                     )
+<                 ).value()
+<             ).asString(),
+---
+>             this.transaction.split(";")[1],
+168,174c113
+<         final String amnt = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     2, new SplitText(this.transaction.value(), ";")
+<                 )
+<             ).value()
+<         ).asString();
+---
+>         final String amnt = this.transaction.split(";")[2];
+177d115
+<                 new UncheckedText(
+179d116
+<                         // @checkstyle LineLength (1 line)
+182d118
+<                     )
+186d121
+<         // @checkstyle MagicNumber (1 line)
+192,200c127
+<         final String prefix = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
 <                     //@checkstyle MagicNumberCheck (1 line)
-200d193
+<                     3, new SplitText(this.transaction.value(), ";")
+<                 )
+<             ).value()
+<         ).asString();
 <         //@checkstyle MagicNumberCheck (1 line)
-215d207
+---
+>         final String prefix = this.transaction.split(";")[3];
+212,219c139
+<         final String bnf = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
 <                     //@checkstyle MagicNumberCheck (1 line)
-239d230
+<                     4, new SplitText(this.transaction.value(), ";")
+<                 )
+<             ).value()
+<         ).asString();
+---
+>         final String bnf = this.transaction.split(";")[4];
+222d141
+<                 new UncheckedText(
+224d142
+<                         // @checkstyle LineLength (1 line)
+227d144
+<                     )
+236,243c153
+<         final String dtls = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
 <                     //@checkstyle MagicNumberCheck (1 line)
-263d253
+<                     5, new SplitText(this.transaction.value(), ";")
+<                 )
+<             ).value()
+<         ).asString();
+---
+>         final String dtls = this.transaction.split(";")[5];
+246d155
+<                 new UncheckedText(
+248d156
+<                         // @checkstyle LineLength (1 line)
+251d158
+<                     )
+260,270c167,168
+<         final String sign = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
 <                     //@checkstyle MagicNumberCheck (1 line)
-268,270c258
+<                     6, new SplitText(this.transaction.value(), ";")
+<                 )
+<             ).value()
+<         ).asString();
 <         // @checkstyle MagicNumber (1 line)
 <         if (sign.length() != 684
 <             || !RtTransaction.SIGN.matcher(sign).matches()) {
 ---
+>         final String sign = this.transaction.split(";")[6];
 >         if (sign.length() != 684 || !RtTransaction.SIGN.matcher(sign).matches()) {
-290c278
-<     @SuppressWarnings("PMD.OnlyOneReturn")
+272d169
+<                 new UncheckedText(
+274d170
+<                         // @checkstyle LineLength (1 line)
+277d172
+<                     )
+286c181
+<         return new UncheckedScalar<>(this.transaction).value();
 ---
->     @SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
+>         return this.transaction;
+290d184
+<     @SuppressWarnings("PMD.OnlyOneReturn")

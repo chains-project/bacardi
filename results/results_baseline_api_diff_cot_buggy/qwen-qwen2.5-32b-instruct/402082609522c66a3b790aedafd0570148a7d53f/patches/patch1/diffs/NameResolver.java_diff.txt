@@ -1,14 +1,56 @@
-8,9c8,9
+1c1,10
+< package com.github.games647.changeskin.sponge.task;
+---
+> <repair_strategy>
+> 1. The class `CommandSource` has been removed from the new version of the dependency.
+> 2. The new API might have replaced `CommandSource` with another class or interface.
+> 3. The client code needs to replace `CommandSource` with the new class or interface.
+> 4. The fix should maintain the same functionality and ensure the class compiles.
+> 5. The minimal change would be to replace `CommandSource` with a compatible class or interface from the new API.
+> 6. The new class or interface should have similar methods and properties to `CommandSource`.
+> 7. Ensure the class compiles and maintains the same functionality.
+> 8. Adjust imports as necessary to reflect the new API changes.
+> </repair_strategy>
+3,44d11
+< import com.github.games647.changeskin.core.shared.task.SharedNameResolver;
+< import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+< 
+< import java.util.UUID;
+< 
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.entity.living.player.Player;
----
-> import org.spongepowered.api.text.channel.MessageChannel;
-> import org.spongepowered.api.text.channel.MessageReceiver;
-14c14
+< 
+< public class NameResolver extends SharedNameResolver {
+< 
+<     private final ChangeSkinSponge plugin;
 <     private final CommandSource invoker;
----
->     private final MessageReceiver invoker;
-18c18
+<     private final Player receiver;
+<     private final boolean keepSkin;
+< 
 <     public NameResolver(ChangeSkinSponge plugin, CommandSource invoker, String targetName, Player receiver
----
->     public NameResolver(ChangeSkinSponge plugin, MessageReceiver invoker, String targetName, Player receiver
+<             , boolean keepSkin) {
+<         super(plugin.getCore(), targetName, keepSkin);
+< 
+<         this.plugin = plugin;
+<         this.invoker = invoker;
+<         this.receiver = receiver;
+<         this.keepSkin = keepSkin;
+<     }
+< 
+<     @Override
+<     public void sendMessageInvoker(String id) {
+<         plugin.sendMessage(invoker, id);
+<     }
+< 
+<     @Override
+<     protected boolean hasSkinPermission(UUID uuid) {
+<         //todo check skin permissions
+<         return true;
+<     }
+< 
+<     @Override
+<     protected void scheduleDownloader(UUID uuid) {
+<         //run this is the same thread
+<         new SkinDownloader(plugin, invoker, receiver, uuid, keepSkin).run();
+<     }
+< }

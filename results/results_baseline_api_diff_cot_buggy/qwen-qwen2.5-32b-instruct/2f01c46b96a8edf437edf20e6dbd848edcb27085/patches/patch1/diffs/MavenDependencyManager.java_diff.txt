@@ -1,12 +1,46 @@
-27d26
+8d7
+< import java.io.Serializable;
+21d19
+< import org.apache.maven.plugin.logging.Log;
+24d21
+< import org.apache.maven.project.ProjectBuildingRequest;
+27d23
 < import org.codehaus.plexus.util.xml.Xpp3Dom;
-162c161
+137,156d132
+<   /**
+<    * Maven processors are defined like this.
+<    * <pre>{@code
+<    *       <plugin>
+<    *         <groupId>org.bsc.maven</groupId>
+<    *         <artifactId>maven-processor-plugin</artifactId>
+<    *         <executions>
+<    *           <execution>
+<    *             <id>process</id>
+<    *             [...]
+<    *             <configuration>
+<    *               <processors>
+<    *                 <processor>XXXProcessor</processor>
+<    *               </processors>
+<    *             </configuration>
+<    *           </execution>
+<    *         </executions>
+<    *       </plugin>
+<    * }</pre>
+<    */
+161,165c137,146
+<         .map(plugin -> plugin.getExecutionsAsMap().get("process"))
 <         .map(exec -> (Xpp3Dom) exec.getConfiguration())
----
->         .map(exec -> exec.getConfiguration())
-164,165c163,164
+<         .map(config -> config.getChild("processors"))
 <         .map(Xpp3Dom::getChildren)
 <         .map(arr -> Arrays.stream(arr).map(Xpp3Dom::getValue).collect(Collectors.toSet()))
 ---
->         .map(processors -> processors.getChildren("processor"))
->         .map(children -> children.stream().map(child -> child.getValue()).collect(Collectors.toSet()))
+>         .map(plugin -> plugin.getExecutions().stream()
+>             .filter(exec -> "process".equals(exec.getId()))
+>             .findFirst()
+>             .orElse(null))
+>         .map(exec -> exec.getConfiguration())
+>         .map(config -> config.getChildren("processors"))
+>         .map(processors -> processors.stream()
+>             .flatMap(proc -> proc.getChildren("processor").stream())
+>             .map(Xpp3Dom::getValue)
+>             .collect(Collectors.toSet()))

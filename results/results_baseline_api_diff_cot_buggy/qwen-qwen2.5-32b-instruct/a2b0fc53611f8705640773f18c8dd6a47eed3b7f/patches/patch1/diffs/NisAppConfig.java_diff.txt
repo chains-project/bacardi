@@ -1,33 +1,21 @@
 3a4
 > import org.flywaydb.core.api.configuration.ClassicConfiguration;
-102a104,116
+103c104
+<         @Bean(initMethod = "migrate")
+---
 >         @Bean
->         public Flyway flyway() throws IOException {
->                 final Properties prop = new Properties();
->                 prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
-> 
->                 final ClassicConfiguration config = new ClassicConfiguration();
->                 config.setDataSource(this.dataSource());
->                 config.setLocations(prop.getProperty("flyway.locations").split(","));
->                 config.setClassLoader(NisAppConfig.class.getClassLoader());
->                 config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
->                 return new Flyway(config);
->         }
-> 
-108,113c122,127
+108,112c109,116
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
 <                 flyway.setLocations(prop.getProperty("flyway.locations"));
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-<                 return flyway;
 ---
->                 final ClassicConfiguration config = new ClassicConfiguration();
+>                 ClassicConfiguration config = new ClassicConfiguration();
 >                 config.setDataSource(this.dataSource());
->                 config.setLocations(prop.getProperty("flyway.locations").split(","));
->                 config.setClassLoader(NisAppConfig.class.getClassLoader());
+>                 config.setLocations(new String[]{prop.getProperty("flyway.locations")});
 >                 config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
->                 return new Flyway(config);
-196a211,212
+>                 config.setClassLoader(NisAppConfig.class.getClassLoader());
 > 
->         // region harvester
+>                 Flyway flyway = new Flyway(config);
+>                 flyway.migrate();

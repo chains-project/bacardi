@@ -1,6 +1,8 @@
-59d58
+55a56
+> import xdev.tableexport.export.ExportException;
+59d59
 < 
-156,213d154
+156,255d155
 <         /**
 <          * 
 <          * @return
@@ -59,21 +61,58 @@
 <         }
 <         
 <         
-277,278c218
-<                                 // If this column has a header the JRDesignStaticText get the
-<                                 // propertys of the Column
----
->                                 // If this column has a header the JRDesignStaticText get the propertys of the Column
-330,335d269
+<         private void createTemplateFields(final JasperDesign jasperDesign) throws ExportException
+<         {
+<                 JRDesignField field;
+<                 
+<                 for(final TemplateColumn col : this.config.getColumns())
+<                 {
+<                         field = new JRDesignField();
+<                         field.setName(col.getContentColumn().getFieldName());
+<                         this.chooseValueClass(col,field);
+<                         
+<                         try
+<                         {
+<                                 jasperDesign.addField(field);
+<                                 this.fieldSet.add(field);
+<                         }
+<                         catch(final JRException e)
+<                         {
+<                                 throw new ExportException("error during add the field "
+<                                                 + col.getContentColumn().getFieldName(),e);
+<                         }
+<                 }
+<                 
+<         }
+< 
+<         
+<         private JRDesignField chooseValueClass(final TemplateColumn col, final JRDesignField field)
+<         {
+<                 final Class<?> valueClass = col.getContentColumn().getColumnValueClass();
+<                 
+<                 if(valueClass.isAssignableFrom(byte[].class) || valueClass.isAssignableFrom(XdevBlob.class) || valueClass.isAssignableFrom(XdevClob.class))
+<                 {
+<                         field.setValueClass(String.class);
+<                 }
+<                 else
+<                 {
+<                         field.setValueClass(valueClass);
+<                 }
+<                 
+<                 return field;
+<         }
+<         
+<         
+330,333d229
 <                         if(this.config.isBlankWhenNullValue())
 <                         {
 <                                 textField.setBlankWhenNull(true);
 <                         }
-<                         detailBand.addElement(textField);
-<                         
-369c303,305
+369c265
 <                 textField.getLineBox().getPen().setLineWidth(border.getLineWidth());
 ---
->                 // Convert int to float for lineWidth
->                 float lineWidth = border.getLineWidth();
->                 textField.getLineBox().getPen().setLineWidth(lineWidth);
+>                 textField.getLineBox().getPen().setLineWidth((float)border.getLineWidth()); // Cast to float
+398c294
+<          * the {@link TemplateConfig} object.
+---
+>          * the {@link TemplateConfig}.
