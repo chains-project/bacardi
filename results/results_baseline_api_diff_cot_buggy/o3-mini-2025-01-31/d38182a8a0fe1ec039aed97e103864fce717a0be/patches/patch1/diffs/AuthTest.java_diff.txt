@@ -1,21 +1,20 @@
 17a18
 > import com.artipie.http.auth.AuthUser;
-19d19
-< import com.artipie.http.auth.BearerAuthScheme;
-30a31
-> import java.util.Optional;
 353c354
 <                             .map(user -> new Authentication.User(user.name()))
 ---
->                             .map(user -> new TestAuthUser(user.name()))
-374a376,388
+>                             .map(user -> new AuthUserImpl(user.name()))
+374a376,391
 >         }
 >     }
 >     
->     private static final class TestAuthUser implements AuthUser {
+>     /**
+>      * Minimal implementation of the AuthUser interface for the updated authentication API.
+>      */
+>     private static final class AuthUserImpl implements AuthUser {
 >         private final String name;
 > 
->         TestAuthUser(final String name) {
+>         AuthUserImpl(final String name) {
 >             this.name = name;
 >         }
 > 

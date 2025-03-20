@@ -1,14 +1,15 @@
-20,21c20,22
+20,21c20,21
 < import com.hazelcast.core.IMap;
 < import com.hazelcast.core.MapEvent;
 ---
 > import com.hazelcast.map.IMap;
 > import com.hazelcast.map.MapEvent;
-> import com.hazelcast.map.LocalMapStats;
-23d23
+23c23
 < import com.hazelcast.monitor.LocalMapStats;
-85,86c85
-<     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode)
-<     {
 ---
->     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode) {
+> import com.hazelcast.map.LocalMapStats;
+224,225d223
+< 
+<         // Instances are likely all loaded by the same class loader. For resource usage optimization, let's test just one, not all.
+329d326
+<             // Try to determine what plugin loaded the offending class.

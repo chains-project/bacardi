@@ -3,9 +3,8 @@ package de.hilling.junit.cdi.scope;
 import de.hilling.junit.cdi.util.ReflectionsUtils;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import jakarta.interceptor.AroundInvoke;
-import jakarta.interceptor.InvocationContext;
 import jakarta.interceptor.Interceptor;
-
+import jakarta.interceptor.InvocationContext;
 import javax.annotation.Priority;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Instance;

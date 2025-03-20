@@ -1,21 +1,3 @@
-/**
- * Copyright (C) 2014 Premium Minds.
- *
- * This file is part of wicket-crudifier.
- *
- * wicket-crudifier is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
- * later version.
- *
- * wicket-crudifier is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
- */
 package com.premiumminds.wicket.crudifier.form.elements;
 
 import java.beans.PropertyDescriptor;
@@ -34,7 +16,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -132,19 +113,20 @@ public abstract class ListControlGroups<T> extends Panel {
 			boolean required = false;
 
 			ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
-			if (constraintDescriptor != null) {
+			if(constraintDescriptor != null){
 				Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
-				for (ConstraintDescriptor<?> constraint : constraintsSet) {
+				for(ConstraintDescriptor<?> constraint : constraintsSet){
 					if (constraint.getAnnotation() instanceof NotNull ||
 					    constraint.getAnnotation() instanceof NotEmpty ||
-					    constraint.getAnnotation() instanceof NotBlank)
+					    constraint.getAnnotation() instanceof NotBlank) {
 						required = true;
+					}
 				}
 			}
 
 			objectProperties.add(new ObjectProperties(descriptor, required));
 		}
-		
+
 		RepeatingView view = new RepeatingView("controlGroup");
 		for(ObjectProperties objectProperty : objectProperties){
 			try {
@@ -152,11 +134,9 @@ public abstract class ListControlGroups<T> extends Panel {
 				if(!controlGroupProviders.containsKey(objectProperty.type)) {
 					Constructor<?> constructor;
 					Class<? extends Panel> typesControlGroup = getControlGroupByType(objectProperty.type);
-					if (typesControlGroup == null) {
-						if (objectProperty.type.isEnum())
-							typesControlGroup = EnumControlGroup.class;
-						else
-							typesControlGroup = ObjectChoiceControlGroup.class;
+					if(typesControlGroup == null){
+						if(objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
+						else typesControlGroup = ObjectChoiceControlGroup.class;
 					}
 
 					constructor = typesControlGroup.getConstructor(String.class, IModel.class);
@@ -165,9 +145,9 @@ public abstract class ListControlGroups<T> extends Panel {
 					controlGroup.init(objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
 					controlGroup.setEnabled(objectProperty.enabled);
 
-					if (typesControlGroup == ObjectChoiceControlGroup.class) {
+					if(typesControlGroup == ObjectChoiceControlGroup.class){
 						IObjectRenderer<?> renderer = renderers.get(objectProperty.type);
-						if (renderer == null) {
+						if(renderer == null){
 							renderer = new IObjectRenderer<Object>() {
 								private static final long serialVersionUID = -6171655578529011405L;
 
@@ -177,7 +157,7 @@ public abstract class ListControlGroups<T> extends Panel {
 							};
 						}
 						((ObjectChoiceControlGroup<?>) controlGroup).setConfiguration(getEntityProvider(objectProperty.name), renderer);
-					} else if (typesControlGroup == CollectionControlGroup.class) {
+					} else if(typesControlGroup == CollectionControlGroup.class){
 						((CollectionControlGroup<?>) controlGroup).setConfiguration(getEntityProvider(objectProperty.name), renderers);
 					}
 

@@ -59,7 +59,7 @@ public class NPCTeleport
      */
     private static void auraPanic_teleport(Player player, EntityPlayer target, ItemStack[] arm, int count, CommandSender sender, boolean reachMode)
     {
-        final double range = reachMode ? config.getDouble("npc.reachPanicRange") : config.getDouble("npc.panicRange");
+        final double range = reachMode ? config.getDouble("npc.reachPanicRange"): config.getDouble("npc.panicRange");
         final double[] clt = {0.0};
         final int[] now = {0};
 
@@ -85,6 +85,7 @@ public class NPCTeleport
                     this.cancel();
             }
         }.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, (long) (10 * ((1.5 / count) * sec)));
+
 
         new BukkitRunnable()
         {
@@ -154,7 +155,7 @@ public class NPCTeleport
     private static void auraBotTeleport(Player player, EntityPlayer target, ItemStack[] arm, boolean reachMode)
     {
         final double[] time = {0.0};
-        final double radius = reachMode ? config.getDouble("npc.reachRange") : config.getDoubleList("npc.range")
+        final double radius = reachMode ? config.getDouble("npc.reachRange"): config.getDoubleList("npc.range")
             .get(new Random().nextInt(config.getDoubleList("npc.range").size()));
 
         WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
@@ -231,6 +232,7 @@ public class NPCTeleport
                 this.cancel();
             }
         }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), 20 * (config.getLong("npc.seconds")));
+
     }
 
     /**

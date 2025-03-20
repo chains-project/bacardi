@@ -5,8 +5,10 @@ import com.github.games647.changeskin.core.model.UserPreference;
 import com.github.games647.changeskin.core.model.skin.SkinModel;
 import com.github.games647.changeskin.core.shared.SharedListener;
 import com.google.inject.Inject;
+
 import java.util.Optional;
 import java.util.UUID;
+
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 import org.spongepowered.api.profile.GameProfile;
@@ -26,7 +28,7 @@ public class LoginListener extends SharedListener {
     public void onPlayerPreLogin(ServerSideConnectionEvent.Auth preLoginEvent) {
         SkinStorage storage = core.getStorage();
         GameProfile profile = preLoginEvent.getConnection().getProfile();
-        UUID playerUUID = profile.getId();
+        UUID playerUUID = profile.getUniqueId();
 
         UserPreference preferences = storage.getPreferences(playerUUID);
         Optional<SkinModel> optSkin = preferences.getTargetSkin();
@@ -68,6 +70,7 @@ public class LoginListener extends SharedListener {
                     } else {
                         core.getStorage().save(preferences);
                     }
-                }).submit(plugin);
+                })
+                .submit(plugin);
     }
 }

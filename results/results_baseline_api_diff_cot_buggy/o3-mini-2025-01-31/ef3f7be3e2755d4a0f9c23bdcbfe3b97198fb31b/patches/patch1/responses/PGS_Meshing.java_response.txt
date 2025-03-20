@@ -27,13 +27,6 @@ import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.index.strtree.STRtree;
 import org.locationtech.jts.noding.SegmentString;
 import org.locationtech.jts.operation.overlayng.OverlayNG;
-import org.tinfour.common.IConstraint;
-import org.tinfour.common.IIncrementalTin;
-import org.tinfour.common.IQuadEdge;
-import org.tinfour.common.SimpleTriangle;
-import org.tinfour.common.Vertex;
-import org.tinfour.utils.TriangleCollector;
-import org.tinspin.index.kdtree.KDTree;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
 import micycle.pgs.color.Colors;
 import micycle.pgs.commons.AreaMerge;
@@ -45,6 +38,10 @@ import micycle.pgs.commons.SpiralQuadrangulation;
 import processing.core.PConstants;
 import processing.core.PShape;
 import processing.core.PVector;
+
+// Removed import org.tinspin.index.PointIndex;
+import org.tinspin.index.IndexConfig;
+import org.tinspin.index.kdtree.KDTree;
 
 /**
  * Mesh generation (excluding triangulation) and processing.
@@ -157,7 +154,13 @@ public class PGS_Meshing {
 			}
 		});
 
-		final KDTree<Vertex> tree = KDTree.create(new KDTree.IndexConfig(2));
+		IndexConfig config = new IndexConfig(2, (double[] a, double[] b) -> {
+			double deltaX = a[0] - b[0];
+			double deltaY = a[1] - b[1];
+			return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+		});
+		KDTree<Vertex> tree = KDTree.create(config);
+
 		vertices.forEach(v -> tree.insert(new double[] { v.x, v.y }, v));
 
 		final HashSet<IQuadEdge> nonGabrielEdges = new HashSet<>(); // base references to edges that should be removed

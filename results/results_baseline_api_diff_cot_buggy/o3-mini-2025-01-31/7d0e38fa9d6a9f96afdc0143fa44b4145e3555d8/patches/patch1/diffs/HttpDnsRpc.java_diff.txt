@@ -1,36 +1,58 @@
+113c113
+<         throw translate(ex, false);
+---
+>         throw translate(ex, true);
+125c125
+<         throw translate(ex, false);
+---
+>         throw translate(ex, true);
 211c211
 <         .create(this.options.getProjectId(), zone)
 ---
 >         .create(this.options.getProjectId(), zone.getName(), zone)
-232c232
+217d216
+<     // just fields option
+232c231
 <         .get(this.options.getProjectId(), zoneName)
 ---
->         .get(this.options.getProjectId(), zoneName, zoneName)
-249c249
+>         .get(this.options.getProjectId(), zoneName, "")
+238d236
+<     // fields, page token, page size
+249c247
 <         .list(this.options.getProjectId())
 ---
 >         .list(this.options.getProjectId(), "")
-271c271
+271c269
 <     return dns.managedZones().delete(this.options.getProjectId(), zoneName);
 ---
->     return dns.managedZones().delete(this.options.getProjectId(), zoneName, zoneName);
-289c289
+>     return dns.managedZones().delete(this.options.getProjectId(), zoneName, "");
+287d284
+<     // options are fields, page token, dns name, type
+289c286
 <         .list(this.options.getProjectId(), zoneName)
 ---
 >         .list(this.options.getProjectId(), zoneName, "")
-308c308
+308c305
 <         .get(this.options.getProjectId())
 ---
 >         .get(this.options.getProjectId(), "")
-325c325
+325c322
 <         .create(this.options.getProjectId(), zoneName, changeRequest)
 ---
 >         .create(this.options.getProjectId(), zoneName, "", changeRequest)
-352c352
+340d336
+<           // the change id was not found, but the zone exists
+343d338
+<         // the zone does not exist, so throw an exception
+352c347
 <         .get(this.options.getProjectId(), zoneName, changeRequestId)
 ---
 >         .get(this.options.getProjectId(), zoneName, changeRequestId, "")
-372c372
+369d363
+<     // options are fields, page token, page size, sort order
+372c366
 <             .list(this.options.getProjectId(), zoneName)
 ---
 >             .list(this.options.getProjectId(), zoneName, "")
+377d370
+<       // todo check and change if more sorting options are implemented, issue #604

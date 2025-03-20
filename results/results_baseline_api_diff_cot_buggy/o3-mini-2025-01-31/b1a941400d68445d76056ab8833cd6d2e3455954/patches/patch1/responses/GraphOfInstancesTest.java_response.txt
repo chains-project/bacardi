@@ -38,6 +38,7 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
             aggregator.getDoubleSuppliers().add(stringHandlerA);
             aggregator.getDoubleSuppliers().add(stringHandlerB);
 
+
             InstanceHolder instanceHolder = new InstanceHolder();
             instanceHolder.getNodeList().add(aggregator);
             c.addNode(instanceHolder);
@@ -142,6 +143,7 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
 
     }
 
+
     @Data
     @ExcludeNode
     public static class InstanceHolder implements NamedNode {
@@ -152,6 +154,7 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
             return "instanceHolder";
         }
     }
+
 
     public static class StringHandler implements DoubleSupplier, NamedNode {
 
@@ -214,6 +217,7 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
             return "stringHandler_" + id;
         }
     }
+
 
     @Data
     public static class DoubleSum implements NamedNode {

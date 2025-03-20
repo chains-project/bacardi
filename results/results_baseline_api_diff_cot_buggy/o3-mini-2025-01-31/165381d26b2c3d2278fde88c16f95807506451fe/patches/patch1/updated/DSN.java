@@ -57,11 +57,11 @@ public class DSN {
     ////@Test
     public void fuzzingSizing() throws Exception {
         TestScanner sc = newScanner();
-        Path path = Paths.get(root, "fuzz.csv");
+        Path path = Paths.get(root,"fuzz.csv");
         Files.deleteIfExists(path);
 
-        for (int p = 100; p <= 1000; p += 100) {
-            for (int s = 2; s <= 20; s += 2) {
+        for (int p = 100; p <= 1000; p+=100) {
+            for (int s = 2; s <= 20; s+=2) {
                 System.out.println("--- Population: " + p + " scale: " + s + " ---");
                 Bench.report = new CSVReport(path, Integer.toString(p));
                 Bench.population = p;
@@ -85,12 +85,12 @@ public class DSN {
         Path p = Paths.get(root, "testing-speed-notrans.csv");
         Files.deleteIfExists(p);
 
-     /*   for (int i = 10; i <= 30; i += 2) {
+     /*   for (int i = 10; i <= 30; i+=2) {
             Bench.transitions = false;
             Bench.population = 100;
             Bench.scale = i;
-            System.out.println("--- scaling factor " + i + "; transitions= " + Bench.transitions + " ---");
-            Bench.report = new CSVReport(p, "");
+            System.out.println("--- scaling factor " + i + "; transitions= " + Bench.transitions +" ---");
+            Bench.report = new CSVReport(p,"");
             System.out.println(sc.test(Bench.class).stream().mapToInt(TestCampaign::go).sum());
         }*/
 
@@ -111,8 +111,8 @@ public class DSN {
         p = Paths.get(root, "testing-speed-trans.csv");
         Files.deleteIfExists(p);
 
-        for (int i = 1; i <= 30; i += 2) {
-            System.out.println("--- scaling factor " + i + "; transitions= " + Bench.transitions + " ---");
+        for (int i = 1; i <= 30; i+=2) {
+            System.out.println("--- scaling factor " + i + "; transitions= " + Bench.transitions +" ---");
             Bench.transitions = true;
             Bench.population = 100;
             Bench.scale = i;
@@ -177,8 +177,9 @@ public class DSN {
         Path out = Paths.get(root, "func-freq.csv");
         Files.deleteIfExists(out);
         String cnt = "name;freq\n" +
-                    map.entrySet().stream().map(e -> e.getKey() + ";" + e.getValue() + "\n").collect(Collectors.joining());
+                    map.entrySet().stream().map(e -> e.getKey()+";" + e.getValue() + "\n").collect(Collectors.joining());
         Files.write(out, cnt.getBytes());
+
     }
 
     //@Test
@@ -281,6 +282,7 @@ public class DSN {
         });
     }
 
+
     //@Test
     //Extract the number of line of codes of tests
     public void testSloc() throws Exception {
@@ -288,7 +290,7 @@ public class DSN {
         List<Integer> unitTests = new ArrayList<>();
         List<Path> paths = Files.list(Paths.get("choco/src/test/java/org/btrplace/scheduler/choco/constraint/")).filter(Files::isRegularFile).collect(Collectors.toList());
         for (Path p : paths) {
-            try (InputStream in = Files.newInputStream(p)) {
+            try (InputStream in = Files.newInputStream(p)){
                 ParseResult<CompilationUnit> cu = new JavaParser().parse(in);
                 new UnitTestsVisitor(unitTests).visit(cu.getResult().get(), null);
             }
@@ -297,7 +299,7 @@ public class DSN {
         //Parse the new unit tests
         List<Integer> safeTests = new ArrayList<>();
 
-        try (InputStream in = Files.newInputStream(Paths.get("safeplace/src/test/java/org/btrplace/safeplace/testing/TestSafePlace.java"))) {
+        try (InputStream in = Files.newInputStream(Paths.get("safeplace/src/test/java/org/btrplace/safeplace/testing/TestSafePlace.java"))){
             ParseResult<CompilationUnit> cu = new JavaParser().parse(in);
             new SafeplaceTestsVisitor(safeTests).visit(cu.getResult().get(), null);
         }
@@ -329,11 +331,12 @@ public class DSN {
     private static class UnitTestsVisitor extends VoidVisitorAdapter<Void> {
 
         private final List<Integer> l;
-
-        private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
+        private final PrettyPrinterConfiguration noComments;
 
         UnitTestsVisitor(List<Integer> numbers) {
             this.l = numbers;
+            noComments = new PrettyPrinterConfiguration();
+            noComments.setPrintComments(false);
         }
 
         @Override

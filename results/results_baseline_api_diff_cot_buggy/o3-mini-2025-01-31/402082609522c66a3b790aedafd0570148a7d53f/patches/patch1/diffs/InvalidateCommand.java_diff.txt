@@ -1,41 +1,54 @@
-8,12c8,14
-< import org.spongepowered.api.command.CommandResult;
+7c7,10
+< 
+---
+> import java.util.Optional;
+> import org.spongepowered.api.command.Command;
+> import org.spongepowered.api.command.CommandCause;
+> import org.spongepowered.api.command.CommandExecutor;
+9,12c12
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
-> import java.util.Optional;
-> 
-> import org.spongepowered.api.command.Command;
-> import org.spongepowered.api.command.CommandExecutor;
-> import org.spongepowered.api.command.exception.CommandException;
 > import org.spongepowered.api.command.parameter.CommandContext;
-> import org.spongepowered.api.command.source.CommandSource;
-21c23
-<     InvalidateCommand(ChangeSkinSponge plugin) {
----
->     public InvalidateCommand(ChangeSkinSponge plugin) {
-26,29c28,32
+14d13
+< import org.spongepowered.api.scheduler.Task;
+26,27c25,27
 <     public CommandResult execute(CommandSource src, CommandContext args) {
 <         if (!(src instanceof Player)) {
-<             plugin.sendMessage(src, "no-console");
+---
+>     public CommandResult execute(CommandCause src, CommandContext args) {
+>         Optional<Player> playerOpt = src.first(Player.class);
+>         if (!playerOpt.isPresent()) {
+29c29
 <             return CommandResult.empty();
 ---
->     public void execute(CommandContext context) throws CommandException {
->         Optional<CommandSource> sourceOpt = context.cause().first(CommandSource.class);
->         if (!sourceOpt.isPresent() || !(sourceOpt.get() instanceof Player)) {
->             plugin.sendMessage(sourceOpt.orElse(null), "no-console");
->             return;
-32c35
+>             return CommandResult.builder().successCount(0).build();
+31,33c31,32
+< 
 <         Player receiver = (Player) src;
+<         Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
 ---
->         Player receiver = (Player) sourceOpt.get();
-34d36
-<         return CommandResult.success();
-38,39c40,41
-<     public CommandSpec buildSpec() {
+>         Player receiver = playerOpt.get();
+>         plugin.getScheduler().executor(plugin).execute(new SkinInvalidator(plugin, receiver));
+37d35
+<     @Override
+39c37
 <         return CommandSpec.builder()
 ---
->     public Command buildSpec() {
->         return Command.builder()
+>         Command<?> command = Command.builder()
+42a41,53
+>         return new CommandSpec(command);
+>     }
+> 
+>     public static class CommandSpec {
+>         private final Command<?> command;
+> 
+>         public CommandSpec(Command<?> command) {
+>             this.command = command;
+>         }
+> 
+>         public Command<?> getCommand() {
+>             return command;
+>         }

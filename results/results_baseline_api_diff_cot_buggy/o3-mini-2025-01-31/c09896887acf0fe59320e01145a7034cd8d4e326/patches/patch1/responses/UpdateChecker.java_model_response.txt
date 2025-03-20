@@ -78,8 +78,7 @@ public final class UpdateChecker {
             this.repo = repo;
         }
         /** Sort by version descending. */
-        @Override 
-        public int compareTo(VersionAndRepo o) {
+        @Override public int compareTo(VersionAndRepo o) {
             assert o.groupId.equals(groupId) && o.artifactId.equals(artifactId);
             return o.version.compareTo(version);
         }
@@ -94,8 +93,7 @@ public final class UpdateChecker {
         public String fullURL(String type) {
             return baseURL() + artifactId + '-' + version + '.' + type;
         }
-        @Override 
-        public String toString() {
+        @Override public String toString() {
             return baseURL();
         }
     }
@@ -197,8 +195,7 @@ public final class UpdateChecker {
             this.repo = repo;
             this.hash = hash;
         }
-        @Override 
-        public String toString() {
+        @Override public String toString() {
             return "https://github.com/" + owner + '/' + repo + "/commit/" + hash;
         }
     }
@@ -247,9 +244,6 @@ public final class UpdateChecker {
             // For example, that branch does not exist in this repository.
             return false;
         }
-        // TODO check behavior when the comparison is huge (too many commits or too large diff)
-        // and perhaps fall back to cloning into a temp dir and pulling all PR refs https://gist.github.com/piscisaureus/3342247
-        // Currently https://developer.github.com/v4/object/commit/ does no better than this.
     }
 
     private static Element theElement(Document doc, String tagName, String url) throws Exception {

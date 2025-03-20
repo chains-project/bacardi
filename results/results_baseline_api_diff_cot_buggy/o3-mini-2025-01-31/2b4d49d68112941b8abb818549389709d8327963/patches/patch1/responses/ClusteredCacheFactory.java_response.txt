@@ -1,25 +1,10 @@
-/*
- * Copyright (C) 2007-2009 Jive Software. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.EvictionConfig;
+import com.hazelcast.config.EvictionConfig.MaxSizePolicy;
 import com.hazelcast.config.MemberAttributeConfig;
 import com.hazelcast.config.MemcacheProtocolConfig;
 import com.hazelcast.config.NetworkConfig;
@@ -72,12 +57,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
-/**
- * CacheFactory implementation to use when using Hazelcast in cluster mode.
- *
- * @author Tom Evans
- * @author Gaston Dombiak
- */
 public class ClusteredCacheFactory implements CacheFactoryStrategy {
 
     private static final SystemProperty<String> HAZELCAST_EXECUTOR_SERVICE_NAME = SystemProperty.Builder.ofType(String.class)
@@ -285,8 +264,10 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         if (staticConfig == null) {
             final MapConfig dynamicConfig = new MapConfig(name);
             dynamicConfig.setTimeToLiveSeconds(hazelcastLifetimeInSeconds);
-            dynamicConfig.getEvictionConfig().setSize(hazelcastMaxCacheSizeInMegaBytes);
-            dynamicConfig.getEvictionConfig().setMaxSizePolicy(EvictionConfig.MaxSizePolicy.USED_HEAP_SIZE);
+            EvictionConfig evictionConfig = new EvictionConfig();
+            evictionConfig.setSize(hazelcastMaxCacheSizeInMegaBytes);
+            evictionConfig.setMaximumSizePolicy(MaxSizePolicy.USED_HEAP_SIZE);
+            dynamicConfig.setEvictionConfig(evictionConfig);
             logger.debug("Creating dynamic map config for cache={}, dynamicConfig={}", name, dynamicConfig);
             hazelcast.getConfig().addMapConfig(dynamicConfig);
         } else {
@@ -375,6 +356,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
                 members.add(member);
             }
         }
+
 
         if (!members.isEmpty()) {
             // Asynchronously execute the task on the other cluster members
@@ -653,8 +635,8 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
     }
 
     public static NodeID getNodeID(final Member member) {
-        String nodeId = (String) member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
-        return NodeID.getInstance(nodeId.getBytes(StandardCharsets.UTF_8));
+        String nodeAttribute = member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
+        return NodeID.getInstance(nodeAttribute.getBytes(StandardCharsets.UTF_8));
     }
 
     static void fireLeftClusterAndWaitToComplete(final Duration timeout) {

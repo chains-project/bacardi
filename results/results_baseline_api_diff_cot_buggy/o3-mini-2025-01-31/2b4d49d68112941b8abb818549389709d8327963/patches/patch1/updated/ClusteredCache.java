@@ -19,8 +19,8 @@ import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.map.IMap;
 import com.hazelcast.map.MapEvent;
-import com.hazelcast.map.LocalMapStats;
 import com.hazelcast.map.listener.MapListener;
+import com.hazelcast.map.LocalMapStats;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusteredCacheEntryListener;
 import org.jivesoftware.openfire.cluster.NodeID;
@@ -74,7 +74,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     protected ClusteredCache(final String name, final IMap<K, V> cache) {
         this.map = cache;
         this.name = name;
-        logger = LoggerFactory.getLogger(ClusteredCache.class.getName() + "[cache: " + name + "]");
+        logger = LoggerFactory.getLogger(ClusteredCache.class.getName() + "[cache: "+name+"]");
     }
 
     void addEntryListener(final MapListener listener) {
@@ -82,7 +82,8 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     }
 
     @Override
-    public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode) {
+    public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode)
+    {
         final EntryListener<K, V> listener = new EntryListener<K, V>() {
             @Override
             public void mapEvicted(MapEvent event) {
@@ -220,8 +221,6 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     @Override
     public void putAll(final Map<? extends K, ? extends V> entries) {
         map.putAll(entries);
-
-        // Instances are likely all loaded by the same class loader. For resource usage optimization, let's test just one, not all.
         entries.entrySet().stream().findAny().ifPresent(
             e -> {
                 checkForPluginClassLoader(e.getKey());
@@ -325,7 +324,6 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
         if (o != null && o.getClass().getClassLoader() instanceof PluginClassLoader
             && lastPluginClassLoaderWarning.isBefore(Instant.now().minus(pluginClassLoaderWarningSupression)) )
         {
-            // Try to determine what plugin loaded the offending class.
             String pluginName = null;
             try {
                 final Collection<Plugin> plugins = XMPPServer.getInstance().getPluginManager().getPlugins();

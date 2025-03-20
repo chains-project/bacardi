@@ -39,14 +39,15 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.HttpHeaders;
 import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.collection.IsIterableContainingInAnyOrder;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
 
 /**
  * REST response.
@@ -58,8 +59,8 @@ import org.hamcrest.collection.IsIterableContainingInAnyOrder;
  *   .fetch()
  *   .as(RestResponse.class)
  *   .assertStatus(200)
- *   .assertBody(CoreMatchers.containsString("hello, world!"))
- *   .assertHeader("Content-Type", IsIterableContainingInAnyOrder.hasItems("text/plain"))
+ *   .assertBody(Matchers.containsString("hello, world!"))
+ *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
  *   .jump(URI.create("/users"))
  *   .fetch();</pre>
  *
@@ -208,7 +209,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, IsIterableContainingInAnyOrder.hasItems(value));
+        return this.assertHeader(name, hasItems(value));
     }
 
     /**
@@ -244,7 +245,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            CoreMatchers.not(CoreMatchers.equalTo(Collections.emptyList()))
+            not(emptyIterableOf(String.class))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -282,7 +283,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            CoreMatchers.notNullValue()
+            notNullValue()
         );
         assert cookie != null;
         return cookie;
@@ -325,10 +326,56 @@ public final class RestResponse extends AbstractResponse {
             this.status = sts;
         }
 
-        @Override
         public boolean matches(final Object resp) {
             return Response.class.cast(resp).status() == this.status;
         }
     }
-
+    
+    /**
+     * Returns a matcher that matches if the examined {@link Iterable} contains all of the specified items.
+     * @param <T> type of the items
+     * @param items the items that must be in the examined iterable
+     * @return The matcher.
+     */
+    private static <T> Matcher<Iterable<? super T>> hasItems(final T... items) {
+        return new CustomMatcher<Iterable<? super T>>("an iterable containing " + Arrays.toString(items)) {
+            public boolean matches(final Object item) {
+                if (!(item instanceof Iterable)) {
+                    return false;
+                }
+                Iterable<?> iterable = (Iterable<?>) item;
+                for (T expected : items) {
+                    boolean found = false;
+                    for (Object actual : iterable) {
+                        if (expected == null ? actual == null : expected.equals(actual)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        };
+    }
+    
+    /**
+     * Returns a matcher that matches if the examined {@link Iterable} is empty.
+     * @param <T> type of the iterable elements
+     * @param type the class type of the iterable elements
+     * @return The matcher.
+     */
+    private static <T> Matcher<Iterable<T>> emptyIterableOf(final Class<T> type) {
+        return new CustomMatcher<Iterable<T>>("an empty iterable of " + type.getSimpleName()) {
+            public boolean matches(final Object item) {
+                if (!(item instanceof Iterable)) {
+                    return false;
+                }
+                Iterator<?> it = ((Iterable<?>) item).iterator();
+                return !it.hasNext();
+            }
+        };
+    }
 }

@@ -37,7 +37,7 @@ public class MockHttpSession implements HttpSession {
 
   @Override
   public Enumeration<String> getAttributeNames() {
-    return new Vector<>(attributes.keySet()).elements();
+    return new Vector(attributes.keySet()).elements();
   }
 
   @Override
@@ -58,6 +58,12 @@ public class MockHttpSession implements HttpSession {
   @Override
   public int getMaxInactiveInterval() {
     return 0;
+  }
+
+  /** @deprecated */
+  @Deprecated
+  public HttpSessionContext getSessionContext() {
+    return null;
   }
 
   /** @deprecated */
@@ -110,5 +116,8 @@ public class MockHttpSession implements HttpSession {
   @Override
   public ServletContext getServletContext() {
     return null;
+  }
+
+  public static interface HttpSessionContext {
   }
 }

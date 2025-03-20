@@ -16,13 +16,26 @@ import com.google.inject.Singleton;
 import java.nio.file.Path;
 import java.util.UUID;
 import org.slf4j.Logger;
-import org.spongepowered.api.config.ConfigDir;
+import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
-import net.kyori.adventure.text.Component;
+import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
+import org.spongepowered.api.event.lifecycle.RegisterChannelEvent;
+import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
+import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
+import org.spongepowered.api.server.Server;
+import org.spongepowered.plugin.Plugin;
+import org.spongepowered.plugin.PluginContainer;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.spongepowered.api.service.permission.Subject;
+import com.github.games647.changeskin.sponge.LoginListener;
 
 @Singleton
-public class ChangeSkinSponge implements PlatformPlugin<ChangeSkinSponge.CommandSource> {
+@Plugin(id = PomData.ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+        url = PomData.URL, description = PomData.DESCRIPTION)
+public class ChangeSkinSponge implements PlatformPlugin<Audience> {
 
     private final Path dataFolder;
     private final Logger logger;
@@ -34,14 +47,17 @@ public class ChangeSkinSponge implements PlatformPlugin<ChangeSkinSponge.Command
     private boolean initialized;
 
     @Inject
-    ChangeSkinSponge(Logger logger, @ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
+    private PluginContainer pluginContainer;
+
+    @Inject
+    ChangeSkinSponge(Logger logger, @org.spongepowered.configurate.objectmapping.ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
         this.dataFolder = dataFolder;
         this.logger = logger;
         this.injector = injector.createChildInjector(binder -> binder.bind(ChangeSkinCore.class).toInstance(core));
     }
 
     @Listener
-    public void onPreInit(GamePreInitializationEvent preInitEvent) {
+    public void onPreInit(ConstructPluginEvent preInitEvent) {
         try {
             core.load(true);
             initialized = true;
@@ -51,31 +67,37 @@ public class ChangeSkinSponge implements PlatformPlugin<ChangeSkinSponge.Command
     }
 
     @Listener
-    public void onInit(GameInitializationEvent initEvent) {
+    public void onInit(StartingEngineEvent initEvent) {
         if (!initialized) {
             return;
         }
-        // Registration of commands, events, and channels has been removed due to API changes.
-        logger.info("Skipping command, event, and channel registration due to API changes.");
+        // Register additional listeners with the new event manager
+        Server server = Sponge.server();
+        server.eventManager().registerListeners(pluginContainer, injector.getInstance(LoginListener.class));
     }
 
     @Listener
-    public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
+    public void onShutdown(StoppingEngineEvent stoppingEngineEvent) {
         core.close();
+    }
+    
+    @Listener
+    public void onRegisterCommands(RegisterCommandEvent event) {
+        event.register(pluginContainer, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+        event.register(pluginContainer, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+        event.register(pluginContainer, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+        event.register(pluginContainer, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+        event.register(pluginContainer, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
+    }
+    
+    @Listener
+    public void onRegisterChannels(RegisterChannelEvent event) {
+        event.register(ResourceKey.of(PomData.ARTIFACT_ID, PomData.UPDATE_SKIN_CHANNEL), injector.getInstance(UpdateSkinListener.class).getClass());
+        event.register(ResourceKey.of(PomData.ARTIFACT_ID, PomData.CHECK_PERM_CHANNEL), injector.getInstance(CheckPermissionListener.class).getClass());
     }
 
     public ChangeSkinCore getCore() {
         return core;
-    }
-
-    public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
-        if (invoker.hasPermission(PomData.ARTIFACT_ID + ".skin.whitelist." + uuid)) {
-            return true;
-        }
-        if (sendMessage) {
-            sendMessage(invoker, "no-permission");
-        }
-        return false;
     }
 
     public SpongeSkinAPI getApi() {
@@ -94,24 +116,23 @@ public class ChangeSkinSponge implements PlatformPlugin<ChangeSkinSponge.Command
         return logger;
     }
 
-    public void sendMessage(CommandSource receiver, String key) {
+    public boolean hasSkinPermission(Audience invoker, UUID uuid, boolean sendMessage) {
+        if (invoker instanceof Subject) {
+            Subject subject = (Subject) invoker;
+            if (subject.hasPermission(PomData.ARTIFACT_ID + ".skin.whitelist." + uuid)) {
+                return true;
+            }
+        }
+        if (sendMessage) {
+            sendMessage(invoker, "no-permission");
+        }
+        return false;
+    }
+
+    public void sendMessage(Audience receiver, String key) {
         String message = core.getMessage(key);
         if (message != null && receiver != null) {
-            receiver.sendMessage(LegacyComponentSerializer.legacySection().deserialize(message));
+            receiver.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(message));
         }
-    }
-
-    public static class GamePreInitializationEvent {
-    }
-
-    public static class GameInitializationEvent {
-    }
-
-    public static class GameStoppingServerEvent {
-    }
-
-    public static interface CommandSource {
-        void sendMessage(Component message);
-        boolean hasPermission(String permission);
     }
 }

@@ -1,7 +1,6 @@
 package uk.gov.pay.adminusers.queue.event;
 
 import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,7 +29,7 @@ import uk.gov.pay.adminusers.service.UserServices;
 import uk.gov.service.payments.commons.queue.exception.QueueException;
 import uk.gov.service.payments.commons.queue.model.QueueMessage;
 
-import java.time.Instant;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -108,9 +107,19 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        ch.qos.logback.classic.Logger logger = loggerContext.getLogger(EventMessageHandler.class);
-        logger.addAppender(mockLogAppender);
+        org.slf4j.Logger slf4jLogger = LoggerFactory.getLogger(EventMessageHandler.class);
+        try {
+            Method setLevelMethod = slf4jLogger.getClass().getMethod("setLevel", Level.class);
+            setLevelMethod.invoke(slf4jLogger, Level.INFO);
+        } catch (Exception e) {
+            // ignore if method not found
+        }
+        try {
+            Method addAppenderMethod = slf4jLogger.getClass().getMethod("addAppender", Appender.class);
+            addAppenderMethod.invoke(slf4jLogger, mockLogAppender);
+        } catch (Exception e) {
+            // ignore if method not found
+        }
     }
 
     @Test

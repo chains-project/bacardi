@@ -34,7 +34,7 @@ public final class J2EHelper {
 
         final SecurityFilter filter = new SecurityFilter();
 
-        filter.setClientNames(fConf.getClients());
+        filter.setClients(fConf.getClients());
         filter.setAuthorizers(fConf.getAuthorizers());
         filter.setMatchers(fConf.getMatchers());
         filter.setMultiProfile(fConf.getMultiProfile());
@@ -74,7 +74,7 @@ public final class J2EHelper {
         filter.setConfigOnly(config);
 
         final FilterRegistration.Dynamic filterRegistration = environment
-                .servlets().addFilter(filter.getClass().getName(), filter);
+                .servlets().addFilter(filter.getClass().getName(), (jakarta.servlet.Filter)(Object) filter);
 
         filterRegistration.addMappingForUrlPatterns(
                 EnumSet.of(DispatcherType.REQUEST), true, mapping);

@@ -9,7 +9,7 @@ import liquibase.sqlgenerator.SqlGeneratorChain;
 import liquibase.sqlgenerator.core.AddPrimaryKeyGenerator;
 import liquibase.statement.core.AddPrimaryKeyStatement;
 import liquibase.structure.core.Index;
-import liquibase.util.StringUtil;
+import liquibase.repackaged.org.apache.commons.lang3.StringUtils;
 
 public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
   @Override
@@ -31,7 +31,7 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
   @Override
   public Sql[] generateSql(AddPrimaryKeyStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
     if (statement instanceof AddPrimaryKeyStatementMSSQL && ((AddPrimaryKeyStatementMSSQL) statement).getFillFactor() != null) {
-      return generateMSSQLSql((AddPrimaryKeyStatementMSSQL) statement, database, sqlGeneratorChain);
+      return generateMSSQLSql((AddPrimaryKeyStatementMSSQL)statement, database, sqlGeneratorChain);
     }
 
     return super.generateSql(statement, database, sqlGeneratorChain);
@@ -66,7 +66,7 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
     // the only new feature being added is support for fillFactor
     sql += " WITH (FILLFACTOR = " + statement.getFillFactor() + ")";
 
-    if (StringUtil.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
+    if (StringUtils.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
       sql += " ON " + statement.getTablespace();
     }
 
@@ -75,7 +75,7 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
     }
 
     return new Sql[] {
-      new UnparsedSql(sql, getAffectedPrimaryKey(statement))
+        new UnparsedSql(sql, getAffectedPrimaryKey(statement))
     };
   }
 

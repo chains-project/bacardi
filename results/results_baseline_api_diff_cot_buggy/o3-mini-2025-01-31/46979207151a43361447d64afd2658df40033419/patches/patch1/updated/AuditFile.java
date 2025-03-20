@@ -5,7 +5,7 @@
 // Generated on: 2023.08.18 at 08:13:47 AM GMT 
 //
 
-package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_02_01.schema;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,10 +15,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
-import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
+
 
 /**
  * <p>Java class for anonymous complex type.
@@ -30,24 +30,24 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Header"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Header"/&gt;
  *         &lt;element name="MasterFiles"&gt;
  *           &lt;complexType&gt;
  *             &lt;complexContent&gt;
  *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                 &lt;sequence&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GeneralLedger" maxOccurs="unbounded" minOccurs="0"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Customer" maxOccurs="unbounded" minOccurs="0"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Supplier" maxOccurs="unbounded" minOccurs="0"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Product" maxOccurs="unbounded" minOccurs="0"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxTable" minOccurs="0"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}GeneralLedger" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Customer" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Supplier" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Product" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxTable" minOccurs="0"/&gt;
  *                 &lt;/sequence&gt;
  *               &lt;/restriction&gt;
  *             &lt;/complexContent&gt;
  *           &lt;/complexType&gt;
  *         &lt;/element&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GeneralLedgerEntries" minOccurs="0"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceDocuments" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}GeneralLedgerEntries" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SourceDocuments" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
@@ -224,11 +224,11 @@ public class AuditFile implements ToString2
      *   &lt;complexContent&gt;
      *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *       &lt;sequence&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GeneralLedger" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Customer" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Supplier" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Product" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxTable" minOccurs="0"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}GeneralLedger" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Customer" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Supplier" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Product" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxTable" minOccurs="0"/&gt;
      *       &lt;/sequence&gt;
      *     &lt;/restriction&gt;
      *   &lt;/complexContent&gt;

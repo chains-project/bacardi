@@ -4,50 +4,102 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import com.github.games647.changeskin.sponge.PomData;
 import com.github.games647.changeskin.sponge.task.SkinSelector;
 import com.google.inject.Inject;
-import org.spongepowered.api.command.Command;
+import net.kyori.adventure.text.Component;
+import static net.kyori.adventure.text.Component.text;
 import org.spongepowered.api.command.CommandExecutor;
-import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.parameter.CommandContext;
-import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
 public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
-    private static final Parameter.Key<String> SKIN_NAME_KEY = Parameter.key("skinName", String.class);
 
     @Inject
-    public SelectCommand(ChangeSkinSponge plugin) {
+    SelectCommand(ChangeSkinSponge plugin) {
         this.plugin = plugin;
     }
 
     @Override
-    public int execute(CommandContext context) {
-        CommandSource src = context.cause().first(CommandSource.class).orElse(null);
+    public CommandResult execute(CommandSource src, CommandContext args) {
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
-            return 0;
+            return CommandResult.empty();
         }
 
-        String skinName = context.requireOne(SKIN_NAME_KEY).toLowerCase().replace("skin-", "");
+        String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
 
         try {
             int targetId = Integer.parseInt(skinName);
             Player receiver = (Player) src;
             Task.builder().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException numberFormatException) {
             plugin.sendMessage(src, "invalid-skin-name");
         }
 
-        return 1;
+        return CommandResult.success();
     }
 
-    public Command buildSpec() {
-        return Command.builder()
+    @Override
+    public CommandSpec buildSpec() {
+        return CommandSpec.builder()
                 .executor(this)
-                .addParameter(Parameter.string().key(SKIN_NAME_KEY).build())
+                .arguments(string(text("skinName")))
                 .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
                 .build();
+    }
+
+    private static Object string(Component component) {
+        return component;
+    }
+
+    public static class CommandResult {
+        public static CommandResult empty() {
+            return new CommandResult();
+        }
+
+        public static CommandResult success() {
+            return new CommandResult();
+        }
+    }
+
+    public static class CommandSpec {
+        private CommandExecutor executor;
+        private Object arguments;
+        private String permission;
+
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        public static class Builder {
+            private CommandExecutor executor;
+            private Object arguments;
+            private String permission;
+
+            public Builder executor(CommandExecutor executor) {
+                this.executor = executor;
+                return this;
+            }
+
+            public Builder arguments(Object arguments) {
+                this.arguments = arguments;
+                return this;
+            }
+
+            public Builder permission(String permission) {
+                this.permission = permission;
+                return this;
+            }
+
+            public CommandSpec build() {
+                CommandSpec spec = new CommandSpec();
+                spec.executor = this.executor;
+                spec.arguments = this.arguments;
+                spec.permission = this.permission;
+                return spec;
+            }
+        }
     }
 }

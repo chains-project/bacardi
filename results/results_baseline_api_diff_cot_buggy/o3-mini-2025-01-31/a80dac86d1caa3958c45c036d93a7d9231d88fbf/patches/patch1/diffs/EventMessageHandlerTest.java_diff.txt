@@ -1,10 +1,2 @@
-3d2
-< import ch.qos.logback.classic.Level;
-4a4
-> import ch.qos.logback.classic.LoggerContext;
-111,112c111,112
-<         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
+112d111
 <         logger.setLevel(Level.INFO);
----
->         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
->         Logger logger = loggerContext.getLogger(EventMessageHandler.class.getName());

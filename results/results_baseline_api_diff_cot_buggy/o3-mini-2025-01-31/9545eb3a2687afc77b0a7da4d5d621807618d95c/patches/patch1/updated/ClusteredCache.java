@@ -18,9 +18,9 @@ package org.jivesoftware.openfire.plugin.util.cache;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.map.IMap;
-import com.hazelcast.map.MapEvent;
 import com.hazelcast.map.listener.MapListener;
 import com.hazelcast.map.LocalMapStats;
+import com.hazelcast.map.MapEvent;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusteredCacheEntryListener;
 import org.jivesoftware.openfire.cluster.NodeID;
@@ -74,7 +74,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     protected ClusteredCache(final String name, final IMap<K, V> cache) {
         this.map = cache;
         this.name = name;
-        logger = LoggerFactory.getLogger(ClusteredCache.class.getName() + "[cache: "+name+"]");
+        logger = LoggerFactory.getLogger(ClusteredCache.class.getName() + "[cache: " + name + "]");
     }
 
     void addEntryListener(final MapListener listener) {
@@ -221,8 +221,6 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     @Override
     public void putAll(final Map<? extends K, ? extends V> entries) {
         map.putAll(entries);
-
-        // Instances are likely all loaded by the same class loader. For resource usage optimization, let's test just one, not all.
         entries.entrySet().stream().findAny().ifPresent(
             e -> {
                 checkForPluginClassLoader(e.getKey());

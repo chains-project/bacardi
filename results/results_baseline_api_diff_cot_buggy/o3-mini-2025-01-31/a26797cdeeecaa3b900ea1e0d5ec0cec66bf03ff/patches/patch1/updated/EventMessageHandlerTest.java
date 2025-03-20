@@ -13,7 +13,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.client.ledger.model.LedgerTransaction;
 import uk.gov.pay.adminusers.client.ledger.service.LedgerService;
@@ -109,22 +108,18 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
+        org.slf4j.Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
         try {
             Method setLevelMethod = logger.getClass().getMethod("setLevel", Level.class);
             setLevelMethod.invoke(logger, Level.INFO);
-        } catch (NoSuchMethodException e) {
-            // Method not available in the new dependency version; skip setting level.
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            // Method not available; skip setting level
         }
         try {
             Method addAppenderMethod = logger.getClass().getMethod("addAppender", Appender.class);
             addAppenderMethod.invoke(logger, mockLogAppender);
-        } catch (NoSuchMethodException e) {
-            // Method not available in the new dependency version; skip adding the appender.
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            // Method not available; skip adding appender
         }
     }
 

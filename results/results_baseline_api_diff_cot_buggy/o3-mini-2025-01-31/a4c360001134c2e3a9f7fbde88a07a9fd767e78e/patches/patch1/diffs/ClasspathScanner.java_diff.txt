@@ -1,8 +1,21 @@
-64c64
+24a25,32
+> /*
+> <repair_strategy>
+> 1. The new dependency version removed the apply(String) methods from FilterBuilder and its inner classes.
+> 2. FilterBuilder now implements java.util.function.Predicate, so we use the test(String) method instead.
+> 3. The two calls to apply(s) have been replaced with test(s), ensuring compatibility with the updated API.
+> </repair_strategy>
+> */
+> 
+41d48
+<             @Override
+46d52
+<             @Override
+64c70
 <             return new FilterBuilder().include(".+\\.class").apply(s);
 ---
 >             return new FilterBuilder().include(".+\\.class").test(s);
-69c69
+69c75
 <             if (new FilterBuilder().include(regex).apply(s)) {
 ---
 >             if (new FilterBuilder().include(regex).test(s)) {

@@ -2,8 +2,6 @@
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -40,6 +38,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.function.*;
 
@@ -106,20 +105,14 @@ public class NisAppConfig {
 	@Bean(initMethod = "migrate")
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
-		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
-		
-		ClassicConfiguration configuration = new ClassicConfiguration();
-		configuration.setDataSource(this.dataSource());
-		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
-		String locationsConfig = prop.getProperty("flyway.locations");
-		String[] locationStrings = locationsConfig.split(",\\s*");
-		Location[] locations = new Location[locationStrings.length];
-		for (int i = 0; i < locationStrings.length; i++) {
-			locations[i] = new Location(locationStrings[i]);
-		}
-		configuration.setLocations(locations);
-		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		return new Flyway(configuration);
+		InputStream is = NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties");
+		prop.load(is);
+		return Flyway.configure()
+				.dataSource(this.dataSource())
+				.classLoader(NisAppConfig.class.getClassLoader())
+				.locations(prop.getProperty("flyway.locations").split(","))
+				.validateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate")))
+				.load();
 	}
 
 	@Bean

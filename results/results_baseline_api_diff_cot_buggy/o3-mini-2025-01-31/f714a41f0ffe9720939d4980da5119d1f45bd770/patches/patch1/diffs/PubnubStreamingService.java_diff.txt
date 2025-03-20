@@ -1,4 +1,5 @@
-12,17c12
+11,17c11,18
+< import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 < import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 < import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
 < import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
@@ -6,40 +7,37 @@
 < import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
 < import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
 ---
+> import com.pubnub.api.models.consumer.objects_api.message.PNMessageResult;
+> import com.pubnub.api.models.consumer.objects_api.signal.PNSignalResult;
+> import com.pubnub.api.models.consumer.objects_api.message_actions.PNMessageActionResult;
+> import com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult;
+> import com.pubnub.api.models.consumer.objects_api.space.PNSpaceResult;
+> import com.pubnub.api.models.consumer.objects_api.user.PNUserResult;
+> import com.pubnub.api.models.consumer.objects_api.presence.PNPresenceEventResult;
 > import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
-40c35
+28d28
+< /** Created by Lukas Zaoralek on 14.11.17. */
+40c40
 <     PNConfiguration pnConfiguration = new PNConfiguration();
 ---
 >     PNConfiguration pnConfiguration = new PNConfiguration(publicKey);
-84,111c79,80
-<                 public void presence(PubNub pubNub, PNPresenceEventResult pnPresenceEventResult) {
-<                   LOG.debug("PubNub presence: {}", pnPresenceEventResult.toString());
-<                 }
-< 
+65d64
 <                 @Override
-<                 public void signal(PubNub pubnub, PNSignalResult pnSignalResult) {
-<                   LOG.debug("PubNub signal: {}", pnSignalResult.toString());
-<                 }
-< 
+83d81
 <                 @Override
-<                 public void user(PubNub pubnub, PNUserResult pnUserResult) {
-<                   LOG.debug("PubNub user: {}", pnUserResult.toString());
-<                 }
-< 
+88d85
 <                 @Override
-<                 public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
-<                   LOG.debug("PubNub space: {}", pnSpaceResult.toString());
-<                 }
-< 
+93d89
 <                 @Override
-<                 public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
-<                   LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
-<                 }
-< 
+98d93
 <                 @Override
-<                 public void messageAction(
-<                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
-<                   LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
----
+103d97
+<                 @Override
+108d101
+<                 @Override
+111a105,109
+>                 }
+>                 
+>                 @Override
 >                 public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
 >                   LOG.debug("PubNub file: {}", pnFileEventResult.toString());

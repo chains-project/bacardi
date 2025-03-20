@@ -23,6 +23,8 @@ import org.yaml.snakeyaml.representer.Representer;
 
 import java.util.*;
 
+import static java.lang.String.format;
+
 /**
  * YAML model representer.
  *
@@ -32,6 +34,7 @@ import java.util.*;
  */
 class ModelRepresenter extends Representer {
   public ModelRepresenter() {
+    super();
     this.representers.put(Xpp3Dom.class, new RepresentXpp3Dom());
     Represent stringRepresenter = this.representers.get(String.class);
     this.representers.put(Boolean.class, stringRepresenter);
@@ -87,7 +90,6 @@ class ModelRepresenter extends Representer {
     }
     return false;
   }
-
 
   private class RepresentXpp3Dom implements Represent {
     private static final String ATTRIBUTE_PREFIX = "attr/";
@@ -163,7 +165,6 @@ class ModelRepresenter extends Representer {
   }
 
   // Model elements order {
-  //TODO move to polyglot-common, or to org.apache.maven:maven-model
   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
       "modelEncoding",
       "modelVersion",
@@ -192,12 +193,10 @@ class ModelRepresenter extends Representer {
       "dependencyManagement",
       "dependencies",
       "distributionManagement",
-      //"repositories",
-      //"pluginRepositories",
       "build",
       "profiles",
       "reporting"
-  ));
+      ));
   private static List<String> ORDER_DEVELOPER = new ArrayList<String>(Arrays.asList(
       "name", "id", "email"));
   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<String>(Arrays.asList(
@@ -208,10 +207,6 @@ class ModelRepresenter extends Representer {
       "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
   //}
 
-  /*
-   * Change the default order. Important data goes first.
-   */
-  @Override
   protected Set<Property> getProperties(Class<? extends Object> type) {
     if (type.isAssignableFrom(Model.class)) {
       return sortTypeWithOrder(type, ORDER_MODEL);

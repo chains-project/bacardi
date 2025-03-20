@@ -1,7 +1,7 @@
 package uk.gov.pay.adminusers.queue.event;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -108,8 +108,7 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        Logger logger = loggerContext.getLogger(EventMessageHandler.class.getName());
+        Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
         logger.addAppender(mockLogAppender);
     }
 

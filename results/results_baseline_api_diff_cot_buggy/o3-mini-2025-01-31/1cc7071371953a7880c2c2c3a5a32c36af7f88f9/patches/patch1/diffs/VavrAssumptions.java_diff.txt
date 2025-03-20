@@ -1,4 +1,4 @@
-24,33d23
+24,33c24,33
 < import org.assertj.core.internal.bytebuddy.ByteBuddy;
 < import org.assertj.core.internal.bytebuddy.TypeCache;
 < import org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey;
@@ -9,70 +9,79 @@
 < import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.RuntimeType;
 < import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall;
 < import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This;
-35a26,28
-> import static org.assertj.core.util.Arrays.array;
-> import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrategy;
-> 
-40,43d32
+---
+> import net.bytebuddy.ByteBuddy;
+> import net.bytebuddy.NamingStrategy;
+> import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+> import net.bytebuddy.dynamic.scaffold.TypeValidation;
+> import net.bytebuddy.implementation.MethodDelegation;
+> import net.bytebuddy.implementation.Implementation;
+> import net.bytebuddy.matcher.ElementMatchers;
+> import net.bytebuddy.implementation.bind.annotation.RuntimeType;
+> import net.bytebuddy.implementation.bind.annotation.SuperCall;
+> import net.bytebuddy.implementation.bind.annotation.This;
+34a35
+> import org.assertj.core.util.Arrays;
+37a39
+> import java.util.Objects;
+38a41
+> import java.util.concurrent.ConcurrentHashMap;
+40,41d42
 < import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;
 < import static org.assertj.core.util.Arrays.array;
-< import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrategy;
-< 
-47,74d35
+46,51c47,49
+<     /**
 <      * This NamingStrategy takes the original class's name and adds a suffix to distinguish it.
 <      * The default is ByteBuddy but for debugging purposes, it makes sense to add AssertJ as a name.
 <      */
 <     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED)
 <             .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
-< 
-<     private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
-< 
+---
+>     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy()
+>             .with(TypeValidation.DISABLED)
+>             .with(new NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
+55c53
 <     private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
-< 
-<     private static final class AssumptionMethodInterceptor {
-< 
-<         @RuntimeType
-<         public static Object intercept(@This AbstractVavrAssert<?, ?> assertion, @SuperCall Callable<Object> proxy) throws Exception {
-<             try {
-<                 Object result = proxy.call();
-<                 if (result != assertion && result instanceof AbstractVavrAssert) {
-<                     final AbstractVavrAssert<?, ?> assumption = asAssumption((AbstractVavrAssert<?, ?>) result);
-<                     return assumption.withAssertionState(assertion);
-<                 }
-<                 return result;
-<             } catch (AssertionError e) {
-<                 throw assumptionNotMet(e);
-<             }
-<         }
-<     }
-< 
-<     /**
-213d173
-<     @SuppressWarnings("unchecked")
-215,218c175,176
-<         SimpleKey cacheKey = new SimpleKey(assertClass);
+---
+>     private static final ConcurrentHashMap<SimpleKey, Class<?>> CACHE = new ConcurrentHashMap<>();
+198c196
+<         return asAssumption(assertionType, array(actualType), array(actual));
+---
+>         return asAssumption(assertionType, Arrays.array(actualType), Arrays.array(actual));
+216,218c214
 <         return (Class<ASSERTION>) CACHE.findOrInsert(VavrAssumptions.class.getClassLoader(),
 <                 cacheKey,
 <                 () -> generateAssumptionClass(assertClass));
 ---
->         // Dynamic proxy generation has been removed due to dependency updates.
->         return assertClass;
-222,227c180,181
-<         return BYTE_BUDDY.subclass(assertionType)
+>         return (Class<ASSERTION>) CACHE.computeIfAbsent(cacheKey, k -> generateAssumptionClass(assertClass));
+223c219
 <                 .method(any())
-<                 .intercept(ASSUMPTION)
-<                 .make()
-<                 .load(VavrAssumptions.class.getClassLoader(), classLoadingStrategy(assertionType))
-<                 .getLoaded();
 ---
->         // Dynamic subclass generation has been removed due to dependency updates.
->         return assertionType;
-257c211
-<     // for method that change the object under test (e.g. extracting)
----
->     // for methods that change the object under test (e.g. extracting)
-259d212
+>                 .method(ElementMatchers.any())
+259d254
 <         // @format:off
-268,269d220
+268,269d262
 <         // @format:on
 <         // should not arrive here
+270a264,284
+>     }
+> 
+>     private static final class SimpleKey {
+>         private final Class<?> type;
+> 
+>         SimpleKey(Class<?> type) {
+>             this.type = type;
+>         }
+> 
+>         @Override
+>         public boolean equals(Object o) {
+>             if (this == o) return true;
+>             if (o == null || getClass() != o.getClass()) return false;
+>             SimpleKey that = (SimpleKey) o;
+>             return Objects.equals(type, that.type);
+>         }
+> 
+>         @Override
+>         public int hashCode() {
+>             return Objects.hash(type);
+>         }

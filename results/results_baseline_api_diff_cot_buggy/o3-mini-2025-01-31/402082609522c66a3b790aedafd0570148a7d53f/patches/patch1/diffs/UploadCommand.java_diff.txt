@@ -1,13 +1,12 @@
 9d8
 < 
-11c10,12
+11,12c10,11
 < 
+< import org.spongepowered.api.command.CommandResult;
 ---
-> import net.kyori.adventure.text.Component;
-> import static net.kyori.adventure.text.Component.text;
-> import org.spongepowered.api.command.Command;
-13,20c14,17
-< import org.spongepowered.api.command.CommandSource;
+> import java.util.Optional;
+> import org.spongepowered.api.command.CommandExecutor;
+14,20c13,14
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
@@ -16,41 +15,70 @@
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 < import static org.spongepowered.api.text.Text.of;
 ---
-> import org.spongepowered.api.command.CommandExecutor;
-> import org.spongepowered.api.command.CommandCause;
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.parameter.Parameter;
-34,35c31,33
-<     public CommandResult execute(CommandSource src, CommandContext args) {
+35c29
 <         String url = args.<String>getOne("url").get();
 ---
->     public CommandResult execute(CommandContext context) {
->         CommandCause cause = context.cause();
->         String url = context.one("url").get();
-39c37
-<                 plugin.sendMessage(src, "no-accounts");
----
->                 plugin.sendMessage(cause.audience(), "no-accounts");
-42,43c40,41
-<                 Runnable skinUploader = new SkinUploader(plugin, src, uploadAccount, url);
+>         String url = args.one("url").get();
+43c37
 <                 Task.builder().async().execute(skinUploader).submit(plugin);
 ---
->                 Runnable skinUploader = new SkinUploader(plugin, cause.audience(), uploadAccount, url);
 >                 plugin.getScheduler().submit(skinUploader);
-46c44
-<             plugin.sendMessage(src, "no-valid-url");
----
->             plugin.sendMessage(cause.audience(), "no-valid-url");
-48d45
+48d41
 < 
-52,54c49,50
+52d44
 <     @Override
-<     public CommandSpec buildSpec() {
-<         return CommandSpec.builder()
----
->     public Command buildSpec() {
->         return Command.builder()
-56c52
+56c48
 <                 .arguments(string(of("url")))
 ---
->                 .addParameter(Parameter.string().key("url").build())
+>                 .arguments(Parameter.string().key("url").build())
+58a51,98
+>     }
+> 
+>     public static class CommandSpec {
+> 
+>         private final CommandExecutor executor;
+>         private final Object arguments;
+>         private final String permission;
+> 
+>         private CommandSpec(CommandExecutor executor, Object arguments, String permission) {
+>             this.executor = executor;
+>             this.arguments = arguments;
+>             this.permission = permission;
+>         }
+> 
+>         public static Builder builder() {
+>             return new Builder();
+>         }
+> 
+>         public static class Builder {
+>             private CommandExecutor executor;
+>             private Object arguments;
+>             private String permission;
+> 
+>             public Builder executor(CommandExecutor executor) {
+>                 this.executor = executor;
+>                 return this;
+>             }
+> 
+>             public Builder arguments(Object arguments) {
+>                 this.arguments = arguments;
+>                 return this;
+>             }
+> 
+>             public Builder permission(String permission) {
+>                 this.permission = permission;
+>                 return this;
+>             }
+> 
+>             public CommandSpec build() {
+>                 return new CommandSpec(executor, arguments, permission);
+>             }
+>         }
+>     }
+> 
+>     public static class CommandResult {
+>         public static CommandResult success() {
+>             return new CommandResult();
+>         }

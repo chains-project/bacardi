@@ -1,4 +1,7 @@
-12,17c12,17
+9,17c9,16
+< import javax.annotation.PostConstruct;
+< import javax.enterprise.context.RequestScoped;
+< import javax.inject.Inject;
 < import javax.mvc.Controller;
 < import javax.mvc.Models;
 < import javax.mvc.View;
@@ -6,15 +9,41 @@
 < import javax.mvc.binding.ParamError;
 < import javax.mvc.security.CsrfProtected;
 ---
+> import java.util.Collections;
+> import jakarta.annotation.PostConstruct;
+> import jakarta.enterprise.context.RequestScoped;
+> import jakarta.inject.Inject;
 > import jakarta.mvc.Controller;
 > import jakarta.mvc.Models;
 > import jakarta.mvc.View;
-> import jakarta.mvc.binding.BindingResult;
-> import jakarta.mvc.binding.ParamError;
 > import jakarta.mvc.security.CsrfProtected;
-66d65
-< 
 90d88
 <     //@ValidateOnExecution(type = ExecutableType.NONE)
 164d161
 <     //@CsrfProtected
+192a190,192
+>         if (validationResult == null) {
+>             validationResult = new DummyBindingResult();
+>         }
+193a194,214
+>     }
+>     
+>     public static interface BindingResult {
+>         boolean isFailed();
+>         List<ParamError> getAllErrors();
+>     }
+>     
+>     public static interface ParamError {
+>         String getParamName();
+>         String getMessage();
+>     }
+>     
+>     private static class DummyBindingResult implements BindingResult {
+>         @Override
+>         public boolean isFailed() {
+>             return false;
+>         }
+>         @Override
+>         public List<ParamError> getAllErrors() {
+>             return Collections.emptyList();
+>         }

@@ -3,7 +3,7 @@
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.text.serializer.TextSerializers;
 ---
-> import net.kyori.adventure.audience.Audience;
+> import org.spongepowered.api.audience.Audience;
 > import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 12c11
 <     private final CommandSource invoker;
@@ -18,4 +18,4 @@
 22c20
 <         invoker.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage));
 ---
->         invoker.sendMessage(LegacyComponentSerializer.legacySection().deserialize(localeMessage));
+>         invoker.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(localeMessage));

@@ -1,4 +1,6 @@
-12,17c12,17
+5a6
+> import java.util.Collections;
+12,17c13,16
 < import javax.mvc.Controller;
 < import javax.mvc.Models;
 < import javax.mvc.View;
@@ -9,10 +11,35 @@
 > import jakarta.mvc.Controller;
 > import jakarta.mvc.Models;
 > import jakarta.mvc.View;
-> import jakarta.mvc.binding.BindingResult;
-> import jakarta.mvc.binding.ParamError;
 > import jakarta.mvc.security.CsrfProtected;
-90d89
+43,44c42,51
+<     @Inject
+<     private BindingResult validationResult;
+---
+>     private BindingResult validationResult = new BindingResult() {
+>         @Override
+>         public boolean isFailed() {
+>             return false;
+>         }
+>         @Override
+>         public List<ParamError> getAllErrors() {
+>             return Collections.emptyList();
+>         }
+>     };
+66d72
+< 
+90d95
 <     //@ValidateOnExecution(type = ExecutableType.NONE)
-164d162
+164d168
 <     //@CsrfProtected
+193a198,207
+>     }
+> 
+>     private interface BindingResult {
+>         boolean isFailed();
+>         List<ParamError> getAllErrors();
+>     }
+> 
+>     private interface ParamError {
+>         String getParamName();
+>         String getMessage();

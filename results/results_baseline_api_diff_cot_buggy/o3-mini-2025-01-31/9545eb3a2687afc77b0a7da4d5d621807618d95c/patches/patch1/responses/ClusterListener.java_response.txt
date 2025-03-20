@@ -16,11 +16,13 @@
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.cluster.Cluster;
-import com.hazelcast.cluster.Member;
-import com.hazelcast.cluster.MembershipEvent;
-import com.hazelcast.cluster.MembershipListener;
+import com.hazelcast.map.listener.EntryListener;
 import com.hazelcast.core.LifecycleEvent;
 import com.hazelcast.core.LifecycleEvent.LifecycleState;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MemberAttributeEvent;
+import com.hazelcast.cluster.MembershipEvent;
+import com.hazelcast.cluster.MembershipListener;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterManager;
 import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
@@ -52,11 +54,11 @@ public class ClusterListener implements MembershipListener {
 
     private boolean seniorClusterMember = false;
 
-    private final Map<Cache<?,?>, EntryListener> entryListeners = new HashMap<>();
-    
+    private final Map<Cache<?, ?>, EntryListener> entryListeners = new HashMap<>();
+
     private final Cluster cluster;
     private final Map<NodeID, ClusterNodeInfo> clusterNodesInfo = new ConcurrentHashMap<>();
-    
+
     /**
      * Flag that indicates if the listener has done all clean up work when noticed that the
      * cluster has been stopped. This will force Openfire to wait until all clean
@@ -157,6 +159,7 @@ public class ClusterListener implements MembershipListener {
         final NodeID nodeID = ClusteredCacheFactory.getNodeID(event.getMember());
         if (event.getMember().localMember()) { // We left and re-joined the cluster
             joinCluster();
+
         } else {
             if (wasSenior && !isSenior) {
                 logger.warn("Recovering from split-brain; firing leftCluster()/joinedCluster() events");
@@ -173,7 +176,6 @@ public class ClusterListener implements MembershipListener {
 
                 // The following line was intended to wait until all local handling finishes before informing other
                 // nodes. However that proved to be insufficient. Hence the 30 second default wait in the lines above.
-                // TODO Instead of the 30 second wait, we should look (and then wait) for some trigger or event that signifies that local handling has completed and caches have stabilized.
                 waitForClusterCacheToBeInstalled();
 
                 // Let the other nodes know that we joined the cluster
@@ -248,7 +250,7 @@ public class ClusterListener implements MembershipListener {
         clusterNodesInfo.remove(nodeID);
     }
     
-    @Override
+    @SuppressWarnings("WeakerAccess")
     public List<ClusterNodeInfo> getClusterNodesInfo() {
         return new ArrayList<>(clusterNodesInfo.values());
     }
@@ -262,7 +264,7 @@ public class ClusterListener implements MembershipListener {
     }
 
     @Override
-    public void memberAttributeChanged(final MembershipEvent event) {
+    public void memberAttributeChanged(final MemberAttributeEvent event) {
         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
         isSenior = isSeniorClusterMember();
         final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
@@ -272,8 +274,5 @@ public class ClusterListener implements MembershipListener {
 
     boolean isClusterMember() {
         return clusterMember;
-    }
-
-    public static interface EntryListener {
     }
 }

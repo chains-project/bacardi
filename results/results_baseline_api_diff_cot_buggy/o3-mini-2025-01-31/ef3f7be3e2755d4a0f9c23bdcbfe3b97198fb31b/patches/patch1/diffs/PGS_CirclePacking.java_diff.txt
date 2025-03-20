@@ -1,36 +1,47 @@
-23,28c23,26
-< import org.tinfour.common.IIncrementalTin;
-< import org.tinfour.common.SimpleTriangle;
-< import org.tinfour.common.Vertex;
+26,28c26,27
 < import org.tinspin.index.PointDistanceFunction;
 < import org.tinspin.index.PointEntryDist;
 < import org.tinspin.index.covertree.CoverTree;
 ---
-> // Removed imports for the removed dependency API
-> // import org.tinspin.index.PointEntryDist;
-> // import org.tinspin.index.covertree.CoverTree;
-> // import org.tinspin.index.PointDistanceFunction;
-158c156
-<          *         the center point and .z represents radius.
----
->          *         the center point, and .z represents the radius.
-203c201
+> import processing.core.PShape;
+> import processing.core.PVector;
+34,35d32
+< import processing.core.PShape;
+< import processing.core.PVector;
+165d161
+<          * 
+203c199
 <                 final CoverTree<PVector> tree = CoverTree.create(3, 2, circleDistanceMetric);
 ---
->                 final SimpleCircleIndex tree = new SimpleCircleIndex();
-217c215,218
+>                 final List<PVector> treeList = new ArrayList<>();
+209,210c205,206
+<                         steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false).filter(filterBorderTriangles)
+<                                         .map(PGS_CirclePacking::centroid).collect(Collectors.toList());
+---
+>                         steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false)
+>                                         .filter(filterBorderTriangles).map(PGS_CirclePacking::centroid).collect(Collectors.toList());
+213,214c209
+<                 // Model shape vertices as circles of radius 0, to constrain packed circles
+<                 // within shape edge
+---
+>                 // Model shape vertices as circles of radius 0, to constrain packed circles within shape edge
+216,217c211,214
+<                 Collections.shuffle(vertices); // shuffle vertices to reduce tree imbalance during insertion
 <                 vertices.forEach(p -> tree.insert(new double[] { p.x, p.y, 0 }, p));
 ---
->                 for (PVector p : vertices) {
->                         p.z = 0;
->                         tree.insert(p);
+>                 Collections.shuffle(vertices);
+>                 for (PVector vertex : vertices) {
+>                         treeList.add(new PVector(vertex.x, vertex.y, 0));
 >                 }
-226c227
+226,227c223,226
 <                         final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+< 
 ---
->                         final PVector nn = tree.queryNearest(p.x, p.y, largestR); // find nearest-neighbour circle
-228,235c229,231
-<                         /*
+>                         PVector nn = findNearestNeighbor(treeList, p.x, p.y, largestR);
+>                         if (nn == null) {
+>                                 nn = new PVector(0, 0, 0);
+>                         }
+229,235c228,234
 <                          * nn.dist() does not return the radius (since it's a distance metric used to
 <                          * find nearest circle), so calculate maximum radius for candidate circle using
 <                          * 2d euclidean distance between center points minus radius of nearest circle.
@@ -39,14 +50,28 @@
 <                         final float dy = p.y - nn.value().y;
 <                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
 ---
+>                          * nn does not return the radius directly (since it's a distance metric used to
+>                          * find the nearest circle), so calculate maximum radius for candidate circle using
+>                          * 2D euclidean distance between center points minus radius of the nearest circle.
+>                          */
 >                         final float dx = p.x - nn.x;
 >                         final float dy = p.y - nn.y;
 >                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.z);
-239c235
+239c238
 <                                 tree.insert(new double[] { p.x, p.y, radius }, p); // insert circle into tree
 ---
->                                 tree.insert(p);
-627,656d622
+>                                 treeList.add(new PVector(p.x, p.y, radius)); // insert circle into tree
+247c246
+<          * Generates a random circle packing of tangential circles with varying radii
+---
+>          * Generates a circle packing of tangential circles with varying radii
+285,287c284
+< 
+<                                 // if center point not in circle, check whether circle overlaps with shape using
+<                                 // intersects() (somewhat slower)
+---
+>                                 // if center point not in circle, check whether circle overlaps with shape using intersects() (somewhat slower)
+627,656d623
 <          * Calculate the distance between two points in 3D space, where each point
 <          * represents a circle with (x, y, r) coordinates. This custom metric considers
 <          * both the Euclidean distance between the centers of the circles and the
@@ -77,31 +102,30 @@
 <         };
 < 
 <         /**
-662a629,655
-> 
->         // Removed the old circleDistanceMetric and related dependency code.
-> 
->         // SimpleCircleIndex performs a brute-force nearest neighbor search for circles.
->         private static class SimpleCircleIndex {
->                 private final List<PVector> points = new ArrayList<>();
-> 
->                 public void insert(PVector circle) {
->                         points.add(circle);
->                 }
-> 
->                 public PVector queryNearest(float x, float y, float queryRadius) {
->                         PVector best = null;
->                         float bestMetric = Float.POSITIVE_INFINITY;
->                         for (PVector v : points) {
->                                 float dx = x - v.x;
->                                 float dy = y - v.y;
->                                 float metric = (float) Math.sqrt(dx * dx + dy * dy) - v.z;
->                                 if (metric < bestMetric) {
->                                         bestMetric = metric;
->                                         best = v;
->                                 }
+663a631,656
+>         /**
+>          * Finds the nearest neighbor circle from a list using a custom metric which is
+>          * defined as the 2D Euclidean distance between centers plus the absolute difference
+>          * of their radii.
+>          * 
+>          * @param treeList the list of circles (each represented as a PVector with x, y, z)
+>          * @param qx       query x coordinate
+>          * @param qy       query y coordinate
+>          * @param qz       query z value (used for radius comparison)
+>          * @return the nearest PVector from the list according to the custom metric
+>          */
+>         private static PVector findNearestNeighbor(List<PVector> treeList, double qx, double qy, double qz) {
+>                 double bestDist = Double.MAX_VALUE;
+>                 PVector best = null;
+>                 for (PVector candidate : treeList) {
+>                         double dx = candidate.x - qx;
+>                         double dy = candidate.y - qy;
+>                         double ed = Math.sqrt(dx * dx + dy * dy);
+>                         double d = ed + Math.abs(candidate.z - qz);
+>                         if (d < bestDist) {
+>                                 bestDist = d;
+>                                 best = candidate;
 >                         }
->                         // In case there are no points inserted, which shouldn't happen because vertices are inserted first.
->                         return best != null ? best : new PVector(x, y, 0);
 >                 }
+>                 return best;
 >         }

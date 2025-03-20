@@ -4,50 +4,33 @@
 < 
 27d24
 < 
-67,70c64,67
+67c64,66
 <     for (JsonBranch branch : schema.getPaths()) {
-<       if (branch.getParent() != null)
-<         continue;
-<       switch (branch.getLabel()) {
 ---
->     for (String branch : schema.getPaths()) {
->       // In the previous version, branches with a non-null parent were skipped.
->       // With the new API, we assume that schema.getPaths() returns top-level keys.
->       switch (branch) {
-84,85c81
-<           marcRecord.setControl006(
-<             new Control006(extractFirst(cache, branch), marcRecord));
----
->           marcRecord.setControl006(new Control006(extractFirst(cache, branch), marcRecord));
-88,89c84
-<           marcRecord.setControl007(
-<             new Control007(extractFirst(cache, branch), marcRecord));
----
->           marcRecord.setControl007(new Control007(extractFirst(cache, branch), marcRecord));
-92,93c87
-<           marcRecord.setControl008(
-<             new Control008(extractFirst(cache, branch), marcRecord));
----
->           marcRecord.setControl008(new Control008(extractFirst(cache, branch), marcRecord));
-96,98c90,92
-<           JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());
-<           for (var fieldInsanceNr = 0; fieldInsanceNr < fieldInstances.size(); fieldInsanceNr++) {
-<             var fieldInstance = (Map) fieldInstances.get(fieldInsanceNr);
----
->           JSONArray fieldInstances = (JSONArray) cache.getFragment(branch);
->           for (int fieldInstanceNr = 0; fieldInstanceNr < fieldInstances.size(); fieldInstanceNr++) {
->             var fieldInstance = (Map) fieldInstances.get(fieldInstanceNr);
-104c98
-<               marcRecord.addUnhandledTags(branch.getLabel());
----
->               marcRecord.addUnhandledTags(branch);
-313,314c307,308
-<   private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
-<     List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
----
->   private static List<String> extractList(JsonPathCache cache, String branch) {
->     List<XmlFieldInstance> instances = cache.get(branch);
-322c316
-<   private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
----
->   private static String extractFirst(JsonPathCache cache, String branch) {
+>     // Adapt to new API: schema.getPaths() now returns List<String>
+>     for (String path : schema.getPaths()) {
+>       JsonBranch branch = new JsonBranch(path);
+483a483,505
+>   }
+>   
+>   // Local compatibility class to replace the removed de.gwdg.metadataqa.api.json.JsonBranch
+>   private static class JsonBranch {
+>     private final String label;
+> 
+>     public JsonBranch(String label) {
+>       this.label = label;
+>     }
+> 
+>     public Object getParent() {
+>       // In the new API, the concept of parent is removed; assume root branch.
+>       return null;
+>     }
+> 
+>     public String getLabel() {
+>       return label;
+>     }
+> 
+>     public String getJsonPath() {
+>       // In the new API, we assume that the label itself can serve as the json path.
+>       return label;
+>     }

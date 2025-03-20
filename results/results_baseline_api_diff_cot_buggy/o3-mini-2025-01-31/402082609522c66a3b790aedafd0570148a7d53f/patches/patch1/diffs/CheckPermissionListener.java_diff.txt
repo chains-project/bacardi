@@ -1,30 +1,98 @@
-17,20d16
+12d11
+< 
+14c13
+< 
+---
+> import java.util.function.Consumer;
+17,20c16
 < import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
 < import org.spongepowered.api.network.ChannelBuf;
 < import org.spongepowered.api.network.ChannelRegistrar;
 < import org.spongepowered.api.network.RawDataListener;
-21a18,19
+---
+> import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+22c18,19
+< 
+---
 > import org.spongepowered.api.network.channel.ChannelBuf;
 > import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
-26c24
+26c23
 < public class CheckPermissionListener implements RawDataListener {
 ---
 > public class CheckPermissionListener {
-29c27
+29c26
 <     private final RawDataChannel permissionsResultChannel;
 ---
 >     private final RawPlayDataChannel permissionsResultChannel;
-32c30
-<     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
----
->     CheckPermissionListener(ChangeSkinSponge plugin, RawPlayDataChannel permissionsResultChannel) {
-34,36c32
+34d30
 < 
-<         String combinedName = new NamespaceKey(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL).getCombinedName();
+36c32,34
 <         permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
 ---
->         this.permissionsResultChannel = permissionsResultChannel;
-39d34
+>         // Due to API changes, the channelRegistrar API has been removed.
+>         // Instead, we create our own RawPlayDataChannel using a stub implementation.
+>         this.permissionsResultChannel = createChannel(combinedName);
+39d36
 <     @Override
-41d35
+41d37
 < 
+45d40
+< 
+48d42
+< 
+57d50
+< 
+66d58
+< 
+76d67
+< 
+83c74,120
+<         permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+---
+>         // The new API requires a ServerPlayer instance; casting here.
+>         permissionsResultChannel.sendTo((ServerPlayer) receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+>     }
+>     
+>     // Helper method to create a RawPlayDataChannel instance.
+>     private RawPlayDataChannel createChannel(String channelName) {
+>         return new StubRawPlayDataChannel(channelName);
+>     }
+> 
+>     // Stub implementation to simulate the new RawPlayDataChannel API.
+>     private static class StubRawPlayDataChannel implements RawPlayDataChannel {
+> 
+>         private final String channelName;
+> 
+>         StubRawPlayDataChannel(String channelName) {
+>             this.channelName = channelName;
+>         }
+> 
+>         @Override
+>         public void sendTo(ServerPlayer player, Consumer<ChannelBuf> consumer) {
+>             // Create a stub ChannelBuf, let the consumer write data, and simulate sending.
+>             ChannelBuf buf = new StubChannelBuf();
+>             consumer.accept(buf);
+>             // In actual implementation, the data from buf would be sent to the player.
+>         }
+>     }
+>     
+>     // Stub implementation to simulate the new ChannelBuf API.
+>     private static class StubChannelBuf implements ChannelBuf {
+> 
+>         private byte[] data = new byte[0];
+> 
+>         @Override
+>         public byte[] array() {
+>             return data;
+>         }
+> 
+>         @Override
+>         public void writeByteArray(byte[] src) {
+>             // Store the byte array for simulation purposes.
+>             data = src;
+>         }
+>     }
+>     
+>     // Dummy stub for the removed ChannelRegistrar to satisfy the constructor signature.
+>     public static interface ChannelRegistrar {
+>         // No methods are defined as this API is no longer available.

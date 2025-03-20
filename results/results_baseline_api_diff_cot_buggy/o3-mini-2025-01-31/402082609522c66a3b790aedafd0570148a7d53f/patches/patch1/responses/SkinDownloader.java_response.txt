@@ -6,9 +6,9 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.UUID;
 
+import net.kyori.adventure.audience.Audience;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.audience.Audience;
 
 public class SkinDownloader extends SharedDownloader {
 
@@ -18,7 +18,6 @@ public class SkinDownloader extends SharedDownloader {
 
     public SkinDownloader(ChangeSkinSponge plugin, Audience invoker, Player receiver, UUID targetUUID, boolean keepSkin) {
         super(plugin.getCore(), keepSkin, targetUUID, receiver.getUniqueId());
-
         this.plugin = plugin;
         this.invoker = invoker;
         this.receiver = receiver;

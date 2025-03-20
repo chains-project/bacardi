@@ -97,8 +97,8 @@ public class TaxTable implements ToString2 {
     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         {
             List<TaxTableEntry> theTaxTableEntry;
-            theTaxTableEntry = (((this.taxTableEntry != null) && (!this.taxTableEntry.isEmpty())) ? this.getTaxTableEntry() : null);
-            strategy.appendField(locator, this, "taxTableEntry", buffer, theTaxTableEntry, ((this.taxTableEntry != null) && (!this.taxTableEntry.isEmpty())));
+            theTaxTableEntry = (((this.taxTableEntry!= null)&&(!this.taxTableEntry.isEmpty()))?this.getTaxTableEntry():null);
+            strategy.appendField(locator, this, "taxTableEntry", buffer, theTaxTableEntry, ((this.taxTableEntry!= null)&&(!this.taxTableEntry.isEmpty())));
         }
         return buffer;
     }

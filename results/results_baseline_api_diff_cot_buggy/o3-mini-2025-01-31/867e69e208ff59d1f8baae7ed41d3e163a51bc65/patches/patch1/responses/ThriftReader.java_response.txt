@@ -22,6 +22,7 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.transport.layered.TFramedTransport;
 
 import java.io.Closeable;
@@ -75,8 +76,8 @@ public class ThriftReader<T extends TBase> implements Closeable {
 
     this.byteOffsetInputStream = new ByteOffsetInputStream(
         new RandomAccessFile(path, "r"), readBufferSize);
-    this.framedTransport = new TFramedTransport(
-        new TIOStreamTransport(this.byteOffsetInputStream), maxMessageSize);
+    this.framedTransport =
+        new FramedTransportAdapter(new TIOStreamTransport(this.byteOffsetInputStream), maxMessageSize);
     this.baseFactory = Preconditions.checkNotNull(baseFactory);
     this.protocol = protocolFactory.get(this.framedTransport);
   }
@@ -135,5 +136,123 @@ public class ThriftReader<T extends TBase> implements Closeable {
    */
   public void close() throws IOException {
     framedTransport.close();
+  }
+
+  private static class FramedTransportAdapter extends TTransport implements TFramedTransport {
+    private final TTransport underlying;
+    private final int maxFrameSize;
+    private byte[] frameBuffer = null;
+    private int frameBufferPos = 0;
+    private int frameBufferLen = 0;
+
+    public FramedTransportAdapter(TTransport underlying, int maxFrameSize) {
+      this.underlying = underlying;
+      this.maxFrameSize = maxFrameSize;
+    }
+
+    @Override
+    public boolean isOpen() {
+      return underlying.isOpen();
+    }
+
+    @Override
+    public void open() throws TTransportException {
+      underlying.open();
+    }
+
+    @Override
+    public void close() {
+      underlying.close();
+    }
+
+    @Override
+    public int read(byte[] buf, int off, int len) throws TTransportException {
+      try {
+        if (frameBuffer == null || frameBufferPos >= frameBufferLen) {
+          if (!underlying.isOpen()) {
+            throw new TTransportException("Underlying transport is closed");
+          }
+          if (!fillFrame()) {
+            return -1;
+          }
+        }
+        int available = frameBufferLen - frameBufferPos;
+        int count = Math.min(len, available);
+        System.arraycopy(frameBuffer, frameBufferPos, buf, off, count);
+        frameBufferPos += count;
+        return count;
+      } catch (IOException e) {
+        throw new TTransportException(e);
+      }
+    }
+
+    private boolean fillFrame() throws IOException, TTransportException {
+      byte[] sizeBytes = new byte[4];
+      int readBytes = 0;
+      while (readBytes < 4) {
+        int n = underlying.read(sizeBytes, readBytes, 4 - readBytes);
+        if (n < 0) {
+          if (readBytes == 0) {
+            return false;
+          }
+          throw new TTransportException("EOF reached while reading frame size");
+        }
+        readBytes += n;
+      }
+      int frameSize = ((sizeBytes[0] & 0xff) << 24) |
+                      ((sizeBytes[1] & 0xff) << 16) |
+                      ((sizeBytes[2] & 0xff) << 8) |
+                      (sizeBytes[3] & 0xff);
+      if (frameSize > maxFrameSize) {
+        throw new TTransportException("Frame size " + frameSize + " exceeds maximum of " + maxFrameSize);
+      }
+      frameBuffer = new byte[frameSize];
+      frameBufferPos = 0;
+      frameBufferLen = 0;
+      while (frameBufferLen < frameSize) {
+        int n = underlying.read(frameBuffer, frameBufferLen, frameSize - frameBufferLen);
+        if (n < 0) {
+          throw new TTransportException("EOF reached while reading frame");
+        }
+        frameBufferLen += n;
+      }
+      return true;
+    }
+
+    @Override
+    public void write(byte[] buf, int off, int len) throws TTransportException {
+      throw new TTransportException("Write not supported in FramedTransportAdapter");
+    }
+
+    @Override
+    public void flush() throws TTransportException {
+      try {
+        underlying.flush();
+      } catch (IOException e) {
+        throw new TTransportException(e);
+      }
+    }
+
+    @Override
+    public int getBytesRemainingInBuffer() {
+      return frameBuffer == null ? 0 : (frameBufferLen - frameBufferPos);
+    }
+
+    @Override
+    public void consumeBuffer(int len) {
+      frameBufferPos = Math.min(frameBufferPos + len, frameBufferLen);
+    }
+
+    @Override
+    public void readAll(byte[] buf, int off, int len) throws TTransportException {
+      int got = 0;
+      while (got < len) {
+        int ret = read(buf, off + got, len - got);
+        if (ret <= 0) {
+          throw new TTransportException("Cannot read. Remote side has closed.");
+        }
+        got += ret;
+      }
+    }
   }
 }

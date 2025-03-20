@@ -1,20 +1,37 @@
-19c19
+19d18
 < import com.google.api.services.translate.model.LanguagesResource;
+25,32d23
+< /**
+<  * Information about a language supported by Google Translation. Objects of this class contain the
+<  * language's code and the language name.
+<  *
+<  * @see <a href="https://cloud.google.com/translate/v2/discovering-supported-languages-with-rest">
+<  *     Discovering Supported Languages</a>
+<  * @see <a href="https://cloud.google.com/translate/docs/languages">Supported Languages</a>
+<  */
+64c55,58
+<     return MoreObjects.toStringHelper(this).add("code", code).add("name", name).toString();
 ---
-> import com.google.api.services.translate.v3.model.SupportedLanguage;
-36,37c36,37
-<   static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
-<       new Function<LanguagesResource, Language>() {
----
->   static final Function<SupportedLanguage, Language> FROM_PB_FUNCTION =
->       new Function<SupportedLanguage, Language>() {
-39c39
-<         public Language apply(LanguagesResource languagePb) {
----
->         public Language apply(SupportedLanguage languagePb) {
-84,85c84,85
-<   static Language fromPb(LanguagesResource languagePb) {
-<     return new Language(languagePb.getLanguage(), languagePb.getName());
----
->   static Language fromPb(SupportedLanguage languagePb) {
->     return new Language(languagePb.getLanguageCode(), languagePb.getDisplayName());
+>     return MoreObjects.toStringHelper(this)
+>         .add("code", code)
+>         .add("name", name)
+>         .toString();
+85a80,97
+>   }
+> 
+>   public static class LanguagesResource {
+>     private final String language;
+>     private final String name;
+> 
+>     public LanguagesResource(String language, String name) {
+>       this.language = language;
+>       this.name = name;
+>     }
+> 
+>     public String getLanguage() {
+>       return language;
+>     }
+> 
+>     public String getName() {
+>       return name;
+>     }

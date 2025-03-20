@@ -17,27 +17,18 @@
 
 package com.google.cloud.translate;
 
-import com.google.api.services.translate.v3.model.SupportedLanguage;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import java.util.Objects;
 
-/**
- * Information about a language supported by Google Translation. Objects of this class contain the
- * language's code and the language name.
- *
- * @see <a href="https://cloud.google.com/translate/v2/discovering-supported-languages-with-rest">
- *     Discovering Supported Languages</a>
- * @see <a href="https://cloud.google.com/translate/docs/languages">Supported Languages</a>
- */
 public class Language implements Serializable {
 
   private static final long serialVersionUID = 5205240279371907020L;
-  static final Function<SupportedLanguage, Language> FROM_PB_FUNCTION =
-      new Function<SupportedLanguage, Language>() {
+  static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
+      new Function<LanguagesResource, Language>() {
         @Override
-        public Language apply(SupportedLanguage languagePb) {
+        public Language apply(LanguagesResource languagePb) {
           return Language.fromPb(languagePb);
         }
       };
@@ -62,7 +53,10 @@ public class Language implements Serializable {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this).add("code", code).add("name", name).toString();
+    return MoreObjects.toStringHelper(this)
+        .add("code", code)
+        .add("name", name)
+        .toString();
   }
 
   @Override
@@ -82,8 +76,26 @@ public class Language implements Serializable {
     return Objects.equals(code, other.code) && Objects.equals(name, other.name);
   }
 
-  static Language fromPb(SupportedLanguage languagePb) {
-    return new Language(languagePb.getLanguageCode(), languagePb.getDisplayName());
+  static Language fromPb(LanguagesResource languagePb) {
+    return new Language(languagePb.getLanguage(), languagePb.getName());
+  }
+
+  public static class LanguagesResource {
+    private final String language;
+    private final String name;
+
+    public LanguagesResource(String language, String name) {
+      this.language = language;
+      this.name = name;
+    }
+
+    public String getLanguage() {
+      return language;
+    }
+
+    public String getName() {
+      return name;
+    }
   }
 }
 ```

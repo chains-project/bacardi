@@ -23,6 +23,7 @@ import javax.xml.ws.ResponseWrapper;
 })
 public interface SeriesWS {
 
+
     /**
      * 
      *                 Esta funcionalidade tem como objetivo, permitir a comunicação das séries à AT, através do 

@@ -2,19 +2,18 @@
 > import org.yaml.snakeyaml.DumperOptions;
 37a39
 >     super(new DumperOptions());
-94d95
-< 
-218,219c219,220
+218,219c220,221
 <   protected Set<Property> getProperties(Class<? extends Object> type)
 <           throws IntrospectionException {
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) {
 >     try {
-232a234,236
+232a235,237
 >     } catch (IntrospectionException e) {
->       throw new YAMLException(e);
+>       throw new RuntimeException(e);
 >     }
-268c272
-<       return 0;// compare further
+235,236c240
+<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+<           throws IntrospectionException {
 ---
->       return 0;
+>   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {

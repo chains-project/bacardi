@@ -6,64 +6,13 @@
 < import javax.validation.metadata.BeanDescriptor;
 < import javax.validation.metadata.ConstraintDescriptor;
 < import javax.validation.metadata.ElementDescriptor;
-45,48c38,43
-< import com.premiumminds.webapp.wicket.validators.HibernateValidatorProperty;
-< import com.premiumminds.wicket.crudifier.IObjectRenderer;
-< import com.premiumminds.wicket.crudifier.form.CrudifierEntitySettings;
-< import com.premiumminds.wicket.crudifier.form.EntityProvider;
----
+44a38,44
 > import jakarta.validation.Validator;
 > import jakarta.validation.constraints.NotBlank;
 > import jakarta.validation.constraints.NotEmpty;
 > import jakarta.validation.constraints.NotNull;
 > import jakarta.validation.metadata.BeanDescriptor;
 > import jakarta.validation.metadata.ConstraintDescriptor;
-55a51,55
-> import com.premiumminds.webapp.wicket.validators.HibernateValidatorProperty;
-> import com.premiumminds.wicket.crudifier.IObjectRenderer;
-> import com.premiumminds.wicket.crudifier.form.CrudifierEntitySettings;
-> import com.premiumminds.wicket.crudifier.form.EntityProvider;
-> 
-122c122
-<                 BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
----
->                 BeanDescriptor beanDescriptor = validator.getConstraintsForClass(modelClass);
-133,135c133,135
-<                         ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
-<                         if(constraintDescriptor!=null){
-<                                 Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
----
->                         jakarta.validation.metadata.PropertyDescriptor propertyDescriptor = beanDescriptor.getConstraintsForProperty(descriptor.getName());
->                         if (propertyDescriptor != null) {
->                                 Set<ConstraintDescriptor<?>> constraintsSet = propertyDescriptor.getConstraintDescriptors();
-155,156c155,158
-<                                                 if(objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
-<                                                 else typesControlGroup = ObjectChoiceControlGroup.class;
----
->                                                 if (objectProperty.type.isEnum())
->                                                         typesControlGroup = EnumControlGroup.class;
->                                                 else
->                                                         typesControlGroup = ObjectChoiceControlGroup.class;
-161c163,164
-<                                         controlGroup = (AbstractControlGroup<?>) constructor.newInstance(view.newChildId(), new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name));
----
->                                         controlGroup = (AbstractControlGroup<?>) constructor.newInstance(view.newChildId(),
->                                                         new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name));
-165d167
+> import jakarta.validation.metadata.ElementDescriptor;
+165d164
 < 
-183,187c185,188
-<                                         controlGroup = controlGroupProviders
-<                                                         .get(objectProperty.type)
-<                                                         .createControlGroup(view.newChildId()
-<                                                                         , new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name)
-<                                                                         , objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
----
->                                         controlGroup = controlGroupProviders.get(objectProperty.type)
->                                                         .createControlGroup(view.newChildId(), new PropertyModel<Object>(ListControlGroups.this.getModel(),
->                                                                         objectProperty.name), objectProperty.name, getResourceBase(), objectProperty.required,
->                                                                         objectProperty.type, entitySettings);
-226c227,228
-<                         if(type.isAssignableFrom(mapType)) return typesControlGroups.get(mapType);
----
->                         if (type.isAssignableFrom(mapType))
->                                 return typesControlGroups.get(mapType);

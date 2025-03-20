@@ -24,7 +24,7 @@
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
  * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.jcabi.ssh;
@@ -192,7 +192,6 @@ public final class Ssh extends AbstractSshShell {
      * @param user Login
      * @param priv Private SSH key
      * @throws UnknownHostException If fails
-     * @since 1.4
      * @checkstyle ParameterNumberCheck (6 lines)
      */
     public Ssh(final String adr, final int prt,
@@ -229,7 +228,6 @@ public final class Ssh extends AbstractSshShell {
         return String.format("'%s'", arg.replace("'", "'\\''"));
     }
 
-    // @checkstyle ProtectedMethodInFinalClassCheck (10 lines)
     @RetryOnFailure(
         attempts = 7,
         delay = 1,

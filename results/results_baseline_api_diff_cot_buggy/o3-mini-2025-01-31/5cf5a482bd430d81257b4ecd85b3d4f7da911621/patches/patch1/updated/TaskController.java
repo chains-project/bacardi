@@ -6,14 +6,13 @@ import com.example.web.AlertMessage.Type;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
+import java.util.Collections;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.mvc.View;
-import jakarta.mvc.binding.BindingResult;
-import jakarta.mvc.binding.ParamError;
 import jakarta.mvc.security.CsrfProtected;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -63,6 +62,7 @@ public class TaskController {
         models.put("todotasks", todotasks);
         models.put("doingtasks", doingtasks);
         models.put("donetasks", donetasks);
+
     }
 
     @GET
@@ -187,6 +187,30 @@ public class TaskController {
 
     @PostConstruct
     private void init() {
+        if (validationResult == null) {
+            validationResult = new DummyBindingResult();
+        }
         log.config(() -> this.getClass().getSimpleName() + " created");
+    }
+    
+    public static interface BindingResult {
+        boolean isFailed();
+        List<ParamError> getAllErrors();
+    }
+    
+    public static interface ParamError {
+        String getParamName();
+        String getMessage();
+    }
+    
+    private static class DummyBindingResult implements BindingResult {
+        @Override
+        public boolean isFailed() {
+            return false;
+        }
+        @Override
+        public List<ParamError> getAllErrors() {
+            return Collections.emptyList();
+        }
     }
 }

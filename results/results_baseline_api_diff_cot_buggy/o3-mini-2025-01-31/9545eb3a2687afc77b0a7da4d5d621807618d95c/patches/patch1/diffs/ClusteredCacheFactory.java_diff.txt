@@ -1,29 +1,61 @@
-22d21
+22,27c22,25
 < import com.hazelcast.config.MaxSizeConfig;
-27c26,27
+< import com.hazelcast.config.MemberAttributeConfig;
+< import com.hazelcast.config.MemcacheProtocolConfig;
+< import com.hazelcast.config.NetworkConfig;
+< import com.hazelcast.config.RestApiConfig;
 < import com.hazelcast.core.Cluster;
 ---
 > import com.hazelcast.config.EvictionConfig;
-> import com.hazelcast.cluster.Cluster;
-29,30c29
-< import com.hazelcast.core.HazelcastInstance;
-< import com.hazelcast.core.Member;
----
+> import com.hazelcast.config.EvictionConfig.MaxSizePolicy;
 > import com.hazelcast.cluster.Member;
-288c287,291
+> import com.hazelcast.cluster.Cluster;
+30d27
+< import com.hazelcast.core.Member;
+186c183
+<                 final NetworkConfig networkConfig = config.getNetworkConfig();
+---
+>                 final com.hazelcast.config.NetworkConfig networkConfig = config.getNetworkConfig();
+188c185
+<                     networkConfig.setMemcacheProtocolConfig(new MemcacheProtocolConfig().setEnabled(false));
+---
+>                     networkConfig.setMemcacheProtocolConfig(new com.hazelcast.config.MemcacheProtocolConfig().setEnabled(false));
+191c188
+<                     networkConfig.setRestApiConfig(new RestApiConfig().setEnabled(false));
+---
+>                     networkConfig.setRestApiConfig(new com.hazelcast.config.RestApiConfig().setEnabled(false));
+193c190
+<                 final MemberAttributeConfig memberAttributeConfig = config.getMemberAttributeConfig();
+---
+>                 final com.hazelcast.config.MemberAttributeConfig memberAttributeConfig = config.getMemberAttributeConfig();
+288c285,288
 <             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
 ---
->             dynamicConfig.setEvictionConfig(
->                 new EvictionConfig()
->                     .setSize(hazelcastMaxCacheSizeInMegaBytes)
->                     .setMaximumSizePolicy(EvictionConfig.MaxSizePolicy.USED_HEAP_SIZE)
->             );
-656c659,660
+>             EvictionConfig evictionConfig = new EvictionConfig();
+>             evictionConfig.setSize(hazelcastMaxCacheSizeInMegaBytes);
+>             evictionConfig.setMaximumSizePolicy(MaxSizePolicy.USED_HEAP_SIZE);
+>             dynamicConfig.setEvictionConfig(evictionConfig);
+294d293
+<         // TODO: Better genericize this method in CacheFactoryStrategy so we can stop suppressing this warning
+378d376
+< 
+548d545
+<         // TODO: Update CacheFactoryStrategy so the signature is getLock(final Serializable key, Cache<Serializable, Serializable> cache)
+566d562
+<             // Try to determine what plugin loaded the offending class.
+583c579
+<             pluginClassLoaderWarnings.put(o.getClass().getName(), Instant.now()); // Note that this Instant is unused.
+---
+>             pluginClassLoaderWarnings.put(o.getClass().getName(), Instant.now());
+656c652,653
 <         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
 ---
->         String nodeIdAttr = (String) member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
->         return NodeID.getInstance(nodeIdAttr.getBytes(StandardCharsets.UTF_8));
-701,703d704
+>         String attr = (String) member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
+>         return NodeID.getInstance(attr.getBytes(StandardCharsets.UTF_8));
+684,685d680
+<             // Add a listener at the ultimate end of the list of all listeners, to detect that left-cluster event handling
+<             // has been invoked for all before proceeding.
+701,703d695
 < 
 < 
 < 

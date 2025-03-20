@@ -1,11 +1,21 @@
-30c30
+30d29
 < import org.cactoos.collection.CollectionOf;
----
-> import org.cactoos.list.ListOf;
-91,93c91,92
+91,93c90,103
 <         return first.id() == second.id() && new CollectionOf<>(
 <             first.ledger()
 <         ).size() == new CollectionOf<>(second.ledger()).size();
 ---
->         return first.id() == second.id() &&
->             new ListOf<>(first.ledger()).size() == new ListOf<>(second.ledger()).size();
+>         return first.id() == second.id() && size(first.ledger()) == size(second.ledger());
+>     }
+> 
+>     /**
+>      * Calculates the size of an Iterable.
+>      * @param iterable The iterable
+>      * @return int The number of elements in the iterable
+>      */
+>     private static int size(final Iterable<?> iterable) {
+>         int count = 0;
+>         for (Object ignored : iterable) {
+>             count++;
+>         }
+>         return count;

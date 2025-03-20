@@ -8,8 +8,8 @@ import net.jadler.RequestManager;
 import net.jadler.stubbing.server.StubHttpServer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.HttpConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.Validate;
@@ -32,7 +32,8 @@ public class JettyStubHttpServer implements StubHttpServer {
         HttpConfiguration httpConfig = new HttpConfiguration();
         httpConfig.setSendServerVersion(false);
         httpConfig.setSendDateHeader(true);
-        this.httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+        HttpConnectionFactory connectionFactory = new HttpConnectionFactory(httpConfig);
+        this.httpConnector = new ServerConnector(this.server, connectionFactory);
         this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);
     }
@@ -43,7 +44,6 @@ public class JettyStubHttpServer implements StubHttpServer {
     @Override
     public void registerRequestManager(final RequestManager ruleProvider) {
         Validate.notNull(ruleProvider, "ruleProvider cannot be null");
-
         server.setHandler(new JadlerHandler(ruleProvider));
     }
     

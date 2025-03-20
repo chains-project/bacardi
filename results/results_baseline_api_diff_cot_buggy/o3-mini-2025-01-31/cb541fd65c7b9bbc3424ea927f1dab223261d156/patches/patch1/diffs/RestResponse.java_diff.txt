@@ -1,23 +1,69 @@
-48c48,49
+41a42
+> import java.util.Arrays;
+48c49,50
 < import org.hamcrest.Matchers;
 ---
-> import org.hamcrest.CoreMatchers;
-> import org.hamcrest.collection.IsIterableContainingInAnyOrder;
-60,61c61,62
-<  *   .assertBody(Matchers.containsString("hello, world!"))
-<  *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
----
->  *   .assertBody(CoreMatchers.containsString("hello, world!"))
->  *   .assertHeader("Content-Type", IsIterableContainingInAnyOrder.hasItems("text/plain"))
-210c211
+> import static org.hamcrest.CoreMatchers.not;
+> import static org.hamcrest.CoreMatchers.notNullValue;
+210c212
 <         return this.assertHeader(name, Matchers.hasItems(value));
 ---
->         return this.assertHeader(name, IsIterableContainingInAnyOrder.hasItems(value));
-246c247
+>         return this.assertHeader(name, hasItems(value));
+246c248
 <             Matchers.not(Matchers.emptyIterableOf(String.class))
 ---
->             CoreMatchers.not(CoreMatchers.equalTo(Collections.emptyList()))
-284c285
+>             not(emptyIterableOf(String.class))
+284c286
 <             Matchers.notNullValue()
 ---
->             CoreMatchers.notNullValue()
+>             notNullValue()
+327d328
+<         @Override
+332a334,380
+>     /**
+>      * Returns a matcher that matches if the examined {@link Iterable} contains all of the specified items.
+>      * @param <T> type of the items
+>      * @param items the items that must be in the examined iterable
+>      * @return The matcher.
+>      */
+>     private static <T> Matcher<Iterable<? super T>> hasItems(final T... items) {
+>         return new CustomMatcher<Iterable<? super T>>("an iterable containing " + Arrays.toString(items)) {
+>             public boolean matches(final Object item) {
+>                 if (!(item instanceof Iterable)) {
+>                     return false;
+>                 }
+>                 Iterable<?> iterable = (Iterable<?>) item;
+>                 for (T expected : items) {
+>                     boolean found = false;
+>                     for (Object actual : iterable) {
+>                         if (expected == null ? actual == null : expected.equals(actual)) {
+>                             found = true;
+>                             break;
+>                         }
+>                     }
+>                     if (!found) {
+>                         return false;
+>                     }
+>                 }
+>                 return true;
+>             }
+>         };
+>     }
+>     
+>     /**
+>      * Returns a matcher that matches if the examined {@link Iterable} is empty.
+>      * @param <T> type of the iterable elements
+>      * @param type the class type of the iterable elements
+>      * @return The matcher.
+>      */
+>     private static <T> Matcher<Iterable<T>> emptyIterableOf(final Class<T> type) {
+>         return new CustomMatcher<Iterable<T>>("an empty iterable of " + type.getSimpleName()) {
+>             public boolean matches(final Object item) {
+>                 if (!(item instanceof Iterable)) {
+>                     return false;
+>                 }
+>                 Iterator<?> it = ((Iterable<?>) item).iterator();
+>                 return !it.hasNext();
+>             }
+>         };
+>     }
