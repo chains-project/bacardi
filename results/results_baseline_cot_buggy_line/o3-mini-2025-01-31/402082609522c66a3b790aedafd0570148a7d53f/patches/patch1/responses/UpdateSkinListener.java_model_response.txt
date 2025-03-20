@@ -1,25 +1,3 @@
-<code_analysis>
-1. Error Details:
-   - The error indicates missing classes: RawDataListener, ChannelBuf, and CommandSource, all of which are no longer available under their previous packages in the updated Sponge dependency.
-   - The errors occur at the import statements and the class declaration (implements RawDataListener) as well as in the method parameter type (ChannelBuf).
-
-2. Client Code Review:
-   - The class currently implements RawDataListener, and the handlePayload method uses ChannelBuf as a parameter.
-   - The code also uses CommandSource from org.spongepowered.api.command, which has moved in the newer API.
-   - These problems stem from the breaking changes in the Sponge API where the plugin messaging components have been refactored.
-
-3. Proposed Fix:
-   - Remove the implementation of RawDataListener since that interface no longer exists in the updated API.
-   - Remove the @Override annotation on handlePayload because it no longer overrides a method from an interface.
-   - Change the parameter type from ChannelBuf to ByteBuffer (from java.nio) as the updated API now passes raw data using ByteBuffer.
-   - Update the import for CommandSource to the new package (org.spongepowered.api.command.source.CommandSource).
-   - Remove the obsolete imports (RawDataListener and ChannelBuf) and add the import for ByteBuffer.
-
-4. Considerations:
-   - The function signatures in our client code are modified only as needed to address the API updates.
-   - We avoid removing any functionality and only update what is necessary for the code to compile against the updated dependency.
-</code_analysis>
-
 ```java
 package com.github.games647.changeskin.sponge.bungee;
 
@@ -30,22 +8,24 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
 
-import java.nio.ByteBuffer;
 import java.util.Optional;
 
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.network.RemoteConnection;
+import org.spongepowered.api.network.channel.ChannelBuf;
+import org.spongepowered.api.network.channel.ChannelBinding.RawDataChannel.RawDataHandler;
 import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.command.source.CommandSource;
 
-public class UpdateSkinListener {
+public class UpdateSkinListener implements RawDataHandler {
 
     @Inject
     private ChangeSkinSponge plugin;
 
-    public void handlePayload(ByteBuffer data, RemoteConnection connection, Type side) {
+    @Override
+    public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
         SkinUpdateMessage updateMessage = new SkinUpdateMessage();
         updateMessage.readFrom(dataInput);

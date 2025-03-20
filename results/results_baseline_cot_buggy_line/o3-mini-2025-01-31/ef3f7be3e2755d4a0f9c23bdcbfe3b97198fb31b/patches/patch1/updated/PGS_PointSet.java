@@ -3,7 +3,6 @@ package micycle.pgs;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.SplittableRandom;
 import java.util.stream.Collectors;
@@ -68,8 +67,9 @@ public final class PGS_PointSet {
 		final List<PVector> newPoints = new ArrayList<>();
 		for (PVector p : points) {
 			final double[] coords = new double[] { p.x, p.y };
-			// Use the new query API: query(queryPoint, k).iterator().next() returns the nearest neighbor.
-			if (tree.size() == 0 || tree.query(coords, 1).iterator().next().dist() > distanceTolerance) {
+			// Use queryKNN instead of the removed query1NN
+			List<KDTree.Entry<PVector>> nearest = tree.queryKNN(coords, 1);
+			if (nearest.isEmpty() || nearest.get(0).distance() > distanceTolerance) {
 				tree.insert(coords, p);
 				newPoints.add(p);
 			}
@@ -216,7 +216,7 @@ public final class PGS_PointSet {
 	 * @param xMin x-coordinate of boundary minimum
 	 * @param yMin y-coordinate of boundary minimum
 	 * @param xMax x-coordinate of boundary maximum
-	 * @param yMax x-coordinate of boundary maximum
+	 * @param yMax y-coordinate of boundary maximum
 	 * @param n    number of points to generate
 	 * @return
 	 * @see #random(double, double, double, double, int, long) seeded random()
@@ -232,7 +232,7 @@ public final class PGS_PointSet {
 	 * @param xMin x-coordinate of boundary minimum
 	 * @param yMin y-coordinate of boundary minimum
 	 * @param xMax x-coordinate of boundary maximum
-	 * @param yMax x-coordinate of boundary maximum
+	 * @param yMax y-coordinate of boundary maximum
 	 * @param n    number of points to generate
 	 * @param seed number used to initialize the underlying pseudorandom number
 	 *             generator
@@ -303,7 +303,7 @@ public final class PGS_PointSet {
 	 * @param xMin x-coordinate of boundary minimum
 	 * @param yMin y-coordinate of boundary minimum
 	 * @param xMax x-coordinate of boundary maximum
-	 * @param yMax x-coordinate of boundary maximum
+	 * @param yMax y-coordinate of boundary maximum
 	 * @return
 	 */
 	public static List<PVector> squareGrid(final double xMin, final double yMin, final double xMax, final double yMax,
@@ -472,7 +472,7 @@ public final class PGS_PointSet {
 	 * @param xMin    x-coordinate of boundary minimum
 	 * @param yMin    y-coordinate of boundary minimum
 	 * @param xMax    x-coordinate of boundary maximum
-	 * @param yMax    x-coordinate of boundary maximum
+	 * @param yMax    y-coordinate of boundary maximum
 	 * @param minDist minimum euclidean distance between any two points
 	 * @return
 	 * @see #poisson(double, double, double, double, double, long) seeded poisson()
@@ -493,7 +493,7 @@ public final class PGS_PointSet {
 	 * @param xMin    x-coordinate of boundary minimum
 	 * @param yMin    y-coordinate of boundary minimum
 	 * @param xMax    x-coordinate of boundary maximum
-	 * @param yMax    x-coordinate of boundary maximum
+	 * @param yMax    y-coordinate of boundary maximum
 	 * @param minDist minimum euclidean distance between any two points
 	 * @param seed    number used to initialize the underlying pseudorandom number
 	 *                generator
@@ -517,7 +517,7 @@ public final class PGS_PointSet {
 	 * @param xMin x-coordinate of boundary minimum
 	 * @param yMin y-coordinate of boundary minimum
 	 * @param xMax x-coordinate of boundary maximum
-	 * @param yMax x-coordinate of boundary maximum
+	 * @param yMax y-coordinate of boundary maximum
 	 * @param n    target size of poisson point set
 	 * @param seed number used to initialize the underlying pseudorandom number
 	 *             generator
@@ -980,7 +980,6 @@ public final class PGS_PointSet {
 			point = new double[] { p.x, p.y };
 		}
 
-		@Override
 		public double[] getPoint() {
 			return point;
 		}

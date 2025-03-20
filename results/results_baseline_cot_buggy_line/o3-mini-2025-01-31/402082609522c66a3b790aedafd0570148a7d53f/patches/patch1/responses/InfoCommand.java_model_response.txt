@@ -1,38 +1,3 @@
-<code_analysis>
-1. Error message analysis:
-   - The errors all indicate that several Sponge API packages (for command handling and text formatting) have been removed or relocated in the updated dependency version.
-   - Specifically, classes in packages:
-     • org.spongepowered.api.text.serializer (e.g. TextSerializers)
-     • org.spongepowered.api.text (e.g. Text)
-     • org.spongepowered.api.command.args and org.spongepowered.api.command.spec (e.g. CommandContext, CommandSpec, CommandExecutor)
-     • org.spongepowered.api.command.CommandException and CommandSource from their old packages
-   - This is because Sponge has reworked its command API (and moved text processing to Adventure) in its breaking update.
-
-2. Client code review:
-   - The InfoCommand class imports and uses the old command builder and text serializer types.
-   - Its execute method takes two parameters (CommandSource and CommandContext) and returns a CommandResult.
-   - The buildSpec() method uses CommandSpec.builder() to set up the command.
-   - When sending text to the player, it uses TextSerializers.LEGACY_FORMATTING_CODE to deserialize formatted strings.
-
-3. Proposed fixes:
-   - Update the text API to use Kyori Adventure. Replace org.spongepowered.api.text.Text with net.kyori.adventure.text.Component and use LegacyComponentSerializer from net.kyori.adventure.text.serializer.legacy instead of TextSerializers.
-   - Update the command API:
-     • Change the imports so that CommandContext comes from org.spongepowered.api.command.parameter.
-     • In Sponge’s updated API the command registration no longer uses CommandSpec or its related sub-packages. Replace it with the new builder available in org.spongepowered.api.command.Command.
-     • The new executor interface expects a single CommandContext parameter rather than a separate CommandSource. Thus, change the execute method to have one parameter and extract the CommandSource from the CommandContext’s cause.
-     • Likewise, update the import for CommandException to its new package (org.spongepowered.api.command.exception.CommandException) and for CommandSource to (org.spongepowered.api.command.source.CommandSource).
-   - All changes are localized to imports and method bodies without altering the “core logic” or overall functionality.
-   - The @Override annotation on execute is preserved because after changing its signature it now correctly overrides the new interface’s method.
-
-4. Summary of modifications:
-   - Change imports for text classes and command-related classes to their new packages.
-   - Change the execute method signature from two parameters (CommandSource, CommandContext) to a single parameter (CommandContext), retrieving the CommandSource from args.cause().root().
-   - In buildSpec(), use Command.builder() to construct and return the command.
-   - In sendSkinDetails(), use Sponge.server() instead of Sponge.getServer() and deserialize text using LegacyComponentSerializer.
-</code_analysis>
-
-Below is the complete, fixed Java class:
-
 ```java
 package com.github.games647.changeskin.sponge.command;
 
@@ -42,21 +7,24 @@ import com.github.games647.changeskin.core.shared.SkinFormatter;
 import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import com.github.games647.changeskin.sponge.PomData;
 import com.google.inject.Inject;
+
 import java.util.Optional;
 import java.util.UUID;
+
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.Command;
-import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandExecutor;
-import org.spongepowered.api.command.exception.CommandException;
-import org.spongepowered.api.command.parameter.CommandContext;
-import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
-public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.exception.CommandException;
+import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.source.CommandSource;
+import org.spongepowered.api.command.parameter.CommandContext;
+
+public class InfoCommand implements ChangeSkinCommand {
 
     @Inject
     private ChangeSkinSponge plugin;
@@ -64,10 +32,7 @@ public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
     @Inject
     private SkinFormatter formatter;
 
-    @Override
-    public CommandResult execute(CommandContext args) throws CommandException {
-        // In the new API, the CommandSource is retrieved from the command context's cause.
-        CommandSource src = args.cause().root();
+    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
             return CommandResult.empty();
@@ -83,17 +48,26 @@ public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
 
         return CommandResult.success();
     }
+    
+    public CommandResult process(CommandContext context) throws CommandException {
+        Optional<CommandSource> optionalSource = context.cause().first(CommandSource.class);
+        if (optionalSource.isEmpty()) {
+            throw new CommandException(LegacyComponentSerializer.legacyAmpersand().deserialize("&cNo valid command source!"));
+        }
+        CommandSource src = optionalSource.get();
+        return execute(src, context);
+    }
 
-    @Override
-    public Command buildSpec() {
-        return Command.builder()
-                .executor(this)
-                .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
+    public CommandSpec buildSpec() {
+        Command command = Command.builder()
+                .executor(ctx -> this.process(ctx))
+                .requires(src -> src.hasPermission(PomData.ARTIFACT_ID + ".command.skininfo.base"))
                 .build();
+        return new CommandSpec(command);
     }
 
     private void sendSkinDetails(UUID uuid, UserPreference preference) {
-        Optional<Player> optPlayer = Sponge.server().player(uuid);
+        Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
         if (optPlayer.isPresent()) {
             Player player = optPlayer.get();
 
@@ -102,14 +76,24 @@ public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
                 String template = plugin.getCore().getMessage("skin-info");
                 String formatted = formatter.apply(template, optSkin.get());
 
-                Component component = LegacyComponentSerializer.legacySection().deserialize(formatted);
-                player.sendMessage(component);
+                Component text = LegacyComponentSerializer.legacyAmpersand().deserialize(formatted);
+                player.sendMessage(text);
             } else {
                 plugin.sendMessage(player, "skin-not-found");
             }
         }
     }
+
+    public static class CommandSpec {
+        private final Command command;
+
+        public CommandSpec(Command command) {
+            this.command = command;
+        }
+
+        public Command getCommand() {
+            return command;
+        }
+    }
 }
 ```
-
-This patch updates all required imports and method implementations to be compatible with the new Sponge API version while preserving the original command‐handling logic.

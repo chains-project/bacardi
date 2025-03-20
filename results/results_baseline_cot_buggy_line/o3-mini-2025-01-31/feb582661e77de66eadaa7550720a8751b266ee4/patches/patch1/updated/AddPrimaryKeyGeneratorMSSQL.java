@@ -9,10 +9,8 @@ import liquibase.sqlgenerator.SqlGeneratorChain;
 import liquibase.sqlgenerator.core.AddPrimaryKeyGenerator;
 import liquibase.statement.core.AddPrimaryKeyStatement;
 import liquibase.structure.core.Index;
-import liquibase.util.StringUtil;
 
 public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
-
   @Override
   public int getPriority() {
     return 15;
@@ -24,10 +22,10 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
    *
    * Otherwise, defers to default liquibase implementation.
    *
-   * @param statement
-   * @param database
-   * @param sqlGeneratorChain
-   * @return
+   * @param statement the add primary key statement
+   * @param database the database
+   * @param sqlGeneratorChain the generator chain
+   * @return generated SQL array
    */
   @Override
   public Sql[] generateSql(AddPrimaryKeyStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
@@ -45,19 +43,19 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
    *
    * 2) Added support for setting fillFactor
    *
-   * @param statement
-   * @param database
-   * @param sqlGeneratorChain
-   * @return
+   * @param statement the MSSQL-specific add primary key statement
+   * @param database the database
+   * @param sqlGeneratorChain the generator chain
+   * @return generated SQL array
    */
   private Sql[] generateMSSQLSql(AddPrimaryKeyStatementMSSQL statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
     String sql;
     if (statement.getConstraintName() == null) {
-      sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName())
-          + " ADD PRIMARY KEY (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
+      sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) +
+          " ADD PRIMARY KEY (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
     } else {
-      sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName())
-          + " ADD CONSTRAINT " + database.escapeConstraintName(statement.getConstraintName()) + " PRIMARY KEY";
+      sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) +
+          " ADD CONSTRAINT " + database.escapeConstraintName(statement.getConstraintName()) + " PRIMARY KEY";
       if (!statement.isClustered()) {
         sql += " NONCLUSTERED";
       }
@@ -67,7 +65,7 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
     // the only new feature being added is support for fillFactor
     sql += " WITH (FILLFACTOR = " + statement.getFillFactor() + ")";
 
-    if (StringUtil.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
+    if (trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
       sql += " ON " + statement.getTablespace();
     }
 
@@ -84,5 +82,12 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
   public boolean supports(AddPrimaryKeyStatement statement, Database database) {
     return database instanceof MSSQLDatabase;
   }
-
+  
+  private static String trimToNull(String input) {
+    if (input == null) {
+      return null;
+    }
+    String trimmed = input.trim();
+    return trimmed.isEmpty() ? null : trimmed;
+  }
 }

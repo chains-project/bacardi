@@ -10,10 +10,6 @@ import jakarta.mvc.MvcContext;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
-/**
- *
- * @author hantsy
- */
 @Path("locale")
 @Controller
 @RequestScoped

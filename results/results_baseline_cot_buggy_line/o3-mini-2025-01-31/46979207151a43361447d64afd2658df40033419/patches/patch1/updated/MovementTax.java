@@ -18,6 +18,7 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
+
 /**
  * <p>Java class for MovementTax complex type.
  * 
@@ -38,6 +39,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  * &lt;/complexType&gt;
  * </pre>
  * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "MovementTax", propOrder = {
@@ -46,7 +48,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "taxCode",
     "taxPercentage"
 })
-public class MovementTax implements ToString2 {
+public class MovementTax implements ToString2
+{
 
     @XmlElement(name = "TaxType", required = true)
     @XmlSchemaType(name = "string")
@@ -64,6 +67,7 @@ public class MovementTax implements ToString2 {
      * @return
      *     possible object is
      *     {@link SAFTPTMovementTaxType }
+     *     
      */
     public SAFTPTMovementTaxType getTaxType() {
         return taxType;
@@ -75,6 +79,7 @@ public class MovementTax implements ToString2 {
      * @param value
      *     allowed object is
      *     {@link SAFTPTMovementTaxType }
+     *     
      */
     public void setTaxType(SAFTPTMovementTaxType value) {
         this.taxType = value;
@@ -86,6 +91,7 @@ public class MovementTax implements ToString2 {
      * @return
      *     possible object is
      *     {@link String }
+     *     
      */
     public String getTaxCountryRegion() {
         return taxCountryRegion;
@@ -97,6 +103,7 @@ public class MovementTax implements ToString2 {
      * @param value
      *     allowed object is
      *     {@link String }
+     *     
      */
     public void setTaxCountryRegion(String value) {
         this.taxCountryRegion = value;
@@ -108,6 +115,7 @@ public class MovementTax implements ToString2 {
      * @return
      *     possible object is
      *     {@link String }
+     *     
      */
     public String getTaxCode() {
         return taxCode;
@@ -119,6 +127,7 @@ public class MovementTax implements ToString2 {
      * @param value
      *     allowed object is
      *     {@link String }
+     *     
      */
     public void setTaxCode(String value) {
         this.taxCode = value;
@@ -130,6 +139,7 @@ public class MovementTax implements ToString2 {
      * @return
      *     possible object is
      *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getTaxPercentage() {
         return taxPercentage;
@@ -141,6 +151,7 @@ public class MovementTax implements ToString2 {
      * @param value
      *     allowed object is
      *     {@link BigDecimal }
+     *     
      */
     public void setTaxPercentage(BigDecimal value) {
         this.taxPercentage = value;

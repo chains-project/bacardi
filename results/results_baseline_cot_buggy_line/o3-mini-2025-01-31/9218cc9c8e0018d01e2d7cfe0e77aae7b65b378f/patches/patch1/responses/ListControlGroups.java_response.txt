@@ -125,13 +125,13 @@ public abstract class ListControlGroups<T> extends Panel {
 			try {
 				descriptor = PropertyUtils.getPropertyDescriptor(getModel().getObject(), property);
 			} catch (Exception e) {
-				throw new RuntimeException("error getting property " + property, e);
+				throw new RuntimeException("error getting property "+property, e);
 			}
 
 			boolean required = false;
 
 			ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
-			if(constraintDescriptor != null){
+			if(constraintDescriptor!=null){
 				Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
 				for(ConstraintDescriptor<?> constraint : constraintsSet){
 					if(constraint.getAnnotation() instanceof NotNull ||
@@ -151,7 +151,7 @@ public abstract class ListControlGroups<T> extends Panel {
 				if(!controlGroupProviders.containsKey(objectProperty.type)) {
 					Constructor<?> constructor;
 					Class<? extends Panel> typesControlGroup = getControlGroupByType(objectProperty.type);
-					if(typesControlGroup == null){
+					if(typesControlGroup==null){
 						if(objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
 						else typesControlGroup = ObjectChoiceControlGroup.class;
 					}
@@ -162,9 +162,10 @@ public abstract class ListControlGroups<T> extends Panel {
 					controlGroup.init(objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
 					controlGroup.setEnabled(objectProperty.enabled);
 
-					if(typesControlGroup == ObjectChoiceControlGroup.class){
+
+					if(typesControlGroup==ObjectChoiceControlGroup.class){
 						IObjectRenderer<?> renderer = renderers.get(objectProperty.type);
-						if(renderer == null){
+						if(renderer==null){
 							renderer = new IObjectRenderer<Object>() {
 								private static final long serialVersionUID = -6171655578529011405L;
 
@@ -174,15 +175,16 @@ public abstract class ListControlGroups<T> extends Panel {
 							};
 						}
 						((ObjectChoiceControlGroup<?>) controlGroup).setConfiguration(getEntityProvider(objectProperty.name), renderer);
-					} else if(typesControlGroup == CollectionControlGroup.class){
+					} else if(typesControlGroup==CollectionControlGroup.class){
 						((CollectionControlGroup<?>) controlGroup).setConfiguration(getEntityProvider(objectProperty.name), renderers);
 					}
 
 				} else {
 					controlGroup = controlGroupProviders
 							.get(objectProperty.type)
-							.createControlGroup(view.newChildId(), new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name),
-									objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
+							.createControlGroup(view.newChildId()
+									, new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name)
+									, objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
 				}
 				view.add(controlGroup);
 
@@ -235,7 +237,7 @@ public abstract class ListControlGroups<T> extends Panel {
 
 		public ObjectProperties(PropertyDescriptor descriptor, boolean required){
 			this.name = descriptor.getName();
-			this.enabled = descriptor.getWriteMethod() != null;
+			this.enabled = descriptor.getWriteMethod()!=null;
 			this.type = descriptor.getPropertyType();
 			this.required = required;
 		}

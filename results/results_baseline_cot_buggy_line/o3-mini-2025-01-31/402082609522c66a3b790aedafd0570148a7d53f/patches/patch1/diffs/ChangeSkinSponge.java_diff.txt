@@ -1,12 +1,17 @@
-21d20
-< import org.spongepowered.api.Platform.Type;
-23,24c22,23
+2a3,5
+> import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
+> import static com.github.games647.changeskin.core.message.SkinUpdateMessage.UPDATE_SKIN_CHANNEL;
+> 
+12a16
+> import com.github.games647.changeskin.sponge.LoginListener;
+16d19
+< 
+19d21
+< 
+23,24d24
 < import org.spongepowered.api.command.CommandManager;
 < import org.spongepowered.api.command.CommandSource;
----
-> import org.spongepowered.api.command.manager.CommandManager;
-> import org.spongepowered.api.command.source.CommandSource;
-27,33c26,32
+27,37c27,35
 < import org.spongepowered.api.event.game.state.GameInitializationEvent;
 < import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 < import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
@@ -14,43 +19,61 @@
 < import org.spongepowered.api.network.ChannelRegistrar;
 < import org.spongepowered.api.plugin.Plugin;
 < import org.spongepowered.api.text.serializer.TextSerializers;
+< 
+< import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
+< import static com.github.games647.changeskin.core.message.SkinUpdateMessage.UPDATE_SKIN_CHANNEL;
+< import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 ---
 > import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
-> import org.spongepowered.api.event.lifecycle.StartEngineEvent;
-> import org.spongepowered.api.event.lifecycle.StopEngineEvent;
+> import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+> import org.spongepowered.api.event.lifecycle.StopGameEvent;
+> import org.spongepowered.api.command.source.CommandSource;
+> import org.spongepowered.api.command.manager.CommandManager;
 > import org.spongepowered.api.network.channel.ChannelRegistrar;
 > import org.spongepowered.api.network.channel.raw.RawDataChannel;
-> import org.spongepowered.plugin.Plugin;
 > import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-62c61
+> import org.spongepowered.plugin.Plugin;
+40c38
+< @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+---
+> @Plugin(id = PomData.ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+53d50
+<     //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
+62,63c59
 <     public void onPreInit(GamePreInitializationEvent preInitEvent) {
+<         //load config and database
 ---
 >     public void onPreInit(ConstructPluginEvent preInitEvent) {
-73,74c72,73
+73,74c69,70
 <     public void onInit(GameInitializationEvent initEvent) {
 <         if (!initialized)
 ---
->     public void onInit(StartEngineEvent initEvent) {
+>     public void onInit(RegisterCommandEvent initEvent) {
 >         if (!initialized) {
-75a75
+75a72
 >         }
-84,85c84,85
+79d75
+<         //command and event register
+84,85c80
 <         cmdManager.register(this, injector.getInstance(InvalidateCommand.class)
 <                 .buildSpec(), "skininvalidate", "skin-invalidate");
 ---
->         cmdManager.register(this, injector.getInstance(InvalidateCommand.class).buildSpec(),
->                 "skininvalidate", "skin-invalidate");
-95,96c95,96
-<         updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
-<         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
+>         cmdManager.register(this, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
+89d83
+<         //incoming channel
+91,92c85,86
+<         String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
+<         String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
 ---
->         updateChannel.addListener(org.spongepowered.api.Platform.Type.SERVER, injector.getInstance(UpdateSkinListener.class));
->         permChannel.addListener(org.spongepowered.api.Platform.Type.SERVER, injector.getInstance(CheckPermissionListener.class));
-100c100
+>         String updateChannelName = new NamespaceKey(PomData.ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
+>         String permissionChannelName = new NamespaceKey(PomData.ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
+100c94
 <     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
 ---
->     public void onShutdown(StopEngineEvent stoppingServerEvent) {
-145c145
+>     public void onShutdown(StopGameEvent stoppingServerEvent) {
+114d107
+<         //disallow - not whitelisted or blacklisted
+145c138
 <             receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
 ---
->             receiver.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(message));
+>             receiver.sendMessage(LegacyComponentSerializer.legacySection().deserialize(message));

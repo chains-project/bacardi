@@ -1,18 +1,3 @@
-<code_analysis>
-1. Issue in the constructor:
-   - The error “Implicit super constructor Representer() is undefined...” indicates that the latest version of SnakeYAML’s Representer class no longer provides a default no‐argument constructor. Instead, it now requires an argument (for example, a DumperOptions instance). Therefore, we need to explicitly call a valid super constructor.
-
-2. Issue in the getProperties method:
-   - The error “Exception IntrospectionException is not compatible with throws clause in Representer.getProperties(Class<? extends Object>)” means that the parent’s getProperties method in the new dependency version no longer declares that it throws IntrospectionException. To match the parent, we must remove the throws clause from our overriding method.
-   
-3. Constraints and proposed modifications:
-   - In the ModelRepresenter constructor, explicitly call the super constructor passing new DumperOptions().
-   - Remove the “throws IntrospectionException” clause from the getProperties method (and from the helper method sortTypeWithOrder) to align with the new dependency’s method signature.
-   - Do not change any other function signatures; the rest of the code remains intact.
-</code_analysis>
-
-Below is the complete fixed class:
-
 ```java
 /**
  * Copyright (c) 2012 to original author or authors
@@ -38,6 +23,7 @@ import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
 
+import java.beans.IntrospectionException;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -182,56 +168,45 @@ class ModelRepresenter extends Representer {
     }
   }
 
-  // Model elements order {
-  //TODO move to polyglot-common, or to org.apache.maven:maven-model
   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
-		  "modelEncoding",
-          "modelVersion",
-          "parent",
-          "groupId",
-          "artifactId",
-          "version",
-          "packaging",
-
-          "name",
-          "description",
-          "url",
-          "inceptionYear",
-          "organization",
-          "licenses",
-          "developers",
-          "contributers",
-          "mailingLists",
-          "scm",
-          "issueManagement",
-          "ciManagement",
-
-          "properties",
-          "prerequisites",
-          "modules",
-          "dependencyManagement",
-          "dependencies",
-          "distributionManagement",
-          //"repositories",
-          //"pluginRepositories",
-          "build",
-          "profiles",
-          "reporting"
-          ));
+      "modelEncoding",
+      "modelVersion",
+      "parent",
+      "groupId",
+      "artifactId",
+      "version",
+      "packaging",
+      "name",
+      "description",
+      "url",
+      "inceptionYear",
+      "organization",
+      "licenses",
+      "developers",
+      "contributers",
+      "mailingLists",
+      "scm",
+      "issueManagement",
+      "ciManagement",
+      "properties",
+      "prerequisites",
+      "modules",
+      "dependencyManagement",
+      "dependencies",
+      "distributionManagement",
+      "build",
+      "profiles",
+      "reporting"
+  ));
   private static List<String> ORDER_DEVELOPER = new ArrayList<String>(Arrays.asList(
-		  "name", "id", "email"));
+      "name", "id", "email"));
   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<String>(Arrays.asList(
-		  "name", "id", "email"));
+      "name", "id", "email"));
   private static List<String> ORDER_DEPENDENCY = new ArrayList<String>(Arrays.asList(
-		  "groupId", "artifactId", "version", "type", "classifier", "scope"));
+      "groupId", "artifactId", "version", "type", "classifier", "scope"));
   private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
-		  "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
-  //}
+      "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
 
-  /*
-   * Change the default order. Important data goes first.
-   */
-  @Override
   protected Set<Property> getProperties(Class<? extends Object> type) {
     if (type.isAssignableFrom(Model.class)) {
       return sortTypeWithOrder(type, ORDER_MODEL);
@@ -239,9 +214,9 @@ class ModelRepresenter extends Representer {
       return sortTypeWithOrder(type, ORDER_DEVELOPER);
     } else if (type.isAssignableFrom(Contributor.class)) {
       return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-    }  else if (type.isAssignableFrom(Dependency.class)) {
+    } else if (type.isAssignableFrom(Dependency.class)) {
       return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-    }  else if (type.isAssignableFrom(Plugin.class)) {
+    } else if (type.isAssignableFrom(Plugin.class)) {
       return sortTypeWithOrder(type, ORDER_PLUGIN);
     } else {
       return super.getProperties(type);
@@ -249,10 +224,14 @@ class ModelRepresenter extends Representer {
   }
 
   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+    try {
       Set<Property> standard = super.getProperties(type);
       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
       sorted.addAll(standard);
       return sorted;
+    } catch (IntrospectionException e) {
+      throw new YAMLException(e);
+    }
   }
 
   private class ModelPropertyComparator implements Comparator<Property> {
@@ -263,14 +242,12 @@ class ModelRepresenter extends Representer {
     }
 
     public int compare(Property o1, Property o2) {
-      // important go first
       for (String name : names) {
         int c = compareByName(o1, o2, name);
         if (c != 0) {
           return c;
         }
       }
-      // all the rest
       return o1.compareTo(o2);
     }
 
@@ -280,10 +257,8 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0;// compare further
+      return 0;
     }
   }
 }
 ```
-
-This patch explicitly calls the correct super constructor using a new DumperOptions instance and removes the extra "throws IntrospectionException" clause from getProperties (and sortTypeWithOrder), thereby making it compatible with the updated dependency version of SnakeYAML.

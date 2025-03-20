@@ -1,15 +1,3 @@
-<code_analysis>
-1. The error indicates that creating a new TSerializer now throws a checked exception (TTransportException) that must be either caught or declared. Previously, the constructor did not throw this exception, but after the dependency update it does.
-2. The issue occurs at the line initializing the serializer field:
-   private TSerializer serializer = new TSerializer();
-   Since TTransportException must be handled, this initializer causes a compilation error.
-3. The fix is to remove the inline initialization and instead initialize the serializer in the constructor inside a try-catch block. This ensures that the exception is caught and handled (in this case, wrapped in a RuntimeException) while preserving the method signature.
-4. The patch involves:
-   - Changing the field declaration to declare serializer without initialization.
-   - Adding initialization code in the constructor for TSerializer wrapped in try-catch.
-   - Ensuring that the necessary import for org.apache.thrift.transport.TTransportException is added.
-</code_analysis>
-
 ```java
 /**
  * Copyright 2019 Pinterest, Inc.
@@ -36,6 +24,7 @@ import com.pinterest.singer.loggingaudit.thrift.LoggingAuditStage;
 import com.pinterest.singer.loggingaudit.thrift.configuration.KafkaSenderConfig;
 import com.pinterest.singer.metrics.OpenTsdbMetricConverter;
 import com.pinterest.singer.utils.CommonUtils;
+
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -46,6 +35,7 @@ import org.apache.thrift.TSerializer;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -174,6 +164,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
    * badPartitions.  When event is send out successfully or dropped, the corresponding entry in
    * this map is removed.
    */
+
   private Map<LoggingAuditHeaders, Integer> eventTriedCount = new ConcurrentHashMap<>();
 
   /**
@@ -195,11 +186,12 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
     this.stopGracePeriodInSeconds = config.getStopGracePeriodInSeconds();
     this.badPartitions.add(-1);
     try {
-      this.serializer = new TSerializer();
+      serializer = new TSerializer();
     } catch (TTransportException e) {
       throw new RuntimeException("Failed to initialize TSerializer", e);
     }
   }
+
 
   public KafkaProducer<byte[], byte[]> getKafkaProducer() {
     return kafkaProducer;
@@ -309,6 +301,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
       }
     }
   }
+
 
   public class KafkaProducerCallback implements Callback {
 

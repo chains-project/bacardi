@@ -1,32 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error messages indicate that after a dependency update the method signatures in the Google Cloud DNS API have changed.
-   - Methods such as create(), get(), delete(), and list() now expect an additional String parameter.
-   - For example, ManagedZones.create now requires three parameters (project, managedZoneId, managedZone content) rather than two.
-   - Similarly, changes.get now requires four parameters, projects.get requires two, etc.
-
-2. Review the client code:
-   - The failing method calls are located in createZoneCall, getChangeRequestCall, deleteZoneCall, applyChangeRequestCall, getProjectCall, listZonesCall, getZoneCall, listRecordSetsCall, and listChangeRequestsCall.
-   - Each call currently passes fewer parameters than what the updated dependency methods now require.
-
-3. Consider potential fixes:
-   - For ManagedZones.create(), the additional parameter can be supplied from zone.getName().
-   - For other calls that now need an extra String parameter (likely a client operation id or similar), we can pass an empty string ("") since the client code does not need a specific value.
-   - These changes are local to the client code (HttpDnsRpc) and keep the function signatures unchanged.
-
-4. Plan the necessary changes:
-   - In createZoneCall, call .create(projectId, zone.getName(), zone)
-   - In getChangeRequestCall, call .get(projectId, zoneName, changeRequestId, "")
-   - In deleteZoneCall, call .delete(projectId, zoneName, "")
-   - In applyChangeRequestCall, call .create(projectId, zoneName, "", changeRequest)
-   - In getProjectCall, call .get(projectId, "")
-   - In listZonesCall, call .list(projectId, "")
-   - In getZoneCall, call .get(projectId, zoneName, "")
-   - In listRecordSetsCall, call .list(projectId, zoneName, "")
-   - In listChangeRequestsCall, call .list(projectId, zoneName, "")
-   - These fixes introduce the extra parameter required by the updated dependency without changing any function signatures.
-</code_analysis>
-
 ```java
 /*
  * Copyright 2016 Google LLC
@@ -259,7 +230,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.ManagedZones.Get getZoneCall(String zoneName, Map<Option, ?> options)
       throws IOException {
     return dns.managedZones()
-        .get(this.options.getProjectId(), zoneName, "")
+        .get(this.options.getProjectId(), zoneName, zoneName)
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -298,7 +269,7 @@ public class HttpDnsRpc implements DnsRpc {
   }
 
   private Dns.ManagedZones.Delete deleteZoneCall(String zoneName) throws IOException {
-    return dns.managedZones().delete(this.options.getProjectId(), zoneName, "");
+    return dns.managedZones().delete(this.options.getProjectId(), zoneName, zoneName);
   }
 
   @Override
@@ -314,6 +285,7 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.ResourceRecordSets.List listRecordSetsCall(String zoneName, Map<Option, ?> options)
       throws IOException {
+    // options are fields, page token, dns name, type
     return dns.resourceRecordSets()
         .list(this.options.getProjectId(), zoneName, "")
         .setFields(Option.FIELDS.getString(options))
@@ -378,7 +350,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.Changes.Get getChangeRequestCall(
       String zoneName, String changeRequestId, Map<Option, ?> options) throws IOException {
     return dns.changes()
-        .get(this.options.getProjectId(), zoneName, changeRequestId, "")
+        .get(this.options.getProjectId(), zoneName, "", changeRequestId)
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -395,6 +367,7 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.Changes.List listChangeRequestsCall(String zoneName, Map<Option, ?> options)
       throws IOException {
+    // options are fields, page token, page size, sort order
     Dns.Changes.List request =
         dns.changes()
             .list(this.options.getProjectId(), zoneName, "")
@@ -402,6 +375,7 @@ public class HttpDnsRpc implements DnsRpc {
             .setMaxResults(Option.PAGE_SIZE.getInt(options))
             .setPageToken(Option.PAGE_TOKEN.getString(options));
     if (Option.SORTING_ORDER.getString(options) != null) {
+      // todo check and change if more sorting options are implemented, issue #604
       request = request.setSortBy(SORT_BY).setSortOrder(Option.SORTING_ORDER.getString(options));
     }
     return request;

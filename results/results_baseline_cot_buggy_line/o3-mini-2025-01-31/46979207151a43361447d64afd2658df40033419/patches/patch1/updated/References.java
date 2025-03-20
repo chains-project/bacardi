@@ -34,13 +34,15 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  * &lt;/complexType&gt;
  * </pre>
  * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "References", propOrder = {
     "reference",
     "reason"
 })
-public class References implements ToString2 {
+public class References implements ToString2
+{
 
     @XmlElement(name = "Reference")
     protected String reference;
@@ -53,6 +55,7 @@ public class References implements ToString2 {
      * @return
      *     possible object is
      *     {@link String }
+     *     
      */
     public String getReference() {
         return reference;
@@ -64,6 +67,7 @@ public class References implements ToString2 {
      * @param value
      *     allowed object is
      *     {@link String }
+     *     
      */
     public void setReference(String value) {
         this.reference = value;
@@ -75,6 +79,7 @@ public class References implements ToString2 {
      * @return
      *     possible object is
      *     {@link String }
+     *     
      */
     public String getReason() {
         return reason;
@@ -86,6 +91,7 @@ public class References implements ToString2 {
      * @param value
      *     allowed object is
      *     {@link String }
+     *     
      */
     public void setReason(String value) {
         this.reason = value;
@@ -93,8 +99,7 @@ public class References implements ToString2 {
 
     @Override
     public String toString() {
-        // Updated to instantiate a new object since getInstance() is no longer available
-        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
+        final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -113,13 +118,14 @@ public class References implements ToString2 {
         {
             String theReference;
             theReference = this.getReference();
-            strategy.appendField(locator, this, "reference", buffer, theReference, (this.reference != null));
+            strategy.appendField(locator, this, "reference", buffer, theReference, (this.reference!= null));
         }
         {
             String theReason;
             theReason = this.getReason();
-            strategy.appendField(locator, this, "reason", buffer, theReason, (this.reason != null));
+            strategy.appendField(locator, this, "reason", buffer, theReason, (this.reason!= null));
         }
         return buffer;
     }
+
 }

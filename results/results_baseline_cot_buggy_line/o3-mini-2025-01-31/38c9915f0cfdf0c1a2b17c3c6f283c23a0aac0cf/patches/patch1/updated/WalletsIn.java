@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Random;
 import org.cactoos.Scalar;
@@ -34,7 +35,6 @@ import org.cactoos.func.IoCheckedFunc;
 import org.cactoos.io.Directory;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.Mapped;
-import org.cactoos.scalar.IoChecked;
 import org.cactoos.scalar.StickyScalar;
 import org.cactoos.text.FormattedText;
 import org.cactoos.text.Joined;
@@ -50,7 +50,7 @@ public final class WalletsIn implements Wallets {
     /**
      * Path containing wallets.
      */
-    private final IoChecked<Path> path;
+    private final Scalar<Path> path;
 
     /**
      * Filter for matching file extensions.
@@ -100,9 +100,7 @@ public final class WalletsIn implements Wallets {
      */
     public WalletsIn(final Scalar<Path> pth, final String ext,
         final Random random) {
-        this.path = new IoChecked<>(
-            new StickyScalar<>(pth)
-        );
+        this.path = new StickyScalar<>(pth);
         this.filter = new IoCheckedFunc<Path, Boolean>(
             (file) -> file.toFile().isFile()
                 && FileSystems.getDefault()
@@ -115,11 +113,13 @@ public final class WalletsIn implements Wallets {
 
     @Override
     public Wallet create() throws IOException {
-        final Path wpth = this.path.value().resolve(
+        final Path wpth = basePath().resolve(
             new Joined(
                 ".",
-                Long.toHexString(this.random.nextLong()),
-                this.ext
+                Arrays.asList(
+                    Long.toHexString(this.random.nextLong()),
+                    this.ext
+                )
             ).asString()
         );
         if (wpth.toFile().exists()) {
@@ -152,10 +152,21 @@ public final class WalletsIn implements Wallets {
         try {
             return new Mapped<Path, Wallet>(
                 (pth) -> new Wallet.File(pth),
-                new Filtered<>(this.filter, new Directory(this.path.value()))
+                new Filtered<>(this.filter, new Directory(basePath()))
             ).iterator();
         } catch (final IOException ex) {
             throw new IllegalStateException(ex);
+        }
+    }
+    
+    private Path basePath() throws IOException {
+        try {
+            return this.path.value();
+        } catch (final Exception ex) {
+            if (ex instanceof IOException) {
+                throw (IOException) ex;
+            }
+            throw new IOException(ex);
         }
     }
 }

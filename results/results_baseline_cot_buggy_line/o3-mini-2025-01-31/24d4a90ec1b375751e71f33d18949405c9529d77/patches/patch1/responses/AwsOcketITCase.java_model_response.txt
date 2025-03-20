@@ -1,17 +1,3 @@
-<code_analysis>
-1. The error message indicates that the class Tv cannot be found in the package com.jcabi.aspects. The error arises from the import:
-   import com.jcabi.aspects.Tv;
-   and from its usage in the second test method.
-   
-2. In the client code, Tv is used to obtain two integer constants (Tv.HUNDRED and Tv.THOUSAND) that are multiplied together when generating a random string. With the dependency update, the Tv class has been removed from jcabi-aspects.
-
-3. To fix this, we replace Tv.HUNDRED and Tv.THOUSAND with their literal values (100 and 1000), thereby removing the dependency on the missing Tv class without altering the test behavior.
-
-4. The necessary changes are:
-   - Remove the import for com.jcabi.aspects.Tv.
-   - Replace Tv.HUNDRED * Tv.THOUSAND with 100 * 1000 in the RandomStringUtils.random() call.
-</code_analysis>
-
 ```java
 /**
  * Copyright (c) 2012-2022, jcabi.com
@@ -53,7 +39,9 @@ import org.junit.Test;
 /**
  * Integration case for {@link AwsOcket}.
  *
- * Updated to remove dependency on the removed Tv class.
+ * @author Yegor Bugayenko (yegor256@gmail.com)
+ * @version $Id: d67286e195243030346f4424945bcc8027d7b932 $
+ * @since 0.1
  */
 public final class AwsOcketITCase {
 
@@ -92,7 +80,6 @@ public final class AwsOcketITCase {
         final Bucket bucket = this.rule.bucket();
         final String name = "test-44.txt";
         final Ocket.Text ocket = new Ocket.Text(bucket.ocket(name));
-        // Replace Tv.HUNDRED * Tv.THOUSAND with literal values (100 * 1000)
         final String data = RandomStringUtils.random(100 * 1000);
         ocket.write(data);
         try {

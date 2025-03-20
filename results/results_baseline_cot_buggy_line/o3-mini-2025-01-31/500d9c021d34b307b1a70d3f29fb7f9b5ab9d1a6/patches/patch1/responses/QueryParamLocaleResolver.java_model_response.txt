@@ -1,23 +1,3 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The errors indicate that the compiler cannot find the symbols LocaleResolver and LocaleResolverContext, and that the package javax.mvc.locale does not exist.
-   - This suggests that the dependency update (likely from Java EE to Jakarta EE) has moved these classes from the javax.mvc.locale package to a new package.
-   
-2. Client Code Review:
-   - The client code imports javax.mvc.locale.LocaleResolver and javax.mvc.locale.LocaleResolverContext.
-   - The method resolveLocale(LocaleResolverContext context) is trying to use the updated dependency, but the package names are now incorrect.
-
-3. Proposed Fix Details:
-   - Update the import statements to use the correct package from the updated dependency.
-   - Replace:
-       • import javax.mvc.locale.LocaleResolver; with import jakarta.mvc.locale.LocaleResolver;
-       • import javax.mvc.locale.LocaleResolverContext; with import jakarta.mvc.locale.LocaleResolverContext;
-   - We are not modifying any function signatures or removing @Override because the method still correctly overrides the updated API method.
-
-4. Summary:
-   - The patch simply updates the import statements to match the new dependency's package names while leaving the rest of the code intact.
-</code_analysis>
-
 ```java
 package com.example.web;
 // https://www.mvc-spec.org/learn/cookbook/custom_localeresolver_en.html
@@ -49,7 +29,7 @@ import javax.ws.rs.core.UriInfo;
  * }
  * </pre>
  *
- * @author Tobias Erdle
+ * author Tobias Erdle
  */
 @Priority(1)
 @ApplicationScoped

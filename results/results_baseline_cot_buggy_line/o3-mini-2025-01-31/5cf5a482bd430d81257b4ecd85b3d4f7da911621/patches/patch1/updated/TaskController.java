@@ -63,6 +63,7 @@ public class TaskController {
         models.put("todotasks", todotasks);
         models.put("doingtasks", doingtasks);
         models.put("donetasks", donetasks);
+
     }
 
     @GET
@@ -91,9 +92,11 @@ public class TaskController {
 
         if (validationResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            validationResult.getAllErrors().stream().forEach((ParamError t) -> {
-                alert.addError(t.getParamName(), "", t.getMessage());
-            });
+            validationResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
             models.put("errors", alert);
             models.put("task", form);
             return Response.status(BAD_REQUEST).entity("add.xhtml").build();
@@ -133,15 +136,18 @@ public class TaskController {
 
         if (validationResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            validationResult.getAllErrors().stream().forEach((ParamError t) -> {
-                alert.addError(t.getParamName(), "", t.getMessage());
-            });
+            validationResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
             models.put("errors", alert);
             models.put("task", form);
             return Response.status(BAD_REQUEST).entity("edit.xhtml").build();
         }
 
         Task task = taskRepository.findById(id);
+
         task.setName(form.getName());
         task.setDescription(form.getDescription());
 
@@ -158,6 +164,7 @@ public class TaskController {
         log.log(Level.INFO, "updating status of the existed task@id:{0}, status:{1}", new Object[]{id, status});
 
         Task task = taskRepository.findById(id);
+
         task.setStatus(Task.Status.valueOf(status));
 
         taskRepository.update(task);

@@ -1,37 +1,7 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The errors indicate that the Flyway API has changed. Specifically:
-     • The no-argument constructor for Flyway is no longer available; the new constructor requires a Configuration object.
-     • Methods such as setDataSource(), setClassLoader(), setLocations(), and setValidateOnMigrate() are no longer available on the Flyway instance.
-   - Instead, the new API uses a builder-style configuration via Flyway.configure(), which allows chaining of configuration setters before calling load() to obtain a Flyway instance.
-
-2. Client Code Review:
-   - The problematic lines in the flyway() bean method are:
-     • Using new Flyway() without arguments.
-     • Calling flyway.setDataSource(this.dataSource()).
-     • Calling flyway.setClassLoader(NisAppConfig.class.getClassLoader()).
-     • Calling flyway.setLocations(...) and flyway.setValidateOnMigrate(...).
-   - These usages need to be changed to the builder API calls.
-
-3. Potential Fix:
-   - Update the flyway() bean method to use Flyway.configure().
-   - Chain the configuration methods (.dataSource(), .classLoader(), .locations(), .validateOnMigrate()).
-   - Conclude with load() to return an instance of Flyway.
-   - This approach adheres to keeping the function signatures intact and does not remove any functionality.
-
-4. Necessary Changes:
-   - Replace the instantiation of Flyway via the no-arg constructor with Flyway.configure().
-   - Remove calls to the removed setter methods and instead chain the new configuration builder methods.
-   - Ensure that the properties from db.properties are correctly passed to the new builder API.
-</code_analysis>
-
-Below is the complete patched Java class:
-
 ```java
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -135,12 +105,11 @@ public class NisAppConfig {
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
-
 		return Flyway.configure()
 				.dataSource(this.dataSource())
 				.classLoader(NisAppConfig.class.getClassLoader())
 				.locations(prop.getProperty("flyway.locations"))
-				.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
+				.validateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate")))
 				.load();
 	}
 
@@ -472,5 +441,3 @@ public class NisAppConfig {
 	}
 }
 ```
-
-This patch updates the Flyway bean to use the new builder-style API, thus resolving the compilation errors caused by the dependency update.

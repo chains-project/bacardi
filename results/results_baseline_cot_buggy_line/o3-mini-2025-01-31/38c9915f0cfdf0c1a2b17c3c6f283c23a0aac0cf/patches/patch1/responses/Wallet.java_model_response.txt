@@ -28,19 +28,19 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
-import org.cactoos.iterable.Filtered; // Updated: moved from org.cactoos.collection
+import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.IterableOf;
 import org.cactoos.iterable.Joined;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Skipped;
 import org.cactoos.list.ListOf;
-import org.cactoos.scalar.IoCheckedScalar; // Updated: using IoCheckedScalar instead of CheckedScalar
+import org.cactoos.scalar.IoChecked;
 import org.cactoos.scalar.Or;
+import org.cactoos.scalar.Unchecked;
 import org.cactoos.text.FormattedText;
+import org.cactoos.text.Split;
 import org.cactoos.text.TextOf;
 import org.cactoos.text.UncheckedText;
-import org.cactoos.text.split.Split; // Updated: SplitText is now Split in a subpackage
-import org.cactoos.Scalar;
 
 /**
  * Wallet.
@@ -53,7 +53,6 @@ import org.cactoos.Scalar;
 @SuppressWarnings({"PMD.ShortMethodName", "PMD.TooManyMethods",
     "PMD.UnusedFormalParameter"})
 public interface Wallet {
-
     /**
      * This wallet's ID: an unsigned 64-bit integer.
      * @return This wallet's id
@@ -200,12 +199,14 @@ public interface Wallet {
 
         @Override
         public long id() throws IOException {
-            return new IoCheckedScalar<>(
+            return new IoChecked<>(
                 () -> Long.parseUnsignedLong(
                     new ListOf<>(
-                        new Split(new TextOf(this.path), "\n")
+                        new Split(
+                            new TextOf(this.path),
+                            "\n"
+                        )
                     ).get(2).asString(),
-                    // @checkstyle MagicNumber (1 line)
                     16
                 )
             ).value();
@@ -219,15 +220,6 @@ public interface Wallet {
             }
         }
 
-        // @todo #16:30min Following transactions should be ignored according
-        //  to the whitepaper:
-        //  a) If the transaction is negative and its signature is not valid,
-        //  it is ignored;
-        //  b) If the transaction makes the balance of the wallet negative,
-        //  it is ignored;
-        //  c) If the transaction is positive and it’s absent in the paying
-        //  wallet (which exists at the node), it’s ignored; If the paying
-        //  wallet doesn’t exist at the node, the transaction is ignored;
         @Override
         public Wallet merge(final Wallet other) throws IOException {
             if (other.id() != this.id()) {
@@ -243,20 +235,18 @@ public interface Wallet {
             }
             final Iterable<Transaction> ledger = this.ledger();
             final Iterable<Transaction> candidates = new Filtered<>(
-                incoming -> new ListOf<>(
-                    new Filtered<>(
-                        origin -> new UncheckedScalar<>(
-                            new Or(
-                                () -> incoming.equals(origin),
-                                () -> incoming.id() == origin.id()
-                                    && incoming.bnf().equals(origin.bnf()),
-                                () -> incoming.id() == origin.id()
-                                    && incoming.amount() < 0L,
-                                () -> incoming.prefix().equals(origin.prefix())
-                            )
-                        ).value(),
-                        ledger
-                    )
+                incoming -> new Filtered<>(
+                    origin -> new Unchecked<>(
+                        new Or(
+                            () -> incoming.equals(origin),
+                            () -> incoming.id() == origin.id()
+                                && incoming.bnf().equals(origin.bnf()),
+                            () -> incoming.id() == origin.id()
+                                && incoming.amount() < 0L,
+                            () -> incoming.prefix().equals(origin.prefix())
+                        )
+                    ).value(),
+                    ledger
                 ).isEmpty(),
                 other.ledger()
             );
@@ -272,48 +262,21 @@ public interface Wallet {
                 txt -> new RtTransaction(txt.asString()),
                 new Skipped<>(
                     new ListOf<>(
-                        new Split(new TextOf(this.path), "\\n")
+                        new Split(
+                            new TextOf(this.path),
+                            "\\n"
+                        )
                     ),
-                    // @checkstyle MagicNumberCheck (1 line)
                     5
                 )
             );
         }
 
-        // @todo #54:30min Implement key method. This should return the
-        //  public RSA key of the wallet owner in Base64. Also add a unit test
-        //  to replace WalletTest.keyIsNotYetImplemented().
         @Override
         public String key() {
             throw new UnsupportedOperationException(
                 "key() not yet supported"
             );
-        }
-    }
-
-    /**
-     * A simple UncheckedScalar implementation.
-     *
-     * This class wraps a {@link Scalar} and rethrows any checked exception as a
-     * {@link RuntimeException}.
-     *
-     * @param <T> Type of the wrapped scalar's value
-     */
-    final class UncheckedScalar<T> implements Scalar<T> {
-
-        private final Scalar<T> scalar;
-
-        public UncheckedScalar(final Scalar<T> scalar) {
-            this.scalar = scalar;
-        }
-
-        @Override
-        public T value() {
-            try {
-                return this.scalar.value();
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
         }
     }
 }

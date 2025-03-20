@@ -1,12 +1,7 @@
-4c4,5
-< import liquibase.exception.LiquibaseException;
----
+3a4
 > import liquibase.Scope;
-> import liquibase.executor.Executor;
-5a7
-> import liquibase.exception.LiquibaseException;
-18c20,21
+18c19,20
 <         ExecutorService.getInstance().getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
 ---
->         Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor(this);
->         executor.execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+>         ExecutorService executorService = Scope.getCurrentScope().getSingleton(ExecutorService.class);
+>         executorService.getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));

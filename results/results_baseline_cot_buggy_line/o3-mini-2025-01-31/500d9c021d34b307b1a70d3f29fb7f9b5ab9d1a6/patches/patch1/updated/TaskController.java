@@ -58,8 +58,7 @@ public class TaskController {
         List<Task> doingtasks = taskRepository.findByStatus(Task.Status.DOING);
         List<Task> donetasks = taskRepository.findByStatus(Task.Status.DONE);
 
-        log.log(Level.INFO, "got all tasks: todotasks@{0}, doingtasks@{1}, donetasks@{2}",
-                new Object[]{todotasks.size(), doingtasks.size(), donetasks.size()});
+        log.log(Level.INFO, "got all tasks: todotasks@{0}, doingtasks@{1}, donetasks@{2}", new Object[]{todotasks.size(), doingtasks.size(), donetasks.size()});
 
         models.put("todotasks", todotasks);
         models.put("doingtasks", doingtasks);
@@ -92,9 +91,11 @@ public class TaskController {
 
         if (validationResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            validationResult.getAllErrors().stream().forEach((ParamError t) -> {
-                alert.addError(t.getParamName(), "", t.getMessage());
-            });
+            validationResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
             models.put("errors", alert);
             models.put("task", form);
             return Response.status(BAD_REQUEST).entity("add.xhtml").build();
@@ -134,9 +135,11 @@ public class TaskController {
 
         if (validationResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            validationResult.getAllErrors().stream().forEach((ParamError t) -> {
-                alert.addError(t.getParamName(), "", t.getMessage());
-            });
+            validationResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
             models.put("errors", alert);
             models.put("task", form);
             return Response.status(BAD_REQUEST).entity("edit.xhtml").build();
@@ -156,10 +159,8 @@ public class TaskController {
 
     @PUT
     @Path("{id}/status")
-    public Response updateStatus(@PathParam(value = "id") Long id,
-                                 @NotNull @FormParam(value = "status") String status) {
-        log.log(Level.INFO, "updating status of the existed task@id:{0}, status:{1}",
-                new Object[]{id, status});
+    public Response updateStatus(@PathParam(value = "id") Long id, @NotNull @FormParam(value = "status") String status) {
+        log.log(Level.INFO, "updating status of the existed task@id:{0}, status:{1}", new Object[]{id, status});
 
         Task task = taskRepository.findById(id);
 

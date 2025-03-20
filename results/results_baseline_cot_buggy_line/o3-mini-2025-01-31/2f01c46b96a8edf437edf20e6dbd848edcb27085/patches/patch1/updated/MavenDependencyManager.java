@@ -114,6 +114,7 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
   private Model buildModel(MavenProject project) {
     File pomFile = new File(project.getBasedir().getAbsolutePath() + File.separator + "pom.xml");
 
+    /* Build Maven model to manipulate the pom */
     final Model model;
     FileReader reader;
     MavenXpp3Reader mavenReader = new MavenXpp3Reader();

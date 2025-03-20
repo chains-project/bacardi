@@ -19,6 +19,36 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
+/**
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CustomerID"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}AccountID"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CustomerTaxID"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CompanyName"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Contact" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}BillingAddress"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ShipToAddress" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Telephone" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Fax" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Email" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Website" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SelfBillingIndicator"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "customerID",
@@ -35,7 +65,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "selfBillingIndicator"
 })
 @XmlRootElement(name = "Customer")
-public class Customer implements ToString2 {
+public class Customer implements ToString2
+{
 
     @XmlElement(name = "CustomerID", required = true)
     protected String customerID;
@@ -65,7 +96,10 @@ public class Customer implements ToString2 {
     /**
      * Gets the value of the customerID property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getCustomerID() {
         return customerID;
@@ -74,7 +108,10 @@ public class Customer implements ToString2 {
     /**
      * Sets the value of the customerID property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setCustomerID(String value) {
         this.customerID = value;
@@ -83,7 +120,10 @@ public class Customer implements ToString2 {
     /**
      * Gets the value of the accountID property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getAccountID() {
         return accountID;
@@ -92,7 +132,10 @@ public class Customer implements ToString2 {
     /**
      * Sets the value of the accountID property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setAccountID(String value) {
         this.accountID = value;
@@ -101,7 +144,10 @@ public class Customer implements ToString2 {
     /**
      * Gets the value of the customerTaxID property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getCustomerTaxID() {
         return customerTaxID;
@@ -110,7 +156,10 @@ public class Customer implements ToString2 {
     /**
      * Sets the value of the customerTaxID property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setCustomerTaxID(String value) {
         this.customerTaxID = value;
@@ -119,7 +168,10 @@ public class Customer implements ToString2 {
     /**
      * Gets the value of the companyName property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getCompanyName() {
         return companyName;
@@ -128,7 +180,10 @@ public class Customer implements ToString2 {
     /**
      * Sets the value of the companyName property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setCompanyName(String value) {
         this.companyName = value;
@@ -137,7 +192,10 @@ public class Customer implements ToString2 {
     /**
      * Gets the value of the contact property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getContact() {
         return contact;
@@ -146,7 +204,10 @@ public class Customer implements ToString2 {
     /**
      * Sets the value of the contact property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setContact(String value) {
         this.contact = value;
@@ -155,7 +216,10 @@ public class Customer implements ToString2 {
     /**
      * Gets the value of the billingAddress property.
      * 
-     * @return possible object is {@link AddressStructure }
+     * @return
+     *     possible object is
+     *     {@link AddressStructure }
+     *     
      */
     public AddressStructure getBillingAddress() {
         return billingAddress;
@@ -164,7 +228,10 @@ public class Customer implements ToString2 {
     /**
      * Sets the value of the billingAddress property.
      * 
-     * @param value allowed object is {@link AddressStructure }
+     * @param value
+     *     allowed object is
+     *     {@link AddressStructure }
+     *     
      */
     public void setBillingAddress(AddressStructure value) {
         this.billingAddress = value;
@@ -176,7 +243,8 @@ public class Customer implements ToString2 {
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
-     * returned list will be present within the JAXB object.
+     * returned list will be present inside the JAXB object.
+     * This is why there is not a <CODE>set</CODE> method for the shipToAddress property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
@@ -184,7 +252,12 @@ public class Customer implements ToString2 {
      *    getShipToAddress().add(newItem);
      * </pre>
      * 
-     * @return list of {@link AddressStructure } objects.
+     * 
+     * <p>
+     * Objects of the following type(s) are allowed in the list
+     * {@link AddressStructure }
+     * 
+     * 
      */
     public List<AddressStructure> getShipToAddress() {
         if (shipToAddress == null) {
@@ -196,7 +269,10 @@ public class Customer implements ToString2 {
     /**
      * Gets the value of the telephone property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getTelephone() {
         return telephone;
@@ -205,7 +281,10 @@ public class Customer implements ToString2 {
     /**
      * Sets the value of the telephone property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setTelephone(String value) {
         this.telephone = value;
@@ -214,7 +293,10 @@ public class Customer implements ToString2 {
     /**
      * Gets the value of the fax property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getFax() {
         return fax;
@@ -223,7 +305,10 @@ public class Customer implements ToString2 {
     /**
      * Sets the value of the fax property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setFax(String value) {
         this.fax = value;
@@ -232,7 +317,10 @@ public class Customer implements ToString2 {
     /**
      * Gets the value of the email property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getEmail() {
         return email;
@@ -241,7 +329,10 @@ public class Customer implements ToString2 {
     /**
      * Sets the value of the email property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setEmail(String value) {
         this.email = value;
@@ -250,7 +341,10 @@ public class Customer implements ToString2 {
     /**
      * Gets the value of the website property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getWebsite() {
         return website;
@@ -259,7 +353,10 @@ public class Customer implements ToString2 {
     /**
      * Sets the value of the website property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setWebsite(String value) {
         this.website = value;
@@ -267,6 +364,7 @@ public class Customer implements ToString2 {
 
     /**
      * Gets the value of the selfBillingIndicator property.
+     * 
      */
     public int getSelfBillingIndicator() {
         return selfBillingIndicator;
@@ -274,6 +372,7 @@ public class Customer implements ToString2 {
 
     /**
      * Sets the value of the selfBillingIndicator property.
+     * 
      */
     public void setSelfBillingIndicator(int value) {
         this.selfBillingIndicator = value;
@@ -300,57 +399,57 @@ public class Customer implements ToString2 {
         {
             String theCustomerID;
             theCustomerID = this.getCustomerID();
-            strategy.appendField(locator, this, "customerID", buffer, theCustomerID, (this.customerID != null));
+            strategy.appendField(locator, this, "customerID", buffer, theCustomerID, (this.customerID!= null));
         }
         {
             String theAccountID;
             theAccountID = this.getAccountID();
-            strategy.appendField(locator, this, "accountID", buffer, theAccountID, (this.accountID != null));
+            strategy.appendField(locator, this, "accountID", buffer, theAccountID, (this.accountID!= null));
         }
         {
             String theCustomerTaxID;
             theCustomerTaxID = this.getCustomerTaxID();
-            strategy.appendField(locator, this, "customerTaxID", buffer, theCustomerTaxID, (this.customerTaxID != null));
+            strategy.appendField(locator, this, "customerTaxID", buffer, theCustomerTaxID, (this.customerTaxID!= null));
         }
         {
             String theCompanyName;
             theCompanyName = this.getCompanyName();
-            strategy.appendField(locator, this, "companyName", buffer, theCompanyName, (this.companyName != null));
+            strategy.appendField(locator, this, "companyName", buffer, theCompanyName, (this.companyName!= null));
         }
         {
             String theContact;
             theContact = this.getContact();
-            strategy.appendField(locator, this, "contact", buffer, theContact, (this.contact != null));
+            strategy.appendField(locator, this, "contact", buffer, theContact, (this.contact!= null));
         }
         {
             AddressStructure theBillingAddress;
             theBillingAddress = this.getBillingAddress();
-            strategy.appendField(locator, this, "billingAddress", buffer, theBillingAddress, (this.billingAddress != null));
+            strategy.appendField(locator, this, "billingAddress", buffer, theBillingAddress, (this.billingAddress!= null));
         }
         {
             List<AddressStructure> theShipToAddress;
-            theShipToAddress = (((this.shipToAddress != null) && (!this.shipToAddress.isEmpty())) ? this.getShipToAddress() : null);
-            strategy.appendField(locator, this, "shipToAddress", buffer, theShipToAddress, ((this.shipToAddress != null) && (!this.shipToAddress.isEmpty())));
+            theShipToAddress = (((this.shipToAddress!= null)&&(!this.shipToAddress.isEmpty()))?this.getShipToAddress():null);
+            strategy.appendField(locator, this, "shipToAddress", buffer, theShipToAddress, ((this.shipToAddress!= null)&&(!this.shipToAddress.isEmpty())));
         }
         {
             String theTelephone;
             theTelephone = this.getTelephone();
-            strategy.appendField(locator, this, "telephone", buffer, theTelephone, (this.telephone != null));
+            strategy.appendField(locator, this, "telephone", buffer, theTelephone, (this.telephone!= null));
         }
         {
             String theFax;
             theFax = this.getFax();
-            strategy.appendField(locator, this, "fax", buffer, theFax, (this.fax != null));
+            strategy.appendField(locator, this, "fax", buffer, theFax, (this.fax!= null));
         }
         {
             String theEmail;
             theEmail = this.getEmail();
-            strategy.appendField(locator, this, "email", buffer, theEmail, (this.email != null));
+            strategy.appendField(locator, this, "email", buffer, theEmail, (this.email!= null));
         }
         {
             String theWebsite;
             theWebsite = this.getWebsite();
-            strategy.appendField(locator, this, "website", buffer, theWebsite, (this.website != null));
+            strategy.appendField(locator, this, "website", buffer, theWebsite, (this.website!= null));
         }
         {
             int theSelfBillingIndicator;
@@ -359,4 +458,5 @@ public class Customer implements ToString2 {
         }
         return buffer;
     }
+
 }

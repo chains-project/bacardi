@@ -1,28 +1,9 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the class Models cannot be found.
-   - The failure occurs at the field declaration (line 29) in the PostNotFoundExceptionMapper.
-   - This is likely due to an update in the dependency, where the Models interface has been moved from the javax.mvc package to a new namespace.
-
-2. Review the client code:
-   - The problematic code is the injection of Models via "@Inject Models models;".
-   - The import statement "import javax.mvc.Models;" is causing the issue.
-   - Given the updated dependency (e.g., Jakarta EE 9+), MVC classes have been moved to the jakarta.mvc package.
-
-3. Consider potential fixes:
-   - Update the import statement for Models to point to its new package.
-   - Since we cannot change method signatures or remove code unnecessarily, we fix the code by simply replacing the old import with the appropriate new one.
-   - The rest of the class (including the @Override annotation) remains untouched.
-
-4. Plan the necessary changes:
-   - Remove "import javax.mvc.Models;".
-   - Add "import jakarta.mvc.Models;" so that the dependency resolves correctly with the updated API.
-   - Verify that changes adhere to the dependency update while keeping the class functionality intact.
-</code_analysis>
-
-Below is the complete fixed Java class:
-
 ```java
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package com.example.config;
 
 import com.example.domain.TaskNotFoundException;
@@ -34,11 +15,18 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+/**
+ *
+ * @author hantsy
+ */
 @Provider
 public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFoundException> {
 
     @Inject Logger log;
-    @Inject Models models;
+    //private static Logger log = Logger.getLogger(PostNotFoundExceptionMapper.class.getName());
+
+    @Inject
+    Models models;
 
     @Override
     public Response toResponse(TaskNotFoundException exception) {
@@ -46,5 +34,6 @@ public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFound
         models.put("error", exception.getMessage());
         return Response.status(Response.Status.NOT_FOUND).entity("error.xhtml").build();
     }
+
 }
 ```

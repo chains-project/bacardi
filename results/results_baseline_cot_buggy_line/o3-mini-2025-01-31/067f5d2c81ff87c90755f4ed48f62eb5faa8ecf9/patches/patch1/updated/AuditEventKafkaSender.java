@@ -23,6 +23,7 @@ import com.pinterest.singer.loggingaudit.thrift.LoggingAuditStage;
 import com.pinterest.singer.loggingaudit.thrift.configuration.KafkaSenderConfig;
 import com.pinterest.singer.metrics.OpenTsdbMetricConverter;
 import com.pinterest.singer.utils.CommonUtils;
+
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -33,6 +34,7 @@ import org.apache.thrift.TSerializer;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -161,6 +163,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
    * badPartitions.  When event is send out successfully or dropped, the corresponding entry in
    * this map is removed.
    */
+
   private Map<LoggingAuditHeaders, Integer> eventTriedCount = new ConcurrentHashMap<>();
 
   /**
@@ -182,11 +185,12 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
     this.stopGracePeriodInSeconds = config.getStopGracePeriodInSeconds();
     this.badPartitions.add(-1);
     try {
-      this.serializer = new TSerializer();
+      serializer = new TSerializer();
     } catch (TTransportException e) {
       throw new RuntimeException("Failed to initialize TSerializer", e);
     }
   }
+
 
   public KafkaProducer<byte[], byte[]> getKafkaProducer() {
     return kafkaProducer;
@@ -296,6 +300,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
       }
     }
   }
+
 
   public class KafkaProducerCallback implements Callback {
 

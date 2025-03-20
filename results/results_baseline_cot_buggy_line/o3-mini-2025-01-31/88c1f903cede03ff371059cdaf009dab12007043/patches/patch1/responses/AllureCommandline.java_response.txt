@@ -1,21 +1,14 @@
 /*
- *  Copyright 2021 Qameta Software OÜ
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
+<repair_strategy>
+1. The error is due to the outdated import statement for ZipFile from the package net.lingala.zip4j.core.
+2. In the newer version of the zip4j dependency, ZipFile has been moved to the package net.lingala.zip4j.
+3. Update the import to "net.lingala.zip4j.ZipFile" to fix the compilation issue.
+4. All other code remains unchanged.
+</repair_strategy>
+*/
 package io.qameta.allure.maven;
 
-import net.lingala.zip4j.ZipFile; // Updated import statement
+import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;

@@ -1,4 +1,27 @@
-19c19
+19d18
 < import com.google.api.services.translate.model.TranslationsResource;
----
-> import com.google.cloud.translate.Translate.TranslationsResource; // Updated import statement
+111a111,134
+> 
+>   public static class TranslationsResource {
+>     private final String translatedText;
+>     private final String detectedSourceLanguage;
+>     private final String model;
+> 
+>     public TranslationsResource(String translatedText, String detectedSourceLanguage, String model) {
+>       this.translatedText = translatedText;
+>       this.detectedSourceLanguage = detectedSourceLanguage;
+>       this.model = model;
+>     }
+> 
+>     public String getTranslatedText() {
+>       return translatedText;
+>     }
+> 
+>     public String getDetectedSourceLanguage() {
+>       return detectedSourceLanguage;
+>     }
+> 
+>     public String getModel() {
+>       return model;
+>     }
+>   }

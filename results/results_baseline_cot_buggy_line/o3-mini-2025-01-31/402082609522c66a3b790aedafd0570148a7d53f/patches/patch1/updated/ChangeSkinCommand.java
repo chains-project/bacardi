@@ -5,5 +5,8 @@ import org.spongepowered.api.command.Command;
 @FunctionalInterface
 public interface ChangeSkinCommand {
 
-    Command buildSpec();
+    CommandSpec buildSpec();
+
+    interface CommandSpec extends Command.Parameterized {
+    }
 }

@@ -1,24 +1,3 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error message shows that the call to logger.setLevel(Level.INFO) is failing because the type org.slf4j.spi.LoggingEventAware is no longer accessible. This indicates that the dependency update (likely an update to the SLF4J API version) has removed or relocated the LoggingEventAware interface. It causes a compilation error when trying to set the log level using Logback’s Logger.
-   - The specific problematic line is in the setUp() method:
-     logger.setLevel(Level.INFO);
-
-2. Client Code Review:
-   - The test class EventMessageHandlerTest obtains a Logback logger via LoggerFactory and then sets the log level. With the dependency update, the setLevel method now refers to a removed type, causing the compilation error.
-   - No other parts of the code appear to be directly affected by the dependency change.
-
-3. Proposed Fix:
-   - Remove the call to logger.setLevel(Level.INFO) from the setUp() method. This line directly causes the compilation error due to the breaking change in the SLF4J API dependencies.
-   - The remaining logger.addAppender(mockLogAppender) call is retained for appending logs to the mock, ensuring that the logging functionality required for the tests remains intact.
-   - No changes to function signatures or other logic are needed.
-
-4. Side Effects:
-   - Removing the setLevel call will mean that the logger’s level is not explicitly set in this test. However, this should be acceptable given that the injected appender and logger configuration in the test remain functional.
-</code_analysis>
-
-Below is the complete, fixed Java class with the necessary patch:
-
 ```java
 package uk.gov.pay.adminusers.queue.event;
 
@@ -131,7 +110,6 @@ class EventMessageHandlerTest {
         );
 
         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
-        // Removed setLevel(Level.INFO) due to dependency update causing LoggingEventAware error
         logger.addAppender(mockLogAppender);
     }
 

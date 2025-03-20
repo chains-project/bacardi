@@ -1,28 +1,37 @@
-1,16d0
+1,2c1,11
 < /*
 <  * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+---
+> package org.jivesoftware.openfire.plugin.util.cluster;
+> 
+> import org.jivesoftware.openfire.cluster.ClusterManager;
+> import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
+> import org.jivesoftware.openfire.cluster.NodeID;
+> import org.jivesoftware.openfire.plugin.util.cache.ClusteredCacheFactory;
+> 
+> import com.hazelcast.cluster.Member;
+> 
+> /**
+>  * Cluster Node information as provided by Hazelcast.
+3a13
+>  * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+7d16
 <  *
-<  * Licensed under the Apache License, Version 2.0 (the "License");
-<  * you may not use this file except in compliance with the License.
-<  * You may obtain a copy of the License at
-<  *
-<  *     http://www.apache.org/licenses/LICENSE-2.0
-<  *
-<  * Unless required by applicable law or agreed to in writing, software
-<  * distributed under the License is distributed on an "AS IS" BASIS,
-<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-<  * See the License for the specific language governing permissions and
-<  * limitations under the License.
+15,27d23
 <  */
 < 
-24c8
+< package org.jivesoftware.openfire.plugin.util.cluster;
+< 
+< import org.jivesoftware.openfire.cluster.ClusterManager;
+< import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
+< import org.jivesoftware.openfire.cluster.NodeID;
+< import org.jivesoftware.openfire.plugin.util.cache.ClusteredCacheFactory;
+< 
 < import com.hazelcast.core.Member;
----
-> import com.hazelcast.cluster.Member;
-42c26,29
+< 
+< /**
+<  * Cluster Node information as provided by Hazelcast.
+42c38
 <         this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";
 ---
->         // Use the new API to fetch attributes and address
->         Object attribute = member.getAttribute(HOST_NAME_ATTRIBUTE);
->         String hostNameAttribute = (attribute != null ? attribute.toString() : "unknown");
->         this.hostname = hostNameAttribute + " (" + member.getAddress().getHost() + ")";
+>         this.hostname = ((String) member.getAttribute(HOST_NAME_ATTRIBUTE)) + " (" + member.getAddress().getHost() + ")";

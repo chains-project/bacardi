@@ -1,21 +1,29 @@
-32,38c32,33
-< import org.tinfour.common.IConstraint;
-< import org.tinfour.common.IIncrementalTin;
-< import org.tinfour.common.IQuadEdge;
-< import org.tinfour.common.SimpleTriangle;
-< import org.tinfour.common.Vertex;
-< import org.tinfour.utils.TriangleCollector;
+38d37
 < import org.tinspin.index.PointIndex;
+40c39,41
+< import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
 ---
-> // Removed as the updated dependency no longer provides PointIndex.
-> // import org.tinspin.index.PointIndex;
-131,132c126
-<          * resulting tessellation being reminiscent of shattering the shape as if it
-<          * were glass).
----
->          * resulting tessellation being reminiscent of shattering the shape as if it were glass).
-164c158,159
+> import processing.core.PConstants;
+> import processing.core.PShape;
+> import processing.core.PVector;
+49,51d49
+< import processing.core.PConstants;
+< import processing.core.PShape;
+< import processing.core.PVector;
+164,168c162
 <                 final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {
+<                         final double deltaX = p1[0] - p2[0];
+<                         final double deltaY = p1[1] - p2[1];
+<                         return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+<                 });
 ---
->                 // Changed type from PointIndex to KDTree as PointIndex was removed in the dependency update.
->                 final KDTree<Vertex> tree = KDTree.create(2, (p1, p2) -> {
+>                 final KDTree<Vertex> tree = new KDTree<>(2);
+174c168,169
+<                         final Vertex near = tree.query1NN(midpoint).value();
+---
+>                         List<KDTree.Entry<Vertex>> nearest = tree.queryKNN(midpoint, 1);
+>                         final Vertex near = nearest.get(0).getValue();
+868c863
+<                 final PShapeData data = new PShapeData(oldMesh.getChild(0)); // use first child; assume global.
+---
+>                 final PShapeData data = new PGS_Conversion.PShapeData(oldMesh.getChild(0)); // use first child; assume global.

@@ -3,64 +3,15 @@
 < import java.io.FileReader;
 17a16
 > import org.codehaus.plexus.logging.LoggerManager;
-21c20,23
+18a18,19
+> import org.codehaus.plexus.archiver.Archiver;
+> import org.codehaus.plexus.archiver.UnArchiver;
+21c22
 <  * @author Erik Engstrom
 ---
->  * Automatic Program Repair (APR) tool patch applied to fix breaking dependency updates.
->  * This class has been updated to look up the LoggerManager component using the updated PlexusContainer API.
->  * 
->  * Author: Erik Engstrom
-23,24c25
-< public class DuplicateFilesTest
-<     extends PlexusTestCase
----
-> public class DuplicateFilesTest extends PlexusTestCase
-26d26
-< 
-33,34c33
-<     public void setUp()
-<         throws Exception
----
->     public void setUp() throws Exception
-37c36,38
+>  * @author Erik
+37c38,39
 <         getContainer().getLoggerManager().setThreshold( Logger.LEVEL_DEBUG );
 ---
->         // Updated to look up the LoggerManager via the container instead of calling getLoggerManager()
->         LoggerManager loggerManager = (LoggerManager) getContainer().lookup(LoggerManager.ROLE);
->         loggerManager.setThreshold(Logger.LEVEL_DEBUG);
-40,41c41
-<     public void testZipArchiver()
-<         throws Exception
----
->     public void testZipArchiver() throws Exception
-66,67c66
-<     public void testDirArchiver()
-<         throws Exception
----
->     public void testDirArchiver() throws Exception
-72d70
-< 
-75,76c73
-<     public void testTarArchiver()
-<         throws Exception
----
->     public void testTarArchiver() throws Exception
-96,97c93
-<     private File createArchive( Archiver archiver, String outputFileExt )
-<         throws Exception
----
->     private File createArchive(Archiver archiver, String outputFileExt) throws Exception
-126,127c122
-<     private void testArchive( File archive, String role )
-<         throws Exception
----
->     private void testArchive(File archive, String role) throws Exception
-130d124
-< 
-142,143c136
-<     private void testFinalFile( String path )
-<         throws Exception
----
->     private void testFinalFile(String path) throws Exception
-155d147
-< 
+>         LoggerManager loggerManager = (LoggerManager) lookup(LoggerManager.ROLE);
+>         loggerManager.setThreshold( Logger.LEVEL_DEBUG );

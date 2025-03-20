@@ -1,42 +1,10 @@
-<code_analysis>
-1. The error message indicates that the class LengthOf from the package org.cactoos.iterable cannot be found. This suggests that in a dependency update, the LengthOf class was either moved or removed.
-2. The client code uses LengthOf within a lambda to compute the size (number of items) of an iterable returned by n.score().suffixes(). With the updated dependency, this class is no longer available.
-3. To fix this issue while keeping the method signature unchanged, we can remove the import statement for LengthOf and replace its usage with a helper method that manually calculates the length of an iterable.
-4. The patch involves:
-   - Removing the import of org.cactoos.iterable.LengthOf.
-   - Adding a private static helper method (lengthOf) in the TaxBeneficiaries class that takes an Iterable and returns its count.
-   - Replacing new LengthOf(...).intValue() with a call to this helper method.
-</code_analysis>
-
 ```java
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2018-2023 Yegor Bugayenko
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package io.zold.api;
 
 import java.util.Comparator;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.IterableEnvelope;
+import org.cactoos.scalar.LengthOf;
 import org.cactoos.iterable.Sorted;
 
 /**
@@ -56,24 +24,10 @@ public final class TaxBeneficiaries extends IterableEnvelope<Remote> {
             Comparator.comparing(Remote::score),
             new Filtered<>(
                 // @checkstyle MagicNumberCheck (1 line)
-                n -> lengthOf(n.score().suffixes()) >= 16,
+                n -> new LengthOf(n.score().suffixes()).value() >= 16,
                 nodes
             )
         ));
-    }
-
-    /**
-     * Returns the number of elements in the given iterable.
-     *
-     * @param iterable The iterable to measure.
-     * @return The number of elements.
-     */
-    private static int lengthOf(final Iterable<?> iterable) {
-        int count = 0;
-        for (Object ignored : iterable) {
-            count++;
-        }
-        return count;
     }
 }
 ```

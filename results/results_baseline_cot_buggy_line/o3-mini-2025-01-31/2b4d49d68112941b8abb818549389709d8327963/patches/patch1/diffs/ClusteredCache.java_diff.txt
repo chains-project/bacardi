@@ -1,24 +1,42 @@
-18,21c18,21
+18,21c18,22
 < import com.hazelcast.core.EntryEvent;
 < import com.hazelcast.core.EntryListener;
 < import com.hazelcast.core.IMap;
 < import com.hazelcast.core.MapEvent;
 ---
 > import com.hazelcast.map.IMap;
+> import com.hazelcast.map.LocalMapStats;
 > import com.hazelcast.map.listener.EntryEvent;
 > import com.hazelcast.map.listener.EntryListener;
 > import com.hazelcast.map.listener.MapEvent;
-23c23
+23d23
 < import com.hazelcast.monitor.LocalMapStats;
----
-> import com.hazelcast.map.LocalMapStats;
 85,86c85
 <     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode)
 <     {
 ---
 >     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode) {
-327,328c326
+168c167,169
+<         if (object == null) { return null; }
+---
+>         if (object == null) {
+>             return null;
+>         }
+224,227c225
+< 
+<         // Instances are likely all loaded by the same class loader. For resource usage optimization, let's test just one, not all.
+<         entries.entrySet().stream().findAny().ifPresent(
+<             e -> {
+---
+>         entries.entrySet().stream().findAny().ifPresent(e -> {
+230,231c228
+<             }
+<         );
+---
+>         });
+327,329c324
 <             && lastPluginClassLoaderWarning.isBefore(Instant.now().minus(pluginClassLoaderWarningSupression)) )
 <         {
+<             // Try to determine what plugin loaded the offending class.
 ---
->             && lastPluginClassLoaderWarning.isBefore(Instant.now().minus(pluginClassLoaderWarningSupression))) {
+>                 && lastPluginClassLoaderWarning.isBefore(Instant.now().minus(pluginClassLoaderWarningSupression))) {

@@ -1,27 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The compiler complains “cannot access org.slf4j.spi.LoggingEventAware” when calling logger.setLevel(Level.INFO). This indicates that the version of SLF4J now in use no longer provides (or requires) that type, likely due to a breaking dependency update.
-   - The error is triggered at line 112 in the test class (during the call to logger.setLevel).
-
-2. Review the client code:
-   - In the setUp() method, the test code obtains a Logback logger instance and calls setLevel(Level.INFO) and logger.addAppender(mockLogAppender). The setLevel call is the source of the error.
-   - This suggests that the direct call to setLevel (which has a signature referencing LoggingEventAware internally) is no longer compatible with the current SLF4J/logback combination.
-
-3. Consider potential fixes:
-   - One option is to remove the call to setLevel. However, this would change the test’s logging configuration.
-   - A better approach is to avoid the compile‐time dependency on the missing type by invoking setLevel via reflection. This way, the functionality is preserved while sidestepping the direct reference causing the error.
-   - All other functionality must remain unchanged and all method signatures must be preserved.
-
-4. Plan the necessary changes:
-   - Replace the direct call: 
-         logger.setLevel(Level.INFO);
-     with a reflection-based invocation that calls the setLevel method on the logger instance.
-   - Leave the other logger configuration (adding the appender) intact.
-   - This avoids any direct dependency on org.slf4j.spi.LoggingEventAware and should compile with the new dependency versions.
-</code_analysis>
-
-Below is the complete, fixed Java class:
-
 ```java
 package uk.gov.pay.adminusers.queue.event;
 
@@ -134,13 +110,6 @@ class EventMessageHandlerTest {
         );
 
         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
-        // Use reflection to set the logger level to avoid compile-time dependency on LoggingEventAware.
-        try {
-            java.lang.reflect.Method setLevelMethod = logger.getClass().getMethod("setLevel", Level.class);
-            setLevelMethod.invoke(logger, Level.INFO);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to set logger level via reflection", e);
-        }
         logger.addAppender(mockLogAppender);
     }
 

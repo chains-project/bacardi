@@ -3,6 +3,7 @@ package com.github.games647.changeskin.sponge.task;
 import com.github.games647.changeskin.core.model.auth.Account;
 import com.github.games647.changeskin.core.shared.task.SharedSkinChanger;
 import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
 import org.spongepowered.api.command.source.CommandSource;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 

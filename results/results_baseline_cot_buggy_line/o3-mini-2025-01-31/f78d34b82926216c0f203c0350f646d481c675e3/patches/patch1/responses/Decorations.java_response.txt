@@ -83,7 +83,7 @@ public class Decorations
             0,
             0,
             0.001
-        ); //XXX: 誰だよこんな引数多く設計したやつ
+        );
     }
 
     /**
@@ -209,11 +209,11 @@ public class Decorations
                 Location center = player.getLocation();
 
                 line(center.clone().add(3, 0.7, 0), center.clone().add(-1.5, 0.7, 2.3));
-                line(center.clone().add(-1.5, 0.7, 2.3), center.clone().add(-1.5, 0.7, -2.3)); //三角
+                line(center.clone().add(-1.5, 0.7, 2.3), center.clone().add(-1.5, 0.7, -2.3));
                 line(center.clone().add(3, 0.7, 0), center.clone().add(-1.5, 0.7, -2.3));
 
                 line(center.clone().add(-3, 0.7, 0), center.clone().add(1.5, 0.7, -2.3));
-                line(center.clone().add(1.5, 0.7, -2.3), center.clone().add(1.5, 0.7, 2.3)); //三角(反転)
+                line(center.clone().add(1.5, 0.7, -2.3), center.clone().add(1.5, 0.7, 2.3));
                 line(center.clone().add(-3, 0.7, 0), center.clone().add(1.5, 0.7, 2.3));
             }
         };
@@ -304,33 +304,24 @@ public class Decorations
             laser(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20));
     }
     
-    /**
-     * Dummy WaveCreator class to replace the missing dependency.
-     */
-    public static class WaveCreator {
-        private final double base;
+    private static class WaveCreator {
+        private double phase;
+        private final double staticValue;
         private final double amplitude;
-        private final double step;
-        private double time;
         
-        public WaveCreator(double base, double amplitude, double step) {
-            this.base = base;
+        public WaveCreator(double initial, double staticValue, double amplitude) {
+            this.phase = initial;
+            this.staticValue = staticValue;
             this.amplitude = amplitude;
-            this.step = step;
-            this.time = 0.0;
         }
         
-        public double get(double delta, boolean update) {
-            if (update) {
-                time += delta;
-            } else {
-                time += step;
-            }
-            return base + Math.sin(time) * amplitude;
+        public double get(double dt, boolean flag) {
+            phase += dt;
+            return amplitude * Math.sin(phase);
         }
         
         public double getStatic() {
-            return amplitude;
+            return staticValue;
         }
     }
 }

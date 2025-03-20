@@ -229,7 +229,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.ManagedZones.Get getZoneCall(String zoneName, Map<Option, ?> options)
       throws IOException {
     return dns.managedZones()
-        .get(this.options.getProjectId(), zoneName, "")
+        .get(this.options.getProjectId(), zoneName, zoneName)
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -268,7 +268,7 @@ public class HttpDnsRpc implements DnsRpc {
   }
 
   private Dns.ManagedZones.Delete deleteZoneCall(String zoneName) throws IOException {
-    return dns.managedZones().delete(this.options.getProjectId(), zoneName, "");
+    return dns.managedZones().delete(this.options.getProjectId(), zoneName, zoneName);
   }
 
   @Override
@@ -284,6 +284,7 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.ResourceRecordSets.List listRecordSetsCall(String zoneName, Map<Option, ?> options)
       throws IOException {
+    // options are fields, page token, dns name, type
     return dns.resourceRecordSets()
         .list(this.options.getProjectId(), zoneName, "")
         .setFields(Option.FIELDS.getString(options))
@@ -348,7 +349,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.Changes.Get getChangeRequestCall(
       String zoneName, String changeRequestId, Map<Option, ?> options) throws IOException {
     return dns.changes()
-        .get(this.options.getProjectId(), zoneName, changeRequestId, "")
+        .get(this.options.getProjectId(), zoneName, "", changeRequestId)
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -365,6 +366,7 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.Changes.List listChangeRequestsCall(String zoneName, Map<Option, ?> options)
       throws IOException {
+    // options are fields, page token, page size, sort order
     Dns.Changes.List request =
         dns.changes()
             .list(this.options.getProjectId(), zoneName, "")
@@ -372,6 +374,7 @@ public class HttpDnsRpc implements DnsRpc {
             .setMaxResults(Option.PAGE_SIZE.getInt(options))
             .setPageToken(Option.PAGE_TOKEN.getString(options));
     if (Option.SORTING_ORDER.getString(options) != null) {
+      // todo check and change if more sorting options are implemented, issue #604
       request = request.setSortBy(SORT_BY).setSortOrder(Option.SORTING_ORDER.getString(options));
     }
     return request;

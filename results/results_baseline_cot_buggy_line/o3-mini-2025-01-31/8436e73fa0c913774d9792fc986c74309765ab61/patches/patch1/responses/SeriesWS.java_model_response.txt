@@ -1,31 +1,3 @@
-<code_analysis>
-1. Error analysis:
-   - The error messages indicate that the compiler cannot find the package "javax.jws" and its classes (such as WebMethod, WebParam, WebResult, and WebService). This suggests that a dependency update (likely the migration from Java EE to Jakarta EE) has removed or relocated these classes.
-   - The error lines point to annotations on methods and class-level annotations using these types (e.g. @WebMethod, @WebParam). The primary failure is the missing javax.jws package.
-   - With Jakarta EE 9 and later, the packages formerly under "javax.jws" have been moved to "jakarta.jws". Thus, a dependency update now causes the javax.jws package to be unavailable.
-
-2. Client code review:
-   - The interface SeriesWS declares several web service methods that are annotated with @WebMethod, @WebParam, @WebResult, and the class itself is annotated with @WebService.
-   - All these annotations are imported from javax.jws, which are now causing compilation failures.
-   - The rest of the code (such as imports for javax.xml.bind and javax.xml.datatype) remains unchanged.
-
-3. Proposed fix:
-   - Update the import statements by replacing "javax.jws.*" with "jakarta.jws.*". This adheres to the new dependency provided by Jakarta EE.
-   - No function signatures or method code is modified.
-   - The patch does not remove any annotations such as @Override (none exist here) and does not remove any other code that is not directly causing the errors.
-   - This change only affects the import statements that directly cause the dependency errors.
-
-4. Specific modifications:
-   - Replace:
-     • import javax.jws.WebMethod; with import jakarta.jws.WebMethod;
-     • import javax.jws.WebParam; with import jakarta.jws.WebParam;
-     • import javax.jws.WebResult; with import jakarta.jws.WebResult;
-     • import javax.jws.WebService; with import jakarta.jws.WebService;
-   - Leave the remaining import statements untouched.
-
-The following patch shows the complete fixed class:
-</code_analysis>
-
 ```java
 package com.premiumminds.billy.portugal.webservices.series;
 

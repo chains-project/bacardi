@@ -1,10 +1,3 @@
-<code_analysis>
-1. The error message indicates that the method addEnabledLanguages(Set&lt;Language&gt;) is no longer present in AnalysisEngineConfiguration.Builder. The update to the dependency removed or renamed this method.
-2. In the client code, the buildAnalysisEngineConfiguration() method calls .addEnabledLanguages(globalConfig.getEnabledLanguages()). Instead, the newer version of the dependency expects languages to be added one-by-one (via addEnabledLanguage(Language)) rather than in bulk.
-3. A potential fix is to replace the single call to addEnabledLanguages with a loop over the enabled languages, calling addEnabledLanguage for each. This satisfies the constraints of keeping function signatures intact.
-4. The patch below introduces a local variable for the builder and iterates over globalConfig.getEnabledLanguages(), calling builder.addEnabledLanguage(language) for each language before chaining the remaining builder methods.
-</code_analysis>
-
 ```java
 package sorald.sonar;
 
@@ -61,7 +54,8 @@ import sorald.util.ConfigLoader;
 
 public final class SonarLintEngine extends AbstractSonarLintEngine {
 
-    // The order of these initialisations is important as each field is dependent upon the previous one.
+    // The order of these initialisations is important as each field is dependent upon the previous
+    // one.
     private static final String SONAR_JAVA_PLUGIN_JAR_NAME = "sonar-java-plugin.jar";
     private static final Path sonarJavaPlugin = getOrDownloadSonarJavaPlugin().getPath();
     private static final StandaloneGlobalConfiguration globalConfig = buildGlobalConfig();
@@ -166,11 +160,8 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     }
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
-        // Updated to use addEnabledLanguage for each language instead of addEnabledLanguages which was removed
         AnalysisEngineConfiguration.Builder builder = AnalysisEngineConfiguration.builder();
-        for (Language language : globalConfig.getEnabledLanguages()) {
-            builder.addEnabledLanguage(language);
-        }
+        globalConfig.getEnabledLanguages().forEach(builder::addEnabledLanguage);
         return builder
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())

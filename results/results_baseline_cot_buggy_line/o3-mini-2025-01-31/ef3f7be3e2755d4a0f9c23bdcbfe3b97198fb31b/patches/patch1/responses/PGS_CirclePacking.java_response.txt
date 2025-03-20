@@ -24,7 +24,6 @@ import org.tinfour.common.IIncrementalTin;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
 import org.tinspin.index.covertree.CoverTree;
-import org.tinspin.index.covertree.DistanceFunction;
 
 import micycle.pgs.commons.FrontChainPacker;
 import micycle.pgs.commons.LargestEmptyCircles;
@@ -154,7 +153,7 @@ public final class PGS_CirclePacking {
 	 *                          shape more evenly (particularly when points is
 	 *                          small), which is sometimes desirable
 	 * @return A list of PVectors, each representing one circle: (.x, .y) represent
-	 *         the center point and .z represents radius.
+	 *         the center point, and .z represents the radius.
 	 */
 	public static List<PVector> stochasticPack(final PShape shape, final int points, final double minRadius, boolean triangulatePoints) {
 		return stochasticPack(shape, points, minRadius, triangulatePoints, System.nanoTime());
@@ -225,7 +224,7 @@ public final class PGS_CirclePacking {
 			final CoverTree.Entry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
 
 			/*
-			 * nn.dist() does not return the radius (since it's a distance metric used to
+			 * nn.distance() does not return the radius (since it's a distance metric used to
 			 * find nearest circle), so calculate maximum radius for candidate circle using
 			 * 2d euclidean distance between center points minus radius of nearest circle.
 			 */
@@ -641,11 +640,10 @@ public final class PGS_CirclePacking {
 	 * @param p2 3D point representing the second circle (x2, y2, r2)
 	 * @return the distance between the two points based on the custom metric
 	 */
-	private static final DistanceFunction circleDistanceMetric = (p1, p2) -> {
+	private static final CoverTree.DistanceFunction circleDistanceMetric = (p1, p2) -> {
 		final double dx = p1[0] - p2[0];
 		final double dy = p1[1] - p2[1];
 		final double dz = p1[2] - p2[2];
-
 		double euclideanDistance = Math.sqrt(dx * dx + dy * dy);
 		double absZDifference = Math.abs(dz);
 		return euclideanDistance + absZDifference;

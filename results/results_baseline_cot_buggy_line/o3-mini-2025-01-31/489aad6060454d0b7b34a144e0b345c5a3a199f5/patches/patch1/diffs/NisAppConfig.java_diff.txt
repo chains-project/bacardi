@@ -7,9 +7,9 @@
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 <                 return flyway;
 ---
->         return Flyway.configure()
->                 .dataSource(this.dataSource())
->                 .classLoader(NisAppConfig.class.getClassLoader())
->                 .locations(prop.getProperty("flyway.locations"))
->                 .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
->                 .load();
+>                 return Flyway.configure()
+>                                 .dataSource(this.dataSource())
+>                                 .classLoader(NisAppConfig.class.getClassLoader())
+>                                 .locations(prop.getProperty("flyway.locations"))
+>                                 .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
+>                                 .load();

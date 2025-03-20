@@ -16,10 +16,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
-/**
- *
- * CSRF Controller to demonstrate MVC binding and CSRF protection.
- */
 @Path("csrf")
 @Controller
 @RequestScoped
@@ -51,10 +47,10 @@ public class CsrfController {
         if (bindingResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
             bindingResult.getAllErrors()
-                .stream()
-                .forEach((ParamError t) -> {
-                    alert.addError(t.getParamName(), "", t.getMessage());
-                });
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
             models.put("errors", alert);
             log.info("mvc binding failed.");
             return "csrf.xhtml";

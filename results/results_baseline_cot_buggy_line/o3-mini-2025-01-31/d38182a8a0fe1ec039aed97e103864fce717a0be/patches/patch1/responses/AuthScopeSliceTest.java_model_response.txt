@@ -1,14 +1,3 @@
-<code_analysis>
-1. The error message indicates that the inner class "Authentication.User" is no longer available in the updated dependency. The compiler complains that it “cannot find symbol: class User” in the "Authentication" interface.
-2. In the client code the problematic lines are in the anonymous AuthScheme.Result – the method "user()" returns an Optional of type Authentication.User and creates a new instance with "new Authentication.User("alice")". With the dependency update the nested "User" type has been removed.
-3. A common solution is that the new dependency provides a replacement type for representing a user. For example, the updated library now exposes a standalone type "User" in the package "com.artipie.http.auth". Hence, we update the method signature and object instantiation to use "User" instead of "Authentication.User".
-4. The changes are:
-   - Add an import for "com.artipie.http.auth.User".
-   - Change the return type of the "user()" method from Optional<Authentication.User> to Optional<User>.
-   - Replace "new Authentication.User("alice")" with "new User("alice")".
-These modifications resolve the compilation error without altering any function signatures (other than adapting to the dependency’s updated type) or logic.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
@@ -22,6 +11,7 @@ import com.artipie.http.Response;
 import com.artipie.http.auth.AuthScheme;
 import com.artipie.http.auth.Authentication;
 import com.artipie.http.auth.User;
+import com.artipie.http.auth.BasicUser;
 import com.artipie.http.rs.StandardRs;
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -67,7 +57,7 @@ class AuthScopeSliceTest {
                 new AuthScheme.Result() {
                     @Override
                     public Optional<User> user() {
-                        return Optional.of(new User("alice"));
+                        return Optional.of(new BasicUser("alice"));
                     }
 
                     @Override

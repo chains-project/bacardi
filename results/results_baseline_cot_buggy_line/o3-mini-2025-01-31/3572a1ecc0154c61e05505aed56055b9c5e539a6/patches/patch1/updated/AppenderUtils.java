@@ -57,9 +57,8 @@ public class AppenderUtils {
     @Override
     public void init(OutputStream os) {
       this.os = os;
-      // Use the TFramedTransport (replacing the removed TFastFramedTransport) to be compatible with singer_thrift log.
-      final int bufferCapacity = 10;
-      framedTransport = new TFramedTransport(new TIOStreamTransport(os), bufferCapacity);
+      // Use TFramedTransport as a replacement for the removed TFastFramedTransport.
+      framedTransport = new TFramedTransport(new TIOStreamTransport(os));
       protocol = new TBinaryProtocol(framedTransport);
     }
 
@@ -67,7 +66,7 @@ public class AppenderUtils {
     public void doEncode(LogMessage logMessage) throws IOException {
       try {
         logMessage.write(protocol);
-        framedTransport.flush();
+        os.flush();
       } catch (TException e) {
         throw new IOException(e);
       }
@@ -87,7 +86,6 @@ public class AppenderUtils {
    * @param topic the topic name for the current appender.
    * @param rotateThresholdKBytes threshold in kilobytes to rotate after.
    * @param context the logback context.
-   * @param maxRetentionHours maximum history to retain.
    */
   public static Appender<LogMessage> createFileRollingThriftAppender(
       File basePath,
@@ -95,7 +93,7 @@ public class AppenderUtils {
       long rotateThresholdKBytes,
       Context context,
       int maxRetentionHours) {
-    RollingFileAppender<LogMessage> appender = new RollingFileAppender<>();
+    RollingFileAppender<LogMessage> appender = new RollingFileAppender<LogMessage>();
     appender.setContext(context);
     appender.setAppend(true);
     appender.setPrudent(false);

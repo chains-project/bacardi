@@ -7,12 +7,9 @@ import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.FileDocument;
 import eu.europa.esig.dss.model.InMemoryDocument;
 import eu.europa.esig.dss.model.ToBeSigned;
-import eu.europa.esig.dss.model.SignatureValue;
 import eu.europa.esig.dss.pades.PAdESSignatureParameters;
 import eu.europa.esig.dss.pades.SignatureImageParameters;
-import eu.europa.esig.dss.pades.TableSignatureFieldParameters;
 import eu.europa.esig.dss.pades.signature.PAdESService;
-import eu.europa.esig.dss.pdf.pdfbox.PdfBoxNativeObjectFactory;
 import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
 import eu.europa.esig.dss.spi.x509.tsp.CompositeTSPSource;
 import eu.europa.esig.dss.spi.x509.tsp.TSPSource;
@@ -45,17 +42,21 @@ public class Signer {
 
     public void signPdf(Path pdfFile, Path outputFile, byte[] keyStore, char[] keyStorePassword, boolean binary, SignatureParameters params) throws IOException {
         boolean visibleSignature = params.getPage() != null;
+        //https://github.com/apache/pdfbox/blob/trunk/examples/src/main/java/org/apache/pdfbox/examples/signature/CreateVisibleSignature2.java
+        //https://ec.europa.eu/cefdigital/DSS/webapp-demo/doc/dss-documentation.html
+        //load PDF file
+        //PDDocument doc = PDDocument.load(pdfFile.toFile());
 
-        // Load PDF file in DSSDocument format
+        //load PDF file in DSSDocument format
         DSSDocument toSignDocument = new FileDocument(pdfFile.toFile());
 
-        // Load certificate and private key from the keystore
+        //load certificate and private key
         JKSSignatureToken signingToken = new JKSSignatureToken(keyStore, new KeyStore.PasswordProtection(keyStorePassword));
 
         log.debug("Keystore created for signing");
-        // Set up PAdES parameters
+        //PAdES parameters
         PAdESSignatureParameters signatureParameters = new PAdESSignatureParameters();
-
+        //signatureParameters.bLevel().setSigningDate(new Date());
         String keyAlias = "alias";
         if (signingToken.getKeys().get(0) instanceof KSPrivateKeyEntry) {
             keyAlias = ((KSPrivateKeyEntry) signingToken.getKeys().get(0)).getAlias();
@@ -67,9 +68,8 @@ public class Signer {
         } else {
             signatureParameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_B);
         }
-        // Removed setPermission call due to removal of CertificationPermission in the updated dependency
-        // signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
-
+        // Removed the CertificationPermission setting as it is no longer supported in the updated dependency.
+        
         // Create common certificate verifier
         CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
         // Create PAdESService for signature
@@ -77,7 +77,7 @@ public class Signer {
 
         log.debug("Signature service initialized");
 
-        // Initialize visual signature and configure if the signature should be visible
+        // Initialize visual signature and configure
         if (visibleSignature) {
             SignatureImageParameters imageParameters = new SignatureImageParameters();
             TableSignatureFieldParameters fieldParameters = new TableSignatureFieldParameters();
@@ -86,7 +86,7 @@ public class Signer {
             if (!Strings.isStringEmpty(params.getImageFile())) {
                 imageParameters.setImage(new InMemoryDocument(Files.readAllBytes(Paths.get(params.getImageFile()))));
             } else {
-                imageParameters.setImage(new InMemoryDocument(IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("signature.png"))));
+                imageParameters.setImage(new InMemoryDocument((IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("signature.png")))));
             }
 
             if (params.getPage() < 0) {
@@ -95,6 +95,7 @@ public class Signer {
                 fieldParameters.setPage(pageCount + (1 + params.getPage()));
                 pdDocument.close();
                 log.debug("PDF page count: " + pageCount);
+
             } else {
                 fieldParameters.setPage(params.getPage());
             }
@@ -102,8 +103,10 @@ public class Signer {
             fieldParameters.setOriginY(params.getTop() * POINTS_PER_MM * 10f);
             fieldParameters.setWidth(params.getWidth() * POINTS_PER_MM * 10f);
 
-            // Configure signature date using the system timezone
+            // Get the SignedInfo segment that need to be signed.
+            // respect local timezone
             DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneId.systemDefault());
+            // user-provided timezone, if any
             if (params.getTimezone() != null) {
                 formatter = formatter.withZone(ZoneId.of(params.getTimezone()));
             }
@@ -122,6 +125,10 @@ public class Signer {
             log.debug("Visible signature parameters set");
         }
 
+        //https://gist.github.com/Manouchehri/fd754e402d98430243455713efada710
+        //only use TSP source, if parameter is set
+        //if it is set to an url, us this
+        //otherwise, default
         if (params.getUseTimestamp() || params.getTSA() != null) {
             CompositeTSPSource compositeTSPSource = new CompositeTSPSource();
             Map<String, TSPSource> tspSources = new HashMap<>();
@@ -131,7 +138,7 @@ public class Signer {
                     tspSources.put(source, new OnlineTSPSource(source));
                 });
             } else {
-                params.getTSA().forEach(source -> {
+                params.getTSA().stream().forEach(source -> {
                     tspSources.put(source, new OnlineTSPSource(source));
                 });
             }
@@ -140,9 +147,15 @@ public class Signer {
 
         ToBeSigned dataToSign = service.getDataToSign(toSignDocument, signatureParameters);
 
+        // This function obtains the signature value for signed information using the
+        // private key and specified algorithm
         DigestAlgorithm digestAlgorithm = signatureParameters.getDigestAlgorithm();
         log.debug("Data to be signed loaded");
         SignatureValue signatureValue = signingToken.sign(dataToSign, digestAlgorithm, signingToken.getKey(keyAlias));
+
+        /*if (service.isValidSignatureValue(dataToSign, signatureValue, signingToken.getKey("alias").getCertificate())) {
+            log.debug("is true");
+        }*/
         log.debug("Signature value calculated");
 
         DSSDocument signedDocument = service.signDocument(toSignDocument, signatureParameters, signatureValue);

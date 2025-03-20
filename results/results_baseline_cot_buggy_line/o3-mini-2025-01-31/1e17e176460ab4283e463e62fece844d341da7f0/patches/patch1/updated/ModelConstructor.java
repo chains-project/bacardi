@@ -7,39 +7,13 @@
  */
 package org.sonatype.maven.polyglot.yaml;
 
-import org.apache.maven.model.Build;
-import org.apache.maven.model.BuildBase;
-import org.apache.maven.model.CiManagement;
-import org.apache.maven.model.Contributor;
-import org.apache.maven.model.Dependency;
-import org.apache.maven.model.DependencyManagement;
-import org.apache.maven.model.Developer;
-import org.apache.maven.model.DistributionManagement;
-import org.apache.maven.model.Extension;
-import org.apache.maven.model.IssueManagement;
-import org.apache.maven.model.License;
-import org.apache.maven.model.MailingList;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.Organization;
-import org.apache.maven.model.Parent;
-import org.apache.maven.model.Plugin;
-import org.apache.maven.model.PluginExecution;
-import org.apache.maven.model.PluginManagement;
-import org.apache.maven.model.ReportPlugin;
-import org.apache.maven.model.ReportSet;
-import org.apache.maven.model.Repository;
-import org.apache.maven.model.Resource;
+import org.apache.maven.model.*;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.constructor.Construct;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.error.YAMLException;
-import org.yaml.snakeyaml.nodes.Node;
-import org.yaml.snakeyaml.nodes.NodeId;
-import org.yaml.snakeyaml.nodes.MappingNode;
-import org.yaml.snakeyaml.nodes.NodeTuple;
-import org.yaml.snakeyaml.nodes.ScalarNode;
-import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.nodes.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -66,9 +40,7 @@ public final class ModelConstructor extends Constructor {
   private final Map<Class<?>, Construct> pomConstructors = new HashMap<>();
 
   public ModelConstructor() {
-    // Fix: removed the parameter Model.class as the updated Constructor no longer has such a constructor
     super();
-    
     yamlConstructors.put(XPP3DOM_TAG, new ConstructXpp3Dom());
     yamlClassConstructors.put(NodeId.mapping, new MavenObjectConstruct());
     pomConstructors.put(Dependency.class, new ConstructDependency());
@@ -84,15 +56,16 @@ public final class ModelConstructor extends Constructor {
     desc.putListPropertyType("mailingLists", MailingList.class);
     desc.putListPropertyType("dependencies", Dependency.class);
     desc.putListPropertyType("modules", String.class);
-    desc.putListPropertyType("profiles", org.apache.maven.model.Profile.class);
+    desc.putListPropertyType("profiles", Profile.class);
     desc.putListPropertyType("repositories", Repository.class);
     desc.putListPropertyType("pluginRepositories", Repository.class);
     desc.putListPropertyType("developers", Developer.class);
     desc.putListPropertyType("contributors", Contributor.class);
+    desc.putListPropertyType("roles", String.class);
     addTypeDescription(desc);
 
     desc = new TypeDescription(Dependency.class);
-    desc.putListPropertyType("exclusions", org.apache.maven.model.Exclusion.class);
+    desc.putListPropertyType("exclusions", Exclusion.class);
     addTypeDescription(desc);
 
     desc = new TypeDescription(DependencyManagement.class);
@@ -126,7 +99,7 @@ public final class ModelConstructor extends Constructor {
     desc.putListPropertyType("goals", String.class);
     addTypeDescription(desc);
 
-    desc = new TypeDescription(org.apache.maven.model.Reporting.class);
+    desc = new TypeDescription(Reporting.class);
     desc.putListPropertyType("plugins", ReportPlugin.class);
     addTypeDescription(desc);
 
@@ -139,7 +112,7 @@ public final class ModelConstructor extends Constructor {
     addTypeDescription(desc);
 
     desc = new TypeDescription(CiManagement.class);
-    desc.putListPropertyType("notifiers", org.apache.maven.model.Notifier.class);
+    desc.putListPropertyType("notifiers", Notifier.class);
     addTypeDescription(desc);
 
     desc = new TypeDescription(Developer.class);
@@ -156,7 +129,7 @@ public final class ModelConstructor extends Constructor {
 
     // Simple types
     addTypeDescription(new TypeDescription(DistributionManagement.class));
-    addTypeDescription(new TypeDescription(org.apache.maven.model.Scm.class));
+    addTypeDescription(new TypeDescription(Scm.class));
     addTypeDescription(new TypeDescription(IssueManagement.class));
     addTypeDescription(new TypeDescription(Parent.class));
     addTypeDescription(new TypeDescription(Organization.class));
@@ -165,7 +138,7 @@ public final class ModelConstructor extends Constructor {
   @Override
   protected Construct getConstructor(Node node) {
     if (pomConstructors.containsKey(node.getType()) && node instanceof ScalarNode) {
-      // construct compact form from scalar
+      //construct compact form from scalar
       return pomConstructors.get(node.getType());
     } else {
       return super.getConstructor(node);

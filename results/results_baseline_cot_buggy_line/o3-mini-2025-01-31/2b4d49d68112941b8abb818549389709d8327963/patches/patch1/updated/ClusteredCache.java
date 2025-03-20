@@ -16,11 +16,11 @@
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.map.IMap;
+import com.hazelcast.map.LocalMapStats;
 import com.hazelcast.map.listener.EntryEvent;
 import com.hazelcast.map.listener.EntryListener;
 import com.hazelcast.map.listener.MapEvent;
 import com.hazelcast.map.listener.MapListener;
-import com.hazelcast.map.LocalMapStats;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusteredCacheEntryListener;
 import org.jivesoftware.openfire.cluster.NodeID;
@@ -164,7 +164,9 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
 
     @Override
     public V put(final K key, final V object) {
-        if (object == null) { return null; }
+        if (object == null) {
+            return null;
+        }
         checkForPluginClassLoader(key);
         checkForPluginClassLoader(object);
         return map.put(key, object);
@@ -220,14 +222,10 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     @Override
     public void putAll(final Map<? extends K, ? extends V> entries) {
         map.putAll(entries);
-
-        // Instances are likely all loaded by the same class loader. For resource usage optimization, let's test just one, not all.
-        entries.entrySet().stream().findAny().ifPresent(
-            e -> {
-                checkForPluginClassLoader(e.getKey());
-                checkForPluginClassLoader(e.getValue());
-            }
-        );
+        entries.entrySet().stream().findAny().ifPresent(e -> {
+            checkForPluginClassLoader(e.getKey());
+            checkForPluginClassLoader(e.getValue());
+        });
     }
 
     @Override
@@ -323,8 +321,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
      */
     protected void checkForPluginClassLoader(final Object o) {
         if (o != null && o.getClass().getClassLoader() instanceof PluginClassLoader
-            && lastPluginClassLoaderWarning.isBefore(Instant.now().minus(pluginClassLoaderWarningSupression))) {
-            // Try to determine what plugin loaded the offending class.
+                && lastPluginClassLoaderWarning.isBefore(Instant.now().minus(pluginClassLoaderWarningSupression))) {
             String pluginName = null;
             try {
                 final Collection<Plugin> plugins = XMPPServer.getInstance().getPluginManager().getPlugins();
@@ -339,8 +336,8 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
                 logger.debug("An exception occurred while trying to determine the plugin class loader that loaded an instance of {}", o.getClass(), e);
             }
             logger.warn("An instance of {} that is loaded by {} has been added to the cache. " +
-                "This will cause issues when reloading the plugin that provides this class. The plugin implementation should be modified.",
-                o.getClass(), pluginName != null ? pluginName : "a PluginClassLoader");
+                    "This will cause issues when reloading the plugin that provides this class. The plugin implementation should be modified.",
+                    o.getClass(), pluginName != null ? pluginName : "a PluginClassLoader");
             lastPluginClassLoaderWarning = Instant.now();
         }
     }

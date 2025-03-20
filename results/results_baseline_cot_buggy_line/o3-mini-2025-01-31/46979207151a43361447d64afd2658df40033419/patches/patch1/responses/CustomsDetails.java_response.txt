@@ -36,13 +36,15 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  * &lt;/complexType&gt;
  * </pre>
  * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "CustomsDetails", propOrder = {
     "cnCode",
     "unNumber"
 })
-public class CustomsDetails implements ToString2 {
+public class CustomsDetails implements ToString2
+{
 
     @XmlElement(name = "CNCode")
     protected List<String> cnCode;
@@ -64,8 +66,11 @@ public class CustomsDetails implements ToString2 {
      *    getCNCode().add(newItem);
      * </pre>
      * 
+     * 
+     * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link String }
+     * 
      * 
      */
     public List<String> getCNCode() {
@@ -90,8 +95,11 @@ public class CustomsDetails implements ToString2 {
      *    getUNNumber().add(newItem);
      * </pre>
      * 
+     * 
+     * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link String }
+     * 
      * 
      */
     public List<String> getUNNumber() {
@@ -103,7 +111,6 @@ public class CustomsDetails implements ToString2 {
 
     @Override
     public String toString() {
-        // Updated to use the INSTANCE field from JAXBToStringStrategy instead of the removed getInstance() method.
         final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);

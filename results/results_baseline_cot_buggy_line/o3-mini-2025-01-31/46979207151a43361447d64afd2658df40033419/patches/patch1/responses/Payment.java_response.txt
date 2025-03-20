@@ -38,6 +38,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  * &lt;/complexType&gt;
  * </pre>
  * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Payment", propOrder = {
@@ -45,7 +46,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "paymentAmount",
     "paymentDate"
 })
-public class Payment implements ToString2 {
+public class Payment implements ToString2
+{
 
     @XmlElement(name = "PaymentMechanism", required = true)
     protected String paymentMechanism;
@@ -58,7 +60,10 @@ public class Payment implements ToString2 {
     /**
      * Gets the value of the paymentMechanism property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getPaymentMechanism() {
         return paymentMechanism;
@@ -67,7 +72,10 @@ public class Payment implements ToString2 {
     /**
      * Sets the value of the paymentMechanism property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setPaymentMechanism(String value) {
         this.paymentMechanism = value;
@@ -76,7 +84,10 @@ public class Payment implements ToString2 {
     /**
      * Gets the value of the paymentAmount property.
      * 
-     * @return possible object is {@link BigDecimal }
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getPaymentAmount() {
         return paymentAmount;
@@ -85,7 +96,10 @@ public class Payment implements ToString2 {
     /**
      * Sets the value of the paymentAmount property.
      * 
-     * @param value allowed object is {@link BigDecimal }
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
      */
     public void setPaymentAmount(BigDecimal value) {
         this.paymentAmount = value;
@@ -94,7 +108,10 @@ public class Payment implements ToString2 {
     /**
      * Gets the value of the paymentDate property.
      * 
-     * @return possible object is {@link XMLGregorianCalendar }
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public XMLGregorianCalendar getPaymentDate() {
         return paymentDate;
@@ -103,7 +120,10 @@ public class Payment implements ToString2 {
     /**
      * Sets the value of the paymentDate property.
      * 
-     * @param value allowed object is {@link XMLGregorianCalendar }
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public void setPaymentDate(XMLGregorianCalendar value) {
         this.paymentDate = value;
@@ -111,7 +131,6 @@ public class Payment implements ToString2 {
 
     @Override
     public String toString() {
-        // Replace getInstance() with the updated INSTANCE field from JAXBToStringStrategy
         final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
@@ -131,18 +150,19 @@ public class Payment implements ToString2 {
         {
             String thePaymentMechanism;
             thePaymentMechanism = this.getPaymentMechanism();
-            strategy.appendField(locator, this, "paymentMechanism", buffer, thePaymentMechanism, (this.paymentMechanism != null));
+            strategy.appendField(locator, this, "paymentMechanism", buffer, thePaymentMechanism, (this.paymentMechanism!= null));
         }
         {
             BigDecimal thePaymentAmount;
             thePaymentAmount = this.getPaymentAmount();
-            strategy.appendField(locator, this, "paymentAmount", buffer, thePaymentAmount, (this.paymentAmount != null));
+            strategy.appendField(locator, this, "paymentAmount", buffer, thePaymentAmount, (this.paymentAmount!= null));
         }
         {
             XMLGregorianCalendar thePaymentDate;
             thePaymentDate = this.getPaymentDate();
-            strategy.appendField(locator, this, "paymentDate", buffer, thePaymentDate, (this.paymentDate != null));
+            strategy.appendField(locator, this, "paymentDate", buffer, thePaymentDate, (this.paymentDate!= null));
         }
         return buffer;
     }
+
 }

@@ -38,7 +38,9 @@ import org.junit.Test;
 /**
  * Integration case for {@link AwsOcket}.
  *
- * Updated to remove dependency on the removed Tv class.
+ * @author Yegor Bugayenko (yegor256@gmail.com)
+ * @version $Id: d67286e195243030346f4424945bcc8027d7b932 $
+ * @since 0.1
  */
 public final class AwsOcketITCase {
 
@@ -77,7 +79,6 @@ public final class AwsOcketITCase {
         final Bucket bucket = this.rule.bucket();
         final String name = "test-44.txt";
         final Ocket.Text ocket = new Ocket.Text(bucket.ocket(name));
-        // Replace Tv.HUNDRED * Tv.THOUSAND with literal values (100 * 1000)
         final String data = RandomStringUtils.random(100 * 1000);
         ocket.write(data);
         try {
