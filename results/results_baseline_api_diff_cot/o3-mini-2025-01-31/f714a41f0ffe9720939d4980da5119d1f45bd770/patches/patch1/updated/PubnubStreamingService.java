@@ -10,8 +10,6 @@ import com.pubnub.api.callbacks.SubscribeCallback;
 import com.pubnub.api.enums.PNStatusCategory;
 import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
-import com.pubnub.api.models.consumer.pubnub.message.PNMessage;
-import com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -22,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Created by Lukas Zaoralek on 14.11.17. */
 public class PubnubStreamingService {
   private static final Logger LOG = LoggerFactory.getLogger(PubnubStreamingService.class);
 
@@ -33,80 +32,49 @@ public class PubnubStreamingService {
   public PubnubStreamingService(String publicKey) {
     mapper = new ObjectMapper();
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    // In the new API, the no-args constructor has been removed.
-    // Use a PNConfiguration constructor that takes a UserId.
-    PNConfiguration pnConfiguration = new PNConfiguration(new UserId("xchangestream"));
+    PNConfiguration pnConfiguration = new PNConfiguration(new UserId(publicKey));
     pnConfiguration.setSubscribeKey(publicKey);
     pubnub = new PubNub(pnConfiguration);
     pnStatusCategory = PNStatusCategory.PNDisconnectedCategory;
   }
 
   public Completable connect() {
-    return Completable.create(
-        e -> {
-          pubnub.addListener(
-              new SubscribeCallback() {
-                @Override
-                public void status(PubNub pubnub, PNStatus pnStatus) {
-                  pnStatusCategory = pnStatus.getCategory();
-                  LOG.debug("PubNub status: {} {}", pnStatusCategory.toString(), pnStatus.getStatusCode());
-                  if (pnStatusCategory == PNStatusCategory.PNConnectedCategory) {
-                    // Connection established.
-                    // e.onComplete();
-                  } else if (pnStatus.isError()) {
-                    // Handle error if needed.
-                    // e.onError(pnStatus.getErrorData().getThrowable());
-                  }
-                }
+    return Completable.create(e -> {
+      pubnub.addListener(new SubscribeCallback() {
+        @Override
+        public void status(PubNub pubNub, PNStatus pnStatus) {
+          pnStatusCategory = pnStatus.getCategory();
+          LOG.debug("PubNub status: {} {}", pnStatusCategory.toString(), pnStatus.getStatusCode());
+          if (pnStatusCategory == PNStatusCategory.PNConnectedCategory) {
+            // e.onComplete();
+          } else if (pnStatus.isError()) {
+            // e.onError(pnStatus.getErrorData().getThrowable());
+          }
+        }
 
-                @Override
-                public void message(PubNub pubnub, PNMessage pnMessage) {
-                  String channelName = pnMessage.getChannel();
-                  ObservableEmitter<JsonNode> subscription = subscriptions.get(channelName);
-                  LOG.debug("PubNub Message: {}", pnMessage.toString());
-                  if (subscription != null) {
-                    try {
-                      JsonNode jsonMessage = mapper.readTree(pnMessage.getMessage().toString());
-                      subscription.onNext(jsonMessage);
-                    } catch (IOException ex) {
-                      ex.printStackTrace();
-                    }
-                  } else {
-                    LOG.debug("No subscriber for channel {}.", channelName);
-                  }
-                }
-
-                // The old callbacks using presence, signal, user, space, and messageAction have been removed in the updated API.
-                // If membership events are needed, update their type to the new interface.
-                @Override
-                public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
-                  LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
-                }
-
-                // The new abstract callback that must be implemented.
-                @Override
-                public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
-                  LOG.debug("PubNub file: {}", pnFileEventResult.toString());
-                }
-              });
-          e.onComplete();
-        });
+        @Override
+        public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
+          LOG.debug("PubNub file event: {}", pnFileEventResult.toString());
+        }
+      });
+      e.onComplete();
+    });
   }
 
   public Observable<JsonNode> subscribeChannel(String channelName) {
     LOG.info("Subscribing to channel {}.", channelName);
     return Observable.<JsonNode>create(e -> {
-              if (!subscriptions.containsKey(channelName)) {
-                subscriptions.put(channelName, e);
-                pubnub.subscribe().channels(Collections.singletonList(channelName)).execute();
-                LOG.debug("Subscribe channel: {}", channelName);
-              }
-            })
-        .doOnDispose(() -> {
-          LOG.debug("Unsubscribe channel: {}", channelName);
-          pubnub.unsubscribe().channels(Collections.singletonList(channelName)).execute();
-        })
-        .share();
+      if (!subscriptions.containsKey(channelName)) {
+        subscriptions.put(channelName, e);
+        pubnub.subscribe().channels(Collections.singletonList(channelName)).execute();
+        LOG.debug("Subscribe channel: {}", channelName);
+      }
+    })
+    .doOnDispose(() -> {
+      LOG.debug("Unsubscribe channel: {}", channelName);
+      pubnub.unsubscribe().channels(Collections.singletonList(channelName)).execute();
+    })
+    .share();
   }
 
   public Completable disconnect() {
@@ -117,7 +85,7 @@ public class PubnubStreamingService {
   }
 
   public boolean isAlive() {
-    return pnStatusCategory == PNStatusCategory.PNConnectedCategory;
+    return (pnStatusCategory == PNStatusCategory.PNConnectedCategory);
   }
 
   public void useCompressedMessages(boolean compressedMessages) {

@@ -32,9 +32,9 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.thrift.TException;
 import org.apache.thrift.TSerializer;
-import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.thrift.transport.TTransportException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -164,6 +164,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
    * badPartitions.  When event is send out successfully or dropped, the corresponding entry in
    * this map is removed.
    */
+
   private Map<LoggingAuditHeaders, Integer> eventTriedCount = new ConcurrentHashMap<>();
 
   /**
@@ -185,11 +186,12 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
     this.stopGracePeriodInSeconds = config.getStopGracePeriodInSeconds();
     this.badPartitions.add(-1);
     try {
-      this.serializer = new TSerializer();
+      serializer = new TSerializer();
     } catch (TTransportException e) {
       throw new RuntimeException("Failed to initialize TSerializer", e);
     }
   }
+
 
   public KafkaProducer<byte[], byte[]> getKafkaProducer() {
     return kafkaProducer;
@@ -240,7 +242,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
           return;
         }
       }
-      currentPartitionId = partitionInfoList.get(ThreadLocalRandom.current().nextInt(
+      currentPartitionId =  partitionInfoList.get(ThreadLocalRandom.current().nextInt(
           partitionInfoList.size())).partition();
       LOG.warn("After {} trials, set current partition to {}",
           MAX_RETRIES_FOR_SELECTION_RANDOM_PARTITION, currentPartitionId);
@@ -299,6 +301,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
       }
     }
   }
+
 
   public class KafkaProducerCallback implements Callback {
 

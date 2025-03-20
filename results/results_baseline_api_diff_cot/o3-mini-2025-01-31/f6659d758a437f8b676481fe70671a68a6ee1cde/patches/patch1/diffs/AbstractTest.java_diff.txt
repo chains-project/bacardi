@@ -1,20 +1,9 @@
-27a28,30
-> import java.io.BufferedReader;
-> import java.io.FileNotFoundException;
-> import java.io.FileReader;
-28a32
-> import java.time.ZoneId;
-36c40
+36d35
 < import org.yaml.snakeyaml.inspector.TrustedTagInspector;
----
-> import org.yaml.snakeyaml.inspector.AllowAllTagInspector;
-40,44d43
-< import java.io.BufferedReader;
-< import java.io.FileNotFoundException;
-< import java.io.FileReader;
-< import java.time.ZoneId;
+39d37
 < 
-66c65
+66c64,65
 <         loadingConfig.setTagInspector(new TrustedTagInspector());
 ---
->         loadingConfig.setTagInspector(new AllowAllTagInspector());
+>         // Removed setting of TrustedTagInspector since it has been removed in the new dependency version.
+>         // loadingConfig.setTagInspector(new TrustedTagInspector());

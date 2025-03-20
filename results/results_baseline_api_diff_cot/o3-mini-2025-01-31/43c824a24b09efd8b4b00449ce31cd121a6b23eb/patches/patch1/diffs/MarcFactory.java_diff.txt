@@ -12,53 +12,45 @@
 > import org.marc4j.marc.impl.LeaderImpl;
 > import org.marc4j.marc.impl.RecordImpl;
 > import org.marc4j.marc.impl.SubfieldImpl;
-54a56,57
->   // Updated initialization: in the new version of the dependency the concept of JsonBranch has been removed.
->   // We assume that MarcJsonSchema#getPaths() now returns a List of String keys (or JSON fragments)
-67,70c70,76
+67c68,75
 <     for (JsonBranch branch : schema.getPaths()) {
-<       if (branch.getParent() != null)
-<         continue;
-<       switch (branch.getLabel()) {
 ---
->     // Now the schema paths are returned as a list of String identifiers.
->     for (String branch : schema.getPaths()) {
->       // In the old implementation we skipped branches with a non-null parent.
->       // Since JsonBranch is removed in the new API, we assume the returned branch keys are top-level.
->       // We use the branch value itself as its label.
->       String label = branch;
->       switch (label) {
-84,85c90
-<           marcRecord.setControl006(
-<             new Control006(extractFirst(cache, branch), marcRecord));
----
->           marcRecord.setControl006(new Control006(extractFirst(cache, branch), marcRecord));
-88,89c93
-<           marcRecord.setControl007(
-<             new Control007(extractFirst(cache, branch), marcRecord));
----
->           marcRecord.setControl007(new Control007(extractFirst(cache, branch), marcRecord));
-92,93c96
-<           marcRecord.setControl008(
-<             new Control008(extractFirst(cache, branch), marcRecord));
----
->           marcRecord.setControl008(new Control008(extractFirst(cache, branch), marcRecord));
-96c99
+>     List<?> branchList = schema.getPaths();
+>     for (Object obj : branchList) {
+>       JsonBranch branch;
+>       if (obj instanceof String) {
+>         branch = new JsonBranch((String) obj);
+>       } else {
+>         branch = (JsonBranch) obj;
+>       }
+96c104
 <           JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());
 ---
->           JSONArray fieldInstances = (JSONArray) cache.getFragment(branch);
-104c107
-<               marcRecord.addUnhandledTags(branch.getLabel());
----
->               marcRecord.addUnhandledTags(label);
-313,314c316,318
-<   private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
+>           JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getLabel());
+314c322
 <     List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
 ---
->   // Updated helper methods: the second parameter is now a String key (used in place of the removed JsonBranch)
->   private static List<String> extractList(JsonPathCache cache, String branch) {
->     List<XmlFieldInstance> instances = cache.get(branch);
-322c326
-<   private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
----
->   private static String extractFirst(JsonPathCache cache, String branch) {
+>     List<XmlFieldInstance> instances = cache.get(branch.getLabel());
+472d479
+<       // String tag = schema.containsKey(line.getQualifiedTag()) ? line.getQualifiedTag() : line.getTag();
+484a492,511
+>   
+>   public static class JsonBranch {
+>     private final String label;
+> 
+>     public JsonBranch(String label) {
+>       this.label = label;
+>     }
+> 
+>     public Object getParent() {
+>       return null;
+>     }
+> 
+>     public String getLabel() {
+>       return label;
+>     }
+> 
+>     public String getJsonPath() {
+>       return label;
+>     }
+>   }

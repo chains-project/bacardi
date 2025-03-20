@@ -1,22 +1,20 @@
 4d3
 < import ch.qos.logback.classic.Logger;
-111,113c110,124
+16a16
+> import org.slf4j.Logger;
+32a33
+> import java.lang.reflect.Method;
+111,113c112,120
 <         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
 <         logger.setLevel(Level.INFO);
 <         logger.addAppender(mockLogAppender);
 ---
->         // Instead of directly casting to a removed Logger type, we obtain the logger as an SLF4J logger
->         // and then use reflection to set its level and add our mock appender.
->         org.slf4j.Logger testLogger = LoggerFactory.getLogger(EventMessageHandler.class);
+>         Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
 >         try {
->             // Invoke setLevel(Level) if available
->             java.lang.reflect.Method setLevelMethod = testLogger.getClass().getMethod("setLevel", Level.class);
->             setLevelMethod.invoke(testLogger, Level.INFO);
->             
->             // Invoke addAppender(Appender) to attach our mock appender
->             java.lang.reflect.Method addAppenderMethod = testLogger.getClass().getMethod("addAppender", Appender.class);
->             addAppenderMethod.invoke(testLogger, mockLogAppender);
+>             Method setLevelMethod = logger.getClass().getMethod("setLevel", Level.class);
+>             setLevelMethod.invoke(logger, Level.INFO);
+>             Method addAppenderMethod = logger.getClass().getMethod("addAppender", Appender.class);
+>             addAppenderMethod.invoke(logger, mockLogAppender);
 >         } catch (Exception e) {
->             // If reflection fails, print the exception. In a real test you might want to fail the setup.
->             e.printStackTrace();
+>             throw new RuntimeException(e);
 >         }

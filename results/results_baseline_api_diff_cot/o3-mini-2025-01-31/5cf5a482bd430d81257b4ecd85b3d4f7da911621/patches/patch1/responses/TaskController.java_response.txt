@@ -38,10 +38,6 @@ public class TaskController {
     @Inject
     private Models models;
 
-    // Removed BindingResult injection and related code since the BindingResult and ParamError classes have been removed
-    // @Inject
-    // private BindingResult validationResult;
-
     @Inject
     TaskRepository taskRepository;
 
@@ -88,21 +84,7 @@ public class TaskController {
     public Response save(@Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "saving new task @{0}", form);
 
-        // Removed BindingResult based validation checking because the BindingResult and ParamError classes are no longer available.
-        /*
-        if (validationResult.isFailed()) {
-            AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            validationResult.getAllErrors()
-                    .stream()
-                    .forEach((ParamError t) -> {
-                        alert.addError(t.getParamName(), "", t.getMessage());
-                    });
-            models.put("errors", alert);
-            models.put("task", form);
-            return Response.status(BAD_REQUEST).entity("add.xhtml").build();
-        }
-        */
-
+        // Removed validation check since BindingResult and ParamError are no longer available.
         Task task = new Task();
         task.setName(form.getName());
         task.setDescription(form.getDescription());
@@ -135,23 +117,8 @@ public class TaskController {
     public Response update(@PathParam(value = "id") Long id, @Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "updating existed task@id:{0}, form data:{1}", new Object[]{id, form});
 
-        // Removed BindingResult based validation checking because the BindingResult and ParamError classes are no longer available.
-        /*
-        if (validationResult.isFailed()) {
-            AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            validationResult.getAllErrors()
-                    .stream()
-                    .forEach((ParamError t) -> {
-                        alert.addError(t.getParamName(), "", t.getMessage());
-                    });
-            models.put("errors", alert);
-            models.put("task", form);
-            return Response.status(BAD_REQUEST).entity("edit.xhtml").build();
-        }
-        */
-
+        // Removed validation check since BindingResult and ParamError are no longer available.
         Task task = taskRepository.findById(id);
-
         task.setName(form.getName());
         task.setDescription(form.getDescription());
 
@@ -168,7 +135,6 @@ public class TaskController {
         log.log(Level.INFO, "updating status of the existed task@id:{0}, status:{1}", new Object[]{id, status});
 
         Task task = taskRepository.findById(id);
-
         task.setStatus(Task.Status.valueOf(status));
 
         taskRepository.update(task);

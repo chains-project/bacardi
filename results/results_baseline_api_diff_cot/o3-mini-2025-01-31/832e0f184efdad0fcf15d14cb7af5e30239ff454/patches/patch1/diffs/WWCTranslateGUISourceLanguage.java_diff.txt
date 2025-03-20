@@ -1,20 +1,25 @@
-5a6
-> import org.bukkit.enchantments.Enchantment;
-73c74
+0a1,6
+> /* <repair_strategy>
+> 1. The XEnchantment API no longer provides the parseEnchantment() method.
+> 2. In the old code, parseEnchantment() was used to get a Bukkit Enchantment.
+> 3. The fix is to replace parseEnchantment() with getEnchant(), which returns the required Enchantment.
+> 4. This change has been applied in all occurrences in the client code.
+> </repair_strategy> */
+73c79
 <                                         currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
 ---
->                     currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
-76c77
+>                                         currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+76c82
 <                                         currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
 ---
->                     currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
-122c123
+>                                         currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+122c128
 <                                         skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
 ---
->                     skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
-125c126
+>                                         skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+125c131
 <                                         skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
 ---
->                     skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
-139d139
+>                                         skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+139d144
 <                                 ;

@@ -3,11 +3,7 @@ package org.openpdfsign;
 import com.beust.jcommander.Strings;
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.enumerations.SignatureLevel;
-import eu.europa.esig.dss.model.DSSDocument;
-import eu.europa.esig.dss.model.FileDocument;
-import eu.europa.esig.dss.model.InMemoryDocument;
-import eu.europa.esig.dss.model.SignatureValue;
-import eu.europa.esig.dss.model.ToBeSigned;
+import eu.europa.esig.dss.model.*;
 import eu.europa.esig.dss.pades.PAdESSignatureParameters;
 import eu.europa.esig.dss.pades.SignatureImageParameters;
 import eu.europa.esig.dss.pades.signature.PAdESService;
@@ -33,6 +29,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 @Slf4j
 public class Signer {
@@ -69,9 +66,9 @@ public class Signer {
         } else {
             signatureParameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_B);
         }
-        // Removed setPermission call since CertificationPermission has been removed in the updated dependency.
-        // signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
-
+        
+        // Removed the removed CertificationPermission because it is not part of the new API.
+        
         // Create common certificate verifier
         CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
         // Create PAdESService for signature
@@ -88,7 +85,7 @@ public class Signer {
             if (!Strings.isStringEmpty(params.getImageFile())) {
                 imageParameters.setImage(new InMemoryDocument(Files.readAllBytes(Paths.get(params.getImageFile()))));
             } else {
-                imageParameters.setImage(new InMemoryDocument(IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("signature.png"))));
+                imageParameters.setImage(new InMemoryDocument((IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("signature.png")))));
             }
 
             if (params.getPage() < 0) {
@@ -97,6 +94,7 @@ public class Signer {
                 fieldParameters.setPage(pageCount + (1 + params.getPage()));
                 pdDocument.close();
                 log.debug("PDF page count: " + pageCount);
+
             } else {
                 fieldParameters.setPage(params.getPage());
             }
@@ -120,6 +118,7 @@ public class Signer {
             }
 
             signatureParameters.setImageParameters(imageParameters);
+
 
             PdfBoxNativeObjectFactory pdfBoxNativeObjectFactory = new PdfBoxNativeTableObjectFactory();
             service.setPdfObjFactory(pdfBoxNativeObjectFactory);

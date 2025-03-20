@@ -1,15 +1,7 @@
-56,57c56,57
+55,57c55,56
+<                     @Override
 <                     public Optional<Authentication.User> user() {
 <                         return Optional.of(new Authentication.User("alice"));
 ---
 >                     public Optional<String> user() {
 >                         return Optional.of("alice");
-70,72c70,73
-<         ).response(line, Headers.EMPTY, Content.EMPTY).send(
-<             (status, headers, body) -> CompletableFuture.allOf()
-<         ).toCompletableFuture().join();
----
->         ).response(line, Headers.EMPTY, Content.EMPTY)
->          .send((status, headers, body) -> CompletableFuture.allOf())
->          .toCompletableFuture()
->          .join();

@@ -16,12 +16,12 @@
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.cluster.Cluster;
-import com.hazelcast.map.listener.EntryListener;
-import com.hazelcast.core.LifecycleEvent;
+import com.hazelcast.cluster.LifecycleEvent;
+import com.hazelcast.cluster.LifecycleEvent.LifecycleState;
+import com.hazelcast.cluster.LifecycleListener;
 import com.hazelcast.cluster.Member;
 import com.hazelcast.cluster.MembershipEvent;
 import com.hazelcast.cluster.MembershipListener;
-import com.hazelcast.cluster.MemberAttributeEvent;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterManager;
 import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
@@ -46,22 +46,18 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * ClusterListener reacts to membership changes in the cluster. It takes care of cleaning up the state
  * of the routing table and the sessions within it when a node which manages those sessions goes down.
- *
- * Note: The implementation previously also handled Hazelcast lifecycle events by implementing LifecycleListener.
- * With the new Hazelcast API, the LifecycleListener has been removed.  The functionality provided
- * by the stateChanged(LifecycleEvent event) method remains in the class, but it is no longer an override.
  */
-public class ClusterListener implements MembershipListener {
+public class ClusterListener implements MembershipListener, LifecycleListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ClusterListener.class);
 
     private boolean seniorClusterMember = false;
 
-    private final Map<Cache<?, ?>, EntryListener> entryListeners = new HashMap<>();
-
+    private final Map<Cache<?,?>, EntryListener> entryListeners = new HashMap<>();
+    
     private final Cluster cluster;
     private final Map<NodeID, ClusterNodeInfo> clusterNodesInfo = new ConcurrentHashMap<>();
-
+    
     /**
      * Flag that indicates if the listener has done all clean up work when noticed that the
      * cluster has been stopped. This will force Openfire to wait until all clean
@@ -75,6 +71,7 @@ public class ClusterListener implements MembershipListener {
     private boolean isSenior;
 
     ClusterListener(final Cluster cluster) {
+
         this.cluster = cluster;
         for (final Member member : cluster.getMembers()) {
             clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(member),
@@ -84,9 +81,9 @@ public class ClusterListener implements MembershipListener {
 
     private void addEntryListener(final Cache<?, ?> cache, final EntryListener listener) {
         if (cache instanceof CacheWrapper) {
-            final Cache wrapped = ((CacheWrapper) cache).getWrappedCache();
+            final Cache wrapped = ((CacheWrapper)cache).getWrappedCache();
             if (wrapped instanceof ClusteredCache) {
-                ((ClusteredCache) wrapped).addEntryListener(listener);
+                ((ClusteredCache)wrapped).addEntryListener(listener);
                 // Keep track of the listener that we added to the cache
                 entryListeners.put(cache, listener);
             }
@@ -120,7 +117,7 @@ public class ClusterListener implements MembershipListener {
         CacheFactory.doClusterTask(new NewClusterMemberJoinedTask());
 
         logger.info("Joined cluster. XMPPServer node={}, Hazelcast UUID={}, seniorClusterMember={}",
-                new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), seniorClusterMember});
+            new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), seniorClusterMember});
         done = false;
     }
 
@@ -148,7 +145,7 @@ public class ClusterListener implements MembershipListener {
             XMPPServer.getInstance().getPresenceUpdateHandler().removedExpiredPresences();
         }
         logger.info("Left cluster. XMPPServer node={}, Hazelcast UUID={}, wasSeniorClusterMember={}",
-                new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), wasSeniorClusterMember});
+            new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), wasSeniorClusterMember});
         done = true;
     }
 
@@ -162,6 +159,7 @@ public class ClusterListener implements MembershipListener {
         final NodeID nodeID = ClusteredCacheFactory.getNodeID(event.getMember());
         if (event.getMember().localMember()) { // We left and re-joined the cluster
             joinCluster();
+
         } else {
             if (wasSenior && !isSenior) {
                 logger.warn("Recovering from split-brain; firing leftCluster()/joinedCluster() events");
@@ -195,7 +193,7 @@ public class ClusterListener implements MembershipListener {
      * for executing cluster tasks immediately after joining. If this wait is not performed, the cache factory may still
      * be using the 'default' strategy instead of the 'hazelcast' strategy, which leads to cluster tasks being silently
      * discarded.
-     * <p>
+     *
      * The method will keep trying this for 10 minutes. After that the thread is released regardless of the result.
      *
      * @return Boolean indicating whether the clustered cache was actually observed to be installed.
@@ -252,29 +250,28 @@ public class ClusterListener implements MembershipListener {
         NodeID.deleteInstance(nodeID.toByteArray());
         clusterNodesInfo.remove(nodeID);
     }
-
-    public void memberAttributeChanged(final MemberAttributeEvent event) {
-        logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
-        isSenior = isSeniorClusterMember();
-        final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
-        clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(event.getMember()),
-                new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
-    }
-
-    // Removed the @Override annotation because LifecycleListener is no longer part of the Hazelcast API.
-    public void stateChanged(final LifecycleEvent event) {
-        if (event.getState().equals(LifecycleEvent.LifecycleState.SHUTDOWN)) {
-            leaveCluster();
-        } else if (event.getState().equals(LifecycleEvent.LifecycleState.STARTED)) {
-            joinCluster();
-        }
-    }
-
+    
+    @SuppressWarnings("WeakerAccess")
     public List<ClusterNodeInfo> getClusterNodesInfo() {
         return new ArrayList<>(clusterNodesInfo.values());
     }
 
+    @Override
+    public void stateChanged(final LifecycleEvent event) {
+        if (event.getState().equals(LifecycleState.SHUTDOWN)) {
+            leaveCluster();
+        } else if (event.getState().equals(LifecycleState.STARTED)) {
+            joinCluster();
+        }
+    }
+
     boolean isClusterMember() {
         return clusterMember;
+    }
+    
+    /**
+     * Dummy interface to replace the removed com.hazelcast.core.EntryListener.
+     */
+    public interface EntryListener {
     }
 }

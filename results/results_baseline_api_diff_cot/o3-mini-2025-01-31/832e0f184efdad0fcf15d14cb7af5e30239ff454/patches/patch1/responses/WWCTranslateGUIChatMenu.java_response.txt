@@ -8,7 +8,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.enchantments.Enchantment;
 
 import com.cryptomorin.xseries.XEnchantment;
 import com.cryptomorin.xseries.XMaterial;
@@ -64,13 +63,11 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
 			}
 			
 			/* Outgoing Chat Button */
-			if ((player.getUniqueId().toString().equals(targetPlayerUUID) && player.hasPermission("worldwidechat.wwctco"))
-					|| (!player.getUniqueId().toString().equals(targetPlayerUUID) && player.hasPermission("worldwidechat.wwctco.otherplayers"))) {
+			if ((player.getUniqueId().toString().equals(targetPlayerUUID) && player.hasPermission("worldwidechat.wwctco")) || (!player.getUniqueId().toString().equals(targetPlayerUUID)) && player.hasPermission("worldwidechat.wwctco.otherplayers")) {
 				ItemStack outgoingChatButton = XMaterial.CHEST_MINECART.parseItem();
 				ItemMeta outgoingChatMeta = outgoingChatButton.getItemMeta();
 				if (targetTranslator.getTranslatingChatOutgoing()) {
 					outgoingChatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					// Updated: Use getEnchant() instead of the removed parseEnchantment() method.
 					outgoingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
 					outgoingChatMeta.setDisplayName(ChatColor.GREEN
 							+ CommonDefinitions.getMessage("wwctGUIChatOutgoingButton"));
@@ -84,31 +81,29 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
 					WWCTranslateChatOutgoing translateChatOutgoing = new WWCTranslateChatOutgoing((CommandSender) player, null, null, args);
 					translateChatOutgoing.processCommand();
 					getTranslateChatMenu(targetPlayerUUID).open(player);
-				}));
+				}));	
 			}
 			
 			/* Incoming Chat Button */
-			if ((player.getUniqueId().toString().equals(targetPlayerUUID) && player.hasPermission("worldwidechat.wwctci"))
-					|| (!player.getUniqueId().toString().equals(targetPlayerUUID) && player.hasPermission("worldwidechat.wwctci.otherplayers"))) {
-				ItemStack incomingChatButton = XMaterial.MAP.parseItem();
-				ItemMeta incomingChatMeta = incomingChatButton.getItemMeta();
-				if (targetTranslator.getTranslatingChatIncoming()) {
-					incomingChatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					// Updated: Use getEnchant() instead of the removed parseEnchantment() method.
-					incomingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
-					incomingChatMeta.setDisplayName(ChatColor.GREEN
-							+ CommonDefinitions.getMessage("wwctGUIChatIncomingButton"));
-				} else {
-					incomingChatMeta.setDisplayName(ChatColor.YELLOW
-							+ CommonDefinitions.getMessage("wwctGUIChatIncomingButton"));
-				}
-				incomingChatButton.setItemMeta(incomingChatMeta);
-				contents.set(1, 5, ClickableItem.of(incomingChatButton, e -> {
-					String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName() };
-					WWCTranslateChatIncoming translateChatIncoming = new WWCTranslateChatIncoming((CommandSender) player, null, null, args);
-					translateChatIncoming.processCommand();
-					getTranslateChatMenu(targetPlayerUUID).open(player);
-				}));
+			if ((player.getUniqueId().toString().equals(targetPlayerUUID) && player.hasPermission("worldwidechat.wwctci")) || (!player.getUniqueId().toString().equals(targetPlayerUUID)) && player.hasPermission("worldwidechat.wwctci.otherplayers")) {
+            	ItemStack incomingChatButton = XMaterial.MAP.parseItem();
+    			ItemMeta incomingChatMeta = incomingChatButton.getItemMeta();
+    			if (targetTranslator.getTranslatingChatIncoming()) {
+    				incomingChatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+    				incomingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+    				incomingChatMeta.setDisplayName(ChatColor.GREEN
+    						+ CommonDefinitions.getMessage("wwctGUIChatIncomingButton"));
+    			} else {
+    				incomingChatMeta.setDisplayName(ChatColor.YELLOW
+    						+ CommonDefinitions.getMessage("wwctGUIChatIncomingButton"));
+    			}
+    			incomingChatButton.setItemMeta(incomingChatMeta);
+    			contents.set(1, 5, ClickableItem.of(incomingChatButton, e -> {
+    				String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName() };
+    				WWCTranslateChatIncoming translateChatIncoming = new WWCTranslateChatIncoming((CommandSender) player, null, null, args);
+    				translateChatIncoming.processCommand();
+    				getTranslateChatMenu(targetPlayerUUID).open(player);
+    			}));	
 			}
 			
 			/* Bottom Left Option: Previous Page */

@@ -1,44 +1,36 @@
-3d2
+3c3,4
 < import com.flowpowered.math.vector.Vector3d;
-8,10d6
-< 
-< import java.util.UUID;
-< 
-12,13c8,9
+---
+> import net.kyori.adventure.audience.Audience;
+> import org.spongepowered.math.vector.Vector3d;
+12,13d12
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.data.key.Keys;
+18a18
+> import org.spongepowered.api.data.manipulator.mutable.entity.VanishingData;
+23c23
+<     private final CommandSource invoker;
 ---
-> import org.spongepowered.api.command.source.CommandSource;
-> import org.spongepowered.api.data.manipulator.mutable.entity.VanishData;
-18a15,18
-> import org.spongepowered.math.vector.Vector3d;
-> 
-> import java.util.Optional;
-> import java.util.UUID;
+>     private final Audience invoker;
 26,27c26
 <     public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
 <             , boolean keepSkin) {
 ---
->     public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin, boolean keepSkin) {
+>     public SkinApplier(ChangeSkinSponge plugin, Audience invoker, Player receiver, SkinModel targetSkin, boolean keepSkin) {
 29d27
 < 
-41c39
+41d38
 <         //uuid was successful resolved, we could now make a cooldown check
----
->         // uuid was successfully resolved, now perform a cooldown check
-63d60
+63d59
 < 
-83,85c80,88
+83,85c79,84
 <         //triggers an update for others player to see the new skin
 <         receiver.offer(Keys.VANISH, true);
 <         receiver.offer(Keys.VANISH, false);
 ---
->         // Triggers an update for other players to see the new skin by toggling vanish data.
->         Optional<VanishData> vanishDataOpt = receiver.get(VanishData.class);
->         if (vanishDataOpt.isPresent()) {
->             VanishData vanishData = vanishDataOpt.get();
->             vanishData.vanished().set(true);
->             receiver.offer(vanishData);
->             vanishData.vanished().set(false);
->             receiver.offer(vanishData);
->         }
+>         receiver.get(VanishingData.class).ifPresent(data -> {
+>             data.setVanished(true);
+>             receiver.offer(data);
+>             data.setVanished(false);
+>             receiver.offer(data);
+>         });

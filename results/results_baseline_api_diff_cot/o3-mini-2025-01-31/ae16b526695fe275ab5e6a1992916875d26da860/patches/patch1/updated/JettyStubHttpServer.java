@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2012 - 2016 Jadler contributors
+ * This program is made available under the terms of the MIT License.
+ */
 package net.jadler.stubbing.server.jetty;
 
 import net.jadler.RequestManager;
@@ -6,6 +10,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.Validate;
@@ -21,23 +26,22 @@ public class JettyStubHttpServer implements StubHttpServer {
     }
     
     public JettyStubHttpServer(final int port) {
-        this.server = new Server();
-        
-        // Setup HttpConfiguration: disabled server version and enabled date header.
+        QueuedThreadPool threadPool = new QueuedThreadPool();
+        this.server = new Server(threadPool);
+
         HttpConfiguration httpConfig = new HttpConfiguration();
         httpConfig.setSendServerVersion(false);
         httpConfig.setSendDateHeader(true);
-        
-        // Create a ServerConnector with the given configuration.
-        ServerConnector connector = new ServerConnector(this.server, new HttpConnectionFactory(httpConfig));
-        connector.setPort(port);
-        this.server.addConnector(connector);
-        this.httpConnector = connector;
+
+        this.httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+        this.httpConnector.setPort(port);
+        server.addConnector(this.httpConnector);
     }
     
     @Override
     public void registerRequestManager(final RequestManager ruleProvider) {
         Validate.notNull(ruleProvider, "ruleProvider cannot be null");
+
         server.setHandler(new JadlerHandler(ruleProvider));
     }
     
@@ -47,7 +51,7 @@ public class JettyStubHttpServer implements StubHttpServer {
         server.start();
         logger.debug("jetty started");
     }
-    
+
     @Override
     public void stop() throws Exception {
         logger.debug("stopping jetty");

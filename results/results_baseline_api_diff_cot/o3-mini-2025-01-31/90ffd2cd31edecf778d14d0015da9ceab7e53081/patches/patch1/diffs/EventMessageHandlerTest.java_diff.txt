@@ -1,45 +1,13 @@
-4d3
+4c4
 < import ch.qos.logback.classic.Logger;
-82a82
-> 
-84a85
-> 
-111,113c112,113
+---
+> import ch.qos.logback.classic.LoggerContext;
+111,113c111,114
 <         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
 <         logger.setLevel(Level.INFO);
 <         logger.addAppender(mockLogAppender);
 ---
->         // Removed logger configuration code that used logback-specific API
->         // because the interface ch.qos.logback.classic.Logger has been removed.
-177,181c177
-<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-< 
-<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-<         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-<         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
----
->         // Removed log appender verification since logger attachment via logback-specific API is no longer supported.
-214,218c210
-<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-< 
-<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-<         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-<         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
----
->         // Removed log appender verification since logger attachment via logback-specific API is no longer supported.
-251,255c243
-<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-< 
-<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-<         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-<         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
----
->         // Removed log appender verification since logger attachment via logback-specific API is no longer supported.
-288,292c276
-<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-< 
-<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-<         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-<         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
----
->         // Removed log appender verification since logger attachment via logback-specific API is no longer supported.
+>         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+>         ch.qos.logback.classic.Logger testLogger = loggerContext.getLogger(EventMessageHandler.class);
+>         testLogger.setLevel(Level.INFO);
+>         testLogger.addAppender(mockLogAppender);

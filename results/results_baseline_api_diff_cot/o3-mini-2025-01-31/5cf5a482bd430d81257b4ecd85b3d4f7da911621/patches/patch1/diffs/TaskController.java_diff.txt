@@ -10,26 +10,47 @@
 > import jakarta.mvc.Models;
 > import jakarta.mvc.View;
 > import jakarta.mvc.security.CsrfProtected;
-43,44c41,43
-<     @Inject
+44,46d41
 <     private BindingResult validationResult;
----
->     // Removed BindingResult injection and related code since the BindingResult and ParamError classes have been removed
->     // @Inject
->     // private BindingResult validationResult;
-66d64
 < 
-90d87
+<     @Inject
+66d60
+< 
+90d83
 <     //@ValidateOnExecution(type = ExecutableType.NONE)
-93a91,92
->         // Removed BindingResult based validation checking because the BindingResult and ParamError classes are no longer available.
->         /*
-104a104
->         */
-137a138,139
->         // Removed BindingResult based validation checking because the BindingResult and ParamError classes are no longer available.
->         /*
-148a151
->         */
-164d166
+94,105c87
+<         if (validationResult.isFailed()) {
+<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
+<             validationResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+<                         alert.addError(t.getParamName(), "", t.getMessage());
+<                     });
+<             models.put("errors", alert);
+<             models.put("task", form);
+<             return Response.status(BAD_REQUEST).entity("add.xhtml").build();
+<         }
+< 
+---
+>         // Removed validation check since BindingResult and ParamError are no longer available.
+138,149c120
+<         if (validationResult.isFailed()) {
+<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
+<             validationResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+<                         alert.addError(t.getParamName(), "", t.getMessage());
+<                     });
+<             models.put("errors", alert);
+<             models.put("task", form);
+<             return Response.status(BAD_REQUEST).entity("edit.xhtml").build();
+<         }
+< 
+---
+>         // Removed validation check since BindingResult and ParamError are no longer available.
+151d121
+< 
+164d133
 <     //@CsrfProtected
+169d137
+< 

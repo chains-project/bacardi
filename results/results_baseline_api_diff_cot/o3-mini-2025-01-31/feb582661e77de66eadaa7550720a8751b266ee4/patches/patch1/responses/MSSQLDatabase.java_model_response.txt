@@ -1,14 +1,3 @@
-<repair_strategy>
-1. The failure is caused because the client code calls the removed method ExecutorService.getInstance().
-2. The API has changed: instead of using the singleton instance obtained from getInstance() and then calling getExecutor(Database), the new API provides a static method getExecutor(String, Database).
-3. The client code’s call in dropDatabaseObjects which was: ExecutorService.getInstance().getExecutor(this).execute(…)
-   needs to be updated to: ExecutorService.getExecutor("jdbc", this).execute(…)
-4. The minimal change is to remove the call to getInstance() and pass the appropriate executor type (here assumed to be "jdbc") along with 'this' as the Database parameter.
-5. The update should preserve the method signature and ensure complete compilability.
-6. No other part of the code is affected by the dependency update aside from importing and using the new static method.
-7. Ensure the updated code returns the complete and compilable class.
-</repair_strategy>
-
 ```java
 package liquibase.ext.mssql.database;
 
@@ -28,7 +17,7 @@ public class MSSQLDatabase extends liquibase.database.core.MSSQLDatabase {
     public void dropDatabaseObjects(CatalogAndSchema schemaToDrop) throws LiquibaseException {
         super.dropDatabaseObjects(schemaToDrop);
         ExecutorService.getExecutor("jdbc", this)
-            .execute(new DropStoredProcedureStatement(getLiquibaseCatalogName(), getLiquibaseSchemaName()));
+            .execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
     }
 }
 ```

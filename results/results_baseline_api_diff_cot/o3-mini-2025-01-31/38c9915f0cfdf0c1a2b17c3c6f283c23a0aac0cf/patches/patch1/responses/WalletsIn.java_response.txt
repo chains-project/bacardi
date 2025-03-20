@@ -1,26 +1,3 @@
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2018-2023 Yegor Bugayenko
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package io.zold.api;
 
 import java.io.IOException;
@@ -30,7 +7,6 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Random;
 import org.cactoos.Scalar;
-import org.cactoos.scalar.Sticky;
 import org.cactoos.func.IoCheckedFunc;
 import org.cactoos.io.Directory;
 import org.cactoos.iterable.Filtered;
@@ -48,7 +24,7 @@ public final class WalletsIn implements Wallets {
     /**
      * Path containing wallets.
      */
-    private final Scalar<Path> path;
+    private final Path path;
 
     /**
      * Filter for matching file extensions.
@@ -96,14 +72,17 @@ public final class WalletsIn implements Wallets {
      * @param random Randomizer
      * @param ext Wallets file extension
      */
-    public WalletsIn(final Scalar<Path> pth, final String ext,
-        final Random random) {
-        this.path = new Sticky<>(pth);
+    public WalletsIn(final Scalar<Path> pth, final String ext, final Random random) {
+        try {
+            this.path = pth.value();
+        } catch (final Exception ex) {
+            throw new IllegalStateException(ex);
+        }
         this.filter = new IoCheckedFunc<Path, Boolean>(
             (file) -> file.toFile().isFile()
                 && FileSystems.getDefault()
-                .getPathMatcher(String.format("glob:**.%s", ext))
-                .matches(file)
+                   .getPathMatcher(String.format("glob:**.%s", ext))
+                   .matches(file)
         );
         this.ext = ext;
         this.random = random;
@@ -111,11 +90,8 @@ public final class WalletsIn implements Wallets {
 
     @Override
     public Wallet create() throws IOException {
-        final Path wpth = getPath().resolve(
-            String.join(".",
-                Long.toHexString(this.random.nextLong()),
-                this.ext
-            )
+        final Path wpth = this.path.resolve(
+            String.join(".", Long.toHexString(this.random.nextLong()), this.ext)
         );
         if (wpth.toFile().exists()) {
             throw new IOException(
@@ -132,12 +108,7 @@ public final class WalletsIn implements Wallets {
     }
 
     @Override
-    // @todo #65:30min Create the new wallet in the path with all wallets.
-    //  It should contain the correct content according to the
-    //  white paper (network, protocol version, id and public RSA key). After
-    //  this remove exception expect for tests on WalletsInTest.
-    public Wallet create(final long id, final String pubkey, final String
-        network) throws IOException {
+    public Wallet create(final long id, final String pubkey, final String network) throws IOException {
         throw new UnsupportedOperationException(
             "WalletsIn.create(String, String, String) not supported"
         );
@@ -148,26 +119,10 @@ public final class WalletsIn implements Wallets {
         try {
             return new Mapped<Path, Wallet>(
                 (pth) -> new Wallet.File(pth),
-                new Filtered<>(this.filter, new Directory(getPath()))
+                new Filtered<>(this.filter, new Directory(this.path))
             ).iterator();
         } catch (final IOException ex) {
             throw new IllegalStateException(ex);
-        }
-    }
-    
-    /**
-     * Helper method to retrieve the path from the scalar.
-     * @return the wallet directory path
-     * @throws IOException if an error occurs retrieving the path
-     */
-    private Path getPath() throws IOException {
-        try {
-            return this.path.value();
-        } catch (final Exception ex) {
-            if (ex instanceof IOException) {
-                throw (IOException) ex;
-            }
-            throw new IOException(ex);
         }
     }
 }

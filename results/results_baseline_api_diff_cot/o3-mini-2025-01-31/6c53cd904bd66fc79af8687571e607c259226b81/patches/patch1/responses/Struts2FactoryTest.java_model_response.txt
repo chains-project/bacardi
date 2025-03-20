@@ -1,14 +1,3 @@
-<repair_strategy>
-1. The error is caused by the removal of the class org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter in the new dependency version.
-2. In the new API, the class has been moved/renamed to org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter.
-3. The client code references the old class in its import and when binding the filter in the ServletModule.
-4. We must update the import statement so that the new class is used, and update any type references.
-5. The minimal change is to update the import from the old package (org.apache.struts2.dispatcher.ng.filter) to the new package (org.apache.struts2.dispatcher.filter) without changing function signatures.
-6. This change should have no side effects because it only updates where the class is imported from.
-7. The final class will be complete, compilable, and fully functional.
-8. Since the new class is used directly, no extra methods or constructors are invoked.
-</repair_strategy>
-
 ```java
 /*
  * Copyright (C) 2010 Google Inc.

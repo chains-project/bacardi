@@ -74,7 +74,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     protected ClusteredCache(final String name, final IMap<K, V> cache) {
         this.map = cache;
         this.name = name;
-        logger = LoggerFactory.getLogger(ClusteredCache.class.getName() + "[cache: " + name + "]");
+        logger = LoggerFactory.getLogger(ClusteredCache.class.getName() + "[cache: "+name+"]");
     }
 
     void addEntryListener(final MapListener listener) {

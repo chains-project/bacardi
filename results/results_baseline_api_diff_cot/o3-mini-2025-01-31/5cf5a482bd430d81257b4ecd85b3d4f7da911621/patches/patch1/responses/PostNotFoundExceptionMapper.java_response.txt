@@ -1,24 +1,19 @@
 package com.example.config;
 
 import com.example.domain.TaskNotFoundException;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jakarta.mvc.Models;
 import javax.inject.Inject;
+import jakarta.mvc.Models;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-/**
- *
- * @author hantsy
- */
 @Provider
 public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFoundException> {
 
-    @Inject 
-    Logger log;
-    
+    @Inject Logger log;
     //private static Logger log = Logger.getLogger(PostNotFoundExceptionMapper.class.getName());
 
     @Inject

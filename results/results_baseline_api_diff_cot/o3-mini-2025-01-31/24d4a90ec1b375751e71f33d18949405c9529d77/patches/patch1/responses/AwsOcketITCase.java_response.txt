@@ -38,7 +38,7 @@ import org.junit.Test;
 /**
  * Integration case for {@link AwsOcket}.
  *
- * @author Yegor Bugayenko (yegor256@gmail.com)
+ * @author Yegor Bugayenko
  * @version $Id: d67286e195243030346f4424945bcc8027d7b932 $
  * @since 0.1
  */

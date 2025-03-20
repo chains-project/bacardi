@@ -14,6 +14,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.client.ledger.model.LedgerTransaction;
 import uk.gov.pay.adminusers.client.ledger.service.LedgerService;
@@ -30,6 +31,7 @@ import uk.gov.pay.adminusers.service.UserServices;
 import uk.gov.service.payments.commons.queue.exception.QueueException;
 import uk.gov.service.payments.commons.queue.model.QueueMessage;
 
+import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -108,20 +110,14 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        // Instead of directly casting to a removed Logger type, we obtain the logger as an SLF4J logger
-        // and then use reflection to set its level and add our mock appender.
-        org.slf4j.Logger testLogger = LoggerFactory.getLogger(EventMessageHandler.class);
+        Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
         try {
-            // Invoke setLevel(Level) if available
-            java.lang.reflect.Method setLevelMethod = testLogger.getClass().getMethod("setLevel", Level.class);
-            setLevelMethod.invoke(testLogger, Level.INFO);
-            
-            // Invoke addAppender(Appender) to attach our mock appender
-            java.lang.reflect.Method addAppenderMethod = testLogger.getClass().getMethod("addAppender", Appender.class);
-            addAppenderMethod.invoke(testLogger, mockLogAppender);
+            Method setLevelMethod = logger.getClass().getMethod("setLevel", Level.class);
+            setLevelMethod.invoke(logger, Level.INFO);
+            Method addAppenderMethod = logger.getClass().getMethod("addAppender", Appender.class);
+            addAppenderMethod.invoke(logger, mockLogAppender);
         } catch (Exception e) {
-            // If reflection fails, print the exception. In a real test you might want to fail the setup.
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

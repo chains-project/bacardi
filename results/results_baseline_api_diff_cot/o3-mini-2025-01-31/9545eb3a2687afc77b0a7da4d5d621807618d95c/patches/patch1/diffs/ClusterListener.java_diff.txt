@@ -1,4 +1,20 @@
-18,26c18,25
+1,15d0
+< /*
+<  * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+18,26c3,6
 < import com.hazelcast.core.Cluster;
 < import com.hazelcast.core.EntryListener;
 < import com.hazelcast.core.LifecycleEvent;
@@ -13,25 +29,86 @@
 > import com.hazelcast.cluster.MembershipEvent;
 > import com.hazelcast.cluster.MembershipListener;
 > import com.hazelcast.cluster.Member;
-> import com.hazelcast.cluster.LifecycleEvent;
-> import com.hazelcast.cluster.LifecycleEvent.LifecycleState;
-> import com.hazelcast.cluster.LifecycleListener;
-> import com.hazelcast.map.listener.EntryListener;
-76d74
+48,52c28
+< /**
+<  * ClusterListener reacts to membership changes in the cluster. It takes care of cleaning up the state
+<  * of the routing table and the sessions within it when a node which manages those sessions goes down.
+<  */
+< public class ClusterListener implements MembershipListener, LifecycleListener {
+---
+> public class ClusterListener implements MembershipListener {
+76d51
 < 
-164d161
+122c97
+<             new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), seniorClusterMember});
+---
+>                 new Object[]{ClusteredCacheFactory.getNodeID(getLocalMember()), getLocalMember().getUuid(), seniorClusterMember});
+129c104
+<         return members.next().getUuid().equals(cluster.getLocalMember().getUuid());
+---
+>         return members.next().getUuid().equals(getLocalMember().getUuid());
+150c125
+<             new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), wasSeniorClusterMember});
+---
+>                 new Object[]{ClusteredCacheFactory.getNodeID(getLocalMember()), getLocalMember().getUuid(), wasSeniorClusterMember});
+164d138
 < 
-269,281d265
-< 
+179,181d152
+<                 // The following line was intended to wait until all local handling finishes before informing other
+<                 // nodes. However that proved to be insufficient. Hence the 30 second default wait in the lines above.
+<                 // TODO Instead of the 30 second wait, we should look (and then wait) for some trigger or event that signifies that local handling has completed and caches have stabilized.
+256d226
+<     @SuppressWarnings("WeakerAccess")
+261d230
 <     @Override
-<     public void memberAttributeChanged(final MemberAttributeEvent event) {
-<         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
-<         isSenior = isSeniorClusterMember();
-<         final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
-<         clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(event.getMember()),
-<                 new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
-<     }
-< 
-<     boolean isClusterMember() {
-<         return clusterMember;
-<     }
+270d238
+<     @Override
+281a250,297
+> 
+>     private Member getLocalMember() {
+>         for (Member member : cluster.getMembers()) {
+>             if (member.localMember()) {
+>                 return member;
+>             }
+>         }
+>         throw new IllegalStateException("No local member found");
+>     }
+> 
+>     // Dummy interface to replace removed com.hazelcast.core.EntryListener
+>     private static interface EntryListener {
+>     }
+> 
+>     // Dummy classes to replace removed Hazelcast classes
+> 
+>     public static class LifecycleEvent {
+>         private final LifecycleState state;
+> 
+>         public LifecycleEvent(LifecycleState state) {
+>             this.state = state;
+>         }
+> 
+>         public LifecycleState getState() {
+>             return state;
+>         }
+>     }
+> 
+>     public static enum LifecycleState {
+>         SHUTDOWN, STARTED;
+>     }
+> 
+>     public static class MemberAttributeEvent {
+>         private final Member member;
+> 
+>         public MemberAttributeEvent(Member member) {
+>             this.member = member;
+>         }
+> 
+>         public Member getMember() {
+>             return member;
+>         }
+> 
+>         @Override
+>         public String toString() {
+>             return "MemberAttributeEvent{member=" + member + "}";
+>         }
+>     }

@@ -1,23 +1,16 @@
-24d23
-< import java.beans.IntrospectionException;
-94d92
+15a16
+> import org.yaml.snakeyaml.DumperOptions;
+37a39
+>     super(new DumperOptions());
+94d95
 < 
-217,219c215,217
-<   @Override
+218,219c219,220
 <   protected Set<Property> getProperties(Class<? extends Object> type)
 <           throws IntrospectionException {
 ---
->   // Removed the @Override annotation since Representer no longer provides
->   // a getProperties method that throws IntrospectionException.
->   protected Set<Property> getProperties(Class<?> type) {
-231c229
-<       return super.getProperties(type);
----
->       return getPropertyUtils().getProperties(type);
-235,237c233,234
-<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
-<           throws IntrospectionException {
-<       Set<Property> standard = super.getProperties(type);
----
->   private Set<Property> sortTypeWithOrder(Class<?> type, List<String> order) {
->     Set<Property> standard = getPropertyUtils().getProperties(type);
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+>     try {
+232a234,236
+>     } catch (IntrospectionException e) {
+>       throw new RuntimeException(e);
+>     }

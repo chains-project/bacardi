@@ -1,18 +1,5 @@
-<repair_strategy>
-1. The error shows that the class Xpp3Dom from the package org.codehaus.plexus.util.xml is no longer present, and its related methods (getValue, getChild, and getChild(int)) have been removed.
-2. In the old version the code assumed that the plugin configuration was represented as a Plexus Xpp3Dom with helper methods to extract child nodes and values.
-3. The update in the dependency requires that we stop using the removed class and methods. Instead, the recommended replacement is to use the Xpp3Dom implementation provided in the Maven Shared Utils library (org.apache.maven.shared.utils.xml.Xpp3Dom) which continues to provide similar functionality.
-4. The client code’s method signatures cannot change. Fortunately, all usages of Xpp3Dom in the code (casting configuration, traversing children, and extracting text value) are identical in spirit to the ones provided by the Maven Shared Utils version.
-5. Therefore, the minimal change needed is to update the import statement to use org.apache.maven.shared.utils.xml.Xpp3Dom rather than the removed org.codehaus.plexus.util.xml.Xpp3Dom.
-6. This change satisfies the constraints and avoids any side effects beyond what is needed. The remainder of the code and its behavior remain unchanged.
-7. Since the new Xpp3Dom supports getChild(String), getChildren(String) and getValue() methods, no further modifications are necessary.
-</repair_strategy>
-
-Below is the complete fixed class:
-
---------------------------------------------------
- 
-/* 
+```java
+/*
  * Copyright 2019 Danny van Heumen
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,14 +19,18 @@ package org.simplify4u.plugins.utils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.repository.RepositorySystem;
-import org.apache.maven.shared.utils.xml.Xpp3Dom;
 
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptySet;
 import static java.util.Objects.requireNonNull;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Utilities specific for org.apache.maven.plugins:maven-compiler-plugin.
@@ -81,24 +72,21 @@ public final class MavenCompilerUtils {
         if (config == null) {
             return emptySet();
         }
-        if (config instanceof Xpp3Dom) {
-            return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
-                    .flatMap(aggregate -> stream(aggregate.getChildren("path")))
-                    .map(processor -> system.createArtifact(
-                            extractChildValue(processor, "groupId"),
-                            extractChildValue(processor, "artifactId"),
-                            extractChildValue(processor, "version"),
+        if (config instanceof Element) {
+            Element configElement = (Element) config;
+            List<Element> annotationProcessorPathsElements = getChildElementsByName(configElement, "annotationProcessorPaths");
+            return annotationProcessorPathsElements.stream()
+                    .flatMap(annPaths -> getChildElementsByName(annPaths, "path").stream())
+                    .map(pathElem -> system.createArtifact(
+                            extractChildValue(pathElem, "groupId"),
+                            extractChildValue(pathElem, "artifactId"),
+                            extractChildValue(pathElem, "version"),
                             PACKAGING))
-                    // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
-                    // therefore there is little use in logging incomplete paths that are filtered out.
                     .filter(a -> !a.getGroupId().isEmpty())
                     .filter(a -> !a.getArtifactId().isEmpty())
                     .filter(a -> !a.getVersion().isEmpty())
                     .collect(Collectors.toSet());
         }
-        // It is expected that this will never occur due to all Configuration instances of all plugins being provided as
-        // XML document. If this happens to occur on very old plugin versions, we can safely add the type support and
-        // simply return an empty set.
         throw new UnsupportedOperationException("Please report that an unsupported type of configuration container" +
                 " was encountered: " + config.getClass());
     }
@@ -106,16 +94,35 @@ public final class MavenCompilerUtils {
     /**
      * Extract child value if child is present, or return empty string if absent.
      *
-     * @param node the parent node
-     * @param name the child node name
-     * @return Returns child value if child node present or otherwise empty string.
+     * @param element the parent element
+     * @param childName the child element name
+     * @return Returns child value if child element present or otherwise empty string.
      */
-    private static String extractChildValue(Xpp3Dom node, String name) {
-        final Xpp3Dom child = node.getChild(name);
-        return child == null ? "" : child.getValue();
+    private static String extractChildValue(Element element, String childName) {
+        List<Element> children = getChildElementsByName(element, childName);
+        if (!children.isEmpty()) {
+            return children.get(0).getTextContent().trim();
+        }
+        return "";
+    }
+
+    /**
+     * Get direct child elements with the specified name.
+     *
+     * @param parent the parent element
+     * @param name the name of the child elements to retrieve
+     * @return List of child elements with the specified name.
+     */
+    private static List<Element> getChildElementsByName(Element parent, String name) {
+        List<Element> children = new ArrayList<>();
+        NodeList nodes = parent.getChildNodes();
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node node = nodes.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE && name.equals(node.getNodeName())) {
+                children.add((Element) node);
+            }
+        }
+        return children;
     }
 }
-
---------------------------------------------------
-
-This fix updates the dependency import so that the class compiles under the new API, while leaving the public method signatures intact.
+```

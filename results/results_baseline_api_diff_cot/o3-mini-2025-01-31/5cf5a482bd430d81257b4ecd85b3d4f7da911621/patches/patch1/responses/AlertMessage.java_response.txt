@@ -9,7 +9,7 @@ import jakarta.mvc.RedirectScoped;
 /**
  * Used to transport messages back to the client.
  *
- * @author Hantsy
+ * @author Hantsy Bai
  */
 @RedirectScoped
 @Named("flashMessage")
@@ -123,7 +123,5 @@ public class AlertMessage implements Serializable {
         public void setField(String field) {
             this.field = field;
         }
-
     }
-
 }

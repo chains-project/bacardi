@@ -1,0 +1,38 @@
+11a12
+> import org.spongepowered.api.command.Command;
+13,20c14,18
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+< import org.spongepowered.api.scheduler.Task;
+< 
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+> import org.spongepowered.api.command.source.CommandSource;
+> import org.spongepowered.api.scheduler.TaskExecutorService;
+35c33
+<         String url = args.<String>getOne("url").get();
+---
+>         String url = args.requireOne("url");
+43c41
+<                 Task.builder().async().execute(skinUploader).submit(plugin);
+---
+>                 plugin.getScheduler().submit(skinUploader, plugin);
+48d45
+< 
+52,54c49,50
+<     @Override
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command buildSpec() {
+>         return Command.builder()
+56c52
+<                 .arguments(string(of("url")))
+---
+>                 .addParameter(Parameter.string().key("url").build())

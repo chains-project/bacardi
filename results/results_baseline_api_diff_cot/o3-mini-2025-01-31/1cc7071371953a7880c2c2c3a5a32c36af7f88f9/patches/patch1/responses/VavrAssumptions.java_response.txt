@@ -21,47 +21,17 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import io.vavr.control.Validation;
-import net.bytebuddy.ByteBuddy;
-import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
-import net.bytebuddy.dynamic.scaffold.TypeValidation;
-import net.bytebuddy.implementation.Implementation;
-import net.bytebuddy.implementation.MethodDelegation;
-import net.bytebuddy.implementation.auxiliary.AuxiliaryType;
-import net.bytebuddy.implementation.bind.annotation.RuntimeType;
-import net.bytebuddy.implementation.bind.annotation.SuperCall;
-import net.bytebuddy.implementation.bind.annotation.This;
-import net.bytebuddy.matcher.ElementMatchers;
 import org.assertj.core.util.CheckReturnValue;
-import org.assertj.vavr.api.ClassLoadingStrategyFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
-import static org.assertj.core.util.Arrays.array;
-import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrategy;
 
 public class VavrAssumptions {
 
-    /**
-     * This NamingStrategy takes the original class's name and adds a suffix to distinguish it.
-     * The default is ByteBuddy but for debugging purposes, it makes sense to add AssertJ as a name.
-     */
-    private static final ByteBuddy BYTE_BUDDY = new ByteBuddy()
-            .with(TypeValidation.DISABLED)
-            .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
-
-    private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
-
-    // Replacing the removed TypeCache from the dependency with a simple concurrent map cache.
-    private static final ConcurrentMap<Class<?>, Class<?>> CACHE = new ConcurrentHashMap<>();
-
     private static final class AssumptionMethodInterceptor {
 
-        @RuntimeType
-        public static Object intercept(@This AbstractVavrAssert<?, ?> assertion, @SuperCall Callable<Object> proxy) throws Exception {
+        public static Object intercept(AbstractVavrAssert<?, ?> assertion, Callable<Object> proxy) throws Exception {
             try {
                 Object result = proxy.call();
                 if (result != assertion && result instanceof AbstractVavrAssert) {
@@ -197,11 +167,12 @@ public class VavrAssumptions {
     }
 
     private static <ASSERTION, ACTUAL> ASSERTION asAssumption(Class<ASSERTION> assertionType,
-                                                              Class<ACTUAL> actualType,
-                                                              Object actual) {
-        return asAssumption(assertionType, array(actualType), array(actual));
+                                                                Class<ACTUAL> actualType,
+                                                                Object actual) {
+        return asAssumption(assertionType, new Class<?>[] { actualType }, actual);
     }
 
+    @SuppressWarnings("unchecked")
     private static <ASSERTION> ASSERTION asAssumption(Class<ASSERTION> assertionType,
                                                       Class<?>[] constructorTypes,
                                                       Object... constructorParams) {
@@ -214,18 +185,9 @@ public class VavrAssumptions {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass) {
-        return (Class<ASSERTION>) CACHE.computeIfAbsent(assertClass, key -> generateAssumptionClass(assertClass));
-    }
-
-    private static <ASSERTION> Class<? extends ASSERTION> generateAssumptionClass(Class<ASSERTION> assertionType) {
-        return BYTE_BUDDY.subclass(assertionType)
-                .method(ElementMatchers.any())
-                .intercept(ASSUMPTION)
-                .make()
-                .load(VavrAssumptions.class.getClassLoader(), classLoadingStrategy(assertionType))
-                .getLoaded();
+        // Bypass dynamic subclassing and return the original class.
+        return assertClass;
     }
 
     private static RuntimeException assumptionNotMet(AssertionError assertionError) throws ReflectiveOperationException {
@@ -255,9 +217,8 @@ public class VavrAssumptions {
                 .newInstance("assumption was not met due to: " + e.getMessage(), e);
     }
 
-    // for method that change the object under test (e.g. extracting)
+    // for methods that change the object under test (e.g. extracting)
     private static AbstractVavrAssert<?, ?> asAssumption(AbstractVavrAssert<?, ?> assertion) {
-        // @format:off
         Object actual = assertion.actual();
         if (assertion instanceof LazyAssert) return asAssumption(LazyAssert.class, Lazy.class, actual);
         if (assertion instanceof EitherAssert) return asAssumption(EitherAssert.class, Either.class, actual);
@@ -266,9 +227,6 @@ public class VavrAssumptions {
         if (assertion instanceof SeqAssert) return asAssumption(SeqAssert.class, Seq.class, actual);
         if (assertion instanceof TryAssert) return asAssumption(TryAssert.class, Try.class, actual);
         if (assertion instanceof ValidationAssert) return asAssumption(ValidationAssert.class, Validation.class, actual);
-        // @format:on
-        // should not arrive here
         throw new IllegalArgumentException("Unsupported assumption creation for " + assertion.getClass());
     }
-
 }

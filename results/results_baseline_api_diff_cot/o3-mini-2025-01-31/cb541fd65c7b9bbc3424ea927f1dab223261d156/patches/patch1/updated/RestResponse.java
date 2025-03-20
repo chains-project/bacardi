@@ -15,8 +15,8 @@
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+ * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
  * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
@@ -46,8 +46,7 @@ import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.collection.IsEmptyCollection;
-import org.hamcrest.collection.IsIterableContaining;
+import org.hamcrest.core.IsCollectionContaining;
 
 /**
  * REST response.
@@ -60,7 +59,7 @@ import org.hamcrest.collection.IsIterableContaining;
  *   .as(RestResponse.class)
  *   .assertStatus(200)
  *   .assertBody(CoreMatchers.containsString("hello, world!"))
- *   .assertHeader("Content-Type", IsIterableContaining.hasItem("text/plain"))
+ *   .assertHeader("Content-Type", IsCollectionContaining.hasItem("text/plain"))
  *   .jump(URI.create("/users"))
  *   .fetch();</pre>
  *
@@ -174,7 +173,7 @@ public final class RestResponse extends AbstractResponse {
      * Verifies HTTP header against provided matcher, and throws
      * {@link AssertionError} in case of mismatch.
      *
-     * <p>The iterator for the matcher will always be a real object and never
+     * <p>The iterator for the matcher will always be a real object an never
      * {@code NULL}, even if such a header is absent in the response. If the
      * header is absent the iterable will be empty.
      *
@@ -209,7 +208,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, IsIterableContaining.hasItem(value));
+        return this.assertHeader(name, IsCollectionContaining.hasItem(value));
     }
 
     /**
@@ -245,7 +244,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            CoreMatchers.not(IsEmptyCollection.empty())
+            CoreMatchers.not(emptyIterableOf(String.class))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -332,4 +331,15 @@ public final class RestResponse extends AbstractResponse {
         }
     }
 
+    private static <T> Matcher<Iterable<T>> emptyIterableOf(final Class<T> type) {
+        return new CustomMatcher<Iterable<T>>("an empty iterable of " + type.getName()) {
+            @Override
+            public boolean matches(final Object item) {
+                if (item instanceof Iterable) {
+                    return !((Iterable<?>) item).iterator().hasNext();
+                }
+                return false;
+            }
+        };
+    }
 }

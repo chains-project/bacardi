@@ -192,7 +192,6 @@ public final class Ssh extends AbstractSshShell {
      * @param user Login
      * @param priv Private SSH key
      * @throws UnknownHostException If fails
-     * @since 1.4
      * @checkstyle ParameterNumberCheck (6 lines)
      */
     public Ssh(final String adr, final int prt,
@@ -281,8 +280,8 @@ public final class Ssh extends AbstractSshShell {
     /**
      * Make session.
      * @param sch The JSch
-     * @return The session.
-     * @throws JSchException If fails.
+     * @return The session
+     * @throws JSchException If fails
      */
     private Session session(final JSch sch) throws JSchException {
         final Session session = sch.getSession(
