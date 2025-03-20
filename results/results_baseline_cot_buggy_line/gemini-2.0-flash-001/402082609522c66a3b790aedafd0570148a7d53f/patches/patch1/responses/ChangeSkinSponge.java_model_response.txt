@@ -22,13 +22,14 @@ import org.slf4j.Logger;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.GameInitializationEvent;
 import org.spongepowered.api.event.lifecycle.GamePreInitializationEvent;
 import org.spongepowered.api.event.lifecycle.GameStoppingServerEvent;
-import org.spongepowered.api.network.channel.ChannelRegistry;
 import org.spongepowered.api.network.channel.raw.RawDataChannel;
+import org.spongepowered.api.network.channel.ChannelRegistrar;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
@@ -39,7 +40,7 @@ import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 @Singleton
 @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
         url = PomData.URL, description = PomData.DESCRIPTION)
-public class ChangeSkinSponge implements PlatformPlugin<org.spongepowered.api.command.CommandSource> {
+public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
 
     private final Path dataFolder;
     private final Logger logger;
@@ -77,17 +78,17 @@ public class ChangeSkinSponge implements PlatformPlugin<org.spongepowered.api.co
         org.spongepowered.api.command.CommandManager cmdManager = Sponge.getCommandManager();
 
         //command and event register
-        cmdManager.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
-        cmdManager.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
-        cmdManager.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
-        cmdManager.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
-        cmdManager.register(this, injector.getInstance(InvalidateCommand.class)
+        cmdManager.register(this, (Command.Parameterized) injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+        cmdManager.register(this, (Command.Parameterized) injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+        cmdManager.register(this, (Command.Parameterized) injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+        cmdManager.register(this, (Command.Parameterized) injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+        cmdManager.register(this, (Command.Parameterized) injector.getInstance(InvalidateCommand.class)
                 .buildSpec(), "skininvalidate", "skin-invalidate");
 
         Sponge.getEventManager().registerListeners(this, injector.getInstance(LoginListener.class));
 
         //incoming channel
-        ChannelRegistry channelReg = Sponge.getChannelRegistry();
+        ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
         String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
         String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
@@ -106,7 +107,7 @@ public class ChangeSkinSponge implements PlatformPlugin<org.spongepowered.api.co
     }
 
     @Override
-    public boolean hasSkinPermission(org.spongepowered.api.command.CommandSource invoker, UUID uuid, boolean sendMessage) {
+    public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
         if (invoker.hasPermission(PomData.ARTIFACT_ID + ".skin.whitelist." + uuid)) {
             return true;
         }
@@ -139,7 +140,7 @@ public class ChangeSkinSponge implements PlatformPlugin<org.spongepowered.api.co
     }
 
     @Override
-    public void sendMessage(org.spongepowered.api.command.CommandSource receiver, String key) {
+    public void sendMessage(CommandSource receiver, String key) {
         String message = core.getMessage(key);
         if (message != null && receiver != null) {
             receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));

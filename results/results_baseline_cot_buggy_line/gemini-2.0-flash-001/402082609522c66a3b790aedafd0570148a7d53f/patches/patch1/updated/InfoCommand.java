@@ -17,10 +17,11 @@ import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
-public class InfoCommand implements Command {
+public class InfoCommand implements Command, ChangeSkinCommand {
 
     @Inject
     private ChangeSkinSponge plugin;
@@ -29,9 +30,7 @@ public class InfoCommand implements Command {
     private SkinFormatter formatter;
 
 
-    @Override
-    public CommandResult execute(org.spongepowered.api.command.CommandCause cause, CommandContext args) {
-        org.spongepowered.api.command.CommandSource src = cause.cause().first(org.spongepowered.api.command.CommandSource.class).orElse(null);
+    public CommandResult execute(Subject src, CommandContext args) {
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
             return CommandResult.empty();
@@ -48,8 +47,9 @@ public class InfoCommand implements Command {
         return CommandResult.success();
     }
 
-    public org.spongepowered.api.command.Command.Builder buildSpec() {
-        return org.spongepowered.api.command.Command.builder()
+    @Override
+    public Command.Builder builder() {
+        return Command.builder()
                 .executor(this)
                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base");
     }
@@ -64,7 +64,7 @@ public class InfoCommand implements Command {
                 String template = plugin.getCore().getMessage("skin-info");
                 String formatted = formatter.apply(template, optSkin.get());
 
-                Text text = TextSerializers.FORMATTING_CODE.deserialize(formatted);
+                Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
                 player.sendMessage(text);
             } else {
                 plugin.sendMessage(player, "skin-not-found");

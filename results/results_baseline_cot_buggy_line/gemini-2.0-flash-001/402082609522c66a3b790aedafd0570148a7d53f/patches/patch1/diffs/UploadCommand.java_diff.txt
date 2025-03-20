@@ -2,53 +2,39 @@
 > import java.util.Optional;
 11a13
 > import org.spongepowered.api.command.Command;
-13,16c15,17
+13,14c15,16
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
-< import org.spongepowered.api.command.spec.CommandExecutor;
-< import org.spongepowered.api.command.spec.CommandSpec;
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.parameter.Parameter;
-> import org.spongepowered.api.command.source.CommandSource;
-19,20c20,21
+16a19
+> import org.spongepowered.api.entity.living.player.Player;
+18,20c21,22
+< 
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 < import static org.spongepowered.api.text.Text.of;
 ---
-> import net.kyori.adventure.text.TextComponent;
-> import net.kyori.adventure.text.Component;
-22c23
-< public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
----
-> public class UploadCommand implements Command.Executor, ChangeSkinCommand {
-34,35c35,48
+> import org.spongepowered.api.service.permission.Subject;
+> import org.spongepowered.api.text.Text;
+34,35c36,48
 <     public CommandResult execute(CommandSource src, CommandContext args) {
 <         String url = args.<String>getOne("url").get();
 ---
->     public CommandResult execute(CommandContext context) {
->         CommandSource src = context.cause().first(CommandSource.class).orElse(null);
+>     public CommandResult execute(CommandContext args) {
+>         Subject src = args.cause().subject();
 > 
->         if (src == null) {
->             return CommandResult.empty();
->         }
+>         Parameter.Value<String> urlValue = args.one(Text.of("url"));
+>         Optional<String> optUrl = urlValue.value();
 > 
->         Parameter.Value<String> urlParameter = context.one(Parameter.string("url")).orElse(null);
->         if (urlParameter == null) {
+>         if (!optUrl.isPresent()) {
 >             plugin.sendMessage(src, "no-valid-url");
 >             return CommandResult.empty();
 >         }
 > 
->         String url = urlParameter;
-53,54c66,67
-<     public CommandSpec buildSpec() {
-<         return CommandSpec.builder()
----
->     public Command.Builder buildSpec() {
->         return Command.builder()
-56,58c69,70
+>         String url = optUrl.get();
+> 
+56c69
 <                 .arguments(string(of("url")))
-<                 .permission(PomData.ARTIFACT_ID + ".command.skinupload.base")
-<                 .build();
 ---
->                 .addParameter(Parameter.string("url"))
->                 .permission(PomData.ARTIFACT_ID + ".command.skinupload.base");
+>                 .addParameter(Parameter.string().key("url").build())

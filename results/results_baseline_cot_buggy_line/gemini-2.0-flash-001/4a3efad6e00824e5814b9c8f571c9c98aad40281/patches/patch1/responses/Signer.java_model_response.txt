@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
+import eu.europa.esig.dss.enumerations.CertificationPermission;
 
 @Slf4j
 public class Signer {
@@ -68,7 +69,7 @@ public class Signer {
         } else {
             signatureParameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_B);
         }
-        //signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
+        signatureParameters.setCertificationPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
 
         // Create common certificate verifier
         CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
@@ -121,8 +122,8 @@ public class Signer {
             signatureParameters.setImageParameters(imageParameters);
 
 
-            PdfBoxNativeObjectFactory pdfBoxNativeObjectFactory = new PdfBoxNativeTableObjectFactory();
-            service.setPdfObjFactory(pdfBoxNativeObjectFactory);
+            PdfBoxNativeObjectFactory pdfBoxNativeTableObjectFactory = new PdfBoxNativeTableObjectFactory();
+            service.setPdfObjFactory(pdfBoxNativeTableObjectFactory);
             log.debug("Visible signature parameters set");
         }
 

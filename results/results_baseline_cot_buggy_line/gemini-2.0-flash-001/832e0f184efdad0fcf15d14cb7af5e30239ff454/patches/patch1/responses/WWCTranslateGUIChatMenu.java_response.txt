@@ -69,9 +69,9 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
 				ItemMeta outgoingChatMeta = outgoingChatButton.getItemMeta();
 				if (targetTranslator.getTranslatingChatOutgoing()) {
 					outgoingChatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					Enchantment power = XEnchantment.matchXEnchantment("power").get().getEnchant();
-					if (power != null) {
-						outgoingChatMeta.addEnchant(power, 1, false);
+					Enchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get().getEnchant();
+					if (powerEnchantment != null) {
+						outgoingChatMeta.addEnchant(powerEnchantment, 1, false);
 					}
 					outgoingChatMeta.setDisplayName(ChatColor.GREEN
 							+ CommonDefinitions.getMessage("wwctGUIChatOutgoingButton"));
@@ -94,9 +94,9 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
     			ItemMeta incomingChatMeta = incomingChatButton.getItemMeta();
     			if (targetTranslator.getTranslatingChatIncoming()) {
     				incomingChatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					Enchantment power = XEnchantment.matchXEnchantment("power").get().getEnchant();
-					if (power != null) {
-						incomingChatMeta.addEnchant(power, 1, false);
+					Enchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get().getEnchant();
+					if (powerEnchantment != null) {
+						incomingChatMeta.addEnchant(powerEnchantment, 1, false);
 					}
     				incomingChatMeta.setDisplayName(ChatColor.GREEN
     						+ CommonDefinitions.getMessage("wwctGUIChatIncomingButton"));

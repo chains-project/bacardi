@@ -1,8 +1,23 @@
-8a9
+1,4d0
+< /*
+<  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
+<  * https://github.com/artipie/http/blob/master/LICENSE.txt
+<  */
+7a4
+> import com.artipie.asto.Storage;
+8a6
 > import com.artipie.asto.factory.StorageFactory;
-40a42
->             final StorageFactory storageFactory = new Storages();
-43c45
+11a10
+> import java.util.Map;
+40a40,42
+>             final Storage storage = new StorageFactory(Map.of()).newStorage(
+>                 sub.string("type"), sub.value()
+>             );
+42,46c44
+<                 new BlockingStorage(
 <                     new Storages().newStorage(
+<                         sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
+<                     )
+<                 )
 ---
->                     storageFactory.newStorage(
+>                 new BlockingStorage(storage)

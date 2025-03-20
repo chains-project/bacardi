@@ -1,18 +1,3 @@
-/**
- * Copyright 2019 Pinterest, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *    http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.pinterest.singer.client.logback;
 
 import com.pinterest.singer.thrift.LogMessage;
@@ -55,21 +40,6 @@ public class AppenderUtils {
     private OutputStream os;
 
     @Override
-    public void start() {
-      super.start();
-    }
-
-    @Override
-    public byte[] headerBytes() {
-      return null;
-    }
-
-    @Override
-    public byte[] footerBytes() {
-      return null;
-    }
-
-    @Override
     public void init(OutputStream os) {
       this.os = os;
       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
@@ -90,6 +60,25 @@ public class AppenderUtils {
     }
 
     @Override
+    public byte[] encode(LogMessage logMessage) {
+      try {
+        doEncode(logMessage);
+        return null;
+      } catch (IOException e) {
+        return null;
+      }
+    }
+
+    @Override
+    public byte[] headerBytes() {
+      return null;
+    }
+
+    @Override
+    public byte[] footerBytes() {
+      return null;
+    }
+
     public void close() throws IOException {
       framedTransport.close();
     }

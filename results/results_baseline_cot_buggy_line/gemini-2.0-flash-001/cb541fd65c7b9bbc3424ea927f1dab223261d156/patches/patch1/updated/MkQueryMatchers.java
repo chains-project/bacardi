@@ -22,7 +22,7 @@
  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
  * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -31,7 +31,7 @@ package com.jcabi.http.mock;
 
 import java.net.URI;
 import org.hamcrest.Matcher;
-import org.hamcrest.beans.HasPropertyWithValue;
+import org.hamcrest.core.IsEqual;
 
 /**
  * Convenient set of matchers for {@link MkQuery}.
@@ -82,7 +82,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasPath(final Matcher<String> path) {
         return new MkQueryUriMatcher(
-            new HasPropertyWithValue<>("rawPath", path)
+            org.hamcrest.Matchers.<URI>hasProperty("rawPath", path)
         );
     }
 
@@ -94,7 +94,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasQuery(final Matcher<String> query) {
         return new MkQueryUriMatcher(
-            new HasPropertyWithValue<>("rawQuery", query)
+            org.hamcrest.Matchers.<URI>hasProperty("rawQuery", query)
         );
     }
 

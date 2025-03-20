@@ -63,13 +63,6 @@ public class MockHttpSession implements HttpSession {
   /** @deprecated */
   @Deprecated
   @Override
-  public ServletContext getServletContext() {
-    return null;
-  }
-
-  /** @deprecated */
-  @Deprecated
-  @Override
   public Object getValue(final String s) {
     return null;
   }
@@ -112,6 +105,11 @@ public class MockHttpSession implements HttpSession {
 
   @Override
   public void setMaxInactiveInterval(final int i) {
+  }
+
+  @Override
+  public ServletContext getServletContext() {
+    return null;
   }
 
   /** @deprecated */

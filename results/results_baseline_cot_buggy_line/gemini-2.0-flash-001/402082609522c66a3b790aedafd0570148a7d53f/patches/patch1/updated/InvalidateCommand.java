@@ -9,13 +9,13 @@ import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.command.spec.CommandExecutor;
+import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.command.CommandSource;
 
-import java.util.List;
-import java.util.Optional;
-
-public class InvalidateCommand implements ChangeSkinCommand {
+public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
 
@@ -24,21 +24,29 @@ public class InvalidateCommand implements ChangeSkinCommand {
         this.plugin = plugin;
     }
 
-    public CommandResult execute(org.spongepowered.api.command.CommandCause cause, CommandContext args) {
-        if (!(cause.cause().root() instanceof Player)) {
-            plugin.sendMessage(cause, "no-console");
+    @Override
+    public CommandResult execute(CommandContext context) {
+        CommandSource src = context.getCause().get(CommandSource.class).orElse(null);
+        if (!(src instanceof Player)) {
+            plugin.sendMessage(src, "no-console");
             return CommandResult.empty();
         }
 
-        Player receiver = (Player) cause.cause().root();
+        Player receiver = (Player) src;
         Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
         return CommandResult.success();
     }
 
     @Override
-    public Command.Builder buildSpec() {
-        return Command.builder()
-                .executor(this::execute)
-                .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base");
+    public CommandSpec buildSpec() {
+        return CommandSpec.builder()
+                .executor(this)
+                .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base")
+                .build();
+    }
+
+    @Override
+    public CommandResult execute(org.spongepowered.api.command.CommandSource src, org.spongepowered.api.command.args.CommandContext args) throws org.spongepowered.api.command.CommandException {
+        return null;
     }
 }

@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2012 to original author or authors
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
 package org.sonatype.maven.polyglot.yaml;
 
 import org.apache.maven.model.*;
@@ -40,10 +33,14 @@ public final class ModelConstructor extends Constructor {
   private final Map<Class<?>, Construct> pomConstructors = new HashMap<>();
 
   public ModelConstructor() {
-    //super(Model.class); // The constructor Constructor(Class<Model>) is undefined
-    super();
-    this.yamlConstructors.put(XPP3DOM_TAG, new ConstructXpp3Dom());
-    this.yamlClassConstructors.put(NodeId.mapping, new MavenObjectConstruct());
+    this(Model.class);
+  }
+
+  private ModelConstructor(Class<?> theRoot) {
+    super(theRoot);
+
+    yamlConstructors.put(XPP3DOM_TAG, new ConstructXpp3Dom());
+    yamlClassConstructors.put(NodeId.mapping, new MavenObjectConstruct());
     pomConstructors.put(Dependency.class, new ConstructDependency());
     pomConstructors.put(Parent.class, new ConstructParent());
     pomConstructors.put(Extension.class, new ConstructExtension());

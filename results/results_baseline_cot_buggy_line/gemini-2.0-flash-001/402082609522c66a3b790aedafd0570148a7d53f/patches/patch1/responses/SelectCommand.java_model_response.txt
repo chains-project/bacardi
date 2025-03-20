@@ -13,11 +13,13 @@ import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
-import net.kyori.adventure.text.TextComponent;
+import com.google.common.collect.ImmutableList;
+import org.spongepowered.api.command.CommandExecutor;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.CommandSpec;
+import org.spongepowered.api.text.Text;
 
-import java.util.Optional;
-
-public class SelectCommand implements Command {
+public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
 
@@ -27,22 +29,19 @@ public class SelectCommand implements Command {
     }
 
     @Override
-    public CommandResult execute(org.spongepowered.api.command.CommandCause cause, CommandContext args) {
-        org.spongepowered.api.command.CommandSource src = cause.cause().first(org.spongepowered.api.command.CommandSource.class).orElse(null);
-
-        if (src == null || !(src instanceof Player)) {
+    public CommandResult execute(CommandSource src, CommandContext args) {
+        if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
             return CommandResult.empty();
         }
 
-        Optional<String> skinNameOptional = args.one(Parameter.string().key("skinName").build());
-
-        if (!skinNameOptional.isPresent()) {
+        Parameter.Value<String> skinNameValue = args.one(Parameter.string().key("skinName").build());
+        if (!skinNameValue.isPresent()) {
             plugin.sendMessage(src, "invalid-skin-name");
             return CommandResult.empty();
         }
 
-        String skinName = skinNameOptional.get().toLowerCase().replace("skin-", "");
+        String skinName = skinNameValue.get().toLowerCase().replace("skin-", "");
 
         try {
             int targetId = Integer.parseInt(skinName);
@@ -55,11 +54,15 @@ public class SelectCommand implements Command {
         return CommandResult.success();
     }
 
-    public org.spongepowered.api.command.Command.Builder buildSpec() {
-        return org.spongepowered.api.command.Command.builder()
+    @Override
+    public CommandSpec buildSpec() {
+        Parameter<String> skinNameParameter = Parameter.string().key("skinName").build();
+
+        return CommandSpec.builder()
                 .executor(this)
-                .addParameter(Parameter.string().key("skinName").build())
-                .permission(PomData.ARTIFACT_ID + ".command.skinselect.base");
+                .arguments(skinNameParameter)
+                .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
+                .build();
     }
 }
 ```

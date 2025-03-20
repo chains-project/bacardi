@@ -1,25 +1,10 @@
-/*
- * Copyright (C) 1999-2009 Jive Software. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.map.IMap;
-import com.hazelcast.map.MapEvent;
 import com.hazelcast.map.listener.MapListener;
+import com.hazelcast.map.MapEvent;
 import com.hazelcast.map.LocalMapStats;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusteredCacheEntryListener;
@@ -78,7 +63,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     }
 
     void addEntryListener(final MapListener listener) {
-        listeners.add(map.addEntryListener(listener));
+        listeners.add(map.addEntryListener(listener, false));
     }
 
     @Override
@@ -87,8 +72,8 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
         final EntryListener<K, V> listener = new EntryListener<K, V>() {
             @Override
             public void mapEvicted(MapEvent event) {
-                if (includeEventsFromLocalNode || !event.getMember().localMember()) {
-                    final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+                if (includeEventsFromLocalNode || !event.getSource().localMember()) {
+                    final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getSource());
                     logger.trace("Processing map evicted event of node '{}'", eventNodeId);
                     clusteredCacheEntryListener.mapEvicted(eventNodeId);
                 }
@@ -96,8 +81,8 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
 
             @Override
             public void mapCleared(MapEvent event) {
-                if (includeEventsFromLocalNode || !event.getMember().localMember()) {
-                    final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+                if (includeEventsFromLocalNode || !event.getSource().localMember()) {
+                    final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getSource());
                     logger.trace("Processing map cleared event of node '{}'", eventNodeId);
                     clusteredCacheEntryListener.mapCleared(eventNodeId);
                 }
@@ -105,8 +90,8 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
 
             @Override
             public void entryUpdated(EntryEvent event) {
-                if (includeEventsFromLocalNode || !event.getMember().localMember()) {
-                    final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+                if (includeEventsFromLocalNode || !event.getSource().localMember()) {
+                    final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getSource());
                     logger.trace("Processing entry update event of node '{}' for key '{}'", eventNodeId, event.getKey());
                     clusteredCacheEntryListener.entryUpdated((K) event.getKey(), (V) event.getOldValue(), (V) event.getValue(), eventNodeId);
                 }
@@ -114,8 +99,8 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
 
             @Override
             public void entryRemoved(EntryEvent event) {
-                if (includeEventsFromLocalNode || !event.getMember().localMember()) {
-                    final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+                if (includeEventsFromLocalNode || !event.getSource().localMember()) {
+                    final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getSource());
                     logger.trace("Processing entry removed event of node '{}' for key '{}'", eventNodeId, event.getKey());
                     clusteredCacheEntryListener.entryRemoved((K) event.getKey(), (V) event.getOldValue(), eventNodeId);
                 }
@@ -123,8 +108,8 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
 
             @Override
             public void entryEvicted(EntryEvent event) {
-                if (includeEventsFromLocalNode || !event.getMember().localMember()) {
-                    final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+                if (includeEventsFromLocalNode || !event.getSource().localMember()) {
+                    final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getSource());
                     logger.trace("Processing entry evicted event of node '{}' for key '{}'", eventNodeId, event.getKey());
                     clusteredCacheEntryListener.entryEvicted((K) event.getKey(), (V) event.getOldValue(), eventNodeId);
                 }
@@ -132,8 +117,8 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
 
             @Override
             public void entryAdded(EntryEvent event) {
-                if (includeEventsFromLocalNode || !event.getMember().localMember()) {
-                    final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+                if (includeEventsFromLocalNode || !event.getSource().localMember()) {
+                    final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getSource());
                     logger.trace("Processing entry added event of node '{}' for key '{}'", eventNodeId, event.getKey());
                     clusteredCacheEntryListener.entryAdded((K) event.getKey(), (V) event.getValue(), eventNodeId);
                 }

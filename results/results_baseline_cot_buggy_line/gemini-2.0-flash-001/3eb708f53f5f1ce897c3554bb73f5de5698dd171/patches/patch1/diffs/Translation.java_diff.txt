@@ -1,23 +1,65 @@
-13,14d12
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 <  * See the License for the specific language governing permissions and
 <  * limitations under the License.
-19c17
+<  */
+< 
+19c3,5
 < import com.google.api.services.translate.model.TranslationsResource;
 ---
-> import com.google.cloud.translate.spi.v2.TranslateRpc;
-24a23
-> import javax.annotation.Nullable;
-37,38c36,37
+> import com.google.cloud.translate.v3.Translation;
+> import com.google.cloud.translate.v3.TranslateTextResponse;
+> import com.google.cloud.translate.v3.Translation.Builder;
+34c20
+< public class Translation implements Serializable {
+---
+> public class TranslationInfo implements Serializable {
+37,38c23,24
 <   static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
 <       new Function<TranslationsResource, Translation>() {
 ---
->   static final Function<TranslateRpc.Translation, Translation> FROM_PB_FUNCTION =
->       new Function<TranslateRpc.Translation, Translation>() {
-40c39
+>   static final Function<TranslateTextResponse, TranslationInfo> FROM_PB_FUNCTION =
+>       new Function<TranslateTextResponse, TranslationInfo>() {
+40,41c26,27
 <         public Translation apply(TranslationsResource translationPb) {
+<           return Translation.fromPb(translationPb);
 ---
->         public Translation apply(TranslateRpc.Translation translationPb) {
-106c105
+>         public TranslationInfo apply(TranslateTextResponse translationPb) {
+>           return TranslationInfo.fromPb(translationPb);
+49c35
+<   private Translation(String translatedText, String sourceLanguage, String model) {
+---
+>   private TranslationInfo(String translatedText, String sourceLanguage, String model) {
+98c84
+<     if (obj == null || !obj.getClass().equals(Translation.class)) {
+---
+>     if (obj == null || !obj.getClass().equals(TranslationInfo.class)) {
+101c87
+<     Translation other = (Translation) obj;
+---
+>     TranslationInfo other = (TranslationInfo) obj;
+106,110c92,98
 <   static Translation fromPb(TranslationsResource translationPb) {
+<     return new Translation(
+<         translationPb.getTranslatedText(),
+<         translationPb.getDetectedSourceLanguage(),
+<         translationPb.getModel());
 ---
->   static Translation fromPb(TranslateRpc.Translation translationPb) {
+>   static TranslationInfo fromPb(TranslateTextResponse translationPb) {
+>     if (translationPb.getTranslationsCount() > 0) {
+>       Translation translation = translationPb.getTranslations(0);
+>       return new TranslationInfo(
+>           translation.getTranslatedText(), translation.getSourceLanguageCode(), translation.getModel());
+>     }
+>     return new TranslationInfo("", "", "");

@@ -1,60 +1,69 @@
-23,25d22
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+23,25d6
 < import com.google.api.services.translate.model.DetectionsResourceItems;
 < import com.google.api.services.translate.model.LanguagesResource;
 < import com.google.api.services.translate.model.TranslationsResource;
-37a35,39
-> import com.google.cloud.translate.Detection;
-> import com.google.cloud.translate.Language;
-> import com.google.cloud.translate.TranslateException;
-> import com.google.cloud.translate.TranslateOptions;
-> import com.google.cloud.translate.Translation;
-43c45
+43c24
 <   private static final Function<List<DetectionsResourceItems>, Detection>
 ---
->   private static final Function<List<com.google.cloud.translate.Detection>, Detection>
-45c47
+>   private static final Function<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionItem>, Detection>
+45c26
 <           new Function<List<DetectionsResourceItems>, Detection>() {
 ---
->           new Function<List<com.google.cloud.translate.Detection>, Detection>() {
-47,48c49,50
+>           new Function<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionItem>, Detection>() {
+47c28
 <             public Detection apply(List<DetectionsResourceItems> detectionPb) {
-<               return Detection.fromPb(detectionPb.get(0));
 ---
->             public Detection apply(List<com.google.cloud.translate.Detection> detectionPb) {
->               return detectionPb.get(0);
-62c64
+>             public Detection apply(List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionItem> detectionPb) {
+62c43
 <               new Callable<List<LanguagesResource>>() {
 ---
->               new Callable<List<Language>>() {
-64c66
+>               new Callable<List<com.google.cloud.translate.spi.v2.TranslateRpc.Language>>() {
+64c45
 <                 public List<LanguagesResource> call() {
 ---
->                 public List<Language> call() {
-80c82
+>                 public List<com.google.cloud.translate.spi.v2.TranslateRpc.Language> call() {
+80c61
 <       List<List<DetectionsResourceItems>> detectionsPb =
 ---
->       List<List<com.google.cloud.translate.Detection>> detectionsPb =
-82c84
+>       List<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionItem>> detectionsPb =
+82c63
 <               new Callable<List<List<DetectionsResourceItems>>>() {
 ---
->               new Callable<List<List<com.google.cloud.translate.Detection>>>() {
-84c86
+>               new Callable<List<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionItem>>>() {
+84c65
 <                 public List<List<DetectionsResourceItems>> call() {
 ---
->                 public List<List<com.google.cloud.translate.Detection>> call() {
-91c93
+>                 public List<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionItem>> call() {
+91c72
 <       Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
 ---
->       Iterator<List<com.google.cloud.translate.Detection>> detectionIterator = detectionsPb.iterator();
-94c96
+>       Iterator<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionItem>> detectionIterator = detectionsPb.iterator();
+94c75
 <         List<DetectionsResourceItems> detectionPb = detectionIterator.next();
 ---
->         List<com.google.cloud.translate.Detection> detectionPb = detectionIterator.next();
-121c123
+>         List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionItem> detectionPb = detectionIterator.next();
+121c102
 <               new Callable<List<TranslationsResource>>() {
 ---
->               new Callable<List<Translation>>() {
-123c125
+>               new Callable<List<com.google.cloud.translate.spi.v2.TranslateRpc.Translation>>() {
+123c104
 <                 public List<TranslationsResource> call() {
 ---
->                 public List<Translation> call() {
+>                 public List<com.google.cloud.translate.spi.v2.TranslateRpc.Translation> call() {

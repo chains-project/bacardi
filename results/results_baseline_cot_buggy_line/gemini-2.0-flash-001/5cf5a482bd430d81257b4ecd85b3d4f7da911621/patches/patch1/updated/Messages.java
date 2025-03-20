@@ -1,7 +1,7 @@
 import java.util.ResourceBundle;
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
 import jakarta.mvc.MvcContext;
 //https://www.mvc-spec.org/learn/cookbook/multilang_en.html
 /**

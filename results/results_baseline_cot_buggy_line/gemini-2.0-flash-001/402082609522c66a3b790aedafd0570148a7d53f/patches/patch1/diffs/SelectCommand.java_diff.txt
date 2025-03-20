@@ -8,47 +8,29 @@
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.parameter.Parameter;
-16,17c15
+16,17c15,19
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 < import static org.spongepowered.api.text.Text.of;
 ---
-> import net.kyori.adventure.text.TextComponent;
-19c17,19
-< public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
----
-> import java.util.Optional;
-> 
-> public class SelectCommand implements Command {
-29,30c29,32
-<     public CommandResult execute(CommandSource src, CommandContext args) {
-<         if (!(src instanceof Player)) {
----
->     public CommandResult execute(org.spongepowered.api.command.CommandCause cause, CommandContext args) {
->         org.spongepowered.api.command.CommandSource src = cause.cause().first(org.spongepowered.api.command.CommandSource.class).orElse(null);
-> 
->         if (src == null || !(src instanceof Player)) {
-35c37,44
+> import com.google.common.collect.ImmutableList;
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.CommandSource;
+> import org.spongepowered.api.command.CommandSpec;
+> import org.spongepowered.api.text.Text;
+35c37,43
 <         String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
 ---
->         Optional<String> skinNameOptional = args.one(Parameter.string().key("skinName").build());
-> 
->         if (!skinNameOptional.isPresent()) {
+>         Parameter.Value<String> skinNameValue = args.one(Parameter.string().key("skinName").build());
+>         if (!skinNameValue.isPresent()) {
 >             plugin.sendMessage(src, "invalid-skin-name");
 >             return CommandResult.empty();
 >         }
 > 
->         String skinName = skinNameOptional.get().toLowerCase().replace("skin-", "");
-48,50c57,58
-<     @Override
-<     public CommandSpec buildSpec() {
-<         return CommandSpec.builder()
----
->     public org.spongepowered.api.command.Command.Builder buildSpec() {
->         return org.spongepowered.api.command.Command.builder()
-52,54c60,61
+>         String skinName = skinNameValue.get().toLowerCase().replace("skin-", "");
+49a58,59
+>         Parameter<String> skinNameParameter = Parameter.string().key("skinName").build();
+> 
+52c62
 <                 .arguments(string(of("skinName")))
-<                 .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
-<                 .build();
 ---
->                 .addParameter(Parameter.string().key("skinName").build())
->                 .permission(PomData.ARTIFACT_ID + ".command.skinselect.base");
+>                 .arguments(skinNameParameter)

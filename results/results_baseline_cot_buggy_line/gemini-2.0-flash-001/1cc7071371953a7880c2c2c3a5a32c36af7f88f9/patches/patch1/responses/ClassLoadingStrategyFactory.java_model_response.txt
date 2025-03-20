@@ -5,20 +5,21 @@
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
  *
  * Copyright 2017-2022 the original author or authors.
  */
 package org.assertj.vavr.api;
 
 import io.vavr.control.Try;
-import net.bytebuddy.dynamic.loading.ClassInjector;
-import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
+
+import net.bytebuddy.dynamic.loading.ClassInjector;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 
 class ClassLoadingStrategyFactory {
 
@@ -29,11 +30,11 @@ class ClassLoadingStrategyFactory {
 
     static ClassLoadingStrategy<ClassLoader> classLoadingStrategy(Class<?> assertClass) {
         if (ClassInjector.UsingReflection.isAvailable()) {
-            return ClassLoadingStrategy.Default.INJECTION;
+            return ClassLoadingStrategy.Default.WRAPPER;
         } else if (ClassInjector.UsingLookup.isAvailable() && PRIVATE_LOOKUP_IN != null) {
             try {
-                return ClassLoadingStrategy.UsingLookup.of(MethodHandles.lookup().unreflect(PRIVATE_LOOKUP_IN).bindTo(null).invoke(assertClass, LOOKUP));
-            } catch (Throwable e) {
+                return ClassLoadingStrategy.UsingLookup.of(LOOKUP,assertClass);
+            } catch (Exception e) {
                 throw new IllegalStateException("Could not access package of " + assertClass, e);
             }
         } else {

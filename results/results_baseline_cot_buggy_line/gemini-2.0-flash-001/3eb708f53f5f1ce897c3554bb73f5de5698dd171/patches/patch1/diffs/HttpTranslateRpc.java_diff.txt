@@ -1,49 +1,39 @@
-26,27c26,28
-< import com.google.api.services.translate.model.DetectionsResourceItems;
-< import com.google.api.services.translate.model.LanguagesResource;
----
-> import com.google.api.services.translate.model.DetectionsListResponse;
-> import com.google.api.services.translate.model.LanguagesListResponse;
-> import com.google.api.services.translate.model.TranslationsListResponse;
-69c70
-<   public List<List<DetectionsResourceItems>> detect(List<String> texts) {
----
->   public List<List<DetectionsListResponse.Detections>> detect(List<String> texts) {
-71,73c72,74
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+25a10
+> import com.google.api.services.translate.model.DetectLanguageResponse;
+35a21
+> import java.util.ArrayList;
+41d26
+<   private final TranslateOptions options;
+71,73c56,66
 <       List<List<DetectionsResourceItems>> detections =
 <           translate.detections().list(texts).setKey(options.getApiKey()).execute().getDetections();
 <       return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
 ---
->       DetectionsListResponse detectionsListResponse = translate.detections().list(texts).setKey(options.getApiKey()).execute();
->       List<List<DetectionsListResponse.Detections>> detections = detectionsListResponse.getDetections();
->       return detections != null ? detections : ImmutableList.<List<DetectionsListResponse.Detections>>of();
-80c81
-<   public List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
----
->   public List<LanguagesListResponse.Languages> listSupportedLanguages(Map<Option, ?> optionMap) {
-82c83
-<       List<LanguagesResource> languages =
----
->       LanguagesListResponse languagesListResponse =
-90,92c91,93
-<               .execute()
-<               .getLanguages();
-<       return languages != null ? languages : ImmutableList.<LanguagesResource>of();
----
->               .execute();
->       List<LanguagesListResponse.Languages> languages = languagesListResponse.getLanguages();
->       return languages != null ? languages : ImmutableList.<LanguagesListResponse.Languages>of();
-104,107c105
-<       List<TranslationsResource> translations =
-<           translate
-<               .translations()
-<               .list(texts, targetLanguage)
----
->       TranslationsListResponse translationsListResponse = translate.translations().list(texts, targetLanguage)
-112,113c110,112
-<               .execute()
-<               .getTranslations();
----
->               .execute();
->       List<TranslationsResource> translations = translationsListResponse.getTranslations();
-> 
+>       List<List<DetectionsResourceItems>> detections = new ArrayList<>();
+>       for (String text : texts) {
+>         DetectLanguageResponse response =
+>             translate.detections().detect(text).setKey(options.getApiKey()).execute();
+>         if (response != null && response.getDetections() != null) {
+>           detections.add(response.getDetections());
+>         } else {
+>           detections.add(ImmutableList.<DetectionsResourceItems>of());
+>         }
+>       }
+>       return detections;

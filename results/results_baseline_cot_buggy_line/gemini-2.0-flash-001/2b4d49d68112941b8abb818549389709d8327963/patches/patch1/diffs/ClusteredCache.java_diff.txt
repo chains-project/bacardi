@@ -1,71 +1,66 @@
-20,21c20
+1,15d0
+< /*
+<  * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+18,21c3,6
+< import com.hazelcast.core.EntryEvent;
+< import com.hazelcast.core.EntryListener;
 < import com.hazelcast.core.IMap;
 < import com.hazelcast.core.MapEvent;
 ---
+> import com.hazelcast.map.EntryEvent;
+> import com.hazelcast.map.EntryListener;
 > import com.hazelcast.map.IMap;
-23c22,23
+> import com.hazelcast.map.MapEvent;
+23c8
 < import com.hazelcast.monitor.LocalMapStats;
 ---
-> import com.hazelcast.map.MapEvent;
 > import com.hazelcast.map.LocalMapStats;
-89c89
-<             public void mapEvicted(MapEvent event) {
+81c66
+<         listeners.add(map.addEntryListener(listener, false));
 ---
->             public void eventAdded(EntryEvent<K, V> event) {
-92,93c92,93
-<                     logger.trace("Processing map evicted event of node '{}'", eventNodeId);
-<                     clusteredCacheEntryListener.mapEvicted(eventNodeId);
----
->                     logger.trace("Processing entry added event of node '{}' for key '{}'", eventNodeId, event.getKey());
->                     clusteredCacheEntryListener.entryAdded((K) event.getKey(), (V) event.getValue(), eventNodeId);
-98c98
-<             public void mapCleared(MapEvent event) {
----
->             public void eventRemoved(EntryEvent<K, V> event) {
-101,102c101,102
-<                     logger.trace("Processing map cleared event of node '{}'", eventNodeId);
-<                     clusteredCacheEntryListener.mapCleared(eventNodeId);
----
->                     logger.trace("Processing entry removed event of node '{}' for key '{}'", eventNodeId, event.getKey());
->                     clusteredCacheEntryListener.entryRemoved((K) event.getKey(), (V) event.getOldValue(), eventNodeId);
-107c107
+>         listeners.add(map.addEntryListener(listener));
+107c92
 <             public void entryUpdated(EntryEvent event) {
 ---
->             public void eventUpdated(EntryEvent<K, V> event) {
-116c116
+>             public void entryUpdated(EntryEvent<K,V> event) {
+111c96
+<                     clusteredCacheEntryListener.entryUpdated((K) event.getKey(), (V) event.getOldValue(), (V) event.getValue(), eventNodeId);
+---
+>                     clusteredCacheEntryListener.entryUpdated(event.getKey(), event.getOldValue(), event.getValue(), eventNodeId);
+116c101
 <             public void entryRemoved(EntryEvent event) {
 ---
->             public void eventEvicted(EntryEvent<K, V> event) {
-119,120c119,120
-<                     logger.trace("Processing entry removed event of node '{}' for key '{}'", eventNodeId, event.getKey());
+>             public void entryRemoved(EntryEvent<K,V> event) {
+120c105
 <                     clusteredCacheEntryListener.entryRemoved((K) event.getKey(), (V) event.getOldValue(), eventNodeId);
 ---
->                     logger.trace("Processing entry evicted event of node '{}' for key '{}'", eventNodeId, event.getKey());
->                     clusteredCacheEntryListener.entryEvicted((K) event.getKey(), (V) event.getOldValue(), eventNodeId);
-125c125
+>                     clusteredCacheEntryListener.entryRemoved(event.getKey(), event.getOldValue(), eventNodeId);
+125c110
 <             public void entryEvicted(EntryEvent event) {
 ---
->             public void eventExpired(EntryEvent<K, V> event) {
-128c128
-<                     logger.trace("Processing entry evicted event of node '{}' for key '{}'", eventNodeId, event.getKey());
+>             public void entryEvicted(EntryEvent<K,V> event) {
+129c114
+<                     clusteredCacheEntryListener.entryEvicted((K) event.getKey(), (V) event.getOldValue(), eventNodeId);
 ---
->                     logger.trace("Processing entry expired event of node '{}' for key '{}'", eventNodeId, event.getKey());
-134c134
+>                     clusteredCacheEntryListener.entryEvicted(event.getKey(), event.getOldValue(), eventNodeId);
+134c119
 <             public void entryAdded(EntryEvent event) {
 ---
->             public void mapCleared(MapEvent event) {
-137,138c137,147
-<                     logger.trace("Processing entry added event of node '{}' for key '{}'", eventNodeId, event.getKey());
+>             public void entryAdded(EntryEvent<K,V> event) {
+138c123
 <                     clusteredCacheEntryListener.entryAdded((K) event.getKey(), (V) event.getValue(), eventNodeId);
 ---
->                     logger.trace("Processing map cleared event of node '{}'", eventNodeId);
->                     clusteredCacheEntryListener.mapCleared(eventNodeId);
->                 }
->             }
-> 
->             @Override
->             public void mapEvicted(MapEvent event) {
->                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
->                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
->                     logger.trace("Processing map evicted event of node '{}'", eventNodeId);
->                     clusteredCacheEntryListener.mapEvicted(eventNodeId);
+>                     clusteredCacheEntryListener.entryAdded(event.getKey(), event.getValue(), eventNodeId);

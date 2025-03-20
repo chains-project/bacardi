@@ -1,104 +1,40 @@
 11a12
 > import org.spongepowered.api.command.Command;
-13,17c14,16
+13,15c14,15
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.args.GenericArguments;
-< import org.spongepowered.api.command.spec.CommandExecutor;
-< import org.spongepowered.api.command.spec.CommandSpec;
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.parameter.CommonParameters;
-> import org.spongepowered.api.command.parameter.Parameter;
-21,23c20,28
+21,23c21,22
 < import static org.spongepowered.api.command.args.GenericArguments.flags;
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 < import static org.spongepowered.api.text.Text.of;
 ---
-> import static org.spongepowered.api.command.CommandResult.success;
-> import org.spongepowered.api.command.exception.CommandException;
-> import org.spongepowered.api.command.CommandCause;
-> import org.spongepowered.api.entity.Entity;
-> 
-> import java.util.Optional;
-> 
-> import org.spongepowered.api.command.parameter.managed.Flag;
-> import org.spongepowered.api.command.CommandExecutor;
-37,39c42,47
+> import org.spongepowered.api.command.CommandSource;
+> import org.spongepowered.api.text.Text;
+25c24
+< public class SetCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class SetCommand implements CommandExecutor {
+37c36,37
 <     public CommandResult execute(CommandSource src, CommandContext args) {
-<         if (!(src instanceof Player)) {
-<             plugin.sendMessage(src, "no-console");
 ---
->     public CommandResult execute(CommandContext args) throws CommandException {
->         CommandCause cause = args.cause();
->         Object source = cause.root();
-> 
->         if (!(source instanceof Player)) {
->             plugin.sendMessage(source, "no-console");
-43c51
-<         UUID uniqueId = ((Player) src).getUniqueId();
----
->         UUID uniqueId = ((Player) source).uniqueId();
-45c53
-<             plugin.sendMessage(src, "cooldown");
----
->             plugin.sendMessage(source, "cooldown");
-49,50c57,65
-<         Player receiver = (Player) src;
+>     public CommandResult execute(CommandContext context) {
+>         CommandSource src = context.getCause().root();
+50,51c50,51
 <         String targetSkin = args.<String>getOne("skin").get();
+<         boolean keepSkin = args.hasAny("keep");
 ---
->         Player receiver = (Player) source;
->         Optional<String> targetSkinOptional = args.one(CommonParameters.STRING);
-> 
->         if (!targetSkinOptional.isPresent()) {
->              plugin.sendMessage(source, "invalid-usage");
->              return CommandResult.empty();
->         }
-> 
->         String targetSkin = targetSkinOptional.get();
-54c69
-<             targetSkin = receiver.getUniqueId().toString();
----
->             targetSkin = receiver.uniqueId().toString();
-60c75
-<             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(src, targetUUID, true)) {
----
->             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(source, targetUUID, true)) {
-64,65c79,80
-<             plugin.sendMessage(src, "skin-change-queue");
-<             Runnable skinDownloader = new SkinDownloader(plugin, src, receiver, targetUUID, keepSkin);
----
->             plugin.sendMessage(source, "skin-change-queue");
->             Runnable skinDownloader = new SkinDownloader(plugin, source, receiver, targetUUID, keepSkin);
-67c82
-<             return CommandResult.success();
----
->             return success();
-70c85
-<         Runnable nameResolver = new NameResolver(plugin, src, targetSkin, receiver, keepSkin);
----
->         Runnable nameResolver = new NameResolver(plugin, source, targetSkin, receiver, keepSkin);
-72c87
-<         return CommandResult.success();
----
->         return success();
-76,77c91,96
-<     public CommandSpec buildSpec() {
-<         return CommandSpec.builder()
----
->     public Command.Builder buildSpec() {
->         Parameter.Value<String> skinParameter = Parameter.string().key("skin").build();
-> 
->         Flag keepFlag = Flag.builder().alias("keep").build();
-> 
->         return Command.builder()
-79,83c98,100
+>         String targetSkin = context.one(CommonParameters.STRING).orElse("");
+>         boolean keepSkin = context.hasFlag("keep");
+75d74
+<     @Override
+79,81c78,79
 <                 .arguments(
 <                         string(of("skin")),
 <                         flags().flag("keep").buildWith(GenericArguments.none()))
-<                 .permission(PomData.ARTIFACT_ID + ".command.setskin.base")
-<                 .build();
 ---
->                 .addParameter(skinParameter)
->                 .addFlag(keepFlag)
->                 .permission(PomData.ARTIFACT_ID + ".command.setskin.base");
+>                 .addParameter(CommonParameters.string("skin"))
+>                 .addFlag(org.spongepowered.api.command.parameter.Flag.builder().setAliases("keep").build())
