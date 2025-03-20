@@ -41,7 +41,6 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.*;
-import java.util.Arrays;
 
 @Configuration
 @ComponentScan(basePackages = {
@@ -107,19 +106,12 @@ public class NisAppConfig {
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
-
-		final ClassicConfiguration configuration = new ClassicConfiguration();
-		configuration.setDataSource(this.dataSource());
-		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
-		String locationsProp = prop.getProperty("flyway.locations");
-		String[] locationsArr = locationsProp.split(",");
-		Location[] locations = Arrays.stream(locationsArr)
-				.map(String::trim)
-				.map(Location::new)
-				.toArray(Location[]::new);
-		configuration.setLocations(locations);
-		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		return new Flyway(configuration);
+		final ClassicConfiguration flywayConfiguration = new ClassicConfiguration();
+		flywayConfiguration.setDataSource(this.dataSource());
+		flywayConfiguration.setClassLoader(NisAppConfig.class.getClassLoader());
+		flywayConfiguration.setLocations(new Location[] { new Location(prop.getProperty("flyway.locations")) });
+		flywayConfiguration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		return new Flyway(flywayConfiguration);
 	}
 
 	@Bean

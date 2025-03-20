@@ -2,28 +2,7 @@
 < import develop.p2p.lib.*;
 ---
 > import tokyo.peya.lib.WaveCreator;
-89d88
-< 
-158,159c157,158
-<         final double radius = reachMode ? config.getDouble("npc.reachRange"): config.getDoubleList("npc.range")
-<             .get(new Random().nextInt(config.getDoubleList("npc.range").size()));
----
->         final double radius = reachMode ? config.getDouble("npc.reachRange")
->             : config.getDoubleList("npc.range").get(new Random().nextInt(config.getDoubleList("npc.range").size()));
-179,180c178,179
-<                         rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
+180c180
 <                             .get(0.01, true);
 ---
->                         rangeTmp = new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange"))
->                             .get(0.001, true);
-188c187
-<                         (float) ypp.getStatic(),
----
->                         (float) ypp.get(0.0, false),
-220c219,220
-<                     ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
----
->                     ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange"))
->                         .get(0.001, true)
-235d234
-< 
+>                             .get(0.01, count[0] < 20);

@@ -2,13 +2,20 @@
 < import org.apache.thrift.transport.TFramedTransport;
 25a25
 > import org.apache.thrift.transport.layered.TFramedTransport;
-63c63
+31,35d30
+< /**
+<  * Reader that reads Thrift messages of thrift type from a file
+<  * <p/>
+<  * This class is NOT thread-safe.
+<  */
+63c58
 <   // The framed framedTransport.
 ---
->   // The framedTransport instance.
-80,81c80,81
+>   // The framed transport.
+80,81c75,77
 <     this.framedTransport = new TFramedTransport(new TIOStreamTransport(this
 <         .byteOffsetInputStream), maxMessageSize);
 ---
->     this.framedTransport = new TFramedTransport(
->         new TIOStreamTransport(this.byteOffsetInputStream), maxMessageSize);
+>     TTransport ioTransport = new TIOStreamTransport(this.byteOffsetInputStream);
+>     this.framedTransport = (TFramedTransport) new TFramedTransport.Factory(maxMessageSize)
+>         .getTransport(ioTransport);

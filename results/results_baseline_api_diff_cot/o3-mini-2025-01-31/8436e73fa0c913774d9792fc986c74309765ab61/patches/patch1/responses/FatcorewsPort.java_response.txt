@@ -20,6 +20,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 })
 public interface FatcorewsPort {
 
+
     /**
      * 
      * @param registerInvoiceRequest

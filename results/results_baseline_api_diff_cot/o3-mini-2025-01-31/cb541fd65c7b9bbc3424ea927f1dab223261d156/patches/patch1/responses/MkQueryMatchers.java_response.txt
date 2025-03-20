@@ -1,9 +1,8 @@
 package com.jcabi.http.mock;
 
-import static org.hamcrest.beans.HasPropertyMatcher.hasProperty;
-
 import java.net.URI;
 import org.hamcrest.Matcher;
+import org.hamcrest.beans.HasPropertyWithValue;
 
 /**
  * Convenient set of matchers for {@link MkQuery}.
@@ -54,7 +53,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasPath(final Matcher<String> path) {
         return new MkQueryUriMatcher(
-            hasProperty("rawPath", path)
+            HasPropertyWithValue.hasProperty("rawPath", path)
         );
     }
 
@@ -66,7 +65,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasQuery(final Matcher<String> query) {
         return new MkQueryUriMatcher(
-            hasProperty("rawQuery", query)
+            HasPropertyWithValue.hasProperty("rawQuery", query)
         );
     }
 

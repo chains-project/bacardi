@@ -29,7 +29,6 @@ public class ChachaDecoder {
 
     byte[] output = new byte[ciphertext.length];
     decryptCipher.processBytes(ciphertext, 0, ciphertext.length, output, 0);
-
     return output;
   }
 
@@ -40,8 +39,6 @@ public class ChachaDecoder {
   private KeyParameter initRecordMAC(ChaChaEngine cipher) {
     byte[] firstBlock = new byte[64];
     cipher.processBytes(firstBlock, 0, firstBlock.length, firstBlock, 0);
-
-    // NOTE: The BC implementation puts 'r' after 'k'
     System.arraycopy(firstBlock, 0, firstBlock, 32, 16);
     KeyParameter macKey = new KeyParameter(firstBlock, 16, 32);
     Poly1305KeyGenerator.clamp(macKey.getKey());

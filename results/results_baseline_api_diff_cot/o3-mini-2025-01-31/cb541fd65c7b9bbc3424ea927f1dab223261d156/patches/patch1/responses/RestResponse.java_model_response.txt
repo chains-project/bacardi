@@ -1,13 +1,3 @@
-<repair_strategy>
-1. The error comes from the usage of the class org.hamcrest.Matchers, which has been removed in the new API version.
-2. In the old code, several static factory methods (such as hasItems, emptyIterableOf, and notNullValue) are called via Matchers. In the new version these methods have been moved or replaced.
-3. For assertHeader(String, String), the call to Matchers.hasItems(value) is replaced by using the similar matcher from org.hamcrest.collection.IsIterableContaining, namely hasItem(value) (suitable since only one item is expected).
-4. In the follow() method, the call to Matchers.emptyIterableOf(String.class) is replaced by IsEmptyCollection.empty() (which matches an empty collection) and then wrapped with CoreMatchers.not(…) to ensure the header is not empty.
-5. In the cookie() method, Matchers.notNullValue() is replaced by CoreMatchers.notNullValue().
-6. Import statements are updated accordingly, removing the import for Matchers and adding imports for CoreMatchers, IsEmptyCollection, and IsIterableContaining.
-7. The minimal changes ensure the class still compiles and behaves as in the original, with no changes to any method signatures.
-</repair_strategy>
-
 ```java
 /*
  * Copyright (c) 2011-2022, jcabi.com
@@ -26,8 +16,8 @@
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+ * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
  * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
@@ -57,8 +47,7 @@ import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.collection.IsEmptyCollection;
-import org.hamcrest.collection.IsIterableContaining;
+import org.hamcrest.core.IsCollectionContaining;
 
 /**
  * REST response.
@@ -71,7 +60,7 @@ import org.hamcrest.collection.IsIterableContaining;
  *   .as(RestResponse.class)
  *   .assertStatus(200)
  *   .assertBody(CoreMatchers.containsString("hello, world!"))
- *   .assertHeader("Content-Type", IsIterableContaining.hasItem("text/plain"))
+ *   .assertHeader("Content-Type", IsCollectionContaining.hasItem("text/plain"))
  *   .jump(URI.create("/users"))
  *   .fetch();</pre>
  *
@@ -185,7 +174,7 @@ public final class RestResponse extends AbstractResponse {
      * Verifies HTTP header against provided matcher, and throws
      * {@link AssertionError} in case of mismatch.
      *
-     * <p>The iterator for the matcher will always be a real object and never
+     * <p>The iterator for the matcher will always be a real object an never
      * {@code NULL}, even if such a header is absent in the response. If the
      * header is absent the iterable will be empty.
      *
@@ -220,7 +209,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, IsIterableContaining.hasItem(value));
+        return this.assertHeader(name, IsCollectionContaining.hasItem(value));
     }
 
     /**
@@ -256,7 +245,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            CoreMatchers.not(IsEmptyCollection.empty())
+            CoreMatchers.not(emptyIterableOf(String.class))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -343,5 +332,16 @@ public final class RestResponse extends AbstractResponse {
         }
     }
 
+    private static <T> Matcher<Iterable<T>> emptyIterableOf(final Class<T> type) {
+        return new CustomMatcher<Iterable<T>>("an empty iterable of " + type.getName()) {
+            @Override
+            public boolean matches(final Object item) {
+                if (item instanceof Iterable) {
+                    return !((Iterable<?>) item).iterator().hasNext();
+                }
+                return false;
+            }
+        };
+    }
 }
 ```

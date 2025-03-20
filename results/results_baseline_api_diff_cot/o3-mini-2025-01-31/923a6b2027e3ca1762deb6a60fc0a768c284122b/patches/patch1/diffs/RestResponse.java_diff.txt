@@ -1,21 +1,32 @@
-48c48,51
+48c48,50
 < import org.hamcrest.Matchers;
 ---
-> import static org.hamcrest.CoreMatchers.not;
-> import static org.hamcrest.CoreMatchers.notNullValue;
-> import static org.hamcrest.collection.IsEmptyIterable.emptyIterable;
-> import static org.hamcrest.collection.IsIterableContainingInAnyOrder.hasItems;
-210c213
+> import org.hamcrest.CoreMatchers;
+> import org.hamcrest.collection.IsEmptyCollection;
+> import org.hamcrest.collection.IsIterableContainingInAnyOrder;
+60,61c62,63
+<  *   .assertBody(Matchers.containsString("hello, world!"))
+<  *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
+---
+>  *   .assertBody(CoreMatchers.containsString("hello, world!"))
+>  *   .assertHeader("Content-Type", IsIterableContainingInAnyOrder.hasItems("text/plain"))
+165,166c167,168
+<             ), this.binary(),
+<             matcher
+---
+>             ),
+>             this.binary(), matcher
+210c212
 <         return this.assertHeader(name, Matchers.hasItems(value));
 ---
->         return this.assertHeader(name, hasItems(value));
-246c249
+>         return this.assertHeader(name, IsIterableContainingInAnyOrder.hasItems(value));
+246c248
 <             Matchers.not(Matchers.emptyIterableOf(String.class))
 ---
->             not(emptyIterable())
-284c287
+>             CoreMatchers.not(IsEmptyCollection.empty())
+284c286
 <             Matchers.notNullValue()
 ---
->             notNullValue()
-327d329
+>             CoreMatchers.notNullValue()
+327d328
 <         @Override

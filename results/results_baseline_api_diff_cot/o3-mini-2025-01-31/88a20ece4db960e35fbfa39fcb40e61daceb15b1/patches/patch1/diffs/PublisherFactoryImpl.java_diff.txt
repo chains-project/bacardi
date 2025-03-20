@@ -1,25 +1,12 @@
-1,15d0
-< /*
-<  * Copyright 2020 Google LLC
-<  *
-<  * Licensed under the Apache License, Version 2.0 (the "License");
-<  * you may not use this file except in compliance with the License.
-<  * You may obtain a copy of the License at
-<  *
-<  *       http://www.apache.org/licenses/LICENSE-2.0
-<  *
-<  * Unless required by applicable law or agreed to in writing, software
-<  * distributed under the License is distributed on an "AS IS" BASIS,
-<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-<  * See the License for the specific language governing permissions and
-<  * limitations under the License.
-<  */
-20d4
+20d19
 < import com.google.cloud.pubsublite.PublishMetadata;
-38a23,24
-> 
->     // Replace the removed builder pattern by using the new static factory method.
-40,46c26,30
+35,36c34
+<   @Override
+<   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
+---
+>   public Publisher<Void> newPublisher(Map<String, String> params) {
+39,46c37,40
+<     TopicPath topic =
 <         TopicPath.newBuilder()
 <             .setProject(
 <                 ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
@@ -28,26 +15,20 @@
 <             .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
 <             .build();
 ---
->         TopicPath.of(
->             ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value()).project(),
->             CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()),
->             TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()));
-> 
-48,50c32,40
+>     TopicPath topic = TopicPath.of(
+>         ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value()).project(),
+>         CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()),
+>         TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()));
+48,50c42,45
 <     builder.setPublisherFactory(
 <         partition ->
 <             SinglePartitionPublisherBuilder.newBuilder()
 ---
-> 
->     // Previously a lambda was used here to implement PartitionPublisherFactory.
->     // In the new API, this interface now has multiple abstract methods so we use an 
->     // anonymous inner class implementing all required methods.
 >     builder.setPublisherFactory(new com.google.cloud.pubsublite.internal.wire.PartitionPublisherFactory() {
 >       @Override
->       public Publisher<?> newPublisher(int partition) {
->         // Removed the setContext() call which is no longer provided by the dependency.
+>       public Publisher<Void> newPublisher(int partition) {
 >         return SinglePartitionPublisherBuilder.newBuilder()
-53,54c43,51
+53,54c48,55
 <                 .setContext(PubsubContext.of(FRAMEWORK))
 <                 .build());
 ---
@@ -55,13 +36,7 @@
 >       }
 > 
 >       @Override
->       public void shutdown() {
->         // No-op shutdown; no extra cleanup steps required.
+>       public void close() throws Exception {
+>         // no-op
 >       }
 >     });
-> 
-56a54,57
-> 
->   // Since the dependency has removed PublishMetadata, we add a local stub 
->   // to keep the method signature intact.
->   static class PublishMetadata { }

@@ -31,6 +31,9 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static ml.peya.plugins.Utils.MessageEngine.get;
+import static ml.peya.plugins.Variables.skin;
+
 /**
  * プレイヤーに関してまとめたやつ！
  */

@@ -1,0 +1,126 @@
+/*
+ * Copyright 2019 Danny van Heumen
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.simplify4u.plugins.utils;
+
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.repository.RepositorySystem;
+
+import java.util.Set;
+import java.util.stream.Collectors;
+import static java.util.Arrays.stream;
+import static java.util.Collections.emptySet;
+import static java.util.Objects.requireNonNull;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Utilities specific for org.apache.maven.plugins:maven-compiler-plugin.
+ */
+public final class MavenCompilerUtils {
+
+    private static final String GROUPID = "org.apache.maven.plugins";
+    private static final String ARTIFACTID = "maven-compiler-plugin";
+
+    private static final String PACKAGING = "jar";
+
+    private MavenCompilerUtils() {
+        // No need to instantiate utility class.
+    }
+
+    /**
+     * Check if provided plugin is org.apache.maven.plugins:maven-compiler-plugin.
+     *
+     * @param plugin any plugin instance
+     * @return Returns true iff plugin is maven-compiler-plugin.
+     */
+    public static boolean checkCompilerPlugin(Plugin plugin) {
+        return GROUPID.equals(plugin.getGroupId()) && ARTIFACTID.equals(plugin.getArtifactId());
+    }
+
+    /**
+     * Extract annotation processors for maven-compiler-plugin configuration.
+     *
+     * @param system maven repository system
+     * @param plugin maven-compiler-plugin plugin
+     * @return Returns set of maven artifacts configured as annotation processors.
+     */
+    public static Set<Artifact> extractAnnotationProcessors(RepositorySystem system, Plugin plugin) {
+        requireNonNull(system);
+        if (!checkCompilerPlugin(plugin)) {
+            throw new IllegalArgumentException("Plugin is not '" + GROUPID + ":" + ARTIFACTID + "'.");
+        }
+        final Object config = plugin.getConfiguration();
+        if (config == null) {
+            return emptySet();
+        }
+        if (config instanceof Element) {
+            Element configElement = (Element) config;
+            List<Element> annotationProcessorPathsElements = getChildElementsByName(configElement, "annotationProcessorPaths");
+            return annotationProcessorPathsElements.stream()
+                    .flatMap(annPaths -> getChildElementsByName(annPaths, "path").stream())
+                    .map(pathElem -> system.createArtifact(
+                            extractChildValue(pathElem, "groupId"),
+                            extractChildValue(pathElem, "artifactId"),
+                            extractChildValue(pathElem, "version"),
+                            PACKAGING))
+                    .filter(a -> !a.getGroupId().isEmpty())
+                    .filter(a -> !a.getArtifactId().isEmpty())
+                    .filter(a -> !a.getVersion().isEmpty())
+                    .collect(Collectors.toSet());
+        }
+        throw new UnsupportedOperationException("Please report that an unsupported type of configuration container" +
+                " was encountered: " + config.getClass());
+    }
+
+    /**
+     * Extract child value if child is present, or return empty string if absent.
+     *
+     * @param element the parent element
+     * @param childName the child element name
+     * @return Returns child value if child element present or otherwise empty string.
+     */
+    private static String extractChildValue(Element element, String childName) {
+        List<Element> children = getChildElementsByName(element, childName);
+        if (!children.isEmpty()) {
+            return children.get(0).getTextContent().trim();
+        }
+        return "";
+    }
+
+    /**
+     * Get direct child elements with the specified name.
+     *
+     * @param parent the parent element
+     * @param name the name of the child elements to retrieve
+     * @return List of child elements with the specified name.
+     */
+    private static List<Element> getChildElementsByName(Element parent, String name) {
+        List<Element> children = new ArrayList<>();
+        NodeList nodes = parent.getChildNodes();
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node node = nodes.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE && name.equals(node.getNodeName())) {
+                children.add((Element) node);
+            }
+        }
+        return children;
+    }
+}

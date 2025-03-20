@@ -20,8 +20,6 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.HashMap;
-import java.util.Map;
 
 public class MutationReportListener implements MutationResultListener {
 
@@ -59,7 +57,8 @@ public class MutationReportListener implements MutationResultListener {
       final ResultOutputStrategy outputStrategy, final SourceLocator... locators) {
     this.coverage = coverage;
     this.outputStrategy = outputStrategy;
-    this.jsonParser = new JsonParser(new HashSet<>(Arrays.asList(locators)));
+    this.jsonParser = new JsonParser(
+        new HashSet<>(Arrays.asList(locators)));
   }
 
   private String loadMutationTestElementsJs() throws IOException {
@@ -80,7 +79,8 @@ public class MutationReportListener implements MutationResultListener {
   }
 
   private void createJs(final String json) {
-    final String content = "document.querySelector('mutation-test-report-app').report = " + json;
+    final String content =
+        "document.querySelector('mutation-test-report-app').report = " + json;
     final Writer writer = this.outputStrategy
         .createWriterForFile("html2" + File.separatorChar + "report.js");
     try {
@@ -103,29 +103,38 @@ public class MutationReportListener implements MutationResultListener {
     }
   }
 
-  private MutationTestSummaryData createSummaryData(final CoverageDatabase coverage, final ClassMutationResults data) {
-    try {
-      // Load the class bytes for the mutated class.
-      byte[] classBytes = loadClassBytes(data.getMutatedClass());
-      
-      // Use the new API method to obtain class information.
-      ClassInfoVisitor visitor = new ClassInfoVisitor();
-      Object classInfo = visitor.getClassInfo(data.getMutatedClass(), classBytes, 0L);
-      
-      // Wrap the obtained class info into a map as expected by MutationTestSummaryData.
-      Map<ClassName, Object> classInfoMap = new HashMap<>();
-      classInfoMap.put(data.getMutatedClass(), classInfo);
-      
-      return new MutationTestSummaryData(data.getFileName(), data.getMutations(), classInfoMap);
-    } catch (IOException ex) {
-      throw new RuntimeException("Unable to load class bytes for " + data.getMutatedClass(), ex);
+  private MutationTestSummaryData createSummaryData(
+      final CoverageDatabase coverage, final ClassMutationResults data) {
+    byte[] classBytes = loadClassBytes(data.getMutatedClass());
+    Object classInfo = new ClassInfoVisitor().getClassInfo(data.getMutatedClass(), classBytes, 0L);
+    return new MutationTestSummaryData(data.getFileName(),
+        data.getMutations(), classInfo);
+  }
+
+  private byte[] loadClassBytes(final ClassName className) {
+    String resource = className.toString().replace('.', '/') + ".class";
+    try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(resource);
+         ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+      if (is == null) {
+        return new byte[0];
+      }
+      byte[] buffer = new byte[1024];
+      int read;
+      while ((read = is.read(buffer)) != -1) {
+        baos.write(buffer, 0, read);
+      }
+      return baos.toByteArray();
+    } catch (IOException e) {
+      return new byte[0];
     }
   }
 
-  private void updatePackageSummary(final ClassMutationResults mutationMetaData) {
+  private void updatePackageSummary(
+      final ClassMutationResults mutationMetaData) {
     final String packageName = mutationMetaData.getPackageName();
 
-    this.packageSummaryData.update(packageName, createSummaryData(this.coverage, mutationMetaData));
+    this.packageSummaryData.update(packageName,
+        createSummaryData(this.coverage, mutationMetaData));
   }
 
   @Override
@@ -148,21 +157,5 @@ public class MutationReportListener implements MutationResultListener {
     } catch (IOException e) {
       e.printStackTrace();
     }
-  }
-  
-  private byte[] loadClassBytes(ClassName className) throws IOException {
-    String resourcePath = className.asJavaName().replace('.', '/') + ".class";
-    InputStream in = this.getClass().getClassLoader().getResourceAsStream(resourcePath);
-    if (in == null) {
-      throw new IOException("Class resource not found: " + resourcePath);
-    }
-    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-    int nRead;
-    byte[] data = new byte[16384];
-    while ((nRead = in.read(data)) != -1) {
-      buffer.write(data, 0, nRead);
-    }
-    in.close();
-    return buffer.toByteArray();
   }
 }

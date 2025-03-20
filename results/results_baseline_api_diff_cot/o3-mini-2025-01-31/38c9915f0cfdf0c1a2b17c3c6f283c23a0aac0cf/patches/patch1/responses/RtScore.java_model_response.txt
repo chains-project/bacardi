@@ -1,15 +1,10 @@
 <repair_strategy>
-1. The error is caused by the removal of the class org.cactoos.iterable.LengthOf in the updated dependency version.
-2. The new API provides org.cactoos.scalar.LengthOf which accepts an Iterable in its constructor.
-3. The client code uses LengthOf to compute the size of an Iterable. We need to update the import statement (and accordingly the usage) to reference org.cactoos.scalar.LengthOf.
-4. The function signatures and logic remain the same, so only the import statement and reference to LengthOf need updating.
-5. The change is minimal and should not affect other aspects of the code.
-6. Since compareTo and suffixes() methods remain valid, no adjustments to method signatures or logic are required.
-7. The update results in a complete and compilable class.
-8. The additional import required is org.cactoos.scalar.LengthOf.
+1. The error occurs because the class org.cactoos.iterable.LengthOf has been removed in the new dependency version.
+2. The new API provides org.cactoos.scalar.LengthOf with a constructor that accepts a java.lang.Iterable.
+3. To fix the issue, update the import statement from org.cactoos.iterable.LengthOf to org.cactoos.scalar.LengthOf.
+4. This change accommodates the new API without modifying any method signatures.
 </repair_strategy>
-
-```
+```java
 package io.zold.api;
 
 import org.cactoos.Text;

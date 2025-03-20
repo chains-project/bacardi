@@ -1,30 +1,30 @@
 ```java
 package com.github.games647.changeskin.sponge.task;
 
+import net.kyori.adventure.audience.Audience;
+import org.spongepowered.math.vector.Vector3d;
 import com.github.games647.changeskin.core.model.UserPreference;
 import com.github.games647.changeskin.core.model.skin.SkinModel;
 import com.github.games647.changeskin.core.shared.task.SharedApplier;
 import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import java.util.UUID;
+
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.source.CommandSource;
-import org.spongepowered.api.data.manipulator.mutable.entity.VanishData;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.tab.TabListEntry;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
-import org.spongepowered.math.vector.Vector3d;
-
-import java.util.Optional;
-import java.util.UUID;
+import org.spongepowered.api.data.manipulator.mutable.entity.VanishingData;
 
 public class SkinApplier extends SharedApplier {
 
     private final ChangeSkinSponge plugin;
-    private final CommandSource invoker;
+    private final Audience invoker;
     private final Player receiver;
 
-    public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin, boolean keepSkin) {
+    public SkinApplier(ChangeSkinSponge plugin, Audience invoker, Player receiver, SkinModel targetSkin, boolean keepSkin) {
         super(plugin.getCore(), targetSkin, keepSkin);
         this.plugin = plugin;
         this.invoker = invoker;
@@ -37,7 +37,6 @@ public class SkinApplier extends SharedApplier {
             return;
         }
 
-        // uuid was successfully resolved, now perform a cooldown check
         if (invoker instanceof Player) {
             UUID uniqueId = ((Player) invoker).getUniqueId();
             core.getCooldownService().trackPlayer(uniqueId);
@@ -78,15 +77,12 @@ public class SkinApplier extends SharedApplier {
     private void sendUpdate() {
         sendUpdateSelf();
 
-        // Triggers an update for other players to see the new skin by toggling vanish data.
-        Optional<VanishData> vanishDataOpt = receiver.get(VanishData.class);
-        if (vanishDataOpt.isPresent()) {
-            VanishData vanishData = vanishDataOpt.get();
-            vanishData.vanished().set(true);
-            receiver.offer(vanishData);
-            vanishData.vanished().set(false);
-            receiver.offer(vanishData);
-        }
+        receiver.get(VanishingData.class).ifPresent(data -> {
+            data.setVanished(true);
+            receiver.offer(data);
+            data.setVanished(false);
+            receiver.offer(data);
+        });
     }
 
     private void sendUpdateSelf() {

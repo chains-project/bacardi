@@ -38,7 +38,7 @@ public class Decorations
             @Override
             public void run()
             {
-                if (sec[0] > seconds)
+                if (sec[0] > (seconds))
                     this.cancel();
 
                 player.getWorld().spawnParticle(
@@ -149,6 +149,7 @@ public class Decorations
         );
 
         particle(n);
+
     }
 
     /**
@@ -169,6 +170,7 @@ public class Decorations
         );
 
         particle(n, 5, particle);
+
     }
 
     /**
@@ -228,6 +230,7 @@ public class Decorations
                 runnable.cancel();
             }
         }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), seconds);
+
     }
 
     /**
@@ -238,6 +241,7 @@ public class Decorations
      */
     public static void laser(Player player, int sec)
     {
+
         final double[] time = {0.0};
         final double radius = 2.5;
 
@@ -247,12 +251,7 @@ public class Decorations
             public void run()
             {
                 Location c = player.getLocation().clone();
-                Location X = new Location(
-                    c.getWorld(),
-                    particle_x(time[0], radius) + c.getX(),
-                    5.0 + c.getY(),
-                    particle_z(time[0], radius) + c.getZ()
-                );
+                Location X = new Location(c.getWorld(), particle_x(time[0], radius) + c.getX(), 5.0 + c.getY(), particle_z(time[0], radius) + c.getZ());
 
                 for (int i = 0; i < 10; i++)
                     line(c, X, Particle.TOWN_AURA);
@@ -309,4 +308,5 @@ public class Decorations
         if (Variables.config.getBoolean("decoration.laser"))
             laser(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20));
     }
+
 }

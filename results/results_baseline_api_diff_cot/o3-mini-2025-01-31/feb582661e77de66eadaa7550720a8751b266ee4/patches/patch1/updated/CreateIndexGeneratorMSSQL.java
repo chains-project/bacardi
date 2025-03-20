@@ -39,11 +39,11 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
     }
     
     if (statement.isClustered() != null) {
-      if (statement.isClustered()) {
-        builder.append("CLUSTERED ");
-      } else {
-        builder.append("NONCLUSTERED ");
-      }
+        if (statement.isClustered()) {
+            builder.append("CLUSTERED ");
+        } else {
+            builder.append("NONCLUSTERED ");
+        }
     }
     
     builder.append("INDEX ");
@@ -59,7 +59,7 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
       AddColumnConfig column = iterator.next();
       builder.append(database.escapeColumnName(statement.getTableCatalogName(), statement.getTableSchemaName(), statement.getTableName(), column.getName()));
       if (column.getDescending() != null && column.getDescending()) {
-        builder.append(" DESC");
+          builder.append(" DESC");
       }
       if (iterator.hasNext()) {
         builder.append(", ");

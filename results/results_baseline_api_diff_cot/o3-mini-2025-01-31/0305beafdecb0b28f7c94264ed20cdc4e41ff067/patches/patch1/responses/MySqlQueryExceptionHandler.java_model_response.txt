@@ -1,10 +1,3 @@
-<repair_strategy>
-1. Identify the cause: The client code imports MySQLTimeoutException from the old package (com.mysql.jdbc.exceptions.MySQLTimeoutException), which no longer exists in the new dependency version.
-2. Update the import: The new API provides MySQLTimeoutException under the package com.mysql.cj.jdbc.exceptions. Therefore, the import should be updated accordingly.
-3. Since the use in the code (using instanceof for exception checking) remains compatible, only the import statement needs to be changed.
-4. No changes to method signatures or logic are needed.
-</repair_strategy>
-
 ```java
 /*
  * Copyright 2019 Feedzai
@@ -26,6 +19,7 @@ package com.feedzai.commons.sql.abstraction.engine.impl.mysql;
 
 import com.feedzai.commons.sql.abstraction.engine.handler.QueryExceptionHandler;
 import com.mysql.cj.jdbc.exceptions.MySQLTimeoutException;
+
 import java.sql.SQLException;
 
 /**

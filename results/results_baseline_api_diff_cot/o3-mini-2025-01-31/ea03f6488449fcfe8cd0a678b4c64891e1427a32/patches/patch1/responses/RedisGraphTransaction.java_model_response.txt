@@ -1,20 +1,8 @@
-<repair_strategy>
-1. The errors arise because the client code extends several pipeline interfaces that have been removed in the new Jedis API.
-2. The old code imported and extended interfaces from the package redis.clients.jedis.commands (e.g., MultiKeyBinaryRedisPipeline, MultiKeyCommandsPipeline, BinaryRedisPipeline, etc.) which no longer exist. Meanwhile, the new API adds an interface for ClusterPipeline in the package redis.clients.jedis.
-3. To fix the issue, we remove all the extended interfaces that are no longer available and update the import for ClusterPipeline to the new package.
-4. We must preserve all method signatures in RedisGraphTransaction.
-5. The minimal change is to eliminate the removed interfaces from the extends clause and update the import for ClusterPipeline.
-6. This change will not affect the declared methods in the interface, so there is no side‐effect on functionality.
-7. The resulting interface will compile using the new Jedis dependency.
-8. The fix also involves adjusting the import statements to reflect the new location of ClusterPipeline.
-</repair_strategy>
-
 ```java
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
 import redis.clients.jedis.ClusterPipeline;
-
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;

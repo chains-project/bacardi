@@ -5,6 +5,10 @@ import com.google.cloud.pubsublite.internal.Publisher;
 import java.util.Map;
 
 interface PublisherFactory {
-  Publisher<Void> newPublisher(Map<String, String> params);
+
+  // Dummy replacement for the removed PublishMetadata class.
+  class PublishMetadata {}
+
+  Publisher<PublishMetadata> newPublisher(Map<String, String> params);
 }
 ```

@@ -35,8 +35,6 @@ import org.tinfour.common.IQuadEdge;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
 import org.tinfour.utils.TriangleCollector;
-import org.tinspin.index.kdtree.KDTree;
-import org.tinspin.index.IndexConfig;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
 import micycle.pgs.PGS_Conversion.PShapeData;
 import micycle.pgs.color.Colors;
@@ -49,6 +47,8 @@ import micycle.pgs.commons.SpiralQuadrangulation;
 import processing.core.PConstants;
 import processing.core.PShape;
 import processing.core.PVector;
+import org.tinspin.index.covertree.CoverTree;
+import org.tinspin.index.PointDistance;
 
 /**
  * Mesh generation (excluding triangulation) and processing.
@@ -161,20 +161,20 @@ public class PGS_Meshing {
 			}
 		});
 
-		// Update: use the new KDTree.create(IndexConfig) instead of the removed PointIndex API.
-		final KDTree<Vertex> tree = KDTree.create(new IndexConfig(2, (p1, p2) -> {
-			final double deltaX = p1[0] - p2[0];
-			final double deltaY = p1[1] - p2[1];
-			return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-		}));
+		final CoverTree<Vertex> tree = CoverTree.create(2, 1.0, new PointDistance() {
+			@Override
+			public double dist(double[] a, double[] b) {
+				final double deltaX = a[0] - b[0];
+				final double deltaY = a[1] - b[1];
+				return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+			}
+		});
 		vertices.forEach(v -> tree.insert(new double[] { v.x, v.y }, v));
 
 		final HashSet<IQuadEdge> nonGabrielEdges = new HashSet<>(); // base references to edges that should be removed
 		edges.forEach(edge -> {
 			final double[] midpoint = midpoint(edge);
-			// Query the nearest neighbor using the new KDTree API.
-			final KDTree.Entry<Vertex> nearestEntry = tree.query1NN(midpoint);
-			final Vertex near = nearestEntry.value();
+			final Vertex near = tree.query1NN(midpoint).value();
 			if (near != edge.getA() && near != edge.getB()) {
 				if (!preservePerimeter || (preservePerimeter && !edge.isConstrainedRegionBorder())) {
 					nonGabrielEdges.add(edge); // base reference

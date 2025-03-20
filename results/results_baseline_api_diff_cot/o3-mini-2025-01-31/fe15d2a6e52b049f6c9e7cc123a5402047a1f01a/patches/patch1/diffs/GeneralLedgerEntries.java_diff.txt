@@ -1,93 +1,36 @@
 8d7
 < 
-22d20
+22c21
 < import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
-27d24
-< 
-110,111c107
-< public class GeneralLedgerEntries implements ToString2
-< {
 ---
-> public class GeneralLedgerEntries implements ToString2 {
-226c222
+> import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
+226c225
 <         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ---
->         final ToStringStrategy2 strategy = SimpleToStringStrategy.INSTANCE;
-232d227
-<     @Override
-240d234
-<     @Override
-333,334c327
-<     public static class Journal implements ToString2
-<     {
----
->     public static class Journal implements ToString2 {
-422c415
+>         final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+422c421
 <             final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ---
->             final ToStringStrategy2 strategy = SimpleToStringStrategy.INSTANCE;
-428d420
-<         @Override
-436d427
-<         @Override
-520,521c511
-<         public static class Transaction implements ToString2
-<         {
----
->         public static class Transaction implements ToString2 {
-812c802
+>             final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+466a466,472
+>          *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}JournalID"/&gt;
+>          *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description"/&gt;
+>          *         &lt;element name="Transaction" maxOccurs="unbounded" minOccurs="0"&gt;
+>          *           &lt;complexType&gt;
+>          *             &lt;complexContent&gt;
+>          *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+>          *                 &lt;sequence&gt;
+501a508,512
+>          *         &lt;/element&gt;
+>          *       &lt;/sequence&gt;
+>          *     &lt;/restriction&gt;
+>          *   &lt;/complexContent&gt;
+>          * &lt;/complexType&gt;
+812c823
 <                 final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ---
->                 final ToStringStrategy2 strategy = SimpleToStringStrategy.INSTANCE;
-818d807
-<             @Override
-826d814
-<             @Override
-924,925c912
-<             public static class Line implements ToString2
-<             {
----
->             public static class Line implements ToString2 {
-1113c1100
+>                 final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+1113c1124
 <                     final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ---
->                     final ToStringStrategy2 strategy = SimpleToStringStrategy.INSTANCE;
-1119d1105
-<                 @Override
-1127d1112
-<                 @Override
-1172a1158,1191
->     /**
->      * A simple implementation of the ToStringStrategy2 interface that builds a string
->      * representation in the format: ClassName[field1=value1, field2=value2,...]
->      */
->     private static final class SimpleToStringStrategy implements ToStringStrategy2 {
->         public static final SimpleToStringStrategy INSTANCE = new SimpleToStringStrategy();
-> 
->         private SimpleToStringStrategy() {
->         }
-> 
->         @Override
->         public void appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
->             buffer.append(object.getClass().getSimpleName()).append("[");
->         }
-> 
->         @Override
->         public void appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean isSet) {
->             if (buffer.length() > 0 && buffer.charAt(buffer.length() - 1) != '[') {
->                 buffer.append(", ");
->             }
->             buffer.append(fieldName).append("=");
->             if (value != null) {
->                 buffer.append(value);
->             } else {
->                 buffer.append("null");
->             }
->         }
-> 
->         @Override
->         public void appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
->             buffer.append("]");
->         }
->     }
-> 
+>                     final ToStringStrategy2 strategy = new DefaultToStringStrategy();

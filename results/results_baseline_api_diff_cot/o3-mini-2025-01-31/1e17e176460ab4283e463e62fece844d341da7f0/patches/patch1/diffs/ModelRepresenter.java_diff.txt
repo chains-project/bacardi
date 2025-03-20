@@ -1,24 +1,35 @@
 15a16
 > import org.yaml.snakeyaml.DumperOptions;
-37a39
->     super(new DumperOptions());
-81c83
-<       return (value.equals(v));
----
->       return value.equals(v);
-89c91
-<       return (v.equals(value));
----
->       return v.equals(value);
-94d95
+16a18
+> import org.yaml.snakeyaml.introspector.BeanAccess;
+24d25
+< import java.beans.IntrospectionException;
+27,28d27
+< import static java.lang.String.format;
 < 
-218,219c219,220
+37a37
+>     super(new DumperOptions());
+94d93
+< 
+153c152
+<           throw new YAMLException(format("child name: '%s' does not match expected name: '%s' at node %s",
+---
+>           throw new YAMLException(String.format("child name: '%s' does not match expected name: '%s' at node %s",
+217,219c216
+<   @Override
 <   protected Set<Property> getProperties(Class<? extends Object> type)
 <           throws IntrospectionException {
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) {
->     try {
-232a234,236
->     } catch (IntrospectionException e) {
->       throw new YAMLException(e);
->     }
+231c228,229
+<       return super.getProperties(type);
+---
+>       // Using PropertyUtils from the current Representer instance to obtain properties.
+>       return new LinkedHashSet<>(getPropertyUtils().getProperties(type, getPropertyUtils().getBeanAccess()));
+235,237c233,234
+<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+<           throws IntrospectionException {
+<       Set<Property> standard = super.getProperties(type);
+---
+>   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+>     Set<Property> standard = new LinkedHashSet<>(getPropertyUtils().getProperties(type, getPropertyUtils().getBeanAccess()));

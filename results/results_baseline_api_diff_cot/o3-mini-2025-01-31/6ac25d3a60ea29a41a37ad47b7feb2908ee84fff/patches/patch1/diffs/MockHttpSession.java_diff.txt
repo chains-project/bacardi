@@ -1,36 +1,20 @@
-1,19d0
-< /*
-<  * Licensed to the Apache Software Foundation (ASF) under one
-<  * or more contributor license agreements.  See the NOTICE file
-<  * distributed with this work for additional information
-<  * regarding copyright ownership.  The ASF licenses this file
-<  * to you under the Apache License, Version 2.0 (the
-<  * "License"); you may not use this file except in compliance
-<  * with the License.  You may obtain a copy of the License at
-<  *
-<  *   http://www.apache.org/licenses/LICENSE-2.0
-<  *
-<  * Unless required by applicable law or agreed to in writing,
-<  * software distributed under the License is distributed on an
-<  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-<  * KIND, either express or implied.  See the License for the
-<  * specific language governing permissions and limitations
-<  * under the License.
-<  */
-< 
-24d4
+19a20,24
+> /* <repair_strategy>
+> 1. The error is caused by the removed class jakarta.servlet.http.HttpSessionContext.
+> 2. Remove the import and the getSessionContext() method which references the removed class.
+> 3. This minimal change resolves the compilation error while keeping the rest of the code intact.
+> </repair_strategy> */
+24d28
 < import jakarta.servlet.http.HttpSessionContext;
-41c21
+41c45
 <     return new Vector(attributes.keySet()).elements();
 ---
 >     return new Vector<>(attributes.keySet()).elements();
-64,69c44,45
-<   /** @deprecated */
-<   @Deprecated
-<   @Override
+67,73d70
 <   public HttpSessionContext getSessionContext() {
 <     return null;
 <   }
----
->   // The method getSessionContext() was removed from the API.
->   // Hence, we remove its implementation from this mock.
+< 
+<   /** @deprecated */
+<   @Deprecated
+<   @Override

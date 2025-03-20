@@ -1,17 +1,87 @@
 8d7
 < 
-17c16
+17d15
 < import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
----
-> import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
-22d20
+22,42d19
 < 
-48,49c46
+< /**
+<  * <p>Java class for OrderReferences complex type.
+<  * 
+<  * <p>The following schema fragment specifies the expected content contained within this class.
+<  * 
+<  * <pre>
+<  * &lt;complexType name="OrderReferences"&gt;
+<  *   &lt;complexContent&gt;
+<  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+<  *       &lt;sequence&gt;
+<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}OriginatingON" minOccurs="0"/&gt;
+<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}OrderDate" minOccurs="0"/&gt;
+<  *       &lt;/sequence&gt;
+<  *     &lt;/restriction&gt;
+<  *   &lt;/complexContent&gt;
+<  * &lt;/complexType&gt;
+<  * </pre>
+<  * 
+<  * 
+<  */
+48,49c25,47
 < public class OrderReferences implements ToString2
 < {
 ---
 > public class OrderReferences implements ToString2 {
-107c104
+> 
+>     private static final ToStringStrategy2 DEFAULT_TO_STRING_STRATEGY2 = new ToStringStrategy2() {
+>         @Override
+>         public void appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+>             buffer.append(object.getClass().getSimpleName()).append("[");
+>         }
+> 
+>         @Override
+>         public void appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean notNull) {
+>             if (notNull) {
+>                 if (buffer.charAt(buffer.length() - 1) != '[') {
+>                     buffer.append(", ");
+>                 }
+>                 buffer.append(fieldName).append("=").append(value);
+>             }
+>         }
+> 
+>         @Override
+>         public void appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+>             buffer.append("]");
+>         }
+>     };
+60,63c58
+<      * @return
+<      *     possible object is
+<      *     {@link String }
+<      *     
+---
+>      * @return possible object is {@link String }
+72,75c67
+<      * @param value
+<      *     allowed object is
+<      *     {@link String }
+<      *     
+---
+>      * @param value allowed object is {@link String }
+84,87c76
+<      * @return
+<      *     possible object is
+<      *     {@link XMLGregorianCalendar }
+<      *     
+---
+>      * @return possible object is {@link XMLGregorianCalendar }
+96,99c85
+<      * @param value
+<      *     allowed object is
+<      *     {@link XMLGregorianCalendar }
+<      *     
+---
+>      * @param value allowed object is {@link XMLGregorianCalendar }
+107c93
 <         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ---
->         final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+>         final ToStringStrategy2 strategy = DEFAULT_TO_STRING_STRATEGY2;
+135d120
+< 

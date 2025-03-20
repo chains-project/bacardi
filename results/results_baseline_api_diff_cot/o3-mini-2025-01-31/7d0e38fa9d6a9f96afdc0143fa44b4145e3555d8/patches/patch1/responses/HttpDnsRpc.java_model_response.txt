@@ -208,10 +208,8 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.ManagedZones.Create createZoneCall(ManagedZone zone, Map<Option, ?> options)
       throws IOException {
-    // New API requires the zone name as the second parameter.
     return dns.managedZones()
-        .create(this.options.getProjectId(), zone.getName(), zone)
-        .setFields(Option.FIELDS.getString(options));
+        .create(this.options.getProjectId(), zone.getName(), zone);
   }
 
   @Override
@@ -230,10 +228,8 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.ManagedZones.Get getZoneCall(String zoneName, Map<Option, ?> options)
       throws IOException {
-    // Updated: New method signature requires a third parameter; passing empty string.
     return dns.managedZones()
-        .get(this.options.getProjectId(), zoneName, "")
-        .setFields(Option.FIELDS.getString(options));
+        .get(this.options.getProjectId(), zoneName, Option.FIELDS.getString(options));
   }
 
   @Override
@@ -248,14 +244,10 @@ public class HttpDnsRpc implements DnsRpc {
   }
 
   private Dns.ManagedZones.List listZonesCall(Map<DnsRpc.Option, ?> options) throws IOException {
-    String dnsName = Option.DNS_NAME.getString(options);
-    if (dnsName == null) {
-      dnsName = "";
-    }
     return dns.managedZones()
-        .list(this.options.getProjectId(), dnsName)
-        .setFields(Option.FIELDS.getString(options))
+        .list(this.options.getProjectId(), Option.FIELDS.getString(options))
         .setMaxResults(Option.PAGE_SIZE.getInt(options))
+        .setDnsName(Option.DNS_NAME.getString(options))
         .setPageToken(Option.PAGE_TOKEN.getString(options));
   }
 
@@ -274,7 +266,6 @@ public class HttpDnsRpc implements DnsRpc {
   }
 
   private Dns.ManagedZones.Delete deleteZoneCall(String zoneName) throws IOException {
-    // New API: delete requires a third parameter; using empty string.
     return dns.managedZones().delete(this.options.getProjectId(), zoneName, "");
   }
 
@@ -291,23 +282,12 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.ResourceRecordSets.List listRecordSetsCall(String zoneName, Map<Option, ?> options)
       throws IOException {
-    // For the new API, list() now requires 5 string parameters.
-    String projectId = this.options.getProjectId();
-    String name = Option.NAME.getString(options);
-    if (name == null) {
-      name = "";
-    }
-    String type = Option.DNS_TYPE.getString(options);
-    if (type == null) {
-      type = "";
-    }
-    // The 5th parameter is not previously specified; we pass an empty string.
-    String extraParam = "";
     return dns.resourceRecordSets()
-        .list(projectId, zoneName, name, type, extraParam)
-        .setFields(Option.FIELDS.getString(options))
+        .list(this.options.getProjectId(), zoneName, Option.FIELDS.getString(options))
         .setPageToken(Option.PAGE_TOKEN.getString(options))
-        .setMaxResults(Option.PAGE_SIZE.getInt(options));
+        .setMaxResults(Option.PAGE_SIZE.getInt(options))
+        .setName(Option.NAME.getString(options))
+        .setType(Option.DNS_TYPE.getString(options));
   }
 
   @Override
@@ -320,10 +300,8 @@ public class HttpDnsRpc implements DnsRpc {
   }
 
   private Dns.Projects.Get getProjectCall(Map<Option, ?> options) throws IOException {
-    // New API: projects().get now requires two parameters. Passing empty string as the second.
     return dns.projects()
-        .get(this.options.getProjectId(), "")
-        .setFields(Option.FIELDS.getString(options));
+        .get(this.options.getProjectId(), Option.FIELDS.getString(options));
   }
 
   @Override
@@ -338,10 +316,8 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.Changes.Create applyChangeRequestCall(
       String zoneName, Change changeRequest, Map<Option, ?> options) throws IOException {
-    // New API: changes().create now requires a third string parameter; using empty string.
     return dns.changes()
-        .create(this.options.getProjectId(), zoneName, "", changeRequest)
-        .setFields(Option.FIELDS.getString(options));
+        .create(this.options.getProjectId(), zoneName, Option.FIELDS.getString(options), changeRequest);
   }
 
   @Override
@@ -366,10 +342,8 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.Changes.Get getChangeRequestCall(
       String zoneName, String changeRequestId, Map<Option, ?> options) throws IOException {
-    // New API: changes().get now requires a fourth parameter; passing empty string.
     return dns.changes()
-        .get(this.options.getProjectId(), zoneName, changeRequestId, "")
-        .setFields(Option.FIELDS.getString(options));
+        .get(this.options.getProjectId(), zoneName, changeRequestId, Option.FIELDS.getString(options));
   }
 
   @Override
@@ -385,15 +359,12 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.Changes.List listChangeRequestsCall(String zoneName, Map<Option, ?> options)
       throws IOException {
-    // New API: changes().list now requires a third parameter; using empty string.
     Dns.Changes.List request =
         dns.changes()
-            .list(this.options.getProjectId(), zoneName, "")
-            .setFields(Option.FIELDS.getString(options))
+            .list(this.options.getProjectId(), zoneName, Option.FIELDS.getString(options))
             .setMaxResults(Option.PAGE_SIZE.getInt(options))
             .setPageToken(Option.PAGE_TOKEN.getString(options));
     if (Option.SORTING_ORDER.getString(options) != null) {
-      // todo check and change if more sorting options are implemented, issue #604
       request = request.setSortBy(SORT_BY).setSortOrder(Option.SORTING_ORDER.getString(options));
     }
     return request;

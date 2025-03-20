@@ -1,6 +1,6 @@
 7a8
 > import com.pubnub.api.UserId;
-11,17c12,14
+11,17c12
 < import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 < import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 < import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
@@ -10,51 +10,43 @@
 < import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
 ---
 > import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
-> import com.pubnub.api.models.consumer.pubnub.message.PNMessage;
-> import com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult;
-28d24
-< /** Created by Lukas Zaoralek on 14.11.17. */
-40c36,38
+40c35
 <     PNConfiguration pnConfiguration = new PNConfiguration();
 ---
->     // In the new API, the no-args constructor has been removed.
->     // Use a PNConfiguration constructor that takes a UserId.
->     PNConfiguration pnConfiguration = new PNConfiguration(new UserId("xchangestream"));
-52c50
-<                 public void status(PubNub pubNub, PNStatus pnStatus) {
+>     PNConfiguration pnConfiguration = new PNConfiguration(new UserId(publicKey));
+47,50c42,43
+<     return Completable.create(
+<         e -> {
+<           pubnub.addListener(
+<               new SubscribeCallback() {
 ---
->                 public void status(PubNub pubnub, PNStatus pnStatus) {
-54,57c52
+>     return Completable.create(e -> {
+>       pubnub.addListener(new SubscribeCallback() {
+54,57c47
 <                   LOG.debug(
 <                       "PubNub status: {} {}",
 <                       pnStatusCategory.toString(),
 <                       pnStatus.getStatusCode());
 ---
->                   LOG.debug("PubNub status: {} {}", pnStatusCategory.toString(), pnStatus.getStatusCode());
-58a54
->                     // Connection established.
-60a57
->                     // Handle error if needed.
-66,67c63,64
+>           LOG.debug("PubNub status: {} {}", pnStatusCategory.toString(), pnStatus.getStatusCode());
+66,111c56,57
 <                 public void message(PubNub pubNub, PNMessageResult pnMessageResult) {
 <                   String channelName = pnMessageResult.getChannel();
----
->                 public void message(PubNub pubnub, PNMessage pnMessage) {
->                   String channelName = pnMessage.getChannel();
-69c66
+<                   ObservableEmitter<JsonNode> subscription = subscriptions.get(channelName);
 <                   LOG.debug("PubNub Message: {}", pnMessageResult.toString());
----
->                   LOG.debug("PubNub Message: {}", pnMessage.toString());
-71d67
+<                   if (subscription != null) {
 <                     JsonNode jsonMessage = null;
-73c69,70
+<                     try {
 <                       jsonMessage = mapper.readTree(pnMessageResult.getMessage().toString());
----
->                       JsonNode jsonMessage = mapper.readTree(pnMessage.getMessage().toString());
->                       subscription.onNext(jsonMessage);
-77d73
+<                     } catch (IOException ex) {
+<                       ex.printStackTrace();
+<                     }
 <                     subscription.onNext(jsonMessage);
-83,102c79,80
+<                   } else {
+<                     LOG.debug("No subscriber for channel {}.", channelName);
+<                   }
+<                 }
+< 
 <                 @Override
 <                 public void presence(PubNub pubNub, PNPresenceEventResult pnPresenceEventResult) {
 <                   LOG.debug("PubNub presence: {}", pnPresenceEventResult.toString());
@@ -75,34 +67,30 @@
 <                   LOG.debug("PubNub space: {}", pnSpaceResult.toString());
 <                 }
 < 
----
->                 // The old callbacks using presence, signal, user, space, and messageAction have been removed in the updated API.
->                 // If membership events are needed, update their type to the new interface.
-107a86
->                 // The new abstract callback that must be implemented.
-109,111c88,89
+<                 @Override
+<                 public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
+<                   LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
+<                 }
+< 
+<                 @Override
 <                 public void messageAction(
 <                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
 <                   LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
 ---
->                 public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
->                   LOG.debug("PubNub file: {}", pnFileEventResult.toString());
-120,121c98
+>         public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
+>           LOG.debug("PubNub file event: {}", pnFileEventResult.toString());
+120,121c66
 <     return Observable.<JsonNode>create(
 <             e -> {
 ---
 >     return Observable.<JsonNode>create(e -> {
-128,129c105
+128,129c73
 <         .doOnDispose(
 <             () -> {
 ---
->         .doOnDispose(() -> {
-137,138c113
+>     .doOnDispose(() -> {
+137,138c81
 <     return Completable.create(
 <         completable -> {
 ---
 >     return Completable.create(completable -> {
-145c120
-<     return (pnStatusCategory == PNStatusCategory.PNConnectedCategory);
----
->     return pnStatusCategory == PNStatusCategory.PNConnectedCategory;

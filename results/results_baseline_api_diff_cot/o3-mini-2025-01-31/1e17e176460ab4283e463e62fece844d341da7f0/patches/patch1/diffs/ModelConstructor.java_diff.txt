@@ -1,10 +1,10 @@
-10c10,36
+10c10,32
 < import org.apache.maven.model.*;
 ---
 > import org.apache.maven.model.Build;
 > import org.apache.maven.model.BuildBase;
-> import org.apache.maven.model.Building;
 > import org.apache.maven.model.CiManagement;
+> import org.apache.maven.model.Component;
 > import org.apache.maven.model.Contributor;
 > import org.apache.maven.model.Dependency;
 > import org.apache.maven.model.DependencyManagement;
@@ -15,7 +15,6 @@
 > import org.apache.maven.model.License;
 > import org.apache.maven.model.MailingList;
 > import org.apache.maven.model.Model;
-> import org.apache.maven.model.Notifier;
 > import org.apache.maven.model.Organization;
 > import org.apache.maven.model.Parent;
 > import org.apache.maven.model.Plugin;
@@ -23,48 +22,68 @@
 > import org.apache.maven.model.PluginManagement;
 > import org.apache.maven.model.ReportPlugin;
 > import org.apache.maven.model.ReportSet;
-> import org.apache.maven.model.Reporting;
 > import org.apache.maven.model.Repository;
 > import org.apache.maven.model.Resource;
-> import org.apache.maven.model.Scm;
-> import org.apache.maven.model.exclusion.Exclusion;
-11a38
+11a34
 > import org.yaml.snakeyaml.LoaderOptions;
-16c43,48
+16c39,44
 < import org.yaml.snakeyaml.nodes.*;
 ---
-> import org.yaml.snakeyaml.nodes.MappingNode;
 > import org.yaml.snakeyaml.nodes.Node;
 > import org.yaml.snakeyaml.nodes.NodeId;
+> import org.yaml.snakeyaml.nodes.MappingNode;
 > import org.yaml.snakeyaml.nodes.NodeTuple;
 > import org.yaml.snakeyaml.nodes.ScalarNode;
 > import org.yaml.snakeyaml.nodes.Tag;
-43c75,76
+43c71
 <     super(Model.class);
 ---
->     // Updated to use the new constructor signature with LoaderOptions.
 >     super(Model.class, new LoaderOptions());
-60c93
+60c88
 <     desc.putListPropertyType("profiles", Profile.class);
 ---
->     desc.putListPropertyType("profiles", Model.class); // Keeping the same as original
-152d184
-< 
-157d188
-< 
-162d192
-< 
-179d208
-< 
-181d209
-< 
-200d227
-< 
-209d235
-< 
-226d251
-< 
-241c266
-<   class MavenObjectConstruct extends Constructor.ConstructMapping {
+>     desc.putListPropertyType("profiles", org.apache.maven.model.Profile.class);
+68c96
+<     desc.putListPropertyType("exclusions", Exclusion.class);
 ---
->   class MavenObjectConstruct extends ConstructMapping {
+>     desc.putListPropertyType("exclusions", org.apache.maven.model.Exclusion.class);
+102c130
+<     desc = new TypeDescription(Reporting.class);
+---
+>     desc = new TypeDescription(org.apache.maven.model.Reporting.class);
+115c143
+<     desc.putListPropertyType("notifiers", Notifier.class);
+---
+>     desc.putListPropertyType("notifiers", org.apache.maven.model.Notifier.class);
+132c160
+<     addTypeDescription(new TypeDescription(Scm.class));
+---
+>     addTypeDescription(new TypeDescription(org.apache.maven.model.Scm.class));
+164,165c192,193
+<         if (entryValue instanceof List && !((List) entryValue).isEmpty()) {
+<           toDom(child, key, (List) entryValue);
+---
+>         if (entryValue instanceof List && !((List<?>) entryValue).isEmpty()) {
+>           toDom(child, key, (List<?>) entryValue);
+168c196
+<           child = toDom(child, (Map) entryValue);
+---
+>           child = toDom(child, (Map<Object, Object>) entryValue);
+177c205
+<     private void toDom(Xpp3Dom parent, String parentKey, List list) {
+---
+>     private void toDom(Xpp3Dom parent, String parentKey, List<?> list) {
+190c218
+<             toDom(itemNode, (Map) pair[1]);
+---
+>             toDom(itemNode, (Map<Object, Object>) pair[1]);
+214c242
+<             toDom(itemNode, (Map) item);
+---
+>             toDom(itemNode, (Map<Object, Object>) item);
+246,247c274,275
+<       List<Class> specialCases = Arrays.<Class>asList(Dependency.class, Model.class, Plugin.class, ReportPlugin.class);
+<       List<Class> configurationContainers = Arrays.<Class>asList(Plugin.class, PluginExecution.class,
+---
+>       List<Class<?>> specialCases = Arrays.<Class<?>>asList(Dependency.class, Model.class, Plugin.class, ReportPlugin.class);
+>       List<Class<?>> configurationContainers = Arrays.<Class<?>>asList(Plugin.class, PluginExecution.class,

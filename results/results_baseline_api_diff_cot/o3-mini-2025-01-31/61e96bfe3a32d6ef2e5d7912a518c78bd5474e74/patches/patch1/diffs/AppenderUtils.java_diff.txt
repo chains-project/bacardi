@@ -1,42 +1,21 @@
-1,15d0
-< /**
-<  * Copyright 2019 Pinterest, Inc.
-<  * 
-<  * Licensed under the Apache License, Version 2.0 (the "License");
-<  * you may not use this file except in compliance with the License.
-<  * You may obtain a copy of the License at
-<  * 
-<  *    http://www.apache.org/licenses/LICENSE-2.0
-<  * 
-<  * Unless required by applicable law or agreed to in writing, software
-<  * distributed under the License is distributed on an "AS IS" BASIS,
-<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-<  * See the License for the specific language governing permissions and
-<  * limitations under the License.
-<  */
-22c7
+22c22
 < import ch.qos.logback.core.encoder.EncoderBase;
 ---
 > import ch.qos.logback.core.encoder.Encoder;
-33a19
+33a34
 > import java.io.ByteArrayOutputStream;
-49a36,40
->    * 
->    * In the new version of the logback dependency, the EncoderBase class has been removed.
->    * Instead, we implement the Encoder interface directly. The new Encoder requires the 
->    * implementation of headerBytes(), encode(), and footerBytes(). To keep compatibility 
->    * with singer_thrift log, we reuse the thrift serialization logic from the original implementation.
-51c42
+36d36
+< import java.io.OutputStream;
+51,55c51
 <   public static class LogMessageEncoder extends EncoderBase<LogMessage> {
----
->   public static class LogMessageEncoder implements Encoder<LogMessage> {
-53,55c44
+< 
 <     private TTransport framedTransport;
 <     private TProtocol protocol;
 <     private OutputStream os;
 ---
->     private OutputStream outputStream; // Cached output stream from init(), if needed
-59,65c48
+>   public static class LogMessageEncoder implements Encoder<LogMessage> {
+58,65c54,55
+<     public void init(OutputStream os) {
 <       this.os = os;
 <       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
 <       // log.
@@ -45,44 +24,23 @@
 <           bufferCapacity);
 <       protocol = new TBinaryProtocol(framedTransport);
 ---
->       this.outputStream = os;
-69c52,62
+>     public byte[] headerBytes() {
+>       return new byte[0];
+69c59,63
 <     public void doEncode(LogMessage logMessage) throws IOException {
 ---
->     public byte[] headerBytes() {
->       // No header bytes required
->       return new byte[0];
->     }
-> 
->     @Override
 >     public byte[] encode(LogMessage logMessage) throws IOException {
 >       ByteArrayOutputStream baos = new ByteArrayOutputStream();
 >       final int bufferCapacity = 10;
 >       TTransport framedTransport = new TFastFramedTransport(new TIOStreamTransport(baos), bufferCapacity);
 >       TProtocol protocol = new TBinaryProtocol(framedTransport);
-75a69,75
+75a70
 >       return baos.toByteArray();
->     }
-> 
->     @Override
->     public byte[] footerBytes() {
->       // No footer bytes required
->       return new byte[0];
-80c80
+79,80c74,75
+<     public void close() throws IOException {
 <       framedTransport.close();
 ---
->       // No persistent resources to close
-91a92
->    * @param maxRetentionHours maximum retention time in hours.
-99c100
-<     RollingFileAppender<LogMessage> appender = new RollingFileAppender<LogMessage>();
----
->     RollingFileAppender<LogMessage> appender = new RollingFileAppender<>();
-108c109
-<     TimeBasedRollingPolicy policy = new TimeBasedRollingPolicy();
----
->     TimeBasedRollingPolicy<LogMessage> policy = new TimeBasedRollingPolicy<>();
-116c117
-<     SizeAndTimeBasedFNATP fnatp = new SizeAndTimeBasedFNATP();
----
->     SizeAndTimeBasedFNATP<LogMessage> fnatp = new SizeAndTimeBasedFNATP<>();
+>     public byte[] footerBytes() {
+>       return new byte[0];
+91a87
+>    * @param maxRetentionHours maximum retention hours for a log file.

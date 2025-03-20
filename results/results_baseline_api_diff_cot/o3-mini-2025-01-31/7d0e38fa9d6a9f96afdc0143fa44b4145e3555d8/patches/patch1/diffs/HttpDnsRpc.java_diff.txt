@@ -1,79 +1,50 @@
-209a210
->     // New API requires the zone name as the second parameter.
-211c212
+211,212c211
 <         .create(this.options.getProjectId(), zone)
+<         .setFields(Option.FIELDS.getString(options));
 ---
->         .create(this.options.getProjectId(), zone.getName(), zone)
-230a232
->     // Updated: New method signature requires a third parameter; passing empty string.
-232c234
+>         .create(this.options.getProjectId(), zone.getName(), zone);
+232,233c231
 <         .get(this.options.getProjectId(), zoneName)
+<         .setFields(Option.FIELDS.getString(options));
 ---
->         .get(this.options.getProjectId(), zoneName, "")
-247a250,253
->     String dnsName = Option.DNS_NAME.getString(options);
->     if (dnsName == null) {
->       dnsName = "";
->     }
-249c255
+>         .get(this.options.getProjectId(), zoneName, Option.FIELDS.getString(options));
+249,250c247
 <         .list(this.options.getProjectId())
+<         .setFields(Option.FIELDS.getString(options))
 ---
->         .list(this.options.getProjectId(), dnsName)
-252d257
-<         .setDnsName(Option.DNS_NAME.getString(options))
-271c276,277
+>         .list(this.options.getProjectId(), Option.FIELDS.getString(options))
+271c268
 <     return dns.managedZones().delete(this.options.getProjectId(), zoneName);
 ---
->     // New API: delete requires a third parameter; using empty string.
 >     return dns.managedZones().delete(this.options.getProjectId(), zoneName, "");
-287c293,304
+287d283
 <     // options are fields, page token, dns name, type
----
->     // For the new API, list() now requires 5 string parameters.
->     String projectId = this.options.getProjectId();
->     String name = Option.NAME.getString(options);
->     if (name == null) {
->       name = "";
->     }
->     String type = Option.DNS_TYPE.getString(options);
->     if (type == null) {
->       type = "";
->     }
->     // The 5th parameter is not previously specified; we pass an empty string.
->     String extraParam = "";
-289c306
+289,290c285
 <         .list(this.options.getProjectId(), zoneName)
+<         .setFields(Option.FIELDS.getString(options))
 ---
->         .list(projectId, zoneName, name, type, extraParam)
-292,294c309
-<         .setMaxResults(Option.PAGE_SIZE.getInt(options))
-<         .setName(Option.NAME.getString(options))
-<         .setType(Option.DNS_TYPE.getString(options));
----
->         .setMaxResults(Option.PAGE_SIZE.getInt(options));
-306a322
->     // New API: projects().get now requires two parameters. Passing empty string as the second.
-308c324
+>         .list(this.options.getProjectId(), zoneName, Option.FIELDS.getString(options))
+308,309c303
 <         .get(this.options.getProjectId())
+<         .setFields(Option.FIELDS.getString(options));
 ---
->         .get(this.options.getProjectId(), "")
-323a340
->     // New API: changes().create now requires a third string parameter; using empty string.
-325c342
+>         .get(this.options.getProjectId(), Option.FIELDS.getString(options));
+325,326c319
 <         .create(this.options.getProjectId(), zoneName, changeRequest)
+<         .setFields(Option.FIELDS.getString(options));
 ---
->         .create(this.options.getProjectId(), zoneName, "", changeRequest)
-350a368
->     // New API: changes().get now requires a fourth parameter; passing empty string.
-352c370
+>         .create(this.options.getProjectId(), zoneName, Option.FIELDS.getString(options), changeRequest);
+352,353c345
 <         .get(this.options.getProjectId(), zoneName, changeRequestId)
+<         .setFields(Option.FIELDS.getString(options));
 ---
->         .get(this.options.getProjectId(), zoneName, changeRequestId, "")
-369c387
+>         .get(this.options.getProjectId(), zoneName, changeRequestId, Option.FIELDS.getString(options));
+369d360
 <     // options are fields, page token, page size, sort order
----
->     // New API: changes().list now requires a third parameter; using empty string.
-372c390
+372,373c363
 <             .list(this.options.getProjectId(), zoneName)
+<             .setFields(Option.FIELDS.getString(options))
 ---
->             .list(this.options.getProjectId(), zoneName, "")
+>             .list(this.options.getProjectId(), zoneName, Option.FIELDS.getString(options))
+377d366
+<       // todo check and change if more sorting options are implemented, issue #604

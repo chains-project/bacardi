@@ -1,13 +1,3 @@
-<repair_strategy>
-1. The error is due to using the removed class liquibase.util.StringUtils and its method trimToNull(String).
-2. The new API provides an alternative: liquibase.util.StringUtil.trimToNull(String) (or the repackaged Apache Commons Lang3 version). Since the former is a direct replacement, we will update the code to use it.
-3. In the failing code, the usage of StringUtils.trimToNull(statement.getTablespace()) will be replaced by StringUtil.trimToNull(statement.getTablespace()).
-4. We also update the import from liquibase.util.StringUtils to liquibase.util.StringUtil.
-5. No changes to function signatures or other parts of the class are required.
-6. The minimal change required is thus the update of the import and the corresponding method call.
-7. The complete class remains functional and compilable.
-</repair_strategy>
-
 ```java
 package liquibase.ext.mssql.sqlgenerator;
 
@@ -50,11 +40,11 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
     }
     
     if (statement.isClustered() != null) {
-      if (statement.isClustered()) {
-        builder.append("CLUSTERED ");
-      } else {
-        builder.append("NONCLUSTERED ");
-      }
+        if (statement.isClustered()) {
+            builder.append("CLUSTERED ");
+        } else {
+            builder.append("NONCLUSTERED ");
+        }
     }
     
     builder.append("INDEX ");
@@ -70,7 +60,7 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
       AddColumnConfig column = iterator.next();
       builder.append(database.escapeColumnName(statement.getTableCatalogName(), statement.getTableSchemaName(), statement.getTableName(), column.getName()));
       if (column.getDescending() != null && column.getDescending()) {
-        builder.append(" DESC");
+          builder.append(" DESC");
       }
       if (iterator.hasNext()) {
         builder.append(", ");

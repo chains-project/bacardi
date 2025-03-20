@@ -1,18 +1,3 @@
-<repair_strategy>
-1. The failure is caused by the removal of the class Xpp3Dom from the package org.codehaus.plexus.util.xml in the dependency update.
-2. The old API used org.codehaus.plexus.util.xml.Xpp3Dom for plugin configuration parsing. In the new version, this class has been removed.
-3. The client code uses Xpp3Dom in the collectUsedClassesFromProcessors() method where it casts a plugin execution configuration and accesses its children.
-4. The fix must preserve the method signature, update references to Xpp3Dom, and provide a compatible class to handle the XML configuration.
-5. The minimal change is to update the import to use an alternative implementation available in the new dependency. The new API provides the class Xpp3Dom in the package org.apache.maven.shared.utils.xml.
-6. The changes are localized only to the import and the cast in collectUsedClassesFromProcessors() method.
-7. The rest of the class remains unchanged.
-8. No additional placeholder comments or removal of unrelated functionality is needed.
-</repair_strategy>
-
-Below is the complete fixed class:
-
---------------------------------------------------
-
 ```java
 package se.kth.depclean.wrapper;
 
@@ -237,7 +222,3 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
   }
 }
 ```
-
---------------------------------------------------
-
-This change replaces the import from the removed org.codehaus.plexus.util.xml.Xpp3Dom with the new org.apache.maven.shared.utils.xml.Xpp3Dom, which provides the necessary XML parsing functionality for processing the plugin configuration.

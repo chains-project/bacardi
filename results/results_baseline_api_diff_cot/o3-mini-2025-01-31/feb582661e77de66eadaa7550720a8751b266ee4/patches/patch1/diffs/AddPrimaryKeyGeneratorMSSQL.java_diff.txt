@@ -1,24 +1,20 @@
 12c12
 < import liquibase.util.StringUtils;
 ---
-> import liquibase.repackaged.org.apache.commons.lang3.StringUtils;
+> import liquibase.util.StringUtil;
 55c55,56
 <       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) + " ADD PRIMARY KEY (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
 ---
->       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) 
->             + " ADD PRIMARY KEY (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
+>       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) +
+>             " ADD PRIMARY KEY (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
 57c58,59
 <       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) + " ADD CONSTRAINT " + database.escapeConstraintName(statement.getConstraintName())+" PRIMARY KEY";
 ---
->       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) 
->             + " ADD CONSTRAINT " + database.escapeConstraintName(statement.getConstraintName()) + " PRIMARY KEY";
-72c74,78
-<       sql += " USING INDEX "+database.escapeObjectName(statement.getForIndexCatalogName(), statement.getForIndexSchemaName(), statement.getForIndexName(), Index.class);
+>       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) +
+>             " ADD CONSTRAINT " + database.escapeConstraintName(statement.getConstraintName()) + " PRIMARY KEY";
+67c69
+<     if (StringUtils.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
 ---
->       sql += " USING INDEX " + database.escapeObjectName(
->           statement.getForIndexCatalogName(), 
->           statement.getForIndexSchemaName(), 
->           statement.getForIndexName(), 
->           Index.class);
-84d89
+>     if (StringUtil.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
+84d85
 < 

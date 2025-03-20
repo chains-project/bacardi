@@ -1,11 +1,3 @@
-<repair_strategy>
-1. The failure is caused because the client code is importing the now-removed class javax.mvc.RedirectScoped.
-2. The new API replaces javax.mvc.RedirectScoped with jakarta.mvc.RedirectScoped (as an interface).
-3. The only required change is to update the import statement to use jakarta.mvc.RedirectScoped.
-4. Minimal changes are needed since the rest of the class remains unchanged. The annotation usage remains valid without function signature modifications.
-5. The update involves only adjusting the import statement, ensuring the class compiles and functions as intended.
-</repair_strategy>
-  
 ```java
 package com.example.web;
 
@@ -18,7 +10,7 @@ import jakarta.mvc.RedirectScoped;
 /**
  * Used to transport messages back to the client.
  *
- * @author Hantsy
+ * @author Hantsy Bai
  */
 @RedirectScoped
 @Named("flashMessage")
@@ -132,8 +124,6 @@ public class AlertMessage implements Serializable {
         public void setField(String field) {
             this.field = field;
         }
-
     }
-
 }
 ```

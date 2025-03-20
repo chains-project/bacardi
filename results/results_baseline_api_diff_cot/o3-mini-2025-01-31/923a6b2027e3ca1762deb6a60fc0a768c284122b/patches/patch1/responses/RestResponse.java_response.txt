@@ -45,10 +45,9 @@ import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.collection.IsEmptyIterable.emptyIterable;
-import static org.hamcrest.collection.IsIterableContainingInAnyOrder.hasItems;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.collection.IsEmptyCollection;
+import org.hamcrest.collection.IsIterableContainingInAnyOrder;
 
 /**
  * REST response.
@@ -60,8 +59,8 @@ import static org.hamcrest.collection.IsIterableContainingInAnyOrder.hasItems;
  *   .fetch()
  *   .as(RestResponse.class)
  *   .assertStatus(200)
- *   .assertBody(Matchers.containsString("hello, world!"))
- *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
+ *   .assertBody(CoreMatchers.containsString("hello, world!"))
+ *   .assertHeader("Content-Type", IsIterableContainingInAnyOrder.hasItems("text/plain"))
  *   .jump(URI.create("/users"))
  *   .fetch();</pre>
  *
@@ -165,8 +164,8 @@ public final class RestResponse extends AbstractResponse {
             String.format(
                 "HTTP response binary content is not valid:%n%s",
                 this
-            ), this.binary(),
-            matcher
+            ),
+            this.binary(), matcher
         );
         return this;
     }
@@ -210,7 +209,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, hasItems(value));
+        return this.assertHeader(name, IsIterableContainingInAnyOrder.hasItems(value));
     }
 
     /**
@@ -246,7 +245,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            not(emptyIterable())
+            CoreMatchers.not(IsEmptyCollection.empty())
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -284,7 +283,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            notNullValue()
+            CoreMatchers.notNullValue()
         );
         assert cookie != null;
         return cookie;

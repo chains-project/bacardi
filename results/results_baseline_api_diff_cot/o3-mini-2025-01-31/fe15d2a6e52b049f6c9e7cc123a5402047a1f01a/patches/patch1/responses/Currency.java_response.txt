@@ -5,39 +5,17 @@
 // Generated on: 2023.08.19 at 10:48:51 PM GMT 
 //
 
-package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_02_01.schema;
 
 import java.math.BigDecimal;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
-/**
- * <p>Java class for Currency complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType name="Currency"&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CurrencyCode"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CurrencyAmount"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ExchangeRate" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
- */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Currency", propOrder = {
     "currencyCode",
@@ -46,6 +24,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 })
 public class Currency implements ToString2
 {
+
+    private static final ToStringStrategy2 DEFAULT_TO_STRING_STRATEGY = new DefaultToStringStrategy();
 
     @XmlElement(name = "CurrencyCode", required = true)
     protected String currencyCode;
@@ -128,7 +108,7 @@ public class Currency implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+        final ToStringStrategy2 strategy = DEFAULT_TO_STRING_STRATEGY;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -161,5 +141,34 @@ public class Currency implements ToString2
         }
         return buffer;
     }
+    
+    private static class DefaultToStringStrategy implements ToStringStrategy2 {
 
+        @Override
+        public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+            if (object != null) {
+                buffer.append(object.getClass().getSimpleName()).append(" [");
+            } else {
+                buffer.append("[");
+            }
+            return buffer;
+        }
+
+        @Override
+        public StringBuilder appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean isSet) {
+            if (isSet) {
+                if (buffer.length() > 0 && buffer.charAt(buffer.length() - 1) != '[') {
+                    buffer.append(", ");
+                }
+                buffer.append(fieldName).append("=").append(value);
+            }
+            return buffer;
+        }
+
+        @Override
+        public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+            buffer.append("]");
+            return buffer;
+        }
+    }
 }

@@ -1,16 +1,28 @@
-27c27
+26,27d25
+< import org.tinspin.index.kdtree.KDTree;
 < 
----
-> import org.tinspin.index.kdtree.KDTree.Entry;
-70c70,76
+66d63
+<                 final KDTree<PVector> tree = KDTree.create(2);
+69,71c66,73
+<                         final double[] coords = new double[] { p.x, p.y };
 <                         if (tree.size() == 0 || tree.query1NN(coords).dist() > distanceTolerance) {
+<                                 tree.insert(coords, p);
 ---
->                         if (tree.size() == 0) {
->                                 tree.insert(coords, p);
->                                 newPoints.add(p);
->                         } else {
->                                 List<? extends Entry<PVector>> nearest = tree.queryKNN(coords, 1);
->                                 // If no neighbor is found or the nearest neighbor is further than the tolerance then add the point
->                                 if (nearest.isEmpty() || nearest.get(0).distance() > distanceTolerance) {
-74a81
->                 }
+>                         boolean isFarEnough = true;
+>                         for (PVector existing : newPoints) {
+>                                 if (PVector.dist(existing, p) <= distanceTolerance) {
+>                                         isFarEnough = false;
+>                                         break;
+>                                 }
+>                         }
+>                         if (isFarEnough) {
+552c554
+<          * @param centerY y coordinate of the center of the point set
+---
+>          * @param centerY x coordinate of the center of the point set
+605d606
+<                 // https://github.com/Atrix256/SampleZoo/blob/master/src/families/_2d/samples/irrational_numbers/irrational_numbers.cpp
+668d668
+<                 // https://github.com/Atrix256/SampleZoo/blob/master/src/families/_2d/samples/irrational_numbers/irrational_numbers.cpp
+981d980
+<                 @Override
