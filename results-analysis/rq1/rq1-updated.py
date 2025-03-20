@@ -120,7 +120,7 @@ if output_build_success_latex:
     
     latex_table = pivoted.to_latex(
         index=True,
-        caption="Build Success Rate of \\toolname~ on \\finaldata builds.",
+        caption="Build Success Rate of \\toolname~ of \\finaldata builds.",
         label="tab:build_success_prompt"
     )
     
