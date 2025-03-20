@@ -11,7 +11,7 @@ import jakarta.mvc.RedirectScoped; // Updated import
  *
  * @author Hantsy Bai<hantsy@gmail.com>
  */
-@RedirectScoped // Updated annotation
+@RedirectScoped
 @Named("flashMessage")
 public class AlertMessage implements Serializable {
 

@@ -1,20 +1,17 @@
-4,12c4
+4,6d3
 < import redis.clients.jedis.commands.BasicRedisPipeline;
 < import redis.clients.jedis.commands.BinaryRedisPipeline;
 < import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
-< import redis.clients.jedis.commands.ClusterPipeline;
+8,11d4
 < import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;
 < import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
 < import redis.clients.jedis.commands.RedisPipeline;
 < import redis.clients.jedis.commands.ScriptingCommandsPipeline;
-< 
----
-> import redis.clients.jedis.ClusterPipeline; // Updated import
-21,24c13,14
+20,24c13
+< public interface RedisGraphTransaction extends
 <         MultiKeyBinaryRedisPipeline,
 <         MultiKeyCommandsPipeline, ClusterPipeline,
 <         BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
 <         BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
 ---
->         ClusterPipeline, // Updated interface
->         Closeable {
+> public interface RedisGraphTransaction extends ClusterPipeline, Closeable {

@@ -12,9 +12,8 @@ import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
 import com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult;
-import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
 import com.pubnub.api.models.consumer.objects_api.membership.PNMembership;
-import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
+import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -89,12 +88,14 @@ public class PubnubStreamingService {
                   LOG.debug("PubNub signal: {}", pnSignalResult.toString());
                 }
 
-                @Override
-                public void user(PubNub pubnub, PNUserResult pnUserResult) {
-                  LOG.debug("PubNub user: {}", pnUserResult.toString());
+                public void user(PubNub pubnub, PNMembershipResult pnMembershipResult) {
+                  LOG.debug("PubNub user: {}", pnMembershipResult.toString());
                 }
 
-                @Override
+                public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
+                  LOG.debug("PubNub space: {}", pnSpaceResult.toString());
+                }
+
                 public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
                   LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
                 }

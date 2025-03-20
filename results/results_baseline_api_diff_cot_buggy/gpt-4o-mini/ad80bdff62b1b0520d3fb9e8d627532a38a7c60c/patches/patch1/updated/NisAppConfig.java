@@ -112,7 +112,8 @@ public class NisAppConfig {
 		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
 		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 
-		return Flyway.configure().configuration(configuration).load();
+		final Flyway flyway = new Flyway(configuration);
+		return flyway;
 	}
 
 	@Bean

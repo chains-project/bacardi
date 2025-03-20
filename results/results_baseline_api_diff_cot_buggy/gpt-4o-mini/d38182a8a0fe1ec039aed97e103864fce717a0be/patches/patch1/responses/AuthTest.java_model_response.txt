@@ -29,6 +29,7 @@ import com.artipie.http.rs.RsStatus;
 import io.reactivex.Flowable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 import org.hamcrest.MatcherAssert;
@@ -351,7 +352,7 @@ public final class AuthTest {
                     token -> CompletableFuture.completedFuture(
                         Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
                             .filter(user -> token.equals(token(user)))
-                            .map(user -> new Authentication.AuthUser(user.name(), user.permissions())) // Updated line
+                            .map(user -> new Authentication.User(user.name(), null)) // Updated to accommodate API change
                             .findFirst()
                     ),
                     ""

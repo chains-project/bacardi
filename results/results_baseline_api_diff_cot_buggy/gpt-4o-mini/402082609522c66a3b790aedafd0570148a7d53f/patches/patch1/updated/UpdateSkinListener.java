@@ -8,6 +8,7 @@ import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.Sponge;
@@ -29,11 +30,11 @@ public class UpdateSkinListener {
         updateMessage.readFrom(dataInput);
 
         String playerName = updateMessage.getPlayerName();
-        Optional<Player> receiver = Sponge.getServer().getPlayer(playerName);
+        Optional<Player> receiver = Sponge.getServer().getPlayer(UUID.fromString(playerName));
         if (receiver.isPresent()) {
             Runnable skinUpdater = new SkinApplier(plugin, (CommandSource) connection, receiver.get(), null, false);
-            TaskExecutorService executorService = Sponge.getScheduler().getTaskExecutor();
-            executorService.submit(skinUpdater);
+            TaskExecutorService scheduler = Sponge.getScheduler().getTaskExecutor();
+            scheduler.submit(skinUpdater);
         }
     }
 }

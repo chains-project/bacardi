@@ -146,7 +146,6 @@ public interface SeriesWS {
      *                 Esta funcionalidade tem como objetivo, disponibilizar a ação de anular a comunicação 
      *                 de uma série anteriormente comunicada, por erro.
      *             
-     * 
      * @param motivo
      * @param declaracaoNaoEmissao
      * @param serie

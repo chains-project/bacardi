@@ -51,13 +51,11 @@ public final class SimpleThriftLogger<T extends TBase> implements Closeable {
       byteOffset = 0;
     }
 
-    @Override
     public void write(byte[] buf, int off, int len) throws TTransportException {
       super.write(buf, off, len);
       byteOffset += len;
     }
 
-    @Override
     public void flush() throws TTransportException {
       super.flush();
       // Add 4 bytes for the frame size.

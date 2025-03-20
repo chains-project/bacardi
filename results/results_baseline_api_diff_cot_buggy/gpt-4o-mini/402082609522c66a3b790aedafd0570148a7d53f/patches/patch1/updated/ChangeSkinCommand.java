@@ -1,9 +1,11 @@
 package com.github.games647.changeskin.sponge.command;
 
-import org.spongepowered.api.command.CommandSpec; // Updated import
+import org.spongepowered.api.command.spec.CommandSpecBuilder;
 
 @FunctionalInterface
 public interface ChangeSkinCommand {
 
-    CommandSpec buildSpec(); // No change to function signature
+    default CommandSpecBuilder buildSpec() {
+        return CommandSpecBuilder.builder();
+    }
 }

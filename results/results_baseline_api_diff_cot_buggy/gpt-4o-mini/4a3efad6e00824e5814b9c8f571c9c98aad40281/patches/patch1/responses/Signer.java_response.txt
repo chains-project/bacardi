@@ -40,6 +40,10 @@ public class Signer {
 
     public void signPdf(Path pdfFile, Path outputFile, byte[] keyStore, char[] keyStorePassword, boolean binary, SignatureParameters params) throws IOException {
         boolean visibleSignature = params.getPage() != null;
+        //https://github.com/apache/pdfbox/blob/trunk/examples/src/main/java/org/apache/pdfbox/examples/signature/CreateVisibleSignature2.java
+        //https://ec.europa.eu/cefdigital/DSS/webapp-demo/doc/dss-documentation.html
+        //load PDF file
+        //PDDocument doc = PDDocument.load(pdfFile.toFile());
 
         //load PDF file in DSSDocument format
         DSSDocument toSignDocument = new FileDocument(pdfFile.toFile());
@@ -50,10 +54,12 @@ public class Signer {
         log.debug("Keystore created for signing");
         //PAdES parameters
         PAdESSignatureParameters signatureParameters = new PAdESSignatureParameters();
+        //signatureParameters.bLevel().setSigningDate(new Date());
         String keyAlias = "alias";
         if (signingToken.getKeys().get(0) instanceof KSPrivateKeyEntry) {
             keyAlias = ((KSPrivateKeyEntry) signingToken.getKeys().get(0)).getAlias();
         }
+        ;
         signatureParameters.setSigningCertificate(signingToken.getKey(keyAlias).getCertificate());
         signatureParameters.setCertificateChain(signingToken.getKey(keyAlias).getCertificateChain());
         if (params.getUseTimestamp() || !params.getTSA().isEmpty()) {
@@ -61,8 +67,7 @@ public class Signer {
         } else {
             signatureParameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_B);
         }
-        // Removed CertificationPermission as it has been removed from the API
-        // signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
+        // Removed CertificationPermission as it no longer exists in the new version
 
         // Create common certificate verifier
         CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
@@ -114,12 +119,16 @@ public class Signer {
 
             signatureParameters.setImageParameters(imageParameters);
 
+
             PdfBoxNativeObjectFactory pdfBoxNativeObjectFactory = new PdfBoxNativeTableObjectFactory();
             service.setPdfObjFactory(pdfBoxNativeObjectFactory);
             log.debug("Visible signature parameters set");
         }
 
+        //https://gist.github.com/Manouchehri/fd754e402d98430243455713efada710
         //only use TSP source, if parameter is set
+        //if it is set to an url, us this
+        //otherwise, default
         if (params.getUseTimestamp() || params.getTSA() != null) {
             CompositeTSPSource compositeTSPSource = new CompositeTSPSource();
             Map<String, TSPSource> tspSources = new HashMap<>();
@@ -144,6 +153,9 @@ public class Signer {
         log.debug("Data to be signed loaded");
         SignatureValue signatureValue = signingToken.sign(dataToSign, digestAlgorithm, signingToken.getKey(keyAlias));
 
+        /*if (service.isValidSignatureValue(dataToSign, signatureValue, signingToken.getKey("alias").getCertificate())) {
+            log.debug("is true");
+        }*/
         log.debug("Signature value calculated");
 
         DSSDocument signedDocument = service.signDocument(toSignDocument, signatureParameters, signatureValue);

@@ -2,17 +2,32 @@
 < import org.spongepowered.api.command.args.CommandContext;
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
-19,20c19,20
+16c16
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.Command;
+19c19
 < import static org.spongepowered.api.command.args.GenericArguments.string;
-< import static org.spongepowered.api.text.Text.of;
 ---
 > import static org.spongepowered.api.command.parameter.Parameter.string;
-> import static net.kyori.adventure.text.Component.text;
-43c43
+22c22
+< public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class UploadCommand implements CommandExecutor {
+33d32
+<     @Override
+35c34
+<         String url = args.<String>getOne("url").get();
+---
+>         String url = args.getOne("url").get();
+43c42
 <                 Task.builder().async().execute(skinUploader).submit(plugin);
 ---
 >                 Task.builder().execute(skinUploader).submit(plugin);
-56c56
-<                 .arguments(string(of("url")))
+52,54c51,52
+<     @Override
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
 ---
->                 .arguments(string("url"))
+>     public Command buildSpec() {
+>         return Command.builder()

@@ -1,36 +1,44 @@
 3c3
 < import develop.p2p.lib.*;
 ---
-> import tokyo.peya.lib.*; // Updated import to the new package
-107,111d106
+> import tokyo.peya.lib.*; // Updated import
+72d71
+<             @Override
+107,111d105
 <                     float head = ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f;
 < 
 <                     if (head < 0)
 <                         head *= 2;
 < 
-114c109
+114c108
 <                     connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) head));
 ---
 >                     connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f));
-117d111
+117d110
 <                     float finalHead = head;
-129c123
+120d112
+<                         @Override
+129c121
 <                                         .sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) finalHead));
 ---
 >                                         .sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f));
-161c155
+161c153
 <         WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
 ---
->         tokyo.peya.lib.WaveCreator ypp = new tokyo.peya.lib.WaveCreator(10.0, 100.0, 10.0); // Updated to new class
-179c173
+>         tokyo.peya.lib.WaveCreator ypp = new tokyo.peya.lib.WaveCreator(10.0, 100.0, 10.0); // Updated constructor
+179c171
 <                         rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
 ---
->                         rangeTmp = new tokyo.peya.lib.WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin")) // Updated to new class
-186c180
+>                         rangeTmp = new tokyo.peya.lib.WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin")) // Updated constructor
+186c178
 <                         center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
 ---
->                         center.getY() + new tokyo.peya.lib.WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20), // Updated to new class
-220c214
+>                         center.getY() + new tokyo.peya.lib.WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20), // Updated constructor
+199d190
+<                         @Override
+220c211
 <                     ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
 ---
->                     ? new tokyo.peya.lib.WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true) // Updated to new class
+>                     ? new tokyo.peya.lib.WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true) // Updated constructor
+228d218
+<             @Override

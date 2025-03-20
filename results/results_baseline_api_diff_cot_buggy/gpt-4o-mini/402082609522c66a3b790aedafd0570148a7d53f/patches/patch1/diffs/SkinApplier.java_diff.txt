@@ -1,23 +1,25 @@
 12,13d11
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.data.key.Keys;
-18a17
-> import org.spongepowered.api.data.Keys; // Updated import for Keys
-23c22
+23d20
 <     private final CommandSource invoker;
----
->     private final Player invoker; // Changed type from CommandSource to Player
-26c25
+26c23
 <     public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
 ---
->     public SkinApplier(ChangeSkinSponge plugin, Player invoker, Player receiver, SkinModel targetSkin
-31c30
+>     public SkinApplier(ChangeSkinSponge plugin, Player receiver, SkinModel targetSkin
+31d27
 <         this.invoker = invoker;
----
->         this.invoker = invoker; // Updated to use Player type
-42,43c41,42
+42,43c38,39
 <         if (invoker instanceof Player) {
 <             UUID uniqueId = ((Player) invoker).getUniqueId();
 ---
->         if (invoker != null) { // Updated check for invoker
->             UUID uniqueId = invoker.getUniqueId();
+>         if (receiver.isOnline()) {
+>             UUID uniqueId = receiver.getUniqueId();
+65c61
+<         plugin.sendMessage(invoker, "skin-changed");
+---
+>         plugin.sendMessage(receiver, "skin-changed");
+70c66
+<         plugin.sendMessage(invoker, key);
+---
+>         plugin.sendMessage(receiver, key);

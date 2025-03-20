@@ -1,45 +1,41 @@
-13,14c13
+13,14d12
 < import org.spongepowered.api.Sponge;
 < import org.spongepowered.api.command.CommandException;
+23c21
+< import org.spongepowered.api.text.serializer.TextSerializers;
 ---
 > import net.kyori.adventure.text.Component;
-17,19c16,17
-< import org.spongepowered.api.command.args.CommandContext;
-< import org.spongepowered.api.command.spec.CommandExecutor;
-< import org.spongepowered.api.command.spec.CommandSpec;
+25c23
+< public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
 ---
-> import org.spongepowered.api.command.parameter.CommandContext;
-> import org.spongepowered.api.command.Command;
-20a19
-> import org.spongepowered.api.scheduler.Scheduler;
-23d21
-< import org.spongepowered.api.text.serializer.TextSerializers;
-33d30
+> public class InfoCommand implements CommandExecutor {
+33,35c31
 < 
-38c35
+<     @Override
+<     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+---
+>     public CommandResult execute(CommandSource src, CommandContext args) {
+38c34
 <             return CommandResult.empty();
 ---
 >             return CommandResult.success();
-42,43c39,40
+42,43c38
 <         Task.builder().async()
 <                 .execute(() -> {
 ---
->         Scheduler scheduler = Sponge.getScheduler();
->         scheduler.submit(Task.builder().execute(() -> {
-45,47c42,43
-<                     Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).submit(plugin);
+>         Task.builder().execute(() -> {
+46,47c41
 <                 })
 <                 .submit(plugin);
 ---
->             scheduler.submit(Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).build());
->         }).build());
-53,54c49,50
-<     public CommandSpec buildSpec() {
-<         return CommandSpec.builder()
+>         }).submit(plugin);
+52d45
+<     @Override
+61c54
+<         Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
 ---
->     public Command buildSpec() {
->         return Command.builder()
-70c66
+>         Optional<Player> optPlayer = plugin.getServer().getPlayer(uuid);
+70c63
 <                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
 ---
 >                 Text text = Text.of(formatted);

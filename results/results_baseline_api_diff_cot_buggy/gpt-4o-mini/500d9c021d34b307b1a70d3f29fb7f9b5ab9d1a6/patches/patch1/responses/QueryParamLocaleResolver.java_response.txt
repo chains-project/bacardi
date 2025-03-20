@@ -1,4 +1,5 @@
 package com.example.web;
+// https://www.mvc-spec.org/learn/cookbook/custom_localeresolver_en.html
 
 import java.util.Locale;
 import java.util.logging.Level;
@@ -6,8 +7,8 @@ import java.util.logging.Logger;
 import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import jakarta.mvc.locale.LocaleResolver;
 import jakarta.mvc.locale.LocaleResolverContext;
+import jakarta.mvc.locale.LocaleResolver;
 import jakarta.ws.rs.core.UriInfo;
 
 /**
@@ -36,7 +37,6 @@ public class QueryParamLocaleResolver implements LocaleResolver {
     @Inject
     Logger log;
     
-    @Override
     public Locale resolveLocale(final LocaleResolverContext context) {
         final String queryLang = context.getUriInfo()
                 .getQueryParameters()

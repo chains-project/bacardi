@@ -3,7 +3,7 @@ package com.example.web;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.inject.Named; // Updated import
+import javax.inject.Named;
 import jakarta.mvc.RedirectScoped; // Updated import
 
 /**

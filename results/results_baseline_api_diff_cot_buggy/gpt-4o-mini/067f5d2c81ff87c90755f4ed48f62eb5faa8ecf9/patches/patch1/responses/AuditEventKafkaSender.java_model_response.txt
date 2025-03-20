@@ -64,7 +64,8 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
    *  When sender send audit events to Kafka,  it chooses a random partition and if it fails, it
    *  will choose another GOOD partition, this retry will happen at most numOfPartitionsToTrySending
    *  times before dropping the event. Note that, this is different from the retry handled by
-   *  kafka client library when sending an event to a certain partition.
+   *  kafka client
+   *  library when sending an event to a certain partition.
    */
   private static final int NUM_OF_PARTITIONS_TO_TRY_SENDING = 3;
 
@@ -116,11 +117,6 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
    * KafkaProducer instance to send audit events
    */
   private KafkaProducer<byte[], byte[]> kafkaProducer;
-
-  /**
-   * Serialize key and value to byte[]
-   */
-  private TSerializer serializer;
 
   /**
    *  flag to control the start and stop of the executing thread.
@@ -175,6 +171,8 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
    */
   private int currentPartitionId = -1;
 
+  private TSerializer serializer;
+
   public AuditEventKafkaSender(KafkaSenderConfig config,
                                LinkedBlockingDeque<LoggingAuditEvent> queue,
                                LoggingAuditStage stage, String host, String name) {
@@ -186,12 +184,11 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
     this.stopGracePeriodInSeconds = config.getStopGracePeriodInSeconds();
     this.badPartitions.add(-1);
     try {
-      this.serializer = new TSerializer(new TProtocolFactory());
+      this.serializer = new TSerializer();
     } catch (TTransportException e) {
       LOG.error("Failed to initialize TSerializer", e);
     }
   }
-
 
   public KafkaProducer<byte[], byte[]> getKafkaProducer() {
     return kafkaProducer;

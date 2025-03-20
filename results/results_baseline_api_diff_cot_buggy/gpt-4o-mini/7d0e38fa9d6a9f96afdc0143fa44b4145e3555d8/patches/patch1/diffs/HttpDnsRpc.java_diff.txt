@@ -1,26 +1,29 @@
-211c211
-<         .create(this.options.getProjectId(), zone)
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+232c216
+<         .get(this.options.getProjectId(), zoneName)
 ---
->         .create(this.options.getProjectId(), zone.getName(), zone)
-271c271
+>         .get(this.options.getProjectId(), zoneName, null)
+271c255
 <     return dns.managedZones().delete(this.options.getProjectId(), zoneName);
 ---
->     return dns.managedZones().delete(this.options.getProjectId(), zoneName, ""); // Added empty string for the new method signature
-308,309c308
-<         .get(this.options.getProjectId())
-<         .setFields(Option.FIELDS.getString(options));
+>     return dns.managedZones().delete(this.options.getProjectId(), zoneName, null);
+289c273
+<         .list(this.options.getProjectId(), zoneName)
 ---
->         .get(this.options.getProjectId(), ""); // Added empty string for the new method signature
-325c324
-<         .create(this.options.getProjectId(), zoneName, changeRequest)
----
->         .create(this.options.getProjectId(), zoneName, changeRequest.getId(), changeRequest) // Added changeRequest.getId() for the new method signature
-352,353c351
-<         .get(this.options.getProjectId(), zoneName, changeRequestId)
-<         .setFields(Option.FIELDS.getString(options));
----
->         .get(this.options.getProjectId(), zoneName, changeRequestId, ""); // Added empty string for the new method signature
-372c370
-<             .list(this.options.getProjectId(), zoneName)
----
->             .list(this.options.getProjectId(), zoneName, "") // Added empty string for the new method signature
+>         .list(this.options.getProjectId(), zoneName, null)

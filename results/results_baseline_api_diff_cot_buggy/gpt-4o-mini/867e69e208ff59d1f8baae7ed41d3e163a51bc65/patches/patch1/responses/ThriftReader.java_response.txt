@@ -3,7 +3,7 @@
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * you may obtain a copy of the License at
+ * You may obtain a copy of the License at
  * 
  *    http://www.apache.org/licenses/LICENSE-2.0
  * 
@@ -20,7 +20,7 @@ import com.google.common.base.Strings;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.layered.TFramedTransport; // Updated import
+import org.apache.thrift.transport.layered.TFramedTransport;
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.apache.thrift.transport.TTransport;
 
@@ -78,7 +78,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
     this.byteOffsetInputStream = new ByteOffsetInputStream(
         new RandomAccessFile(path, "r"), readBufferSize);
     this.framedTransport = new TFramedTransport(new TIOStreamTransport(this
-        .byteOffsetInputStream), maxMessageSize); // Updated constructor usage
+        .byteOffsetInputStream), maxMessageSize);
     this.baseFactory = Preconditions.checkNotNull(baseFactory);
     this.protocol = protocolFactory.get(this.framedTransport);
   }

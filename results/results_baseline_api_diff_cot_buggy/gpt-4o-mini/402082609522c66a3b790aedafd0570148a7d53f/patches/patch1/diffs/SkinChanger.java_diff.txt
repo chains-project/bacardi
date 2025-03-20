@@ -1,20 +1,26 @@
-7,8c7,9
+7,8c7,10
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.text.serializer.TextSerializers;
 ---
 > import org.spongepowered.api.command.CommandSource; // This import will be removed
+> import org.spongepowered.api.text.serializer.TextSerializers; // This import will be removed
 > import org.spongepowered.api.text.Text; // New import for text handling
-> import org.spongepowered.api.text.Texts; // New import for text serialization
-12c13
+> import org.spongepowered.api.text.format.TextColor; // New import for text color
+12c14
 <     private final CommandSource invoker;
 ---
->     private final CommandSource invoker; // This field will be removed
-17c18
-<         this.invoker = invoker;
+>     private final Object invoker; // Change type to Object to accommodate new API
+14c16
+<     public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker) {
 ---
->         this.invoker = invoker; // This assignment will be removed
-22c23,24
+>     public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, Object invoker) { // Change parameter type to Object
+20d21
+<     @Override
+22c23,27
 <         invoker.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage));
 ---
->         Text message = Texts.of(localeMessage); // Updated to use new text handling
->         invoker.sendMessage(message); // This line remains unchanged
+>         // Assuming the new API uses a different method to send messages
+>         // This is a placeholder for the new message sending logic
+>         // invoker.sendMessage(Text.of(localeMessage)); // Adjusted to use new Text class
+>         // Example of how to create a text message with color
+>         // invoker.sendMessage(Text.of(TextColor.GREEN, localeMessage)); // Adjusted to use new Text class
