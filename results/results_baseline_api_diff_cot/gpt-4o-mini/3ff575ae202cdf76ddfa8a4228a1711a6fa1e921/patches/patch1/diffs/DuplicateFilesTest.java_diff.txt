@@ -1,7 +1,11 @@
 17a18
-> import org.codehaus.plexus.logging.LoggerManager; // Added import for LoggerManager
-37c38,39
+> import org.codehaus.plexus.logging.LoggerManager;
+32a34,35
+>     private Logger logger;
+> 
+37c40,42
 <         getContainer().getLoggerManager().setThreshold( Logger.LEVEL_DEBUG );
 ---
->         LoggerManager loggerManager = getContainer().getLoggerManager(); // Updated to use LoggerManager
->         loggerManager.setThreshold( Logger.LEVEL_DEBUG );
+>         LoggerManager loggerManager = getContainer().lookup(LoggerManager.class);
+>         loggerManager.setThreshold(Logger.LEVEL_DEBUG);
+>         logger = loggerManager.getLoggerForComponent(getClass().getName());

@@ -24,7 +24,7 @@ import java.sql.Types;
 import java.text.ParseException;
 
 import org.hibernate.HibernateException;
-import org.hibernate.engine.spi.SharedSessionContractImplementor; // Updated import
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.UserType;
 import org.onebusaway.gtfs.model.calendar.ServiceDate;
 
@@ -66,7 +66,7 @@ public class ServiceDateUserType implements UserType {
   }
 
   @Override
-  public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor sessionImplementor, Object owner) // Updated parameter type
+  public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor sessionImplementor, Object owner)
       throws HibernateException, SQLException {
 
     String value = rs.getString(names[0]);
@@ -82,7 +82,7 @@ public class ServiceDateUserType implements UserType {
   }
 
   @Override
-  public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor sessionImplementor) // Updated parameter type
+  public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor sessionImplementor)
       throws HibernateException, SQLException {
 
     if (value == null) {

@@ -1,4 +1,7 @@
-105c105
+11a12,13
+> import org.pitest.classinfo.ClassName; // Added import for ClassName
+> import org.pitest.coverage.ReportCoverage; // Added import for ReportCoverage
+105c107
 <         data.getMutations(), coverage.getClassInfo(Collections.singleton(data.getMutatedClass())));
 ---
->         data.getMutations(), coverage.getClassInfo(Collections.singleton(data.getMutatedClass()), new byte[0], 0));
+>         data.getMutations(), coverage.getClassInfo(Collections.singleton(new ClassName(data.getMutatedClass())))); // Updated to use ClassName

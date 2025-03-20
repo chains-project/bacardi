@@ -10,12 +10,12 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import jakarta.mvc.Controller; // Updated import
-import jakarta.mvc.Models; // Updated import
-import jakarta.mvc.View; // Updated import
-import jakarta.mvc.binding.BindingResult; // Updated import
-import jakarta.mvc.binding.ParamError; // Updated import
-import jakarta.mvc.security.CsrfProtected; // Updated import
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.mvc.View;
+import jakarta.mvc.binding.BindingResult;
+import jakarta.mvc.binding.ParamError;
+import jakarta.mvc.security.CsrfProtected;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
@@ -92,7 +92,7 @@ public class TaskController {
         log.log(Level.INFO, "saving new task @{0}", form);
 
         if (validationResult.isFailed()) {
-            AlertMessage alert = AlertMessage.danger("Validation violations!");
+            AlertMessage alert = AlertMessage.danger("Validation voilations!");
             validationResult.getAllErrors()
                     .stream()
                     .forEach((ParamError t) -> {
@@ -136,7 +136,7 @@ public class TaskController {
         log.log(Level.INFO, "updating existed task@id:{0}, form data:{1}", new Object[]{id, form});
 
         if (validationResult.isFailed()) {
-            AlertMessage alert = AlertMessage.danger("Validation violations!");
+            AlertMessage alert = AlertMessage.danger("Validation voilations!");
             validationResult.getAllErrors()
                     .stream()
                     .forEach((ParamError t) -> {

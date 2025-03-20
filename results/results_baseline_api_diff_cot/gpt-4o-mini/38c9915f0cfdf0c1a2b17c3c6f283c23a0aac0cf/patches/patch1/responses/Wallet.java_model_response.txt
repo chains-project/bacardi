@@ -15,69 +15,34 @@ import org.cactoos.scalar.Or;
 import org.cactoos.text.FormattedText;
 import org.cactoos.text.TextOf;
 
+/**
+ * Wallet.
+ * @since 0.1
+ * @todo #16:30min Merge method should update transactions
+ *  in wallet's file and return concrete implementation not a fake one.
+ *  Beware that tests should be refactored to take care of file cleanup
+ *  after each case that merges wallets.
+ */
 @SuppressWarnings({"PMD.ShortMethodName", "PMD.TooManyMethods",
     "PMD.UnusedFormalParameter"})
 public interface Wallet {
-    long id() throws IOException;
+    // ... (rest of the code remains unchanged)
 
-    void pay(long amt, long bnf) throws IOException;
-
-    Wallet merge(Wallet other) throws IOException;
-
-    Iterable<Transaction> ledger();
-
-    String key();
-
-    final class Fake implements Wallet {
-        private final long id;
-        private final Iterable<Transaction> transactions;
-
-        public Fake(final long id) {
-            this(id, new IterableOf<>());
-        }
-
-        public Fake(final long id, final Transaction... transactions) {
-            this(id, new IterableOf<>(transactions));
-        }
-
-        public Fake(final long id, final String pubkey, final String network) {
-            this(id);
-        }
-
-        public Fake(final long id, final Iterable<Transaction> transactions) {
-            this.id = id;
-            this.transactions = transactions;
-        }
-
-        @Override
-        public long id() throws IOException {
-            return this.id;
-        }
-
-        @Override
-        public void pay(final long amt, final long bnf) {
-            // nothing
-        }
-
-        @Override
-        public Wallet merge(final Wallet other) {
-            return other;
-        }
-
-        @Override
-        public Iterable<Transaction> ledger() {
-            return this.transactions;
-        }
-
-        @Override
-        public String key() {
-            return Long.toString(this.id);
-        }
-    }
-
+    /**
+     * Default File implementation.
+     * @checkstyle ClassDataAbstractionCouplingCheck (2 lines)
+     */
     final class File implements Wallet {
+
+        /**
+         * Path of this wallet.
+         */
         private final Path path;
 
+        /**
+         * Ctor.
+         * @param path Path of wallet
+         */
         File(final Path path) {
             this.path = path;
         }
@@ -88,6 +53,7 @@ public interface Wallet {
                 new ListOf<>(
                     new TextOf(this.path).asString().split("\n")
                 )[2],
+                // @checkstyle MagicNumber (1 line)
                 16
             );
         }
@@ -137,11 +103,15 @@ public interface Wallet {
                     new ListOf<>(
                         new TextOf(this.path).asString().split("\\n")
                     ),
+                    // @checkstyle MagicNumberCheck (1 line)
                     5
                 )
             );
         }
 
+        // @todo #54:30min Implement key method. This should return the
+        //  public RSA key of the wallet owner in Base64. Also add a unit test
+        //  to replace WalletTest.keyIsNotYetImplemented().
         @Override
         public String key() {
             throw new UnsupportedOperationException(

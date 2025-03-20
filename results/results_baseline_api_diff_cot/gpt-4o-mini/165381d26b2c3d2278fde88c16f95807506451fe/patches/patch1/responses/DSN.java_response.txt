@@ -12,7 +12,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
-import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration; // Updated import
+import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration;
 import org.btrplace.safeplace.spec.Constraint;
 import org.btrplace.safeplace.spec.SpecScanner;
 import org.btrplace.safeplace.testing.Bench;
@@ -84,6 +84,16 @@ public class DSN {
 
         Path p = Paths.get(root, "testing-speed-notrans.csv");
         Files.deleteIfExists(p);
+
+     /*   for (int i = 10; i <= 30; i+=2) {
+            Bench.transitions = false;
+            Bench.population = 100;
+            Bench.scale = i;
+            System.out.println("--- scaling factor " + i + "; transitions= " + Bench.transitions +" ---");
+            Bench.report = new CSVReport(p,"");
+            System.out.println(sc.test(Bench.class).stream().mapToInt(TestCampaign::go).sum());
+        }*/
+
 
         //GOGO
         p = Paths.get(root, "testing-speed-notrans.csv");
@@ -309,7 +319,6 @@ public class DSN {
             this.l = numbers;
         }
 
-        @Override
         public void visit(MethodDeclaration n, Void arg) {
             if (n.getNameAsString().equals("eval")) {
                 n.getRange().ifPresent(r -> l.add(r.end.line - r.begin.line));
@@ -322,13 +331,12 @@ public class DSN {
 
       private final List<Integer> l;
 
-      private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false); // Updated to use the new configuration class
+      private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
 
         UnitTestsVisitor(List<Integer> numbers) {
             this.l = numbers;
         }
 
-        @Override
         public void visit(MethodDeclaration n, Void arg) {
             System.out.println(n.getNameAsString());
             if (n.toString(noComments).contains("solve")) {
@@ -346,7 +354,6 @@ public class DSN {
             this.l = numbers;
         }
 
-        @Override
         public void visit(MethodDeclaration n, Void arg) {
             for (AnnotationExpr a : n.getAnnotations()) {
                 if (!a.getNameAsString().equals("CstrTest")) {

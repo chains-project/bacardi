@@ -9,12 +9,12 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import jakarta.mvc.Controller; // Updated import
-import jakarta.mvc.Models; // Updated import
-import jakarta.mvc.View; // Updated import
-import jakarta.mvc.binding.BindingResult; // Removed as it no longer exists
-import jakarta.mvc.binding.ParamError; // Removed as it no longer exists
-import jakarta.mvc.security.CsrfProtected; // Updated import
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.mvc.Viewable;
+import jakarta.mvc.binding.BindingResult;
+import jakarta.mvc.binding.ParamError;
+import jakarta.mvc.security.CsrfProtected;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
@@ -27,7 +27,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import org.eclipse.krazo.engine.Viewable;
 
 @Path("tasks")
 @Controller
@@ -40,9 +39,8 @@ public class TaskController {
     @Inject
     private Models models;
 
-    // Removed BindingResult as it no longer exists
-    // @Inject
-    // private BindingResult validationResult;
+    @Inject
+    private BindingResult validationResult;
 
     @Inject
     TaskRepository taskRepository;
@@ -51,7 +49,7 @@ public class TaskController {
     AlertMessage flashMessage;
 
     @GET
-    @View("tasks.xhtml")
+    @Viewable("tasks.xhtml")
     public void allTasks() {
         log.log(Level.INFO, "fetching all tasks");
 
@@ -64,6 +62,7 @@ public class TaskController {
         models.put("todotasks", todotasks);
         models.put("doingtasks", doingtasks);
         models.put("donetasks", donetasks);
+
     }
 
     @GET
@@ -90,18 +89,17 @@ public class TaskController {
     public Response save(@Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "saving new task @{0}", form);
 
-        // Validation logic needs to be updated as BindingResult is removed
-        // if (validationResult.isFailed()) {
-        //     AlertMessage alert = AlertMessage.danger("Validation violations!");
-        //     validationResult.getAllErrors()
-        //             .stream()
-        //             .forEach((ParamError t) -> {
-        //                 alert.addError(t.getParamName(), "", t.getMessage());
-        //             });
-        //     models.put("errors", alert);
-        //     models.put("task", form);
-        //     return Response.status(BAD_REQUEST).entity("add.xhtml").build();
-        // }
+        if (validationResult.isFailed()) {
+            AlertMessage alert = AlertMessage.danger("Validation voilations!");
+            validationResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
+            models.put("errors", alert);
+            models.put("task", form);
+            return Response.status(BAD_REQUEST).entity("add.xhtml").build();
+        }
 
         Task task = new Task();
         task.setName(form.getName());
@@ -135,18 +133,17 @@ public class TaskController {
     public Response update(@PathParam(value = "id") Long id, @Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "updating existed task@id:{0}, form data:{1}", new Object[]{id, form});
 
-        // Validation logic needs to be updated as BindingResult is removed
-        // if (validationResult.isFailed()) {
-        //     AlertMessage alert = AlertMessage.danger("Validation violations!");
-        //     validationResult.getAllErrors()
-        //             .stream()
-        //             .forEach((ParamError t) -> {
-        //                 alert.addError(t.getParamName(), "", t.getMessage());
-        //             });
-        //     models.put("errors", alert);
-        //     models.put("task", form);
-        //     return Response.status(BAD_REQUEST).entity("edit.xhtml").build();
-        // }
+        if (validationResult.isFailed()) {
+            AlertMessage alert = AlertMessage.danger("Validation voilations!");
+            validationResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
+            models.put("errors", alert);
+            models.put("task", form);
+            return Response.status(BAD_REQUEST).entity("edit.xhtml").build();
+        }
 
         Task task = taskRepository.findById(id);
 

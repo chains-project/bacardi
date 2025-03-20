@@ -1,4 +1,58 @@
-43c43
+1,7d0
+< /**
+<  * Copyright (c) 2012 to original author or authors
+<  * All rights reserved. This program and the accompanying materials
+<  * are made available under the terms of the Eclipse Public License v1.0
+<  * which accompanies this distribution, and is available at
+<  * http://www.eclipse.org/legal/epl-v10.html
+<  */
+11a5
+> import org.yaml.snakeyaml.LoaderOptions;
+25,32d18
+< /**
+<  * YAML model constructor.
+<  *
+<  * @author jvanzyl
+<  * @author bentmann
+<  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
+<  * @since 0.7
+<  */
+37,39d22
+<   /**
+<    * It maps the runtime class to its Construct implementation.
+<    */
+43c26
 <     super(Model.class);
 ---
->     super(new TypeDescription(Model.class)); // Updated constructor to use TypeDescription
+>     super(Model.class, new LoaderOptions());
+130d112
+<     // Simple types
+141d122
+<       //construct compact form from scalar
+163d143
+<         // lists need the insertion of intermediate XML DOM nodes which hold the actual values
+167d146
+<           //noinspection unchecked
+169c148
+<         } else { // if not a list or map then copy the string value
+---
+>         } else {
+182d160
+<       // deal with YAML explicit pairs which are mapped to Object[] by SnakeYAML
+189d166
+<             //noinspection unchecked
+195c172
+<       } else { // automagically determine the node's child key using the collection node's name
+---
+>       } else {
+213d189
+<             //noinspection unchecked
+282d257
+<       // create JavaBean
+287,292d261
+<   /**
+<    * Dirty hack - remove 'id' if it is present.
+<    *
+<    * @param node - the node to remove the coordinate from
+<    * @return removed coordinate if it was removed
+<    */

@@ -55,8 +55,7 @@ class AuthScopeSliceTest {
                 new AuthScheme.Result() {
                     @Override
                     public Optional<Authentication.User> user() {
-                        // Updated to use the new User constructor or method
-                        return Optional.of(new Authentication.User("alice", null)); // Assuming null for roles
+                        return Optional.of(new Authentication.User("alice", null));
                     }
 
                     @Override
@@ -84,6 +83,4 @@ class AuthScopeSliceTest {
         );
     }
 }
-``` 
-
-In this fix, I updated the instantiation of `Authentication.User` to accommodate the removal of the previous constructor. I assumed that the new constructor requires a second parameter (e.g., roles), which I set to `null` for this example. Adjust this as necessary based on the actual new API requirements.
+```

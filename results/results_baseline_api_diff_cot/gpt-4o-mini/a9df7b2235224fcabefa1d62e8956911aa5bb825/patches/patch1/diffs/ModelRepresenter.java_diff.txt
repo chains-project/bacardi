@@ -1,14 +1,8 @@
 22a23
-> import org.yaml.snakeyaml.introspector.BeanAccess;
+> import org.yaml.snakeyaml.introspector.PropertyUtils;
 37a39
->     super(); // Call the constructor of the superclass
-218,219c220
-<   protected Set<Property> getProperties(Class<? extends Object> type)
-<           throws IntrospectionException {
+>     super(new org.yaml.snakeyaml.DumperOptions());
+237c239
+<       Set<Property> standard = super.getProperties(type);
 ---
->   protected Set<Property> getProperties(Class<? extends Object> type) {
-235,236c236
-<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
-<           throws IntrospectionException {
----
->   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+>       Set<Property> standard = PropertyUtils.getProperties(type);

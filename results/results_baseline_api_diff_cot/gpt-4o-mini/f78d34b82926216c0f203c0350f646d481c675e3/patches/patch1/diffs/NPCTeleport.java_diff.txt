@@ -1,7 +1,7 @@
 3c3
 < import develop.p2p.lib.*;
 ---
-> import tokyo.peya.lib.*; // Updated import for WaveCreator
+> import tokyo.peya.lib.*; // Updated import
 107,111d106
 <                     float head = ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f;
 < 
@@ -21,16 +21,16 @@
 161c155
 <         WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
 ---
->         WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0); // Updated constructor
-180c174
-<                             .get(0.01, true);
+>         tokyo.peya.lib.WaveCreator ypp = new tokyo.peya.lib.WaveCreator(10.0, 100.0, 10.0); // Updated constructor
+179c173
+<                         rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
 ---
->                             .get(0.01, true); // Updated method call
+>                         rangeTmp = new tokyo.peya.lib.WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin")) // Updated constructor
 186c180
 <                         center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
 ---
->                         center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20), // Updated method call
-189c183
-<                         (float) ypp.get(4.5, false)
+>                         center.getY() + new tokyo.peya.lib.WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20), // Updated constructor
+220c214
+<                     ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
 ---
->                         (float) ypp.get(4.5, false) // Updated method call
+>                     ? new tokyo.peya.lib.WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true) // Updated constructor

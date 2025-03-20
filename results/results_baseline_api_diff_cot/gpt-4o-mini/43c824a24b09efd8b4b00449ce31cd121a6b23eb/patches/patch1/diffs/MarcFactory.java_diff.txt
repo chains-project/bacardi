@@ -6,12 +6,12 @@
 <     for (JsonBranch branch : schema.getPaths()) {
 <       if (branch.getParent() != null)
 ---
->     for (String path : schema.getPaths()) { // Updated to use String instead of JsonBranch
->       if (path.getParent() != null)
+>     for (String path : schema.getPaths()) { // Updated to use String path instead of JsonBranch
+>       if (path == null)
 70c70
 <       switch (branch.getLabel()) {
 ---
->       switch (path.getLabel()) {
+>       switch (path) {
 72c72
 <           marcRecord.setLeader(new Leader(extractFirst(cache, branch)));
 ---
@@ -43,20 +43,20 @@
 96c96
 <           JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());
 ---
->           JSONArray fieldInstances = (JSONArray) cache.getFragment(path.getJsonPath());
+>           JSONArray fieldInstances = (JSONArray) cache.getFragment(path); // Updated to use String path
 104c104
 <               marcRecord.addUnhandledTags(branch.getLabel());
 ---
->               marcRecord.addUnhandledTags(path.getLabel());
+>               marcRecord.addUnhandledTags(path);
 313,314c313,314
 <   private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
 <     List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
 ---
->   private static List<String> extractList(JsonPathCache cache, String path) { // Updated to use String instead of JsonBranch
+>   private static List<String> extractList(JsonPathCache cache, String path) { // Updated to use String path
 >     List<XmlFieldInstance> instances = cache.get(path);
 322,323c322,323
 <   private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
 <     List<String> list = extractList(cache, branch);
 ---
->   private static String extractFirst(JsonPathCache cache, String path) { // Updated to use String instead of JsonBranch
+>   private static String extractFirst(JsonPathCache cache, String path) { // Updated to use String path
 >     List<String> list = extractList(cache, path);

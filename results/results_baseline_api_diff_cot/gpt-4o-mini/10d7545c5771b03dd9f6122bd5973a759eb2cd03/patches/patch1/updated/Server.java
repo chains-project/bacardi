@@ -157,7 +157,7 @@ public abstract class Server<Config extends Configuration> extends Application<C
     }
 
     private Client createHttpClient(Config config, Environment env) {
-        return new JerseyClientBuilder(env) // Updated to use the new Environment class
+        return new JerseyClientBuilder(env)
                 .using(config.getJerseyClient())
                 .withProvider(MultiPartFeature.class)
                 .withProvider(JacksonJsonProvider.class)

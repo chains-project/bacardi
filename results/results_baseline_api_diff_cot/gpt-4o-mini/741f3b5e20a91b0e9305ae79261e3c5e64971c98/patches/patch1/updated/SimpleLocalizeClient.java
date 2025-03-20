@@ -1,7 +1,6 @@
 package io.simplelocalize.cli.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.type.TypeReference; // Added import for TypeReference
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import io.simplelocalize.cli.client.dto.DownloadRequest;
@@ -86,7 +85,7 @@ public class SimpleLocalizeClient
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
     throwOnError(httpResponse);
     String body = httpResponse.body();
-    ExportResponse exportResponse = objectMapper.readValue(body, new TypeReference<ExportResponse>() {}); // Updated to use TypeReference
+    ExportResponse exportResponse = objectMapper.readValue(body.getBytes(), ExportResponse.class);
     return exportResponse.getFiles();
   }
 
@@ -163,5 +162,6 @@ public class SimpleLocalizeClient
     }
     return "";
   }
+
 
 }

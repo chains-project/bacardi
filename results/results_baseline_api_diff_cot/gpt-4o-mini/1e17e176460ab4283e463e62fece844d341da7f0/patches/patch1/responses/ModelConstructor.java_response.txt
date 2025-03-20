@@ -1,14 +1,8 @@
-/**
- * Copyright (c) 2012 to original author or authors
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
 package org.sonatype.maven.polyglot.yaml;
 
 import org.apache.maven.model.*;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.constructor.Construct;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -22,25 +16,14 @@ import java.util.Map;
 
 import static java.lang.String.format;
 
-/**
- * YAML model constructor.
- *
- * @author jvanzyl
- * @author bentmann
- * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
- * @since 0.7
- */
 public final class ModelConstructor extends Constructor {
 
   private static final Tag XPP3DOM_TAG = new Tag("!!" + Xpp3Dom.class.getName());
 
-  /**
-   * It maps the runtime class to its Construct implementation.
-   */
   private final Map<Class<?>, Construct> pomConstructors = new HashMap<>();
 
   public ModelConstructor() {
-    super(new TypeDescription(Model.class)); // Updated constructor to use TypeDescription
+    super(Model.class, new LoaderOptions());
 
     yamlConstructors.put(XPP3DOM_TAG, new ConstructXpp3Dom());
     yamlClassConstructors.put(NodeId.mapping, new MavenObjectConstruct());
@@ -127,7 +110,6 @@ public final class ModelConstructor extends Constructor {
     desc.putListPropertyType("otherArchives", String.class);
     addTypeDescription(desc);
 
-    // Simple types
     addTypeDescription(new TypeDescription(DistributionManagement.class));
     addTypeDescription(new TypeDescription(Scm.class));
     addTypeDescription(new TypeDescription(IssueManagement.class));
@@ -138,7 +120,6 @@ public final class ModelConstructor extends Constructor {
   @Override
   protected Construct getConstructor(Node node) {
     if (pomConstructors.containsKey(node.getType()) && node instanceof ScalarNode) {
-      //construct compact form from scalar
       return pomConstructors.get(node.getType());
     } else {
       return super.getConstructor(node);
@@ -160,13 +141,11 @@ public final class ModelConstructor extends Constructor {
           continue;
         }
 
-        // lists need the insertion of intermediate XML DOM nodes which hold the actual values
         if (entryValue instanceof List && !((List) entryValue).isEmpty()) {
           toDom(child, key, (List) entryValue);
         } else if (entryValue instanceof Map) {
-          //noinspection unchecked
           child = toDom(child, (Map) entryValue);
-        } else { // if not a list or map then copy the string value
+        } else {
           child.setValue(entryValue.toString());
         }
         parent.addChild(child);
@@ -179,20 +158,18 @@ public final class ModelConstructor extends Constructor {
 
       String childKey;
 
-      // deal with YAML explicit pairs which are mapped to Object[] by SnakeYAML
       if (firstItem.getClass().isArray()) {
         for (Object item : list) {
           Object[] pair = (Object[]) item;
           childKey = "" + pair[0];
           Xpp3Dom itemNode = new Xpp3Dom(childKey);
           if (pair[1] != null && pair[1] instanceof Map)
-            //noinspection unchecked
             toDom(itemNode, (Map) pair[1]);
           else
             itemNode.setValue("" + pair[1]);
           parent.addChild(itemNode);
         }
-      } else { // automagically determine the node's child key using the collection node's name
+      } else {
         if (!parentKey.endsWith("s")) {
           throw new RuntimeException(format("collection key '%s' does not end in 's'. Please resort to the " +
               "documentation on how to use explicit pairs for specifying child node names", parentKey));
@@ -210,7 +187,6 @@ public final class ModelConstructor extends Constructor {
         for (Object item : list) {
           Xpp3Dom itemNode = new Xpp3Dom(childKey);
           if (item instanceof Map)
-            //noinspection unchecked
             toDom(itemNode, (Map) item);
           else
             itemNode.setValue(item.toString());
@@ -279,17 +255,10 @@ public final class ModelConstructor extends Constructor {
           return coord.mergeReportPlugin(plugin);
         }
       }
-      // create JavaBean
       return super.constructJavaBean2ndStep(node, object);
     }
   }
 
-  /**
-   * Dirty hack - remove 'id' if it is present.
-   *
-   * @param node - the node to remove the coordinate from
-   * @return removed coordinate if it was removed
-   */
   private String removeId(MappingNode node) {
     NodeTuple id = null;
     String scalar = null;

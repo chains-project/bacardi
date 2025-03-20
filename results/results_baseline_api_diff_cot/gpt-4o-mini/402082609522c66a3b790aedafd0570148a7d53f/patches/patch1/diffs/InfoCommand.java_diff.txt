@@ -1,33 +1,43 @@
-13d12
+13,14d12
 < import org.spongepowered.api.Sponge;
-17,19c16,17
+< import org.spongepowered.api.command.CommandException;
+16,17c14,15
+< import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
-< import org.spongepowered.api.command.spec.CommandExecutor;
-< import org.spongepowered.api.command.spec.CommandSpec;
 ---
+> import org.spongepowered.api.command.exception.CommandException;
 > import org.spongepowered.api.command.parameter.CommandContext;
-> import org.spongepowered.api.command.Command;
-23a22
-> import org.spongepowered.api.Sponge;
-25c24
+23c21
+< import org.spongepowered.api.text.serializer.TextSerializers;
+---
+> import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+25c23
 < public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
 ---
-> public class InfoCommand implements Command {
-33d31
+> public class InfoCommand implements CommandExecutor {
+33d30
 < 
-42,43c40
+38c35
+<             return CommandResult.empty();
+---
+>             return CommandResult.success();
+42,43c39
 <         Task.builder().async()
 <                 .execute(() -> {
 ---
 >         Task.builder().execute(() -> {
-46,47c43
+46,47c42
 <                 })
 <                 .submit(plugin);
 ---
->         }).submit(plugin);
-52d47
+>         }).async().submit(plugin);
+52d46
 <     @Override
-61c56
+61c55
 <         Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
 ---
->         Optional<Player> optPlayer = Sponge.server().getPlayer(uuid);
+>         Optional<Player> optPlayer = plugin.getServer().getPlayer(uuid);
+70c64
+<                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
+---
+>                 Text text = GsonComponentSerializer.gson().deserialize(formatted);

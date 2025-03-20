@@ -1,20 +1,19 @@
 package com.example.web;
 
 import java.util.logging.Logger;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import jakarta.mvc.Controller; // Updated import
-import jakarta.mvc.Models; // Updated import
-import jakarta.mvc.UriRef; // Updated import
-import jakarta.mvc.binding.BindingResult; // Updated import
-import jakarta.mvc.binding.MvcBinding; // Updated import
-import jakarta.mvc.binding.ParamError; // Updated import
-import jakarta.mvc.security.CsrfProtected; // Updated import
-import javax.validation.constraints.NotBlank;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.mvc.binding.BindingResult;
+import jakarta.mvc.binding.MvcBinding;
+import jakarta.mvc.binding.ParamError;
+import jakarta.mvc.security.CsrfProtected;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
 
 /**
  *
@@ -26,16 +25,13 @@ import javax.ws.rs.Path;
 public class CsrfController {
 
     @Inject
-    BindingResult bindingResult;
+    Logger log;
 
     @Inject
     Models models;
 
     @Inject
     AlertMessage flashMessage;
-
-    @Inject
-    Logger log;
 
     @GET
     public String get() {
@@ -48,8 +44,8 @@ public class CsrfController {
             @FormParam("greeting")
             @MvcBinding
             @NotBlank String greeting) {
-        if (bindingResult.isFailed()) {
-            AlertMessage alert = AlertMessage.danger("Validation violations!"); // Fixed typo
+        AlertMessage alert = AlertMessage.danger("Validation violations!");
+        if (bindingResult != null && bindingResult.isFailed()) {
             bindingResult.getAllErrors()
                     .stream()
                     .forEach((ParamError t) -> {
