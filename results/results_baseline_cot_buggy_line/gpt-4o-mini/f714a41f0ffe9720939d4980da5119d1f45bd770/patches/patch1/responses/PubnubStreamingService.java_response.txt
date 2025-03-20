@@ -12,9 +12,6 @@ import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
 import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
-import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult; // Ensure this is available in the new version
-import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult; // Ensure this is available in the new version
-import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult; // Ensure this is available in the new version
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -37,7 +34,7 @@ public class PubnubStreamingService {
   public PubnubStreamingService(String publicKey) {
     mapper = new ObjectMapper();
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    PNConfiguration pnConfiguration = new PNConfiguration(publicKey); // Updated constructor
+    PNConfiguration pnConfiguration = new PNConfiguration(publicKey);
     pubnub = new PubNub(pnConfiguration);
     pnStatusCategory = PNStatusCategory.PNDisconnectedCategory;
   }
@@ -55,9 +52,9 @@ public class PubnubStreamingService {
                       pnStatusCategory.toString(),
                       pnStatus.getStatusCode());
                   if (pnStatusCategory == PNStatusCategory.PNConnectedCategory) {
-                    e.onComplete(); // Uncommented to signal completion
+                    e.onComplete();
                   } else if (pnStatus.isError()) {
-                    e.onError(pnStatus.getErrorData().getThrowable()); // Uncommented to signal error
+                    e.onError(pnStatus.getErrorData().getThrowable());
                   }
                 }
 
@@ -90,30 +87,9 @@ public class PubnubStreamingService {
                 }
 
                 @Override
-                public void user(PubNub pubnub, PNUserResult pnUserResult) {
-                  LOG.debug("PubNub user: {}", pnUserResult.toString());
-                }
-
-                @Override
-                public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
-                  LOG.debug("PubNub space: {}", pnSpaceResult.toString());
-                }
-
-                @Override
-                public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
-                  LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
-                }
-
-                @Override
                 public void messageAction(
                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
                   LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
-                }
-
-                // Added missing method for file events
-                @Override
-                public void file(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult pnFileEventResult) {
-                  LOG.debug("PubNub file event: {}", pnFileEventResult.toString());
                 }
               });
           e.onComplete();

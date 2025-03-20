@@ -6,9 +6,9 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import jakarta.mvc.Controller; // Updated import for Controller
-import jakarta.mvc.Models; // Updated import for Models
-import jakarta.mvc.MvcContext; // Updated import for MvcContext
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.mvc.MvcContext;
 
 /**
  *

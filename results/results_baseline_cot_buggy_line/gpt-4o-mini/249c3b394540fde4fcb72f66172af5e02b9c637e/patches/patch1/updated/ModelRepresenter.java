@@ -231,7 +231,7 @@ class ModelRepresenter extends Representer {
         return super.getProperties(type);
       }
     } catch (IntrospectionException e) {
-      throw new RuntimeException("Failed to introspect properties", e);
+      throw new RuntimeException(e);
     }
   }
 

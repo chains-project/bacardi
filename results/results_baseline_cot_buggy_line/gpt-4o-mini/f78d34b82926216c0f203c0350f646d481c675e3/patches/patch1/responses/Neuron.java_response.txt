@@ -1,9 +1,7 @@
 package ml.peya.plugins.Learn;
 
 import java.util.ArrayList;
-
-// Assuming the new package for the sigmoid function is now 'ml.peya.plugins.math'
-import static ml.peya.plugins.math.LearnMath.sigmoid;
+import static ml.peya.plugins.Learn.LearnMath.sigmoid; // Updated import to the correct package
 
 /**
  * 重みを突っ込む器。

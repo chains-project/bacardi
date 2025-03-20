@@ -1,5 +1,6 @@
 package com.github.games647.changeskin.sponge.task;
 
+import com.flowpowered.math.vector.Vector3d;
 import com.github.games647.changeskin.core.model.UserPreference;
 import com.github.games647.changeskin.core.model.skin.SkinModel;
 import com.github.games647.changeskin.core.shared.task.SharedApplier;
@@ -9,21 +10,20 @@ import java.util.UUID;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.data.Keys; // Updated import for Keys
+import org.spongepowered.api.data.Keys; // Updated import
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.tab.TabListEntry;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
-import com.flowpowered.math.vector.Vector3d; // Ensure this import is correct
 
 public class SkinApplier extends SharedApplier {
 
     private final ChangeSkinSponge plugin;
-    private final CommandSource invoker;
+    private final Player invoker; // Changed type from CommandSource to Player
     private final Player receiver;
 
-    public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
+    public SkinApplier(ChangeSkinSponge plugin, Player invoker, Player receiver, SkinModel targetSkin
             , boolean keepSkin) {
         super(plugin.getCore(), targetSkin, keepSkin);
 
@@ -39,8 +39,8 @@ public class SkinApplier extends SharedApplier {
         }
 
         //uuid was successful resolved, we could now make a cooldown check
-        if (invoker instanceof Player) {
-            UUID uniqueId = ((Player) invoker).getUniqueId();
+        if (invoker != null) { // Updated check
+            UUID uniqueId = invoker.getUniqueId();
             core.getCooldownService().trackPlayer(uniqueId);
         }
 

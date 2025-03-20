@@ -1,6 +1,8 @@
-36a37
-> import javax.validation.Validation;
-121c122
-<                 Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
+137,139c137,139
+<                                         if(constraint.getAnnotation() instanceof NotNull ||
+<                                            constraint.getAnnotation() instanceof NotEmpty ||
+<                                            constraint.getAnnotation() instanceof NotBlank)
 ---
->                 Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+>                                         if(constraint.getAnnotation().annotationType().equals(NotNull.class) ||
+>                                            constraint.getAnnotation().annotationType().equals(NotEmpty.class) ||
+>                                            constraint.getAnnotation().annotationType().equals(NotBlank.class))

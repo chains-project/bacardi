@@ -11,12 +11,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent.Auth;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.scheduler.Task;
-
-// Updated import to reflect the new package structure for ClientConnectionEvent
-import org.spongepowered.api.event.network.ClientConnectionEvent.Auth;
 
 public class LoginListener extends SharedListener {
 
@@ -62,7 +59,6 @@ public class LoginListener extends SharedListener {
         }
     }
 
-    @Override
     protected void save(final UserPreference preferences) {
         Task.builder()
                 .async()
@@ -78,6 +74,4 @@ public class LoginListener extends SharedListener {
                 }).submit(plugin);
     }
 }
-``` 
-
-In this patch, I updated the import statement for `ClientConnectionEvent.Auth` to ensure it correctly references the new package structure, resolving the compilation errors related to the missing class. The rest of the class remains unchanged, adhering to the provided guidelines.
+```

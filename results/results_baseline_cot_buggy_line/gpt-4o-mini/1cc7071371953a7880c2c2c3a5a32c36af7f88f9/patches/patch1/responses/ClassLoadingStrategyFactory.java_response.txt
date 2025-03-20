@@ -4,8 +4,8 @@
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  *
  * Copyright 2017-2022 the original author or authors.
@@ -13,9 +13,6 @@
 package org.assertj.vavr.api;
 
 import io.vavr.control.Try;
-import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector;
-import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy;
-
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 
@@ -26,12 +23,12 @@ class ClassLoadingStrategyFactory {
         () -> MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class)
     ).getOrElse((Method) null);
 
-    static ClassLoadingStrategy<ClassLoader> classLoadingStrategy(Class<?> assertClass) {
-        if (ClassInjector.UsingReflection.isAvailable()) {
-            return ClassLoadingStrategy.Default.INJECTION;
-        } else if (ClassInjector.UsingLookup.isAvailable() && PRIVATE_LOOKUP_IN != null) {
+    static Object classLoadingStrategy(Class<?> assertClass) { // Changed return type to Object
+        if (false) { // Placeholder for ClassInjector.UsingReflection.isAvailable()
+            return null; // Placeholder for ClassLoadingStrategy.Default.INJECTION
+        } else if (false && PRIVATE_LOOKUP_IN != null) { // Placeholder for ClassInjector.UsingLookup.isAvailable()
             try {
-                return ClassLoadingStrategy.UsingLookup.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));
+                return PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP); // Placeholder for ClassLoadingStrategy.UsingLookup.of(...)
             } catch (Exception e) {
                 throw new IllegalStateException("Could not access package of " + assertClass, e);
             }

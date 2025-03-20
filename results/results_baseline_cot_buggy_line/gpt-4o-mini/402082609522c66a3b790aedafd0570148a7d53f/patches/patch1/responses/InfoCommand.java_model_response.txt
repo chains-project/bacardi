@@ -31,7 +31,6 @@ public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
     @Inject
     private SkinFormatter formatter;
 
-    @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
@@ -49,7 +48,6 @@ public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
         return CommandResult.success();
     }
 
-    @Override
     public CommandSpec buildSpec() {
         return CommandSpec.builder()
                 .executor(this)
@@ -75,10 +73,4 @@ public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
         }
     }
 }
-``` 
-
-### Changes Made:
-1. Updated the import for `CommandSource` to `org.spongepowered.api.command.source.CommandSource` to reflect the new package structure.
-2. Ensured all other imports remain unchanged as they are still valid in the context of the updated dependencies. 
-
-This should resolve the compilation issues related to the missing packages and classes.
+```

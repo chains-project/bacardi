@@ -3,8 +3,8 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met: 1) Redistributions of source code must retain the above
+ * modification, are permitted provided that the following conditions
+ * are met: 1) Redistributions of source code must retain the above
  * copyright notice, this list of conditions and the following
  * disclaimer. 2) Redistributions in binary form must reproduce the above
  * copyright notice, this list of conditions and the following
@@ -30,7 +30,7 @@
 package com.jcabi.simpledb;
 
 import com.amazonaws.services.simpledb.model.SelectRequest;
-import com.jcabi.aspects.Tv; // Ensure this import is valid in the updated dependency
+import com.jcabi.aspects.Tv;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
@@ -60,9 +60,9 @@ final class RegionITCase {
     void putsAndRemovesIndividualItems() {
         final Domain domain = this.domain();
         try {
-            final String name = RandomStringUtils.randomAlphanumeric(Tv.TEN);
-            final String attr = RandomStringUtils.randomAlphabetic(Tv.EIGHT);
-            final String value = RandomStringUtils.randomAlphanumeric(Tv.TEN);
+            final String name = RandomStringUtils.randomAlphanumeric(10);
+            final String attr = RandomStringUtils.randomAlphabetic(8);
+            final String value = RandomStringUtils.randomAlphanumeric(10);
             for (int idx = 0; idx < 2; ++idx) {
                 domain.item(name).put(attr, value);
                 MatcherAssert.assertThat(
@@ -108,7 +108,7 @@ final class RegionITCase {
     void selectsManyItems() {
         final Domain domain = this.domain();
         try {
-            for (int idx = 0; idx < Tv.TEN; ++idx) {
+            for (int idx = 0; idx < 10; ++idx) {
                 domain.item(String.format("i-%d", idx)).put("hey", "");
             }
             MatcherAssert.assertThat(
@@ -117,7 +117,7 @@ final class RegionITCase {
                         String.format("SELECT * FROM `%s`", domain.name())
                     ).withConsistentRead(true)
                 ),
-                Matchers.iterableWithSize(Tv.TEN)
+                Matchers.iterableWithSize(10)
             );
         } finally {
             domain.drop();

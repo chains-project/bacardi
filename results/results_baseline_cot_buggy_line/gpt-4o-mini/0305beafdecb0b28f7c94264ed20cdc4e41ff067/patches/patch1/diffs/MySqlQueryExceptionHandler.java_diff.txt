@@ -1,8 +1,9 @@
-21c21
+21,22d20
 < import com.mysql.jdbc.exceptions.MySQLTimeoutException;
----
-> import com.mysql.cj.jdbc.exceptions.CommunicationsException; // Updated import for MySQL Connector/J 8.0
-40c40
+< 
+23a22
+> import java.sql.SQLTimeoutException;
+40c39
 <         return exception instanceof MySQLTimeoutException || super.isTimeoutException(exception);
 ---
->         return exception instanceof CommunicationsException || super.isTimeoutException(exception); // Updated check
+>         return exception instanceof SQLTimeoutException || super.isTimeoutException(exception);

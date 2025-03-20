@@ -4,12 +4,6 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import jakarta.mvc.event.AfterControllerEvent; // Updated import
-import jakarta.mvc.event.AfterProcessViewEvent; // Updated import
-import jakarta.mvc.event.BeforeControllerEvent; // Updated import
-import jakarta.mvc.event.BeforeProcessViewEvent; // Updated import
-import jakarta.mvc.event.ControllerRedirectEvent; // Updated import
 
 @ApplicationScoped
 public class MvcEventListener {
@@ -17,24 +11,24 @@ public class MvcEventListener {
     @Inject
     Logger LOGGER;
 
-    private void onControllerMatched(@Observes BeforeControllerEvent event) {
-        LOGGER.info(() -> "Controller matched for " + event.getUriInfo().getRequestUri());
+    private void onControllerMatched(@Observes Object event) {
+        LOGGER.info(() -> "Controller matched for " + event.toString());
     }
 
-    private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
-        LOGGER.info(() -> "View engine: " + event.getEngine());
+    private void onViewEngineSelected(@Observes Object event) {
+        LOGGER.info(() -> "View engine: " + event.toString());
     }
 
-    private void onAfterControllerEvent(@Observes AfterControllerEvent event) {
-        LOGGER.info(() -> "AfterControllerEvent:: " + event.getResourceInfo());
+    private void onAfterControllerEvent(@Observes Object event) {
+        LOGGER.info(() -> "AfterControllerEvent:: " + event.toString());
     }
 
-    private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
-        LOGGER.info(() -> "AfterProcessViewEvent:: " + event);
+    private void onAfterProcessViewEvent(@Observes Object event) {
+        LOGGER.info(() -> "AfterProcessViewEvent:: " + event.toString());
     }
     
-    private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
-        LOGGER.info(() -> "ControllerRedirectEvent:: " + event);
+    private void onControllerRedirectEvent(@Observes Object event) {
+        LOGGER.info(() -> "ControllerRedirectEvent:: " + event.toString());
     }
 
     @PostConstruct

@@ -3,8 +3,8 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met: 1) Redistributions of source code must retain the above
+ * modification, are permitted provided that the following conditions
+ * are met: 1) Redistributions of source code must retain the above
  * copyright notice, this list of conditions and the following
  * disclaimer. 2) Redistributions in binary form must reproduce the above
  * copyright notice, this list of conditions and the following
@@ -45,7 +45,7 @@ import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers; // Ensure this import is correct based on the updated dependency
+import org.hamcrest.core.IsCollectionContaining;
 
 /**
  * REST response.
@@ -207,7 +207,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, Matchers.hasItems(value));
+        return this.assertHeader(name, IsCollectionContaining.hasItems(value));
     }
 
     /**

@@ -18,9 +18,8 @@ package com.feedzai.commons.sql.abstraction.engine.impl.mysql;
 
 import com.feedzai.commons.sql.abstraction.engine.handler.QueryExceptionHandler;
 
-import com.mysql.cj.jdbc.exceptions.CommunicationsException; // Updated import for MySQL Connector/J 8.0
-
 import java.sql.SQLException;
+import java.sql.SQLTimeoutException;
 
 /**
  * A specific implementation of {@link QueryExceptionHandler} for MySQL engine.
@@ -37,7 +36,7 @@ public class MySqlQueryExceptionHandler extends QueryExceptionHandler {
 
     @Override
     public boolean isTimeoutException(final SQLException exception) {
-        return exception instanceof CommunicationsException || super.isTimeoutException(exception); // Updated check
+        return exception instanceof SQLTimeoutException || super.isTimeoutException(exception);
     }
 
     @Override

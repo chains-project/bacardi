@@ -3,8 +3,4 @@
 353c354
 <                             .map(user -> new Authentication.User(user.name()))
 ---
->                             .map(user -> new Authentication.User(user.name())) // Updated to use correct User type
-355c356
-<                     ),
----
->                     ).thenApply(Optional::orElseGet), // Ensure we return the correct type
+>                             .map(user -> new Authentication.User(user.name()).toOptional())

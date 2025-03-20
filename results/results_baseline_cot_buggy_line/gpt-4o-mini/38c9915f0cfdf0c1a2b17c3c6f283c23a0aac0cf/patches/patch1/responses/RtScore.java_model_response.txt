@@ -1,31 +1,9 @@
 ```java
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2018-2023 Yegor Bugayenko
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package io.zold.api;
 
 import org.cactoos.Text;
-import org.cactoos.iterable.LengthOf; // Ensure this import is correct based on the updated dependency
+import org.cactoos.iterable.LengthOf;
+import org.cactoos.iterable.IterableOf;
 
 /**
  * Default implementation for {@link Score}.
@@ -50,8 +28,8 @@ public final class RtScore implements Score {
 
     @Override
     public int compareTo(final Score other) {
-        return new LengthOf(other.suffixes()).intValue()
-            - new LengthOf(this.sfxs).intValue();
+        return new LengthOf(new IterableOf<>(other.suffixes())).intValue()
+            - new LengthOf(new IterableOf<>(this.sfxs)).intValue();
     }
 
     @Override
@@ -59,6 +37,4 @@ public final class RtScore implements Score {
         return this.sfxs;
     }
 }
-``` 
-
-In this patch, I have retained the original structure of the class while ensuring that the import statement for `LengthOf` is correct. If the `LengthOf` class has been moved or renamed in the updated dependency, you would need to adjust the import statement accordingly. If `LengthOf` is no longer available, you may need to replace it with an alternative method to calculate the length of the iterable.
+```

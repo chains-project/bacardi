@@ -3,5 +3,13 @@
 7c6,7
 < //https://www.mvc-spec.org/learn/cookbook/multilang_en.html
 ---
-> import javax.mvc.locale.LocaleResolver; // Ensure the correct import for LocaleResolver
+> import javax.mvc.locale.LocaleResolver; // Added import for LocaleResolver
 > 
+23c23
+<     private MvcContext mvcContext;
+---
+>     private LocaleResolver localeResolver; // Changed from MvcContext to LocaleResolver
+33c33
+<         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
+---
+>         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, localeResolver.resolveLocale()); // Updated to use LocaleResolver

@@ -9,9 +9,7 @@ import java.util.UUID;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
-
-// Updated import for CommandSource based on the new dependency version
-import org.spongepowered.api.command.source.CommandSource;
+import org.spongepowered.api.command.source.CommandSource; // Updated import
 
 public class SkinDownloader extends SharedDownloader {
 

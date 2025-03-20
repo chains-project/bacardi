@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * you may obtain a copy of the License at
+ * You may obtain a copy of the License at
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -19,8 +19,8 @@ import static com.google.pubsublite.kafka.sink.Schemas.encodeToBytes;
 
 import com.google.api.core.ApiService.State;
 import com.google.cloud.pubsublite.Message;
-import com.google.cloud.pubsublite.PublishMetadata; // Ensure this import is correct based on the updated dependency
 import com.google.cloud.pubsublite.internal.Publisher;
+import com.google.cloud.pubsublite.internal.PublishMetadata; // Updated import
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.protobuf.ByteString;
