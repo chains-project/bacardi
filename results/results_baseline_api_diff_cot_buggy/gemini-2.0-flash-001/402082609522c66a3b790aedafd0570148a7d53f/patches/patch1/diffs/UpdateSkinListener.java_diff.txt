@@ -1,25 +1,23 @@
-14d13
+12d11
+< import org.spongepowered.api.Platform.Type;
+14d12
 < import org.spongepowered.api.command.CommandSource;
-16,17c15
+16,17d13
 < import org.spongepowered.api.network.ChannelBuf;
 < import org.spongepowered.api.network.RawDataListener;
----
+19a16,18
 > import org.spongepowered.api.network.channel.ChannelBuf;
-21c19
+> import org.spongepowered.api.network.channel.RawDataHandler;
+> import org.spongepowered.api.network.channel.ChannelReceiver;
+21c20
 < public class UpdateSkinListener implements RawDataListener {
 ---
-> public class UpdateSkinListener /*implements RawDataListener*/ {
-26c24
-<     @Override
+> public class UpdateSkinListener implements RawDataHandler<RemoteConnection> {
+27c26
+<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
 ---
->     //@Override
-28c26
-<         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
----
->         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.asByteArray());
-35,36c33,34
+>     public void handlePayload(ChannelBuf data, RemoteConnection connection, ChannelReceiver side) {
+35c34
 <             Runnable skinUpdater = new SkinApplier(plugin, (CommandSource) connection, receiver.get(), null, false);
-<             Task.builder().execute(skinUpdater).submit(plugin);
 ---
->             Runnable skinUpdater = new SkinApplier(plugin, (Player) connection, receiver.get(), null, false);
->             Sponge.getAsyncScheduler().submit(skinUpdater, plugin);
+>             Runnable skinUpdater = new SkinApplier(plugin, connection, receiver.get(), null, false);

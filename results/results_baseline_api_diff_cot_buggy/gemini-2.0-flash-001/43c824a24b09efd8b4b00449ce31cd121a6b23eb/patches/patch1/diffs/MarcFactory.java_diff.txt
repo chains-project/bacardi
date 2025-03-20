@@ -1,52 +1,16 @@
-3d2
+3c3
 < import de.gwdg.metadataqa.api.json.JsonBranch;
-67c66
+---
+> import de.gwdg.metadataqa.api.json.JsonPath;
+67c67
 <     for (JsonBranch branch : schema.getPaths()) {
 ---
->     for (var branch : schema.getPaths()) {
-69a69
->       String jsonPath = branch.getJsonPath();
-72c72
-<           marcRecord.setLeader(new Leader(extractFirst(cache, branch)));
----
->           marcRecord.setLeader(new Leader(extractFirst(cache, jsonPath)));
-75c75
-<           marcRecord.setControl001(new Control001(extractFirst(cache, branch)));
----
->           marcRecord.setControl001(new Control001(extractFirst(cache, jsonPath)));
-78c78
-<           marcRecord.setControl003(new Control003(extractFirst(cache, branch)));
----
->           marcRecord.setControl003(new Control003(extractFirst(cache, jsonPath)));
-81c81
-<           marcRecord.setControl005(new Control005(extractFirst(cache, branch), marcRecord));
----
->           marcRecord.setControl005(new Control005(extractFirst(cache, jsonPath), marcRecord));
-85c85
-<             new Control006(extractFirst(cache, branch), marcRecord));
----
->             new Control006(extractFirst(cache, jsonPath), marcRecord));
-89c89
-<             new Control007(extractFirst(cache, branch), marcRecord));
----
->             new Control007(extractFirst(cache, jsonPath), marcRecord));
-93c93
-<             new Control008(extractFirst(cache, branch), marcRecord));
----
->             new Control008(extractFirst(cache, jsonPath), marcRecord));
-96c96
-<           JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());
----
->           JSONArray fieldInstances = (JSONArray) cache.getFragment(jsonPath);
-313,314c313,314
+>     for (JsonPath branch : schema.getPaths()) {
+313c313
 <   private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
-<     List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
 ---
->   private static List<String> extractList(JsonPathCache cache, String jsonPath) {
->     List<XmlFieldInstance> instances = cache.get(jsonPath);
-322,323c322,323
+>   private static List<String> extractList(JsonPathCache cache, JsonPath branch) {
+322c322
 <   private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
-<     List<String> list = extractList(cache, branch);
 ---
->   private static String extractFirst(JsonPathCache cache, String jsonPath) {
->     List<String> list = extractList(cache, jsonPath);
+>   private static String extractFirst(JsonPathCache cache, JsonPath branch) {

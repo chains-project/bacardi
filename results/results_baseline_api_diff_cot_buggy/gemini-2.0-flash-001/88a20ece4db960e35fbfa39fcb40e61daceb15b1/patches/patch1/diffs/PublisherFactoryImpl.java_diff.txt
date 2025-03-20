@@ -1,14 +1,17 @@
-20d19
+19,20c19
+< import com.google.cloud.pubsublite.ProjectPath;
 < import com.google.cloud.pubsublite.PublishMetadata;
-27a27
-> import com.google.cloud.pubsublite.internal.wire.PublisherFactory;
-35,36c35
-<   @Override
+---
+> import com.google.cloud.pubsublite.ProjectName;
+36c35
 <   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
 ---
->   public Publisher<byte[]> newPublisher(Map<String, String> params) {
-39,46c38,42
-<     TopicPath topic =
+>   public Publisher<?> newPublisher(Map<String, String> params) {
+38c37
+<     RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
+---
+>     RoutingPublisherBuilder builder = RoutingPublisherBuilder.newBuilder();
+40,46c39,42
 <         TopicPath.newBuilder()
 <             .setProject(
 <                 ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
@@ -17,23 +20,9 @@
 <             .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
 <             .build();
 ---
->     String project = ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value()).project().value();
->     String location = CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()).value();
->     String topicName = TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()).value();
-> 
->     TopicPath topic = TopicPath.of(project, location, topicName);
-49,50c45,48
-<         partition ->
-<             SinglePartitionPublisherBuilder.newBuilder()
----
->         new PublisherFactory() {
->           @Override
->           public Publisher<byte[]> newPublisher(long partition) {
->             return SinglePartitionPublisherBuilder.newBuilder()
-53,54c51,53
+>         TopicPath.of(
+>             ProjectName.of("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value()),
+>             CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()),
+>             TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()));
+53d48
 <                 .setContext(PubsubContext.of(FRAMEWORK))
-<                 .build());
----
->                 .build();
->           }
->         });

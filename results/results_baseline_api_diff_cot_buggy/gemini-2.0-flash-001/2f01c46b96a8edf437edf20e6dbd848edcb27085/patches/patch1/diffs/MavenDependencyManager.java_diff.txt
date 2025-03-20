@@ -1,12 +1,6 @@
-27d26
-< import org.codehaus.plexus.util.xml.Xpp3Dom;
-160,166c159
-<     return Optional.ofNullable(project.getPlugin("org.bsc.maven:maven-processor-plugin"))
-<         .map(plugin -> plugin.getExecutionsAsMap().get("process"))
+162c162,164
 <         .map(exec -> (Xpp3Dom) exec.getConfiguration())
-<         .map(config -> config.getChild("processors"))
-<         .map(Xpp3Dom::getChildren)
-<         .map(arr -> Arrays.stream(arr).map(Xpp3Dom::getValue).collect(Collectors.toSet()))
-<         .orElse(of());
 ---
->     return of();
+>         .map(exec -> (org.apache.maven.model.PluginExecution) exec)
+>         .map(org.apache.maven.model.PluginExecution::getConfiguration)
+>         .map(config -> (Xpp3Dom) config)

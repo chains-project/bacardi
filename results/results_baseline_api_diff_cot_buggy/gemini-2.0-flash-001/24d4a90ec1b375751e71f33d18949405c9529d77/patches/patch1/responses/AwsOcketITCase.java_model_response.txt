@@ -1,34 +1,3 @@
-<fix_planning>
-a. Code and API changes:
-- The code uses `com.jcabi.aspects.Tv` to define a constant `Tv.HUNDRED * Tv.THOUSAND`.
-- The API change indicates that `com.jcabi.aspects.Tv` has been removed.
-
-b. Specific API changes causing the issue:
-- The removal of the `com.jcabi.aspects.Tv` class.
-
-c. Affected lines of code:
-- `import com.jcabi.aspects.Tv;`
-- `final String data = RandomStringUtils.random(Tv.HUNDRED * Tv.THOUSAND);`
-
-d. Proposed fixes:
-- Remove the import statement `import com.jcabi.aspects.Tv;`.
-- Replace `Tv.HUNDRED * Tv.THOUSAND` with its numerical value, which is 100 * 1000 = 100000.
-
-e. Potential side effects:
-- Replacing `Tv.HUNDRED * Tv.THOUSAND` with `100000` directly hardcodes the value. If the original intent was to use a configurable value, this change might affect the program's behavior. However, given the context of a test case, hardcoding the value is acceptable.
-
-f. Adherence to constraints:
-- The proposed changes do not change any function signatures.
-- The proposed changes involve creating a variable (not strictly necessary, but possible) or directly substituting the value.
-- The `@Override` annotation is not relevant in this case.
-- The proposed changes address the missing import by removing it and replacing the usage with a direct value.
-- The proposed changes do not remove any code unless it directly causes a compilation error.
-- All code is included in the final output.
-
-g. Final summary:
-The best solution is to remove the import statement `import com.jcabi.aspects.Tv;` and replace `Tv.HUNDRED * Tv.THOUSAND` with `100000`. This resolves the compilation error caused by the missing class and maintains the original functionality of the test case.
-</fix_planning>
-
 ```java
 /**
  * Copyright (c) 2012-2022, jcabi.com
@@ -49,8 +18,8 @@ The best solution is to remove the import statement `import com.jcabi.aspects.Tv
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
  * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- * COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+ * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
@@ -111,7 +80,7 @@ public final class AwsOcketITCase {
         final Bucket bucket = this.rule.bucket();
         final String name = "test-44.txt";
         final Ocket.Text ocket = new Ocket.Text(bucket.ocket(name));
-        final String data = RandomStringUtils.random(100000);
+        final String data = RandomStringUtils.random(100 * 1000);
         ocket.write(data);
         try {
             MatcherAssert.assertThat(ocket.read(), Matchers.equalTo(data));

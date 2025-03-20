@@ -1,60 +1,38 @@
-<fix_planning>
-The problem is caused by breaking changes in the javax.mvc API. Several classes and interfaces have been moved from the `javax.mvc.*` packages to the `jakarta.mvc.*` packages. Specifically, `javax.mvc.security.CsrfProtected`, `javax.mvc.Models`, `javax.mvc.binding.MvcBinding`, `javax.mvc.binding.BindingResult`, `javax.mvc.Controller`, `javax.mvc.UriRef`, and `javax.mvc.binding.ParamError` have been replaced by their `jakarta.mvc.*` counterparts.
-
-Here's a breakdown of the affected lines and proposed fixes:
-
-1.  `import javax.mvc.security.CsrfProtected;` should be replaced with `import jakarta.mvc.security.CsrfProtected;`
-2.  `@CsrfProtected` should be replaced with `@jakarta.mvc.security.CsrfProtected`
-3.  `import javax.mvc.Models;` should be replaced with `import jakarta.mvc.Models;`
-4.  `Models models;` should be replaced with `jakarta.mvc.Models models;`
-5.  `import javax.mvc.binding.MvcBinding;` should be replaced with `import jakarta.mvc.binding.MvcBinding;`
-6.  `@MvcBinding` should be replaced with `@jakarta.mvc.binding.MvcBinding`
-7.  `import javax.mvc.binding.BindingResult;` should be replaced with `import jakarta.mvc.binding.BindingResult;`
-8.  `BindingResult bindingResult;` should be replaced with `jakarta.mvc.binding.BindingResult bindingResult;`
-9.  `import javax.mvc.Controller;` should be replaced with `import jakarta.mvc.Controller;`
-10. `@Controller` should be replaced with `@jakarta.mvc.Controller`
-11. `import javax.mvc.UriRef;` should be replaced with `import jakarta.mvc.UriRef;`
-12. `import javax.mvc.binding.ParamError;` should be removed as it is not used.
-
-These changes involve updating the import statements and fully qualifying the annotations to use the new `jakarta.mvc` namespace. This should resolve the compilation errors caused by the API changes. The constraints are met as we are only modifying import statements and annotations, and not changing any method signatures.
-
-Final Summary:
-The best solution is to update the import statements and annotations to use the `jakarta.mvc` namespace, as this aligns with the updated dependency and resolves the compilation errors.
-</fix_planning>
-
 ```java
 package com.example.web;
 
 import java.util.logging.Logger;
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.mvc.UriRef;
 import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.binding.MvcBinding;
+import jakarta.mvc.binding.ParamError;
 import jakarta.mvc.security.CsrfProtected;
 import javax.validation.constraints.NotBlank;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import jakarta.mvc.binding.ParamError;
+import java.util.stream.Collectors;
+import java.util.List;
 
 /**
  *
  * @author hantsy
  */
 @Path("csrf")
-@jakarta.mvc.Controller
+@Controller
 @RequestScoped
 public class CsrfController {
 
     @Inject
-    jakarta.mvc.binding.BindingResult bindingResult;
+    BindingResult bindingResult;
 
     @Inject
-    jakarta.mvc.Models models;
+    Models models;
 
     @Inject
     AlertMessage flashMessage;
@@ -68,18 +46,19 @@ public class CsrfController {
     }
 
     @POST
-    @jakarta.mvc.security.CsrfProtected
+    @CsrfProtected
     public String post(
             @FormParam("greeting")
-            @jakarta.mvc.binding.MvcBinding
+            @MvcBinding
             @NotBlank String greeting) {
         if (bindingResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            bindingResult.getAllErrors()
-                    .stream()
-                    .forEach((ParamError t) -> {
-                        alert.addError(t.getParamName(), "", t.getMessage());
-                    });
+            List<ParamError> errors = bindingResult.getAllErrors();
+            if (errors != null) {
+                errors.stream().forEach((ParamError t) -> {
+                    alert.addError(t.getParamName(), "", t.getMessage());
+                });
+            }
             models.put("errors", alert);
             log.info("mvc binding failed.");
             return "csrf.xhtml";

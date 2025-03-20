@@ -1,6 +1,4 @@
-4,12c4,11
-< import javax.enterprise.context.RequestScoped;
-< import javax.inject.Inject;
+6,12c6,12
 < import javax.mvc.Controller;
 < import javax.mvc.Models;
 < import javax.mvc.UriRef;
@@ -9,33 +7,23 @@
 < import javax.mvc.binding.ParamError;
 < import javax.mvc.security.CsrfProtected;
 ---
-> import jakarta.enterprise.context.RequestScoped;
-> import jakarta.inject.Inject;
 > import jakarta.mvc.Controller;
 > import jakarta.mvc.Models;
 > import jakarta.mvc.UriRef;
 > import jakarta.mvc.binding.BindingResult;
 > import jakarta.mvc.binding.MvcBinding;
-> import jakarta.mvc.security.CsrfProtected;
-17a17
 > import jakarta.mvc.binding.ParamError;
-24c24
-< @Controller
+> import jakarta.mvc.security.CsrfProtected;
+17a18,19
+> import java.util.stream.Collectors;
+> import java.util.List;
+53,55c55,57
+<             bindingResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
 ---
-> @jakarta.mvc.Controller
-29c29
-<     BindingResult bindingResult;
----
->     jakarta.mvc.binding.BindingResult bindingResult;
-32c32
-<     Models models;
----
->     jakarta.mvc.Models models;
-46c46
-<     @CsrfProtected
----
->     @jakarta.mvc.security.CsrfProtected
-49c49
-<             @MvcBinding
----
->             @jakarta.mvc.binding.MvcBinding
+>             List<ParamError> errors = bindingResult.getAllErrors();
+>             if (errors != null) {
+>                 errors.stream().forEach((ParamError t) -> {
+57a60
+>             }

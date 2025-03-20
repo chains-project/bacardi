@@ -1,57 +1,8 @@
-<fix_planning>
-The core issue is that the `org.flywaydb.core.Flyway` class has undergone significant API changes. The default constructor has been removed, and setter methods like `setDataSource(DataSource)`, `setClassLoader(ClassLoader)`, `setLocations(String)`, and `setValidateOnMigrate(boolean)` are no longer available directly on the `Flyway` object. Instead, a `Configuration` object must be used to configure Flyway.
-
-Here's a breakdown of the affected lines and proposed fixes:
-
-1.  **`final org.flywaydb.core.Flyway flyway = new Flyway();`**
-
-    *   **Problem:** The default constructor `Flyway()` is removed. The new constructor requires a `Configuration` object.
-    *   **Solution:** Create a `org.flywaydb.core.api.configuration.ClassicConfiguration` object and pass it to the `Flyway` constructor.
-    *   **Code:** `final org.flywaydb.core.api.configuration.ClassicConfiguration configuration = new org.flywaydb.core.api.configuration.ClassicConfiguration(); final org.flywaydb.core.Flyway flyway = new Flyway(configuration);`
-
-2.  **`flyway.setDataSource(this.dataSource());`**
-
-    *   **Problem:** The `setDataSource(DataSource)` method is removed from `Flyway` and added to `ClassicConfiguration`.
-    *   **Solution:** Call `configuration.setDataSource(this.dataSource());` instead.
-    *   **Code:** `configuration.setDataSource(this.dataSource());`
-
-3.  **`flyway.setClassLoader(NisAppConfig.class.getClassLoader());`**
-
-    *   **Problem:** The `setClassLoader(ClassLoader)` method is removed from `Flyway` and added to `ClassicConfiguration`.
-    *   **Solution:** Call `configuration.setClassLoader(NisAppConfig.class.getClassLoader());` instead.
-    *   **Code:** `configuration.setClassLoader(NisAppConfig.class.getClassLoader());`
-
-4.  **`flyway.setLocations(prop.getProperty("flyway.locations"));`**
-
-    *   **Problem:** The `setLocations(String)` method is removed from `Flyway`. The `setLocations` method in `ClassicConfiguration` expects an array of `org.flywaydb.core.api.Location` objects.
-    *   **Solution:** Split the string from `prop.getProperty("flyway.locations")` into an array of strings, then create an array of `org.flywaydb.core.api.Location` objects from the string array, and finally call `configuration.setLocations(locations)`.
-    *   **Code:**
-        ```java
-        final String locationsString = prop.getProperty("flyway.locations");
-        final String[] locationStrings = locationsString.split(",");
-        final org.flywaydb.core.api.Location[] locations = Arrays.stream(locationStrings)
-                .map(String::trim)
-                .map(org.flywaydb.core.api.Location::new)
-                .toArray(org.flywaydb.core.api.Location[]::new);
-        configuration.setLocations(locations);
-        ```
-
-5.  **`flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));`**
-
-    *   **Problem:** The `setValidateOnMigrate(boolean)` method is removed from `Flyway` and added to `ClassicConfiguration` which expects a `Boolean` object.
-    *   **Solution:** Call `configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));` instead.
-    *   **Code:** `configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));`
-
-**Summary:**
-
-The fix involves creating a `ClassicConfiguration` object, setting all the properties on it, and then passing the configuration object to the `Flyway` constructor. This addresses all the API changes and resolves the compilation errors. The proposed changes adhere to all constraints, including not changing function signatures and only modifying client code.
-
-</fix_planning>
-
 ```java
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -90,7 +41,6 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.*;
-import java.util.Arrays;
 
 @Configuration
 @ComponentScan(basePackages = {
@@ -157,20 +107,16 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final org.flywaydb.core.api.configuration.ClassicConfiguration configuration = new org.flywaydb.core.api.configuration.ClassicConfiguration();
-		final org.flywaydb.core.Flyway flyway = new Flyway(configuration);
+		ClassicConfiguration configuration = new ClassicConfiguration();
 		configuration.setDataSource(this.dataSource());
 		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
-
-		final String locationsString = prop.getProperty("flyway.locations");
-		final String[] locationStrings = locationsString.split(",");
-		final org.flywaydb.core.api.Location[] locations = Arrays.stream(locationStrings)
-				.map(String::trim)
-				.map(org.flywaydb.core.api.Location::new)
-				.toArray(org.flywaydb.core.api.Location[]::new);
-		configuration.setLocations(locations);
-
+		String locations = prop.getProperty("flyway.locations");
+		if (locations != null) {
+			configuration.setLocationsAsStrings(locations);
+		}
 		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+
+		final org.flywaydb.core.Flyway flyway = new Flyway(configuration);
 		return flyway;
 	}
 

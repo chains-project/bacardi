@@ -1,42 +1,3 @@
-<fix_planning>
-a. Relevant code:
-```java
-first = develop.p2p.lib.LeetConverter.convert(first);
-last = develop.p2p.lib.LeetConverter.convert(last);
-```
-API changes:
-```
-Class develop.p2p.lib.LeetConverter has been removed in the new version of the dependency.
-Method tokyo.peya.lib.LeetConverter.convert(java.lang.String) has been added in the new version of the dependency.
-```
-
-b. The `develop.p2p.lib.LeetConverter` class and its `convert` method have been removed. The correct class is now `tokyo.peya.lib.LeetConverter` and it has a `convert` method.
-
-c. Affected lines:
-```java
-first = develop.p2p.lib.LeetConverter.convert(first);
-last = develop.p2p.lib.LeetConverter.convert(last);
-```
-
-d. Proposed fixes:
-Replace `develop.p2p.lib.LeetConverter.convert(first)` with `tokyo.peya.lib.LeetConverter.convert(first)` and `develop.p2p.lib.LeetConverter.convert(last)` with `tokyo.peya.lib.LeetConverter.convert(last)`.
-Add import statement `import tokyo.peya.lib.LeetConverter;`
-
-e. Potential side effects:
-The `tokyo.peya.lib.LeetConverter.convert` method might behave differently than the old one. However, since the goal is to fix compilation errors due to dependency updates, this change is necessary.
-
-f. Adherence to constraints:
-1. The function signatures are not changed.
-2. Variables are not created.
-3. `@Override` is not used.
-4. The correct import is added.
-5. No code is removed unless it directly causes a compilation error.
-6. All code is included in the final output.
-
-g. Summary:
-The best solution is to replace the old class name with the new one and add the corresponding import statement. This fixes the compilation errors caused by the dependency update.
-</fix_planning>
-
 ```java
 package ml.peya.plugins.Utils;
 
@@ -72,7 +33,6 @@ import java.util.stream.Collectors;
 
 import static ml.peya.plugins.Utils.MessageEngine.get;
 import static ml.peya.plugins.Variables.skin;
-import tokyo.peya.lib.LeetConverter;
 
 /**
  * プレイヤーに関してまとめたやつ！
@@ -151,8 +111,8 @@ public class PlayerUtils
 
         if (random.nextBoolean())
         {
-            first = LeetConverter.convert(first);
-            last = LeetConverter.convert(last);
+            first = tokyo.peya.lib.LeetConverter.convert(first);
+            last = tokyo.peya.lib.LeetConverter.convert(last);
         }
 
         String name = first + (random.nextBoolean() ? "_": "") + last + (random.nextBoolean() ? "19" + random.nextInt(120): "");

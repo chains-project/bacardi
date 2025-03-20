@@ -1,18 +1,3 @@
-<fix_planning>
-The core issue is that the `javax.jws` and `javax.jws.soap` packages have been replaced with `jakarta.jws` and `jakarta.jws.soap` respectively. This means all imports from the old packages need to be updated. Also, `javax.jws.soap.SOAPBinding.ParameterStyle` has been moved to `jakarta.jws.soap.SOAPBinding.ParameterStyle`.
-
-Here's a breakdown:
-
-*   **Problem:** The code uses `javax.jws.*` and `javax.jws.soap.*` which no longer exist.
-*   **API Change:** `javax.jws.*` is replaced by `jakarta.jws.*` and `javax.jws.soap.*` is replaced by `jakarta.jws.soap.*`.
-*   **Affected Lines:** All lines with `import javax.jws.*` and `import javax.jws.soap.*`, and all annotations using classes from those packages.
-*   **Proposed Fix:** Replace `javax.jws` with `jakarta.jws` and `javax.jws.soap` with `jakarta.jws.soap` in all import statements and annotations.
-*   **Side Effects:** None expected, as it's a direct package replacement.
-*   **Constraints:** The fix adheres to all constraints: no function signatures are changed, no code is removed unnecessarily, and the correct packages are used.
-
-**Summary:** The best solution is to replace all instances of `javax.jws` with `jakarta.jws` and `javax.jws.soap` with `jakarta.jws.soap` in the import statements and annotations. This directly addresses the API change and resolves the compilation errors.
-</fix_planning>
-
 ```java
 package com.premiumminds.billy.portugal.webservices.documents;
 

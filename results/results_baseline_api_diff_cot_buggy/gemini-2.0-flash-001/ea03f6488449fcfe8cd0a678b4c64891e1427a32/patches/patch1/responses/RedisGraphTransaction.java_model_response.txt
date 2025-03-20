@@ -1,48 +1,17 @@
-<fix_planning>
-a. Code and API changes:
-- The code defines an interface `RedisGraphTransaction` that extends several interfaces from the `redis.clients.jedis.commands` package.
-- The API changes indicate that `BasicRedisPipeline`, `BinaryScriptingCommandsPipeline`, `RedisPipeline`, `ClusterPipeline`, `BinaryRedisPipeline`, `ScriptingCommandsPipeline`, `MultiKeyBinaryRedisPipeline`, and `MultiKeyCommandsPipeline` have been removed from `redis.clients.jedis.commands`. `ClusterPipeline` has been added as an interface in `redis.clients.jedis`.
-
-b. Specific API changes causing the issue:
-- The removal of the listed interfaces from `redis.clients.jedis.commands` causes compilation errors because `RedisGraphTransaction` attempts to extend them.
-
-c. Affected lines of code:
-- `import redis.clients.jedis.commands.BasicRedisPipeline;`
-- `import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;`
-- `import redis.clients.jedis.commands.ClusterPipeline;`
-- `import redis.clients.jedis.commands.BinaryRedisPipeline;`
-- `import redis.clients.jedis.commands.ScriptingCommandsPipeline;`
-- `import redis.clients.jedis.commands.RedisPipeline;`
-- `import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;`
-- `import redis.clients.jedis.commands.MultiKeyCommandsPipeline;`
-- `public interface RedisGraphTransaction extends MultiKeyBinaryRedisPipeline, MultiKeyCommandsPipeline, ClusterPipeline, BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline, BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {`
-
-d. Proposed fixes:
-- Remove the imports for the removed interfaces.
-- Remove the inheritance of the removed interfaces from the `RedisGraphTransaction` interface.
-- Change the import for `ClusterPipeline` to `redis.clients.jedis.ClusterPipeline`.
-
-e. Potential side effects:
-- Removing the inherited interfaces might break the functionality of `RedisGraphTransaction` if it relies on the methods defined in those interfaces. However, since these interfaces are removed from the dependency, the code will not compile without these changes. The best approach is to remove them and adapt the implementation if necessary, but that is beyond the scope of this task.
-
-f. Adherence to constraints:
-- The proposed changes adhere to all the given constraints:
-    - The function signatures of the methods in `RedisGraphTransaction` are not changed.
-    - Variables can be created if needed.
-    - The `@Override` annotation is not relevant in this case.
-    - The correct package for `ClusterPipeline` is used.
-    - No existing code is removed unless it directly causes a compilation error.
-    - All code is included in the final output.
-
-g. Final summary:
-The best solution is to remove the imports and inheritance of the removed interfaces (`BasicRedisPipeline`, `BinaryScriptingCommandsPipeline`, `RedisPipeline`, `BinaryRedisPipeline`, `ScriptingCommandsPipeline`, `MultiKeyBinaryRedisPipeline`, `MultiKeyCommandsPipeline`) and update the import for `ClusterPipeline`. This will resolve the compilation errors caused by the API changes in the `jedis` dependency.
-</fix_planning>
-
 ```java
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
-import redis.clients.jedis.ClusterPipeline;
+import redis.clients.jedis.commands.AdvancedBinaryCommands;
+import redis.clients.jedis.commands.AdvancedCommands;
+import redis.clients.jedis.commands.ScriptingCommands;
+import redis.clients.jedis.commands.BasicCommands;
+import redis.clients.jedis.commands.BinaryScriptingCommands;
+import redis.clients.jedis.commands.MultiKeyBinaryCommands;
+import redis.clients.jedis.commands.MultiKeyCommands;
+import redis.clients.jedis.commands.BinaryBasicCommands;
+import redis.clients.jedis.commands.BinaryCommands;
+import redis.clients.jedis.commands.ClusterCommands;
 
 import java.io.Closeable;
 import java.util.List;
@@ -52,7 +21,10 @@ import java.util.Map;
  * An interface which aligned to Jedis transactional interface
  */
 public interface RedisGraphTransaction extends
-         ClusterPipeline, Closeable {
+        MultiKeyBinaryCommands,
+        MultiKeyCommands, ClusterCommands,
+        BinaryScriptingCommands, ScriptingCommands,
+        BinaryBasicCommands, BinaryCommands, AdvancedCommands, Closeable {
 
     /**
      * Execute a Cypher query.

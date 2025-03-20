@@ -1,64 +1,7 @@
-<fix_planning>
-a. Relevant parts of the code and API changes:
-
-The code uses `de.gwdg.metadataqa.api.json.JsonBranch` and its `getJsonPath()` method. The API changes indicate that the `JsonBranch` class and its `getJsonPath()` method have been removed.
-
-```java
-import de.gwdg.metadataqa.api.json.JsonBranch;
-
-...
-
-  private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
-    List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
-    ...
-  }
-
-  private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
-    List<String> list = extractList(cache, branch);
-    ...
-  }
-```
-
-b. Specific API changes causing the issue:
-
-- `Class de.gwdg.metadataqa.api.json.JsonBranch has been removed in the new version of the dependency.`
-- `Method de.gwdg.metadataqa.api.json.JsonBranch.getJsonPath() has been removed in the new version of the dependency.`
-
-c. Affected lines of code:
-
-- Line 3: `import de.gwdg.metadataqa.api.json.JsonBranch;`
-- Line 313: `private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {`
-- Line 314: `List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());`
-- Line 322: `private static String extractFirst(JsonPathCache cache, JsonBranch branch) {`
-
-d. Proposed potential fixes for each affected line:
-
-- Line 3: Remove the import statement since the class no longer exists.
-- Line 313, 322: Since `JsonBranch` is removed, we need to find a replacement for it.  Since the `getJsonPath()` method is also removed, we need to find a way to access the json path.  We can modify the code to directly use the json path string instead of the `JsonBranch` object.  We need to find where the `extractList` and `extractFirst` methods are called and modify the calling code to pass the json path string directly.
-- Line 314: Replace `branch.getJsonPath()` with the actual json path string.
-
-e. Potential side effects of the proposed changes:
-
-- Removing the import statement will cause compilation errors if other parts of the code still rely on the `JsonBranch` class.
-- Modifying the `extractList` and `extractFirst` methods will require changes in the calling code, which could introduce new errors.
-
-f. Adherence to constraints:
-
-- The proposed changes do not change the function signature of any method.
-- The proposed changes may require creating new variables.
-- The proposed changes may require removing the `@Override` annotation if the method no longer overrides a method in the updated dependency version.
-- The proposed changes address missing imports by removing the import statement.
-- The proposed changes do not remove any existing code unless it directly causes a compilation or functionality error.
-
-g. Final summary of the chosen fix:
-
-The best solution is to remove the `JsonBranch` class and its usage.  Since the class is removed from the dependency, we need to modify the code to work without it.  The `extractList` and `extractFirst` methods are used to extract data from the `JsonPathCache` based on the json path.  We can modify the calling code to pass the json path string directly to these methods instead of the `JsonBranch` object.  This will require changes in the `create` method.
-
-</fix_planning>
-
 ```java
 package de.gwdg.metadataqa.marc;
 
+import de.gwdg.metadataqa.api.json.JsonPath;
 import de.gwdg.metadataqa.api.model.pathcache.JsonPathCache;
 import de.gwdg.metadataqa.api.model.XmlFieldInstance;
 import de.gwdg.metadataqa.api.schema.MarcJsonSchema;
@@ -122,37 +65,36 @@ public class MarcFactory {
 
   public static BibliographicRecord create(JsonPathCache cache, MarcVersion version) {
     var marcRecord = new Marc21Record();
-    for (var branch : schema.getPaths()) {
+    for (JsonPath branch : schema.getPaths()) {
       if (branch.getParent() != null)
         continue;
-      String jsonPath = branch.getJsonPath();
       switch (branch.getLabel()) {
         case "leader":
-          marcRecord.setLeader(new Leader(extractFirst(cache, jsonPath)));
+          marcRecord.setLeader(new Leader(extractFirst(cache, branch)));
           break;
         case "001":
-          marcRecord.setControl001(new Control001(extractFirst(cache, jsonPath)));
+          marcRecord.setControl001(new Control001(extractFirst(cache, branch)));
           break;
         case "003":
-          marcRecord.setControl003(new Control003(extractFirst(cache, jsonPath)));
+          marcRecord.setControl003(new Control003(extractFirst(cache, branch)));
           break;
         case "005":
-          marcRecord.setControl005(new Control005(extractFirst(cache, jsonPath), marcRecord));
+          marcRecord.setControl005(new Control005(extractFirst(cache, branch), marcRecord));
           break;
         case "006":
           marcRecord.setControl006(
-            new Control006(extractFirst(cache, jsonPath), marcRecord));
+            new Control006(extractFirst(cache, branch), marcRecord));
           break;
         case "007":
           marcRecord.setControl007(
-            new Control007(extractFirst(cache, jsonPath), marcRecord));
+            new Control007(extractFirst(cache, branch), marcRecord));
           break;
         case "008":
           marcRecord.setControl008(
-            new Control008(extractFirst(cache, jsonPath), marcRecord));
+            new Control008(extractFirst(cache, branch), marcRecord));
           break;
         default:
-          JSONArray fieldInstances = (JSONArray) cache.getFragment(jsonPath);
+          JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());
           for (var fieldInsanceNr = 0; fieldInsanceNr < fieldInstances.size(); fieldInsanceNr++) {
             var fieldInstance = (Map) fieldInstances.get(fieldInsanceNr);
             var field = MapToDatafield.parse(fieldInstance, version);
@@ -369,8 +311,8 @@ public class MarcFactory {
     return field;
   }
 
-  private static List<String> extractList(JsonPathCache cache, String jsonPath) {
-    List<XmlFieldInstance> instances = cache.get(jsonPath);
+  private static List<String> extractList(JsonPathCache cache, JsonPath branch) {
+    List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
     List<String> values = new ArrayList<>();
     if (instances != null)
       for (XmlFieldInstance instance : instances)
@@ -378,8 +320,8 @@ public class MarcFactory {
     return values;
   }
 
-  private static String extractFirst(JsonPathCache cache, String jsonPath) {
-    List<String> list = extractList(cache, jsonPath);
+  private static String extractFirst(JsonPathCache cache, JsonPath branch) {
+    List<String> list = extractList(cache, branch);
     if (!list.isEmpty())
       return list.get(0);
     return null;

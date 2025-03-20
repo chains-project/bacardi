@@ -1,27 +1,3 @@
-<fix_planning>
-The problem is that the `javax.jws` package has been replaced with `jakarta.jws` in the updated dependency. This means that `javax.jws.WebMethod`, `javax.jws.WebParam`, `javax.jws.WebResult`, and `javax.jws.WebService` are no longer available, and we need to use their `jakarta.jws` counterparts.
-
-Here's a breakdown of the affected code and proposed fixes:
-
-*   **`import javax.jws.WebMethod;`**: Replace with `import jakarta.jws.WebMethod;`
-*   **`import javax.jws.WebParam;`**: Replace with `import jakarta.jws.WebParam;`
-*   **`import javax.jws.WebResult;`**: Replace with `import jakarta.jws.WebResult;`
-*   **`import javax.jws.WebService;`**: Replace with `import jakarta.jws.WebService;`
-*   **`@WebService(name = "SeriesWS", targetNamespace = "http://at.gov.pt/")`**: Replace with `@jakarta.jws.WebService(name = "SeriesWS", targetNamespace = "http://at.gov.pt/")`
-*   **`@WebMethod`**: Replace with `@jakarta.jws.WebMethod`
-*   **`@WebResult(name = "registarSerieResp", targetNamespace = "")`**: Replace with `@jakarta.jws.WebResult(name = "registarSerieResp", targetNamespace = "")`
-*   **`@WebParam(name = "serie", targetNamespace = "")`**: Replace with `@jakarta.jws.WebParam(name = "serie", targetNamespace = "")`
-*   **`@WebResult(name = "finalizarSerieResp", targetNamespace = "")`**: Replace with `@jakarta.jws.WebResult(name = "finalizarSerieResp", targetNamespace = "")`
-*   **`@WebResult(name = "consultarSeriesResp", targetNamespace = "")`**: Replace with `@jakarta.jws.WebResult(name = "consultarSeriesResp", targetNamespace = "")`
-*   **`@WebResult(name = "anularSerieResp", targetNamespace = "")`**: Replace with `@jakarta.jws.WebResult(name = "anularSerieResp", targetNamespace = "")`
-
-The proposed changes involve replacing the `javax.jws` imports and annotations with their `jakarta.jws` equivalents. This directly addresses the compilation errors caused by the API changes. The function signatures remain unchanged, and no code is removed unnecessarily. The changes adhere to all given constraints.
-
-Final Summary:
-
-The best solution is to replace all instances of `javax.jws` with `jakarta.jws` in the imports and annotations. This directly addresses the API changes and resolves the compilation errors while adhering to all constraints.
-</fix_planning>
-
 ```java
 package com.premiumminds.billy.portugal.webservices.series;
 

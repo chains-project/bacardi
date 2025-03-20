@@ -1,35 +1,3 @@
-<fix_planning>
-a. Code and API changes:
-- The code uses `com.jcabi.aspects.Tv` to define constants.
-- The API change indicates that `com.jcabi.aspects.Tv` has been removed.
-
-b. Specific API changes causing the issue:
-- Removal of the class `com.jcabi.aspects.Tv`.
-
-c. Affected lines of code:
-- `import com.jcabi.aspects.Tv;`
-- `final String name = RandomStringUtils.randomAlphanumeric(Tv.TEN);`
-- `final String attr = RandomStringUtils.randomAlphabetic(Tv.EIGHT);`
-- `for (int idx = 0; idx < Tv.TEN; ++idx)`
-- The constants `Tv.TEN` and `Tv.EIGHT` are used.
-
-d. Proposed fixes:
-- Replace `Tv.TEN` with `10` and `Tv.EIGHT` with `8`.
-- Remove the import statement `import com.jcabi.aspects.Tv;`.
-
-e. Potential side effects:
-- Replacing the constants with their literal values should not have any side effects, as they are just integer constants.
-
-f. Adherence to constraints:
-- The proposed changes do not change any function signatures.
-- The proposed changes only modify the client code.
-- The proposed changes remove the import statement that is no longer needed.
-- The proposed changes include all code in the final output.
-
-g. Summary:
-The best solution is to replace `Tv.TEN` with `10` and `Tv.EIGHT` with `8`, and remove the import statement `import com.jcabi.aspects.Tv;`. This directly addresses the compilation error caused by the missing class and adheres to all constraints.
-</fix_planning>
-
 ```java
 /*
  * Copyright (c) 2012-2022, jcabi.com
@@ -63,6 +31,7 @@ The best solution is to replace `Tv.TEN` with `10` and `Tv.EIGHT` with `8`, and 
 package com.jcabi.simpledb;
 
 import com.amazonaws.services.simpledb.model.SelectRequest;
+import java.util.Random;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;

@@ -1,78 +1,3 @@
-<fix_planning>
-a. Code and API changes:
-- Code:
-```java
-import org.spongepowered.api.network.ChannelBuf;
-import org.spongepowered.api.network.RawDataListener;
-import org.spongepowered.api.command.CommandSource;
-public class UpdateSkinListener implements RawDataListener {
-    public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
-        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
-        Optional<Player> receiver = Sponge.getServer().getPlayer(playerName);
-        Runnable skinUpdater = new SkinApplier(plugin, (CommandSource) connection, receiver.get(), null, false);
-        Task.builder().execute(skinUpdater).submit(plugin);
-    }
-}
-```
-- API Changes:
-  - `org.spongepowered.api.network.ChannelBuf` has been removed. `org.spongepowered.api.network.channel.ChannelBuf` has been added.
-  - `org.spongepowered.api.network.RawDataListener` has been removed.
-  - `org.spongepowered.api.command.CommandSource` has been removed.
-  - `org.spongepowered.api.Sponge.getServer()` has been removed.
-  - `org.spongepowered.api.network.ChannelBuf.array()` has been removed. `org.spongepowered.api.network.channel.ChannelBuf.array()` has been added.
-  - `org.spongepowered.api.scheduler.Task$Builder` has been removed.
-  - `org.spongepowered.api.scheduler.Task$Builder.submit(java.lang.Object)` has been removed.
-  - `org.spongepowered.api.scheduler.TaskExecutorService.submit(java.lang.Runnable,java.lang.Object)` has been added.
-
-b. Specific API changes causing the issue:
-  - The class `org.spongepowered.api.network.RawDataListener` is removed, so `UpdateSkinListener` can't implement it.
-  - The class `org.spongepowered.api.network.ChannelBuf` is removed.
-  - The method `org.spongepowered.api.network.ChannelBuf.array()` is removed.
-  - The class `org.spongepowered.api.command.CommandSource` is removed.
-  - The method `org.spongepowered.api.Sponge.getServer()` is removed.
-  - The class `org.spongepowered.api.scheduler.Task$Builder` is removed.
-
-c. Affected lines of code:
-  - `import org.spongepowered.api.network.ChannelBuf;`
-  - `import org.spongepowered.api.network.RawDataListener;`
-  - `import org.spongepowered.api.command.CommandSource;`
-  - `public class UpdateSkinListener implements RawDataListener {`
-  - `public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {`
-  - `ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());`
-  - `Optional<Player> receiver = Sponge.getServer().getPlayer(playerName);`
-  - `Runnable skinUpdater = new SkinApplier(plugin, (CommandSource) connection, receiver.get(), null, false);`
-  - `Task.builder().execute(skinUpdater).submit(plugin);`
-
-d. Proposed fixes:
-  - Remove `import org.spongepowered.api.network.ChannelBuf;` and replace `ChannelBuf` with `org.spongepowered.api.network.channel.ChannelBuf`.
-  - Remove `import org.spongepowered.api.network.RawDataListener;` and remove `implements RawDataListener`. Also, remove `@Override` annotation.
-  - Remove `import org.spongepowered.api.command.CommandSource;` and cast `connection` to `Player` instead of `CommandSource`.
-  - Replace `Sponge.getServer().getPlayer(playerName)` with `Sponge.getServer().getPlayer(playerName)`.
-  - Replace `data.array()` with `data.asByteArray()`.
-  - Replace `Task.builder().execute(skinUpdater).submit(plugin)` with `Sponge.getAsyncScheduler().submit(skinUpdater, plugin)`.
-
-e. Potential side effects:
-  - Casting `connection` to `Player` might cause issues if the connection is not always a player. However, in the context of a BungeeCord plugin messaging system, it's highly likely that the remote connection is indeed a player.
-
-f. Adherence to constraints:
-  - The function signature of `handlePayload` is preserved.
-  - Variables can be created if needed.
-  - The `@Override` annotation is removed because the method no longer overrides a method in an interface.
-  - Missing imports are addressed.
-  - No existing code is removed unless it directly causes a compilation error.
-  - All code is included in the final output.
-
-g. Final summary:
-The best solution is to:
-1. Replace `ChannelBuf` with `org.spongepowered.api.network.channel.ChannelBuf`.
-2. Remove `implements RawDataListener` and `@Override` annotation.
-3. Cast `connection` to `Player`.
-4. Replace `data.array()` with `data.asByteArray()`.
-5. Replace `Sponge.getServer().getPlayer(playerName)` with `Sponge.getServer().getPlayer(playerName)`.
-6. Replace `Task.builder().execute(skinUpdater).submit(plugin)` with `Sponge.getAsyncScheduler().submit(skinUpdater, plugin)`.
-This addresses all compilation errors and adapts the code to the new API.
-</fix_planning>
-
 ```java
 package com.github.games647.changeskin.sponge.bungee;
 
@@ -85,29 +10,30 @@ import com.google.inject.Inject;
 
 import java.util.Optional;
 
-import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.network.channel.ChannelBuf;
 import org.spongepowered.api.network.RemoteConnection;
 import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.network.channel.ChannelBuf;
+import org.spongepowered.api.network.channel.RawDataHandler;
+import org.spongepowered.api.network.channel.ChannelReceiver;
 
-public class UpdateSkinListener /*implements RawDataListener*/ {
+public class UpdateSkinListener implements RawDataHandler<RemoteConnection> {
 
     @Inject
     private ChangeSkinSponge plugin;
 
-    //@Override
-    public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
-        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.asByteArray());
+    @Override
+    public void handlePayload(ChannelBuf data, RemoteConnection connection, ChannelReceiver side) {
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
         SkinUpdateMessage updateMessage = new SkinUpdateMessage();
         updateMessage.readFrom(dataInput);
 
         String playerName = updateMessage.getPlayerName();
         Optional<Player> receiver = Sponge.getServer().getPlayer(playerName);
         if (receiver.isPresent()) {
-            Runnable skinUpdater = new SkinApplier(plugin, (Player) connection, receiver.get(), null, false);
-            Sponge.getAsyncScheduler().submit(skinUpdater, plugin);
+            Runnable skinUpdater = new SkinApplier(plugin, connection, receiver.get(), null, false);
+            Task.builder().execute(skinUpdater).submit(plugin);
         }
     }
 }

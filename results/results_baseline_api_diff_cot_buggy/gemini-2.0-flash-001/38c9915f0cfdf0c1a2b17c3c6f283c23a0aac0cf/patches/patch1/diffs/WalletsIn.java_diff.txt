@@ -1,35 +1,25 @@
-10c10
-<  * copies of the Software, and to permit persons to whom the Software is
----
->  * copies of the Software, and to permit persons to whom this software is
-21,22c21,22
-<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-<  * SOFTWARE.
----
->  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
->  * THE SOFTWARE.
-37,38d36
+37,38c37
 < import org.cactoos.scalar.IoCheckedScalar;
 < import org.cactoos.scalar.SolidScalar;
-40d37
+---
+> import org.cactoos.scalar.Unchecked;
+40c39
 < import org.cactoos.text.JoinedText;
-53c50
+---
+> import org.cactoos.text.Text;
+41a41
+> import org.cactoos.text.Joined;
+53c53
 <     private final IoCheckedScalar<Path> path;
 ---
->     private final Scalar<Path> path;
-103,105c100
+>     private final Unchecked<Path> path;
+103,105c103
 <         this.path = new IoCheckedScalar<>(
 <             new SolidScalar<>(pth)
 <         );
 ---
->         this.path = pth;
-119,120c114,115
+>         this.path = new Unchecked<>(pth);
+119c117
 <             new JoinedText(
-<                 ".",
 ---
->             String.format(
->                 "%s.%s",
-123c118
-<             ).asString()
----
->             )
+>             new Joined(

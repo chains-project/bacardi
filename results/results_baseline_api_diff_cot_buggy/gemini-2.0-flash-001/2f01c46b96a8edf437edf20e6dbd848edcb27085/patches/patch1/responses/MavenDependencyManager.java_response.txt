@@ -24,6 +24,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import se.kth.depclean.core.AbstractDebloater;
 import se.kth.depclean.core.analysis.graph.DependencyGraph;
 import se.kth.depclean.core.analysis.model.ProjectDependencyAnalysis;
@@ -156,7 +157,15 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
   @Override
   public Set<String> collectUsedClassesFromProcessors() {
     getLog().debug("# collectUsedClassesFromProcessors()");
-    return of();
+    return Optional.ofNullable(project.getPlugin("org.bsc.maven:maven-processor-plugin"))
+        .map(plugin -> plugin.getExecutionsAsMap().get("process"))
+        .map(exec -> (org.apache.maven.model.PluginExecution) exec)
+        .map(org.apache.maven.model.PluginExecution::getConfiguration)
+        .map(config -> (Xpp3Dom) config)
+        .map(config -> config.getChild("processors"))
+        .map(Xpp3Dom::getChildren)
+        .map(arr -> Arrays.stream(arr).map(Xpp3Dom::getValue).collect(Collectors.toSet()))
+        .orElse(of());
   }
 
   @Override

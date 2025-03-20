@@ -1,4 +1,4 @@
-24,33c24,31
+24,33c24,34
 < import org.assertj.core.internal.bytebuddy.ByteBuddy;
 < import org.assertj.core.internal.bytebuddy.TypeCache;
 < import org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey;
@@ -10,39 +10,23 @@
 < import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall;
 < import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This;
 ---
+> 
 > import net.bytebuddy.ByteBuddy;
+> import net.bytebuddy.TypeCache;
+> import net.bytebuddy.TypeCache.SimpleKey;
+> import net.bytebuddy.dynamic.scaffold.TypeValidation;
 > import net.bytebuddy.implementation.Implementation;
 > import net.bytebuddy.implementation.MethodDelegation;
 > import net.bytebuddy.implementation.auxiliary.AuxiliaryType;
-> import net.bytebuddy.implementation.bind.annotation.This;
+> import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 > import net.bytebuddy.implementation.bind.annotation.SuperCall;
-> import net.bytebuddy.matcher.ElementMatchers;
-> import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
-38a37,38
-> import java.util.concurrent.ConcurrentHashMap;
-> import java.util.concurrent.ConcurrentMap;
-40d39
+> import net.bytebuddy.implementation.bind.annotation.This;
+40c41,42
 < import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;
-50,51c49
-<     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED)
-<             .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
 ---
->     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy();
-55c53
-<     private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
----
->     private static final ConcurrentMap<Class<?>, Class<?>> CACHE = new ConcurrentHashMap<>();
-59d56
-<         @RuntimeType
-215,218c212,213
-<         SimpleKey cacheKey = new SimpleKey(assertClass);
-<         return (Class<ASSERTION>) CACHE.findOrInsert(VavrAssumptions.class.getClassLoader(),
-<                 cacheKey,
-<                 () -> generateAssumptionClass(assertClass));
----
->         return (Class<? extends ASSERTION>) CACHE.computeIfAbsent(assertClass,
->                 (key) -> generateAssumptionClass(assertClass));
-223c218
+> import net.bytebuddy.matcher.ElementMatchers;
+> 
+223c225
 <                 .method(any())
 ---
->                 .method(ElementMatchers.isDeclaredBy(assertionType))
+>                 .method(ElementMatchers.any())

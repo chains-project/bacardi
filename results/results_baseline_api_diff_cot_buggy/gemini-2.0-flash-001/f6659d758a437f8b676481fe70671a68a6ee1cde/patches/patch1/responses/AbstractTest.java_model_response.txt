@@ -1,32 +1,3 @@
-<fix_planning>
-a. Code and API changes:
-The code uses `org.yaml.snakeyaml.inspector.TrustedTagInspector`. The API changes indicate that `Constructor org.yaml.snakeyaml.inspector.TrustedTagInspector()` and `Class org.yaml.snakeyaml.inspector.TrustedTagInspector` have been removed.
-
-b. Specific API changes causing the issue:
-The removal of `org.yaml.snakeyaml.inspector.TrustedTagInspector` causes a compilation error because the code attempts to use it.
-
-c. Affected lines of code:
-- `import org.yaml.snakeyaml.inspector.TrustedTagInspector;`
-- `loadingConfig.setTagInspector(new TrustedTagInspector());`
-
-d. Proposed fixes:
-Since `TrustedTagInspector` has been removed, we need to find an alternative way to achieve the same functionality or remove the usage of `TrustedTagInspector` altogether.  The purpose of `TrustedTagInspector` is to allow all tags.  Since SnakeYAML 2.0, `LoaderOptions` defaults to trusting all tags, so we can simply remove the line.
-
-e. Potential side effects:
-Removing the line `loadingConfig.setTagInspector(new TrustedTagInspector());` should not have any negative side effects, as the default behavior of `LoaderOptions` is to trust all tags.
-
-f. Adherence to constraints:
-- The function signature of any method is not changed.
-- No variables are created.
-- The `@Override` annotation is not used.
-- The correct package or class is used.
-- No existing code is removed unless it directly causes a compilation or functionality error.
-- All code, even unchanged portions, is included in the final output.
-
-g. Final summary:
-The best solution is to remove the line `loadingConfig.setTagInspector(new TrustedTagInspector());` and the import statement `import org.yaml.snakeyaml.inspector.TrustedTagInspector;` because the default behavior of `LoaderOptions` in SnakeYAML 2.0 is to trust all tags, which is what `TrustedTagInspector` was doing. This resolves the compilation error caused by the removal of `TrustedTagInspector` in the updated dependency.
-</fix_planning>
-
 ```java
 /*
  * Copyright (C) 2017 Premium Minds.
@@ -92,6 +63,9 @@ public class AbstractTest {
 
     public <T extends MockBaseEntity> T createMockEntity(Class<T> clazz, String path) {
         final LoaderOptions loadingConfig = new LoaderOptions();
+        loadingConfig.setAllowDuplicateKeys(false);
+        loadingConfig.setAllowRecursiveKeys(false);
+        loadingConfig.setMaxAliasesForCollections(100);
 
         final Representer representer = new Representer(new DumperOptions());
         final Tag zoneIdTag = new Tag("!ZoneId");

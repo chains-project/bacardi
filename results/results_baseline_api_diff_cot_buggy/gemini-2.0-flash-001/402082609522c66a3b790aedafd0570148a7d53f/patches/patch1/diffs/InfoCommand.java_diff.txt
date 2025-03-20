@@ -1,54 +1,58 @@
-12a13,15
+12a13
 > import net.kyori.adventure.text.Component;
-> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-> 
-14c17,18
+14c15
 < import org.spongepowered.api.command.CommandException;
 ---
 > import org.spongepowered.api.command.Command;
-> import org.spongepowered.api.command.CommandCause;
-16,19c20,21
+16,19c17
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
-> import org.spongepowered.api.command.exception.CommandException;
 > import org.spongepowered.api.command.parameter.CommandContext;
-22,23d23
+22,23d19
 < import org.spongepowered.api.text.Text;
 < import org.spongepowered.api.text.serializer.TextSerializers;
-25c25
+25c21,24
 < public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
 ---
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.CommandCause;
+> 
 > public class InfoCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
-35c35
+35c34,35
 <     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 ---
->     public CommandResult execute(CommandCause src, CommandContext args) throws CommandException {
+>     public CommandResult execute(CommandContext context) throws CommandException {
+>         CommandCause src = context.cause();
 38c38
 <             return CommandResult.empty();
 ---
->             return CommandResult.failure();
-42,43c42
-<         Task.builder().async()
-<                 .execute(() -> {
----
->         Sponge.getServer().getScheduler().submit(Task.builder().execute(() -> {
-45,47c44,45
+>             return CommandResult.success();
+45c45
 <                     Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).submit(plugin);
-<                 })
-<                 .submit(plugin);
 ---
->             Sponge.getServer().getScheduler().submit(Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).plugin(plugin).build());
->         }).plugin(plugin).build());
-53,54c51,52
+>                     Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences, src)).submit(plugin);
+53,54c53,54
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
 ---
 >     public Command buildSpec() {
 >         return Command.builder()
-70c68
+56c56
+<                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
+---
+>                 .addPermission(PomData.ARTIFACT_ID + ".command.skininfo.base")
+60c60
+<     private void sendSkinDetails(UUID uuid, UserPreference preference) {
+---
+>     private void sendSkinDetails(UUID uuid, UserPreference preference, CommandCause cause) {
+70c70
 <                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
 ---
->                 Component text = LegacyComponentSerializer.legacySection().deserialize(formatted);
+>                 Component text = net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize(formatted);
+73c73
+<                 plugin.sendMessage(player, "skin-not-found");
+---
+>                 plugin.sendMessage(cause, "skin-not-found");

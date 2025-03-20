@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -68,7 +69,10 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
 				ItemMeta outgoingChatMeta = outgoingChatButton.getItemMeta();
 				if (targetTranslator.getTranslatingChatOutgoing()) {
 					outgoingChatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					outgoingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+					Enchantment power = XEnchantment.matchXEnchantment("power").get().getEnchant();
+					if (power != null) {
+						outgoingChatMeta.addEnchant(power, 1, false);
+					}
 					outgoingChatMeta.setDisplayName(ChatColor.GREEN
 							+ CommonDefinitions.getMessage("wwctGUIChatOutgoingButton"));
 				} else {
@@ -90,7 +94,10 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
     			ItemMeta incomingChatMeta = incomingChatButton.getItemMeta();
     			if (targetTranslator.getTranslatingChatIncoming()) {
     				incomingChatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-    				incomingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+					Enchantment power = XEnchantment.matchXEnchantment("power").get().getEnchant();
+					if (power != null) {
+    					incomingChatMeta.addEnchant(power, 1, false);
+					}
     				incomingChatMeta.setDisplayName(ChatColor.GREEN
     						+ CommonDefinitions.getMessage("wwctGUIChatIncomingButton"));
     			} else {

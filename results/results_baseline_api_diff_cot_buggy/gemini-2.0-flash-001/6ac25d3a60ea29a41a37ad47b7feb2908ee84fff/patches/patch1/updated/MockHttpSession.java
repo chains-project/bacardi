@@ -62,7 +62,8 @@ public class MockHttpSession implements HttpSession {
 
   /** @deprecated */
   @Deprecated
-  public Object getSessionContext() {
+  @Override
+  public HttpSessionContext getSessionContext() {
     return null;
   }
 

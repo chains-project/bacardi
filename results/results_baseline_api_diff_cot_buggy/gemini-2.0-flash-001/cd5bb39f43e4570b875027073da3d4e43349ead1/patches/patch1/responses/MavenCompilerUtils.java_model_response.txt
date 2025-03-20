@@ -1,54 +1,3 @@
-<fix_planning>
-a. Relevant parts of the code and API changes:
-
-The code uses `org.codehaus.plexus.util.xml.Xpp3Dom` to parse the plugin configuration. The API changes indicate that the `Xpp3Dom` class and its methods `getValue()` and `getChild(String)` have been removed.
-
-b. Specific API changes causing the issue:
-
-- Removal of `org.codehaus.plexus.util.xml.Xpp3Dom` class.
-- Removal of `org.codehaus.plexus.util.xml.Xpp3Dom.getValue()` method.
-- Removal of `org.codehaus.plexus.util.xml.Xpp3Dom.getChild(java.lang.String)` method.
-
-c. Affected lines of code:
-
-- `import org.codehaus.plexus.util.xml.Xpp3Dom;`
-- `if (config instanceof Xpp3Dom)`
-- `stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))`
-- `flatMap(aggregate -> stream(aggregate.getChildren("path")))`
-- `private static String extractChildValue(Xpp3Dom node, String name)`
-- `final Xpp3Dom child = node.getChild(name);`
-- `return child == null ? "" : child.getValue();`
-
-d. Proposed potential fixes for each affected line:
-
-Since `org.codehaus.plexus.util.xml.Xpp3Dom` is removed, we need to find an alternative way to parse the XML configuration. Maven provides `org.w3c.dom.Element` and related classes for XML parsing. We can attempt to cast the `config` object to `org.w3c.dom.Element` and use its methods to extract the required information.
-
-1. Replace `import org.codehaus.plexus.util.xml.Xpp3Dom;` with `import org.w3c.dom.Element; import org.w3c.dom.NodeList; import org.w3c.dom.Node;`
-2. Replace `if (config instanceof Xpp3Dom)` with `if (config instanceof Element)`
-3. Replace `stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))` with a method that converts `NodeList` to `Stream<Element>`.
-4. Replace `flatMap(aggregate -> stream(aggregate.getChildren("path")))` with a method that converts `NodeList` to `Stream<Element>`.
-5. Modify `extractChildValue` to accept `Element` instead of `Xpp3Dom`.
-6. Replace `final Xpp3Dom child = node.getChild(name);` with `final Element child = getChildElement(node, name);`
-7. Replace `return child == null ? "" : child.getValue();` with `return child == null ? "" : child.getTextContent();`
-
-e. Consider any potential side effects of the proposed changes:
-
-The change from `Xpp3Dom` to `org.w3c.dom.Element` might affect the way the XML is parsed, especially if there are differences in how namespaces or attributes are handled. However, since we are only extracting specific values based on element names, the impact should be minimal.
-
-f. Explicitly check if the proposed changes adhere to all the given constraints:
-
-1. The function signatures of all methods remain unchanged.
-2. New variables are introduced to simplify the code.
-3. The `@Override` annotation is not used.
-4. Missing imports are addressed using `org.w3c.dom.Element`, `org.w3c.dom.NodeList`, and `org.w3c.dom.Node`.
-5. No existing code is removed unless it directly causes a compilation or functionality error.
-6. All code, even unchanged portions, is included in the final output.
-
-g. Final summary of the chosen fix and why it's the best solution:
-
-The best solution is to replace the usage of `org.codehaus.plexus.util.xml.Xpp3Dom` with `org.w3c.dom.Element` and related classes. This addresses the API changes while minimizing the impact on the existing code. The proposed changes ensure that the code compiles and functions correctly with the updated dependency.
-</fix_planning>
-
 ```java
 /*
  * Copyright 2019 Danny van Heumen
@@ -70,13 +19,18 @@ package org.simplify4u.plugins.utils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.repository.RepositorySystem;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.xml.sax.InputSource;
+
+import java.io.StringReader;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
 
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptySet;
@@ -122,20 +76,28 @@ public final class MavenCompilerUtils {
         if (config == null) {
             return emptySet();
         }
-        if (config instanceof Element) {
-            return toStream(((Element) config).getElementsByTagName("annotationProcessorPaths"))
-                    .flatMap(aggregate -> toStream(aggregate.getElementsByTagName("path")))
-                    .map(processor -> system.createArtifact(
-                            extractChildValue(processor, "groupId"),
-                            extractChildValue(processor, "artifactId"),
-                            extractChildValue(processor, "version"),
-                            PACKAGING))
-                    // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
-                    // therefore there is little use in logging incomplete paths that are filtered out.
-                    .filter(a -> !a.getGroupId().isEmpty())
-                    .filter(a -> !a.getArtifactId().isEmpty())
-                    .filter(a -> !a.getVersion().isEmpty())
-                    .collect(Collectors.toSet());
+        if (config instanceof Xpp3Dom) {
+            try {
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                org.w3c.dom.Document doc = builder.parse(new InputSource(new StringReader(((Xpp3Dom) config).toString())));
+
+                return stream(getChildren(doc.getDocumentElement(), "annotationProcessorPaths"))
+                        .flatMap(aggregate -> stream(getChildren(aggregate, "path")))
+                        .map(processor -> system.createArtifact(
+                                extractChildValue(processor, "groupId"),
+                                extractChildValue(processor, "artifactId"),
+                                extractChildValue(processor, "version"),
+                                PACKAGING))
+                        // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
+                        // therefore there is little use in logging incomplete paths that are filtered out.
+                        .filter(a -> !a.getGroupId().isEmpty())
+                        .filter(a -> !a.getArtifactId().isEmpty())
+                        .filter(a -> !a.getVersion().isEmpty())
+                        .collect(Collectors.toSet());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
         // It is expected that this will never occur due to all Configuration instances of all plugins being provided as
         // XML document. If this happens to occur on very old plugin versions, we can safely add the type support and
@@ -144,12 +106,13 @@ public final class MavenCompilerUtils {
                 " was encountered: " + config.getClass());
     }
 
-    private static Stream<Element> toStream(NodeList nodeList) {
-        return stream(new Node[nodeList.getLength()])
-                .map(n -> nodeList.item(0))
-                .filter(Element.class::isInstance)
-                .map(Element.class::cast)
-                .limit(nodeList.getLength());
+    private static Element[] getChildren(Element parent, String name) {
+        NodeList nodeList = parent.getElementsByTagName(name);
+        Element[] elements = new Element[nodeList.getLength()];
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            elements[i] = (Element) nodeList.item(i);
+        }
+        return elements;
     }
 
     /**
@@ -160,20 +123,11 @@ public final class MavenCompilerUtils {
      * @return Returns child value if child node present or otherwise empty string.
      */
     private static String extractChildValue(Element node, String name) {
-        final Element child = getChildElement(node, name);
-        return child == null ? "" : child.getTextContent();
-    }
-
-    private static Element getChildElement(Element parent, String name) {
-        NodeList nodeList = parent.getElementsByTagName(name);
-        if (nodeList.getLength() == 0) {
-            return null;
+        NodeList nodeList = node.getElementsByTagName(name);
+        if (nodeList.getLength() > 0) {
+            return nodeList.item(0).getTextContent();
         }
-        Node node = nodeList.item(0);
-        if (node instanceof Element) {
-            return (Element) node;
-        }
-        return null;
+        return "";
     }
 }
 ```

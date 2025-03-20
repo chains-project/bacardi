@@ -27,6 +27,7 @@ import org.sonarsource.sonarlint.core.analysis.AnalysisEngine;
 import org.sonarsource.sonarlint.core.analysis.api.ActiveRule;
 import org.sonarsource.sonarlint.core.analysis.api.AnalysisConfiguration;
 import org.sonarsource.sonarlint.core.analysis.api.AnalysisEngineConfiguration;
+import org.sonarsource.sonarlint.core.analysis.api.AnalysisEngineConfiguration.Builder;
 import org.sonarsource.sonarlint.core.analysis.api.AnalysisResults;
 import org.sonarsource.sonarlint.core.analysis.command.AnalyzeCommand;
 import org.sonarsource.sonarlint.core.client.api.common.PluginDetails;
@@ -159,16 +160,13 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     }
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
-        AnalysisEngineConfiguration.Builder builder = AnalysisEngineConfiguration.builder();
-        for (Language language : globalConfig.getEnabledLanguages()) {
-            builder.addEnabledLanguage(language);
-        }
-        return builder
-                .setClientPid(globalConfig.getClientPid())
-                .setExtraProperties(globalConfig.extraProperties())
-                .setWorkDir(globalConfig.getWorkDir())
-                .setModulesProvider(globalConfig.getModulesProvider())
-                .build();
+        Builder builder = AnalysisEngineConfiguration.builder();
+        builder.addEnabledLanguages(globalConfig.getEnabledLanguages().toArray(new Language[0]));
+        builder.setClientPid(globalConfig.getClientPid());
+        builder.setExtraProperties(globalConfig.extraProperties());
+        builder.setWorkDir(globalConfig.getWorkDir());
+        builder.setModulesProvider(globalConfig.getModulesProvider());
+        return builder.build();
     }
 
     /** Get or creates the one and only instance of this class. */

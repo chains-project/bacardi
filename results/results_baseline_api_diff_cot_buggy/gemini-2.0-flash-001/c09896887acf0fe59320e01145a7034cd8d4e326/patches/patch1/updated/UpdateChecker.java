@@ -237,8 +237,8 @@ public final class UpdateChecker {
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
             GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
-            GHCompare.Status status = compare.getStatus();
-            return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
+            GHCompare.Comparison comparison = compare.asComparison();
+            return comparison.getStatus() == GHCompare.Status.identical || comparison.getStatus() == GHCompare.Status.behind;
         } catch (FileNotFoundException x) {
             // For example, that branch does not exist in this repository.
             return false;

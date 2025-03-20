@@ -1,7 +1,8 @@
-You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
 
-Here is the Java code that is failing:
-
+the following client code fails:
 ```java
 package com.example.web;
 // https://www.mvc-spec.org/learn/cookbook/custom_localeresolver_en.html
@@ -53,18 +54,16 @@ public class QueryParamLocaleResolver implements LocaleResolver {
 }
 
 ```
+the error is triggered in the following specific lines in the previous code:
 
-The errors are triggered in the following specific lines:
-
-<error_lines>
 ```java
-public Locale resolveLocale(final LocaleResolverContext context) {
-```
-```java
-import javax.mvc.locale.LocaleResolver;
+public class QueryParamLocaleResolver implements LocaleResolver {
 ```
 ```java
 public class QueryParamLocaleResolver implements LocaleResolver {
+```
+```java
+public Locale resolveLocale(final LocaleResolverContext context) {
 ```
 ```java
 public class QueryParamLocaleResolver implements LocaleResolver {
@@ -73,73 +72,55 @@ public class QueryParamLocaleResolver implements LocaleResolver {
 import javax.mvc.locale.LocaleResolverContext;
 ```
 ```java
-public Locale resolveLocale(final LocaleResolverContext context) {
+import javax.mvc.locale.LocaleResolver;
 ```
 ```java
-public class QueryParamLocaleResolver implements LocaleResolver {
+public Locale resolveLocale(final LocaleResolverContext context) {
 ```
-</error_lines>
 
-The API of the dependency has changed. Here are the relevant changes:
+with the following error information:
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/QueryParamLocaleResolver.java:[35,50] cannot find symbol
+  symbol: class LocaleResolver
 
-     Class javax.mvc.locale.LocaleResolverContext has been removed in the new version of the dependency.
-     Class javax.mvc.locale.LocaleResolver has been removed in the new version of the dependency.
-     Method jakarta.mvc.locale.LocaleResolverContext.getUriInfo() has been added in the new version of the dependency.
-     Method javax.mvc.event.BeforeControllerEvent.getUriInfo() has been removed in the new version of the dependency.
-     Method javax.mvc.event.ControllerRedirectEvent.getUriInfo() has been removed in the new version of the dependency.
-     Method javax.mvc.engine.ViewEngineContext.getUriInfo() has been removed in the new version of the dependency.
-     Method jakarta.mvc.event.ControllerRedirectEvent.getUriInfo() has been added in the new version of the dependency.
-     Method javax.mvc.event.AfterControllerEvent.getUriInfo() has been removed in the new version of the dependency.
-     Method javax.mvc.locale.LocaleResolverContext.getUriInfo() has been removed in the new version of the dependency.
-     Method jakarta.mvc.event.AfterControllerEvent.getUriInfo() has been added in the new version of the dependency.
-     Method jakarta.mvc.event.BeforeControllerEvent.getUriInfo() has been added in the new version of the dependency.
-     Method jakarta.mvc.engine.ViewEngineContext.getUriInfo() has been added in the new version of the dependency.
-
-Additional error information:
-
-<error_information>
 [ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/QueryParamLocaleResolver.java:[41,39] cannot find symbol
   symbol:   class LocaleResolverContext
   location: class com.example.web.QueryParamLocaleResolver
 
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/QueryParamLocaleResolver.java:[11,24] package javax.mvc.locale does not exist
+
 [ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/QueryParamLocaleResolver.java:[10,24] package javax.mvc.locale does not exist
 
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/QueryParamLocaleResolver.java:[35,50] cannot find symbol
-  symbol: class LocaleResolver
 
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/QueryParamLocaleResolver.java:[11,24] package javax.mvc.locale does not exist
-</error_information>
+The error is caused by a change in the API of the dependency. The new library version includes the following changes:
+     Class javax.mvc.locale.LocaleResolver has been removed in the new version of the dependency.
+     Method javax.mvc.locale.LocaleResolverContext.getUriInfo() has been removed in the new version of the dependency.
+     Method jakarta.mvc.event.BeforeControllerEvent.getUriInfo() has been added in the new version of the dependency.
+     Method jakarta.mvc.event.ControllerRedirectEvent.getUriInfo() has been added in the new version of the dependency.
+     Method javax.mvc.event.BeforeControllerEvent.getUriInfo() has been removed in the new version of the dependency.
+     Method javax.mvc.event.ControllerRedirectEvent.getUriInfo() has been removed in the new version of the dependency.
+     Method javax.mvc.engine.ViewEngineContext.getUriInfo() has been removed in the new version of the dependency.
+     Method jakarta.mvc.locale.LocaleResolverContext.getUriInfo() has been added in the new version of the dependency.
+     Method jakarta.mvc.engine.ViewEngineContext.getUriInfo() has been added in the new version of the dependency.
+     Method javax.mvc.event.AfterControllerEvent.getUriInfo() has been removed in the new version of the dependency.
+     Method jakarta.mvc.event.AfterControllerEvent.getUriInfo() has been added in the new version of the dependency.
+     Class javax.mvc.locale.LocaleResolverContext has been removed in the new version of the dependency.
 
-Your task is to fix the issue by modifying only the client code. Follow these steps:
+Before proposing a fix, please analyze the situation and plan your approach within <repair_strategy> tags:
 
-1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
-   a. Quote relevant parts of the code and API changes
-   b. Identify the specific API changes causing the issue
-   c. List the affected lines of code
-   d. Propose potential fixes for each affected line
-   e. Consider any potential side effects of the proposed changes
-   f. Explicitly check if the proposed changes adhere to all the given constraints
-   g. Provide a final summary of the chosen fix and why it's the best solution
+1. Identify the specific API changes that are causing the failure in the client code.
+2. Compare the old and new API versions, noting any changes in method signatures, return types, or parameter lists.
+3. Determine which parts of the client code need to be updated to accommodate these API changes.
+4. Consider any constraints or requirements for the fix (e.g., not changing function signatures, potential import adjustments).
+5. Plan the minimal set of changes needed to fix the issue while keeping the code functional and compliant with the new API.
+6. Consider potential side effects of the proposed changes on other parts of the code.
+7. Ensure that the planned changes will result in a complete and compilable class.
+8. If applicable, note any additional imports that may be needed due to the API changes.
 
-2. Apply the fix to the Java code.
-
-3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
-
-Constraints:
-1. Do not change the function signature of any method.
-2. You may create variables if it simplifies the code.
-3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
-4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
-5. Do not remove any existing code unless it directly causes a compilation or functionality error.
-6. Include all code, even unchanged portions, in your final output.
-7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
-
-Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
-
-Example output structure:
-
-```java
-[Complete, fixed Java class]
-```
-
-Please proceed with your analysis and solution.
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.

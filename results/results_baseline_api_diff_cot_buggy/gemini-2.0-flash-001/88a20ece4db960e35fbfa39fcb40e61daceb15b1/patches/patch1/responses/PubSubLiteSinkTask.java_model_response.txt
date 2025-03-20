@@ -1,37 +1,3 @@
-<fix_planning>
-a. Relevant parts of the code and API changes:
-- Code:
-```java
-private @Nullable Publisher<PublishMetadata> publisher;
-import com.google.cloud.pubsublite.PublishMetadata;
-```
-- API Changes:
-"Class com.google.cloud.pubsublite.PublishMetadata has been removed in the new version of the dependency."
-
-b. Specific API changes causing the issue:
-The removal of `com.google.cloud.pubsublite.PublishMetadata` class.
-
-c. Affected lines of code:
-- Line 43: `private @Nullable Publisher<PublishMetadata> publisher;`
-- Line 22: `import com.google.cloud.pubsublite.PublishMetadata;`
-
-d. Proposed potential fixes:
-- Line 43: Since `PublishMetadata` is removed, we need to change the type of the `publisher` field.  The `Publisher` interface now takes `ByteString` as a type parameter. We can change the type to `Publisher<ByteString>`.
-- Line 22: Remove the import statement `import com.google.cloud.pubsublite.PublishMetadata;` as it is no longer needed.
-
-e. Potential side effects of the proposed changes:
-- Changing the type of `publisher` might require changes in how we interact with the `publisher` object, specifically in the `publish` method. However, the `publish` method already takes a `Message` object, so no changes are needed there.
-
-f. Adherence to constraints:
-1. We are not changing any function signatures.
-2. We are not removing any existing code unless it directly causes a compilation error.
-3. We are removing the import statement that is no longer needed.
-4. We are using the correct package or class in accordance with the newer dependency version.
-
-g. Final summary:
-The best solution is to remove the import statement for `PublishMetadata` and change the type of the `publisher` field to `Publisher<ByteString>`. This resolves the compilation errors caused by the removal of the `PublishMetadata` class in the updated dependency.
-</fix_planning>
-
 ```java
 /*
  * Copyright 2020 Google LLC
@@ -74,7 +40,7 @@ import org.apache.kafka.connect.sink.SinkTask;
 public class PubSubLiteSinkTask extends SinkTask {
 
   private final PublisherFactory factory;
-  private @Nullable Publisher<ByteString> publisher;
+  private @Nullable Publisher<?> publisher;
 
   @VisibleForTesting
   PubSubLiteSinkTask(PublisherFactory factory) {

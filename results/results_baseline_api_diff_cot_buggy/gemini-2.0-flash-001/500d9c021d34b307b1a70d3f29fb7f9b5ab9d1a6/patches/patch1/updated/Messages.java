@@ -1,15 +1,17 @@
+import java.util.Locale;
 import java.util.ResourceBundle;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 //https://www.mvc-spec.org/learn/cookbook/multilang_en.html
 /**
- * Provides I18n messages for the UI per request. To get the correct locale, the method {@link HttpServletRequest#getLocale()}
- * is used. This method uses the built-in {@link java.util.Locale} resolution of the servlet container.
+ * Provides I18n messages for the UI per request. To get the correct locale, the method {@link MvcContext#getLocale()}
+ * is used. This method uses the built-in {@link javax.mvc.locale.LocaleResolver} of the used MVC Implementation.
  *
  * @author Tobias Erdle
- * @see HttpServletRequest#getLocale()
+ * @see MvcContext#getLocale()
+ * @see javax.mvc.locale.LocaleResolver
  */
 @RequestScoped
 @Named("msg")
@@ -28,7 +30,8 @@ public class Messages {
      * placeholder for unknown keys.
      */
     public final String get(final String key) {
-        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, request.getLocale());
+        final Locale locale = request.getLocale();
+        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, locale);
 
         return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);
     }

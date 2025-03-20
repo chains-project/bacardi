@@ -7,7 +7,7 @@
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * copies of the code, and to permit persons to whom the code is
  * furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
@@ -23,6 +23,7 @@
  */
 package io.zold.api;
 
+import java.util.Iterator;
 import org.cactoos.Text;
 import org.cactoos.scalar.LengthOf;
 
@@ -49,12 +50,20 @@ public final class RtScore implements Score {
 
     @Override
     public int compareTo(final Score other) {
-        try {
-            return new LengthOf(other.suffixes()).value().intValue()
-                - new LengthOf(this.sfxs).value().intValue();
-        } catch (final Exception ex) {
-            throw new IllegalStateException(ex);
+        final Iterable<Text> otherSuffixes = other.suffixes();
+        final Iterator<Text> iterator = this.sfxs.iterator();
+        int count = 0;
+        while (iterator.hasNext()) {
+            iterator.next();
+            count = count + 1;
         }
+        final Iterator<Text> otherIterator = otherSuffixes.iterator();
+        int otherCount = 0;
+        while (otherIterator.hasNext()) {
+            otherIterator.next();
+            otherCount = otherCount + 1;
+        }
+        return otherCount - count;
     }
 
     @Override

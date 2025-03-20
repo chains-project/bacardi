@@ -1,45 +1,3 @@
-<fix_planning>
-Okay, let's analyze the problem and plan the fix.
-
-a. Relevant code and API changes:
-
-The code uses `org.tinspin.index.covertree.CoverTree`, `org.tinspin.index.PointDistanceFunction`, and `org.tinspin.index.PointEntryDist`. The API changes indicate that `org.tinspin.index.PointDistanceFunction`, `org.tinspin.index.PointEntryDist`, and `org.tinspin.index.covertree.CoverTree` have been removed. Also, the `query1NN` method has been removed from `CoverTree`.
-
-b. Specific API changes causing the issue:
-
-The removal of `PointDistanceFunction`, `PointEntryDist`, and `query1NN` from `CoverTree` are the direct causes of the errors.
-
-c. Affected lines of code:
-
-*   `private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {`
-*   `import org.tinspin.index.PointDistanceFunction;`
-*   `import org.tinspin.index.PointEntryDist;`
-*   `final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR });`
-
-d. Proposed fixes:
-
-1.  **Remove `PointDistanceFunction` and implement the distance calculation inline:** Since `PointDistanceFunction` is removed, we need to replace its usage with a lambda expression that directly calculates the distance.  We can remove the `circleDistanceMetric` field and replace its usage in `CoverTree.create()` with an inline lambda.
-2.  **Remove `PointEntryDist` and manually find the nearest neighbor:** Since `PointEntryDist` and `query1NN` are removed, we need to manually iterate through the `CoverTree` to find the nearest neighbor.  We can use `tree.query()` with a very large radius to get all points, then iterate through them to find the nearest one based on our custom distance metric.
-3.  **Replace CoverTree with another suitable data structure:** Since CoverTree and its query1NN method are removed, we can replace it with another suitable data structure that supports nearest neighbor search. However, this might be a more complex change and could potentially affect performance. Given the constraints, I will avoid this approach.
-
-e. Potential side effects:
-
-*   Implementing the distance calculation inline might make the code slightly less readable.
-*   Manually finding the nearest neighbor might impact performance, especially for large datasets.
-
-f. Adherence to constraints:
-
-*   The proposed changes do not change the function signature of any method.
-*   The proposed changes create variables to simplify the code.
-*   The proposed changes remove the imports that are no longer valid.
-*   The proposed changes do not remove any existing code unless it directly causes a compilation or functionality error.
-
-g. Final summary:
-
-The best solution is to remove `PointDistanceFunction` and `PointEntryDist`, implement the distance calculation inline, and manually find the nearest neighbor by iterating through the results of a broad `tree.query()` call. This approach minimizes the changes to the existing code while addressing the API changes.
-
-</fix_planning>
-
 ```java
 package micycle.pgs;
 
@@ -66,6 +24,8 @@ import org.locationtech.jts.util.GeometricShapeFactory;
 import org.tinfour.common.IIncrementalTin;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
+import org.tinspin.index.PointEntry;
+import org.tinspin.index.PointIndex;
 import org.tinspin.index.covertree.CoverTree;
 
 import micycle.pgs.commons.FrontChainPacker;
@@ -273,36 +233,16 @@ public final class PGS_CirclePacking {
 		float largestR = 0; // the radius of the largest circle in the tree
 
 		for (PVector p : steinerPoints) {
-			//final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
-
-			PVector nearest = null;
-			double nearestDist = Double.MAX_VALUE;
-
-			Iterable<PVector> iterable = tree.query(new double[] { p.x - largestR, p.y - largestR, 0 }, new double[] { p.x + largestR, p.y + largestR, largestR * 2 });
-			for (PVector other : iterable) {
-				double dx = p.x - other.x;
-				double dy = p.y - other.y;
-				double dz = 0; // other.z; // Radius difference not needed for finding the nearest circle
-				double dist = Math.sqrt(dx * dx + dy * dy) + Math.abs(dz);
-
-				if (dist < nearestDist) {
-					nearestDist = dist;
-					nearest = other;
-				}
-			}
-
-			if (nearest == null) {
-				continue; // No neighbors found
-			}
+			final PointEntry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
 
 			/*
 			 * nn.dist() does not return the radius (since it's a distance metric used to
 			 * find nearest circle), so calculate maximum radius for candidate circle using
 			 * 2d euclidean distance between center points minus radius of nearest circle.
 			 */
-			final float dx = p.x - nearest.x;
-			final float dy = p.y - nearest.y;
-			final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nearest.z);
+			final float dx = p.x - nn.value().x;
+			final float dy = p.y - nn.value().y;
+			final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
 			if (radius > minRadius) {
 				largestR = (radius >= largestR) ? radius : largestR;
 				p.z = radius;
@@ -647,3 +587,75 @@ public final class PGS_CirclePacking {
 		final double z = radius * Math.sqrt(3); // hex distance between successive columns
 		double offset = 0;
 		for (double x = e.getMinX(); x < w; x += z) {
+			offset = (offset == radius) ? 0 : radius;
+			for (double y = e.getMinY() - offset; y < h; y += diameter) {
+				if (pointLocator.locate(new Coordinate(x, y)) != Location.EXTERIOR) {
+					out.add(new PVector((float) x, (float) y, (float) radius));
+				}
+			}
+		}
+		return out;
+	}
+
+	/**
+	 * Computes the incircle of a triangle; the largest circle contained in a given
+	 * triangle.
+	 * 
+	 * @param t triangle
+	 * @return PVector, where x & y represent incenter coordinates, and z represents
+	 *         incircle radius.
+	 */
+	private static PVector inCircle(SimpleTriangle t) {
+		final double a = t.getEdgeA().getLength();
+		final double b = t.getEdgeB().getLength();
+		final double c = t.getEdgeC().getLength();
+
+		double inCenterX = t.getVertexA().x * a + t.getVertexB().x * b + t.getVertexC().x * c;
+		inCenterX /= (a + b + c);
+		double inCenterY = t.getVertexA().y * a + t.getVertexB().y * b + t.getVertexC().y * c;
+		inCenterY /= (a + b + c);
+
+		final double s = (a + b + c) / 2; // semiPerimeter
+
+		final double r = Math.sqrt(((s - a) * (s - b) * (s - c)) / s);
+
+		return new PVector((float) inCenterX, (float) inCenterY, (float) r);
+	}
+
+	private static PVector centroid(SimpleTriangle t) {
+		final Vertex a = t.getVertexA();
+		final Vertex b = t.getVertexB();
+		final Vertex c = t.getVertexC();
+		double x = a.x + b.x + c.x;
+		x /= 3;
+		double y = a.y + b.y + c.y;
+		y /= 3;
+		return new PVector((float) x, (float) y);
+	}
+
+	/**
+	 * Calculate the distance between two points in 3D space, where each point
+	 * represents a circle with (x, y, r) coordinates. This custom metric considers
+	 * both the Euclidean distance between the centers of the circles and the
+	 * absolute difference of their radii.
+	 * <p>
+	 * The metric is defined as follows: Given two points A and B, representing
+	 * circles centered at (x1, y1) and (x2, y2) with radii r1 and r2 respectively,
+	 * the distance is calculated as sqrt((x1 - x2)^2 + (y1 - y2)^2) + |r1 - r2|.
+	 * <p>
+	 * This metric can be used to find the nearest circle to a given center (x, y)
+	 * in a proximity search. To perform the search, use a point (x, y, R) where R
+	 * is greater than or equal to the maximum radius of a circle in the proximity
+	 * structure.
+	 *
+	 * @param p1 3D point representing the first circle (x1, y1, r1)
+	 * @param p2 3D point representing the second circle (x2, y2, r2)
+	 * @return the distance between the two points based on the custom metric
+	 */
+	
+
+	/**
+	 * A streams filter to remove triangulation triangles that share at least one
+	 * edge with the shape edge.
+	 */
+	private static final Predicate<SimpleTriangle> filterBorderTriangles = t -> t.getContainingRegion() != null

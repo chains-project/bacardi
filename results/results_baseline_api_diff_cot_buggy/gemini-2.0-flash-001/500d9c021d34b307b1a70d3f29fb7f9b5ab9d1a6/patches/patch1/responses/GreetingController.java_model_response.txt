@@ -1,50 +1,9 @@
-<fix_planning>
-a. Code and API changes:
-- The code uses classes and annotations from the `javax.mvc` package, which have been migrated to the `jakarta.mvc` package.
-- Specifically, `javax.mvc.security.CsrfProtected`, `javax.mvc.Controller`, `javax.mvc.binding.MvcBinding`, `javax.mvc.UriRef`, `javax.mvc.binding.BindingResult`, `javax.mvc.binding.ParamError`, and `javax.mvc.Models` have been removed and replaced by their `jakarta.mvc` counterparts.
-
-b. Specific API changes causing the issue:
-- The package change from `javax.mvc` to `jakarta.mvc` is the root cause.
-
-c. Affected lines of code:
-- `import javax.mvc.security.CsrfProtected;`
-- `@Controller`
-- `import javax.mvc.binding.MvcBinding;`
-- `@UriRef("greeting-post")`
-- `import javax.mvc.binding.BindingResult;`
-- `BindingResult bindingResult;`
-- `import javax.mvc.UriRef;`
-- `import javax.mvc.binding.ParamError;`
-- `import javax.mvc.binding.MvcBinding;`
-- `Models models;`
-- `import javax.mvc.Models;`
-
-d. Proposed fixes:
-- Replace `javax.mvc.security.CsrfProtected` with `jakarta.mvc.security.CsrfProtected`.
-- Replace `javax.mvc.Controller` with `jakarta.mvc.Controller`.
-- Replace `javax.mvc.binding.MvcBinding` with `jakarta.mvc.binding.MvcBinding`.
-- Replace `javax.mvc.UriRef` with `jakarta.mvc.UriRef`.
-- Replace `javax.mvc.binding.BindingResult` with `jakarta.mvc.binding.BindingResult`.
-- Replace `javax.mvc.binding.ParamError` with `jakarta.mvc.binding.ParamError`.
-- Replace `javax.mvc.Models` with `jakarta.mvc.Models`.
-- Update the imports accordingly.
-
-e. Potential side effects:
-- The package change should not have any side effects as long as all the necessary classes are updated.
-
-f. Adherence to constraints:
-- The proposed changes only modify the imports and annotations to reflect the new package structure, adhering to all constraints.
-
-g. Final summary:
-- The best solution is to replace all occurrences of `javax.mvc` with `jakarta.mvc` in the imports and annotations. This directly addresses the API change and resolves the compilation errors.
-</fix_planning>
-
 ```java
 package com.example.web;
 
 import java.util.logging.Logger;
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.mvc.UriRef;
@@ -52,10 +11,10 @@ import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.binding.MvcBinding;
 import jakarta.mvc.binding.ParamError;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.ws.rs.FormParam;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
 
 /**
  *

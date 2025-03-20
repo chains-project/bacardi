@@ -6,7 +6,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.mvc.MvcContext;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
@@ -20,17 +20,17 @@ import javax.ws.rs.Path;
 public class LocaleController {
 
     @Inject
-    HttpServletRequest request;
+    jakarta.mvc.MvcContext mvc;
 
     @Inject
-    Models models;
+    jakarta.mvc.Models models;
 
     @Inject
     Logger log;
 
     @GET
     public String get() {
-        Locale locale = request.getLocale();
+        Locale locale = mvc.getLocale();
         models.put("locale", locale);
         return "locale.xhtml";
     }

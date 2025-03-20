@@ -1,26 +1,3 @@
-<fix_planning>
-The error message "Exception IntrospectionException is not compatible with throws clause in Representer.getProperties(Class<? extends Object>)" indicates that the `getProperties` method in the `Representer` class no longer throws `IntrospectionException` in the updated SnakeYAML library. The `ModelRepresenter` class overrides this method and declares that it throws `IntrospectionException`. This discrepancy causes a compilation error.
-
-The API changes confirm that `org.yaml.snakeyaml.representer.Representer.getProperties(java.lang.Class)` has been removed and added in different versions, and `org.yaml.snakeyaml.introspector.PropertyUtils.getProperties(java.lang.Class)` has been added and removed in different versions.
-
-Affected lines:
-```java
-protected Set<Property> getProperties(Class<? extends Object> type)
-```
-(appears twice)
-
-Possible fixes:
-
-1. Remove the `@Override` annotation and the `throws IntrospectionException` clause from the `getProperties` method in `ModelRepresenter`. This would make the method a new method specific to `ModelRepresenter` and not an override of a method in the parent class. This is the preferred solution as it aligns with the API change.
-
-2. Catch the `IntrospectionException` within the `getProperties` method. This would involve wrapping the existing code in a try-catch block. However, this approach is less desirable because it doesn't address the root cause of the problem (the API change) and might introduce unnecessary complexity.
-
-The best solution is to remove the `@Override` annotation and the `throws IntrospectionException` clause. This directly addresses the API change and avoids any potential side effects. It also adheres to all the given constraints.
-
-Final summary:
-The `@Override` annotation and `throws IntrospectionException` clause are removed from the `getProperties` method to resolve the compilation error caused by the API change in the SnakeYAML library.
-</fix_planning>
-
 ```java
 /**
  * Copyright (c) 2012 to original author or authors
@@ -238,22 +215,10 @@ class ModelRepresenter extends Representer {
   /*
    * Change the default order. Important data goes first.
    */
-  protected Set<Property> getProperties(Class<? extends Object> type)
-          {
+  @Override
+  protected Set<Property> getProperties(Class<? extends Object> type) {
     try {
-      if (type.isAssignableFrom(Model.class)) {
-        return sortTypeWithOrder(type, ORDER_MODEL);
-      } else if (type.isAssignableFrom(Developer.class)) {
-        return sortTypeWithOrder(type, ORDER_DEVELOPER);
-      } else if (type.isAssignableFrom(Contributor.class)) {
-        return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-      } else if (type.isAssignableFrom(Dependency.class)) {
-        return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-      } else if (type.isAssignableFrom(Plugin.class)) {
-        return sortTypeWithOrder(type, ORDER_PLUGIN);
-      } else {
-        return super.getProperties(type);
-      }
+      return sortTypeWithOrder(type, ORDER_MODEL);
     } catch (IntrospectionException e) {
       throw new RuntimeException(e);
     }

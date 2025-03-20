@@ -1,33 +1,3 @@
-<fix_planning>
-a. Code and API changes:
-- Code: `import javax.mvc.Models;` and `Models models;`
-- API Changes: "Class javax.mvc.Models has been removed in the new version of the dependency." and "Interface jakarta.mvc.Models has been added in the new version of the dependency."
-
-b. Specific API changes causing the issue:
-The class `javax.mvc.Models` has been removed, and an interface `jakarta.mvc.Models` has been added. The code uses the removed class, causing a compilation error.
-
-c. Affected lines of code:
-- `import javax.mvc.Models;`
-- `Models models;`
-
-d. Proposed potential fixes:
-1. Replace `import javax.mvc.Models;` with `import jakarta.mvc.Models;` and change `Models models;` to `jakarta.mvc.Models models;`. This aligns the code with the new dependency.
-
-e. Potential side effects:
-This change should not have any side effects as it simply updates the import and type declaration to use the new `jakarta.mvc.Models` interface.
-
-f. Adherence to constraints:
-1. The function signature of `toResponse` is not changed.
-2. No variables are created unnecessarily.
-3. The `@Override` annotation remains valid.
-4. The correct package `jakarta.mvc` is used.
-5. No existing code is removed unless it directly causes a compilation error.
-6. All code is included in the final output.
-
-g. Summary:
-The best solution is to replace the import statement and the type declaration of the `models` field to use the new `jakarta.mvc.Models` interface. This resolves the compilation error caused by the removal of `javax.mvc.Models` and aligns the code with the updated dependency.
-</fix_planning>
-
 ```java
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -37,11 +7,11 @@ The best solution is to replace the import statement and the type declaration of
 package com.example.config;
 
 import com.example.domain.TaskNotFoundException;
-import jakarta.mvc.Models;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
+import jakarta.mvc.Models;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;

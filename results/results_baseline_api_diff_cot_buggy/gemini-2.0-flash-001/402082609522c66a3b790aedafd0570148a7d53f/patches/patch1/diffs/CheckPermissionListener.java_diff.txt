@@ -1,45 +1,36 @@
-17,20d16
+13a14
+> import java.util.function.Consumer;
+17,21c18,21
 < import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
 < import org.spongepowered.api.network.ChannelBuf;
 < import org.spongepowered.api.network.ChannelRegistrar;
 < import org.spongepowered.api.network.RawDataListener;
-26c22,28
+< import org.spongepowered.api.network.RemoteConnection;
+---
+> import org.spongepowered.api.network.channel.raw.RawDataChannel;
+> import org.spongepowered.api.network.channel.ChannelBuf;
+> import org.spongepowered.api.network.channel.ChannelRegistrar;
+> import org.spongepowered.api.network.EngineConnection;
+26c26
 < public class CheckPermissionListener implements RawDataListener {
 ---
-> import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
-> import org.spongepowered.api.event.channel.ChannelEventListener;
-> import org.spongepowered.api.event.channel.ConnectionEvent;
-> import org.spongepowered.api.network.channel.PacketContext;
-> import org.spongepowered.api.network.channel.ChannelBuf;
-> 
-> public class CheckPermissionListener implements ChannelEventListener.Raw {
-29c31
-<     private final RawDataChannel permissionsResultChannel;
----
->     private final RawPlayDataChannel permissionsResultChannel;
-32c34
-<     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
----
->     CheckPermissionListener(ChangeSkinSponge plugin, RawPlayDataChannel permissionsResultChannel) {
-34,36c36
-< 
-<         String combinedName = new NamespaceKey(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL).getCombinedName();
+> public class CheckPermissionListener  {
+36c36
 <         permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
 ---
->         this.permissionsResultChannel = permissionsResultChannel;
-39,42c39,40
+>         permissionsResultChannel = (RawDataChannel) channelRegistrar.findChannel(plugin, combinedName).orElse(channelRegistrar.createRawChannel(plugin, combinedName));
+39,40c39
 <     @Override
 <     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
-< 
+---
+>     public void handlePayload(ChannelBuf data, EngineConnection connection, Type side) {
+42c41
 <         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
 ---
->     public void handle(ConnectionEvent.Receive event, PacketContext context) {
->         ByteArrayDataInput dataInput = ByteStreams.newDataInput(event.data().array());
-49c47
-<         checkPermissions((Player) connection, message);
----
->         checkPermissions((Player) event.connection(), message);
-83c81
+>         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.asByteArray());
+83c82,84
 <         permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
 ---
->         permissionsResultChannel.sendTo((org.spongepowered.api.entity.living.player.server.ServerPlayer) receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+>         byte[] bytes = dataOutput.toByteArray();
+>         Consumer<ChannelBuf> byteBufConsumer = channelBuf -> channelBuf.writeByteArray(bytes);
+>         permissionsResultChannel.sendTo(receiver, byteBufConsumer);

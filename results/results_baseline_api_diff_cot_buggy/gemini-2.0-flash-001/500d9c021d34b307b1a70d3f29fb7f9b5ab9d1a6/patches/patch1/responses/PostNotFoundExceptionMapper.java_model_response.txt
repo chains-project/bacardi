@@ -1,34 +1,3 @@
-<fix_planning>
-a. Code and API changes:
-- The code uses `javax.mvc.Models`.
-- The API changes indicate that `javax.mvc.Models` has been removed and `jakarta.mvc.Models` has been added.
-
-b. Specific API changes causing the issue:
-- The removal of `javax.mvc.Models` causes a "cannot find symbol" error.
-
-c. Affected lines of code:
-- `import javax.mvc.Models;`
-- ` @Inject Models models;`
-
-d. Proposed fixes:
-- Replace `import javax.mvc.Models;` with `import jakarta.mvc.Models;`
-- Replace `javax.mvc.Models` with `jakarta.mvc.Models` in the field declaration.
-
-e. Potential side effects:
-- The change should not have any side effects as it's a direct replacement of the old API with the new one.
-
-f. Adherence to constraints:
-- The function signature of `toResponse` is not changed.
-- Variables are not created.
-- The `@Override` annotation is kept as the method still overrides a method from the `ExceptionMapper` interface.
-- The correct package is used for the import.
-- No existing code is removed unless it directly causes a compilation error.
-- All code is included in the final output.
-
-g. Summary:
-The best solution is to replace `javax.mvc.Models` with `jakarta.mvc.Models` and update the import statement accordingly. This directly addresses the API change and resolves the compilation error without introducing any side effects.
-</fix_planning>
-
 ```java
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -38,11 +7,11 @@ The best solution is to replace `javax.mvc.Models` with `jakarta.mvc.Models` and
 package com.example.config;
 
 import com.example.domain.TaskNotFoundException;
-import jakarta.mvc.Models;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
+import jakarta.mvc.Models;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;

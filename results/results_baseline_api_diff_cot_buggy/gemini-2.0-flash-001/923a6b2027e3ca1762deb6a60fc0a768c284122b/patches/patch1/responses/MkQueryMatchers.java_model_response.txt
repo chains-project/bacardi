@@ -1,37 +1,3 @@
-<fix_planning>
-a. Code and API changes:
-- The code uses `org.hamcrest.Matchers`.
-- The API changes indicate that `org.hamcrest.Matchers` has been removed.
-
-b. Specific API changes causing the issue:
-- The removal of the `org.hamcrest.Matchers` class.
-
-c. Affected lines of code:
-- `import org.hamcrest.Matchers;`
-- `Matchers.<URI>hasProperty("rawPath", path)`
-- `Matchers.<URI>hasProperty("rawQuery", query)`
-
-d. Proposed fixes:
-- Remove the import statement `import org.hamcrest.Matchers;`.
-- Replace `Matchers.<URI>hasProperty("rawPath", path)` with `org.hamcrest.core.IsInstanceOf.instanceOf(URI.class)` and `org.hamcrest.beans.HasPropertyWithValue.hasProperty("rawPath", path)`.
-- Replace `Matchers.<URI>hasProperty("rawQuery", query)` with `org.hamcrest.core.IsInstanceOf.instanceOf(URI.class)` and `org.hamcrest.beans.HasPropertyWithValue.hasProperty("rawQuery", query)`.
-- Add imports for `org.hamcrest.core.IsInstanceOf` and `org.hamcrest.beans.HasPropertyWithValue`.
-
-e. Potential side effects:
-- The change in matcher implementation might slightly affect the behavior of the tests, although the intended logic should remain the same.
-
-f. Adherence to constraints:
-- The function signatures are not changed.
-- Variables can be created if needed.
-- The @Override annotation is not present, so it doesn't need to be removed.
-- The correct packages are used for the new imports.
-- No existing code is removed unless it directly causes a compilation error.
-- All code is included in the final output.
-
-g. Summary:
-The best solution is to remove the import for `org.hamcrest.Matchers` and replace the calls to `Matchers.hasProperty` with `org.hamcrest.beans.HasPropertyWithValue.hasProperty`. This addresses the compilation error caused by the removal of the `Matchers` class while preserving the intended functionality.
-</fix_planning>
-
 ```java
 /*
  * Copyright (c) 2011-2017, jcabi.com
@@ -52,8 +18,8 @@ The best solution is to remove the import for `org.hamcrest.Matchers` and replac
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
  * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- * COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+ * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
@@ -66,8 +32,7 @@ package com.jcabi.http.mock;
 
 import java.net.URI;
 import org.hamcrest.Matcher;
-import org.hamcrest.beans.HasPropertyWithValue;
-import org.hamcrest.core.IsInstanceOf;
+import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
 
 /**
  * Convenient set of matchers for {@link MkQuery}.
@@ -118,7 +83,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasPath(final Matcher<String> path) {
         return new MkQueryUriMatcher(
-            HasPropertyWithValue.<URI>hasProperty("rawPath", path)
+            hasProperty("rawPath", path)
         );
     }
 
@@ -130,7 +95,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasQuery(final Matcher<String> query) {
         return new MkQueryUriMatcher(
-            HasPropertyWithValue.<URI>hasProperty("rawQuery", query)
+            hasProperty("rawQuery", query)
         );
     }
 

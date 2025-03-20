@@ -7,7 +7,7 @@
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * copies, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
@@ -15,9 +15,9 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -26,19 +26,23 @@ package io.zold.api;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
+import org.cactoos.Func;
+import org.cactoos.Scalar;
+import org.cactoos.Text;
+import org.cactoos.collection.CollectionOf;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.IterableOf;
 import org.cactoos.iterable.Joined;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Skipped;
 import org.cactoos.list.ListOf;
+import org.cactoos.scalar.Checked;
 import org.cactoos.scalar.Or;
 import org.cactoos.text.FormattedText;
 import org.cactoos.text.TextOf;
 import org.cactoos.text.UncheckedText;
+import org.cactoos.text.Split;
 
 /**
  * Wallet.
@@ -197,15 +201,19 @@ public interface Wallet {
 
         @Override
         public long id() throws IOException {
-            try {
-                return Long.parseUnsignedLong(
-                    Files.readAllLines(this.path).get(2),
+            return new Checked<>(
+                (Scalar<Long>) () -> Long.parseUnsignedLong(
+                    new ListOf<>(
+                        new Split(
+                            new TextOf(this.path),
+                            "\n"
+                        )
+                    ).get(2).asString(),
                     // @checkstyle MagicNumber (1 line)
                     16
-                );
-            } catch (final Exception e) {
-                throw new IOException(e);
-            }
+                ),
+                (Func<Exception, IOException>) e -> new IOException(e)
+            ).value();
         }
 
         @Override
@@ -240,24 +248,26 @@ public interface Wallet {
             }
             final Iterable<Transaction> ledger = this.ledger();
             final Iterable<Transaction> candidates = new Filtered<>(
-                incoming -> {
-                    return new Filtered<>(
-                        origin -> {
-                            try {
-                                return incoming.equals(origin)
-                                    || (incoming.id() == origin.id()
-                                        && incoming.bnf().equals(origin.bnf()))
-                                    || (incoming.id() == origin.id()
-                                        && incoming.amount() < 0L)
-                                    || incoming.prefix().equals(origin.prefix());
-                            } catch (final Exception ex) {
-                                throw new IllegalStateException(ex);
-                            }
-                        },
-                        ledger
-                    ).isEmpty();
-                },
-                other.ledger()
+                other.ledger(),
+                incoming -> new Filtered<>(
+                    ledger,
+                    origin -> {
+                        try {
+                            return new org.cactoos.scalar.Unchecked<>(
+                                new Or(
+                                    () -> incoming.equals(origin),
+                                    () -> incoming.id() == origin.id()
+                                        && incoming.bnf().equals(origin.bnf()),
+                                    () -> incoming.id() == origin.id()
+                                        && incoming.amount() < 0L,
+                                    () -> incoming.prefix().equals(origin.prefix())
+                                )
+                            ).value();
+                        } catch (final Exception ex) {
+                            throw new IllegalStateException(ex);
+                        }
+                    }
+                ).isEmpty()
             );
             return new Wallet.Fake(
                 this.id(),
@@ -270,13 +280,13 @@ public interface Wallet {
             return new Mapped<>(
                 txt -> new RtTransaction(txt.asString()),
                 new Skipped<>(
-                    new ListOf<>(
-                        Arrays.asList(
-                            new TextOf(this.path).asString().split("\\n")
+                    5,
+                    new CollectionOf<>(
+                        new Split(
+                            new TextOf(this.path),
+                            "\\n"
                         )
-                    ),
-                    // @checkstyle MagicNumberCheck (1 line)
-                    5
+                    )
                 )
             );
         }

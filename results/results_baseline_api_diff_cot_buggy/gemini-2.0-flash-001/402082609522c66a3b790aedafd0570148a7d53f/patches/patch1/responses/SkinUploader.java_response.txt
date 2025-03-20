@@ -6,16 +6,15 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.concurrent.TimeUnit;
 
-import java.lang.Object;
-
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
 public class SkinUploader extends SharedUploader {
 
     private final ChangeSkinSponge plugin;
-    private final Object invoker;
+    private final Player invoker;
 
-    public SkinUploader(ChangeSkinSponge plugin, Object invoker, Account owner, String url) {
+    public SkinUploader(ChangeSkinSponge plugin, Player invoker, Account owner, String url) {
         super(plugin.getCore(), owner, url);
 
         this.plugin = plugin;
