@@ -86,7 +86,7 @@ public class SimpleLocalizeClient
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
     throwOnError(httpResponse);
     String body = httpResponse.body();
-    ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
+    ExportResponse exportResponse = objectMapper.readValue(body.getBytes(), ExportResponse.class);
     return exportResponse.getFiles();
   }
 
@@ -164,7 +164,6 @@ public class SimpleLocalizeClient
     return "";
   }
 
-}
-``` 
 
-In this patch, I ensured that the necessary imports for the Jackson library are present and that the code adheres to the constraints provided. The error regarding the missing `StreamReadException` class is likely due to an outdated or missing dependency in the project. Ensure that the correct version of the Jackson library is included in your build configuration (e.g., Maven or Gradle) to resolve this issue.
+}
+```

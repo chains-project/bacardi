@@ -1,23 +1,8 @@
-/*
- * Copyright (C) 1999-2009 Jive Software. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * you may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
-import com.hazelcast.map.IMap; // Updated import for IMap
+import com.hazelcast.core.IMap;
 import com.hazelcast.map.listener.MapListener;
 import com.hazelcast.monitor.LocalMapStats;
 import org.jivesoftware.openfire.XMPPServer;
@@ -54,7 +39,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     /**
      * The map is used for distributed operations such as get, put, etc.
      */
-    final IMap<K, V> map; // No change needed here
+    final com.hazelcast.map.IMap<K, V> map;
     private String name;
     private long numberOfGets = 0;
 
@@ -70,7 +55,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
      * @param name a name for the cache, which should be unique per vm.
      * @param cache the cache implementation
      */
-    protected ClusteredCache(final String name, final IMap<K, V> cache) {
+    protected ClusteredCache(final String name, final com.hazelcast.map.IMap<K, V> cache) {
         this.map = cache;
         this.name = name;
         logger = LoggerFactory.getLogger(ClusteredCache.class.getName() + "[cache: "+name+"]");
@@ -85,7 +70,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     {
         final EntryListener<K, V> listener = new EntryListener<K, V>() {
             @Override
-            public void mapEvicted(MapEvent event) {
+            public void mapEvicted(com.hazelcast.map.event.MapEvent event) {
                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
                     logger.trace("Processing map evicted event of node '{}'", eventNodeId);
@@ -94,7 +79,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
             }
 
             @Override
-            public void mapCleared(MapEvent event) {
+            public void mapCleared(com.hazelcast.map.event.MapEvent event) {
                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
                     logger.trace("Processing map cleared event of node '{}'", eventNodeId);
@@ -103,7 +88,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
             }
 
             @Override
-            public void entryUpdated(EntryEvent<K, V> event) { // Updated to specify generic types
+            public void entryUpdated(EntryEvent event) {
                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
                     logger.trace("Processing entry update event of node '{}' for key '{}'", eventNodeId, event.getKey());
@@ -112,7 +97,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
             }
 
             @Override
-            public void entryRemoved(EntryEvent<K, V> event) { // Updated to specify generic types
+            public void entryRemoved(EntryEvent event) {
                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
                     logger.trace("Processing entry removed event of node '{}' for key '{}'", eventNodeId, event.getKey());
@@ -121,7 +106,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
             }
 
             @Override
-            public void entryEvicted(EntryEvent<K, V> event) { // Updated to specify generic types
+            public void entryEvicted(EntryEvent event) {
                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
                     logger.trace("Processing entry evicted event of node '{}' for key '{}'", eventNodeId, event.getKey());
@@ -130,7 +115,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
             }
 
             @Override
-            public void entryAdded(EntryEvent<K, V> event) { // Updated to specify generic types
+            public void entryAdded(EntryEvent event) {
                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
                     logger.trace("Processing entry added event of node '{}' for key '{}'", eventNodeId, event.getKey());

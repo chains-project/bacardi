@@ -12,7 +12,6 @@ import com.redislabs.redisgraph.impl.resultset.ResultSetImpl;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.util.SafeEncoder;
-import redis.clients.jedis.Connection; // Updated import for the new version
 
 /**
  * An implementation of RedisGraphContext. Allows sending RedisGraph and some Redis commands,
@@ -139,7 +138,7 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphTransaction multi() {
         Jedis jedis = getConnection();
-        Connection client = jedis.getClient(); // Updated to use Connection instead of Client
+        redis.clients.jedis.Client client = jedis.getClient();
         client.multi();
         client.getOne();
         RedisGraphTransaction transaction = new RedisGraphTransaction(client, this);
@@ -154,7 +153,7 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphPipeline pipelined() {
         Jedis jedis = getConnection();
-        Connection client = jedis.getClient(); // Updated to use Connection instead of Client
+        redis.clients.jedis.Client client = jedis.getClient();
         RedisGraphPipeline pipeline = new RedisGraphPipeline(client, this);
         pipeline.setRedisGraphCaches(caches);
         return pipeline;
@@ -205,6 +204,7 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public void close() {
         this.connectionContext.close();
+
     }
 
     @Override

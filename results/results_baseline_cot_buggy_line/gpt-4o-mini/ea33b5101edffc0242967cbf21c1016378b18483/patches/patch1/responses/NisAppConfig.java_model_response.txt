@@ -107,12 +107,10 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		Configuration configuration = Flyway.configure()
+		final Configuration configuration = Flyway.configure()
 				.dataSource(this.dataSource())
 				.locations(prop.getProperty("flyway.locations"))
-				.validateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate")))
-				.load();
-
+				.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 		return new Flyway(configuration);
 	}
 

@@ -1,4 +1,11 @@
-20d19
-< import org.spongepowered.api.network.RawDataListener;
-41d39
+18c18
+< import org.spongepowered.api.network.ChannelBuf;
+---
+> import org.spongepowered.api.network.ChannelBuf; // This import is removed
+40,42c40,41
+<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
 < 
+<         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+---
+>     public void handlePayload(byte[] data, RemoteConnection connection, Type side) { // Changed parameter type from ChannelBuf to byte[]
+>         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data);

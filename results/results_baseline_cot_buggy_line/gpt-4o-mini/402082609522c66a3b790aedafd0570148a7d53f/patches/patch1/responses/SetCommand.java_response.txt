@@ -10,7 +10,7 @@ import com.google.inject.Inject;
 import java.util.UUID;
 
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandExecutor;
@@ -47,7 +47,7 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
         }
 
         Player receiver = (Player) src;
-        String targetSkin = args.<String>getOne("skin").orElse("");
+        String targetSkin = args.<String>getOne("skin").get();
         boolean keepSkin = args.hasAny("keep");
 
         if ("reset".equals(targetSkin)) {
@@ -72,7 +72,6 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
         return CommandResult.success();
     }
 
-    @Override
     public CommandSpec buildSpec() {
         return CommandSpec.builder()
                 .executor(this)

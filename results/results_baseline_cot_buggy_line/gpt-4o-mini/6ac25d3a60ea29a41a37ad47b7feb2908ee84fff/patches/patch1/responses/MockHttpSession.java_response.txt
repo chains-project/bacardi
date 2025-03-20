@@ -87,6 +87,4 @@ public class MockHttpSession implements HttpSession {
   public ServletContext getServletContext() {
     return null;
   }
-
-  // Removed deprecated methods as they are no longer part of the updated API
 }

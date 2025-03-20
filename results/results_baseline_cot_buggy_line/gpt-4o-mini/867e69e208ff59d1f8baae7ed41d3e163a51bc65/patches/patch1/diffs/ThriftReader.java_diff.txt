@@ -2,5 +2,36 @@
 < import org.apache.thrift.transport.TFramedTransport;
 < import org.apache.thrift.transport.TIOStreamTransport;
 25a24,25
+> import org.apache.thrift.transport.TTransportException;
 > import org.apache.thrift.transport.TIOStreamTransport;
-> import org.apache.thrift.transport.TFramedTransport; // Ensure this import is correct
+63,65d62
+<   // The framed framedTransport.
+<   private final TFramedTransport framedTransport;
+< 
+80,81c77
+<     this.framedTransport = new TFramedTransport(new TIOStreamTransport(this
+<         .byteOffsetInputStream), maxMessageSize);
+---
+>     TTransport transport = new TIOStreamTransport(this.byteOffsetInputStream);
+83c79
+<     this.protocol = protocolFactory.get(this.framedTransport);
+---
+>     this.protocol = protocolFactory.get(transport);
+95c91
+<     if (framedTransport.getBytesRemainingInBuffer() == 0 && byteOffsetInputStream.isEOF()) {
+---
+>     if (byteOffsetInputStream.isEOF()) {
+110,111c106,107
+<         byteOffsetInputStream.getByteOffset() >= framedTransport.getBytesRemainingInBuffer());
+<     return byteOffsetInputStream.getByteOffset() - framedTransport.getBytesRemainingInBuffer();
+---
+>         byteOffsetInputStream.getByteOffset() >= 0);
+>     return byteOffsetInputStream.getByteOffset();
+126,128d121
+<     // Clear the buffer
+<     framedTransport.consumeBuffer(framedTransport.getBytesRemainingInBuffer());
+< 
+139c132
+<     framedTransport.close();
+---
+>     byteOffsetInputStream.close();

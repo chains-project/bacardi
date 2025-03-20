@@ -34,7 +34,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -119,7 +118,7 @@ public abstract class ListControlGroups<T> extends Panel {
 
 		Set<String> properties = getPropertiesByOrder(modelClass);
 
-		Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+		Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
 		BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
 		for(String property : properties){
 			PropertyDescriptor descriptor;
@@ -135,9 +134,9 @@ public abstract class ListControlGroups<T> extends Panel {
 			if(constraintDescriptor!=null){
 				Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
 				for(ConstraintDescriptor<?> constraint : constraintsSet){
-					if(constraint.getAnnotation() instanceof NotNull ||
-					   constraint.getAnnotation() instanceof NotEmpty ||
-					   constraint.getAnnotation() instanceof NotBlank)
+					if(constraint.getAnnotation().annotationType().equals(NotNull.class) ||
+					   constraint.getAnnotation().annotationType().equals(NotEmpty.class) ||
+					   constraint.getAnnotation().annotationType().equals(NotBlank.class))
 						required = true;
 				}
 			}

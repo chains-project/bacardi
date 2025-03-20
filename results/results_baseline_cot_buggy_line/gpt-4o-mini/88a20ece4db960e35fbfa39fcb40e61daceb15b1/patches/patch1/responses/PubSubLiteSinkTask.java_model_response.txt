@@ -20,8 +20,8 @@ import static com.google.pubsublite.kafka.sink.Schemas.encodeToBytes;
 
 import com.google.api.core.ApiService.State;
 import com.google.cloud.pubsublite.Message;
-import com.google.cloud.pubsublite.PublishMetadata; // Ensure this import is correct based on the new dependency
 import com.google.cloud.pubsublite.internal.Publisher;
+import com.google.cloud.pubsublite.internal.PublishMetadata; // Updated import
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.protobuf.ByteString;
@@ -148,6 +148,4 @@ public class PubSubLiteSinkTask extends SinkTask {
     }
   }
 }
-``` 
-
-In this patch, I ensured that the import for `PublishMetadata` is retained, assuming it is still part of the updated dependency. If `PublishMetadata` has been removed or renamed in the new version, you would need to replace it with the appropriate class from the updated library.
+```

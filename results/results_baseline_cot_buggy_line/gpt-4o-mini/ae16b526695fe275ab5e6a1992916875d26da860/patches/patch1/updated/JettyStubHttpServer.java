@@ -9,10 +9,9 @@ import net.jadler.stubbing.server.StubHttpServer;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.ServerConnector; // Updated import
-import org.eclipse.jetty.util.thread.QueuedThreadPool; // Updated import
 import org.apache.commons.lang.Validate;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.ServerConnector;
 
 
 /**
@@ -22,7 +21,7 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
     private final Server server;
-    private final Connector httpConnector;
+    private final ServerConnector httpConnector;
 
     public JettyStubHttpServer() {
         this(0);
@@ -30,11 +29,11 @@ public class JettyStubHttpServer implements StubHttpServer {
     
 
     public JettyStubHttpServer(final int port) {
-        this.server = new Server(new QueuedThreadPool()); // Updated to use QueuedThreadPool
-        this.server.setSendServerVersion(false);
-        this.server.setSendDateHeader(true);
+        this.server = new Server();
+        this.server.setAttribute("org.eclipse.jetty.server.Server.sendServerVersion", false);
+        this.server.setAttribute("org.eclipse.jetty.server.Server.sendDateHeader", true);
         
-        this.httpConnector = new ServerConnector(this.server); // Updated to use ServerConnector
+        this.httpConnector = new ServerConnector(server);
         this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);
     }

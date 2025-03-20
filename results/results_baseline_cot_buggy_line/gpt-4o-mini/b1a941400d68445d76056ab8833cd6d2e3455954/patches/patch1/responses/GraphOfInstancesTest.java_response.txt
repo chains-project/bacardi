@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.LoaderOptions; // Added import for LoaderOptions
+import org.yaml.snakeyaml.LoaderOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +37,7 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
             DoubleSum aggregator = new DoubleSum();
             aggregator.getDoubleSuppliers().add(stringHandlerA);
             aggregator.getDoubleSuppliers().add(stringHandlerB);
+
 
             InstanceHolder instanceHolder = new InstanceHolder();
             instanceHolder.getNodeList().add(aggregator);
@@ -75,7 +76,7 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
                 "- !stringHandler\n" +
                 "  id: C";
         sep(c -> {
-            Constructor constructor = new Constructor(new LoaderOptions()); // Updated constructor call
+            Constructor constructor = new Constructor(new LoaderOptions());
             constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
             constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
             Yaml yaml = new Yaml(constructor);
@@ -111,7 +112,7 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
                 "- !stringHandler\n" +
                 "  id: C";
         sep(c -> {
-            Constructor constructor = new Constructor(new LoaderOptions()); // Updated constructor call
+            Constructor constructor = new Constructor(new LoaderOptions());
             constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
             constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
             Yaml yaml = new Yaml(constructor);

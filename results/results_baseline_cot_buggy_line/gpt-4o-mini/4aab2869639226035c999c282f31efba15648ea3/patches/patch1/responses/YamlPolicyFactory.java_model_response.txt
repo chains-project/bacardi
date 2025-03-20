@@ -40,7 +40,6 @@ public final class YamlPolicyFactory implements PolicyFactory {
     public Policy<?> getPolicy(final PolicyConfig config) {
         final PolicyConfig sub = config.config("storage");
         try {
-            // Create a storage instance using the new method
             Storage storage = new Storages().newStorage(
                 sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
             );
@@ -50,6 +49,4 @@ public final class YamlPolicyFactory implements PolicyFactory {
         }
     }
 }
-``` 
-
-In this patch, I added the necessary import for the `Storage` class, which may be required depending on the updated dependency version. The code structure remains intact, and the method signatures are unchanged. The instantiation of `Storage` is now clearer, ensuring compatibility with the updated dependencies.
+```

@@ -19,9 +19,8 @@ package com.feedzai.commons.sql.abstraction.engine.impl.mysql;
 
 import com.feedzai.commons.sql.abstraction.engine.handler.QueryExceptionHandler;
 
-import com.mysql.cj.jdbc.exceptions.CommunicationsException; // Updated import for MySQL Connector/J 8.0
-
 import java.sql.SQLException;
+import java.sql.SQLTimeoutException;
 
 /**
  * A specific implementation of {@link QueryExceptionHandler} for MySQL engine.
@@ -38,7 +37,7 @@ public class MySqlQueryExceptionHandler extends QueryExceptionHandler {
 
     @Override
     public boolean isTimeoutException(final SQLException exception) {
-        return exception instanceof CommunicationsException || super.isTimeoutException(exception); // Updated check
+        return exception instanceof SQLTimeoutException || super.isTimeoutException(exception);
     }
 
     @Override
@@ -47,9 +46,4 @@ public class MySqlQueryExceptionHandler extends QueryExceptionHandler {
                 || super.isUniqueConstraintViolationException(exception);
     }
 }
-``` 
-
-### Explanation of Changes:
-1. **Updated Import**: Changed the import statement from `com.mysql.jdbc.exceptions.MySQLTimeoutException` to `com.mysql.cj.jdbc.exceptions.CommunicationsException`, which is the correct class for handling communication-related exceptions in MySQL Connector/J 8.0 and later.
-2. **Updated Exception Check**: Modified the `isTimeoutException` method to check for `CommunicationsException` instead of the now-missing `MySQLTimeoutException`. This aligns with the updated MySQL driver.
-3. **Maintained Functionality**: The method signatures and overall functionality remain unchanged, ensuring compatibility with existing code.
+```

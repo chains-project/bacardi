@@ -6,7 +6,7 @@ import com.github.games647.changeskin.sponge.task.SkinSelector;
 import com.google.inject.Inject;
 
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
@@ -45,11 +45,10 @@ public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
         return CommandResult.success();
     }
 
-    @Override
     public CommandSpec buildSpec() {
         return CommandSpec.builder()
                 .executor(this)
-                .arguments(string("skinName")) // Updated to use the correct method signature
+                .arguments(string(of("skinName")))
                 .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
                 .build();
     }

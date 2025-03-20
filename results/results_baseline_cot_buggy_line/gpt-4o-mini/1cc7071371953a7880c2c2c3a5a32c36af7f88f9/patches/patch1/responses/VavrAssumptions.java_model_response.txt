@@ -27,7 +27,6 @@ import org.assertj.core.internal.bytebuddy.TypeCache;
 import org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeValidation;
 import org.assertj.core.internal.bytebuddy.implementation.Implementation;
 import org.assertj.core.internal.bytebuddy.implementation.MethodDelegation;
-import org.assertj.core.internal.bytebuddy.implementation.auxiliary.AuxiliaryType;
 import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.RuntimeType;
 import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall;
 import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This;
@@ -44,11 +43,11 @@ import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrat
 public class VavrAssumptions {
 
     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED)
-            .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
+            .with(new org.assertj.core.internal.bytebuddy.implementation.auxiliary.AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
 
     private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
 
-    private static final TypeCache<ByteBuddy.SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
+    private static final TypeCache<org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
 
     private static final class AssumptionMethodInterceptor {
 
@@ -141,7 +140,7 @@ public class VavrAssumptions {
 
     @SuppressWarnings("unchecked")
     private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass) {
-        ByteBuddy.SimpleKey cacheKey = new ByteBuddy.SimpleKey(assertClass);
+        org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey cacheKey = new org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey(assertClass);
         return (Class<ASSERTION>) CACHE.findOrInsert(VavrAssumptions.class.getClassLoader(),
                 cacheKey,
                 () -> generateAssumptionClass(assertClass));

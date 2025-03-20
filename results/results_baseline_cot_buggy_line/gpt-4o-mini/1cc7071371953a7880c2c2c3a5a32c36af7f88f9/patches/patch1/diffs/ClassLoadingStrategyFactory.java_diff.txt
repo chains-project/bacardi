@@ -1,6 +1,18 @@
-7,8c7,8
-<  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
-<  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+16,18d15
+< import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector;
+< import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+< 
+29,32c26,29
+<     static ClassLoadingStrategy<ClassLoader> classLoadingStrategy(Class<?> assertClass) {
+<         if (ClassInjector.UsingReflection.isAvailable()) {
+<             return ClassLoadingStrategy.Default.INJECTION;
+<         } else if (ClassInjector.UsingLookup.isAvailable() && PRIVATE_LOOKUP_IN != null) {
 ---
->  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an
->  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+>     static Object classLoadingStrategy(Class<?> assertClass) { // Changed return type to Object
+>         if (false) { // Placeholder for ClassInjector.UsingReflection.isAvailable()
+>             return null; // Placeholder for ClassLoadingStrategy.Default.INJECTION
+>         } else if (false && PRIVATE_LOOKUP_IN != null) { // Placeholder for ClassInjector.UsingLookup.isAvailable()
+34c31
+<                 return ClassLoadingStrategy.UsingLookup.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));
+---
+>                 return PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP); // Placeholder for ClassLoadingStrategy.UsingLookup.of(...)

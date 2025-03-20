@@ -8,12 +8,13 @@ import javax.annotation.Priority;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.Interceptor;
-import javax.interceptor.InvocationContext;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+import jakarta.interceptor.AroundInvoke;
+import jakarta.interceptor.Interceptor;
+import jakarta.interceptor.InvocationContext;
 
 @Replaceable
 @Interceptor
@@ -61,6 +62,4 @@ public class CallRedirectionInterceptor implements Serializable {
         }
     }
 }
-``` 
-
-In this patch, I ensured that all necessary imports are retained and that the class remains compilable. The error messages indicated that the `javax.interceptor` package was not found, which suggests that the dependency for the Interceptor API may be missing or incorrectly configured in the project. Please ensure that the correct version of the CDI and Interceptor libraries are included in your project's dependencies.
+```

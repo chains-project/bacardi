@@ -1,26 +1,3 @@
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2018-2023 Yegor Bugayenko
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package io.zold.api;
 
 import java.io.FileWriter;
@@ -33,11 +10,10 @@ import org.cactoos.iterable.Joined;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Skipped;
 import org.cactoos.list.ListOf;
-import org.cactoos.scalar.CheckedScalar;
+import org.cactoos.scalar.Unchecked;
 import org.cactoos.scalar.Or;
-import org.cactoos.scalar.UncheckedScalar;
 import org.cactoos.text.FormattedText;
-import org.cactoos.text.SplitText;
+import org.cactoos.text.Split;
 import org.cactoos.text.TextOf;
 import org.cactoos.text.UncheckedText;
 
@@ -153,7 +129,18 @@ public interface Wallet {
 
         @Override
         public long id() throws IOException {
-            return this.id;
+            return new Unchecked<>(
+                () -> Long.parseUnsignedLong(
+                    new ListOf<>(
+                        new Split(
+                            new TextOf(this.path),
+                            "\n"
+                        )
+                    ).get(2).asString(),
+                    // @checkstyle MagicNumber (1 line)
+                    16
+                )
+            ).value();
         }
 
         @Override
@@ -198,18 +185,17 @@ public interface Wallet {
 
         @Override
         public long id() throws IOException {
-            return new CheckedScalar<>(
+            return new Unchecked<>(
                 () -> Long.parseUnsignedLong(
                     new ListOf<>(
-                        new SplitText(
+                        new Split(
                             new TextOf(this.path),
                             "\n"
                         )
                     ).get(2).asString(),
                     // @checkstyle MagicNumber (1 line)
                     16
-                ),
-                e -> new IOException(e)
+                )
             ).value();
         }
 
@@ -246,7 +232,7 @@ public interface Wallet {
             final Iterable<Transaction> ledger = this.ledger();
             final Iterable<Transaction> candidates = new Filtered<>(
                 incoming -> new Filtered<>(
-                    origin -> new UncheckedScalar<>(
+                    origin -> new Unchecked<>(
                         new Or(
                             () -> incoming.equals(origin),
                             () -> incoming.id() == origin.id()
@@ -272,9 +258,9 @@ public interface Wallet {
                 txt -> new RtTransaction(txt.asString()),
                 new Skipped<>(
                     new ListOf<>(
-                        new SplitText(
+                        new Split(
                             new TextOf(this.path),
-                            "\n" // Fixed the regex from "\\n" to "\n"
+                            "\\n"
                         )
                     ),
                     // @checkstyle MagicNumberCheck (1 line)

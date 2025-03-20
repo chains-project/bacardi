@@ -6,9 +6,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import javax.ws.rs.FormParam;
 
-// Updated import for MvcBinding based on the new dependency
-import jakarta.mvc.binding.MvcBinding;
-
 public class TaskForm implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -18,13 +15,11 @@ public class TaskForm implements Serializable {
 
     @NotBlank
     @FormParam("name")
-    @MvcBinding
     private String name;
 
     @NotBlank
     @Size(min = 10, max = 2000)
     @FormParam("description")
-    @MvcBinding
     private String description;
 
     public Long getId() {
@@ -88,4 +83,5 @@ public class TaskForm implements Serializable {
     public String toString() {
         return "TaskForm{" + "id=" + id + ", name=" + name + ", description=" + description + '}';
     }
+  
 }

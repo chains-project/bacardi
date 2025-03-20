@@ -4,7 +4,6 @@ import liquibase.CatalogAndSchema;
 import liquibase.exception.LiquibaseException;
 import liquibase.executor.ExecutorService;
 import liquibase.ext.mssql.statement.DropStoredProcedureStatement;
-import liquibase.executor.Executor; // Importing the Executor class
 
 public class MSSQLDatabase extends liquibase.database.core.MSSQLDatabase {
     
@@ -16,11 +15,7 @@ public class MSSQLDatabase extends liquibase.database.core.MSSQLDatabase {
     @Override
     public void dropDatabaseObjects(CatalogAndSchema schemaToDrop) throws LiquibaseException {
         super.dropDatabaseObjects(schemaToDrop);
-        
-        // Get the executor instance
-        Executor executor = ExecutorService.getInstance().getExecutor(this);
-        
-        // Execute the DropStoredProcedureStatement
-        executor.execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+        ExecutorService executorService = ExecutorService.getInstance(); // Updated to store the instance
+        executorService.getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
     }
 }

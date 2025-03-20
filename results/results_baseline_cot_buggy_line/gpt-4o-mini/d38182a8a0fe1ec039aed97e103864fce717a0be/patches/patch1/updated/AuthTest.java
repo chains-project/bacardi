@@ -351,9 +351,9 @@ public final class AuthTest {
                     token -> CompletableFuture.completedFuture(
                         Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
                             .filter(user -> token.equals(token(user)))
-                            .map(user -> new Authentication.User(user.name())) // Updated to use correct User type
+                            .map(user -> new Authentication.User(user.name()).toOptional())
                             .findFirst()
-                    ).thenApply(Optional::orElseGet), // Ensure we return the correct type
+                    ),
                     ""
                 )
             );
