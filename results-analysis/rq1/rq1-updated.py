@@ -42,7 +42,7 @@ df = pd.read_csv(input_file)
 os.makedirs(output_dir, exist_ok=True)
 
 # Count the total number of commits (rows)
-total_commits = len(df)
+total_commits = len(df)+1
 print(f"Total commits: {total_commits}")
 
 # Drop the Commit column
@@ -120,7 +120,7 @@ if output_build_success_latex:
     
     latex_table = pivoted.to_latex(
         index=True,
-        caption="Build Success Rate of \\toolname~ on \\finaldata builds.",
+        caption="Build Success Rate of \\toolname~ of \\finaldata builds.",
         label="tab:build_success_prompt"
     )
     
