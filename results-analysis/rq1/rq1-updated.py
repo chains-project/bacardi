@@ -42,7 +42,7 @@ df = pd.read_csv(input_file)
 os.makedirs(output_dir, exist_ok=True)
 
 # Count the total number of commits (rows)
-total_commits = len(df)
+total_commits = len(df)+1
 print(f"Total commits: {total_commits}")
 
 # Drop the Commit column
