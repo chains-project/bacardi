@@ -53,7 +53,8 @@ import sorald.util.ConfigLoader;
 
 public final class SonarLintEngine extends AbstractSonarLintEngine {
 
-    // The order of these initialisations is important as each field is dependent upon the previous one.
+    // The order of these initialisations is important as each field is dependent upon the previous
+    // one.
     private static final String SONAR_JAVA_PLUGIN_JAR_NAME = "sonar-java-plugin.jar";
     private static final Path sonarJavaPlugin = getOrDownloadSonarJavaPlugin().getPath();
     private static final StandaloneGlobalConfiguration globalConfig = buildGlobalConfig();
@@ -158,11 +159,8 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     }
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
-        // Updated to use addEnabledLanguage for each language instead of addEnabledLanguages which was removed
         AnalysisEngineConfiguration.Builder builder = AnalysisEngineConfiguration.builder();
-        for (Language language : globalConfig.getEnabledLanguages()) {
-            builder.addEnabledLanguage(language);
-        }
+        globalConfig.getEnabledLanguages().forEach(builder::addEnabledLanguage);
         return builder
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())

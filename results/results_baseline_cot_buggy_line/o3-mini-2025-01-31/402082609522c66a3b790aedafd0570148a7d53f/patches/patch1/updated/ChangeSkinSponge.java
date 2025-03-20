@@ -1,5 +1,8 @@
 package com.github.games647.changeskin.sponge;
 
+import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
+import static com.github.games647.changeskin.core.message.SkinUpdateMessage.UPDATE_SKIN_CHANNEL;
+
 import com.github.games647.changeskin.core.ChangeSkinCore;
 import com.github.games647.changeskin.core.PlatformPlugin;
 import com.github.games647.changeskin.core.message.NamespaceKey;
@@ -10,33 +13,29 @@ import com.github.games647.changeskin.sponge.command.InvalidateCommand;
 import com.github.games647.changeskin.sponge.command.SelectCommand;
 import com.github.games647.changeskin.sponge.command.SetCommand;
 import com.github.games647.changeskin.sponge.command.UploadCommand;
+import com.github.games647.changeskin.sponge.LoginListener;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
-
 import java.nio.file.Path;
 import java.util.UUID;
-
 import org.slf4j.Logger;
+import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.manager.CommandManager;
-import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
-import org.spongepowered.api.event.lifecycle.StartEngineEvent;
-import org.spongepowered.api.event.lifecycle.StopEngineEvent;
+import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+import org.spongepowered.api.event.lifecycle.StopGameEvent;
+import org.spongepowered.api.command.source.CommandSource;
+import org.spongepowered.api.command.manager.CommandManager;
 import org.spongepowered.api.network.channel.ChannelRegistrar;
 import org.spongepowered.api.network.channel.raw.RawDataChannel;
-import org.spongepowered.plugin.Plugin;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-
-import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
-import static com.github.games647.changeskin.core.message.SkinUpdateMessage.UPDATE_SKIN_CHANNEL;
-import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
+import org.spongepowered.plugin.Plugin;
 
 @Singleton
-@Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+@Plugin(id = PomData.ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
         url = PomData.URL, description = PomData.DESCRIPTION)
 public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
 
@@ -49,7 +48,6 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
 
     private boolean initialized;
 
-    // We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
     @Inject
     ChangeSkinSponge(Logger logger, @ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
         this.dataFolder = dataFolder;
@@ -59,7 +57,6 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
 
     @Listener
     public void onPreInit(ConstructPluginEvent preInitEvent) {
-        // load config and database
         try {
             core.load(true);
             initialized = true;
@@ -69,35 +66,32 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
     }
 
     @Listener
-    public void onInit(StartEngineEvent initEvent) {
+    public void onInit(RegisterCommandEvent initEvent) {
         if (!initialized) {
             return;
         }
 
         CommandManager cmdManager = Sponge.getCommandManager();
 
-        // command and event register
         cmdManager.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
         cmdManager.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
         cmdManager.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
         cmdManager.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
-        cmdManager.register(this, injector.getInstance(InvalidateCommand.class).buildSpec(),
-                "skininvalidate", "skin-invalidate");
+        cmdManager.register(this, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
 
         Sponge.getEventManager().registerListeners(this, injector.getInstance(LoginListener.class));
 
-        // incoming channel
         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
-        String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
-        String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
+        String updateChannelName = new NamespaceKey(PomData.ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
+        String permissionChannelName = new NamespaceKey(PomData.ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
-        updateChannel.addListener(org.spongepowered.api.Platform.Type.SERVER, injector.getInstance(UpdateSkinListener.class));
-        permChannel.addListener(org.spongepowered.api.Platform.Type.SERVER, injector.getInstance(CheckPermissionListener.class));
+        updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+        permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
     }
 
     @Listener
-    public void onShutdown(StopEngineEvent stoppingServerEvent) {
+    public void onShutdown(StopGameEvent stoppingServerEvent) {
         core.close();
     }
 
@@ -111,7 +105,6 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
             return true;
         }
 
-        // disallow - not whitelisted or blacklisted
         if (sendMessage) {
             sendMessage(invoker, "no-permission");
         }
@@ -142,7 +135,7 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
     public void sendMessage(CommandSource receiver, String key) {
         String message = core.getMessage(key);
         if (message != null && receiver != null) {
-            receiver.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(message));
+            receiver.sendMessage(LegacyComponentSerializer.legacySection().deserialize(message));
         }
     }
 }

@@ -1,26 +1,8 @@
-<code_analysis>
-1. Analysis of the error message:
-   - The error “cannot find symbol: class PublishMetadata” indicates that the PublishMetadata class can no longer be located in the package com.google.cloud.pubsublite due to a dependency update.
-   - The errors occur at the import statement and in the declaration of the publisher field where PublishMetadata is used as a type parameter.
-
-2. Review of the affected code:
-   - The import statement "import com.google.cloud.pubsublite.PublishMetadata;" is now invalid.
-   - The publisher field is declared as "private @Nullable Publisher<PublishMetadata> publisher;" and needs updating.
-   - No other parts of the code directly use PublishMetadata.
-
-3. Proposed fix:
-   - Remove the import for PublishMetadata, since it has been removed or renamed in the dependency.
-   - Update the type of the publisher field by removing the PublishMetadata generic type. For instance, change it to "Publisher<?>" (or an appropriate type such as Publisher<Void> if metadata is now unused).
-   - Since the publisher’s returned metadata is not used anywhere in the client code, this change should suffice while leaving method and function signatures intact.
-
-4. Potential side effects:
-   - The factory used to instantiate Publisher objects (PublisherFactory) must now return a Publisher with the updated generic type. We assume that PublisherFactory and its implementation have been updated to match the newer dependency.
-   - No other changes are needed since PublishMetadata was not used elsewhere.
-
-Below is the complete, fixed Java class:
-
-</code_analysis>
-
+<repair_strategy>
+1. The external dependency no longer provides the PublishMetadata class.
+2. Removed the import for PublishMetadata and removed the generic type parameter from Publisher.
+3. This minimal change updates the code to the new dependency while preserving all functionality.
+</repair_strategy>
 ```java
 /*
  * Copyright 2020 Google LLC
@@ -42,7 +24,6 @@ package com.google.pubsublite.kafka.sink;
 import static com.google.pubsublite.kafka.sink.Schemas.encodeToBytes;
 
 import com.google.api.core.ApiService.State;
-import com.google.cloud.pubsublite.Message;
 import com.google.cloud.pubsublite.internal.Publisher;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableListMultimap;
@@ -63,7 +44,7 @@ import org.apache.kafka.connect.sink.SinkTask;
 public class PubSubLiteSinkTask extends SinkTask {
 
   private final PublisherFactory factory;
-  private @Nullable Publisher<?> publisher;
+  private @Nullable Publisher publisher;
 
   @VisibleForTesting
   PubSubLiteSinkTask(PublisherFactory factory) {

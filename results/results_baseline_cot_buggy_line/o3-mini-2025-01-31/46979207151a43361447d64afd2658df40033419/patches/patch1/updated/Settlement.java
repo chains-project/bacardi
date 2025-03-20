@@ -19,6 +19,7 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
+
 /**
  * <p>Java class for Settlement complex type.
  * 
@@ -48,7 +49,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "settlementDate",
     "paymentTerms"
 })
-public class Settlement implements ToString2 {
+public class Settlement implements ToString2
+{
 
     @XmlElement(name = "SettlementDiscount")
     protected String settlementDiscount;
@@ -177,22 +179,22 @@ public class Settlement implements ToString2 {
         {
             String theSettlementDiscount;
             theSettlementDiscount = this.getSettlementDiscount();
-            strategy.appendField(locator, this, "settlementDiscount", buffer, theSettlementDiscount, (this.settlementDiscount != null));
+            strategy.appendField(locator, this, "settlementDiscount", buffer, theSettlementDiscount, (this.settlementDiscount!= null));
         }
         {
             BigDecimal theSettlementAmount;
             theSettlementAmount = this.getSettlementAmount();
-            strategy.appendField(locator, this, "settlementAmount", buffer, theSettlementAmount, (this.settlementAmount != null));
+            strategy.appendField(locator, this, "settlementAmount", buffer, theSettlementAmount, (this.settlementAmount!= null));
         }
         {
             XMLGregorianCalendar theSettlementDate;
             theSettlementDate = this.getSettlementDate();
-            strategy.appendField(locator, this, "settlementDate", buffer, theSettlementDate, (this.settlementDate != null));
+            strategy.appendField(locator, this, "settlementDate", buffer, theSettlementDate, (this.settlementDate!= null));
         }
         {
             String thePaymentTerms;
             thePaymentTerms = this.getPaymentTerms();
-            strategy.appendField(locator, this, "paymentTerms", buffer, thePaymentTerms, (this.paymentTerms != null));
+            strategy.appendField(locator, this, "paymentTerms", buffer, thePaymentTerms, (this.paymentTerms!= null));
         }
         return buffer;
     }

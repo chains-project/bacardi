@@ -1,20 +1,44 @@
-12c12
+12d11
 < import liquibase.util.StringUtils;
+26,29c25,28
+<    * @param statement
+<    * @param database
+<    * @param sqlGeneratorChain
+<    * @return
 ---
-> import liquibase.util.StringUtil;
-14a15
-> 
-55c56,57
+>    * @param statement the add primary key statement
+>    * @param database the database
+>    * @param sqlGeneratorChain the generator chain
+>    * @return generated SQL array
+47,50c46,49
+<    * @param statement
+<    * @param database
+<    * @param sqlGeneratorChain
+<    * @return
+---
+>    * @param statement the MSSQL-specific add primary key statement
+>    * @param database the database
+>    * @param sqlGeneratorChain the generator chain
+>    * @return generated SQL array
+55c54,55
 <       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) + " ADD PRIMARY KEY (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
 ---
->       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName())
->           + " ADD PRIMARY KEY (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
-57c59,60
+>       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) +
+>           " ADD PRIMARY KEY (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
+57c57,58
 <       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) + " ADD CONSTRAINT " + database.escapeConstraintName(statement.getConstraintName())+" PRIMARY KEY";
 ---
->       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName())
->           + " ADD CONSTRAINT " + database.escapeConstraintName(statement.getConstraintName()) + " PRIMARY KEY";
-67c70
+>       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) +
+>           " ADD CONSTRAINT " + database.escapeConstraintName(statement.getConstraintName()) + " PRIMARY KEY";
+67c68
 <     if (StringUtils.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
 ---
->     if (StringUtil.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
+>     if (trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
+84a86,92
+>   private static String trimToNull(String input) {
+>     if (input == null) {
+>       return null;
+>     }
+>     String trimmed = input.trim();
+>     return trimmed.isEmpty() ? null : trimmed;
+>   }

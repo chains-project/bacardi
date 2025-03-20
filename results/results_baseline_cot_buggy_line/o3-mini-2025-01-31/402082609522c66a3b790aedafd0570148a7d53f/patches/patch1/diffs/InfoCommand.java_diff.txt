@@ -1,48 +1,65 @@
-9d8
-< 
-12d10
-< 
-14c12
+14,19d13
 < import org.spongepowered.api.command.CommandException;
----
-> import org.spongepowered.api.command.Command;
-16,19c14,17
+< import org.spongepowered.api.command.CommandResult;
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
----
-> import org.spongepowered.api.command.CommandExecutor;
-> import org.spongepowered.api.command.exception.CommandException;
-> import org.spongepowered.api.command.parameter.CommandContext;
-> import org.spongepowered.api.command.source.CommandSource;
-22,23c20,21
+22,23d15
 < import org.spongepowered.api.text.Text;
 < import org.spongepowered.api.text.serializer.TextSerializers;
+25c17,26
+< public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
 ---
 > import net.kyori.adventure.text.Component;
 > import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-33d30
+> 
+> import org.spongepowered.api.command.CommandResult;
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.Command;
+> import org.spongepowered.api.command.source.CommandSource;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> 
+> public class InfoCommand implements ChangeSkinCommand {
+33,34d33
 < 
-35c32,34
-<     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+<     @Override
+52c51,59
+<     @Override
 ---
->     public CommandResult execute(CommandContext args) throws CommandException {
->         // In the new API, the CommandSource is retrieved from the command context's cause.
->         CommandSource src = args.cause().root();
-53,54c52,53
-<     public CommandSpec buildSpec() {
+>     public CommandResult process(CommandContext context) throws CommandException {
+>         Optional<CommandSource> optionalSource = context.cause().first(CommandSource.class);
+>         if (optionalSource.isEmpty()) {
+>             throw new CommandException(LegacyComponentSerializer.legacyAmpersand().deserialize("&cNo valid command source!"));
+>         }
+>         CommandSource src = optionalSource.get();
+>         return execute(src, context);
+>     }
+> 
+54,56c61,63
 <         return CommandSpec.builder()
+<                 .executor(this)
+<                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
 ---
->     public Command buildSpec() {
->         return Command.builder()
-61c60
-<         Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
----
->         Optional<Player> optPlayer = Sponge.server().player(uuid);
-70,71c69,70
+>         Command command = Command.builder()
+>                 .executor(ctx -> this.process(ctx))
+>                 .requires(src -> src.hasPermission(PomData.ARTIFACT_ID + ".command.skininfo.base"))
+57a65
+>         return new CommandSpec(command);
+70c78
 <                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
-<                 player.sendMessage(text);
 ---
->                 Component component = LegacyComponentSerializer.legacySection().deserialize(formatted);
->                 player.sendMessage(component);
+>                 Component text = LegacyComponentSerializer.legacyAmpersand().deserialize(formatted);
+76a85,96
+> 
+>     public static class CommandSpec {
+>         private final Command command;
+> 
+>         public CommandSpec(Command command) {
+>             this.command = command;
+>         }
+> 
+>         public Command getCommand() {
+>             return command;
+>         }
+>     }

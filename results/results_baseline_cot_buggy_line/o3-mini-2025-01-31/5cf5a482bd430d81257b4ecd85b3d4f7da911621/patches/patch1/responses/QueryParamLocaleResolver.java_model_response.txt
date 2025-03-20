@@ -1,29 +1,3 @@
-<code_analysis>
-1. Error Analysis:
-   - The error indicates that the package "javax.mvc.locale" and its classes (LocaleResolver and LocaleResolverContext) are not found.
-   - This suggests that a dependency update moved these classes from the javax namespace to the jakarta namespace.
-   - The errors appear on the import lines and when the class implements LocaleResolver and defines the resolveLocale method.
-
-2. Client Code Review:
-   - The client code imports javax.mvc.locale.LocaleResolver and javax.mvc.locale.LocaleResolverContext.
-   - The class QueryParamLocaleResolver implements LocaleResolver and defines the resolveLocale method.
-   - The source of the problem is solely due to the outdated package namespace.
-
-3. Fix Plan:
-   - Update the import statements to use the new package "jakarta.mvc.locale" instead of "javax.mvc.locale".
-   - No need to remove the @Override annotation since the method signature remains the same.
-   - All other code remains unchanged, ensuring that function signatures are preserved.
-
-4. Proposed Changes:
-   - Change:
-       import javax.mvc.locale.LocaleResolver;
-       import javax.mvc.locale.LocaleResolverContext;
-     To:
-       import jakarta.mvc.locale.LocaleResolver;
-       import jakarta.mvc.locale.LocaleResolverContext;
-   - This patch addresses the dependency update and resolves the compilation errors.
-</code_analysis>
-
 ```java
 package com.example.web;
 // https://www.mvc-spec.org/learn/cookbook/custom_localeresolver_en.html
@@ -55,7 +29,7 @@ import javax.ws.rs.core.UriInfo;
  * }
  * </pre>
  *
- * Author: Tobias Erdle
+ * @author Tobias Erdle
  */
 @Priority(1)
 @ApplicationScoped

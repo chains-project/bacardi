@@ -109,7 +109,6 @@ class EventMessageHandlerTest {
         );
 
         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
-        // Removed setLevel(Level.INFO) due to dependency update issues.
         logger.addAppender(mockLogAppender);
     }
 

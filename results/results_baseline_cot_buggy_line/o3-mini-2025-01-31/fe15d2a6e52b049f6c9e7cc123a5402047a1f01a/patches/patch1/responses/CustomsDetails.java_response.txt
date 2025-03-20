@@ -35,13 +35,16 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "CustomsDetails", propOrder = {
     "cnCode",
     "unNumber"
 })
-public class CustomsDetails implements ToString2 {
+public class CustomsDetails implements ToString2
+{
 
     @XmlElement(name = "CNCode")
     protected List<String> cnCode;
@@ -63,9 +66,12 @@ public class CustomsDetails implements ToString2 {
      *    getCNCode().add(newItem);
      * </pre>
      * 
+     * 
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link String }
+     * 
+     * 
      */
     public List<String> getCNCode() {
         if (cnCode == null) {
@@ -89,9 +95,12 @@ public class CustomsDetails implements ToString2 {
      *    getUNNumber().add(newItem);
      * </pre>
      * 
+     * 
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link String }
+     * 
+     * 
      */
     public List<String> getUNNumber() {
         if (unNumber == null) {
@@ -120,13 +129,13 @@ public class CustomsDetails implements ToString2 {
     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         {
             List<String> theCNCode;
-            theCNCode = (((this.cnCode != null) && (!this.cnCode.isEmpty())) ? this.getCNCode() : null);
-            strategy.appendField(locator, this, "cnCode", buffer, theCNCode, ((this.cnCode != null) && (!this.cnCode.isEmpty())));
+            theCNCode = (((this.cnCode!= null)&&(!this.cnCode.isEmpty()))?this.getCNCode():null);
+            strategy.appendField(locator, this, "cnCode", buffer, theCNCode, ((this.cnCode!= null)&&(!this.cnCode.isEmpty())));
         }
         {
             List<String> theUNNumber;
-            theUNNumber = (((this.unNumber != null) && (!this.unNumber.isEmpty())) ? this.getUNNumber() : null);
-            strategy.appendField(locator, this, "unNumber", buffer, theUNNumber, ((this.unNumber != null) && (!this.unNumber.isEmpty())));
+            theUNNumber = (((this.unNumber!= null)&&(!this.unNumber.isEmpty()))?this.getUNNumber():null);
+            strategy.appendField(locator, this, "unNumber", buffer, theUNNumber, ((this.unNumber!= null)&&(!this.unNumber.isEmpty())));
         }
         return buffer;
     }

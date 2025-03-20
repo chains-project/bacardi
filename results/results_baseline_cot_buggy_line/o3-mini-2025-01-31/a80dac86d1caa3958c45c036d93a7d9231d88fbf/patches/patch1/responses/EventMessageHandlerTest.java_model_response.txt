@@ -1,36 +1,8 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error "cannot access org.slf4j.spi.LoggingEventAware" indicates that the updated dependency no longer provides this interface. This error occurs when the test code is attempting to cast and configure a Logback logger.
-   - The error is triggered at the lines:
-     logger.setLevel(Level.INFO);
-     logger.addAppender(mockLogAppender);
-   - The cause is an incompatibility between the versions of SLF4J and Logback. In the updated dependency, obtaining the logger directly via LoggerFactory and then calling setLevel/addAppender triggers a reference to the removed/moved LoggingEventAware.
-
-2. Client Code Analysis:
-   - In the setUp() method, the test retrieves the logger using:
-         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
-     and then sets its level and adds an appender.
-   - This is the problematic area since the retrieval using LoggerFactory directly implicitly depends on LoggingEventAware.
-
-3. Proposed Fix:
-   - Instead of directly casting the logger via LoggerFactory.getLogger(), we now obtain the logger from the LoggerContext. This avoids the dependency issue because LoggerContext (from logback-classic) provides the proper logger instance without causing a reference to the removed interface.
-   - Import the LoggerContext class (ch.qos.logback.classic.LoggerContext) and retrieve the logger from it:
-         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-         Logger logger = loggerContext.getLogger(EventMessageHandler.class);
-   - Leave the calls to setLevel(Level.INFO) and addAppender(mockLogAppender) intact since those are essential for the test’s log capture functionality.
-   - No function signatures are changed and only the internal logger retrieval is modified.
-
-4. Side Effects and Considerations:
-   - This change ensures that the test continues to capture log messages via the mock appender while overcoming the dependency update issue.
-   - All other functionality (including verification of log messages) remains as before.
-</code_analysis>
-
 ```java
 package uk.gov.pay.adminusers.queue.event;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -137,9 +109,7 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        Logger logger = loggerContext.getLogger(EventMessageHandler.class);
-        logger.setLevel(Level.INFO);
+        Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
         logger.addAppender(mockLogAppender);
     }
 

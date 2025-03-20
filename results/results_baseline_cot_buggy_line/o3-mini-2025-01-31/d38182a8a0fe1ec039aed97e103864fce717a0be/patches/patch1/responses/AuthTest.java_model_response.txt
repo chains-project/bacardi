@@ -1,14 +1,3 @@
-<code_analysis>
-1. The error message states that the inner class "User" is no longer found in the interface com.artipie.http.auth.Authentication. In addition, the lambda now must return an Optional of type AuthUser (as indicated by the error “Optional<com.artipie.http.auth.AuthUser>”), but the code is still trying to create an instance of Authentication.User.
-2. In the client code the issue is in the Bearer authentication method. The lambda passed to the BearerAuthScheme constructor maps a TestAuthentication.User into new Authentication.User(user.name()). With the dependency update, the Authentication interface no longer provides a “User” class. Instead, the updated dependency provides a new class (AuthUser) that should be used (for example, using AuthUser.Simple).
-3. To fix the issue:
-   - Change the lambda mapping from returning new Authentication.User(user.name()) to new AuthUser.Simple(user.name()).
-   - Import the new class (com.artipie.http.auth.AuthUser).
-4. This change makes the lambda return the correct type (Optional<AuthUser>) and removes the dependency on the old inner class.
-</code_analysis>
-
-Below is the complete, fixed Java class:
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
@@ -28,9 +17,8 @@ import com.artipie.http.Response;
 import com.artipie.http.Slice;
 import com.artipie.http.auth.Authentication;
 import com.artipie.http.auth.AuthUser;
-import com.artipie.http.auth.Permissions;
 import com.artipie.http.auth.BasicAuthScheme;
-import com.artipie.http.auth.BearerAuthScheme;
+import com.artipie.http.auth.Permissions;
 import com.artipie.http.headers.Authorization;
 import com.artipie.http.headers.Header;
 import com.artipie.http.hm.ResponseMatcher;
@@ -41,6 +29,7 @@ import com.artipie.http.rs.RsStatus;
 import io.reactivex.Flowable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 import org.hamcrest.MatcherAssert;
@@ -363,7 +352,7 @@ public final class AuthTest {
                     token -> CompletableFuture.completedFuture(
                         Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
                             .filter(user -> token.equals(token(user)))
-                            .map(user -> new AuthUser.Simple(user.name()))
+                            .map(user -> new AuthUser(user.name()))
                             .findFirst()
                     ),
                     ""
@@ -389,5 +378,3 @@ public final class AuthTest {
     }
 }
 ```
-
-In this patch, we replaced the obsolete reference "new Authentication.User(user.name())" with "new AuthUser.Simple(user.name())" (after importing com.artipie.http.auth.AuthUser). This change makes the lambda return an Optional<AuthUser> as expected by the updated dependency.

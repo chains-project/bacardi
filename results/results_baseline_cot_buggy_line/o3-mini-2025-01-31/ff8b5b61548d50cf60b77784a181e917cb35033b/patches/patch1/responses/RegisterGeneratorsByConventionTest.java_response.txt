@@ -60,12 +60,10 @@ public class RegisterGeneratorsByConventionTest {
         IllegalArgumentException ex =
             assertThrows(
                 IllegalArgumentException.class,
-                () -> repo.generatorFor(
-                    ParameterTypeContext.forClass(valueClass)));
+                () -> repo.generatorFor(ParameterTypeContext.forClass(valueClass)));
 
         assertThat(
             ex.getMessage(),
-            containsString(
-                "Cannot find generator for " + valueClass.getName()));
+            containsString("Cannot find generator for " + valueClass.getName()));
     }
 }

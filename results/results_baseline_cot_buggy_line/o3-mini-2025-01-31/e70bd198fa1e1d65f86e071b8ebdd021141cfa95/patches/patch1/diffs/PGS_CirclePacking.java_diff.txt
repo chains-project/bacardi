@@ -1,29 +1,35 @@
 26,27d25
 < import org.tinspin.index.PointDistanceFunction;
 < import org.tinspin.index.PointEntryDist;
-28a27,29
-> // Updated imports for tinspin dependency:
-> import org.tinspin.index.api.NearestNeighbourEntry;
-> import org.tinspin.index.api.DistanceFunction;
-44,45c45,46
-<  * The output of each method is a list of PVectors, each representing one
-<  * circle: (.x, .y) represent the center point and .z represents radius.
----
->  * The output of each method is a list of PVectors, each representing one circle: (.x, .y) represent
->  * the center point and .z represents radius.
-158c159
-<          *         the center point and .z represents radius.
----
->          *         the center point and .z represents the radius.
-226c227
+28a27,28
+> import processing.core.PShape;
+> import processing.core.PVector;
+34,35d33
+< import processing.core.PShape;
+< import processing.core.PVector;
+165d162
+<          * 
+226c223
 <                         final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
 ---
->                         final NearestNeighbourEntry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
-332c333
+>                         final CoverTree.Entry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+332c329
 <          * value to control the accuracy of the LEC algorithm.
 ---
 >          * value to control the LEC algorithm's accuracy.
-645c646
+645,646c642
 <         private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {
+<                 // from https://stackoverflow.com/a/21975136/
 ---
 >         private static final DistanceFunction circleDistanceMetric = (p1, p2) -> {
+650d645
+< 
+653c648
+<                 return euclideanDistance + absZDifference; // negative if inside
+---
+>                 return euclideanDistance + absZDifference;
+663a659,662
+>         // New interface to replace the removed dependency PointDistanceFunction.
+>         private static interface DistanceFunction {
+>                 double distance(double[] p1, double[] p2);
+>         }

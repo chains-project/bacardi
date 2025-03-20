@@ -19,6 +19,36 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
+/**
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SupplierID"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}AccountID"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SupplierTaxID"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CompanyName"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Contact" minOccurs="0"/&gt;
+ *         &lt;element name="BillingAddress" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SupplierAddressStructure"/&gt;
+ *         &lt;element name="ShipFromAddress" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SupplierAddressStructure" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Telephone" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Fax" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Email" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Website" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SelfBillingIndicator"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "supplierID",
@@ -35,7 +65,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "selfBillingIndicator"
 })
 @XmlRootElement(name = "Supplier")
-public class Supplier implements ToString2 {
+public class Supplier implements ToString2
+{
 
     @XmlElement(name = "SupplierID", required = true)
     protected String supplierID;
@@ -226,6 +257,7 @@ public class Supplier implements ToString2 {
      * Objects of the following type(s) are allowed in the list
      * {@link SupplierAddressStructure }
      * 
+     * 
      */
     public List<SupplierAddressStructure> getShipFromAddress() {
         if (shipFromAddress == null) {
@@ -348,7 +380,6 @@ public class Supplier implements ToString2 {
 
     @Override
     public String toString() {
-        // Updated the method call to use the static INSTANCE field instead of the removed getInstance() method.
         final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
@@ -427,4 +458,5 @@ public class Supplier implements ToString2 {
         }
         return buffer;
     }
+
 }

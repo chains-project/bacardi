@@ -227,12 +227,10 @@ public final class UpdateChecker {
      */
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
-            // Use the public accessor getStatus() instead of the private field "status"
             GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
             GHCompare.Status status = compare.getStatus();
             return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
         } catch (FileNotFoundException x) {
-            // For example, that branch does not exist in this repository.
             return false;
         }
     }

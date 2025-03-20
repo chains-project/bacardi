@@ -1,41 +1,4 @@
-<code_analysis>
-1. Error message review:
-   - The compiler cannot find the symbol TFramedTransport in package org.apache.thrift.transport. This error occurs at the import statement and when extending TFramedTransport in the inner class.
-   - This indicates that a recent dependency update in Apache Thrift removed or relocated the class TFramedTransport.
-
-2. Client code review:
-   - The client code imports and extends TFramedTransport. The inner class ByteOffsetTFramedTransport overrides write() and flush() methods, expecting TFramedTransport to exist.
-   - Since the update removed TFramedTransport, the approach is to use the new class provided by the updated dependency.
-
-3. Proposed fix:
-   - In the newer version of the Apache Thrift dependency, TFramedTransport has been renamed to FramedTransport (and is located in the same package).
-   - We update the import statement from org.apache.thrift.transport.TFramedTransport to org.apache.thrift.transport.FramedTransport.
-   - We then update the inner class to extend FramedTransport instead of the removed TFramedTransport.
-   - No other functions or APIs are changed, so the rest of the class remains the same.
-
-4. Considerations:
-   - We leave the @Override annotations intact because the new FramedTransport class still provides write(byte[], int, int) and flush() that we can override.
-   - All method signatures and functionalities are preserved.
-</code_analysis>
-
-Below is the complete, fixed Java class:
-
 ```java
-/**
- * Copyright 2019 Pinterest, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *    http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.pinterest.singer.utils;
 
 import com.pinterest.singer.thrift.LogFile;
@@ -44,10 +7,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.FramedTransport;
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
+import org.apache.thrift.transport.layered.TFramedTransport;
 
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
@@ -65,7 +28,7 @@ import java.nio.file.FileSystems;
 @SuppressWarnings("rawtypes")
 public final class SimpleThriftLogger<T extends TBase> implements Closeable {
 
-  private static final class ByteOffsetTFramedTransport extends FramedTransport {
+  private static final class ByteOffsetTFramedTransport extends TFramedTransport {
 
     private long byteOffset;
 
@@ -125,7 +88,7 @@ public final class SimpleThriftLogger<T extends TBase> implements Closeable {
 
     int i = 0;
     while (new File(String.format("%s.%d", fileName, ++i)).exists()) {
-      // intentionally left blank
+      ;
     }
 
     for (int j = i - 1; j >= 1; --j) {

@@ -37,7 +37,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import java.util.function.*;
 
@@ -104,9 +103,7 @@ public class NisAppConfig {
 	@Bean(initMethod = "migrate")
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
-		try (InputStream input = NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties")) {
-			prop.load(input);
-		}
+		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
 		return Flyway.configure()
 				.dataSource(this.dataSource())

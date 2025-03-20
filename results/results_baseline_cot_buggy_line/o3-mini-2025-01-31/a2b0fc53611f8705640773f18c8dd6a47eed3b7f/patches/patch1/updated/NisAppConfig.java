@@ -89,9 +89,8 @@ public class NisAppConfig {
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
 		// replace url parameters with values from configuration
-		final String jdbcUrl = prop.getProperty("jdbc.url")
-				.replace("${nem.folder}", nemFolder)
-				.replace("${nem.network}", configuration.getNetworkName());
+		final String jdbcUrl = prop.getProperty("jdbc.url").replace("${nem.folder}", nemFolder).replace("${nem.network}",
+				configuration.getNetworkName());
 
 		final DriverManagerDataSource dataSource = new DriverManagerDataSource();
 		dataSource.setDriverClassName(prop.getProperty("jdbc.driverClassName"));
@@ -105,13 +104,12 @@ public class NisAppConfig {
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
-
 		return Flyway.configure()
-			.dataSource(this.dataSource())
-			.classLoader(NisAppConfig.class.getClassLoader())
-			.locations(prop.getProperty("flyway.locations"))
-			.validateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate")))
-			.load();
+				.dataSource(this.dataSource())
+				.classLoader(NisAppConfig.class.getClassLoader())
+				.locations(prop.getProperty("flyway.locations"))
+				.validateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate")))
+				.load();
 	}
 
 	@Bean

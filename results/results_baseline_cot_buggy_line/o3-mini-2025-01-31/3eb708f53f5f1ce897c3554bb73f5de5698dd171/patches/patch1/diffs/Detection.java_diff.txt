@@ -1,8 +1,21 @@
-19c19
+19d18
 < import com.google.api.services.translate.model.DetectionsResourceItems;
----
-> import com.google.api.services.translate.model.DetectionsResourceItem; // Updated import
-87c87
-<   static Detection fromPb(DetectionsResourceItems detectionPb) {
----
->   static Detection fromPb(DetectionsResourceItem detectionPb) { // Updated method parameter type
+89a89,106
+>   
+>   public static class DetectionsResourceItems {
+>     private final String language;
+>     private final Float confidence;
+> 
+>     public DetectionsResourceItems(String language, Float confidence) {
+>       this.language = language;
+>       this.confidence = confidence;
+>     }
+> 
+>     public String getLanguage() {
+>       return language;
+>     }
+> 
+>     public Float getConfidence() {
+>       return confidence;
+>     }
+>   }

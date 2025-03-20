@@ -16,14 +16,20 @@
 <  */
 33a19
 > import java.io.ByteArrayOutputStream;
-36d21
-< import java.io.OutputStream;
-53,56d37
+38,40d23
+< /**
+<  * Utils to create logback appenders
+<  */
+48,50d30
+<   /**
+<    * Encoder for LogMessage objects.
+<    */
+53,56d32
 <     private TTransport framedTransport;
 <     private TProtocol protocol;
 <     private OutputStream os;
 < 
-58,65c39,41
+58,65c34,35
 <     public void init(OutputStream os) {
 <       this.os = os;
 <       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
@@ -33,30 +39,45 @@
 <           bufferCapacity);
 <       protocol = new TBinaryProtocol(framedTransport);
 ---
->     public byte[] headerBytes() {
->       // No header required.
->       return new byte[0];
-69c45,49
+>     public void init(OutputStream os) throws IOException {
+>       // No initialization needed for this stateless encoder.
+69c39,43
 <     public void doEncode(LogMessage logMessage) throws IOException {
 ---
 >     public byte[] encode(LogMessage logMessage) throws IOException {
 >       ByteArrayOutputStream baos = new ByteArrayOutputStream();
 >       final int bufferCapacity = 10;
->       TTransport framedTransport = new TFastFramedTransport(new TIOStreamTransport(baos), bufferCapacity);
->       TProtocol protocol = new TBinaryProtocol(framedTransport);
-70a51
->         // Serialize the log message using the Thrift binary protocol.
-74a56,57
->       } finally {
->         framedTransport.close();
-75a59
+>       TTransport transport = new TFastFramedTransport(new TIOStreamTransport(baos), bufferCapacity);
+>       TProtocol protocol = new TBinaryProtocol(transport);
+72c46
+<         framedTransport.flush();
+---
+>         transport.flush();
+75a50
 >       return baos.toByteArray();
-79,80c63,65
-<     public void close() throws IOException {
+80c55,65
 <       framedTransport.close();
 ---
+>       // No resources to clean up.
+>     }
+>     
+>     @Override
+>     public byte[] headerBytes() {
+>       return null;
+>     }
+> 
+>     @Override
 >     public byte[] footerBytes() {
->       // No footer required.
->       return new byte[0];
-91a77
->    * @param maxRetentionHours maximum number of hours to retain logs.
+>       return null;
+84,92d68
+<   /**
+<    * Create the basic thrift appender which logs to a file
+<    * and rolls the file when it exceeds a certain size.
+<    *
+<    * @param basePath base directory the files are under.
+<    * @param topic the topic name for the current appender.
+<    * @param rotateThresholdKBytes threshold in kilobytes to rotate after.
+<    * @param context the logback context.
+<    */
+115d90
+<     // Also impose a max size per file policy.

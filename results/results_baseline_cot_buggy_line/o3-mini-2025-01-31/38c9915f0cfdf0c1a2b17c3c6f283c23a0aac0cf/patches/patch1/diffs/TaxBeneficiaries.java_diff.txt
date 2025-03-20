@@ -1,21 +1,32 @@
-29d28
+1,23d0
+< /*
+<  * The MIT License (MIT)
+<  *
+<  * Copyright (c) 2018-2023 Yegor Bugayenko
+<  *
+<  * Permission is hereby granted, free of charge, to any person obtaining a copy
+<  * of this software and associated documentation files (the "Software"), to deal
+<  * in the Software without restriction, including without limitation the rights
+<  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+<  *
+<  * The above copyright notice and this permission notice shall be included
+<  * in all copies or substantial portions of the Software.
+<  *
+<  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+<  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+<  * SOFTWARE.
+<  */
+29c6
 < import org.cactoos.iterable.LengthOf;
-49c48
+---
+> import org.cactoos.scalar.LengthOf;
+49c26
 <                 n -> new LengthOf(n.score().suffixes()).intValue() >= 16,
 ---
->                 n -> lengthOf(n.score().suffixes()) >= 16,
-53a53,66
-> 
->     /**
->      * Returns the number of elements in the given iterable.
->      *
->      * @param iterable The iterable to measure.
->      * @return The number of elements.
->      */
->     private static int lengthOf(final Iterable<?> iterable) {
->         int count = 0;
->         for (Object ignored : iterable) {
->             count++;
->         }
->         return count;
->     }
+>                 n -> new LengthOf(n.score().suffixes()).value() >= 16,

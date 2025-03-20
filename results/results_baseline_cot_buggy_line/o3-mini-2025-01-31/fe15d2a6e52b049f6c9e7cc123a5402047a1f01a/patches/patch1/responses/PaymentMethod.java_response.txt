@@ -38,6 +38,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  * &lt;/complexType&gt;
  * </pre>
  * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "PaymentMethod", propOrder = {
@@ -45,7 +46,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "paymentAmount",
     "paymentDate"
 })
-public class PaymentMethod implements ToString2 {
+public class PaymentMethod implements ToString2
+{
 
     @XmlElement(name = "PaymentMechanism", required = true)
     protected String paymentMechanism;
@@ -129,7 +131,6 @@ public class PaymentMethod implements ToString2 {
 
     @Override
     public String toString() {
-        // Fixed the dependency issue by replacing getInstance() with the INSTANCE field.
         final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
@@ -149,17 +150,17 @@ public class PaymentMethod implements ToString2 {
         {
             String thePaymentMechanism;
             thePaymentMechanism = this.getPaymentMechanism();
-            strategy.appendField(locator, this, "paymentMechanism", buffer, thePaymentMechanism, (this.paymentMechanism!= null));
+            strategy.appendField(locator, this, "paymentMechanism", buffer, thePaymentMechanism, (this.paymentMechanism != null));
         }
         {
             BigDecimal thePaymentAmount;
             thePaymentAmount = this.getPaymentAmount();
-            strategy.appendField(locator, this, "paymentAmount", buffer, thePaymentAmount, (this.paymentAmount!= null));
+            strategy.appendField(locator, this, "paymentAmount", buffer, thePaymentAmount, (this.paymentAmount != null));
         }
         {
             XMLGregorianCalendar thePaymentDate;
             thePaymentDate = this.getPaymentDate();
-            strategy.appendField(locator, this, "paymentDate", buffer, thePaymentDate, (this.paymentDate!= null));
+            strategy.appendField(locator, this, "paymentDate", buffer, thePaymentDate, (this.paymentDate != null));
         }
         return buffer;
     }

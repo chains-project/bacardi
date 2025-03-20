@@ -14,12 +14,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 
 public class MutationReportListener implements MutationResultListener {
 
   private final ResultOutputStrategy outputStrategy;
+
   private final JsonParser jsonParser;
+
   private final CoverageDatabase coverage;
   private final PackageSummaryMap packageSummaryData = new PackageSummaryMap();
 
@@ -50,7 +53,8 @@ public class MutationReportListener implements MutationResultListener {
       final ResultOutputStrategy outputStrategy, final SourceLocator... locators) {
     this.coverage = coverage;
     this.outputStrategy = outputStrategy;
-    this.jsonParser = new JsonParser(new HashSet<>(Arrays.asList(locators)));
+    this.jsonParser = new JsonParser(
+        new HashSet<>(Arrays.asList(locators)));
   }
 
   private String loadMutationTestElementsJs() throws IOException {
@@ -71,7 +75,8 @@ public class MutationReportListener implements MutationResultListener {
   }
 
   private void createJs(final String json) {
-    final String content = "document.querySelector('mutation-test-report-app').report = " + json;
+    final String content =
+        "document.querySelector('mutation-test-report-app').report = " + json;
     final Writer writer = this.outputStrategy
         .createWriterForFile("html2" + File.separatorChar + "report.js");
     try {
@@ -94,14 +99,18 @@ public class MutationReportListener implements MutationResultListener {
     }
   }
 
-  private MutationTestSummaryData createSummaryData(final CoverageDatabase coverage, final ClassMutationResults data) {
+  private MutationTestSummaryData createSummaryData(
+      final CoverageDatabase coverage, final ClassMutationResults data) {
     return new MutationTestSummaryData(data.getFileName(),
         data.getMutations(), coverage.getClassInfo(data.getMutatedClass()));
   }
 
-  private void updatePackageSummary(final ClassMutationResults mutationMetaData) {
+  private void updatePackageSummary(
+      final ClassMutationResults mutationMetaData) {
     final String packageName = mutationMetaData.getPackageName();
-    this.packageSummaryData.update(packageName, createSummaryData(this.coverage, mutationMetaData));
+
+    this.packageSummaryData.update(packageName,
+        createSummaryData(this.coverage, mutationMetaData));
   }
 
   @Override

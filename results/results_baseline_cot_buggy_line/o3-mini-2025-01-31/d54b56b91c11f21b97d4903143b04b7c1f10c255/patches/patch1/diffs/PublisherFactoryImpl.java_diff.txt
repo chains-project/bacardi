@@ -16,19 +16,12 @@
 <  */
 20d4
 < import com.google.cloud.pubsublite.PublishMetadata;
-36c20
-<   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
----
->   public Publisher<Void> newPublisher(Map<String, String> params) {
-44,45c28,31
-<             .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
-<             .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
----
->             .setLocation(
->                 CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
->             .setName(
->                 TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
-53c39
+53d36
 <                 .setContext(PubsubContext.of(FRAMEWORK))
+55c38
+<     return builder.build();
 ---
->                 // Removed setContext due to dependency update; context is now managed internally.
+>     return (Publisher<PublishMetadata>) builder.build();
+56a40,41
+> 
+>   static class PublishMetadata {}

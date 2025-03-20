@@ -17,6 +17,7 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
+
 /**
  * <p>Java class for anonymous complex type.
  * 
@@ -37,6 +38,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
+ * 
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -184,7 +186,6 @@ public class Product implements ToString2
 
     @Override
     public String toString() {
-        // Updated to use the INSTANCE field instead of the removed getInstance() method.
         final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
@@ -204,27 +205,27 @@ public class Product implements ToString2
         {
             String theProductType;
             theProductType = this.getProductType();
-            strategy.appendField(locator, this, "productType", buffer, theProductType, (this.productType != null));
+            strategy.appendField(locator, this, "productType", buffer, theProductType, (this.productType!= null));
         }
         {
             String theProductCode;
             theProductCode = this.getProductCode();
-            strategy.appendField(locator, this, "productCode", buffer, theProductCode, (this.productCode != null));
+            strategy.appendField(locator, this, "productCode", buffer, theProductCode, (this.productCode!= null));
         }
         {
             String theProductGroup;
             theProductGroup = this.getProductGroup();
-            strategy.appendField(locator, this, "productGroup", buffer, theProductGroup, (this.productGroup != null));
+            strategy.appendField(locator, this, "productGroup", buffer, theProductGroup, (this.productGroup!= null));
         }
         {
             String theProductDescription;
             theProductDescription = this.getProductDescription();
-            strategy.appendField(locator, this, "productDescription", buffer, theProductDescription, (this.productDescription != null));
+            strategy.appendField(locator, this, "productDescription", buffer, theProductDescription, (this.productDescription!= null));
         }
         {
             String theProductNumberCode;
             theProductNumberCode = this.getProductNumberCode();
-            strategy.appendField(locator, this, "productNumberCode", buffer, theProductNumberCode, (this.productNumberCode != null));
+            strategy.appendField(locator, this, "productNumberCode", buffer, theProductNumberCode, (this.productNumberCode!= null));
         }
         return buffer;
     }

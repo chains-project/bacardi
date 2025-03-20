@@ -1,36 +1,4 @@
-17d16
-< import java.util.Collections;
-23d21
-< 
-25d22
-< 
-56,57c53
-<     this.jsonParser = new JsonParser(
-<         new HashSet<>(Arrays.asList(locators)));
----
->     this.jsonParser = new JsonParser(new HashSet<>(Arrays.asList(locators)));
-78,79c74
-<     final String content =
-<         "document.querySelector('mutation-test-report-app').report = " + json;
----
->     final String content = "document.querySelector('mutation-test-report-app').report = " + json;
-102,103c97
-<   private MutationTestSummaryData createSummaryData(
-<       final CoverageDatabase coverage, final ClassMutationResults data) {
----
->   private MutationTestSummaryData createSummaryData(final CoverageDatabase coverage, final ClassMutationResults data) {
-105c99
+105c105
 <         data.getMutations(), coverage.getClassInfo(Collections.singleton(data.getMutatedClass())));
 ---
 >         data.getMutations(), coverage.getClassInfo(data.getMutatedClass()));
-108,109c102
-<   private void updatePackageSummary(
-<       final ClassMutationResults mutationMetaData) {
----
->   private void updatePackageSummary(final ClassMutationResults mutationMetaData) {
-111,113c104
-< 
-<     this.packageSummaryData.update(packageName,
-<         createSummaryData(this.coverage, mutationMetaData));
----
->     this.packageSummaryData.update(packageName, createSummaryData(this.coverage, mutationMetaData));

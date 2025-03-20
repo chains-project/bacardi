@@ -22,7 +22,7 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.apache.thrift.transport.TTransport;
-import org.apache.thrift.transport.layered.TFramedTransport;
+import org.apache.thrift.transport.TTransportException;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -42,6 +42,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
    * @param <T> The thrift message type to be read.
    */
   public static interface TBaseFactory<T> {
+
     T get();
   }
 
@@ -49,6 +50,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
    * Factory that get a TProtocol instance.
    */
   public static interface TProtocolFactory {
+
     TProtocol get(TTransport transport);
   }
 
@@ -58,7 +60,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
   // The ByteOffsetInputStream to read from.
   private final ByteOffsetInputStream byteOffsetInputStream;
 
-  // The framedTransport.
+  // The framed transport.
   private final TFramedTransport framedTransport;
 
   // TProtocol implementation.
@@ -134,5 +136,98 @@ public class ThriftReader<T extends TBase> implements Closeable {
    */
   public void close() throws IOException {
     framedTransport.close();
+  }
+
+  // Custom implementation of TFramedTransport to replace the missing dependency.
+  public static class TFramedTransport extends TTransport {
+    private final TTransport underlyingTransport;
+    private final int maxFrameSize;
+    private byte[] frameBuffer = null;
+    private int frameReadPos = 0;
+    private int frameLength = 0;
+
+    public TFramedTransport(TTransport transport, int maxFrameSize) {
+      this.underlyingTransport = transport;
+      this.maxFrameSize = maxFrameSize;
+    }
+
+    @Override
+    public boolean isOpen() {
+      return underlyingTransport.isOpen();
+    }
+
+    @Override
+    public void open() throws TTransportException {
+      underlyingTransport.open();
+    }
+
+    @Override
+    public void close() {
+      underlyingTransport.close();
+    }
+
+    @Override
+    public int read(byte[] buf, int off, int len) throws TTransportException {
+      if (frameBuffer == null || frameReadPos >= frameLength) {
+        // Read frame length (4 bytes)
+        byte[] lengthBuffer = new byte[4];
+        int got = 0;
+        while (got < 4) {
+          int bytesRead = underlyingTransport.read(lengthBuffer, got, 4 - got);
+          if (bytesRead <= 0) {
+            throw new TTransportException(TTransportException.END_OF_FILE, "Unable to read frame size");
+          }
+          got += bytesRead;
+        }
+        int frameSize = ((lengthBuffer[0] & 0xff) << 24) |
+                        ((lengthBuffer[1] & 0xff) << 16) |
+                        ((lengthBuffer[2] & 0xff) << 8) |
+                        (lengthBuffer[3] & 0xff);
+        if (frameSize > maxFrameSize) {
+          throw new TTransportException(TTransportException.INVALID_FRAME_SIZE, "Frame size " + frameSize + " exceeds max " + maxFrameSize);
+        }
+        frameBuffer = new byte[frameSize];
+        frameReadPos = 0;
+        frameLength = frameSize;
+        int offset = 0;
+        while (offset < frameSize) {
+          int rd = underlyingTransport.read(frameBuffer, offset, frameSize - offset);
+          if (rd <= 0) {
+            throw new TTransportException(TTransportException.END_OF_FILE, "Unable to read frame data");
+          }
+          offset += rd;
+        }
+      }
+      int bytesRemaining = frameLength - frameReadPos;
+      int bytesToRead = Math.min(len, bytesRemaining);
+      System.arraycopy(frameBuffer, frameReadPos, buf, off, bytesToRead);
+      frameReadPos += bytesToRead;
+      return bytesToRead;
+    }
+
+    @Override
+    public void write(byte[] buf, int off, int len) throws TTransportException {
+      throw new UnsupportedOperationException("Write not supported in TFramedTransport");
+    }
+
+    @Override
+    public void flush() throws TTransportException {
+      // No-op for read-only transport
+    }
+
+    public int getBytesRemainingInBuffer() {
+      return (frameBuffer == null) ? 0 : (frameLength - frameReadPos);
+    }
+
+    public void consumeBuffer(int numBytes) {
+      if (frameBuffer != null && numBytes <= (frameLength - frameReadPos)) {
+        frameReadPos += numBytes;
+        if (frameReadPos >= frameLength) {
+          frameBuffer = null;
+          frameReadPos = 0;
+          frameLength = 0;
+        }
+      }
+    }
   }
 }

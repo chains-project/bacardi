@@ -1,12 +1,3 @@
-<code_analysis>
-1. The error indicates that the method getClassInfo is being called with a Set argument (Collections.singleton(data.getMutatedClass())) on the variable “coverage” of type CoverageDatabase, but the new version of the pitest dependency no longer provides a getClassInfo(Set) method. It likely now provides a method that takes a single ClassName instance.
-2. The problematic line is in the createSummaryData method where the call is:
-   coverage.getClassInfo(Collections.singleton(data.getMutatedClass()))
-   The error message states that there is no such method matching this signature.
-3. To fix this dependency breaking change while keeping the function signature the same, we modify the call by directly passing the mutated class (data.getMutatedClass()) rather than wrapping it in a collection.
-4. This change adheres to the constraints: no function signature is modified, and no unnecessary code is removed.
-</code_analysis>
-
 ```java
 package org.pitest.elements;
 
@@ -24,12 +15,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 
 public class MutationReportListener implements MutationResultListener {
 
   private final ResultOutputStrategy outputStrategy;
+
   private final JsonParser jsonParser;
+
   private final CoverageDatabase coverage;
   private final PackageSummaryMap packageSummaryData = new PackageSummaryMap();
 
@@ -60,7 +54,8 @@ public class MutationReportListener implements MutationResultListener {
       final ResultOutputStrategy outputStrategy, final SourceLocator... locators) {
     this.coverage = coverage;
     this.outputStrategy = outputStrategy;
-    this.jsonParser = new JsonParser(new HashSet<>(Arrays.asList(locators)));
+    this.jsonParser = new JsonParser(
+        new HashSet<>(Arrays.asList(locators)));
   }
 
   private String loadMutationTestElementsJs() throws IOException {
@@ -81,7 +76,8 @@ public class MutationReportListener implements MutationResultListener {
   }
 
   private void createJs(final String json) {
-    final String content = "document.querySelector('mutation-test-report-app').report = " + json;
+    final String content =
+        "document.querySelector('mutation-test-report-app').report = " + json;
     final Writer writer = this.outputStrategy
         .createWriterForFile("html2" + File.separatorChar + "report.js");
     try {
@@ -104,14 +100,18 @@ public class MutationReportListener implements MutationResultListener {
     }
   }
 
-  private MutationTestSummaryData createSummaryData(final CoverageDatabase coverage, final ClassMutationResults data) {
+  private MutationTestSummaryData createSummaryData(
+      final CoverageDatabase coverage, final ClassMutationResults data) {
     return new MutationTestSummaryData(data.getFileName(),
         data.getMutations(), coverage.getClassInfo(data.getMutatedClass()));
   }
 
-  private void updatePackageSummary(final ClassMutationResults mutationMetaData) {
+  private void updatePackageSummary(
+      final ClassMutationResults mutationMetaData) {
     final String packageName = mutationMetaData.getPackageName();
-    this.packageSummaryData.update(packageName, createSummaryData(this.coverage, mutationMetaData));
+
+    this.packageSummaryData.update(packageName,
+        createSummaryData(this.coverage, mutationMetaData));
   }
 
   @Override

@@ -32,6 +32,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  * &lt;/complexType&gt;
  * </pre>
  * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "AddressStructurePT", propOrder = {
@@ -43,7 +44,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "region",
     "country"
 })
-public class AddressStructurePT implements ToString2 {
+public class AddressStructurePT implements ToString2
+{
 
     @XmlElement(name = "BuildingNumber")
     protected String buildingNumber;
@@ -63,7 +65,10 @@ public class AddressStructurePT implements ToString2 {
     /**
      * Gets the value of the buildingNumber property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getBuildingNumber() {
         return buildingNumber;
@@ -72,7 +77,10 @@ public class AddressStructurePT implements ToString2 {
     /**
      * Sets the value of the buildingNumber property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setBuildingNumber(String value) {
         this.buildingNumber = value;
@@ -81,7 +89,10 @@ public class AddressStructurePT implements ToString2 {
     /**
      * Gets the value of the streetName property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getStreetName() {
         return streetName;
@@ -90,7 +101,10 @@ public class AddressStructurePT implements ToString2 {
     /**
      * Sets the value of the streetName property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setStreetName(String value) {
         this.streetName = value;
@@ -99,7 +113,10 @@ public class AddressStructurePT implements ToString2 {
     /**
      * Gets the value of the addressDetail property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getAddressDetail() {
         return addressDetail;
@@ -108,7 +125,10 @@ public class AddressStructurePT implements ToString2 {
     /**
      * Sets the value of the addressDetail property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setAddressDetail(String value) {
         this.addressDetail = value;
@@ -117,7 +137,10 @@ public class AddressStructurePT implements ToString2 {
     /**
      * Gets the value of the city property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getCity() {
         return city;
@@ -126,7 +149,10 @@ public class AddressStructurePT implements ToString2 {
     /**
      * Sets the value of the city property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setCity(String value) {
         this.city = value;
@@ -135,7 +161,10 @@ public class AddressStructurePT implements ToString2 {
     /**
      * Gets the value of the postalCode property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getPostalCode() {
         return postalCode;
@@ -144,7 +173,10 @@ public class AddressStructurePT implements ToString2 {
     /**
      * Sets the value of the postalCode property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setPostalCode(String value) {
         this.postalCode = value;
@@ -153,7 +185,10 @@ public class AddressStructurePT implements ToString2 {
     /**
      * Gets the value of the region property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getRegion() {
         return region;
@@ -162,7 +197,10 @@ public class AddressStructurePT implements ToString2 {
     /**
      * Sets the value of the region property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setRegion(String value) {
         this.region = value;
@@ -171,7 +209,10 @@ public class AddressStructurePT implements ToString2 {
     /**
      * Gets the value of the country property.
      * 
-     * @return possible object is {@link Object }
+     * @return
+     *     possible object is
+     *     {@link Object }
+     *     
      */
     public Object getCountry() {
         return country;
@@ -180,7 +221,10 @@ public class AddressStructurePT implements ToString2 {
     /**
      * Sets the value of the country property.
      * 
-     * @param value allowed object is {@link Object }
+     * @param value
+     *     allowed object is
+     *     {@link Object }
+     *     
      */
     public void setCountry(Object value) {
         this.country = value;
@@ -188,8 +232,7 @@ public class AddressStructurePT implements ToString2 {
 
     @Override
     public String toString() {
-        // Replace getInstance() with a new instance of JAXBToStringStrategy
-        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
+        final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

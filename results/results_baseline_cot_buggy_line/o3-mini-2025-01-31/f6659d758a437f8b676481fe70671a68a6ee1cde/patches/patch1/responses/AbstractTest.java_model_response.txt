@@ -1,12 +1,3 @@
-<code_analysis>
-1. The error message indicates that the class TrustedTagInspector cannot be found in the package org.yaml.snakeyaml.inspector. In the client code, both the import statement and the call to loadingConfig.setTagInspector(new TrustedTagInspector()) are causing compilation failures.
-2. Reviewing the code shows that these lines are initializing a LoaderOptions instance to trust YAML tags explicitly. However, due to the dependency update (presumably to a newer version of SnakeYAML), the TrustedTagInspector class has been removed or relocated.
-3. To fix this issue without altering the intended functionality (and following the constraints of not changing function signatures and removing code only when it directly causes errors), the patch will remove the import of TrustedTagInspector and its usage in the code.
-4. Removing this call is safe because the updated dependency likely uses a default behavior that is sufficiently secure/trustful for the client’s purposes.
-</code_analysis>
-
-Below is the complete, fixed Java class:
-
 ```java
 /*
  * Copyright (C) 2017 Premium Minds.
@@ -35,11 +26,7 @@ import com.premiumminds.billy.core.CoreDependencyModule;
 import com.premiumminds.billy.core.test.fixtures.JavaLocalDateConstruct;
 import com.premiumminds.billy.core.test.fixtures.JavaZoneIdConstruct;
 import com.premiumminds.billy.core.test.fixtures.MockBaseEntity;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import org.junit.jupiter.api.BeforeAll;
 import org.mockito.Mockito;
 import org.yaml.snakeyaml.DumperOptions;
@@ -47,8 +34,14 @@ import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.inspector.TagInspector;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.time.ZoneId;
 
 public class AbstractTest {
 
@@ -71,8 +64,12 @@ public class AbstractTest {
 
     public <T extends MockBaseEntity> T createMockEntity(Class<T> clazz, String path) {
         final LoaderOptions loadingConfig = new LoaderOptions();
-        // Removed call to setTagInspector since TrustedTagInspector no longer exists in the updated dependency version.
-        // loadingConfig.setTagInspector(new TrustedTagInspector());
+        loadingConfig.setTagInspector(new TagInspector() {
+            @Override
+            public boolean isTrusted(Tag tag) {
+                return true;
+            }
+        });
 
         final Representer representer = new Representer(new DumperOptions());
         final Tag zoneIdTag = new Tag("!ZoneId");

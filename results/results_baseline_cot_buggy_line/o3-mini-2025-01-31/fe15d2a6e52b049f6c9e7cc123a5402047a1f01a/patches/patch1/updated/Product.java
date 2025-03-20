@@ -17,7 +17,6 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
-
 /**
  * <p>Java class for anonymous complex type.
  * 
@@ -50,7 +49,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "productNumberCode"
 })
 @XmlRootElement(name = "Product")
-public class Product implements ToString2 {
+public class Product implements ToString2
+{
 
     @XmlElement(name = "ProductType", required = true)
     protected String productType;
@@ -204,27 +204,27 @@ public class Product implements ToString2 {
         {
             String theProductType;
             theProductType = this.getProductType();
-            strategy.appendField(locator, this, "productType", buffer, theProductType, (this.productType != null));
+            strategy.appendField(locator, this, "productType", buffer, theProductType, (this.productType!= null));
         }
         {
             String theProductCode;
             theProductCode = this.getProductCode();
-            strategy.appendField(locator, this, "productCode", buffer, theProductCode, (this.productCode != null));
+            strategy.appendField(locator, this, "productCode", buffer, theProductCode, (this.productCode!= null));
         }
         {
             String theProductGroup;
             theProductGroup = this.getProductGroup();
-            strategy.appendField(locator, this, "productGroup", buffer, theProductGroup, (this.productGroup != null));
+            strategy.appendField(locator, this, "productGroup", buffer, theProductGroup, (this.productGroup!= null));
         }
         {
             String theProductDescription;
             theProductDescription = this.getProductDescription();
-            strategy.appendField(locator, this, "productDescription", buffer, theProductDescription, (this.productDescription != null));
+            strategy.appendField(locator, this, "productDescription", buffer, theProductDescription, (this.productDescription!= null));
         }
         {
             String theProductNumberCode;
             theProductNumberCode = this.getProductNumberCode();
-            strategy.appendField(locator, this, "productNumberCode", buffer, theProductNumberCode, (this.productNumberCode != null));
+            strategy.appendField(locator, this, "productNumberCode", buffer, theProductNumberCode, (this.productNumberCode!= null));
         }
         return buffer;
     }

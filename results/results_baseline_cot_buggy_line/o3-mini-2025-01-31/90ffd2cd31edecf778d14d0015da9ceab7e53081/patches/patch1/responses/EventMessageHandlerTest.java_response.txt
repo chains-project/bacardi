@@ -109,8 +109,6 @@ class EventMessageHandlerTest {
         );
 
         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
-        // Removed setting the log level to avoid dependency issues with org.slf4j.spi.LoggingEventAware.
-        // logger.setLevel(Level.INFO);
         logger.addAppender(mockLogAppender);
     }
 

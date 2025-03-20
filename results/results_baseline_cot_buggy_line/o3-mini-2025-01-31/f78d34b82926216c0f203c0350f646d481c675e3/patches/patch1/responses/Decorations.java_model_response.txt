@@ -1,24 +1,3 @@
-<code_analysis>
-1. Error message analysis:
-   - The error indicates that the package "develop.p2p.lib" does not exist and that the class WaveCreator cannot be found. This error occurs at the import statement and when constructing a WaveCreator instance in the magic() method.
-   - The dependency update likely removed or relocated the WaveCreator class, causing the client code using the old package and constructor to fail.
-
-2. Client code review:
-   - The problematic lines are the import statement "import develop.p2p.lib.WaveCreator;" and the usage "new WaveCreator(0.8, 1.8, 0.1);".
-   - The only place where WaveCreator is used is in the magic() method for generating a wave offset for particle effects.
-   - No function signatures are to be changed, so the fix must adapt to the missing dependency without altering method interfaces.
-
-3. Potential fixes:
-   - Remove the import for WaveCreator from "develop.p2p.lib" since that dependency is no longer present.
-   - Provide a replacement implementation (a stub or minimal version) of WaveCreator within the client code. This local implementation will define the same constructor and methods (get() and getStatic()) so that the client code compiles and the effects are roughly simulated.
-   - The new WaveCreator is implemented as a static inner class of Decorations to keep the overall design intact.
-
-4. Necessary modifications:
-   - Remove the problematic import.
-   - Add a static inner class WaveCreator that accepts the same constructor parameters (0.8, 1.8, 0.1) and implements methods get(double, boolean) and getStatic(). For example, get() can update an internal time (either by a fixed step if not updated explicitly) and return a computed value, while getStatic() returns a constant value.
-   - All other client code remains unchanged.
-</code_analysis>
-
 ```java
 package ml.peya.plugins.Objects;
 
@@ -105,7 +84,7 @@ public class Decorations
             0,
             0,
             0.001
-        ); //XXX: 誰だよこんな引数多く設計したやつ
+        );
     }
 
     /**
@@ -231,11 +210,11 @@ public class Decorations
                 Location center = player.getLocation();
 
                 line(center.clone().add(3, 0.7, 0), center.clone().add(-1.5, 0.7, 2.3));
-                line(center.clone().add(-1.5, 0.7, 2.3), center.clone().add(-1.5, 0.7, -2.3)); //三角
+                line(center.clone().add(-1.5, 0.7, 2.3), center.clone().add(-1.5, 0.7, -2.3));
                 line(center.clone().add(3, 0.7, 0), center.clone().add(-1.5, 0.7, -2.3));
 
                 line(center.clone().add(-3, 0.7, 0), center.clone().add(1.5, 0.7, -2.3));
-                line(center.clone().add(1.5, 0.7, -2.3), center.clone().add(1.5, 0.7, 2.3)); //三角(反転)
+                line(center.clone().add(1.5, 0.7, -2.3), center.clone().add(1.5, 0.7, 2.3));
                 line(center.clone().add(-3, 0.7, 0), center.clone().add(1.5, 0.7, 2.3));
             }
         };
@@ -326,33 +305,24 @@ public class Decorations
             laser(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20));
     }
     
-    /**
-     * Dummy WaveCreator class to replace the missing dependency.
-     */
-    public static class WaveCreator {
-        private final double base;
+    private static class WaveCreator {
+        private double phase;
+        private final double staticValue;
         private final double amplitude;
-        private final double step;
-        private double time;
         
-        public WaveCreator(double base, double amplitude, double step) {
-            this.base = base;
+        public WaveCreator(double initial, double staticValue, double amplitude) {
+            this.phase = initial;
+            this.staticValue = staticValue;
             this.amplitude = amplitude;
-            this.step = step;
-            this.time = 0.0;
         }
         
-        public double get(double delta, boolean update) {
-            if (update) {
-                time += delta;
-            } else {
-                time += step;
-            }
-            return base + Math.sin(time) * amplitude;
+        public double get(double dt, boolean flag) {
+            phase += dt;
+            return amplitude * Math.sin(phase);
         }
         
         public double getStatic() {
-            return amplitude;
+            return staticValue;
         }
     }
 }

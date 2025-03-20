@@ -109,7 +109,6 @@ class EventMessageHandlerTest {
         );
 
         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
-        // Removed the setLevel call which was causing the dependency issue.
         logger.addAppender(mockLogAppender);
     }
 

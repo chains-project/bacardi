@@ -128,7 +128,7 @@ public class WithholdingTax implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
+        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -147,17 +147,17 @@ public class WithholdingTax implements ToString2
         {
             String theWithholdingTaxType;
             theWithholdingTaxType = this.getWithholdingTaxType();
-            strategy.appendField(locator, this, "withholdingTaxType", buffer, theWithholdingTaxType, (this.withholdingTaxType != null));
+            strategy.appendField(locator, this, "withholdingTaxType", buffer, theWithholdingTaxType, (this.withholdingTaxType!= null));
         }
         {
             String theWithholdingTaxDescription;
             theWithholdingTaxDescription = this.getWithholdingTaxDescription();
-            strategy.appendField(locator, this, "withholdingTaxDescription", buffer, theWithholdingTaxDescription, (this.withholdingTaxDescription != null));
+            strategy.appendField(locator, this, "withholdingTaxDescription", buffer, theWithholdingTaxDescription, (this.withholdingTaxDescription!= null));
         }
         {
             BigDecimal theWithholdingTaxAmount;
             theWithholdingTaxAmount = this.getWithholdingTaxAmount();
-            strategy.appendField(locator, this, "withholdingTaxAmount", buffer, theWithholdingTaxAmount, (this.withholdingTaxAmount != null));
+            strategy.appendField(locator, this, "withholdingTaxAmount", buffer, theWithholdingTaxAmount, (this.withholdingTaxAmount!= null));
         }
         return buffer;
     }

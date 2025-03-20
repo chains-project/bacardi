@@ -10,13 +10,17 @@ import com.google.inject.Inject;
 import java.util.UUID;
 
 import org.spongepowered.api.command.Command;
-import org.spongepowered.api.command.CommandExecutor;
 import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandExecutor;
 import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.command.parameter.CommandContext;
-import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.command.parameter.GenericArguments;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
+
+import static org.spongepowered.api.command.parameter.GenericArguments.flags;
+import static org.spongepowered.api.command.parameter.GenericArguments.string;
+import static org.spongepowered.api.text.Text.of;
 
 public class SetCommand implements CommandExecutor, ChangeSkinCommand {
 
@@ -29,27 +33,22 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
         this.core = core;
     }
 
-    // Updated the execute method to match the new Sponge 8 command API.
-    // Previously it accepted (CommandSource, CommandContext); now the single CommandContext
-    // gives access to the source via its cause.
     @Override
-    public CommandResult execute(CommandContext context) {
-        CommandSource src = context.cause().first(CommandSource.class).orElse(null);
+    public CommandResult execute(CommandSource src, CommandContext args) {
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
             return CommandResult.empty();
         }
 
-        Player receiver = (Player) src;
-        UUID uniqueId = receiver.getUniqueId();
+        UUID uniqueId = ((Player) src).getUniqueId();
         if (core.getCooldownService().isTracked(uniqueId)) {
             plugin.sendMessage(src, "cooldown");
             return CommandResult.empty();
         }
 
-        String targetSkin = context.requireOne("skin");
-        // The new parameter for the "keep" flag is a Boolean parameter (defaulting to false)
-        boolean keepSkin = context.one("keep").orElse(false);
+        Player receiver = (Player) src;
+        String targetSkin = args.<String>getOne("skin").get();
+        boolean keepSkin = args.hasAny("keep");
 
         if ("reset".equals(targetSkin)) {
             targetSkin = receiver.getUniqueId().toString();
@@ -73,16 +72,57 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
         return CommandResult.success();
     }
 
-    // Updated buildSpec() to use the new Command builder and Parameter API.
-    // The old CommandSpec class has been replaced by Command in the new dependency version.
-    @Override
-    public Command buildSpec() {
-        return Command.builder()
+    public CommandSpec buildSpec() {
+        return CommandSpec.builder()
                 .executor(this)
-                .parameters(
-                        Parameter.string().key("skin").build(),
-                        Parameter.bool().key("keep").setDefault(false).build())
+                .arguments(
+                        string(of("skin")),
+                        flags().flag("keep").buildWith(GenericArguments.none()))
                 .permission(PomData.ARTIFACT_ID + ".command.setskin.base")
                 .build();
+    }
+
+    public static class CommandSpec {
+
+        private final Command command;
+
+        public CommandSpec(Command command) {
+            this.command = command;
+        }
+
+        public Command getCommand() {
+            return command;
+        }
+
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        public static class Builder {
+            private final Command.Builder delegate;
+
+            public Builder() {
+                this.delegate = Command.builder();
+            }
+
+            public Builder executor(CommandExecutor executor) {
+                delegate.executor(executor);
+                return this;
+            }
+
+            public Builder arguments(Object... args) {
+                delegate.arguments(args);
+                return this;
+            }
+
+            public Builder permission(String permission) {
+                delegate.permission(permission);
+                return this;
+            }
+
+            public CommandSpec build() {
+                return new CommandSpec(delegate.build());
+            }
+        }
     }
 }

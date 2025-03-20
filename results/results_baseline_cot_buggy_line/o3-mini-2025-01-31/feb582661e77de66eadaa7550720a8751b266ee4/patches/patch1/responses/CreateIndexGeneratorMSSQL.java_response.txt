@@ -8,6 +8,7 @@ import liquibase.sql.Sql;
 import liquibase.sql.UnparsedSql;
 import liquibase.sqlgenerator.SqlGeneratorChain;
 import liquibase.sqlgenerator.core.CreateIndexGenerator;
+import liquibase.statement.core.CreateIndexStatement;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -23,6 +24,7 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
     if (statement instanceof CreateIndexStatementMSSQL) {
       return generateMSSQLSql((CreateIndexStatementMSSQL) statement, database, sqlGeneratorChain);
     }
+
     return super.generateSql(statement, database, sqlGeneratorChain);
   }
 
@@ -36,11 +38,11 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
     }
     
     if (statement.isClustered() != null) {
-      if (statement.isClustered()) {
-        builder.append("CLUSTERED ");
-      } else {
-        builder.append("NONCLUSTERED ");
-      }
+        if (statement.isClustered()) {
+            builder.append("CLUSTERED ");
+        } else {
+            builder.append("NONCLUSTERED ");
+        }
     }
     
     builder.append("INDEX ");
@@ -56,13 +58,13 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
       AddColumnConfig column = iterator.next();
       builder.append(database.escapeColumnName(statement.getTableCatalogName(), statement.getTableSchemaName(), statement.getTableName(), column.getName()));
       if (column.getDescending() != null && column.getDescending()) {
-        builder.append(" DESC");
+          builder.append(" DESC");
       }
       if (iterator.hasNext()) {
         builder.append(", ");
       }
     }
-    if (statement.getIncludedColumns() != null && ! statement.getIncludedColumns().isEmpty()) {
+    if (statement.getIncludedColumns() != null && !statement.getIncludedColumns().isEmpty()) {
       builder.append(") INCLUDE (");
       builder.append(database.escapeColumnNameList(statement.getIncludedColumns()));
     }
@@ -70,16 +72,26 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
     if (statement.getFillFactor() != null) {
       builder.append(" WITH (FILLFACTOR = ").append(statement.getFillFactor()).append(")");
     }
-    // Updated check for tablespace; replacing the removed StringUtils.trimToNull() with an inline check.
-    if (statement.getTablespace() != null && !statement.getTablespace().trim().isEmpty()) {
+    // This block simplified, since we know we have MSSQLDatabase
+    if (StringUtils.trimToNull(statement.getTablespace()) != null) {
       builder.append(" ON ").append(statement.getTablespace());
     }
 
-    return new Sql[] { new UnparsedSql(builder.toString(), getAffectedIndex(statement)) };
+    return new Sql[]{new UnparsedSql(builder.toString(), getAffectedIndex(statement))};
   }
 
   @Override
   public boolean supports(CreateIndexStatement statement, Database database) {
     return database instanceof MSSQLDatabase;
+  }
+
+  private static class StringUtils {
+    public static String trimToNull(String input) {
+      if (input == null) {
+        return null;
+      }
+      String trimmed = input.trim();
+      return trimmed.isEmpty() ? null : trimmed;
+    }
   }
 }

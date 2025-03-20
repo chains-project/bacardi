@@ -108,7 +108,7 @@ public class NisAppConfig {
 				.dataSource(this.dataSource())
 				.classLoader(NisAppConfig.class.getClassLoader())
 				.locations(prop.getProperty("flyway.locations"))
-				.validateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate")))
+				.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
 				.load();
 	}
 

@@ -1,43 +1,85 @@
 9d8
 < 
-11a11
+11c10,12
+< 
+---
+> import java.util.Map;
+> import java.util.Optional;
 > import org.spongepowered.api.command.Command;
-13,16c13,16
+13,16c14,16
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
-> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.CommandContext;
 > import org.spongepowered.api.command.source.CommandSource;
-> import org.spongepowered.api.command.parameter.CommandContext;
-> import org.spongepowered.api.command.parameter.Parameter;
-19,21d18
+> import org.spongepowered.api.command.parameter.CommandParameters;
+17a18,19
+> import net.kyori.adventure.text.Component;
+> import static net.kyori.adventure.text.Component.text;
+19,22c21
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 < import static org.spongepowered.api.text.Text.of;
 < 
-34,35c31,34
-<     public CommandResult execute(CommandSource src, CommandContext args) {
-<         String url = args.<String>getOne("url").get();
+< public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
 ---
->     public CommandResult execute(CommandContext args) {
->         // In the new API the command source is obtained from the cause.
->         CommandSource src = args.cause().root();
->         String url = args.requireOne("url");
-48d46
-< 
-53,54c51,57
-<     public CommandSpec buildSpec() {
+> public class UploadCommand implements ChangeSkinCommand {
+33d31
+<     @Override
+54,56c52,58
 <         return CommandSpec.builder()
----
->     public Command buildSpec() {
->         // Create a parameter for the URL using the new Parameter API.
->         Parameter.Value<String> urlParam = Parameter.string()
->                 .key("url")
->                 .build();
-> 
->         return Command.builder()
-56c59
+<                 .executor(this)
 <                 .arguments(string(of("url")))
 ---
->                 .addParameter(urlParam)
+>         Command command = Command.builder()
+>                 .executor(ctx -> {
+>                     CommandSource src = ctx.cause().first(CommandSource.class)
+>                             .orElseThrow(() -> new IllegalStateException("No command source"));
+>                     return execute(src, ctx);
+>                 })
+>                 .addParameter(CommandParameters.string(text("url")))
+58a61,103
+>         return new CommandSpecImpl(command);
+>     }
+> 
+>     public static interface CommandSpec extends Command {
+>     }
+> 
+>     private static class CommandSpecImpl implements CommandSpec {
+> 
+>         private final Command inner;
+> 
+>         CommandSpecImpl(Command inner) {
+>             this.inner = inner;
+>         }
+> 
+>         @Override
+>         public CommandResult process(CommandContext context) {
+>             return inner.process(context);
+>         }
+> 
+>         @Override
+>         public List<String> getUsage(CommandSource source) {
+>             return inner.getUsage(source);
+>         }
+> 
+>         @Override
+>         public Optional<Component> getShortDescription(CommandSource source) {
+>             return inner.getShortDescription(source);
+>         }
+> 
+>         @Override
+>         public Optional<Component> getHelp(CommandSource source) {
+>             return inner.getHelp(source);
+>         }
+> 
+>         @Override
+>         public Map<List<String>, Command> getChildren() {
+>             return inner.getChildren();
+>         }
+> 
+>         @Override
+>         public boolean testPermission(CommandSource source) {
+>             return inner.testPermission(source);
+>         }

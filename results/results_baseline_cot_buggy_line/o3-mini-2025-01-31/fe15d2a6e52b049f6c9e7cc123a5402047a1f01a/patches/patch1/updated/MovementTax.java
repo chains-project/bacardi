@@ -66,7 +66,6 @@ public class MovementTax implements ToString2
      * @return
      *     possible object is
      *     {@link SAFTPTMovementTaxType }
-     *     
      */
     public SAFTPTMovementTaxType getTaxType() {
         return taxType;
@@ -78,7 +77,6 @@ public class MovementTax implements ToString2
      * @param value
      *     allowed object is
      *     {@link SAFTPTMovementTaxType }
-     *     
      */
     public void setTaxType(SAFTPTMovementTaxType value) {
         this.taxType = value;
@@ -90,7 +88,6 @@ public class MovementTax implements ToString2
      * @return
      *     possible object is
      *     {@link String }
-     *     
      */
     public String getTaxCountryRegion() {
         return taxCountryRegion;
@@ -102,7 +99,6 @@ public class MovementTax implements ToString2
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
      */
     public void setTaxCountryRegion(String value) {
         this.taxCountryRegion = value;
@@ -114,7 +110,6 @@ public class MovementTax implements ToString2
      * @return
      *     possible object is
      *     {@link String }
-     *     
      */
     public String getTaxCode() {
         return taxCode;
@@ -126,7 +121,6 @@ public class MovementTax implements ToString2
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
      */
     public void setTaxCode(String value) {
         this.taxCode = value;
@@ -138,7 +132,6 @@ public class MovementTax implements ToString2
      * @return
      *     possible object is
      *     {@link BigDecimal }
-     *     
      */
     public BigDecimal getTaxPercentage() {
         return taxPercentage;
@@ -150,7 +143,6 @@ public class MovementTax implements ToString2
      * @param value
      *     allowed object is
      *     {@link BigDecimal }
-     *     
      */
     public void setTaxPercentage(BigDecimal value) {
         this.taxPercentage = value;

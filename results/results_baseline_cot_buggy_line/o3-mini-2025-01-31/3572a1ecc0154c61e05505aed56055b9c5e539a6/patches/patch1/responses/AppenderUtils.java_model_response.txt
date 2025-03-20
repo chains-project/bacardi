@@ -1,20 +1,3 @@
-<code_analysis>
-1. The error message indicates that the class TFastFramedTransport cannot be found. Specifically:
-   - In the import statement: "import org.apache.thrift.transport.TFastFramedTransport;"
-   - At the line "framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);"
-   This suggests that the updated Thrift dependency no longer provides TFastFramedTransport.
-   
-2. In the client code, TFastFramedTransport is used to wrap a TIOStreamTransport with a buffer capacity. With the dependency update, Apache Thrift now provides TFramedTransport (which supports a similar constructor signature) instead of TFastFramedTransport.
-
-3. The patch involves:
-   - Changing the import from TFastFramedTransport to TFramedTransport.
-   - Replacing the instantiation of TFastFramedTransport with TFramedTransport (passing the same arguments) in the init method of LogMessageEncoder.
-   
-4. These changes ensure that the client compiles with the updated Thrift dependency while keeping the function signatures and overall behavior intact.
-</code_analysis>
-
-Below is the complete, fixed Java class:
-
 ```java
 /**
  * Copyright 2019 Pinterest, Inc.
@@ -75,9 +58,8 @@ public class AppenderUtils {
     @Override
     public void init(OutputStream os) {
       this.os = os;
-      // Use the TFramedTransport (replacing the removed TFastFramedTransport) to be compatible with singer_thrift log.
-      final int bufferCapacity = 10;
-      framedTransport = new TFramedTransport(new TIOStreamTransport(os), bufferCapacity);
+      // Use TFramedTransport as a replacement for the removed TFastFramedTransport.
+      framedTransport = new TFramedTransport(new TIOStreamTransport(os));
       protocol = new TBinaryProtocol(framedTransport);
     }
 
@@ -85,7 +67,7 @@ public class AppenderUtils {
     public void doEncode(LogMessage logMessage) throws IOException {
       try {
         logMessage.write(protocol);
-        framedTransport.flush();
+        os.flush();
       } catch (TException e) {
         throw new IOException(e);
       }
@@ -105,7 +87,6 @@ public class AppenderUtils {
    * @param topic the topic name for the current appender.
    * @param rotateThresholdKBytes threshold in kilobytes to rotate after.
    * @param context the logback context.
-   * @param maxRetentionHours maximum history to retain.
    */
   public static Appender<LogMessage> createFileRollingThriftAppender(
       File basePath,
@@ -113,7 +94,7 @@ public class AppenderUtils {
       long rotateThresholdKBytes,
       Context context,
       int maxRetentionHours) {
-    RollingFileAppender<LogMessage> appender = new RollingFileAppender<>();
+    RollingFileAppender<LogMessage> appender = new RollingFileAppender<LogMessage>();
     appender.setContext(context);
     appender.setAppend(true);
     appender.setPrudent(false);

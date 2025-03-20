@@ -29,10 +29,16 @@ import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.index.strtree.STRtree;
 import org.locationtech.jts.noding.SegmentString;
 import org.locationtech.jts.operation.overlayng.OverlayNG;
-// Removed as the updated dependency no longer provides PointIndex.
-// import org.tinspin.index.PointIndex;
+import org.tinfour.common.IConstraint;
+import org.tinfour.common.IIncrementalTin;
+import org.tinfour.common.IQuadEdge;
+import org.tinfour.common.SimpleTriangle;
+import org.tinfour.common.Vertex;
+import org.tinfour.utils.TriangleCollector;
 import org.tinspin.index.kdtree.KDTree;
-import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
+import processing.core.PConstants;
+import processing.core.PShape;
+import processing.core.PVector;
 import micycle.pgs.PGS_Conversion.PShapeData;
 import micycle.pgs.color.Colors;
 import micycle.pgs.commons.AreaMerge;
@@ -41,9 +47,6 @@ import micycle.pgs.commons.PEdge;
 import micycle.pgs.commons.PMesh;
 import micycle.pgs.commons.RLFColoring;
 import micycle.pgs.commons.SpiralQuadrangulation;
-import processing.core.PConstants;
-import processing.core.PShape;
-import processing.core.PVector;
 
 /**
  * Mesh generation (excluding triangulation) and processing.
@@ -123,7 +126,8 @@ public class PGS_Meshing {
 	 * of E.
 	 * <p>
 	 * In practice this is a way to tessellate a shape into polygons (with the
-	 * resulting tessellation being reminiscent of shattering the shape as if it were glass).
+	 * resulting tessellation being reminiscent of shattering the shape as if it
+	 * were glass).
 	 * <p>
 	 * Note that this method processes a Delaunay triangulation. Process a shape
 	 * using
@@ -155,18 +159,14 @@ public class PGS_Meshing {
 			}
 		});
 
-		// Changed type from PointIndex to KDTree as PointIndex was removed in the dependency update.
-		final KDTree<Vertex> tree = KDTree.create(2, (p1, p2) -> {
-			final double deltaX = p1[0] - p2[0];
-			final double deltaY = p1[1] - p2[1];
-			return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-		});
+		final KDTree<Vertex> tree = new KDTree<>(2);
 		vertices.forEach(v -> tree.insert(new double[] { v.x, v.y }, v));
 
 		final HashSet<IQuadEdge> nonGabrielEdges = new HashSet<>(); // base references to edges that should be removed
 		edges.forEach(edge -> {
 			final double[] midpoint = midpoint(edge);
-			final Vertex near = tree.query1NN(midpoint).value();
+			List<KDTree.Entry<Vertex>> nearest = tree.queryKNN(midpoint, 1);
+			final Vertex near = nearest.get(0).getValue();
 			if (near != edge.getA() && near != edge.getB()) {
 				if (!preservePerimeter || (preservePerimeter && !edge.isConstrainedRegionBorder())) {
 					nonGabrielEdges.add(edge); // base reference
@@ -860,7 +860,7 @@ public class PGS_Meshing {
 	}
 
 	private static PShape applyOriginalStyling(final PShape newMesh, final PShape oldMesh) {
-		final PShapeData data = new PShapeData(oldMesh.getChild(0)); // use first child; assume global.
+		final PShapeData data = new PGS_Conversion.PShapeData(oldMesh.getChild(0)); // use first child; assume global.
 		for (int i = 0; i < newMesh.getChildCount(); i++) {
 			data.applyTo(newMesh.getChild(i));
 		}

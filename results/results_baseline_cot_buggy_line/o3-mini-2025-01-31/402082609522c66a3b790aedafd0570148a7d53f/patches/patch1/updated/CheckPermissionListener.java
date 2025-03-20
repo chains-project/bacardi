@@ -9,35 +9,36 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
+import io.netty.buffer.ByteBuf;
+
 import java.util.UUID;
+
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.network.RemoteConnection;
-// Updated imports: the network API classes have been moved in the new dependency version
 import org.spongepowered.api.network.channel.ChannelRegistrar;
-import org.spongepowered.api.network.channel.PacketByteBuf;
 import org.spongepowered.api.network.channel.raw.RawDataChannel;
-
 import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
 import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 
-public class CheckPermissionListener {
+public class CheckPermissionListener implements RawDataChannel.RawDataHandler {
 
     private final ChangeSkinSponge plugin;
     private final RawDataChannel permissionsResultChannel;
 
     @Inject
-    public CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+    CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
         this.plugin = plugin;
 
         String combinedName = new NamespaceKey(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL).getCombinedName();
         permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
-        // Register the payload handler using the new listener API
-        permissionsResultChannel.setListener(this::handlePayload);
     }
 
-    public void handlePayload(PacketByteBuf data, RemoteConnection connection, Type side) {
-        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+    public void handlePayload(ByteBuf data, RemoteConnection connection, Type side) {
+        int length = data.readableBytes();
+        byte[] bytes = new byte[length];
+        data.getBytes(data.readerIndex(), bytes);
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(bytes);
         CheckPermMessage checkMessage = new CheckPermMessage();
         checkMessage.readFrom(dataInput);
 
@@ -78,6 +79,6 @@ public class CheckPermissionListener {
     private void sendResultMessage(Player receiver, PermResultMessage resultMessage) {
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
         resultMessage.writeTo(dataOutput);
-        permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+        permissionsResultChannel.sendTo(receiver, buf -> buf.writeBytes(dataOutput.toByteArray()));
     }
 }

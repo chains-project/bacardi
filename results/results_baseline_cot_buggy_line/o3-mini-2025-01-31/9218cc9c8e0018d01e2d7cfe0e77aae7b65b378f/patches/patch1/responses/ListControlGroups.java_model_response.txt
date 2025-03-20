@@ -1,30 +1,3 @@
-<code_analysis>
-1. Issue Identification:
-   - The error message indicates that packages and classes such as javax.validation.constraints, javax.validation.metadata, and javax.validation.Validator are missing.
-   - This is likely due to a dependency update where the Bean Validation API has been moved from the javax.validation package to the jakarta.validation package.
-
-2. Review of Client Code:
-   - The client code imports javax.validation and its subpackages for constraints (NotNull, NotEmpty, NotBlank) and metadata (BeanDescriptor, ConstraintDescriptor, ElementDescriptor).
-   - The code uses Validator to get the BeanDescriptor from the model class.
-   - All of these now reside in the jakarta.validation namespace after the breaking dependency update.
-
-3. Proposed Fix:
-   - Update all import statements from "javax.validation.*" to "jakarta.validation.*" accordingly.
-   - No changes are required to any function signatures or method implementations.
-   - This update is sufficient to resolve the compilation errors, as the updated dependency now expects these classes from the jakarta.validation package.
-
-4. Summary of Modifications:
-   - Replace the following imports:
-     - javax.validation.Validator → jakarta.validation.Validator
-     - javax.validation.constraints.NotBlank → jakarta.validation.constraints.NotBlank
-     - javax.validation.constraints.NotEmpty → jakarta.validation.constraints.NotEmpty
-     - javax.validation.constraints.NotNull → jakarta.validation.constraints.NotNull
-     - javax.validation.metadata.BeanDescriptor → jakarta.validation.metadata.BeanDescriptor
-     - javax.validation.metadata.ConstraintDescriptor → jakarta.validation.metadata.ConstraintDescriptor
-     - javax.validation.metadata.ElementDescriptor → jakarta.validation.metadata.ElementDescriptor
-   - No changes elsewhere since the planned modifications address the root cause of the errors.
-</code_analysis>
-
 ```java
 /**
  * Copyright (C) 2014 Premium Minds.
@@ -153,13 +126,13 @@ public abstract class ListControlGroups<T> extends Panel {
 			try {
 				descriptor = PropertyUtils.getPropertyDescriptor(getModel().getObject(), property);
 			} catch (Exception e) {
-				throw new RuntimeException("error getting property " + property, e);
+				throw new RuntimeException("error getting property "+property, e);
 			}
 
 			boolean required = false;
 
 			ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
-			if(constraintDescriptor != null){
+			if(constraintDescriptor!=null){
 				Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
 				for(ConstraintDescriptor<?> constraint : constraintsSet){
 					if(constraint.getAnnotation() instanceof NotNull ||
@@ -179,7 +152,7 @@ public abstract class ListControlGroups<T> extends Panel {
 				if(!controlGroupProviders.containsKey(objectProperty.type)) {
 					Constructor<?> constructor;
 					Class<? extends Panel> typesControlGroup = getControlGroupByType(objectProperty.type);
-					if(typesControlGroup == null){
+					if(typesControlGroup==null){
 						if(objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
 						else typesControlGroup = ObjectChoiceControlGroup.class;
 					}
@@ -190,9 +163,10 @@ public abstract class ListControlGroups<T> extends Panel {
 					controlGroup.init(objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
 					controlGroup.setEnabled(objectProperty.enabled);
 
-					if(typesControlGroup == ObjectChoiceControlGroup.class){
+
+					if(typesControlGroup==ObjectChoiceControlGroup.class){
 						IObjectRenderer<?> renderer = renderers.get(objectProperty.type);
-						if(renderer == null){
+						if(renderer==null){
 							renderer = new IObjectRenderer<Object>() {
 								private static final long serialVersionUID = -6171655578529011405L;
 
@@ -202,15 +176,16 @@ public abstract class ListControlGroups<T> extends Panel {
 							};
 						}
 						((ObjectChoiceControlGroup<?>) controlGroup).setConfiguration(getEntityProvider(objectProperty.name), renderer);
-					} else if(typesControlGroup == CollectionControlGroup.class){
+					} else if(typesControlGroup==CollectionControlGroup.class){
 						((CollectionControlGroup<?>) controlGroup).setConfiguration(getEntityProvider(objectProperty.name), renderers);
 					}
 
 				} else {
 					controlGroup = controlGroupProviders
 							.get(objectProperty.type)
-							.createControlGroup(view.newChildId(), new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name),
-									objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
+							.createControlGroup(view.newChildId()
+									, new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name)
+									, objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
 				}
 				view.add(controlGroup);
 
@@ -263,7 +238,7 @@ public abstract class ListControlGroups<T> extends Panel {
 
 		public ObjectProperties(PropertyDescriptor descriptor, boolean required){
 			this.name = descriptor.getName();
-			this.enabled = descriptor.getWriteMethod() != null;
+			this.enabled = descriptor.getWriteMethod()!=null;
 			this.type = descriptor.getPropertyType();
 			this.required = required;
 		}

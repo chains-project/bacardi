@@ -1,17 +1,3 @@
-<code_analysis>
-1. The error messages indicate that the methods annotated with @Override in LogMessageEncoder no longer match the methods defined in the updated Logback dependency. In the previous version, the Encoder interface expected methods such as init(OutputStream), doEncode(E), and close(), but in the new version the API has changed.
-2. The updated dependency now requires that an Encoder implementation provides implementations for:
-   • headerBytes() – to supply any header bytes (if none are needed, an empty array can be returned)
-   • encode(E event) – which returns a byte[] representing the encoded event (replacing doEncode which previously returned void)
-   • footerBytes() – to supply any footer bytes (again, an empty array is acceptable if not used)
-3. Analyzing the original LogMessageEncoder we see that it stored an OutputStream and wrapped it in a TFastFramedTransport in its init() method, then used doEncode() to write the log message and flush the transport. With the new API, instead of writing to a provided OutputStream, we create a ByteArrayOutputStream inside the encode() method to capture the serialized bytes.
-4. To fix the compilation errors:
-   • Remove the outdated init(), doEncode(), and close() methods.
-   • Implement the new headerBytes(), encode(LogMessage) and footerBytes() methods.
-   • For encode(), use a ByteArrayOutputStream along with the Thrift protocol to write the LogMessage into a byte array.
-5. This patch updates the LogMessageEncoder class to conform to the new Encoder interface provided by the updated dependency while keeping the remainder of the AppenderUtils class unchanged.
-</code_analysis>
-
 ```java
 package com.pinterest.singer.client.logback;
 
@@ -34,10 +20,8 @@ import org.apache.thrift.transport.TTransport;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 
-/**
- * Utils to create logback appenders
- */
 public class AppenderUtils {
 
   public static final String PATH_SEP = "/";
@@ -45,52 +29,44 @@ public class AppenderUtils {
   private AppenderUtils() {
   }
 
-  /**
-   * Encoder for LogMessage objects.
-   */
   public static class LogMessageEncoder extends EncoderBase<LogMessage> {
 
     @Override
-    public byte[] headerBytes() {
-      // No header required.
-      return new byte[0];
+    public void init(OutputStream os) throws IOException {
+      // No initialization needed for this stateless encoder.
     }
 
     @Override
     public byte[] encode(LogMessage logMessage) throws IOException {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       final int bufferCapacity = 10;
-      TTransport framedTransport = new TFastFramedTransport(new TIOStreamTransport(baos), bufferCapacity);
-      TProtocol protocol = new TBinaryProtocol(framedTransport);
+      TTransport transport = new TFastFramedTransport(new TIOStreamTransport(baos), bufferCapacity);
+      TProtocol protocol = new TBinaryProtocol(transport);
       try {
-        // Serialize the log message using the Thrift binary protocol.
         logMessage.write(protocol);
-        framedTransport.flush();
+        transport.flush();
       } catch (TException e) {
         throw new IOException(e);
-      } finally {
-        framedTransport.close();
       }
       return baos.toByteArray();
     }
 
     @Override
+    public void close() throws IOException {
+      // No resources to clean up.
+    }
+    
+    @Override
+    public byte[] headerBytes() {
+      return null;
+    }
+
+    @Override
     public byte[] footerBytes() {
-      // No footer required.
-      return new byte[0];
+      return null;
     }
   }
 
-  /**
-   * Create the basic thrift appender which logs to a file
-   * and rolls the file when it exceeds a certain size.
-   *
-   * @param basePath base directory the files are under.
-   * @param topic the topic name for the current appender.
-   * @param rotateThresholdKBytes threshold in kilobytes to rotate after.
-   * @param context the logback context.
-   * @param maxRetentionHours maximum number of hours to retain logs.
-   */
   public static Appender<LogMessage> createFileRollingThriftAppender(
       File basePath,
       String topic,
@@ -113,7 +89,6 @@ public class AppenderUtils {
     policy.setContext(context);
     policy.setParent(appender);
 
-    // Also impose a max size per file policy.
     SizeAndTimeBasedFNATP fnatp = new SizeAndTimeBasedFNATP();
     fnatp.setContext(context);
     fnatp.setTimeBasedRollingPolicy(policy);

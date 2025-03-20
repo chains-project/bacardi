@@ -1,10 +1,3 @@
-<code_analysis>
-1. The error message indicates that the Flyway API methods used in the code (constructor and setter methods like setDataSource, setClassLoader, setLocations, and setValidateOnMigrate) are no longer available. In the latest Flyway versions the API has changed to a fluent builder pattern.
-2. In the client code the problematic bean is defined in the flyway() method. Here the code creates a new Flyway instance using the no-argument constructor and then attempts to call setter methods – which now do not exist.
-3. To fix this, we replace the old style configuration with the new fluent API by using Flyway.configure(), chaining the configuration methods, and finally calling load() to get the Flyway instance. Using Boolean.parseBoolean instead of Boolean.valueOf is also more conventional.
-4. The patch involves modifying only the flyway() bean method. This change does not affect any other function signatures and adheres to the constraints.
-</code_analysis>
-
 ```java
 package org.nem.specific.deploy.appconfig;
 
@@ -112,12 +105,11 @@ public class NisAppConfig {
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
-
 		return Flyway.configure()
 				.dataSource(this.dataSource())
-				.classLoader(NisAppConfig.class.getClassLoader())
 				.locations(prop.getProperty("flyway.locations"))
 				.validateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate")))
+				.classLoader(NisAppConfig.class.getClassLoader())
 				.load();
 	}
 

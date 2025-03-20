@@ -17,7 +17,7 @@ class PublisherFactoryImpl implements PublisherFactory {
   private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
 
   @Override
-  public Publisher<Void> newPublisher(Map<String, String> params) {
+  public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
     Map<String, ConfigValue> config = ConfigDefs.config().validateAll(params);
     RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
     TopicPath topic =
@@ -25,10 +25,8 @@ class PublisherFactoryImpl implements PublisherFactory {
             .setProject(
                 ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
                     .project())
-            .setLocation(
-                CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
-            .setName(
-                TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
+            .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
+            .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
             .build();
     builder.setTopic(topic);
     builder.setPublisherFactory(
@@ -36,8 +34,9 @@ class PublisherFactoryImpl implements PublisherFactory {
             SinglePartitionPublisherBuilder.newBuilder()
                 .setTopic(topic)
                 .setPartition(partition)
-                // Removed setContext due to dependency update; context is now managed internally.
                 .build());
-    return builder.build();
+    return (Publisher<PublishMetadata>) builder.build();
   }
+
+  static class PublishMetadata {}
 }

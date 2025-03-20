@@ -3,17 +3,21 @@ package com.example.config;
 import com.example.domain.TaskNotFoundException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 import jakarta.mvc.Models;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.ext.ExceptionMapper;
-import jakarta.ws.rs.ext.Provider;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 @Provider
 public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFoundException> {
 
-    @Inject
-    Logger log;
+    @Inject Logger log;
     
     @Inject
     Models models;
@@ -24,4 +28,5 @@ public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFound
         models.put("error", exception.getMessage());
         return Response.status(Response.Status.NOT_FOUND).entity("error.xhtml").build();
     }
+
 }

@@ -150,17 +150,17 @@ public class PaymentMethod implements ToString2
         {
             String thePaymentMechanism;
             thePaymentMechanism = this.getPaymentMechanism();
-            strategy.appendField(locator, this, "paymentMechanism", buffer, thePaymentMechanism, (this.paymentMechanism!= null));
+            strategy.appendField(locator, this, "paymentMechanism", buffer, thePaymentMechanism, (this.paymentMechanism != null));
         }
         {
             BigDecimal thePaymentAmount;
             thePaymentAmount = this.getPaymentAmount();
-            strategy.appendField(locator, this, "paymentAmount", buffer, thePaymentAmount, (this.paymentAmount!= null));
+            strategy.appendField(locator, this, "paymentAmount", buffer, thePaymentAmount, (this.paymentAmount != null));
         }
         {
             XMLGregorianCalendar thePaymentDate;
             thePaymentDate = this.getPaymentDate();
-            strategy.appendField(locator, this, "paymentDate", buffer, thePaymentDate, (this.paymentDate!= null));
+            strategy.appendField(locator, this, "paymentDate", buffer, thePaymentDate, (this.paymentDate != null));
         }
         return buffer;
     }

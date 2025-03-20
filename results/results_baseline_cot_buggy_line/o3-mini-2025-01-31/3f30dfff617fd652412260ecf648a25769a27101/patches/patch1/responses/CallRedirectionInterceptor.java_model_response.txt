@@ -1,24 +1,3 @@
-<code_analysis>
-1. Issue Identification:
-   - The error message indicates that the compiler cannot locate the package and classes under "javax.interceptor" (InvocationContext, Interceptor, AroundInvoke). This indicates that due to a dependency update (likely a migration from Java EE to Jakarta EE), the interceptor API has been moved from "javax.interceptor" to "jakarta.interceptor".
-   - The errors occur at all usages of InvocationContext, @Interceptor, and @AroundInvoke as seen in the respective import statements and method parameters.
-
-2. Review of the client code:
-   - The methods invokeMockableBean, callAlternative, and callMock all use InvocationContext.
-   - The class is annotated with @Interceptor and the method with @AroundInvoke.
-   - All these annotations and types are imported from "javax.interceptor" which is no longer available under the updated dependency.
-
-3. Potential Fixes:
-   - Update only the interceptor related imports to use the new package name "jakarta.interceptor" instead of "javax.interceptor".
-   - This change does not alter any function signatures and only fixes the dependency issue.
-   - No other changes will be needed as the rest of the code remains valid.
-
-4. Modifications Required:
-   - Replace "import javax.interceptor.AroundInvoke;" with "import jakarta.interceptor.AroundInvoke;".
-   - Replace "import javax.interceptor.InvocationContext;" with "import jakarta.interceptor.InvocationContext;".
-   - Replace "import javax.interceptor.Interceptor;" with "import jakarta.interceptor.Interceptor;".
-</code_analysis>
-
 ```java
 package de.hilling.junit.cdi.scope;
 
@@ -29,12 +8,12 @@ import javax.annotation.Priority;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.Interceptor;
 import jakarta.interceptor.InvocationContext;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 @Replaceable
 @Interceptor

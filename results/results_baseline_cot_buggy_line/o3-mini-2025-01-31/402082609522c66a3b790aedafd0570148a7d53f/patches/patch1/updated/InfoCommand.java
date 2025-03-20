@@ -6,21 +6,24 @@ import com.github.games647.changeskin.core.shared.SkinFormatter;
 import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import com.github.games647.changeskin.sponge.PomData;
 import com.google.inject.Inject;
+
 import java.util.Optional;
 import java.util.UUID;
+
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.Command;
-import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandExecutor;
-import org.spongepowered.api.command.exception.CommandException;
-import org.spongepowered.api.command.parameter.CommandContext;
-import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
-public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.exception.CommandException;
+import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.source.CommandSource;
+import org.spongepowered.api.command.parameter.CommandContext;
+
+public class InfoCommand implements ChangeSkinCommand {
 
     @Inject
     private ChangeSkinSponge plugin;
@@ -28,10 +31,7 @@ public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
     @Inject
     private SkinFormatter formatter;
 
-    @Override
-    public CommandResult execute(CommandContext args) throws CommandException {
-        // In the new API, the CommandSource is retrieved from the command context's cause.
-        CommandSource src = args.cause().root();
+    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
             return CommandResult.empty();
@@ -47,17 +47,26 @@ public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
 
         return CommandResult.success();
     }
+    
+    public CommandResult process(CommandContext context) throws CommandException {
+        Optional<CommandSource> optionalSource = context.cause().first(CommandSource.class);
+        if (optionalSource.isEmpty()) {
+            throw new CommandException(LegacyComponentSerializer.legacyAmpersand().deserialize("&cNo valid command source!"));
+        }
+        CommandSource src = optionalSource.get();
+        return execute(src, context);
+    }
 
-    @Override
-    public Command buildSpec() {
-        return Command.builder()
-                .executor(this)
-                .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
+    public CommandSpec buildSpec() {
+        Command command = Command.builder()
+                .executor(ctx -> this.process(ctx))
+                .requires(src -> src.hasPermission(PomData.ARTIFACT_ID + ".command.skininfo.base"))
                 .build();
+        return new CommandSpec(command);
     }
 
     private void sendSkinDetails(UUID uuid, UserPreference preference) {
-        Optional<Player> optPlayer = Sponge.server().player(uuid);
+        Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
         if (optPlayer.isPresent()) {
             Player player = optPlayer.get();
 
@@ -66,11 +75,23 @@ public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
                 String template = plugin.getCore().getMessage("skin-info");
                 String formatted = formatter.apply(template, optSkin.get());
 
-                Component component = LegacyComponentSerializer.legacySection().deserialize(formatted);
-                player.sendMessage(component);
+                Component text = LegacyComponentSerializer.legacyAmpersand().deserialize(formatted);
+                player.sendMessage(text);
             } else {
                 plugin.sendMessage(player, "skin-not-found");
             }
+        }
+    }
+
+    public static class CommandSpec {
+        private final Command command;
+
+        public CommandSpec(Command command) {
+            this.command = command;
+        }
+
+        public Command getCommand() {
+            return command;
         }
     }
 }

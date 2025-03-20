@@ -1,3 +1,12 @@
+/*
+<repair_strategy>
+1. The error arises because the getInstance() method was removed from JAXBToStringStrategy in the updated dependency.
+2. The new API provides a public static INSTANCE field instead.
+3. The patch updates the toString() method to use JAXBToStringStrategy.INSTANCE.
+4. This change is minimal and ensures full compilability without altering any method signatures.
+</repair_strategy>
+*/
+
 package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -29,13 +38,15 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  * &lt;/complexType&gt;
  * </pre>
  * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "OrderReferences", propOrder = {
     "originatingON",
     "orderDate"
 })
-public class OrderReferences implements ToString2 {
+public class OrderReferences implements ToString2
+{
 
     @XmlElement(name = "OriginatingON")
     protected String originatingON;
@@ -46,7 +57,10 @@ public class OrderReferences implements ToString2 {
     /**
      * Gets the value of the originatingON property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getOriginatingON() {
         return originatingON;
@@ -55,7 +69,10 @@ public class OrderReferences implements ToString2 {
     /**
      * Sets the value of the originatingON property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setOriginatingON(String value) {
         this.originatingON = value;
@@ -64,7 +81,10 @@ public class OrderReferences implements ToString2 {
     /**
      * Gets the value of the orderDate property.
      * 
-     * @return possible object is {@link XMLGregorianCalendar }
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public XMLGregorianCalendar getOrderDate() {
         return orderDate;
@@ -73,7 +93,10 @@ public class OrderReferences implements ToString2 {
     /**
      * Sets the value of the orderDate property.
      * 
-     * @param value allowed object is {@link XMLGregorianCalendar }
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public void setOrderDate(XMLGregorianCalendar value) {
         this.orderDate = value;
@@ -81,7 +104,6 @@ public class OrderReferences implements ToString2 {
 
     @Override
     public String toString() {
-        // Updated to use the new static INSTANCE field from the updated dependency version
         final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
@@ -99,13 +121,16 @@ public class OrderReferences implements ToString2 {
     @Override
     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         {
-            String theOriginatingON = this.getOriginatingON();
+            String theOriginatingON;
+            theOriginatingON = this.getOriginatingON();
             strategy.appendField(locator, this, "originatingON", buffer, theOriginatingON, (this.originatingON != null));
         }
         {
-            XMLGregorianCalendar theOrderDate = this.getOrderDate();
+            XMLGregorianCalendar theOrderDate;
+            theOrderDate = this.getOrderDate();
             strategy.appendField(locator, this, "orderDate", buffer, theOrderDate, (this.orderDate != null));
         }
         return buffer;
     }
+
 }
