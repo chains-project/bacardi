@@ -76,8 +76,8 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
                 "- !stringHandler\n" +
                 "  id: C";
         sep(c -> {
-            LoaderOptions loaderOptions = new LoaderOptions();
-            Constructor constructor = new Constructor(loaderOptions);
+            LoaderOptions options = new LoaderOptions();
+            Constructor constructor = new Constructor(options);
             constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
             constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
             Yaml yaml = new Yaml(constructor);
@@ -113,8 +113,8 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
                 "- !stringHandler\n" +
                 "  id: C";
         sep(c -> {
-            LoaderOptions loaderOptions = new LoaderOptions();
-            Constructor constructor = new Constructor(loaderOptions);
+            LoaderOptions options = new LoaderOptions();
+            Constructor constructor = new Constructor(options);
             constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
             constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
             Yaml yaml = new Yaml(constructor);

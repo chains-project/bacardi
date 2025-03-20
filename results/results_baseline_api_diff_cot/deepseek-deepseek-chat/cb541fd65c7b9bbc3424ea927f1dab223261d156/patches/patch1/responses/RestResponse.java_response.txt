@@ -47,9 +47,8 @@ import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.IsCollectionContaining;
 import org.hamcrest.core.IsEqual;
-import org.hamcrest.core.IsNull;
 import org.hamcrest.core.IsNot;
-import org.hamcrest.core.StringContains;
+import org.hamcrest.core.IsNull;
 
 /**
  * REST response.

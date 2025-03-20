@@ -1,7 +1,6 @@
-3a4,5
-> import org.flywaydb.core.api.configuration.ClassicConfiguration;
-> import org.flywaydb.core.api.configuration.Configuration;
-108,113c110,115
+3a4
+> import org.flywaydb.core.api.configuration.FluentConfiguration;
+108,113c109,115
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
@@ -9,13 +8,18 @@
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 <                 return flyway;
 ---
->                 final ClassicConfiguration configuration = new ClassicConfiguration();
->                 configuration.setDataSource(this.dataSource());
->                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
->                 configuration.setLocations(prop.getProperty("flyway.locations").split(","));
->                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
->                 return new Flyway(configuration);
+>                 final FluentConfiguration flywayConfig = Flyway.configure()
+>                                 .dataSource(this.dataSource())
+>                                 .classLoader(NisAppConfig.class.getClassLoader())
+>                                 .locations(prop.getProperty("flyway.locations").split(","))
+>                                 .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+> 
+>                 return flywayConfig.load();
 250c252
 <                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
 ---
 >                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions);
+274c276
+<         private static org.nem.nis.pox.poi.PoiOptions getBlockDependentPoiOptions(final BlockHeight height) {
+---
+>         private static org.nem.nis.pox.poi.PoiOptions getBlockDependentPoiOptions final BlockHeight height) {

@@ -24,9 +24,3 @@ interface PublisherFactory {
   Publisher<Void> newPublisher(Map<String, String> params);
 }
 ```
-
-### Explanation:
-1. **API Change Analysis**: The `PublishMetadata` class has been removed in the new version of the dependency. This class was previously used as a type parameter in the `Publisher` interface.
-2. **Fix Strategy**: Since `PublishMetadata` is no longer available, the most straightforward fix is to replace it with a type that is still valid in the new API. Given that `Publisher` is a generic interface, and the metadata is no longer needed, `Void` is a suitable replacement. This change ensures that the `PublisherFactory` interface remains functional without requiring metadata.
-3. **Minimal Changes**: The only change made is replacing `PublishMetadata` with `Void` in the `Publisher` type parameter. This change is minimal and does not affect the method signature or the overall structure of the class.
-4. **Compilation and Functionality**: The updated class should now compile successfully with the new version of the dependency, and the `PublisherFactory` interface will continue to function as intended.

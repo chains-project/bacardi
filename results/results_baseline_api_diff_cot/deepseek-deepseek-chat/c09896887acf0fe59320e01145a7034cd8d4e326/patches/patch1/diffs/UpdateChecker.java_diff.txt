@@ -6,20 +6,41 @@
 <                 // and loadGitHubCommit will not work for nonflattened POMs from reactor submodules:
 <                 // it would have to be made more complicated to resolve the parent POM(s),
 <                 // or we would need to switch the implementation to use Maven/Aether resolution APIs.
-168d160
+162,166d154
+<     /**
+<      * Look for all known versions of a given artifact.
+<      * @param repos a set of repository URLs to check
+<      * @return a possibly empty set of versions, sorted descending
+<      */
+168d155
 <         // TODO consider using official Aether APIs here (could make use of local cache)
-181d172
+181d167
 <                 // Not bothering to exclude timestamped snapshots for now, since we are working with release repositories anyway.
-239,240c230,232
+202,204d187
+<     /**
+<      * Parses {@code /project/scm/url} and {@code /project/scm/tag} out of a POM, if mapped to a commit.
+<      */
+229,236d211
+<     /**
+<      * Checks whether a commit is an ancestor of a given branch head.
+<      * {@code curl -s -u … https://api.github.com/repos/<owner>/<repo>/compare/<branch>...<hash> | jq -r .status}
+<      * will return {@code identical} or {@code behind} if so, else {@code diverged} or {@code ahead}.
+<      * @param branch may be {@code master} or {@code forker:branch}
+<      * @see <a href="https://developer.github.com/v3/repos/commits/#compare-two-commits">Compare two commits</a>
+<      * @see <a href="https://stackoverflow.com/a/23970412/12916">Discussion</a>
+<      */
+239,240c214,216
 <             GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
 <             return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
 ---
 >             GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
 >             String status = compare.getStatus();
 >             return "identical".equals(status) || "behind".equals(status);
-242d233
+242d217
 <             // For example, that branch does not exist in this repository.
-245,247d235
+245,247d219
 <         // TODO check behavior when the comparison is huge (too many commits or too large diff)
 <         // and perhaps fall back to cloning into a temp dir and pulling all PR refs https://gist.github.com/piscisaureus/3342247
 <         // Currently https://developer.github.com/v4/object/commit/ does no better than this.
+279d250
+< 

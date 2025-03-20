@@ -24,7 +24,7 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.translate.v3.Translate;
 import com.google.api.services.translate.v3.model.DetectLanguageResponse;
-import com.google.api.services.translate.v3.model.Language;
+import com.google.api.services.translate.v3.model.SupportedLanguages;
 import com.google.api.services.translate.v3.model.Translation;
 import com.google.cloud.http.HttpTransportOptions;
 import com.google.cloud.translate.TranslateException;
@@ -70,9 +70,7 @@ public class HttpTranslateRpc implements TranslateRpc {
     try {
       List<List<DetectLanguageResponse>> detections =
           translate.projects().locations().detectLanguage("projects/" + options.getProjectId(), texts)
-              .setKey(options.getApiKey())
-              .execute()
-              .getDetections();
+              .setKey(options.getApiKey()).execute().getDetections();
       return detections != null ? detections : ImmutableList.<List<DetectLanguageResponse>>of();
     } catch (IOException ex) {
       throw translate(ex);
@@ -80,9 +78,9 @@ public class HttpTranslateRpc implements TranslateRpc {
   }
 
   @Override
-  public List<Language> listSupportedLanguages(Map<Option, ?> optionMap) {
+  public List<SupportedLanguages> listSupportedLanguages(Map<Option, ?> optionMap) {
     try {
-      List<Language> languages =
+      List<SupportedLanguages> languages =
           translate.projects().locations().getSupportedLanguages("projects/" + options.getProjectId())
               .setKey(options.getApiKey())
               .setTarget(
@@ -90,7 +88,7 @@ public class HttpTranslateRpc implements TranslateRpc {
                       Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
               .execute()
               .getLanguages();
-      return languages != null ? languages : ImmutableList.<Language>of();
+      return languages != null ? languages : ImmutableList.<SupportedLanguages>of();
     } catch (IOException ex) {
       throw translate(ex);
     }

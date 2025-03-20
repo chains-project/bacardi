@@ -2,39 +2,29 @@
 < import org.cactoos.collection.Filtered;
 ---
 > import org.cactoos.iterable.Filtered;
-36d35
+36c36
 < import org.cactoos.scalar.CheckedScalar;
-38d36
-< import org.cactoos.scalar.UncheckedScalar;
-40d37
-< import org.cactoos.text.SplitText;
-201,202c198
-<             return new CheckedScalar<>(
-<                 () -> Long.parseUnsignedLong(
 ---
->             return Long.parseUnsignedLong(
-204c200
+> import org.cactoos.scalar.Checked;
+38c38
+< import org.cactoos.scalar.UncheckedScalar;
+---
+> import org.cactoos.scalar.Unchecked;
+40d39
+< import org.cactoos.text.SplitText;
+201c200
+<             return new CheckedScalar<>(
+---
+>             return new Checked<>(
+204c203
 <                         new SplitText(
 ---
->                     new org.cactoos.text.Split(
-211,213c207
-<                 ),
-<                 e -> new IOException(e)
-<             ).value();
----
->             );
-231c225
-<         //  wallet (which exists at the node), it’s ignored; If the paying
----
->         //  wallet (which exists at the node), it is ignored; If the paying
-249,250c243
+>                         new org.cactoos.text.Split(
+249c248
 <                     origin -> new UncheckedScalar<>(
-<                         new Or(
 ---
->                     origin -> new Or(
-257d249
-<                         )
-275c267
+>                     origin -> new Unchecked<>(
+275c274
 <                         new SplitText(
 ---
 >                         new org.cactoos.text.Split(

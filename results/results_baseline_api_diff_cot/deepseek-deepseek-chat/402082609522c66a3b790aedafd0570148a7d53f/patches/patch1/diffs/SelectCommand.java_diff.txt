@@ -1,0 +1,50 @@
+9,12c9,12
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.parameter.CommandParameter;
+15,17c15
+< 
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import org.spongepowered.api.text.Text;
+29,32c27,30
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+<             return CommandResult.empty();
+---
+>     public CommandResult execute(CommandContext args) {
+>         if (!(args.cause().root() instanceof Player)) {
+>             plugin.sendMessage(args.cause().root(), "no-console");
+>             return CommandResult.success();
+35c33
+<         String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
+---
+>         String skinName = args.one(Parameter.string().key("skinName").build()).get().toLowerCase().replace("skin-", "");
+39,40c37,38
+<             Player receiver = (Player) src;
+<             Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+---
+>             Player receiver = (Player) args.cause().root();
+>             Task.builder().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+42c40
+<             plugin.sendMessage(src, "invalid-skin-name");
+---
+>             plugin.sendMessage(args.cause().root(), "invalid-skin-name");
+49,50c47,48
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public CommandParameter buildSpec() {
+>         return CommandParameter.builder()
+52c50
+<                 .arguments(string(of("skinName")))
+---
+>                 .addParameter(Parameter.string().key("skinName").build())

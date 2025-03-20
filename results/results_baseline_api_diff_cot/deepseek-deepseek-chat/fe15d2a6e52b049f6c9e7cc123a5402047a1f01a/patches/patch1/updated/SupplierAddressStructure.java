@@ -12,6 +12,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
@@ -123,7 +124,7 @@ public class SupplierAddressStructure implements ToString2
      * 
      * @return
      *     possible object is
-    极     {@link String }
+     *     {@link String }
      *     
      */
     public String getAddressDetail() {
@@ -155,11 +156,11 @@ public class SupplierAddressStructure implements ToString2
     }
 
     /**
-     * Sets the value极 the city property.
+     * Sets the value of the city property.
      * 
      * @param value
      *     allowed object is
-     *     {@link String }
+    极     {@link String }
      *     
      */
     public void setCity(String value) {
@@ -227,7 +228,7 @@ public class SupplierAddressStructure implements ToString2
     }
 
     /**
-     * Sets the value of the country property.
+     * Sets the value极 the country property.
      * 
      * @param value
      *     allowed object is
@@ -240,7 +241,7 @@ public class SupplierAddressStructure implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new ToStringStrategy2();
+        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -274,7 +275,7 @@ public class SupplierAddressStructure implements ToString2
         {
             String theCity;
             theCity = this.getCity();
-            strategy.appendField(locator, this, "city", buffer, theCity, (this.city!= null));
+            strategy.appendField(locator极 this, "city", buffer, theCity, (this.city!= null));
         }
         {
             String thePostalCode;

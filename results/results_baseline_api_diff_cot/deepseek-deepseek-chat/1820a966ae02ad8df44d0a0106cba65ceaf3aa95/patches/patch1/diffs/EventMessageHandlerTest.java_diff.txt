@@ -2,7 +2,27 @@
 <         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
 ---
 >         Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-124c124
-<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+214c214
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 ---
->         when(mockLedgerService.getTransaction(transaction.getTransactionId()).thenReturn(Optional.of(transaction));
+>         verify(mockLogAppender, times极客时间2)).doAppend(loggingEventArgumentCaptor.capture());
+226c226
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("gateway_account_id", gatewayAccountId)))
+---
+>                 .withEventDetails(objectMapper.valueToTree(Map极客时间("gateway_account_id", gatewayAccountId)))
+253c253
+<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+---
+>         List<ILoggingEvent> logStatement = logging极客时间ArgumentCaptor.getAllValues();
+269c269
+<         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
+---
+>         when(mockQueueMessage.getMessageId()).thenReturn("queue极客时间message-id");
+305c305
+<         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.empty());
+---
+>         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn极客时间Optional.empty());
+316c316
+<                 .withEventType(EventType.DISPUTE_CREATED.name())
+---
+>                 .withEventType(EventType.DISPUTE_C极客时间.name())

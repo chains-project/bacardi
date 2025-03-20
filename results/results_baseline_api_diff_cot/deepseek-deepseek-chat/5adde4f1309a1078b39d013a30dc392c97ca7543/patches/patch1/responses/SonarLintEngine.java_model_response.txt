@@ -160,12 +160,17 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     }
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
-        return AnalysisEngineConfiguration.builder()
+        AnalysisEngineConfiguration.Builder builder = AnalysisEngineConfiguration.builder()
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())
-                .setModulesProvider(globalConfig.getModulesProvider())
-                .build();
+                .setModulesProvider(globalConfig.getModulesProvider());
+
+        for (Language language : globalConfig.getEnabledLanguages()) {
+            builder.addEnabledLanguage(language);
+        }
+
+        return builder.build();
     }
 
     /** Get or creates the one and only instance of this class. */
@@ -204,7 +209,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                 AnalysisConfiguration.builder()
                         .addInputFiles(configuration.inputFiles())
                         .putAllExtraProperties(configuration.extraProperties())
-                        .addActiveRules(identifyActiveRules(configuration)
+                        .addActiveRules(identifyActiveRules(configuration))
                         .setBaseDir(configuration.baseDir())
                         .build();
         try {

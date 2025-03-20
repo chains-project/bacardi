@@ -1,0 +1,62 @@
+package com.github.games647.changeskin.sponge.command;
+
+import com.github.games647.changeskin.core.ChangeSkinCore;
+import com.github.games647.changeskin.core.model.auth.Account;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.github.games647.changeskin.sponge.PomData;
+import com.github.games647.changeskin.sponge.task.SkinUploader;
+import com.google.inject.Inject;
+
+import java.util.List;
+
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.command.CommandExecutor;
+import org.spongepowered.api.command.parameter.CommandParameter;
+import org.spongepowered.api.scheduler.TaskExecutorService;
+import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.parameter.managed.Flag;
+
+import static org.spongepowered.api.command.parameter.Parameter.string;
+
+public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
+
+    private final ChangeSkinSponge plugin;
+    private final ChangeSkinCore core;
+
+    @Inject
+    UploadCommand(ChangeSkinSponge plugin, ChangeSkinCore core) {
+        this.plugin = plugin;
+        this.core = core;
+    }
+
+    @Override
+    public CommandResult execute(CommandContext args) {
+        String url = args.one(Parameter.string("url")).orElse(null);
+        if (url != null && (url.startsWith("http://") || url.startsWith("https://"))) {
+            List<Account> accounts = plugin.getCore().getUploadAccounts();
+            if (accounts.isEmpty()) {
+                plugin.sendMessage(args.cause().audience(), "no-accounts");
+            } else {
+                Account uploadAccount = accounts.get(0);
+                Runnable skinUploader = new SkinUploader(plugin, args.cause().audience(), uploadAccount, url);
+                TaskExecutorService scheduler = plugin.getScheduler();
+                scheduler.submit(skinUploader);
+            }
+        } else {
+            plugin.sendMessage(args.cause().audience(), "no-valid-url");
+        }
+
+        return CommandResult.success();
+    }
+
+    @Override
+    public Command buildSpec() {
+        return Command.builder()
+                .executor(this)
+                .addParameter(Parameter.string("url"))
+                .permission(PomData.ARTIFACT_ID + ".command.skinupload.base")
+                .build();
+    }
+}

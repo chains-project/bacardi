@@ -3,16 +3,10 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import jakarta.mvc.locale.LocaleResolver;
-import jakarta.mvc.MvcContext;
+import jakarta.mvc.locale.LocaleResolverContext;
+import jakarta.mvc.locale.LocaleResolverFactory;
+import java.util.Locale;
 
-/**
- * Provides I18n messages for the UI per request. To get the correct locale, the method {@link MvcContext#getLocale()}
- * is used. This method uses the built-in {@link jakarta.mvc.locale.LocaleResolver} of the used MVC Implementation.
- *
- * @author Tobias Erdle
- * @see MvcContext#getLocale()
- * @see jakarta.mvc.locale.LocaleResolver
- */
 @RequestScoped
 @Named("msg")
 public class Messages {
@@ -20,7 +14,7 @@ public class Messages {
     private static final String BASE_NAME = "messages";
 
     @Inject
-    private MvcContext mvcContext;
+    private LocaleResolver localeResolver;
 
     /**
      * Get the assigned message to some key based on the {@link java.util.Locale} of the current request.
@@ -30,7 +24,19 @@ public class Messages {
      * placeholder for unknown keys.
      */
     public final String get(final String key) {
-        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
+        Locale locale = localeResolver.resolveLocale(new LocaleResolverContext() {
+            @Override
+            public Locale getDefaultLocale() {
+                return Locale.getDefault();
+            }
+
+            @Override
+            public Locale getLocale() {
+                return Locale.getDefault();
+            }
+        });
+
+        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, locale);
 
         return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);
     }

@@ -1,14 +1,8 @@
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
-import redis.clients.jedis.commands.BasicRedisPipeline;
-import redis.clients.jedis.commands.BinaryRedisPipeline;
-import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
-import redis.clients.jedis.commands.ClusterPipeline;
-import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;
-import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
-import redis.clients.jedis.commands.RedisPipeline;
-import redis.clients.jedis.commands.ScriptingCommandsPipeline;
+import redis.clients.jedis.ClusterPipeline;
+import redis.clients.jedis.Pipeline;
 
 import java.io.Closeable;
 import java.util.List;
@@ -17,11 +11,7 @@ import java.util.Map;
 /**
  * An interface which aligned to Jedis Pipeline interface
  */
-public interface RedisGraphPipeline extends
-        MultiKeyBinaryRedisPipeline,
-        MultiKeyCommandsPipeline, ClusterPipeline,
-        BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
-        BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
+public interface RedisGraphPipeline extends Pipeline, Closeable {
 
     /**
      * Execute a Cypher query.
@@ -129,7 +119,6 @@ public interface RedisGraphPipeline extends
      */
     Response<String> deleteGraph(String graphId);
 
-    
     /**
      * Synchronize pipeline by reading all responses. This operation close the pipeline. Whenever
      * possible try to avoid using this version and use Pipeline.sync() as it won't go through all the
@@ -144,7 +133,6 @@ public interface RedisGraphPipeline extends
      * commands you execute.
      */
     public void sync();
-    
     
     /**
      * Blocks until all the previous write commands are successfully transferred and acknowledged by

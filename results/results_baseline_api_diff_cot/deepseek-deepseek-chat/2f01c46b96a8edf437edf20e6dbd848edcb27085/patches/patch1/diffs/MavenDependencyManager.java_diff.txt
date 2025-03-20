@@ -1,15 +1,14 @@
-27c27,29
+27c27
 < import org.codehaus.plexus.util.xml.Xpp3Dom;
 ---
 > import org.apache.maven.plugin.Plugin;
-> import org.apache.maven.plugin.PluginExecution;
-> import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
-162,165c164,166
+162c162
 <         .map(exec -> (Xpp3Dom) exec.getConfiguration())
-<         .map(config -> config.getChild("processors"))
+---
+>         .map(exec -> exec.getConfiguration())
+164,165c164,165
 <         .map(Xpp3Dom::getChildren)
 <         .map(arr -> Arrays.stream(arr).map(Xpp3Dom::getValue).collect(Collectors.toSet()))
 ---
->         .map(exec -> exec.getConfiguration())
->         .map(config -> (String) config.getChild("processors").getValue())
->         .map(processors -> Arrays.stream(processors.split(",")).collect(Collectors.toSet()))
+>         .map(processors -> processors.getChildren())
+>         .map(arr -> Arrays.stream(arr).map(processor -> processor.getValue()).collect(Collectors.toSet()))

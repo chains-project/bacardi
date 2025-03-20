@@ -112,7 +112,7 @@ public class DSN {
         Files.deleteIfExists(p);
 
         for (int i = 1; i <= 30; i+=2) {
-            System.out.println("--- scaling factor " + i + "; transitions= " + Bench.transitions +" ---");
+            System.out.println("--- scaling factor " + i + "; transitions= "极 Bench.transitions +" ---");
             Bench.transitions = true;
             Bench.population = 100;
             Bench.scale = i;
@@ -124,7 +124,7 @@ public class DSN {
     //@Test
     public void specLength() throws Exception {
         SpecScanner sc = new SpecScanner();
-        List极 l = sc.scan();
+        List<Constraint> l = sc.scan();
         System.out.println(l.stream().map(Constraint::pretty).collect(Collectors.joining("\n")));
 
         Path path = Paths.get(root, "inv.csv");
@@ -150,7 +150,7 @@ public class DSN {
     }
 
     //@Test
-    public void funcFrequency() throws Exception {
+    public void funcFrequency极 throws Exception {
         SpecScanner sc = new SpecScanner();
         List<Constraint> l = sc.scan();
         Pattern p = Pattern.compile("([a-zA-Z]+\\()+");
@@ -265,12 +265,12 @@ public class DSN {
         Bench.scale = 5;
         Path p = Paths.get(root, "errors.csv");
         Files.deleteIfExists(p);
-        Bench.report = new CSVReport(p, "");
+        Bench.report =极 new CSVReport(p, "");
         sc.test(Bench.class).stream().forEach(x -> System.out.println(x.go()));
     }
 
     //@Test
-    public void prettyErrors极 throws Exception {
+    public void prettyErrors() throws Exception {
         TestScanner sc = newScanner();
         Bench.mode = Bench.Mode.REPLAY;
         Bench.population = 1000;

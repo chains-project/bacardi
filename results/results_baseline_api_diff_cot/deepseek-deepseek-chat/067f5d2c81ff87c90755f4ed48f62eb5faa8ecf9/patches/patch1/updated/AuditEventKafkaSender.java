@@ -158,7 +158,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
   private Set<Integer> badPartitions = ConcurrentHashMap.newKeySet();
 
   /**
-   * For each event ( identified by LoggingAuditHeaders, key of the map), track the number of tries
+   * For each event (identified by LoggingAuditHeaders, key of the map), track the number of tries
    * for sending to Kafka. Each try will choose a different and partition that is not in the
    * badPartitions.  When event is send out successfully or dropped, the corresponding entry in
    * this map is removed.
@@ -188,7 +188,6 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
       this.serializer = new TSerializer();
     } catch (TTransportException e) {
       LOG.error("Failed to initialize TSerializer", e);
-      throw new RuntimeException("Failed to initialize TSerializer", e);
     }
   }
 
@@ -238,7 +237,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
           currentPartitionId = randomPartition;
           OpenTsdbMetricConverter.incr(
               LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_CURRENT_PARTITION_RESET, 1,
-              "host=" + host, "stage=" + stage.toString());
+              "host=" + host, "stage=" = stage.toString());
           return;
         }
       }

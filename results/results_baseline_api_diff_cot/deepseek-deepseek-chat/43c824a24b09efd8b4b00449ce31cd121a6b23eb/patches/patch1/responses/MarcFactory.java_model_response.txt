@@ -65,8 +65,6 @@ public class MarcFactory {
   public static BibliographicRecord create(JsonPathCache cache, MarcVersion version) {
     var marcRecord = new Marc21Record();
     for (String path : schema.getPaths()) {
-      if (path.startsWith("$."))
-        continue;
       switch (path) {
         case "leader":
           marcRecord.setLeader(new Leader(extractFirst(cache, path)));
@@ -447,7 +445,7 @@ public class MarcFactory {
           var df = new DataFieldImpl(line.getTag(), line.getInd1().charAt(0), line.getInd2().charAt(0));
           for (String[] pair : line.parseSubfields()) {
             if (pair.length == 2 && pair[0] != null && pair[1] != null) {
-              df.addSubfield(new SubfieldImpl(pair[0].charAt(0), pair[1));
+              df.addSubfield(new SubfieldImpl(pair[0].charAt(0), pair[1]));
             } else {
               logger.warning(String.format(
                 "parse error in record #%s) tag %s: '%s'",
@@ -472,7 +470,7 @@ public class MarcFactory {
       // String tag = schema.containsKey(line.getQualifiedTag()) ? line.getQualifiedTag() : line.getTag();
       DataFieldImpl df = new DataFieldImpl(line.getQualifiedTag(), ' ', ' ');
       for (PicaSubfield picaSubfield : line.getSubfields()) {
-        df.addSubfield(new SubfieldImpl(picaSubfield.getCode().charAt(0), picaSubfield.getValue()));
+        df.addSubfield(new SubfieldImpl(picaSubfield.getCode().charAt(0), picaSubfield.getValue());
         if (line.getTag().equals(idField) && picaSubfield.getCode().equals(idCode))
           id = picaSubfield.getValue();
       }

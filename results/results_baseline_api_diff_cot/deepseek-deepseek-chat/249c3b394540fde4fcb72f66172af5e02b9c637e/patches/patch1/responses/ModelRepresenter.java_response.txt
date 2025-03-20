@@ -20,6 +20,7 @@ import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
+import org.yaml.snakeyaml.introspector.PropertyUtils;
 
 import java.beans.IntrospectionException;
 import java.util.*;
@@ -211,9 +212,6 @@ class ModelRepresenter extends Representer {
 		  "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
   //}
 
-  /*
-   * Change the default order. Important data goes first.
-   */
   protected Set<Property> getProperties(Class<? extends Object> type) {
     try {
       if (type.isAssignableFrom(Model.class)) {

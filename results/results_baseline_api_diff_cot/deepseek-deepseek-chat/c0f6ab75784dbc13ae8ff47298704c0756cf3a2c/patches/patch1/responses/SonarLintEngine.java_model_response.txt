@@ -160,12 +160,17 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     }
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
-        return AnalysisEngineConfiguration.builder()
+        AnalysisEngineConfiguration.Builder builder = AnalysisEngineConfiguration.builder()
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())
-                .setModulesProvider(globalConfig.getModulesProvider())
-                .build();
+                .setModulesProvider(globalConfig.getModulesProvider());
+
+        for (Language language : globalConfig.getEnabledLanguages()) {
+            builder.addEnabledLanguage(language);
+        }
+
+        return builder.build();
     }
 
     /** Get or creates the one and only instance of this class. */
@@ -249,4 +254,43 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                             ActiveRule activeRule =
                                     new ActiveRule(rd.getKey(), rd.getLanguage().getLanguageKey());
                             RuleKey ruleKey = RuleKey.parse(rd.getKey());
-                            if (configuration.ruleParameters().containsKey(ruleKey)
+                            if (configuration.ruleParameters().containsKey(ruleKey)) {
+                                activeRule.setParams(configuration.ruleParameters().get(ruleKey));
+                            }
+                            return activeRule;
+                        })
+                .collect(Collectors.toList());
+    }
+
+    private static Predicate<? super SonarLintRuleDefinition> isImplementedBySonarJavaPlugin(
+            Set<String> includedRules) {
+        return r -> includedRules.contains(r.getKey());
+    }
+
+    public void stop() {
+        analysisEngine.stop();
+    }
+
+    public List<PluginDetails> getPluginDetails() {
+        throw new RuntimeException("Not implemented"); // NOSONAR:S112
+    }
+
+    /**
+     * Overriding this class to ensure that plugin instance loader never closes throughout the
+     * lifecycle of JVM.
+     */
+    public static class LoadedPluginsThatDoesNotCloseLoader extends LoadedPlugins {
+
+        public LoadedPluginsThatDoesNotCloseLoader(
+                Map<String, Plugin> pluginInstancesByKeys,
+                PluginInstancesLoader pluginInstancesLoader) {
+            super(pluginInstancesByKeys, pluginInstancesLoader);
+        }
+
+        @Override
+        public void unload() {
+            // Prevent closing of `pluginInstancesLoader`
+        }
+    }
+}
+```

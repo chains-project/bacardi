@@ -5,6 +5,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
+import jakarta.mvc.UriRef;
 import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.binding.MvcBinding;
 import jakarta.mvc.binding.ParamError;
@@ -42,6 +43,7 @@ public class GreetingController {
     }
 
     @POST
+    @UriRef("greeting-post")
     public String post(
             @FormParam("greeting")
             @MvcBinding

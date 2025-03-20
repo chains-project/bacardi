@@ -12,7 +12,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
@@ -116,7 +115,7 @@ public class SupplierAddressStructure implements ToString2
      *     
      */
     public void setStreetName(String value) {
-        this.st街Name = value;
+        this.streetName = value;
     }
 
     /**
@@ -241,7 +240,7 @@ public class SupplierAddressStructure implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
+        final ToStringStrategy2 strategy = new ToStringStrategy2();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

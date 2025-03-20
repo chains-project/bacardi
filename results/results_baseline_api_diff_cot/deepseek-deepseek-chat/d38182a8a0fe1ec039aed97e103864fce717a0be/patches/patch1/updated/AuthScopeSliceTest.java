@@ -54,7 +54,7 @@ class AuthScopeSliceTest {
                 new AuthScheme.Result() {
                     @Override
                     public Optional<Authentication.User> user() {
-                        return Optional.of(new Authentication.User("alice"));
+                        return Optional.of(new Authentication.User("alice", java.util.Collections.emptyList()));
                     }
 
                     @Override

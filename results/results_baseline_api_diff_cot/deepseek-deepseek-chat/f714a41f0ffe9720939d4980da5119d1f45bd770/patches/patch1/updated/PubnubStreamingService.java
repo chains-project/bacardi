@@ -8,14 +8,13 @@ import com.pubnub.api.PubNub;
 import com.pubnub.api.callbacks.SubscribeCallback;
 import com.pubnub.api.enums.PNStatusCategory;
 import com.pubnub.api.models.consumer.PNStatus;
-import com.pubnub.api.models.consumer.pubsub.BasePubSubResult;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
 import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
-import com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult;
-import com.pubnub.api.models.consumer.objects_api.space.PNSpaceResult;
-import com.pubnub.api.models.consumer.objects_api.user.PNUserResult;
+import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
+import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
+import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -90,17 +89,14 @@ public class PubnubStreamingService {
                   LOG.debug("PubNub signal: {}", pnSignalResult.toString());
                 }
 
-                @Override
                 public void user(PubNub pubnub, PNUserResult pnUserResult) {
                   LOG.debug("PubNub user: {}", pnUserResult.toString());
                 }
 
-                @Override
                 public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
                   LOG.debug("PubNub space: {}", pnSpaceResult.toString());
                 }
 
-                @Override
                 public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
                   LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
                 }
@@ -112,7 +108,7 @@ public class PubnubStreamingService {
                 }
 
                 @Override
-                public void file(PubNub pubnub, BasePubSubResult pnFileEventResult) {
+                public void file(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult pnFileEventResult) {
                   LOG.debug("PubNub file: {}", pnFileEventResult.toString());
                 }
               });

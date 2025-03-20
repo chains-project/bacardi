@@ -1,20 +1,19 @@
-48c48,52
+48c48,51
 < import org.hamcrest.Matchers;
 ---
 > import org.hamcrest.core.IsCollectionContaining;
 > import org.hamcrest.core.IsEqual;
-> import org.hamcrest.core.IsNull;
 > import org.hamcrest.core.IsNot;
-> import org.hamcrest.core.StringContains;
-210c214
+> import org.hamcrest.core.IsNull;
+210c213
 <         return this.assertHeader(name, Matchers.hasItems(value));
 ---
 >         return this.assertHeader(name, IsCollectionContaining.hasItems(value));
-246c250
+246c249
 <             Matchers.not(Matchers.emptyIterableOf(String.class))
 ---
 >             IsNot.not(IsCollectionContaining.emptyIterable())
-284c288
+284c287
 <             Matchers.notNullValue()
 ---
 >             IsNull.notNullValue()

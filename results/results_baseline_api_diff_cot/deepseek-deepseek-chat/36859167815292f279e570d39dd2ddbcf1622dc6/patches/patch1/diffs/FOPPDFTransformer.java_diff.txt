@@ -1,4 +1,8 @@
-115c115
+57a58,59
+> import org.apache.fop.apps.FopFactoryBuilder;
+> import org.apache.fop.apps.FopConfParser;
+115c117,118
 <         FopFactory fopFactory = FopFactory.newInstance();
 ---
->         FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
+>         FopFactoryBuilder builder = new FopFactoryBuilder(URI.create("."));
+>         FopFactory fopFactory = builder.build();

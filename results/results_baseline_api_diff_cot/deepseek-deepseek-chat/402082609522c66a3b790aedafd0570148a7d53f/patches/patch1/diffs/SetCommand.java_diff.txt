@@ -1,0 +1,62 @@
+13,17c13,16
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.args.GenericArguments;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.parameter.Parameter.Value;
+21,22c20
+< import static org.spongepowered.api.command.args.GenericArguments.flags;
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+---
+> import static org.spongepowered.api.command.parameter.Parameter.string;
+37,39c35,37
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+---
+>     public CommandResult execute(CommandContext args) {
+>         if (!(args.cause().root() instanceof Player)) {
+>             plugin.sendMessage(args.cause().root(), "no-console");
+43c41
+<         UUID uniqueId = ((Player) src).getUniqueId();
+---
+>         UUID uniqueId = ((Player) args.cause().root()).getUniqueId();
+45c43
+<             plugin.sendMessage(src, "cooldown");
+---
+>             plugin.sendMessage(args.cause().root(), "cooldown");
+49,51c47,49
+<         Player receiver = (Player) src;
+<         String targetSkin = args.<String>getOne("skin").get();
+<         boolean keepSkin = args.hasAny("keep");
+---
+>         Player receiver = (Player) args.cause().root();
+>         String targetSkin = args.one(Parameter.string("skin")).get();
+>         boolean keepSkin = args.hasAny(Parameter.bool("keep"));
+60c58
+<             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(src, targetUUID, true)) {
+---
+>             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(args.cause().root(), targetUUID, true)) {
+64,65c62,63
+<             plugin.sendMessage(src, "skin-change-queue");
+<             Runnable skinDownloader = new SkinDownloader(plugin, src, receiver, targetUUID, keepSkin);
+---
+>             plugin.sendMessage(args.cause().root(), "skin-change-queue");
+>             Runnable skinDownloader = new SkinDownloader(plugin, args.cause().root(), receiver, targetUUID, keepSkin);
+70c68
+<         Runnable nameResolver = new NameResolver(plugin, src, targetSkin, receiver, keepSkin);
+---
+>         Runnable nameResolver = new NameResolver(plugin, args.cause().root(), targetSkin, receiver, keepSkin);
+79,81c77,79
+<                 .arguments(
+<                         string(of("skin")),
+<                         flags().flag("keep").buildWith(GenericArguments.none()))
+---
+>                 .parameters(
+>                         Parameter.string("skin"),
+>                         Parameter.bool("keep"))
