@@ -1,14 +1,8 @@
-<code_analysis>
-1. The error message indicates that several pipeline-related interfaces (such as ScriptingCommandsPipeline, BasicRedisPipeline, MultiKeyBinaryRedisPipeline, BinaryScriptingCommandsPipeline, ClusterPipeline, RedisPipeline, and MultiKeyCommandsPipeline) cannot be found. This suggests that in the updated Jedis dependency these interfaces have been removed or relocated.
-2. In the client code the interface RedisGraphTransaction is declared to extend these now-missing pipeline interfaces. The imports for these interfaces are also causing the compilation error.
-3. Since we must keep all function signatures intact, the simplest fix is to remove the now-missing pipeline interface references (and their corresponding import statements) from the extends clause of RedisGraphTransaction. In other words, we update the code to extend only those interfaces that still exist (in this case, only Closeable).
-4. This patch removes the pipeline interface inheritance and all related import lines, which directly fixes the compilation errors introduced by the dependency update without affecting the transaction method signatures.
-</code_analysis>
-
 ```java
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
+
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +55,7 @@ public interface RedisGraphTransaction extends Closeable {
      * @deprecated use {@link #query(String, String, Map)} instead.
      */
     @Deprecated
-    Response<ResultSet> query(String graphId, String query, Object... args);
+    Response<ResultSet> query(String graphId, String query, Object ...args);
 
     /**
      * Executes a cypher query with parameters.

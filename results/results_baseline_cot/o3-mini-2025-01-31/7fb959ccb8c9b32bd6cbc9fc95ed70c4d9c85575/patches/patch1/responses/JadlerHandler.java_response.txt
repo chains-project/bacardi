@@ -13,6 +13,7 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -23,7 +24,6 @@ import java.io.OutputStream;
 class JadlerHandler extends AbstractHandler {
 
     private final RequestManager requestManager;
-
 
     /**
      * @param requestManager request manager instance to retrieve stub responses

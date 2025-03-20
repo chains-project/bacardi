@@ -1,30 +1,7 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the `CommandSpec` class cannot be found, which suggests that the package `org.spongepowered.api.command.spec` does not exist in the current classpath.
-   - The error occurs at line 8, where `CommandSpec` is referenced in the `ChangeSkinCommand` interface.
-   - This issue is likely due to a breaking change in the Sponge API dependency, where the `CommandSpec` class has either been moved to a different package or removed in the updated version.
-
-2. Review the client code:
-   - The `ChangeSkinCommand` interface is attempting to use `CommandSpec` from the Sponge API, but the import statement for `org.spongepowered.api.command.spec` is missing or incorrect.
-   - There are no other references to `CommandSpec` in the provided code, so the issue is isolated to the import statement and the usage of `CommandSpec`.
-
-3. Consider potential fixes:
-   - We need to check the latest version of the Sponge API to determine the correct package for `CommandSpec`.
-   - If `CommandSpec` has been moved, we will need to update the import statement accordingly.
-   - We will ensure that the function signature remains unchanged and that we do not remove any existing code unless necessary.
-
-4. Plan the necessary changes to fix the issue:
-   - Update the import statement to reflect the new package location of `CommandSpec`.
-   - Ensure that the `buildSpec` method remains unchanged and correctly returns an instance of `CommandSpec`.
-
-Based on the analysis, the likely new package for `CommandSpec` in the updated Sponge API is `org.spongepowered.api.command`. We will update the import statement accordingly.
-
-</code_analysis>
-
 ```java
 package com.github.games647.changeskin.sponge.command;
 
-import org.spongepowered.api.command.CommandSpec; // Updated import statement
+import org.spongepowered.api.command.CommandSpec; // Updated import
 
 @FunctionalInterface
 public interface ChangeSkinCommand {

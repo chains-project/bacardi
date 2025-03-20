@@ -36,41 +36,41 @@ public class PGS_MeshingTests {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-import static org.junit.Assert.assertTrue;
-```
-```java
-import static org.junit.Assert.assertEquals;
-```
-```java
-assertEquals(PGS_ShapePredicates.area(mesh), PGS_ShapePredicates.area(mergedMesh), 1e-6);
-```
-```java
 assertTrue(faces.size() >= mergedMesh.getChildCount());
 ```
 ```java
 assertTrue(PGS_Conversion.getChildren(mergedMesh).stream().allMatch(f -> PGS_ShapePredicates.area(f) >= areaThreshold));
 ```
+```java
+import static org.junit.Assert.assertEquals;
+```
+```java
+import static org.junit.Assert.assertTrue;
+```
+```java
+assertEquals(PGS_ShapePredicates.area(mesh), PGS_ShapePredicates.area(mergedMesh), 1e-6);
+```
 
 
  And here is the error message:
-[ERROR] /PGS/src/test/java/micycle/pgs/PGS_MeshingTests.java:[4,24] cannot find symbol
-  symbol:   class Assert
-  location: package org.junit
-
-[ERROR] /PGS/src/test/java/micycle/pgs/PGS_MeshingTests.java:[3,24] cannot find symbol
-  symbol:   class Assert
-  location: package org.junit
-
-[ERROR] /PGS/src/test/java/micycle/pgs/PGS_MeshingTests.java:[24,17] cannot find symbol
-  symbol:   method assertEquals(double,double,double)
-  location: class micycle.pgs.PGS_MeshingTests
-
 [ERROR] /PGS/src/test/java/micycle/pgs/PGS_MeshingTests.java:[23,17] cannot find symbol
   symbol:   method assertTrue(boolean)
   location: class micycle.pgs.PGS_MeshingTests
 
 [ERROR] /PGS/src/test/java/micycle/pgs/PGS_MeshingTests.java:[22,17] cannot find symbol
   symbol:   method assertTrue(boolean)
+  location: class micycle.pgs.PGS_MeshingTests
+
+[ERROR] /PGS/src/test/java/micycle/pgs/PGS_MeshingTests.java:[3,24] cannot find symbol
+  symbol:   class Assert
+  location: package org.junit
+
+[ERROR] /PGS/src/test/java/micycle/pgs/PGS_MeshingTests.java:[4,24] cannot find symbol
+  symbol:   class Assert
+  location: package org.junit
+
+[ERROR] /PGS/src/test/java/micycle/pgs/PGS_MeshingTests.java:[24,17] cannot find symbol
+  symbol:   method assertEquals(double,double,double)
   location: class micycle.pgs.PGS_MeshingTests
 
 

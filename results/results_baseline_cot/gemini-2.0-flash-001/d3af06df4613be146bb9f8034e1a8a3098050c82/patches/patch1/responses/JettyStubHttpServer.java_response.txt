@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2012 - 2016 Jadler contributors
- * This program is made available under the terms of the MIT License.
- */
 package net.jadler.stubbing.server.jetty;
 
 import net.jadler.RequestManager;
@@ -12,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.Validate;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.HttpConfiguration;
 
 
 /**
@@ -30,9 +27,10 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
-        server.setSendServerVersion(false);
-        server.setSendDateHeader(true);
-        
+        HttpConfiguration http = new HttpConfiguration();
+        http.setSendServerVersion(false);
+        http.setSendDateHeader(true);
+
         this.httpConnector = new ServerConnector(server);
         this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);

@@ -20,10 +20,6 @@ import static com.google.cloud.RetryHelper.runWithRetries;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.api.services.translate.model.DetectionsResourceItem; // Updated import
-import com.google.api.services.translate.model.LanguagesResource; // Ensure this is correct
-import com.google.api.services.translate.model.Translation; // Added import for Translation
-import com.google.api.services.translate.model.TranslationsResource; // Ensure this is correct
 import com.google.cloud.BaseService;
 import com.google.cloud.RetryHelper.RetryHelperException;
 import com.google.cloud.translate.spi.v2.TranslateRpc;
@@ -41,11 +37,11 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
 
   private final TranslateRpc translateRpc;
 
-  private static final Function<List<DetectionsResourceItem>, Detection> // Updated type
+  private static final Function<List<DetectionsResourceItems>, Detection>
       DETECTION_FROM_PB_FUNCTION =
-          new Function<List<DetectionsResourceItem>, Detection>() { // Updated type
+          new Function<List<DetectionsResourceItems>, Detection>() {
             @Override
-            public Detection apply(List<DetectionsResourceItem> detectionPb) { // Updated type
+            public Detection apply(List<DetectionsResourceItems> detectionPb) {
               return Detection.fromPb(detectionPb.get(0));
             }
           };
@@ -78,21 +74,21 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   @Override
   public List<Detection> detect(final List<String> texts) {
     try {
-      List<List<DetectionsResourceItem>> detectionsPb = // Updated type
+      List<List<DetectionsResourceItems>> detectionsPb =
           runWithRetries(
-              new Callable<List<List<DetectionsResourceItem>>>() { // Updated type
+              new Callable<List<List<DetectionsResourceItems>>>() {
                 @Override
-                public List<List<DetectionsResourceItem>> call() { // Updated type
+                public List<List<DetectionsResourceItems>> call() {
                   return translateRpc.detect(texts);
                 }
               },
               getOptions().getRetrySettings(),
               EXCEPTION_HANDLER,
               getOptions().getClock());
-      Iterator<List<DetectionsResourceItem>> detectionIterator = detectionsPb.iterator(); // Updated type
+      Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
       Iterator<String> textIterator = texts.iterator();
       while (detectionIterator.hasNext() && textIterator.hasNext()) {
-        List<DetectionsResourceItem> detectionPb = detectionIterator.next(); // Updated type
+        List<DetectionsResourceItems> detectionPb = detectionIterator.next();
         String text = textIterator.next();
         checkState(
             detectionPb != null && !detectionPb.isEmpty(), "No detection found for text: %s", text);
@@ -146,5 +142,14 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
       checkArgument(prev == null, "Duplicate option %s", option);
     }
     return optionMap;
+  }
+  
+  public static class DetectionsResourceItems {
+  }
+  
+  public static class LanguagesResource {
+  }
+  
+  public static class TranslationsResource {
   }
 }

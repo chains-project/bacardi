@@ -1,24 +1,3 @@
-<code_analysis>
-1. Error message analysis:
-   - The error indicates that the constructor for org.hamcrest.core.StringContains is now expecting a single String argument rather than a boolean and a String.
-   - The errors occur in various methods (e.g., manifestPushed(), layersPushed(), layersAlreadyExist(), and in tests where StringContains is instantiated with two parameters).
-   - This change is due to an update in the Hamcrest dependency, where the old constructor (taking a boolean to indicate case insensitivity) has been removed or changed.
-
-2. Client code review:
-   - The client code uses calls like new StringContains(false, "some string") in several methods.
-   - We need to remove the boolean parameter from the constructor calls to match the updated Hamcrest API.
-   
-3. Potential fixes:
-   - Remove the first (boolean) argument in the StringContains constructor to use only a String argument.
-   - Since the boolean was always false (likely indicating case-sensitive matching), removing it maintains the intended behavior.
-
-4. Required modifications:
-   - Modify the manifestPushed(), layersPushed(), layersAlreadyExist() methods, and similar calls in test methods to pass only the string to StringContains.
-   - Ensure that all instances of new StringContains(false, ...) are updated to new StringContains(...).
-
-The following patch applies these changes and will compile correctly.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
@@ -103,9 +82,7 @@ final class DockerSliceITCase {
         final String output = this.client.run("pull", this.image.remote());
         MatcherAssert.assertThat(
             output,
-            new StringContains(
-                String.format("Status: Downloaded newer image for %s", this.image.remote())
-            )
+            new StringContains(String.format("Status: Downloaded newer image for %s", this.image.remote()))
         );
     }
 
@@ -117,9 +94,7 @@ final class DockerSliceITCase {
         final String output = this.client.run("pull", this.image.remoteByDigest());
         MatcherAssert.assertThat(
             output,
-            new StringContains(
-                String.format("Status: Downloaded newer image for %s", this.image.remoteByDigest())
-            )
+            new StringContains(String.format("Status: Downloaded newer image for %s", this.image.remoteByDigest()))
         );
     }
 
@@ -140,21 +115,15 @@ final class DockerSliceITCase {
     }
 
     private Matcher<String> manifestPushed() {
-        return new StringContains(
-            String.format("latest: digest: %s", this.image.digest())
-        );
+        return new StringContains(String.format("latest: digest: %s", this.image.digest()));
     }
 
     private Matcher<String> layersPushed() {
-        return new StringContains(
-            String.format("%s: Pushed", this.image.layer())
-        );
+        return new StringContains(String.format("%s: Pushed", this.image.layer()));
     }
 
     private Matcher<String> layersAlreadyExist() {
-        return new StringContains(
-            String.format("%s: Layer already exists", this.image.layer())
-        );
+        return new StringContains(String.format("%s: Layer already exists", this.image.layer()));
     }
 }
 ```

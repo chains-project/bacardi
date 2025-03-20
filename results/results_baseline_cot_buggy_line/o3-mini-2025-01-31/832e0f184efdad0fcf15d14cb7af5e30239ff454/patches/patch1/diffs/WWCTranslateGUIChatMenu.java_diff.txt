@@ -1,31 +1,8 @@
-39,42c39,43
-<                 playerTitle = ChatColor.BLUE + CommonDefinitions.getMessage("wwctGUIChatMenu", new String[] {WorldwideChat.instance.getServer()
-<                                 .getPlayer(UUID.fromString(targetPlayerUUID)).getName()});
-<                 return SmartInventory.builder().id("translateChatMenu").provider(new WWCTranslateGUIChatMenu(targetPlayerUUID))
-<                                 .size(4, 9).manager(WorldwideChat.instance.getInventoryManager()).title(playerTitle).build();
----
->                 playerTitle = ChatColor.BLUE + CommonDefinitions.getMessage("wwctGUIChatMenu",
->                                 new String[] { WorldwideChat.instance.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName() });
->                 return SmartInventory.builder().id("translateChatMenu")
->                                 .provider(new WWCTranslateGUIChatMenu(targetPlayerUUID)).size(4, 9)
->                                 .manager(WorldwideChat.instance.getInventoryManager()).title(playerTitle).build();
-66c67,69
-<                         if ((player.getUniqueId().toString().equals(targetPlayerUUID) && player.hasPermission("worldwidechat.wwctco")) || (!player.getUniqueId().toString().equals(targetPlayerUUID)) && player.hasPermission("worldwidechat.wwctco.otherplayers")) {
----
->                         if ((player.getUniqueId().toString().equals(targetPlayerUUID) && player.hasPermission("worldwidechat.wwctco"))
->                                         || (!player.getUniqueId().toString().equals(targetPlayerUUID)
->                                                         && player.hasPermission("worldwidechat.wwctco.otherplayers"))) {
-71c74
+71c71
 <                                         outgoingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
 ---
 >                                         outgoingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
-88c91,93
-<                         if ((player.getUniqueId().toString().equals(targetPlayerUUID) && player.hasPermission("worldwidechat.wwctci")) || (!player.getUniqueId().toString().equals(targetPlayerUUID)) && player.hasPermission("worldwidechat.wwctci.otherplayers")) {
----
->                         if ((player.getUniqueId().toString().equals(targetPlayerUUID) && player.hasPermission("worldwidechat.wwctci"))
->                                         || (!player.getUniqueId().toString().equals(targetPlayerUUID)
->                                                         && player.hasPermission("worldwidechat.wwctci.otherplayers"))) {
-93c98
+93c93
 <                                 incomingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
 ---
 >                                 incomingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);

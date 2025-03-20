@@ -17,7 +17,6 @@ public class NameResolver extends SharedNameResolver {
 
     public NameResolver(ChangeSkinSponge plugin, CommandSource invoker, String targetName, Player receiver, boolean keepSkin) {
         super(plugin.getCore(), targetName, keepSkin);
-
         this.plugin = plugin;
         this.invoker = invoker;
         this.receiver = receiver;

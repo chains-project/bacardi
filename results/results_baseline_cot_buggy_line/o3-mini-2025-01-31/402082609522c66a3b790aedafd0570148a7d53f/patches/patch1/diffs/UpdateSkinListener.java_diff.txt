@@ -1,18 +1,14 @@
-9a10
-> import java.nio.ByteBuffer;
-14c15
+14d13
 < import org.spongepowered.api.command.CommandSource;
----
-> import org.spongepowered.api.command.source.CommandSource;
-16,17d16
+16,17d14
 < import org.spongepowered.api.network.ChannelBuf;
 < import org.spongepowered.api.network.RawDataListener;
-21c20
+18a16,17
+> import org.spongepowered.api.network.channel.ChannelBuf;
+> import org.spongepowered.api.network.channel.ChannelBinding.RawDataChannel.RawDataHandler;
+19a19
+> import org.spongepowered.api.command.source.CommandSource;
+21c21
 < public class UpdateSkinListener implements RawDataListener {
 ---
-> public class UpdateSkinListener {
-26,27c25
-<     @Override
-<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
----
->     public void handlePayload(ByteBuffer data, RemoteConnection connection, Type side) {
+> public class UpdateSkinListener implements RawDataHandler {

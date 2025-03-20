@@ -1,16 +1,3 @@
-<code_analysis>
-1. The error message indicates that the class RandomText (imported from org.cactoos.text.RandomText) cannot be found. This suggests that in the updated version of the cactoos dependency the RandomText class has been removed or renamed.
-2. In the client code the RandomText is used in the Fake(int) constructor when creating an instance of RtScore by passing a Repeated iterable. The construction:
-   new Repeated<>(val, new RandomText())
-   is no longer valid because RandomText is missing.
-3. To fix the issue without changing function signatures or other parts of the API, we can use another class from the cactoos library. For example, TextOf is available in org.cactoos.text.TextOf. To simulate random content (as was likely intended by RandomText), we can generate a random string (using UUID.randomUUID().toString()) and wrap it in a TextOf instance.
-4. The specific modifications are:
-   - Remove the import for org.cactoos.text.RandomText.
-   - Import org.cactoos.text.TextOf and java.util.UUID.
-   - Replace new RandomText() with new TextOf(UUID.randomUUID().toString()) in the Fake(int) constructor.
-This patch preserves functionality and complies with the constraints.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT)
@@ -39,7 +26,7 @@ This patch preserves functionality and complies with the constraints.
 package io.zold.api;
 
 import org.cactoos.iterable.Repeated;
-import org.cactoos.text.TextOf;
+import org.cactoos.Text;
 import java.util.UUID;
 
 /**
@@ -83,7 +70,7 @@ public interface Remote {
          */
         public Fake(final int val) {
             this(new RtScore(
-                new Repeated<>(val, new TextOf(UUID.randomUUID().toString()))
+                new Repeated<>(val, new RandomText())
             ));
         }
 
@@ -108,6 +95,16 @@ public interface Remote {
         @Override
         public Wallet pull(final long id) {
             return new Wallet.Fake(id);
+        }
+    }
+
+    /**
+     * Replacement for the removed org.cactoos.text.RandomText.
+     */
+    final class RandomText implements Text {
+        @Override
+        public String asString() {
+            return UUID.randomUUID().toString();
         }
     }
 }

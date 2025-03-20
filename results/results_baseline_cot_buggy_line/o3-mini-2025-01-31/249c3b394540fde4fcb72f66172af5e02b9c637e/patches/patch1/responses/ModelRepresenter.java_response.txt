@@ -21,7 +21,6 @@ import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
 
-import java.beans.IntrospectionException;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -90,6 +89,7 @@ class ModelRepresenter extends Representer {
     }
     return false;
   }
+
 
   private class RepresentXpp3Dom implements Represent {
     private static final String ATTRIBUTE_PREFIX = "attr/";
@@ -231,10 +231,10 @@ class ModelRepresenter extends Representer {
   }
 
   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
-    Set<Property> standard = super.getProperties(type);
-    Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
-    sorted.addAll(standard);
-    return sorted;
+      Set<Property> standard = super.getProperties(type);
+      Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
+      sorted.addAll(standard);
+      return sorted;
   }
 
   private class ModelPropertyComparator implements Comparator<Property> {
@@ -262,7 +262,7 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0; // compare further
+      return 0;// compare further
     }
   }
 }

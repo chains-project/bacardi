@@ -6,9 +6,9 @@ package net.jadler.stubbing.server.jetty;
 
 import net.jadler.RequestManager;
 import net.jadler.stubbing.server.StubHttpServer;
-import org.apache.commons.lang3.Validate; // Updated import for Validate
+import org.apache.commons.lang.Validate;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector; // Updated import for ServerConnector
+import org.eclipse.jetty.server.ServerConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +20,7 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
     private final Server server;
-    private final ServerConnector httpConnector; // Changed to ServerConnector
+    private final ServerConnector httpConnector;
 
     public JettyStubHttpServer() {
         this(0);
@@ -29,10 +29,10 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
-        this.server.setAttribute("org.eclipse.jetty.server.Server.sendServerVersion", false); // Updated method
-        this.server.setAttribute("org.eclipse.jetty.server.Server.sendDateHeader", true); // Updated method
+        this.server.setSendServerVersion(false);
+        this.server.setSendDateHeader(true);
 
-        this.httpConnector = new ServerConnector(server); // Updated to use ServerConnector
+        this.httpConnector = new ServerConnector(server);
         this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);
     }
@@ -76,6 +76,6 @@ public class JettyStubHttpServer implements StubHttpServer {
      */
     @Override
     public int getPort() {
-        return httpConnector.getLocalPort(); // This method is valid for ServerConnector
+        return httpConnector.getLocalPort();
     }
 }

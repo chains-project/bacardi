@@ -1,13 +1,3 @@
-<code_analysis>
-1. The error message indicates that an IOException is declared in the try-catch block but is never thrown by any method call within the try block. Specifically, the calls to SHORT_TIME_FORMAT.printTo(rslt, startTime) and printTo(rslt, endTime) do not throw IOException in the updated version of the Joda-Time dependency.
-2. In the client code, the try block in getFormattedMeetingTime() is now redundant because the printTo() methods no longer throw IOException. This results in a compilation error.
-3. The needed change is to remove the try-catch block (and thus the catch for IOException) from the getFormattedMeetingTime() method, allowing the method to compile correctly with the updated dependency.
-4. The patch involves:
-   - Removing the try-catch block around the calls to SHORT_TIME_FORMAT.printTo().
-   - Leaving the method signatures and class structure intact.
-   - Retaining the logging statement is no longer necessary because no IOException will be thrown.
-</code_analysis>
-
 ```java
 /**
  * Licensed to Apereo under one or more contributor license
@@ -29,9 +19,7 @@
  */
 package org.jasig.portlet.courses.model.xml;
 
-import java.io.IOException;
 import java.util.List;
-
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -66,8 +54,6 @@ public abstract class CourseMeetingWrapper {
          * pick-and-choose which data they provide. 
          */
         if (startTime != null) {
-            // The following method calls no longer throw IOException,
-            // so we can remove the try-catch block.
             SHORT_TIME_FORMAT.printTo(rslt, startTime);
             if (endTime != null) {
                 rslt.append(" - ");
@@ -90,7 +76,7 @@ public abstract class CourseMeetingWrapper {
          * pick-and-choose which data they provide. 
          */
 
-        if (days != null && !days.isEmpty()) {
+        if (days != null && days.size() != 0) {
             for (String day : days) {
                 rslt.append(day).append(", ");
             }

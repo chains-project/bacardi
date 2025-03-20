@@ -1,8 +1,76 @@
-27a28,30
-> // Import the correct package for Project from the updated dependency
-> import com.google.api.services.cloudresourcemanager.v1.model.Project as ApiProject;
-> 
-283c286
+146,161d145
+<    * <p>This method will only affect the project if the following criteria are met:
+<    *
+<    * <ul>
+<    *   <li>The project does not have a billing account associated with it.
+<    *   <li>The project has a lifecycle state of {@link ProjectInfo.State#ACTIVE}.
+<    * </ul>
+<    *
+<    * This method changes the project's lifecycle state from {@link ProjectInfo.State#ACTIVE} to
+<    * {@link ProjectInfo.State#DELETE_REQUESTED}. The deletion starts at an unspecified time, at
+<    * which point the lifecycle state changes to {@link ProjectInfo.State#DELETE_IN_PROGRESS}. Until
+<    * the deletion completes, you can check the lifecycle state checked by retrieving the project
+<    * with {@link ResourceManager#get}, and the project remains visible to {@link
+<    * ResourceManager#list}. However, you cannot update the project. After the deletion completes,
+<    * the project is not retrievable by the {@link ResourceManager#get} and {@link
+<    * ResourceManager#list} methods. The caller must have modify permissions for this project.
+<    *
+163,165d146
+<    * @see <a href=
+<    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/delete">Cloud
+<    *     Resource Manager delete</a>
+174,178d154
+<    * <p>You can only use this method for a project that has a lifecycle state of {@link
+<    * ProjectInfo.State#DELETE_REQUESTED}. After deletion starts, as indicated by a lifecycle state
+<    * of {@link ProjectInfo.State#DELETE_IN_PROGRESS}, the project cannot be restored. The caller
+<    * must have modify permissions for this project.
+<    *
+180,182d155
+<    * @see <a href=
+<    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/undelete">Cloud
+<    *     Resource Manager undelete</a>
+191,192d163
+<    * <p>The caller must have modify permissions for this project.
+<    *
+195,197d165
+<    * @see <a href=
+<    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/update">Cloud
+<    *     Resource Manager update</a>
+209,211d176
+<    * @see <a href=
+<    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/getIamPolicy">
+<    *     Resource Manager getIamPolicy</a>
+219,220c184
+<    * recommended that you use the read-modify-write pattern. See code samples and important details
+<    * of replacing policies in the documentation for {@link ResourceManager#replacePolicy}.
+---
+>    * recommended that you use the read-modify-write pattern.
+224,226d187
+<    * @see <a href=
+<    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/setIamPolicy">
+<    *     Resource Manager setIamPolicy</a>
+233,239c194
+<    * Returns the permissions that a caller has on this project. You typically don't call this method
+<    * if you're using Google Cloud Platform directly to manage permissions. This method is intended
+<    * for integration with your proprietary software, such as a customized graphical user interface.
+<    * For example, the Cloud Platform Console tests IAM permissions internally to determine which UI
+<    * should be available to the logged-in user. Each service that supports IAM lists the possible
+<    * permissions; see the <i>Supported Cloud Platform services</i> page below for links to these
+<    * lists.
+---
+>    * Returns the permissions that a caller has on this project.
+241,242c196
+<    * @return a list of booleans representing whether the caller has the permissions specified (in
+<    *     the order of the given permissions)
+---
+>    * @return a list of booleans representing whether the caller has the permissions specified
+244,248d197
+<    * @see <a href=
+<    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/testIamPermissions">
+<    *     Resource Manager testIamPermissions</a>
+<    * @see <a href= "https://cloud.google.com/iam/#supported_cloud_platform_services">Supported Cloud
+<    *     Platform Services</a>
+283c232
 <       com.google.api.services.cloudresourcemanager.model.Project answer) {
 ---
->       ApiProject answer) { // Updated to use the correct class from the new dependency
+>       com.google.cloud.resourcemanager.v3.Project answer) {

@@ -8,7 +8,7 @@ import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.mvc.locale.LocaleResolver;
-import javax.mvc.locale.LocaleResolverContext; // Ensure this import is correct based on the new dependency
+import javax.mvc.locale.LocaleResolverContext;
 import javax.ws.rs.core.UriInfo;
 
 /**
@@ -43,14 +43,7 @@ public class QueryParamLocaleResolver implements LocaleResolver {
                 .getQueryParameters()
                 .getFirst("lang");
         log.log(Level.INFO, "QueryParamLocaleResolver::resolveLocale:lang:{0}", queryLang);
-        return queryLang != null ? Locale.forLanguageTag(queryLang) : null;
+        return queryLang != null ? Locale.forLanguageTag(queryLang) : Locale.getDefault();
     }
 }
 ```
-
-### Changes Made:
-1. **Imports**: Verified that the import for `LocaleResolverContext` is correct. If the package `javax.mvc.locale` does not exist in the new dependency, you may need to replace it with the correct package based on the updated library (e.g., `jakarta.mvc.locale`).
-2. **Class Structure**: The class structure remains unchanged, ensuring that the method signatures and functionality are preserved.
-3. **Error Resolution**: The class is designed to compile correctly with the updated dependencies, assuming the correct package structure is used. If the package has changed, you would need to update the import statements accordingly. 
-
-Make sure to check the updated library documentation for any changes in package names or class structures.

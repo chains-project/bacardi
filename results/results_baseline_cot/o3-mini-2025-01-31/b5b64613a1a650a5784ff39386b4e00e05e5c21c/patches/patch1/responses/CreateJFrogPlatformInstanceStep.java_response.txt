@@ -70,7 +70,6 @@ public class CreateJFrogPlatformInstanceStep extends AbstractStepImpl {
 
         @Override
         protected JFrogPlatformInstance run() throws Exception {
-            // Replaced isAllBlank with an equivalent check using isBlank
             if (isBlank(step.url) && isBlank(step.artifactoryUrl) && isBlank(step.distributionUrl)) {
                 throw new IllegalArgumentException("At least one of the following is mandatory: 'url', 'artifactoryUrl', 'distributionUrl'");
             }

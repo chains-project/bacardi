@@ -1,20 +1,41 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2018-2023 Yegor Bugayenko
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package io.zold.api;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
-import org.cactoos.iterable.Filtered;
+import java.util.ArrayList;
+import java.util.List;
 import org.cactoos.iterable.IterableOf;
 import org.cactoos.iterable.Joined;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Skipped;
 import org.cactoos.list.ListOf;
-import org.cactoos.scalar.IoChecked;
 import org.cactoos.scalar.Or;
-import org.cactoos.scalar.Unchecked;
 import org.cactoos.text.FormattedText;
-import org.cactoos.text.split.SplitText;
 import org.cactoos.text.TextOf;
 import org.cactoos.text.UncheckedText;
 
@@ -140,7 +161,48 @@ public interface Wallet {
 
         @Override
         public Wallet merge(final Wallet other) {
-            return other;
+            try {
+                if (other.id() != this.id()) {
+                    throw new IOException(
+                        new UncheckedText(
+                            new FormattedText(
+                                "Wallet ID mismatch, ours is %d, theirs is %d",
+                                other.id(),
+                                this.id()
+                            )
+                        ).asString()
+                    );
+                }
+                final Iterable<Transaction> ledger = this.ledger();
+                List<Transaction> candidates = new ArrayList<>();
+                for (Transaction incoming : other.ledger()) {
+                    boolean found = false;
+                    for (Transaction origin : ledger) {
+                        boolean condition;
+                        try {
+                            condition = incoming.equals(origin)
+                                || (incoming.id() == origin.id() && incoming.bnf().equals(origin.bnf()))
+                                || (incoming.id() == origin.id() && incoming.amount() < 0L)
+                                || incoming.prefix().equals(origin.prefix());
+                        } catch (Exception ex) {
+                            throw new IOException(ex);
+                        }
+                        if (condition) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        candidates.add(incoming);
+                    }
+                }
+                return new Wallet.Fake(
+                    this.id(),
+                    new Joined<Transaction>(ledger, candidates)
+                );
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
         }
 
         @Override
@@ -175,18 +237,16 @@ public interface Wallet {
 
         @Override
         public long id() throws IOException {
-            return new IoChecked<>(
-                () -> Long.parseUnsignedLong(
-                    new ListOf<>(
-                        new SplitText(
-                            new TextOf(this.path),
-                            "\n"
-                        )
-                    ).get(2).asString(),
-                    // @checkstyle MagicNumber (1 line)
-                    16
-                )
-            ).value();
+            try {
+                String content = new TextOf(this.path).asString();
+                String[] lines = content.split("\n");
+                if (lines.length <= 2) {
+                    throw new IOException("Not enough lines in wallet file");
+                }
+                return Long.parseUnsignedLong(lines[2], 16);
+            } catch (Exception e) {
+                throw new IOException(e);
+            }
         }
 
         @Override
@@ -220,22 +280,28 @@ public interface Wallet {
                 );
             }
             final Iterable<Transaction> ledger = this.ledger();
-            final Iterable<Transaction> candidates = new Filtered<>(
-                incoming -> new Filtered<>(
-                    origin -> new Unchecked<>(
-                        new Or(
-                            () -> incoming.equals(origin),
-                            () -> incoming.id() == origin.id()
-                                && incoming.bnf().equals(origin.bnf()),
-                            () -> incoming.id() == origin.id()
-                                && incoming.amount() < 0L,
-                            () -> incoming.prefix().equals(origin.prefix())
-                        )
-                    ).value(),
-                    ledger
-                ).isEmpty(),
-                other.ledger()
-            );
+            List<Transaction> candidates = new ArrayList<>();
+            for (Transaction incoming : other.ledger()) {
+                boolean found = false;
+                for (Transaction origin : ledger) {
+                    boolean condition;
+                    try {
+                        condition = incoming.equals(origin)
+                            || (incoming.id() == origin.id() && incoming.bnf().equals(origin.bnf()))
+                            || (incoming.id() == origin.id() && incoming.amount() < 0L)
+                            || incoming.prefix().equals(origin.prefix());
+                    } catch (Exception ex) {
+                        throw new IOException(ex);
+                    }
+                    if (condition) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    candidates.add(incoming);
+                }
+            }
             return new Wallet.Fake(
                 this.id(),
                 new Joined<Transaction>(ledger, candidates)
@@ -244,19 +310,20 @@ public interface Wallet {
 
         @Override
         public Iterable<Transaction> ledger() {
-            return new Mapped<>(
-                txt -> new RtTransaction(txt.asString()),
-                new Skipped<>(
-                    new ListOf<>(
-                        new SplitText(
-                            new TextOf(this.path),
-                            "\\n"
-                        )
-                    ),
-                    // @checkstyle MagicNumberCheck (1 line)
-                    5
-                )
-            );
+            try {
+                String content = new TextOf(this.path).asString();
+                String[] parts = content.split("\\n");
+                List<org.cactoos.text.Text> texts = new ArrayList<>();
+                for (int i = 5; i < parts.length; i++) {
+                    texts.add(new TextOf(parts[i]));
+                }
+                return new Mapped<>(
+                    txt -> new RtTransaction(txt.asString()),
+                    new ListOf<>(texts)
+                );
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
         }
 
         // @todo #54:30min Implement key method. This should return the

@@ -20,7 +20,7 @@
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
  * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS AND
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
  * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
@@ -30,6 +30,7 @@
 package com.jcabi.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.jcabi.aspects.Tv;
 import com.jcabi.log.Logger;
 import com.jcabi.s3.cached.CdRegion;
 import com.jcabi.s3.retry.ReRegion;
@@ -108,7 +109,7 @@ final class BucketRule implements TestRule {
         );
         final String name = String.format(
             "%s.s3.jcabi.com",
-            RandomStringUtils.randomAlphabetic(5) // Changed from Tv.FIVE to 5
+            RandomStringUtils.randomAlphabetic(5)
                 .toLowerCase(Locale.ENGLISH)
         );
         this.subj = region.bucket(name);

@@ -4,8 +4,9 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 
+import com.gargoylesoftware.htmlunit.ScriptResult;
+
 import org.jenkinsci.test.acceptance.po.PageObject;
-import net.sf.json.JSONObject;
 
 /**
  * Charts are displayed one multiple PageObjects. This util provides some helper methods to deal with charts.
@@ -58,7 +59,9 @@ public class ChartUtil {
                         toolAttribute));
 
                 if (result != null) {
-                    return result.toString();
+                    if (result != null) {
+                        return result.toString();
+                    }
                 }
                 pageObject.elasticSleep(1000);
             }

@@ -1,25 +1,3 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error messages indicate that the static imports from "org.junit.Assert" (namely assertEquals and assertTrue) cannot be found. Additionally, calls to assertTrue and assertEquals in the test method are unrecognized.
-   - This is caused by the update in the dependency where JUnit 5 (JUnit Jupiter) is being used. In JUnit 5, the correct assertions are provided by "org.junit.jupiter.api.Assertions" instead of "org.junit.Assert".
-   - The issue occurs on import lines and methods calls in the test method.
-
-2. Client Code Review:
-   - The problematic import statements at the top of the file (#3-#4) are:
-       import static org.junit.Assert.assertEquals;
-       import static org.junit.Assert.assertTrue;
-   - The test annotations and methods are from org.junit.jupiter.api.Test, so the correct assertions should likewise be from JUnit Jupiter's Assertions.
-
-3. Potential Fix Plan:
-   - Replace the incorrect static imports with the correct ones from "org.junit.jupiter.api.Assertions".
-   - This change adheres to the function signature and does not remove any existing code.
-   - No changes to the method signatures or logic are necessary.
-
-4. Necessary Changes:
-   - Import static methods from "org.junit.jupiter.api.Assertions" instead of "org.junit.Assert".
-   - This change should fix the dependency update issue and allow the test methods to compile and work correctly.
-</code_analysis>
-
 ```java
 package micycle.pgs;
 
@@ -34,18 +12,18 @@ import processing.core.PShape;
 
 public class PGS_MeshingTests {
 
-    @Test
-    void testAreaMerge() {
-        PShape mesh = PGS_Triangulation.delaunayTriangulation(PGS_PointSet.random(0, 0, 1000, 1000, 1111, 0));
-        List<PShape> faces = PGS_Conversion.getChildren(mesh);
-        faces.sort((a, b) -> Double.compare(PGS_ShapePredicates.area(a), PGS_ShapePredicates.area(b)));
-        double areaThreshold = PGS_ShapePredicates.area(faces.get(faces.size() / 2));
+	@Test
+	void testAreaMerge() {
+		PShape mesh = PGS_Triangulation.delaunayTriangulation(PGS_PointSet.random(0, 0, 1000, 1000, 1111, 0));
+		List<PShape> faces = PGS_Conversion.getChildren(mesh);
+		faces.sort((a, b) -> Double.compare(PGS_ShapePredicates.area(a), PGS_ShapePredicates.area(b)));
+		double areaThreshold = PGS_ShapePredicates.area(faces.get(faces.size() / 2));
 
-        PShape mergedMesh = PGS_Meshing.areaMerge(mesh, areaThreshold);
-        assertTrue(PGS_Conversion.getChildren(mergedMesh).stream().allMatch(f -> PGS_ShapePredicates.area(f) >= areaThreshold));
-        assertTrue(faces.size() >= mergedMesh.getChildCount());
-        assertEquals(PGS_ShapePredicates.area(mesh), PGS_ShapePredicates.area(mergedMesh), 1e-6);
-    }
+		PShape mergedMesh = PGS_Meshing.areaMerge(mesh, areaThreshold);
+		assertTrue(PGS_Conversion.getChildren(mergedMesh).stream().allMatch(f -> PGS_ShapePredicates.area(f) >= areaThreshold));
+		assertTrue(faces.size() >= mergedMesh.getChildCount());
+		assertEquals(PGS_ShapePredicates.area(mesh), PGS_ShapePredicates.area(mergedMesh), 1e-6);
+	}
 
 }
 ```

@@ -15,14 +15,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.Validate;
 
-/**
- * Default stub http server implementation using Jetty as an http server.
- */
 public class JettyStubHttpServer implements StubHttpServer {
 
     private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
-    private final Server server;
     private final Connector httpConnector;
+    private final Server server;
 
     public JettyStubHttpServer() {
         this(0);
@@ -30,31 +27,21 @@ public class JettyStubHttpServer implements StubHttpServer {
     
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
-        
-        // Configure HTTP parameters: disable sending server version and date header.
         HttpConfiguration httpConfig = new HttpConfiguration();
         httpConfig.setSendServerVersion(false);
         httpConfig.setSendDateHeader(true);
-        
-        // Create a new ServerConnector with the custom HttpConfiguration.
         ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
         connector.setPort(port);
         this.httpConnector = connector;
-        server.addConnector(this.httpConnector);
+        server.setConnectors(new Connector[]{this.httpConnector});
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void registerRequestManager(final RequestManager ruleProvider) {
         Validate.notNull(ruleProvider, "ruleProvider cannot be null");
         server.setHandler(new JadlerHandler(ruleProvider));
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void start() throws Exception {
         logger.debug("starting jetty");
@@ -62,9 +49,6 @@ public class JettyStubHttpServer implements StubHttpServer {
         logger.debug("jetty started");
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void stop() throws Exception {
         logger.debug("stopping jetty");
@@ -72,11 +56,8 @@ public class JettyStubHttpServer implements StubHttpServer {
         logger.debug("jetty stopped");
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int getPort() {
-        return httpConnector.getLocalPort();
+        return ((ServerConnector)this.httpConnector).getLocalPort();
     }
 }

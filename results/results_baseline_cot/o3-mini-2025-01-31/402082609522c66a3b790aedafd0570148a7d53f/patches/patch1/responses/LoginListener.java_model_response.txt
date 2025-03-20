@@ -1,26 +1,9 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the package and class ClientConnectionEvent (specifically its inner class Auth) cannot be found.
-   - Error messages occur on line 29 (while referencing ClientConnectionEvent.Auth) and on the import at line 13.
-   - This is due to a breaking change in the Sponge API dependency where ClientConnectionEvent has been removed or renamed.
-
-2. Review the client code:
-   - The method onPlayerPreLogin uses ClientConnectionEvent.Auth as its parameter type.
-   - The import statement for org.spongepowered.api.event.network.ClientConnectionEvent is now invalid.
-   - The rest of the code uses preLoginEvent.getProfile() and seems to remain unaffected by this change.
-
-3. Consider potential fixes:
-   - Update the import to reference the new event type provided by the updated Sponge dependency.
-   - Change the parameter type of onPlayerPreLogin from ClientConnectionEvent.Auth to the new corresponding event class.
-   - In recent Sponge API versions, the pre-login event has been relocated to ServerSideConnectionEvent.Auth.
-   - Ensure that all functionality remains unchanged aside from the dependency update.
-
-4. Plan the necessary changes:
-   - Replace the import for ClientConnectionEvent with ServerSideConnectionEvent.
-   - Update the method parameter type in onPlayerPreLogin accordingly.
-   - Keep all other logic intact.
-</code_analysis>
-
+<repair_strategy>
+1. The error is caused by a dependency update in Sponge where the class ClientConnectionEvent no longer exists.
+2. In the new API, authentication events are now handled by ServerSideConnectionEvent.Auth.
+3. We update the import from org.spongepowered.api.event.network.ClientConnectionEvent to org.spongepowered.api.event.network.ServerSideConnectionEvent and change the method parameter accordingly.
+4. These minimal changes allow the client code to compile with the new API while preserving functionality.
+</repair_strategy>
 ```java
 package com.github.games647.changeskin.sponge;
 
@@ -45,6 +28,7 @@ public class LoginListener extends SharedListener {
     @Inject
     LoginListener(ChangeSkinSponge plugin) {
         super(plugin.getCore());
+
         this.plugin = plugin;
     }
 

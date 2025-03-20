@@ -6,11 +6,11 @@ import jakarta.mvc.MvcContext;
 //https://www.mvc-spec.org/learn/cookbook/multilang_en.html
 /**
  * Provides I18n messages for the UI per request. To get the correct locale, the method {@link MvcContext#getLocale()}
- * is used. This method uses the built-in {@link jakarta.mvc.locale.LocaleResolver} of the used MVC Implementation.
+ * is used. This method uses the built-in {@link javax.mvc.locale.LocaleResolver} of the used MVC Implementation.
  *
- * Author: Tobias Erdle
+ * @author Tobias Erdle
  * @see MvcContext#getLocale()
- * @see jakarta.mvc.locale.LocaleResolver
+ * @see javax.mvc.locale.LocaleResolver
  */
 @RequestScoped
 @Named("msg")
@@ -30,6 +30,7 @@ public class Messages {
      */
     public final String get(final String key) {
         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
+
         return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);
     }
 

@@ -151,7 +151,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         done = true;
     }
 
-    @Override
     public void memberAdded(final MembershipEvent event) {
         logger.info("Received a Hazelcast memberAdded event {}", event);
 
@@ -176,7 +175,7 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
                     logger.warn("30 Second wait was interrupted.", e);
                 }
 
-                // The following line was intended to wait until all local handling finishes before informing
+                // The following line was intended to wait until all local handling finishes before informing other
                 // nodes. However that proved to be insufficient. Hence the 30 second default wait in the lines above.
                 // TODO Instead of the 30 second wait, we should look (and then wait) for some trigger or event that signifies that local handling has completed and caches have stabilized.
                 waitForClusterCacheToBeInstalled();
@@ -224,7 +223,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         return !failed;
     }
 
-    @Override
     public void memberRemoved(final MembershipEvent event) {
         logger.info("Received a Hazelcast memberRemoved event {}", event);
 
@@ -258,7 +256,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         return new ArrayList<>(clusterNodesInfo.values());
     }
 
-    @Override
     public void stateChanged(final LifecycleEvent event) {
         if (event.getState().equals(LifecycleState.SHUTDOWN)) {
             leaveCluster();
@@ -267,7 +264,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         }
     }
 
-    @Override
     public void memberAttributeChanged(final MemberAttributeEvent event) {
         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
         isSenior = isSeniorClusterMember();

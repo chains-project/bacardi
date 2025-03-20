@@ -2,96 +2,43 @@ package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
 import org.hibernate.SessionFactory;
-import org.nem.core.model.AccountDaoLookupAdapter;
-import org.nem.core.model.BlockChainConfiguration;
-import org.nem.core.model.primitive.BlockHeight;
+import org.nem.core.model.*;
+import org.nem.core.model.primitive.*;
+import org.nem.core.node.NodeFeature;
 import org.nem.core.time.TimeProvider;
-import org.nem.deploy.CommonStarter;
-import org.nem.deploy.NemGlobals;
-import org.nem.deploy.NisConfigurationPolicy;
-import org.nem.deploy.NisMain;
-import org.nem.nis.AccountDao;
-import org.nem.nis.BlockDao;
-import org.nem.nis.DefaultNisCache;
-import org.nem.nis.HarvestingTask;
-import org.nem.nis.NisConfiguration;
-import org.nem.nis.ValidNisCacheUtils;
+import org.nem.deploy.*;
+import org.nem.nis.*;
 import org.nem.nis.audit.AuditCollection;
-import org.nem.nis.boot.NamespaceCacheLookupAdapters;
-import org.nem.nis.cache.DefaultAccountCache;
-import org.nem.nis.cache.DefaultAccountStateCache;
-import org.nem.nis.cache.DefaultHashCache;
-import org.nem.nis.cache.DefaultMosaicIdCache;
-import org.nem.nis.cache.SynchronizedAccountCache;
-import org.nem.nis.cache.SynchronizedAccountStateCache;
-import org.nem.nis.cache.SynchronizedHashCache;
-import org.nem.nis.cache.SynchronizedMosaicIdCache;
-import org.nem.nis.connect.CountingBlockSynchronizer;
-import org.nem.nis.connect.HttpConnectorPool;
+import org.nem.nis.boot.*;
+import org.nem.nis.cache.*;
+import org.nem.nis.connect.*;
 import org.nem.nis.controller.interceptors.LocalHostDetector;
-import org.nem.nis.dao.TransferDao;
-import org.nem.nis.harvesting.BlockGenerator;
-import org.nem.nis.harvesting.BlockScorer;
-import org.nem.nis.harvesting.Harvester;
-import org.nem.nis.mappers.DefaultMapperFactory;
-import org.nem.nis.mappers.MapperFactory;
-import org.nem.nis.mappers.NisDbModelToModelMapper;
-import org.nem.nis.mappers.NisMapperFactory;
-import org.nem.nis.mappers.NisModelToDbModelMapper;
+import org.nem.nis.dao.*;
+import org.nem.nis.harvesting.*;
+import org.nem.nis.mappers.*;
 import org.nem.nis.pox.ImportanceCalculator;
-import org.nem.nis.pox.poi.PoiImportanceCalculator;
-import org.nem.nis.pox.poi.PoiOptionsBuilder;
+import org.nem.nis.pox.poi.*;
 import org.nem.nis.pox.pos.PosImportanceCalculator;
-import org.nem.nis.secret.DefaultPoxFacade;
-import org.nem.nis.secret.SynchronizedPoxFacade;
+import org.nem.nis.secret.*;
 import org.nem.nis.service.BlockChainLastBlockLayer;
-import org.nem.nis.state.NemStateGlobals;
-import org.nem.nis.state.ReadOnlyNisCache;
-import org.nem.nis.sync.BlockChain;
-import org.nem.nis.sync.BlockChainContextFactory;
-import org.nem.nis.sync.BlockChainServices;
-import org.nem.nis.sync.BlockChainUpdater;
-import org.nem.nis.sync.BlockAnalyzer;
-import org.nem.nis.sync.DefaultUnconfirmedTransactions;
-import org.nem.nis.sync.PeerNetworkScheduler;
-import org.nem.nis.sync.SynchronizedUnconfirmedTransactions;
-import org.nem.nis.sync.UnconfirmedStateFactory;
-import org.nem.nis.sync.UnconfirmedTransactions;
-import org.nem.nis.sync.UnconfirmedTransactionsFilter;
-import org.nem.nis.validators.BlockTransactionObserverFactory;
-import org.nem.nis.validators.BlockValidatorFactory;
-import org.nem.nis.validators.TransactionValidatorFactory;
-import org.nem.nis.validators.SingleTransactionValidator;
+import org.nem.nis.state.*;
+import org.nem.nis.sync.*;
+import org.nem.nis.validators.*;
 import org.nem.peer.connect.CommunicationMode;
-import org.nem.peer.node.DefaultChainServices;
-import org.nem.peer.node.NetworkHostBootstrapper;
-import org.nem.peer.node.NisPeerNetworkHost;
-import org.nem.peer.node.HarvestAwareNetworkHostBootstrapper;
+import org.nem.peer.node.*;
 import org.nem.peer.services.ChainServices;
-import org.nem.peer.trust.CachedTrustProvider;
-import org.nem.peer.trust.EigenTrustPlusPlus;
-import org.nem.peer.trust.LowComTrustProvider;
-import org.nem.peer.trust.TrustProvider;
+import org.nem.peer.trust.*;
+import org.nem.specific.deploy.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.ComponentScan.Filter;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.*;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.*;
+import java.util.function.*;
 
 @Configuration
 @ComponentScan(basePackages = {
@@ -157,13 +104,12 @@ public class NisAppConfig {
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
-
 		return Flyway.configure()
-			.dataSource(this.dataSource())
-			.classLoader(NisAppConfig.class.getClassLoader())
-			.locations(prop.getProperty("flyway.locations"))
-			.validateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate")))
-			.load();
+				.dataSource(this.dataSource())
+				.locations(prop.getProperty("flyway.locations"))
+				.classLoader(NisAppConfig.class.getClassLoader())
+				.validateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate")))
+				.load();
 	}
 
 	@Bean

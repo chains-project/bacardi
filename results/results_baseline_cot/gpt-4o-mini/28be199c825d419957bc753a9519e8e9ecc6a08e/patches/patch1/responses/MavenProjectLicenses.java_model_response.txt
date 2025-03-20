@@ -80,11 +80,12 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
 
   /**
    * @param session        the current {@link MavenSession}
-   * @param project        the current {@link MavenProject}
    * @param graph          the {@link DependencyGraphBuilder} implementation
    * @param projectBuilder the maven {@link ProjectBuilder} implementation
-   * @param scopes         List<String> of scopes to filter artifacts
-   * @param log            the log to sync to
+   * @param scope          String to filter artifacts to,
+   *                       {@link org.apache.maven.artifact.ArtifactScopeEnum}
+   * @param exclusions     List<String> of exclusion expressions,
+   *                       {@link org.apache.maven.shared.artifact.filter.AbstractStrictPatternArtifactFilter}
    */
   public MavenProjectLicenses(final MavenSession session, MavenProject project, final DependencyGraphBuilder graph,
                               final ProjectBuilder projectBuilder, final List<String> scopes, final Log log) {
@@ -140,7 +141,6 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
     return map;
   }
 
-  @Override
   public Map<License, Set<Artifact>> getLicenseMap() {
     return getLicenseMapFromArtifacts(getDependencies());
   }

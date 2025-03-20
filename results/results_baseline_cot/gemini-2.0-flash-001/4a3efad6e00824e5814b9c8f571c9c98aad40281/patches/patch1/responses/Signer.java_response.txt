@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
+import eu.europa.esig.dss.enumerations.CertificationPermission;
 
 @Slf4j
 public class Signer {
@@ -67,8 +68,7 @@ public class Signer {
         } else {
             signatureParameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_B);
         }
-        //signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
-        //CertificationPermission is removed from the newer version of dss, so commenting out this line.
+        signatureParameters.setCertificationPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
 
         // Create common certificate verifier
         CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();

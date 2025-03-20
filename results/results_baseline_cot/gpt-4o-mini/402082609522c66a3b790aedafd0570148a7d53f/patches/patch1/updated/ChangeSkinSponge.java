@@ -24,9 +24,9 @@ import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GameInitializationEvent;
+import org.spongepowered.api.event.game.state.GameInitializedEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.event.game.state.GameStoppingEvent; // Updated import
+import org.spongepowered.api.event.game.state.GameStoppingEvent;
 import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
 import org.spongepowered.api.network.ChannelRegistrar;
 import org.spongepowered.api.plugin.Plugin;
@@ -68,7 +68,7 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
     }
 
     @Listener
-    public void onInit(GameInitializationEvent initEvent) {
+    public void onInit(GameInitializedEvent initEvent) {
         if (!initialized)
             return;
 
@@ -93,7 +93,7 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
     }
 
     @Listener
-    public void onShutdown(GameStoppingEvent stoppingServerEvent) { // Updated event
+    public void onShutdown(GameStoppingEvent stoppingServerEvent) {
         core.close();
     }
 

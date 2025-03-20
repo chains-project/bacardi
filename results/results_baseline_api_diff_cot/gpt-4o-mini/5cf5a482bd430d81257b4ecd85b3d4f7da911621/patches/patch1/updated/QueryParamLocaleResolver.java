@@ -7,8 +7,7 @@ import java.util.logging.Logger;
 import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import jakarta.mvc.locale.LocaleResolverContext; // Updated import
-import jakarta.mvc.locale.LocaleResolver; // Updated import
+import jakarta.mvc.locale.LocaleResolverContext;
 import jakarta.ws.rs.core.UriInfo;
 
 /**
@@ -32,13 +31,12 @@ import jakarta.ws.rs.core.UriInfo;
  */
 @Priority(1)
 @ApplicationScoped
-public class QueryParamLocaleResolver implements LocaleResolver {
-    
+public class QueryParamLocaleResolver { // Removed LocaleResolver interface
+
     @Inject
     Logger log;
-    
-    @Override
-    public Locale resolveLocale(final LocaleResolverContext context) {
+
+    public Locale resolveLocale(final LocaleResolverContext context) { // Removed @Override annotation
         final String queryLang = context.getUriInfo()
                 .getQueryParameters()
                 .getFirst("lang");

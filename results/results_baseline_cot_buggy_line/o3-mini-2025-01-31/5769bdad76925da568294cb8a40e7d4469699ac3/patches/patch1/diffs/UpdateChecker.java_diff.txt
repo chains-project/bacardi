@@ -1,6 +1,10 @@
-239c239,241
+239c239,240
 <             GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
 ---
->             // Use getStatus() instead of accessing the private field "status"
->             GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
->             GHCompare.Status status = compare.getStatus();
+>             GHCompare ghCompare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
+>             GHCompare.Status status = ghCompare.getStatus();
+271,272c272
+<                 Arrays.asList("https://repo.jenkins-ci.org/releases/", "https://repo.jenkins-ci.org/incrementals/")).
+<             find(argv[0], argv[1], argv[2], argv[3]);
+---
+>                 Arrays.asList("https://repo.jenkins-ci.org/releases/", "https://repo.jenkins-ci.org/incrementals/")).find(argv[0], argv[1], argv[2], argv[3]);

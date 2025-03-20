@@ -80,10 +80,8 @@ class EventMessageHandlerTest {
 
     @Captor
     ArgumentCaptor<Map<String, String>> personalisationCaptor;
-    
     @Mock
     private Appender<ILoggingEvent> mockLogAppender;
-    
     @Captor
     ArgumentCaptor<ILoggingEvent> loggingEventArgumentCaptor;
 
@@ -111,8 +109,6 @@ class EventMessageHandlerTest {
         );
 
         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
-        // Removed the following line due to the breaking dependency update:
-        // logger.setLevel(Level.INFO);
         logger.addAppender(mockLogAppender);
     }
 

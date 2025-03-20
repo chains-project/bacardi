@@ -1,7 +1,7 @@
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.configuration.ClassicConfiguration; // Added import for ClassicConfiguration
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -106,13 +106,13 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		ClassicConfiguration configuration = new ClassicConfiguration(); // Create a new ClassicConfiguration instance
-		configuration.setDataSource(prop.getProperty("jdbc.url"), prop.getProperty("jdbc.username"), prop.getProperty("jdbc.password")); // Set data source
-		configuration.setLocations(prop.getProperty("flyway.locations").split(",")); // Set locations
-		configuration.setValidateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate"))); // Set validate on migrate
+		ClassicConfiguration configuration = new ClassicConfiguration();
+		configuration.setDataSource(this.dataSource());
+		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
+		configuration.setValidateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate")));
 
-		final Flyway flyway = new Flyway(configuration); // Use the new constructor
-		return flyway;
+		return new Flyway(configuration);
 	}
 
 	@Bean

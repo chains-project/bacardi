@@ -1,10 +1,3 @@
-<code_analysis>
-1. The error message indicates that several Jedis pipeline interfaces (BasicRedisPipeline, BinaryRedisPipeline, BinaryScriptingCommandsPipeline, ClusterPipeline, MultiKeyBinaryRedisPipeline, MultiKeyCommandsPipeline, RedisPipeline, ScriptingCommandsPipeline) cannot be found. This is likely due to a breaking dependency update in Jedis where these interfaces were removed or relocated.
-2. In the client code, the RedisGraphTransaction interface extends these missing pipeline interfaces and imports them from redis.clients.jedis.commands. Since they no longer exist in the updated dependency, these lines cause compile‐time errors.
-3. To fix the issue, we remove the pipeline interface import statements and remove their usage from the extends clause. All methods are defined directly in RedisGraphTransaction, so removing these superinterfaces does not affect the method signatures.
-4. The patch below removes the offending pipeline references and their imports while preserving the complete functionality of the interface.
-</code_analysis>
-
 ```java
 package com.redislabs.redisgraph;
 
@@ -38,7 +31,7 @@ public interface RedisGraphTransaction extends Closeable {
      * Execute a Cypher query with timeout.
      * @param graphId a graph to perform the query on
      * @param query Cypher query
-     * @param timeout query timeout
+     * @param timeout
      * @return a response which builds the result set with the query answer.
      */
     Response<ResultSet> query(String graphId, String query, long timeout);
@@ -47,7 +40,7 @@ public interface RedisGraphTransaction extends Closeable {
      * Execute a Cypher read-only query with timeout.
      * @param graphId a graph to perform the query on
      * @param query Cypher query
-     * @param timeout query timeout
+     * @param timeout
      * @return a response which builds the result set with the query answer.
      */
     Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout);
@@ -56,7 +49,7 @@ public interface RedisGraphTransaction extends Closeable {
      * Execute a Cypher query with arguments
      * @param graphId a graph to perform the query on
      * @param query Cypher query
-     * @param args query arguments
+     * @param args
      * @return a response which builds the result set with the query answer.
      * @deprecated use {@link #query(String, String, Map)} instead.
      */
@@ -86,7 +79,7 @@ public interface RedisGraphTransaction extends Closeable {
      * @param graphId a graph to perform the query on.
      * @param query Cypher query.
      * @param params parameters map.
-     * @param timeout query timeout.
+     * @param timeout
      * @return  a response which builds the result set with the query answer.
      */
     Response<ResultSet> query(String graphId, String query, Map<String, Object> params, long timeout);
@@ -96,7 +89,7 @@ public interface RedisGraphTransaction extends Closeable {
      * @param graphId a graph to perform the query on.
      * @param query Cypher query.
      * @param params parameters map.
-     * @param timeout query timeout.
+     * @param timeout
      * @return  a response which builds the result set with the query answer.
      */
     Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params, long timeout);
@@ -121,9 +114,9 @@ public interface RedisGraphTransaction extends Closeable {
     /**
      * Invoke a stored procedure
      * @param graphId a graph to perform the query on
-     * @param procedure procedure to execute
-     * @param args procedure arguments
-     * @param kwargs procedure output arguments
+     * @param procedure - procedure to execute
+     * @param args - procedure arguments
+     * @param kwargs - procedure output arguments
      * @return a response which builds result set with the procedure data
      */
     Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args, Map<String, List<String>> kwargs);
@@ -136,26 +129,25 @@ public interface RedisGraphTransaction extends Closeable {
     Response<String> deleteGraph(String graphId);
 
     /**
-     * Executes the transaction.
-     * @return a list of the executed transaction commands answers, in case of successful transaction, null otherwise.
+     * executes the transaction
+     * @return a list of the executed transaction commands answers, in case of successful transaction, null otherwise
      */
     List<Object> exec();
 
     /**
      * If object is in transaction mode,
-     * flushes all previously queued commands in a transaction and restores the connection state to normal.
+     * flushes all previously queued commands in a transaction and restores the connection state to normal
      */
     void clear();
 
     /**
-     * Executes the transaction and returns a list of responses.
-     * @return list of responses for the executed transaction commands.
+     *
+     * @return
      */
     List<Response<?>> execGetResponse();
 
     /**
-     * Flushes all previously queued commands in a transaction and restores the connection state to normal.
-     * @return a string result.
+     * Flushes all previously queued commands in a transaction and restores the connection state to normal
      */
     String discard();
 }

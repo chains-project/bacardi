@@ -22,38 +22,21 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import io.vavr.control.Validation;
-import net.bytebuddy.ByteBuddy; // Updated import
-import net.bytebuddy.dynamic.scaffold.TypeValidation; // Updated import
-import net.bytebuddy.implementation.Implementation; // Updated import
-import net.bytebuddy.implementation.MethodDelegation; // Updated import
-import net.bytebuddy.implementation.auxiliary.AuxiliaryType; // Updated import
-import net.bytebuddy.implementation.bind.annotation.RuntimeType; // Updated import
-import net.bytebuddy.implementation.bind.annotation.SuperCall; // Updated import
-import net.bytebuddy.implementation.bind.annotation.This; // Updated import
 import org.assertj.core.util.CheckReturnValue;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
 
-import static net.bytebuddy.matcher.ElementMatchers.any; // Updated import
-import static org.assertj.core.util.Arrays.array;
 import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrategy;
 
 public class VavrAssumptions {
 
-    private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED)
-            .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
-
     private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
-
-    private static final net.bytebuddy.dynamic.scaffold.TypeCache<net.bytebuddy.dynamic.scaffold.TypeCache.SimpleKey> CACHE = 
-            new net.bytebuddy.dynamic.scaffold.TypeCache.WithInlineExpunction<>(net.bytebuddy.dynamic.scaffold.TypeCache.Sort.SOFT); // Updated import
 
     private static final class AssumptionMethodInterceptor {
 
-        @RuntimeType
-        public static Object intercept(@This AbstractVavrAssert<?, ?> assertion, @SuperCall Callable<Object> proxy) throws Exception {
+        public static Object intercept(AbstractVavrAssert<?, ?> assertion, Callable<Object> proxy) throws Exception {
             try {
                 Object result = proxy.call();
                 if (result != assertion && result instanceof AbstractVavrAssert) {
@@ -124,7 +107,7 @@ public class VavrAssumptions {
     private static <ASSERTION, ACTUAL> ASSERTION asAssumption(Class<ASSERTION> assertionType,
                                                               Class<ACTUAL> actualType,
                                                               Object actual) {
-        return asAssumption(assertionType, array(actualType), array(actual));
+        return asAssumption(assertionType, new Class<?>[]{actualType}, new Object[]{actual});
     }
 
     private static <ASSERTION> ASSERTION asAssumption(Class<ASSERTION> assertionType,
@@ -141,9 +124,8 @@ public class VavrAssumptions {
 
     @SuppressWarnings("unchecked")
     private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass) {
-        net.bytebuddy.dynamic.scaffold.TypeCache.SimpleKey cacheKey = new net.bytebuddy.dynamic.scaffold.TypeCache.SimpleKey(assertClass); // Updated import
         return (Class<ASSERTION>) CACHE.findOrInsert(VavrAssumptions.class.getClassLoader(),
-                cacheKey,
+                new SimpleKey(assertClass),
                 () -> generateAssumptionClass(assertClass));
     }
 

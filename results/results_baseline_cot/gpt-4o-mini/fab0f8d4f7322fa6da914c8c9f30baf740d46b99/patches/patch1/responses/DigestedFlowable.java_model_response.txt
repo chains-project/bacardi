@@ -45,7 +45,6 @@ public final class DigestedFlowable extends Flowable<ByteBuffer> {
         this.origin = origin;
     }
 
-    @Override
     public void subscribeActual(final Subscriber<? super ByteBuffer> subscriber) {
         final MessageDigest sha = Digests.SHA256.get();
         Flowable.fromPublisher(this.origin).map(
@@ -69,8 +68,4 @@ public final class DigestedFlowable extends Flowable<ByteBuffer> {
         return Objects.requireNonNull(this.dig.get(), "Digest is not yet calculated.");
     }
 }
-``` 
-
-### Changes Made:
-1. Updated the import statements for `BytesOf` and `HexOf` to match the correct package structure as per the newer version of the `cactoos` library.
-2. Ensured that the class remains compilable and adheres to the original functionality without altering any method signatures or existing code logic.
+```

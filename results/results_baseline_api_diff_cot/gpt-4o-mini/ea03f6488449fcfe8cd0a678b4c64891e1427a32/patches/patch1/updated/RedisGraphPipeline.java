@@ -10,8 +10,7 @@ import java.util.Map;
 /**
  * An interface which aligned to Jedis Pipeline interface
  */
-public interface RedisGraphPipeline extends
-        ClusterPipeline, Closeable {
+public interface RedisGraphPipeline extends ClusterPipeline, Closeable {
 
     /**
      * Execute a Cypher query.

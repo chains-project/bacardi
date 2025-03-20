@@ -3,10 +3,11 @@ package io.jenkins.plugins.coverage.util;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
+
 import org.jenkinsci.test.acceptance.po.PageObject;
 
 /**
- * Charts are displayed on multiple PageObjects. This util provides some helper methods to deal with charts.
+ * Charts are displayed one multiple PageObjects. This util provides some helper methods to deal with charts.
  */
 @SuppressWarnings("hideutilityclassconstructor")
 // TODO: Move this code to ATH so we can reuse it from other plugins
@@ -25,13 +26,12 @@ public class ChartUtil {
      */
     public static String getChartDataById(final PageObject pageObject, final String elementId) {
         if (isChartDisplayedByElementId(pageObject, elementId)) {
-            Object scriptResult = pageObject.executeScript(String.format(
+            Object result = pageObject.executeScript(String.format(
                     "delete(window.Array.prototype.toJSON) %n"
-                    + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
+                            + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
                     elementId));
-            if (scriptResult != null) {
-                return scriptResult.toString();
-            }
+            ScriptResult scriptResult = new ScriptResult(result);
+            return scriptResult.getJavaScriptResult().toString();
         }
         return null;
     }
@@ -50,18 +50,19 @@ public class ChartUtil {
             final String toolAttribute) {
         if (isChartDisplayedByDivToolAttribute(pageObject, toolAttribute)) {
             for (int i = 0; i < MAX_ATTEMPTS; i++) {
-                Object scriptResult = pageObject.executeScript(String.format(
+                Object result = pageObject.executeScript(String.format(
                         "delete(window.Array.prototype.toJSON) %n"
-                        + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
+                                + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
                         toolAttribute));
 
+                Object scriptResult = new ScriptResult(result).getJavaScriptResult();
                 if (scriptResult != null) {
                     return scriptResult.toString();
                 }
                 pageObject.elasticSleep(1000);
             }
         }
-        throw new java.util.NoSuchElementException("Found no trend chart with ID '" + toolAttribute + "'");
+        throw new java.util.NoSuchElementException("Found no trend chart with ID '%s''" + toolAttribute);
     }
 
     /**
@@ -78,7 +79,8 @@ public class ChartUtil {
         try {
             WebElement chart = pageObject.find(By.id(elementId));
             return chart != null && chart.isDisplayed();
-        } catch (NoSuchElementException exception) {
+        }
+        catch (NoSuchElementException exception) {
             return false;
         }
     }
@@ -97,8 +99,22 @@ public class ChartUtil {
         try {
             WebElement chart = pageObject.find(By.cssSelector("div[tool='" + toolAttribute + "']"));
             return chart != null && chart.isDisplayed();
-        } catch (NoSuchElementException exception) {
+        }
+        catch (NoSuchElementException exception) {
             return false;
+        }
+
+    }
+
+    private static class ScriptResult {
+        private final Object result;
+
+        public ScriptResult(Object result) {
+            this.result = result;
+        }
+
+        public Object getJavaScriptResult() {
+            return result;
         }
     }
 }

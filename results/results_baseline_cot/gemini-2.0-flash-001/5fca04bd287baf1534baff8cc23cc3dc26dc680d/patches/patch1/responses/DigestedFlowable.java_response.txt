@@ -1,7 +1,3 @@
-/*
- * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
- * https://github.com/artipie/docker-adapter/LICENSE.txt
- */
 package com.artipie.docker.misc;
 
 import com.artipie.asto.Remaining;
@@ -53,7 +49,7 @@ public final class DigestedFlowable extends Flowable<ByteBuffer> {
             }
         ).doOnComplete(
             () -> this.dig.set(
-                new Digest.Sha256(new Hex(sha.digest()).toString())
+                new Digest.Sha256(new String(Hex.encodeHex(sha.digest())))
             )
         ).subscribe(subscriber);
     }

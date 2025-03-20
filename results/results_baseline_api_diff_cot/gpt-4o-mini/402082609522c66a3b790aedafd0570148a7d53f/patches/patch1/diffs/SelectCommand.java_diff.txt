@@ -1,8 +1,8 @@
-10,11c10
-< import org.spongepowered.api.command.args.CommandContext;
+11,12c11
 < import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
 ---
-> import org.spongepowered.api.command.parameter.Parameter;
+> import org.spongepowered.api.command.Command;
 16c15
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 ---
@@ -10,15 +10,22 @@
 19c18
 < public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
 ---
-> public class SelectCommand implements ChangeSkinCommand {
-28,29c27
-<     @Override
-<     public CommandResult execute(CommandSource src, CommandContext args) {
----
->     public CommandResult execute(CommandSource src, org.spongepowered.api.command.CommandContext args) {
-40c38
+> public class SelectCommand implements Command.Executor, ChangeSkinCommand {
+40c39
 <             Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
 ---
 >             Task.builder().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
-48d45
+48,50c47,48
 <     @Override
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command.Builder buildSpec() {
+>         return Command.builder()
+52,54c50,51
+<                 .arguments(string(of("skinName")))
+<                 .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
+<                 .build();
+---
+>                 .arguments(string("skinName"))
+>                 .permission(PomData.ARTIFACT_ID + ".command.skinselect.base");

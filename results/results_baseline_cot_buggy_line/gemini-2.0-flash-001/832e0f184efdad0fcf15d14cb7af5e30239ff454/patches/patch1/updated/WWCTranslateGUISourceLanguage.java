@@ -71,18 +71,18 @@ public class WWCTranslateGUISourceLanguage implements InventoryProvider {
 				ArrayList<String> lore = new ArrayList<>();
 				currentLangMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 				if (selectedSourceLanguage.equals(main.getSupportedTranslatorLanguages().get(i).getLangCode())) {
-					XEnchantment xEnchantment = XEnchantment.matchXEnchantment("power").get();
-					if (xEnchantment != null) {
-						Enchantment enchantment = xEnchantment.getEnchant();
+					XEnchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get();
+					if (powerEnchantment != null) {
+						Enchantment enchantment = powerEnchantment.getEnchant();
 						if (enchantment != null) {
 							currentLangMeta.addEnchant(enchantment, 1, false);
 						}
 					}
 					lore.add(ChatColor.GREEN + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceTranslationSelected"));
 				} else if (currTranslator.getInLangCode().equals(main.getSupportedTranslatorLanguages().get(i).getLangCode())) {
-					XEnchantment xEnchantment = XEnchantment.matchXEnchantment("power").get();
-					if (xEnchantment != null) {
-						Enchantment enchantment = xEnchantment.getEnchant();
+					XEnchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get();
+					if (powerEnchantment != null) {
+						Enchantment enchantment = powerEnchantment.getEnchant();
 						if (enchantment != null) {
 							currentLangMeta.addEnchant(enchantment, 1, false);
 						}
@@ -132,18 +132,18 @@ public class WWCTranslateGUISourceLanguage implements InventoryProvider {
 				skipSourceMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 				ArrayList<String> lore = new ArrayList<>();
 				if ((currTranslator.getInLangCode().equals("None"))) {
-					XEnchantment xEnchantment = XEnchantment.matchXEnchantment("power").get();
-					if (xEnchantment != null) {
-						Enchantment enchantment = xEnchantment.getEnchant();
+					XEnchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get();
+					if (powerEnchantment != null) {
+						Enchantment enchantment = powerEnchantment.getEnchant();
 						if (enchantment != null) {
 							skipSourceMeta.addEnchant(enchantment, 1, false);
 						}
 					}
 					lore.add(ChatColor.GREEN + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceTranslationSelected"));
 				} else if (selectedSourceLanguage.equalsIgnoreCase("None")) {
-					XEnchantment xEnchantment = XEnchantment.matchXEnchantment("power").get();
-					if (xEnchantment != null) {
-						Enchantment enchantment = xEnchantment.getEnchant();
+					XEnchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get();
+					if (powerEnchantment != null) {
+						Enchantment enchantment = powerEnchantment.getEnchant();
 						if (enchantment != null) {
 							skipSourceMeta.addEnchant(enchantment, 1, false);
 						}

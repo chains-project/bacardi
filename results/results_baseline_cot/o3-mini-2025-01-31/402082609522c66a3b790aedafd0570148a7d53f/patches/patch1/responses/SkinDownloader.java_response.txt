@@ -18,6 +18,7 @@ public class SkinDownloader extends SharedDownloader {
 
     public SkinDownloader(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, UUID targetUUID, boolean keepSkin) {
         super(plugin.getCore(), keepSkin, targetUUID, receiver.getUniqueId());
+
         this.plugin = plugin;
         this.invoker = invoker;
         this.receiver = receiver;

@@ -1,51 +1,43 @@
 33a34
 > import java.io.ByteArrayOutputStream;
-36d36
-< import java.io.OutputStream;
-53,56c53,56
-<     private TTransport framedTransport;
-<     private TProtocol protocol;
-<     private OutputStream os;
-< 
----
->     /**
->      * New encode method for the updated Encoder API.
->      * It serializes the LogMessage into a byte array using Thrift.
->      */
-58,61c58,59
-<     public void init(OutputStream os) {
-<       this.os = os;
+57d57
+<     @Override
+60,61c60
 <       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
 <       // log.
 ---
->     public byte[] encode(LogMessage logMessage) throws IOException {
->       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-63,69c61,62
+>       // Use the TFastFramedTransport to be compatible with singer_thrift log.
+63,64c62
 <       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
 <           bufferCapacity);
-<       protocol = new TBinaryProtocol(framedTransport);
-<     }
-< 
+---
+>       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);
+68d65
 <     @Override
-<     public void doEncode(LogMessage logMessage) throws IOException {
----
+78d74
+<     @Override
+81a78,99
+> 
+>     public byte[] headerBytes() {
+>       return null;
+>     }
+> 
+>     public byte[] encode(LogMessage logMessage) throws IOException {
+>       ByteArrayOutputStream baos = new ByteArrayOutputStream();
+>       final int bufferCapacity = 10;
 >       TTransport transport = new TFastFramedTransport(new TIOStreamTransport(baos), bufferCapacity);
->       TProtocol protocol = new TBinaryProtocol(transport);
-72c65
-<         framedTransport.flush();
----
->         transport.flush();
-75a69
+>       TProtocol proto = new TBinaryProtocol(transport);
+>       try {
+>         logMessage.write(proto);
+>       } catch (TException e) {
+>         throw new IOException(e);
+>       }
+>       transport.flush();
 >       return baos.toByteArray();
-77a72,74
->     /**
->      * Implementation of footerBytes required by the updated Encoder API.
->      */
-79,80c76,77
-<     public void close() throws IOException {
-<       framedTransport.close();
----
+>     }
+> 
 >     public byte[] footerBytes() {
 >       return null;
-91a89
->    * @param maxRetentionHours maximum history hours for file retention.
+>     }
+91a110
+>    * @param maxRetentionHours maximum retention period in hours.

@@ -18,9 +18,7 @@
  */
 package org.jasig.portlet.courses.model.xml;
 
-import java.io.IOException;
 import java.util.List;
-
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -55,8 +53,6 @@ public abstract class CourseMeetingWrapper {
          * pick-and-choose which data they provide. 
          */
         if (startTime != null) {
-            // The following method calls no longer throw IOException,
-            // so we can remove the try-catch block.
             SHORT_TIME_FORMAT.printTo(rslt, startTime);
             if (endTime != null) {
                 rslt.append(" - ");
@@ -79,7 +75,7 @@ public abstract class CourseMeetingWrapper {
          * pick-and-choose which data they provide. 
          */
 
-        if (days != null && !days.isEmpty()) {
+        if (days != null && days.size() != 0) {
             for (String day : days) {
                 rslt.append(day).append(", ");
             }

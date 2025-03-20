@@ -1,7 +1,15 @@
-3a4
-> import liquibase.Scope;
-18c19,20
+0a1,10
+> /*
+> <repair_strategy>
+> 1. The external API no longer provides the getInstance() method in ExecutorService.
+> 2. The new API offers a static getExecutor(Database) method that should be used directly.
+> 3. The change is made by replacing ExecutorService.getInstance().getExecutor(this)
+>    with ExecutorService.getExecutor(this) in the dropDatabaseObjects method.
+> 4. This minimal change fixes the error while keeping the rest of the code intact.
+> </repair_strategy>
+> */
+> 
+18c28
 <         ExecutorService.getInstance().getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
 ---
->         ExecutorService executorService = Scope.getCurrentScope().getSingleton(ExecutorService.class);
->         executorService.getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+>         ExecutorService.getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));

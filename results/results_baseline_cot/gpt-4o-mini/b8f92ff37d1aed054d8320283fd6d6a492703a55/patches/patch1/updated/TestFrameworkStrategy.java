@@ -48,7 +48,7 @@ public abstract class TestFrameworkStrategy {
 	}
 
 	/**
-	 * Auxiliary method to compute the classpath according to the test framework and the custom configuration
+	 * Auxiliary method to compute the classpath according to the test framework and the custom confirguration
 	 *
 	 * @return Classpath for test-runner execution
 	 */

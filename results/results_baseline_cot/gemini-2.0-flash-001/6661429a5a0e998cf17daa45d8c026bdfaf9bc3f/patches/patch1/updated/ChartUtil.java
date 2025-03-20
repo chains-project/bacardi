@@ -4,7 +4,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 
-import net.sf.json.JSONObject;
+import net.sourceforge.htmlunit.corejs.javascript.ScriptableObject;
 
 import org.jenkinsci.test.acceptance.po.PageObject;
 
@@ -32,9 +32,15 @@ public class ChartUtil {
                     "delete(window.Array.prototype.toJSON) %n"
                             + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
                     elementId));
-            if (result != null) {
-                return result.toString();
+            String scriptResult;
+            if (result instanceof String) {
+                scriptResult = (String) result;
+            } else if (result instanceof ScriptableObject) {
+                scriptResult = result.toString();
+            } else {
+                scriptResult = null;
             }
+            return scriptResult;
         }
         return null;
     }
@@ -58,8 +64,16 @@ public class ChartUtil {
                                 + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
                         toolAttribute));
 
-                if (result != null) {
-                    return result.toString();
+                String scriptResult;
+                if (result instanceof String) {
+                    scriptResult = (String) result;
+                } else if (result instanceof ScriptableObject) {
+                    scriptResult = result.toString();
+                } else {
+                    scriptResult = null;
+                }
+                if (scriptResult != null) {
+                    return scriptResult;
                 }
                 pageObject.elasticSleep(1000);
             }

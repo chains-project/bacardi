@@ -1,12 +1,44 @@
-12,16c12,16
+12,15d11
 < import io.dropwizard.logging.AbstractAppenderFactory;
 < import io.dropwizard.logging.async.AsyncAppenderFactory;
 < import io.dropwizard.logging.filter.LevelFilterFactory;
 < import io.dropwizard.logging.layout.LayoutFactory;
-< import io.dropwizard.request.logging.layout.LogbackAccessRequestLayoutFactory;
+17a14
+> import java.util.Collections;
+21,23d17
+< /**
+<  * Production console appender using logging to JSON.
+<  */
+25c19,21
+< public class WireAppenderFactory<T extends DeferredProcessingAware> extends AbstractAppenderFactory<T> {
 ---
-> import io.dropwizard.logback.AbstractAppenderFactory;
-> import io.dropwizard.logback.async.AsyncAppenderFactory;
-> import io.dropwizard.logback.filter.LevelFilterFactory;
-> import io.dropwizard.logback.layout.LayoutFactory;
-> import io.dropwizard.logback.access.layout.LogbackAccessRequestLayoutFactory;
+> public class WireAppenderFactory<T extends DeferredProcessingAware> {
+> 
+>     private String threshold = "INFO";
+27d22
+<     @Override
+41d35
+<         // this is quite ugly hack to achieve just a single name for the logger
+54,56c48,51
+<     // we know that T is either ILoggingEvent or IAccessEvent
+<     // so this is in a fact checked cast
+<     // moreover thanks to the generics erasure during runtime, its safe anyway
+---
+>     protected List<FilterFactory<T>> getFilterFactories() {
+>         return Collections.emptyList();
+>     }
+> 
+74a70,82
+>     public interface LayoutFactory<T> {
+>     }
+> 
+>     public interface LevelFilterFactory<T> {
+>         Filter<T> build(String threshold);
+>     }
+> 
+>     public interface AsyncAppenderFactory<T> {
+>     }
+> 
+>     public interface FilterFactory<T> {
+>         Filter<T> build();
+>     }

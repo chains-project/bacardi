@@ -30,8 +30,8 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
-        server.setSendServerVersion(false);
-        server.setSendDateHeader(true);
+        server.setAttribute("org.eclipse.jetty.server.sendServerVersion", false);
+        server.setAttribute("org.eclipse.jetty.server.sendDateHeader", true);
 
         this.httpConnector = new ServerConnector(server);
         this.httpConnector.setPort(port);

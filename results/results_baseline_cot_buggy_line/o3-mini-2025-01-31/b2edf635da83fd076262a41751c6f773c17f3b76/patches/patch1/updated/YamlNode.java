@@ -27,6 +27,7 @@ import org.jclouds.util.Closeables2;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.LoaderOptions;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
@@ -111,8 +112,8 @@ public class YamlNode {
          InputStream in = null;
          try {
             in = byteSource.openStream();
-            // Updated usage to match the new SnakeYAML API: use loadAs with the target class.
-            return new Yaml().loadAs(in, YamlNode.class);
+            LoaderOptions loaderOptions = new LoaderOptions();
+            return (YamlNode) new Yaml(new Constructor(YamlNode.class, loaderOptions)).load(in);
          } catch (IOException ioe) {
             throw Throwables.propagate(ioe);
          } finally {

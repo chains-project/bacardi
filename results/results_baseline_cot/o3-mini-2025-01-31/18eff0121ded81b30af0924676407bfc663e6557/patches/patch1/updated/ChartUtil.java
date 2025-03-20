@@ -3,7 +3,6 @@ package io.jenkins.plugins.coverage.util;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
-
 import org.jenkinsci.test.acceptance.po.PageObject;
 
 /**
@@ -30,7 +29,9 @@ public class ChartUtil {
                     "delete(window.Array.prototype.toJSON) %n"
                             + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
                     elementId));
-            return result != null ? result.toString() : null;
+            if (result != null) {
+                return result.toString();
+            }
         }
         return null;
     }
@@ -59,7 +60,7 @@ public class ChartUtil {
                 pageObject.elasticSleep(1000);
             }
         }
-        throw new java.util.NoSuchElementException("Found no trend chart with ID '" + toolAttribute + "'");
+        throw new java.util.NoSuchElementException("Found no trend chart with ID '%s''" + toolAttribute);
     }
 
     /**

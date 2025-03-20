@@ -15,8 +15,8 @@
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
- * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
  * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
@@ -38,7 +38,7 @@ import org.junit.Test;
 /**
  * Integration case for {@link AwsOcket}.
  *
- * @author Yegor Bugayenko
+ * @author Yegor Bugayenko (yegor256@gmail.com)
  * @version $Id: d67286e195243030346f4424945bcc8027d7b932 $
  * @since 0.1
  */
@@ -46,6 +46,7 @@ public final class AwsOcketITCase {
 
     /**
      * Bucket we're working with.
+     * @checkstyle VisibilityModifier (3 lines)
      */
     @Rule
     public final transient BucketRule rule = new BucketRule();
@@ -78,7 +79,6 @@ public final class AwsOcketITCase {
         final Bucket bucket = this.rule.bucket();
         final String name = "test-44.txt";
         final Ocket.Text ocket = new Ocket.Text(bucket.ocket(name));
-        // Replace Tv.HUNDRED * Tv.THOUSAND with its numeric equivalent: 100 * 1000.
         final String data = RandomStringUtils.random(100 * 1000);
         ocket.write(data);
         try {

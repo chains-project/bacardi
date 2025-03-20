@@ -1,5 +1,5 @@
 ```java
-/*
+    /*
  * Copyright 2016 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,27 +46,27 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import org.threeten.bp.Duration;
 
-import com.google.api.services.cloudresourcemanager.v1beta1.CloudResourceManager;
-import com.google.api.services.cloudresourcemanager.v1beta1.model.ClearOrgPolicyRequest;
-import com.google.api.services.cloudresourcemanager.v1beta1.model.Constraint;
-import com.google.api.services.cloudresourcemanager.v1beta1.model.GetEffectiveOrgPolicyRequest;
-import com.google.api.services.cloudresourcemanager.v1beta1.model.GetIamPolicyRequest;
-import com.google.api.services.cloudresourcemanager.v1beta1.model.GetOrgPolicyRequest;
-import com.google.api.services.cloudresourcemanager.v1beta1.model.ListAvailableOrgPolicyConstraintsRequest;
-import com.google.api.services.cloudresourcemanager.v1beta1.model.ListAvailableOrgPolicyConstraintsResponse;
-import com.google.api.services.cloudresourcemanager.v1beta1.model.ListOrgPoliciesRequest;
-import com.google.api.services.cloudresourcemanager.v1beta1.model.ListOrgPoliciesResponse;
-import com.google.api.services.cloudresourcemanager.v1beta1.model.ListProjectsResponse;
-import com.google.api.services.cloudresourcemanager.v1beta1.model.Operation;
-import com.google.api.services.cloudresourcemanager.v1beta1.model.OrgPolicy;
-import com.google.api.services.cloudresourcemanager.v1beta1.model.Policy;
-import com.google.api.services.cloudresourcemanager.v1beta1.model.Project;
-import com.google.api.services.cloudresourcemanager.v1beta1.model.SetIamPolicyRequest;
-import com.google.api.services.cloudresourcemanager.v1beta1.model.SetOrgPolicyRequest;
-import com.google.api.services.cloudresourcemanager.v1beta1.model.Status;
-import com.google.api.services.cloudresourcemanager.v1beta1.model.TestIamPermissionsRequest;
-import com.google.api.services.cloudresourcemanager.v1beta1.model.TestIamPermissionsResponse;
-import com.google.api.services.cloudresourcemanager.v1beta1.model.UndeleteProjectRequest;
+import com.google.api.services.cloudresourcemanager.v1.CloudResourceManager;
+import com.google.api.services.cloudresourcemanager.v1.model.ClearOrgPolicyRequest;
+import com.google.api.services.cloudresourcemanager.v1.model.Constraint;
+import com.google.api.services.cloudresourcemanager.v1.model.GetEffectiveOrgPolicyRequest;
+import com.google.api.services.cloudresourcemanager.v1.model.GetIamPolicyRequest;
+import com.google.api.services.cloudresourcemanager.v1.model.GetOrgPolicyRequest;
+import com.google.api.services.cloudresourcemanager.v1.model.ListAvailableOrgPolicyConstraintsRequest;
+import com.google.api.services.cloudresourcemanager.v1.model.ListAvailableOrgPolicyConstraintsResponse;
+import com.google.api.services.cloudresourcemanager.v1.model.ListOrgPoliciesRequest;
+import com.google.api.services.cloudresourcemanager.v1.model.ListOrgPoliciesResponse;
+import com.google.api.services.cloudresourcemanager.v1.model.ListProjectsResponse;
+import com.google.api.services.cloudresourcemanager.v1.model.Operation;
+import com.google.api.services.cloudresourcemanager.v1.model.OrgPolicy;
+import com.google.api.services.cloudresourcemanager.v1.model.Policy;
+import com.google.api.services.cloudresourcemanager.v1.model.Project;
+import com.google.api.services.cloudresourcemanager.v1.model.SetIamPolicyRequest;
+import com.google.api.services.cloudresourcemanager.v1.model.SetOrgPolicyRequest;
+import com.google.api.services.cloudresourcemanager.v1.model.Status;
+import com.google.api.services.cloudresourcemanager.v1.model.TestIamPermissionsRequest;
+import com.google.api.services.cloudresourcemanager.v1.model.TestIamPermissionsResponse;
+import com.google.api.services.cloudresourcemanager.v1.model.UndeleteProjectRequest;
 
 /** @deprecated v3 GAPIC client of ResourceManager is now available */
 @Deprecated
@@ -160,18 +160,18 @@ public class HttpResourceManagerRpc implements ResourceManagerRpc {
 
   @Override
   public Project create(Project project) {
-    final Operation operation;
+    final com.google.api.services.cloudresourcemanager.v1.model.Operation operation;
     try {
       operation = resourceManager.projects().create(project).execute();
     } catch (IOException ex) {
       throw translate(ex);
     }
 
-    Operation finishedOp =
+    com.google.api.services.cloudresourcemanager.v1.model.Operation finishedOp =
         runWithRetries(
-            new Callable<Operation>() {
+            new Callable<com.google.api.services.cloudresourcemanager.v1.model.Operation>() {
               @Override
-              public Operation call() {
+              public com.google.api.services.cloudresourcemanager.v1.model.Operation call() {
                 try {
                   return resourceManager.operations().get(operation.getName()).execute();
                 } catch (IOException ex) {

@@ -21,6 +21,7 @@ public class LoginListener extends SharedListener {
     @Inject
     LoginListener(ChangeSkinSponge plugin) {
         super(plugin.getCore());
+
         this.plugin = plugin;
     }
 
@@ -37,6 +38,7 @@ public class LoginListener extends SharedListener {
             if (!preferences.isKeepSkin()) {
                 targetSkin = core.checkAutoUpdate(targetSkin);
             }
+
             plugin.getApi().applyProperties(profile, targetSkin);
             save(preferences);
         } else {

@@ -59,8 +59,8 @@ class TagValidTest {
             throwable.getMessage(),
             new AllOf<>(
                 Arrays.asList(
-                    new StringContains("Invalid tag"),
-                    new StringContains(original)
+                    StringContains.containsString("Invalid tag"),
+                    StringContains.containsString(original)
                 )
             )
         );

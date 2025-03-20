@@ -10,7 +10,6 @@ import com.artipie.docker.Tag;
 import java.util.Arrays;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
-import org.hamcrest.core.AllOf;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -51,11 +50,9 @@ public final class ManifestRefTest {
         );
         MatcherAssert.assertThat(
             throwable.getMessage(),
-            new AllOf<>(
-                Arrays.asList(
-                    Matchers.containsString("Unsupported reference"),
-                    Matchers.not(Matchers.containsString(string))
-                )
+            Matchers.allOf(
+                Matchers.containsString("Unsupported reference"),
+                Matchers.not(Matchers.containsString(string))
             )
         );
     }

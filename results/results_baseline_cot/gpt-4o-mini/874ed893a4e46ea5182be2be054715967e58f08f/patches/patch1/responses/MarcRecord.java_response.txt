@@ -1,8 +1,8 @@
 package de.gwdg.metadataqa.marc.dao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonGenerationException; // Added import for Jackson exception
 import de.gwdg.metadataqa.marc.Extractable;
 import de.gwdg.metadataqa.marc.MarcFactory;
 import de.gwdg.metadataqa.marc.MarcSubfield;
@@ -19,6 +19,7 @@ import de.gwdg.metadataqa.marc.model.SolrFieldType;
 import de.gwdg.metadataqa.marc.model.validation.ValidationError;
 import de.gwdg.metadataqa.marc.model.validation.ValidationErrorType;
 import de.gwdg.metadataqa.marc.utils.marcspec.legacy.MarcSpec;
+
 import de.gwdg.metadataqa.marc.utils.unimarc.UnimarcConverter;
 
 import java.io.Serializable;
@@ -425,7 +426,7 @@ public class MarcRecord implements Extractable, Validatable, Serializable {
     String json = null;
     try {
       json = mapper.writeValueAsString(map);
-    } catch (JsonProcessingException e) {
+    } catch (JsonProcessingException | JsonGenerationException e) { // Updated to catch the new exception
       logger.log(Level.WARNING, "error in asJson()", e);
     }
 

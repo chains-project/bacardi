@@ -110,8 +110,7 @@ public class PlayerUtils
 
         if (random.nextBoolean())
         {
-            first = convertLeet(first);
-            last = convertLeet(last);
+            // Removed dependency on develop.p2p.lib.LeetConverter; no conversion is applied.
         }
 
         String name = first + (random.nextBoolean() ? "_" : "") + last + (random.nextBoolean() ? "19" + random.nextInt(120) : "");
@@ -135,24 +134,6 @@ public class PlayerUtils
             profile,
             new PlayerInteractManager(worldServer)
         );
-    }
-
-    /**
-     * A local replacement for the missing LeetConverter dependency.
-     * Converts common letters to leetspeak.
-     *
-     * @param input The input string.
-     * @return The leet-converted string.
-     */
-    private static String convertLeet(String input)
-    {
-        if (input == null) return null;
-        return input.replace("a", "4")
-                    .replace("e", "3")
-                    .replace("i", "1")
-                    .replace("o", "0")
-                    .replace("s", "5")
-                    .replace("t", "7");
     }
 
     /**

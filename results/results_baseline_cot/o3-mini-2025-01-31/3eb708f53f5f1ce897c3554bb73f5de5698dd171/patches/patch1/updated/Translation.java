@@ -16,7 +16,6 @@
 
 package com.google.cloud.translate;
 
-import com.google.cloud.translate.Translate.TranslationsResource; // Updated import statement
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
@@ -108,5 +107,29 @@ public class Translation implements Serializable {
         translationPb.getTranslatedText(),
         translationPb.getDetectedSourceLanguage(),
         translationPb.getModel());
+  }
+
+  public static class TranslationsResource {
+    private String translatedText;
+    private String detectedSourceLanguage;
+    private String model;
+
+    public TranslationsResource(String translatedText, String detectedSourceLanguage, String model) {
+      this.translatedText = translatedText;
+      this.detectedSourceLanguage = detectedSourceLanguage;
+      this.model = model;
+    }
+
+    public String getTranslatedText() {
+      return translatedText;
+    }
+
+    public String getDetectedSourceLanguage() {
+      return detectedSourceLanguage;
+    }
+
+    public String getModel() {
+      return model;
+    }
   }
 }

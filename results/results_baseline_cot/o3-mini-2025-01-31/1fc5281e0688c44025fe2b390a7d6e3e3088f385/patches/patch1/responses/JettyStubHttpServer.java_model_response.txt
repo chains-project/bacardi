@@ -1,30 +1,3 @@
-<code_analysis>
-1. The error message shows that several Jetty APIs used in the code are no longer available:
-   - The class SelectChannelConnector from package org.eclipse.jetty.server.nio no longer exists.
-   - Methods setSendServerVersion(boolean) and setSendDateHeader(boolean) on the Server class are not available.
-   - Connector’s setPort(int) method and getLocalPort() method are missing.
-   These indicate that the code was written for an older version of Jetty (likely Jetty 8) and now fails to compile against a newer Jetty version (Jetty 9+).
-
-2. In the client code:
-   - Importing org.eclipse.jetty.server.nio.SelectChannelConnector is failing.
-   - In the constructor, methods setSendServerVersion and setSendDateHeader are called on the Server instance.
-   - The httpConnector is created as a SelectChannelConnector and then used to call setPort() and later getLocalPort(), which no longer exist on the Connector interface.
-
-3. To fix the issue:
-   - Replace the obsolete SelectChannelConnector with the newer ServerConnector class available in Jetty 9.
-   - Remove the calls to setSendServerVersion and setSendDateHeader that are no longer supported.
-   - Update the httpConnector field type to ServerConnector so that methods like setPort() and getLocalPort() are available.
-   - Update the import statements accordingly.
-
-4. The necessary modifications:
-   - Remove "import org.eclipse.jetty.server.nio.SelectChannelConnector;" and add "import org.eclipse.jetty.server.ServerConnector;".
-   - Change the instantiation of the connector from new SelectChannelConnector() to new ServerConnector(server).
-   - Remove the calls to server.setSendServerVersion(false) and server.setSendDateHeader(true) as they cause compilation errors.
-   - Change the field type of httpConnector from Connector to ServerConnector.
-
-These changes address the breaking dependency update and allow the class to compile using the new Jetty API.
-</code_analysis>
-
 ```java
 /*
  * Copyright (c) 2012 - 2016 Jadler contributors
@@ -37,6 +10,8 @@ import net.jadler.stubbing.server.StubHttpServer;
 import org.apache.commons.lang.Validate;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,11 +30,12 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
-        // Removed obsolete methods:
-        // this.server.setSendServerVersion(false);
-        // this.server.setSendDateHeader(true);
 
-        this.httpConnector = new ServerConnector(server);
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        httpConfig.setSendServerVersion(false);
+        httpConfig.setSendDateHeader(true);
+
+        this.httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
         this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);
     }
@@ -70,6 +46,7 @@ public class JettyStubHttpServer implements StubHttpServer {
     @Override
     public void registerRequestManager(final RequestManager ruleProvider) {
         Validate.notNull(ruleProvider, "ruleProvider cannot be null");
+
         server.setHandler(new JadlerHandler(ruleProvider));
     }
 

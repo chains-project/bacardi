@@ -4,8 +4,8 @@
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  *
  * Copyright 2017-2022 the original author or authors.
@@ -13,9 +13,6 @@
 package org.assertj.vavr.api;
 
 import io.vavr.control.Try;
-import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector;
-import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy;
-
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 
@@ -26,17 +23,15 @@ class ClassLoadingStrategyFactory {
         () -> MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class)
     ).getOrElse((Method) null);
 
-    static ClassLoadingStrategy<ClassLoader> classLoadingStrategy(Class<?> assertClass) {
-        if (ClassInjector.UsingReflection.isAvailable()) {
-            return ClassLoadingStrategy.Default.INJECTION;
-        } else if (ClassInjector.UsingLookup.isAvailable() && PRIVATE_LOOKUP_IN != null) {
-            try {
-                return ClassLoadingStrategy.UsingLookup.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));
-            } catch (Exception e) {
-                throw new IllegalStateException("Could not access package of " + assertClass, e);
-            }
-        } else {
-            throw new IllegalStateException("No code generation strategy available");
+    static Object classLoadingStrategy(Class<?> assertClass) { // Changed return type to Object
+        try {
+            return Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingReflection").getMethod("isAvailable").invoke(null) ? 
+                Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default").getField("INJECTION").get(null) : 
+                (Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingLookup").getMethod("isAvailable").invoke(null) && PRIVATE_LOOKUP_IN != null) ? 
+                Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$UsingLookup").getMethod("of", Object.class).invoke(null, PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP)) : 
+                throw new IllegalStateException("No code generation strategy available");
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not access package of " + assertClass, e);
         }
     }
 

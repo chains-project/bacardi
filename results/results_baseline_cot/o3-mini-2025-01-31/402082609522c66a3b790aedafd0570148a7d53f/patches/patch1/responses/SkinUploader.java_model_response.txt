@@ -1,21 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the symbol CommandSource cannot be found in the package "org.spongepowered.api.command". This implies that the dependency update in Sponge has likely moved the CommandSource class.
-   - The errors occur in the import statement and in the class field declarations and parameters related to CommandSource.
-
-2. Review the client code:
-   - The code imports CommandSource from "org.spongepowered.api.command.CommandSource" and uses it for the field "invoker" and as a parameter in the constructor.
-   - The code usage of CommandSource in methods such as sendMessageInvoker is affected by the incorrect import.
-
-3. Consider potential fixes:
-   - Update the import to point to the new package location. In the updated Sponge dependency, CommandSource has been relocated to "org.spongepowered.api.command.source.CommandSource".
-   - No changes to function signatures are required since only the import is affected by the dependency update.
-
-4. Plan necessary changes:
-   - Replace the import "import org.spongepowered.api.command.CommandSource;" with "import org.spongepowered.api.command.source.CommandSource;".
-   - No other modifications are needed as the rest of the code references remain valid.
-</code_analysis>
-
 ```java
 package com.github.games647.changeskin.sponge.task;
 
@@ -35,6 +17,7 @@ public class SkinUploader extends SharedUploader {
 
     public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {
         super(plugin.getCore(), owner, url);
+
         this.plugin = plugin;
         this.invoker = invoker;
     }

@@ -36,11 +36,10 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
 	/* Get translation info */
 	public static SmartInventory getTranslateChatMenu(String targetPlayerUUID) {
 		String playerTitle = "";
-		playerTitle = ChatColor.BLUE + CommonDefinitions.getMessage("wwctGUIChatMenu",
-				new String[] { WorldwideChat.instance.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName() });
-		return SmartInventory.builder().id("translateChatMenu")
-				.provider(new WWCTranslateGUIChatMenu(targetPlayerUUID)).size(4, 9)
-				.manager(WorldwideChat.instance.getInventoryManager()).title(playerTitle).build();
+		playerTitle = ChatColor.BLUE + CommonDefinitions.getMessage("wwctGUIChatMenu", new String[] {WorldwideChat.instance.getServer()
+				.getPlayer(UUID.fromString(targetPlayerUUID)).getName()});
+		return SmartInventory.builder().id("translateChatMenu").provider(new WWCTranslateGUIChatMenu(targetPlayerUUID))
+				.size(4, 9).manager(WorldwideChat.instance.getInventoryManager()).title(playerTitle).build();
 	}
 
 	@Override
@@ -64,9 +63,7 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
 			}
 			
 			/* Outgoing Chat Button */
-			if ((player.getUniqueId().toString().equals(targetPlayerUUID) && player.hasPermission("worldwidechat.wwctco"))
-					|| (!player.getUniqueId().toString().equals(targetPlayerUUID)
-							&& player.hasPermission("worldwidechat.wwctco.otherplayers"))) {
+			if ((player.getUniqueId().toString().equals(targetPlayerUUID) && player.hasPermission("worldwidechat.wwctco")) || (!player.getUniqueId().toString().equals(targetPlayerUUID)) && player.hasPermission("worldwidechat.wwctco.otherplayers")) {
 				ItemStack outgoingChatButton = XMaterial.CHEST_MINECART.parseItem();
 				ItemMeta outgoingChatMeta = outgoingChatButton.getItemMeta();
 				if (targetTranslator.getTranslatingChatOutgoing()) {
@@ -88,9 +85,7 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
 			}
 			
 			/* Incoming Chat Button */
-			if ((player.getUniqueId().toString().equals(targetPlayerUUID) && player.hasPermission("worldwidechat.wwctci"))
-					|| (!player.getUniqueId().toString().equals(targetPlayerUUID)
-							&& player.hasPermission("worldwidechat.wwctci.otherplayers"))) {
+			if ((player.getUniqueId().toString().equals(targetPlayerUUID) && player.hasPermission("worldwidechat.wwctci")) || (!player.getUniqueId().toString().equals(targetPlayerUUID)) && player.hasPermission("worldwidechat.wwctci.otherplayers")) {
             	ItemStack incomingChatButton = XMaterial.MAP.parseItem();
     			ItemMeta incomingChatMeta = incomingChatButton.getItemMeta();
     			if (targetTranslator.getTranslatingChatIncoming()) {

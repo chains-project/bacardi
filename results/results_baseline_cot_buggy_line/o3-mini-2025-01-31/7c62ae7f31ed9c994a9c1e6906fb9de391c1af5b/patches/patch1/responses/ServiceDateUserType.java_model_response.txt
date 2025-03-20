@@ -78,8 +78,9 @@ public class ServiceDateUserType implements UserType {
     }
   }
 
-  // Removed @Override annotation since this method is no longer part of the abstract contract
-  public Object assemble(Serializable cached, Object owner) throws HibernateException {
+  @Override
+  public Object assemble(Serializable cached, Object owner)
+      throws HibernateException {
     return deepCopy(cached);
   }
 
@@ -88,20 +89,12 @@ public class ServiceDateUserType implements UserType {
     return (Serializable) deepCopy(value);
   }
 
-  // Removed @Override annotation since this method is no longer part of the abstract contract
-  public Object replace(Object original, Object target, Object owner) throws HibernateException {
+  @Override
+  public Object replace(Object original, Object target, Object owner)
+      throws HibernateException {
     if (original == null)
       return null;
     return deepCopy(original);
   }
 }
-``` 
-
-<code_analysis>
-1. The error message indicates that the version update in Hibernate changed the signature of the nullSafeSet (and nullSafeGet) methods: the fourth parameter is now of type SharedSessionContractImplementor instead of SessionImplementor. This discrepancy is causing the implementation not to override the abstract method.
-2. Additionally, two methods (assemble and replace) are annotated with @Override even though in the updated dependency these methods are not part of the abstract contract (they may now be provided as default methods).
-3. The fix involves:
-   - Updating the parameter types in nullSafeGet and nullSafeSet to SharedSessionContractImplementor and ensuring the correct import is used.
-   - Removing the @Override annotation from assemble and replace methods.
-4. These changes preserve the expected functionality and modify only what is needed for compatibility with the updated Hibernate dependency.
-</code_analysis>
+```

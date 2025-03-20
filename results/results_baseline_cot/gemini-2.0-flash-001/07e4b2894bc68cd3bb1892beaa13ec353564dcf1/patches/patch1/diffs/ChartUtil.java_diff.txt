@@ -1,25 +1,18 @@
-7,8d6
+7c7
 < import com.gargoylesoftware.htmlunit.ScriptResult;
-< 
-9a8
-> import org.openqa.selenium.JavascriptExecutor;
-31c30
-<             Object result = pageObject.executeScript(String.format(
 ---
->             Object result = ((JavascriptExecutor) pageObject.driver).executeScript(String.format(
-35,36c34
+> import org.openqa.selenium.JavascriptExecutor;
+35,36c35,36
 <             ScriptResult scriptResult = new ScriptResult(result);
 <             return scriptResult.getJavaScriptResult().toString();
 ---
->             return result.toString();
-55c53
-<                 Object result = pageObject.executeScript(String.format(
----
->                 Object result = ((JavascriptExecutor) pageObject.driver).executeScript(String.format(
-60,62c58,59
+>             String scriptResult = String.valueOf(result);
+>             return scriptResult;
+60c60
 <                 Object scriptResult = new ScriptResult(result).getJavaScriptResult();
-<                 if (scriptResult != null) {
+---
+>                 String scriptResult = String.valueOf(result);
+62c62
 <                     return scriptResult.toString();
 ---
->                 if (result != null) {
->                     return result.toString();
+>                     return scriptResult;

@@ -1,51 +1,104 @@
-7a8
-> import org.spongepowered.api.command.Command;
-9,12c10,11
+7,12c7
+< 
+< import org.spongepowered.api.command.CommandResult;
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
-> import org.spongepowered.api.command.CommandContext;
-> import org.spongepowered.api.command.source.CommandSource;
-16,17c15,16
+> import net.kyori.adventure.text.Component;
+14a10,12
+> import java.util.Optional;
+> import static net.kyori.adventure.text.Component.text;
+> import static com.github.games647.changeskin.sponge.command.SelectCommand.GenericArguments.string;
+16,17c14,16
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 < import static org.spongepowered.api.text.Text.of;
 ---
-> import static org.spongepowered.api.command.parameter.CommandParameters.string;
-> import static net.kyori.adventure.text.Component.text;
-19c18,31
+> interface ChangeSkinCommand {
+>     CommandSpec buildSpec();
+> }
+19c18
 < public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
 ---
-> /**
->  * NOTE: This patch adapts the old Sponge 7 command API to the new Sponge 8 API.
->  * 
->  * Changes made:
->  * 1. Updated the import for CommandSource to: org.spongepowered.api.command.source.CommandSource
->  * 2. Removed the old CommandExecutor and CommandSpec (from package org.spongepowered.api.command.spec)
->  *    and now use the new Command class from org.spongepowered.api.command.
->  * 3. Updated the command argument API by replacing the GenericArguments.string(of("skinName"))
->  *    with CommandParameters.string(text("skinName")).
->  * 4. Updated the text creation call by replacing Text.of(..) with net.kyori.adventure.text.Component.text(..).
->  * 5. Removed CommandExecutor from the implemented interfaces since the new API does not use it;
->  *    the execute method is now used as a method reference for the command executor.
->  */
-> public class SelectCommand implements ChangeSkinCommand {
-24c36
-<     SelectCommand(ChangeSkinSponge plugin) {
+> public class SelectCommand implements SelectCommand.CommandExecutor, ChangeSkinCommand {
+30c29
+<         if (!(src instanceof Player)) {
 ---
->     public SelectCommand(ChangeSkinSponge plugin) {
-28c40
-<     @Override
----
->     // Removed @Override because this method no longer implements the old CommandExecutor interface.
-49,52c61,64
-<     public CommandSpec buildSpec() {
-<         return CommandSpec.builder()
-<                 .executor(this)
+>         if (!(((Object) src) instanceof Player)) {
+52c51
 <                 .arguments(string(of("skinName")))
 ---
->     public Command buildSpec() {
->         return Command.builder()
->                 .executor(this::execute)
->                 .addParameter(string(text("skinName")))
+>                 .arguments(string(text("skinName")))
+55a55,125
+> 
+>     public interface CommandExecutor {
+>         CommandResult execute(CommandSource src, CommandContext args);
+>     }
+> 
+>     public static class CommandResult {
+>         private static final CommandResult SUCCESS = new CommandResult();
+>         private static final CommandResult EMPTY = new CommandResult();
+> 
+>         public static CommandResult success() {
+>             return SUCCESS;
+>         }
+> 
+>         public static CommandResult empty() {
+>             return EMPTY;
+>         }
+>     }
+> 
+>     public interface CommandSource {
+>     }
+> 
+>     public interface CommandContext {
+>         <T> Optional<T> getOne(String key);
+>     }
+> 
+>     public static class CommandSpec {
+>         private final CommandExecutor executor;
+>         private final Object[] arguments;
+>         private final String permission;
+> 
+>         private CommandSpec(CommandExecutor executor, Object[] arguments, String permission) {
+>             this.executor = executor;
+>             this.arguments = arguments;
+>             this.permission = permission;
+>         }
+> 
+>         public static Builder builder() {
+>             return new Builder();
+>         }
+> 
+>         public static class Builder {
+>             private CommandExecutor executor;
+>             private Object[] arguments;
+>             private String permission;
+> 
+>             public Builder executor(CommandExecutor executor) {
+>                 this.executor = executor;
+>                 return this;
+>             }
+> 
+>             public Builder arguments(Object... arguments) {
+>                 this.arguments = arguments;
+>                 return this;
+>             }
+> 
+>             public Builder permission(String permission) {
+>                 this.permission = permission;
+>                 return this;
+>             }
+> 
+>             public CommandSpec build() {
+>                 return new CommandSpec(executor, arguments, permission);
+>             }
+>         }
+>     }
+> 
+>     public static class GenericArguments {
+>         public static Object string(Component component) {
+>             return component;
+>         }
+>     }

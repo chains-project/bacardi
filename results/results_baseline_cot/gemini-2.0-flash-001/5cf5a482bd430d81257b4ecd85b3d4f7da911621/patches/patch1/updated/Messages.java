@@ -1,3 +1,4 @@
+import java.util.Locale;
 import java.util.ResourceBundle;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -29,7 +30,8 @@ public class Messages {
      * placeholder for unknown keys.
      */
     public final String get(final String key) {
-        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
+        Locale locale = mvcContext.getLocale();
+        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, locale);
 
         return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);
     }

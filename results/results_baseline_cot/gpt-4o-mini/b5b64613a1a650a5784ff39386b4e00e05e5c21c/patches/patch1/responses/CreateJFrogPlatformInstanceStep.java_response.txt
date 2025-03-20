@@ -70,7 +70,7 @@ public class CreateJFrogPlatformInstanceStep extends AbstractStepImpl {
 
         @Override
         protected JFrogPlatformInstance run() throws Exception {
-            if (isAllEmpty(step.url, step.artifactoryUrl, step.distributionUrl)) {
+            if (isEmpty(step.url) && isEmpty(step.artifactoryUrl) && isEmpty(step.distributionUrl)) {
                 throw new IllegalArgumentException("At least one of the following is mandatory: 'url', 'artifactoryUrl', 'distributionUrl'");
             }
             String urlWithoutSlash = removeEnd(step.url, "/");
@@ -88,15 +88,6 @@ public class CreateJFrogPlatformInstanceStep extends AbstractStepImpl {
             }
             artifactoryServer.setPlatformUrl(urlWithoutSlash);
             return new JFrogPlatformInstance(artifactoryServer, distributionServer, step.url, "");
-        }
-
-        private boolean isAllEmpty(String... strings) {
-            for (String str : strings) {
-                if (!isEmpty(str)) {
-                    return false;
-                }
-            }
-            return true;
         }
     }
 

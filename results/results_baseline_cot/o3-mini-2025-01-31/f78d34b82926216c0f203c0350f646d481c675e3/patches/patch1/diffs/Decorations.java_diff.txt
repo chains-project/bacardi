@@ -1,38 +1,66 @@
 3d2
 < import develop.p2p.lib.WaveCreator;
-41c40
+38d36
+<             @Override
+41c39
 <                 if (sec[0] > (seconds))
 ---
 >                 if (sec[0] > seconds)
-152d150
+87c85
+<         ); //XXX: 誰だよこんな引数多く設計したやつ
+---
+>         );
+152d149
 < 
-173d170
+173d169
 < 
-233d229
+189d184
+<             @Override
+215c210
+<                 line(center.clone().add(-1.5, 0.7, 2.3), center.clone().add(-1.5, 0.7, -2.3)); //三角
+---
+>                 line(center.clone().add(-1.5, 0.7, 2.3), center.clone().add(-1.5, 0.7, -2.3));
+219c214
+<                 line(center.clone().add(1.5, 0.7, -2.3), center.clone().add(1.5, 0.7, 2.3)); //三角(反転)
+---
+>                 line(center.clone().add(1.5, 0.7, -2.3), center.clone().add(1.5, 0.7, 2.3));
+227d221
+<             @Override
+233d226
 < 
-244d239
+244d236
 < 
-311a307,329
->     // Replacement implementation for the removed WaveCreator dependency.
+250d241
+<             @Override
+254c245,250
+<                 Location X = new Location(c.getWorld(), particle_x(time[0], radius) + c.getX(), 5.0 + c.getY(), particle_z(time[0], radius) + c.getZ());
+---
+>                 Location X = new Location(
+>                     c.getWorld(),
+>                     particle_x(time[0], radius) + c.getX(),
+>                     5.0 + c.getY(),
+>                     particle_z(time[0], radius) + c.getZ()
+>                 );
+265d260
+<             @Override
+311a307,326
 >     private static class WaveCreator {
->         private final double amplitude;
->         private final double staticValue;
->         private final double phase;
->         private double time;
-> 
->         public WaveCreator(double amplitude, double staticValue, double phase) {
+>         private double amplitude;
+>         private double frequency;
+>         private double current;
+>         
+>         public WaveCreator(double amplitude, double frequency, double initialPhase) {
 >             this.amplitude = amplitude;
->             this.staticValue = staticValue;
->             this.phase = phase;
->             this.time = 0.0;
+>             this.frequency = frequency;
+>             this.current = initialPhase;
 >         }
-> 
->         public double get(double step, boolean flag) {
->             this.time += step;
->             return amplitude * Math.sin(time + phase);
+>         
+>         public double get(double increment, boolean flag) {
+>             current += increment;
+>             return amplitude * Math.sin(current);
 >         }
-> 
+>         
 >         public double getStatic() {
->             return staticValue;
+>             return frequency;
 >         }
 >     }

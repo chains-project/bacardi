@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import jakarta.validation.Valid as JakartaValid;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,7 +45,7 @@ public class AccountController {
 	 */
 	@RequestMapping(value = "/account/unlock", method = RequestMethod.POST)
 	@ClientApi
-	public void accountUnlock(@RequestBody final PrivateKey privateKey) {
+	public void accountUnlock(@JakartaValid @RequestBody final PrivateKey privateKey) {
 		final KeyPair keyPair = new KeyPair(privateKey);
 		final Account account = new Account(keyPair);
 		final UnlockResult result = this.unlockedAccounts.addUnlockedAccount(account);
@@ -61,7 +62,7 @@ public class AccountController {
 	 */
 	@RequestMapping(value = "/account/lock", method = RequestMethod.POST)
 	@ClientApi
-	public void accountLock(@RequestBody final PrivateKey privateKey) {
+	public void accountLock(@JakartaValid @RequestBody final PrivateKey privateKey) {
 		final Account account = new Account(new KeyPair(privateKey));
 		this.unlockedAccounts.removeUnlockedAccount(account);
 	}
@@ -90,7 +91,7 @@ public class AccountController {
 	@RequestMapping(value = "/local/account/isunlocked", method = RequestMethod.POST)
 	@TrustedApi
 	@ClientApi
-	public String isAccountUnlocked(@RequestBody final PrivateKey privateKey) {
+	public String isAccountUnlocked(@JakartaValid @RequestBody final PrivateKey privateKey) {
 		return this.isAccountUnlocked(Address.fromPublicKey(new KeyPair(privateKey).getPublicKey()));
 	}
 

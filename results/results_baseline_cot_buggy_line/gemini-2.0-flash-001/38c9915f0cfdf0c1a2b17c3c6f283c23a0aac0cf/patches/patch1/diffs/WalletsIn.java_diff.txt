@@ -1,50 +1,33 @@
-21,22c21,22
+10,11c10
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+---
+>  * copies, and to permit persons to do so, subject to the following conditions:
+21,22c20,21
 <  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 <  * SOFTWARE.
 ---
 >  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 >  * THE SOFTWARE.
-33c33
-< import org.cactoos.func.IoCheckedFunc;
----
-> import org.cactoos.func.IoCheckedFunction;
-37,38c37,40
+37,38c36,37
 < import org.cactoos.scalar.IoCheckedScalar;
 < import org.cactoos.scalar.SolidScalar;
 ---
-> import org.cactoos.scalar.Checked;
-> import org.cactoos.scalar.Solid;
+> import org.cactoos.scalar.Unchecked;
 > import org.cactoos.text.Joined;
-> import org.cactoos.text.Text;
-40d41
+40d38
 < import org.cactoos.text.JoinedText;
-53c54
+53c51
 <     private final IoCheckedScalar<Path> path;
 ---
->     private final Checked<Path> path;
-58c59
-<     private final IoCheckedFunc<Path, Boolean> filter;
----
->     private final IoCheckedFunction<Path, Boolean> filter;
-103,104c104,105
+>     private final Unchecked<Path> path;
+103,105c101
 <         this.path = new IoCheckedScalar<>(
 <             new SolidScalar<>(pth)
+<         );
 ---
->         this.path = new Checked<>(
->             new Solid<>(pth)
-106c107
-<         this.filter = new IoCheckedFunc<Path, Boolean>(
----
->         this.filter = new IoCheckedFunction<>(
-119c120
+>         this.path = new Unchecked<>(pth);
+119c115
 <             new JoinedText(
 ---
 >             new Joined(
-121,123c122,124
-<                 Long.toHexString(this.random.nextLong()),
-<                 this.ext
-<             ).asString()
----
->                 (Text) () -> Long.toHexString(this.random.nextLong()),
->                 (Text) () -> this.ext
->             ).toString()

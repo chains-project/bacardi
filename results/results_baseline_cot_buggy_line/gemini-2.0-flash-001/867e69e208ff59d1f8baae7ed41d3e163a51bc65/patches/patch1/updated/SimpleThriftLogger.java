@@ -8,7 +8,7 @@
  *    http://www.apache.org/licenses/LICENSE-2.0
  * 
  * Unless required by applicable law or agreed to in writing, software
- * is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -61,10 +61,9 @@ public final class SimpleThriftLogger<T extends TBase> implements Closeable {
     public void flush() throws TTransportException {
       transport.flush();
       // Add 4 bytes for the frame size.
-      // This is an approximation, as the actual frame size might be different
-      // depending on the underlying transport. However, it serves the purpose
-      // of tracking the byte offset for log rotation.
-      byteOffset += 4;
+      // This is incorrect, as TFramedTransport writes the frame size before the data.
+      // We should not add 4 here.
+      // byteOffset += 4;
     }
 
     public long getByteOffset() {

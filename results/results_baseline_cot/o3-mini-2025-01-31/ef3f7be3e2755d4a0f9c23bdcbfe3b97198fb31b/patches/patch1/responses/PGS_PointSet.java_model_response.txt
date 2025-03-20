@@ -1,24 +1,3 @@
-<code_analysis>
-1. Examination of the error message:
-   - The error shows that on line 70 (in method prunePointsWithinDistance), the call to tree.query1NN(double[]) cannot be resolved.
-   - The dependency update to the tinspin KDTree library removed (or renamed) the query1NN method. The client code expected a method named query1NN that returned an object with a dist() method.
-
-2. Review of the client code:
-   - In the prunePointsWithinDistance method, for each point a KDTree is used. The original code calls tree.query1NN(coords).dist() to decide whether to insert a new point.
-   - Since query1NN is no longer available in the updated dependency version, we must use the new API method.
-   
-3. Consideration of potential fixes:
-   - Instead of calling tree.query1NN(coords), we now call tree.nearest(coords) (as per the new API).
-   - The returned object (of type KDTree.Entry) is assumed to contain the distance as a public field (or via a getter method). In our patch we access it as nearest.distance.
-   - We also check for a null return value (which occurs when the tree is empty) to maintain original behavior.
-   
-4. Planned changes:
-   - In the for-loop inside prunePointsWithinDistance(), replace the call tree.query1NN(coords).dist() with:
-       KDTree.Entry<PVector> nearest = tree.nearest(coords);
-       if (nearest == null || nearest.distance > distanceTolerance) { … }
-   - This change uses only the updated API while preserving the method signature and expected functionality.
-</code_analysis>
-
 ```java
 package micycle.pgs;
 
@@ -89,9 +68,7 @@ public final class PGS_PointSet {
 		final List<PVector> newPoints = new ArrayList<>();
 		for (PVector p : points) {
 			final double[] coords = new double[] { p.x, p.y };
-			// In the updated tinspin KDTree API, use the "nearest" method.
-			KDTree.Entry<PVector> nearest = tree.nearest(coords);
-			if (nearest == null || nearest.distance > distanceTolerance) {
+			if (tree.size() == 0 || tree.queryKNN(coords, 1).get(0).getDistance() > distanceTolerance) {
 				tree.insert(coords, p);
 				newPoints.add(p);
 			}
@@ -373,7 +350,8 @@ public final class PGS_PointSet {
 	}
 
 	/**
-	 * Generates a hexagon grid of points that lie within a bounding rectangle.
+	 * Generates a hexagon grid/lattice of points that lie within a bounding
+	 * rectangle.
 	 * 
 	 * @param xMin          x-coordinate of boundary minimum
 	 * @param yMin          y-coordinate of boundary minimum
@@ -1002,7 +980,6 @@ public final class PGS_PointSet {
 			point = new double[] { p.x, p.y };
 		}
 
-		@Override
 		public double[] getPoint() {
 			return point;
 		}

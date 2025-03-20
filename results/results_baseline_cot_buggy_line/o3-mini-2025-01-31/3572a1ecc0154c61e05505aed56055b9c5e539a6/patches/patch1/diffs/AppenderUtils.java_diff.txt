@@ -2,19 +2,16 @@
 < import org.apache.thrift.transport.TFastFramedTransport;
 ---
 > import org.apache.thrift.transport.TFramedTransport;
-60,61c60
+60,64c60,61
 <       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
 <       // log.
----
->       // Use the TFramedTransport (replacing the removed TFastFramedTransport) to be compatible with singer_thrift log.
-63,64c62
+<       final int bufferCapacity = 10;
 <       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
 <           bufferCapacity);
 ---
->       framedTransport = new TFramedTransport(new TIOStreamTransport(os), bufferCapacity);
-91a90
->    * @param maxRetentionHours maximum history to retain.
-99c98
-<     RollingFileAppender<LogMessage> appender = new RollingFileAppender<LogMessage>();
+>       // Use TFramedTransport as a replacement for the removed TFastFramedTransport.
+>       framedTransport = new TFramedTransport(new TIOStreamTransport(os));
+72c69
+<         framedTransport.flush();
 ---
->     RollingFileAppender<LogMessage> appender = new RollingFileAppender<>();
+>         os.flush();

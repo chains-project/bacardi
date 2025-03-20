@@ -1,4 +1,4 @@
-108,113c108,114
+108,113c108,113
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
@@ -6,7 +6,6 @@
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 <                 return flyway;
 ---
->                 // Use the Flyway builder pattern to configure Flyway according to the new dependency API.
 >                 return Flyway.configure()
 >                                 .dataSource(this.dataSource())
 >                                 .classLoader(NisAppConfig.class.getClassLoader())

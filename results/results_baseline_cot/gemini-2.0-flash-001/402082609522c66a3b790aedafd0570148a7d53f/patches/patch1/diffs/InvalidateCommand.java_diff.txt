@@ -1,22 +1,39 @@
 7a8
 > import org.spongepowered.api.command.Command;
-9,11c10,11
+9,12c10,11
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.parameter.Parameter;
-14a15
-> import org.spongepowered.api.command.source.CommandSource;
-16c17
+16c15,17
 < public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
 ---
-> public class InvalidateCommand implements CommandExecutor {
-26c27,28
+> import java.util.Collections;
+> 
+> public class InvalidateCommand implements Command, ChangeSkinCommand {
+26,28c27,29
 <     public CommandResult execute(CommandSource src, CommandContext args) {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
 ---
->     public CommandResult execute(CommandContext args) {
->         CommandSource src = args.cause().root();
-37d38
-<     @Override
+>     public CommandResult execute(org.spongepowered.api.command.CommandCause cause, CommandContext args) {
+>         if (!(cause.cause().root() instanceof Player)) {
+>             plugin.sendMessage(cause.cause().root(), "no-console");
+32c33
+<         Player receiver = (Player) src;
+---
+>         Player receiver = (Player) cause.cause().root();
+38,39c39,40
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public org.spongepowered.api.command.Command.Builder buildSpec() {
+>         return Command.builder()
+41,42c42
+<                 .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base")
+<                 .build();
+---
+>                 .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base");

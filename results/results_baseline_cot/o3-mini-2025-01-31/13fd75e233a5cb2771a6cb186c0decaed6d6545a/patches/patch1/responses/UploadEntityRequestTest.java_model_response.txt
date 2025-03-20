@@ -1,26 +1,3 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error states that the constructor for org.hamcrest.core.StringContains is being called with two parameters: a boolean and a String.
-   - The updated Hamcrest dependency now expects a single String parameter for the StringContains constructor.
-   - The error occurs in the tests shouldThrowExceptionOnInvalidPath (line 93) and shouldThrowExceptionWhenDigestIsAbsent (line 109).
-
-2. Client Code Review:
-   - In both failing test methods, the StringContains matcher is instantiated with a boolean flag (false) and a String.
-   - This usage no longer matches the updated Hamcrest API, where the constructor expects only one argument (the substring that should be contained).
-
-3. Potential Fix:
-   - Remove the boolean argument and instantiate StringContains with just the expected substring.
-   - No other changes are necessary since removing this parameter will satisfy the new constructor requirements.
-   - The functionality remains the same—verifying that the exception message contains the expected substring.
-
-4. Specific Modifications:
-   - Change new StringContains(false, "Unexpected path") to new StringContains("Unexpected path").
-   - Change new StringContains(false, "Unexpected query") to new StringContains("Unexpected query").
-   - Ensure that the imports remain correct and that only the problematic lines are modified.
-
-In summary, the patch updates the matcher instantiation to work with the newer Hamcrest version, satisfying the dependency update.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com

@@ -11,6 +11,7 @@ import fr.spoonlabs.flacoco.core.test.method.TestMethod;
 import fr.spoonlabs.flacoco.utils.spoon.SpoonBlockInspector;
 import org.apache.log4j.Logger;
 import org.apache.maven.plugin.surefire.util.DirectoryScanner;
+import org.apache.maven.surefire.api.testset.TestListResolver;
 import org.apache.maven.shared.utils.io.SelectorUtils;
 import org.jacoco.core.runtime.WildcardMatcher;
 
@@ -197,17 +198,17 @@ public class CoverageMatrix {
         // True if it is present in the available binaries
         for (String dir : config.getBinJavaDir()) {
             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir));
-			directoryScanner.setIncludes(new String[] {SelectorUtils.ANT_HANDLER_PREFIX + "**/*.class"});
-            directoryScanner.scan();
-            if (Arrays.asList(directoryScanner.getIncludedFiles()).stream().anyMatch(s -> s.equals(className + ".class"))) {
+			directoryScanner.setIncludes(new String[]{"**/*.class"});
+			directoryScanner.scan();
+            if (Arrays.asList(directoryScanner.getClasses()).contains(className)) {
                 return true;
             }
         }
         for (String dir : config.getBinTestDir()) {
             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir));
-			directoryScanner.setIncludes(new String[] {SelectorUtils.ANT_HANDLER_PREFIX + "**/*.class"});
-            directoryScanner.scan();
-            if (Arrays.asList(directoryScanner.getIncludedFiles()).stream().anyMatch(s -> s.equals(className + ".class"))) {
+			directoryScanner.setIncludes(new String[]{"**/*.class"});
+			directoryScanner.scan();
+            if (Arrays.asList(directoryScanner.getClasses()).contains(className)) {
                 return true;
             }
         }

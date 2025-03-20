@@ -17,6 +17,7 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
+
 /**
  * <p>Java class for PaymentTax complex type.
  * 
@@ -40,6 +41,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  * &lt;/complexType&gt;
  * </pre>
  * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "PaymentTax", propOrder = {
@@ -49,7 +51,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "taxPercentage",
     "taxAmount"
 })
-public class PaymentTax implements ToString2 {
+public class PaymentTax implements ToString2
+{
 
     @XmlElement(name = "TaxType", required = true)
     protected String taxType;
@@ -68,6 +71,7 @@ public class PaymentTax implements ToString2 {
      * @return
      *     possible object is
      *     {@link String }
+     *     
      */
     public String getTaxType() {
         return taxType;
@@ -79,6 +83,7 @@ public class PaymentTax implements ToString2 {
      * @param value
      *     allowed object is
      *     {@link String }
+     *     
      */
     public void setTaxType(String value) {
         this.taxType = value;
@@ -90,6 +95,7 @@ public class PaymentTax implements ToString2 {
      * @return
      *     possible object is
      *     {@link String }
+     *     
      */
     public String getTaxCountryRegion() {
         return taxCountryRegion;
@@ -101,6 +107,7 @@ public class PaymentTax implements ToString2 {
      * @param value
      *     allowed object is
      *     {@link String }
+     *     
      */
     public void setTaxCountryRegion(String value) {
         this.taxCountryRegion = value;
@@ -112,6 +119,7 @@ public class PaymentTax implements ToString2 {
      * @return
      *     possible object is
      *     {@link String }
+     *     
      */
     public String getTaxCode() {
         return taxCode;
@@ -123,6 +131,7 @@ public class PaymentTax implements ToString2 {
      * @param value
      *     allowed object is
      *     {@link String }
+     *     
      */
     public void setTaxCode(String value) {
         this.taxCode = value;
@@ -134,6 +143,7 @@ public class PaymentTax implements ToString2 {
      * @return
      *     possible object is
      *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getTaxPercentage() {
         return taxPercentage;
@@ -145,6 +155,7 @@ public class PaymentTax implements ToString2 {
      * @param value
      *     allowed object is
      *     {@link BigDecimal }
+     *     
      */
     public void setTaxPercentage(BigDecimal value) {
         this.taxPercentage = value;
@@ -156,6 +167,7 @@ public class PaymentTax implements ToString2 {
      * @return
      *     possible object is
      *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getTaxAmount() {
         return taxAmount;
@@ -167,6 +179,7 @@ public class PaymentTax implements ToString2 {
      * @param value
      *     allowed object is
      *     {@link BigDecimal }
+     *     
      */
     public void setTaxAmount(BigDecimal value) {
         this.taxAmount = value;
@@ -193,27 +206,27 @@ public class PaymentTax implements ToString2 {
         {
             String theTaxType;
             theTaxType = this.getTaxType();
-            strategy.appendField(locator, this, "taxType", buffer, theTaxType, (this.taxType != null));
+            strategy.appendField(locator, this, "taxType", buffer, theTaxType, (this.taxType!= null));
         }
         {
             String theTaxCountryRegion;
             theTaxCountryRegion = this.getTaxCountryRegion();
-            strategy.appendField(locator, this, "taxCountryRegion", buffer, theTaxCountryRegion, (this.taxCountryRegion != null));
+            strategy.appendField(locator, this, "taxCountryRegion", buffer, theTaxCountryRegion, (this.taxCountryRegion!= null));
         }
         {
             String theTaxCode;
             theTaxCode = this.getTaxCode();
-            strategy.appendField(locator, this, "taxCode", buffer, theTaxCode, (this.taxCode != null));
+            strategy.appendField(locator, this, "taxCode", buffer, theTaxCode, (this.taxCode!= null));
         }
         {
             BigDecimal theTaxPercentage;
             theTaxPercentage = this.getTaxPercentage();
-            strategy.appendField(locator, this, "taxPercentage", buffer, theTaxPercentage, (this.taxPercentage != null));
+            strategy.appendField(locator, this, "taxPercentage", buffer, theTaxPercentage, (this.taxPercentage!= null));
         }
         {
             BigDecimal theTaxAmount;
             theTaxAmount = this.getTaxAmount();
-            strategy.appendField(locator, this, "taxAmount", buffer, theTaxAmount, (this.taxAmount != null));
+            strategy.appendField(locator, this, "taxAmount", buffer, theTaxAmount, (this.taxAmount!= null));
         }
         return buffer;
     }

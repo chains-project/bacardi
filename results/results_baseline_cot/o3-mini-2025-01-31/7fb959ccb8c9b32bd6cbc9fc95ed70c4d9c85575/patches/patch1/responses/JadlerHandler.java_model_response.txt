@@ -1,35 +1,3 @@
-<code_analysis>
-1. Error message analysis:
-   - The error message states that the method marked with @Override does not override or implement any method from a supertype.
-   - This occurs at the handle(...) method (line 39) in JadlerHandler.
-   - The likely cause is a breaking dependency update in Jetty where its API now expects Jakarta Servlet API types (e.g. jakarta.servlet.http.HttpServletRequest)
-     instead of the older javax.servlet.http.HttpServletRequest.
-
-2. Review of the client code:
-   - The handle method signature is declared as:
-       handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
-   - The code imports HttpServletRequest, HttpServletResponse, and ServletException from javax.servlet.*
-   - In the updated dependency (Jetty 10/11), the AbstractHandler’s handle method now likely has parameters of types from the jakarta.servlet package.
-   - As a consequence, our method signature no longer matches the one in the updated AbstractHandler, hence the @Override error.
-
-3. Potential fixes:
-   - We must update the imports to use the Jakarta Servlet API rather than the older javax.servlet API.
-   - This change fixes the parameter types of the handle method without altering the method’s structure or logic.
-   - The function signature remains unchanged in terms of method name and parameter order; only the imported types now refer to jakarta.servlet which is what the updated dependency expects.
-   - We keep the @Override annotation since the method will now properly override the supertype method.
-
-4. Planned modifications:
-   - Replace:
-       import javax.servlet.ServletException;
-       import javax.servlet.http.HttpServletRequest;
-       import javax.servlet.http.HttpServletResponse;
-     with:
-       import jakarta.servlet.ServletException;
-       import jakarta.servlet.http.HttpServletRequest;
-       import jakarta.servlet.http.HttpServletResponse;
-   - The remaining code remains intact.
-</code_analysis>
-
 ```java
 /*
  * Copyright (c) 2012 - 2016 Jadler contributors
@@ -46,6 +14,7 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -56,7 +25,6 @@ import java.io.OutputStream;
 class JadlerHandler extends AbstractHandler {
 
     private final RequestManager requestManager;
-
 
     /**
      * @param requestManager request manager instance to retrieve stub responses

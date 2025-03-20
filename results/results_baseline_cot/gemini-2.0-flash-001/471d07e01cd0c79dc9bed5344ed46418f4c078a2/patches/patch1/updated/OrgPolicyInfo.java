@@ -15,10 +15,10 @@
  */
 package com.google.cloud.resourcemanager;
 
-import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
-import com.google.api.services.cloudresourcemanager.model.ListPolicy;
-import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
-import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+import com.google.api.resourcemanager.v3.BooleanPolicy;
+import com.google.api.resourcemanager.v3.ListPolicy;
+import com.google.api.resourcemanager.v3.OrgPolicy;
+import com.google.api.resourcemanager.v3.RestoreDefault;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.List;
@@ -94,10 +94,13 @@ public class OrgPolicyInfo {
     }
 
     BooleanPolicy toProtobuf() {
-      return new BooleanPolicy().setEnforced(enforce);
+      return BooleanPolicy.newBuilder().setEnforced(enforce).build();
     }
 
     static BoolPolicy fromProtobuf(BooleanPolicy booleanPolicy) {
+      if (booleanPolicy == null) {
+        return new BoolPolicy(null);
+      }
       return new BoolPolicy(booleanPolicy.getEnforced());
     }
   }
@@ -198,19 +201,23 @@ public class OrgPolicyInfo {
     }
 
     ListPolicy toProtobuf() {
-      return new ListPolicy()
+      return ListPolicy.newBuilder()
           .setAllValues(allValues)
-          .setAllowedValues(allowedValues)
-          .setDeniedValues(deniedValues)
+          .addAllAllowedValues(allowedValues)
+          .addAllDeniedValues(deniedValues)
           .setInheritFromParent(inheritFromParent)
-          .setSuggestedValue(suggestedValue);
+          .setSuggestedValue(suggestedValue)
+          .build();
     }
 
     static Policies fromProtobuf(ListPolicy listPolicy) {
+      if (listPolicy == null) {
+        return null;
+      }
       return new Policies(
           listPolicy.getAllValues(),
-          listPolicy.getAllowedValues(),
-          listPolicy.getDeniedValues(),
+          listPolicy.getAllowedValuesList(),
+          listPolicy.getDeniedValuesList(),
           listPolicy.getInheritFromParent(),
           listPolicy.getSuggestedValue());
     }
@@ -358,19 +365,24 @@ public class OrgPolicyInfo {
   }
 
   OrgPolicy toProtobuf() {
-    OrgPolicy orgPolicyProto = new OrgPolicy();
+    OrgPolicy.Builder orgPolicyProtoBuilder = OrgPolicy.newBuilder();
     if (boolPolicy != null) {
-      orgPolicyProto.setBooleanPolicy(boolPolicy.toProtobuf());
+      orgPolicyProtoBuilder.setBooleanPolicy(boolPolicy.toProtobuf());
     }
-    orgPolicyProto.setConstraint(constraint);
+    orgPolicyProtoBuilder.setConstraint(constraint);
     if (policies != null) {
-      orgPolicyProto.setListPolicy(policies.toProtobuf());
+      orgPolicyProtoBuilder.setListPolicy(policies.toProtobuf());
     }
-    orgPolicyProto.setRestoreDefault(restoreDefault);
-    orgPolicyProto.setEtag(etag);
-    orgPolicyProto.setUpdateTime(updateTime);
-    orgPolicyProto.setVersion(version);
-    return orgPolicyProto;
+    if (restoreDefault != null) {
+      orgPolicyProtoBuilder.setRestoreDefault(restoreDefault);
+    }
+    orgPolicyProtoBuilder.setEtag(etag);
+    orgPolicyProtoBuilder.setUpdateTime(updateTime);
+    if (version != null) {
+      orgPolicyProtoBuilder.setVersion(version);
+    }
+
+    return orgPolicyProtoBuilder.build();
   }
 
   static OrgPolicyInfo fromProtobuf(OrgPolicy orgPolicyProtobuf) {
@@ -382,7 +394,10 @@ public class OrgPolicyInfo {
     if (orgPolicyProtobuf.getListPolicy() != null) {
       builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getListPolicy()));
     }
-    builder.setRestoreDefault(orgPolicyProtobuf.getRestoreDefault());
+    if (orgPolicyProtobuf.getRestoreDefault() != null) {
+      builder.setRestoreDefault(orgPolicyProtobuf.getRestoreDefault());
+    }
+
     builder.setEtag(orgPolicyProtobuf.getEtag());
     builder.setUpdateTime(orgPolicyProtobuf.getUpdateTime());
     builder.setVersion(orgPolicyProtobuf.getVersion());

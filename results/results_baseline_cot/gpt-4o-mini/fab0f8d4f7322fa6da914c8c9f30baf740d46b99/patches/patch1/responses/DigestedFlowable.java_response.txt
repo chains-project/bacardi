@@ -44,7 +44,6 @@ public final class DigestedFlowable extends Flowable<ByteBuffer> {
         this.origin = origin;
     }
 
-    @Override
     public void subscribeActual(final Subscriber<? super ByteBuffer> subscriber) {
         final MessageDigest sha = Digests.SHA256.get();
         Flowable.fromPublisher(this.origin).map(

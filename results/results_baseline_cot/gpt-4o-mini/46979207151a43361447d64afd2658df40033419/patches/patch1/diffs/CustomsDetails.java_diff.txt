@@ -1,10 +1,16 @@
 17d16
 < import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
-21c20
-< 
----
-> import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy; // Ensure this import is correct
-116c115
+116c115,125
 <         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ---
->         final ToStringStrategy2 strategy = JAXBToStringStrategy.DEFAULT; // Updated to use DEFAULT instead of getInstance()
+>         final ToStringStrategy2 strategy = new ToStringStrategy2() {
+>             @Override
+>             public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+>                 return buffer.append(object.getClass().getSimpleName()).append(" [");
+>             }
+> 
+>             @Override
+>             public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+>                 return buffer.append("]");
+>             }
+>         };

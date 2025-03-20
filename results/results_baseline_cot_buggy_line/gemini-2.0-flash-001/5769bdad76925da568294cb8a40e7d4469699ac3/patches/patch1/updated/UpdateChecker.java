@@ -6,7 +6,7 @@
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * to use, copy, modify, merge, publish, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in
@@ -37,7 +37,7 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.kohsuke.github.GHCompare;
-import org.kohsuke.github.GHCompare.Comparison;
+import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -236,9 +236,10 @@ public final class UpdateChecker {
      */
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
-            Comparison compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
-            GHCompare.Status status = compare.getStatus();
-            return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
+            GHRepository repository = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo);
+            GHCompare compare = repository.getCompare(branch, ghc.hash);
+            GHCompare.Comparison comparison = compare.get();
+            return comparison.getStatus() == GHCompare.Status.identical || comparison.getStatus() == GHCompare.Status.behind;
         } catch (FileNotFoundException x) {
             // For example, that branch does not exist in this repository.
             return false;

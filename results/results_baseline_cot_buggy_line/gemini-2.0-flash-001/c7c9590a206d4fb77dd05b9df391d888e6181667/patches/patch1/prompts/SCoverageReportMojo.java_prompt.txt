@@ -601,19 +601,19 @@ public class SCoverageReportMojo
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-import org.apache.maven.doxia.module.xhtml.decoration.render.RenderingContext;
+RenderingContext context = new RenderingContext( outputDirectory, getOutputName() + ".html" );
 ```
 ```java
-RenderingContext context = new RenderingContext( outputDirectory, getOutputName() + ".html" );
+import org.apache.maven.doxia.module.xhtml.decoration.render.RenderingContext;
 ```
 
 
  And here is the error message:
-[ERROR] /scoverage-maven-plugin/src/main/java/org/scoverage/plugin/SCoverageReportMojo.java:[32,61] package org.apache.maven.doxia.module.xhtml.decoration.render does not exist
-
 [ERROR] /scoverage-maven-plugin/src/main/java/org/scoverage/plugin/SCoverageReportMojo.java:[385,13] cannot find symbol
   symbol:   class RenderingContext
   location: class org.scoverage.plugin.SCoverageReportMojo
+
+[ERROR] /scoverage-maven-plugin/src/main/java/org/scoverage/plugin/SCoverageReportMojo.java:[32,61] package org.apache.maven.doxia.module.xhtml.decoration.render does not exist
 
 
 

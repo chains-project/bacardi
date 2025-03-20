@@ -1,12 +1,17 @@
-2a3
-> import com.fasterxml.jackson.core.JacksonException;
-21d21
-< 
-421c421
-<         ((ArrayList)map.get(tag)).add(fieldMap);
----
->         ((ArrayList<Map<String, Object>>) map.get(tag)).add(fieldMap);
-428c428
+0a1,10
+> /*
+> <repair_strategy>
+> 1. The new version of the Jackson API now throws com.fasterxml.jackson.core.JacksonException in writeValueAsString().
+> 2. Previously the code was catching JsonProcessingException, which no longer covers JacksonException.
+> 3. To fix the issue, update the catch block in asJson() to catch JacksonException.
+> 4. Also add the necessary import for JacksonException.
+> 5. This minimal change ensures compatibility with the new dependency while keeping the client code unchanged.
+> </repair_strategy>
+> */
+> 
+4a15
+> import com.fasterxml.jackson.core.JacksonException; // Added for new API exception
+428c439
 <     } catch (JsonProcessingException e) {
 ---
 >     } catch (JacksonException e) {

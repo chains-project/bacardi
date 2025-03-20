@@ -1,7 +1,40 @@
 23,24d22
 < import org.apache.thrift.transport.TFramedTransport;
 < import org.apache.thrift.transport.TIOStreamTransport;
-25a24,26
-> import org.apache.thrift.transport.TTransportException;
+25a24
 > import org.apache.thrift.transport.TIOStreamTransport;
-> import org.apache.thrift.transport.TFramedTransport; // Ensure this import is correct
+63,65d61
+<   // The framed framedTransport.
+<   private final TFramedTransport framedTransport;
+< 
+68a65,67
+>   // TTransport implementation.
+>   private final TTransport transport;
+> 
+80,81c79
+<     this.framedTransport = new TFramedTransport(new TIOStreamTransport(this
+<         .byteOffsetInputStream), maxMessageSize);
+---
+>     this.transport = new TIOStreamTransport(this.byteOffsetInputStream);
+83c81
+<     this.protocol = protocolFactory.get(this.framedTransport);
+---
+>     this.protocol = protocolFactory.get(this.transport);
+95c93
+<     if (framedTransport.getBytesRemainingInBuffer() == 0 && byteOffsetInputStream.isEOF()) {
+---
+>     if (transport.getBytesRemainingInBuffer() == 0 && byteOffsetInputStream.isEOF()) {
+110,111c108,109
+<         byteOffsetInputStream.getByteOffset() >= framedTransport.getBytesRemainingInBuffer());
+<     return byteOffsetInputStream.getByteOffset() - framedTransport.getBytesRemainingInBuffer();
+---
+>         byteOffsetInputStream.getByteOffset() >= transport.getBytesRemainingInBuffer());
+>     return byteOffsetInputStream.getByteOffset() - transport.getBytesRemainingInBuffer();
+127c125
+<     framedTransport.consumeBuffer(framedTransport.getBytesRemainingInBuffer());
+---
+>     transport.consumeBuffer(transport.getBytesRemainingInBuffer());
+139c137
+<     framedTransport.close();
+---
+>     transport.close();

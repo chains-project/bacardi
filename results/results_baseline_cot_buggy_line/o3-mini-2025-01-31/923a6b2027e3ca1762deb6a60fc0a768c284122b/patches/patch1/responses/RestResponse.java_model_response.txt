@@ -1,19 +1,33 @@
-<code_analysis>
-1. The error message states that the compiler cannot find the symbol “Matchers” in the package org.hamcrest. This indicates that after a dependency update (likely from using a fuller Hamcrest library to a leaner hamcrest-core artifact), the class org.hamcrest.Matchers is no longer available.
-2. Reviewing the client code, we see several usages of Matchers:
-   - In assertHeader(String, String): it calls Matchers.hasItems(value).
-   - In follow(): it calls Matchers.not(Matchers.emptyIterableOf(String.class)) to ensure that the LOCATION header is not empty.
-3. To fix the issue while keeping the function signatures unchanged, we must remove the import of org.hamcrest.Matchers and replace its usages with matchers available in the updated Hamcrest dependency:
-   - For checking that a header contains a given value, we can use hasItem(value) from org.hamcrest.core.IsCollectionContaining.
-   - For checking that an iterable is not empty, we replace the call to Matchers.not(Matchers.emptyIterableOf(String.class)) with a custom matcher (nonEmptyIterable()) that verifies that the iterable contains at least one element.
-4. The patch below makes the following changes:
-   - Remove the import of org.hamcrest.Matchers.
-   - In assertHeader(String, String), replace Matchers.hasItems(value) with hasItem(value) (added via a static import from org.hamcrest.core.IsCollectionContaining).
-   - In follow(), replace the matcher with nonEmptyIterable() (a locally defined matcher) that asserts that an Iterable is not empty.
-These changes resolve the compilation errors caused by the missing Matchers class while maintaining the intended functionality.
-</code_analysis>
-
 ```java
+/*
+ * Copyright (c) 2011-2017, jcabi.com
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met: 1) Redistributions of source code must retain the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer. 2) Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3) Neither the name of the jcabi.com nor
+ * the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
+ * permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+ * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+ * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.jcabi.http.response;
 
 import com.jcabi.aspects.Immutable;
@@ -30,12 +44,11 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.HttpHeaders;
 import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
-import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.TypeSafeMatcher;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.collection.IsEmptyCollection;
+import org.hamcrest.collection.IsIterableContaining;
 
 /**
  * REST response.
@@ -197,7 +210,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, hasItem(value));
+        return this.assertHeader(name, IsIterableContaining.hasItem(value));
     }
 
     /**
@@ -233,7 +246,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            nonEmptyIterable()
+            CoreMatchers.not(IsEmptyCollection.empty())
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -271,7 +284,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            notNullValue()
+            CoreMatchers.notNullValue()
         );
         assert cookie != null;
         return cookie;
@@ -290,25 +303,6 @@ public final class RestResponse extends AbstractResponse {
             cookie.getDomain(),
             cookie.getVersion()
         );
-    }
-
-    /**
-     * A matcher that checks if an Iterable is not empty.
-     *
-     * @return Matcher for a non-empty Iterable of Strings.
-     */
-    private static Matcher<Iterable<String>> nonEmptyIterable() {
-        return new TypeSafeMatcher<Iterable<String>>() {
-            @Override
-            public void describeTo(final Description description) {
-                description.appendText("a non-empty iterable");
-            }
-
-            @Override
-            protected boolean matchesSafely(final Iterable<String> items) {
-                return items.iterator().hasNext();
-            }
-        };
     }
 
     /**

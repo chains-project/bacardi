@@ -39,8 +39,7 @@ import org.apache.kafka.connect.sink.SinkTask;
 public class PubSubLiteSinkTask extends SinkTask {
 
   private final PublisherFactory factory;
-  // Replaced the type parameter PublishMetadata with an unbounded wildcard
-  private @Nullable Publisher<?> publisher;
+  private @Nullable Publisher<Void> publisher;
 
   @VisibleForTesting
   PubSubLiteSinkTask(PublisherFactory factory) {

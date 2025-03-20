@@ -1,25 +1,3 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error occurs in the instantiation of StringContains with two arguments (a boolean and a String) at lines 57 and 58.
-   - The updated Hamcrest dependency no longer supports a constructor for StringContains that takes a boolean parameter.
-   - The dependency update broke the client code by removing or modifying the boolean-based constructor.
-
-2. Client Code Review:
-   - The problematic code is in the failsToResolveInvalid() test method.
-   - The code currently creates two StringContains matchers using new StringContains(true, "Unsupported reference") and new StringContains(false, string).
-   - The boolean parameter likely was used to indicate inclusion/exclusion, but in the new version, only a string parameter is accepted.
-
-3. Potential Fix:
-   - Replace new StringContains(true, "Unsupported reference") with Matchers.containsString("Unsupported reference") to ensure the error message contains "Unsupported reference".
-   - Replace new StringContains(false, string) with Matchers.not(Matchers.containsString(string)) to assert that the error message does not contain the given invalid string.
-   - Use Matchers.allOf(...) in place of the manual new AllOf<>(Arrays.asList(...)) if desired, though the current usage of AllOf with a list remains acceptable as long as the created matchers are correct.
-
-4. Proposed Changes:
-   - Modify the failsToResolveInvalid() method to use Matchers.containsString(...) and Matchers.not(Matchers.containsString(...)) accordingly.
-   - Ensure that all necessary imports (org.hamcrest.Matchers) are present.
-   - No changes to any method signatures or other parts of the class are needed.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
@@ -34,6 +12,7 @@ import java.util.Arrays;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.AllOf;
+import org.hamcrest.core.StringContains;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -74,9 +53,11 @@ public final class ManifestRefTest {
         );
         MatcherAssert.assertThat(
             throwable.getMessage(),
-            Matchers.allOf(
-                Matchers.containsString("Unsupported reference"),
-                Matchers.not(Matchers.containsString(string))
+            new AllOf<>(
+                Arrays.asList(
+                    new StringContains("Unsupported reference"),
+                    Matchers.not(new StringContains(string))
+                )
             )
         );
     }

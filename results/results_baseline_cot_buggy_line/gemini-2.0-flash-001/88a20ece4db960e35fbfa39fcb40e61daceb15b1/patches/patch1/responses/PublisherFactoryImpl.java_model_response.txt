@@ -21,11 +21,11 @@ import com.google.cloud.pubsublite.ProjectPath;
 import com.google.cloud.pubsublite.TopicName;
 import com.google.cloud.pubsublite.TopicPath;
 import com.google.cloud.pubsublite.internal.Publisher;
-import com.google.cloud.pubsublite.internal.wire.PartitionPublisherFactory;
 import com.google.cloud.pubsublite.internal.wire.PubsubContext;
 import com.google.cloud.pubsublite.internal.wire.PubsubContext.Framework;
 import com.google.cloud.pubsublite.internal.wire.RoutingPublisherBuilder;
 import com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder;
+import com.google.cloud.pubsublite.internal.wire.PartitionPublisherFactory;
 import com.google.protobuf.ByteString;
 import java.util.Map;
 import org.apache.kafka.common.config.ConfigValue;
@@ -47,17 +47,14 @@ class PublisherFactoryImpl implements PublisherFactory {
             .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
             .build();
     builder.setTopic(topic);
-    builder.setPublisherFactory(
-        new PartitionPublisherFactory() {
-          @Override
-          public Publisher<ByteString> newPublisher(long partition) {
-            return SinglePartitionPublisherBuilder.newBuilder()
+    PartitionPublisherFactory publisherFactory =
+        partition ->
+            SinglePartitionPublisherBuilder.newBuilder()
                 .setTopic(topic)
                 .setPartition(partition)
                 .setContext(PubsubContext.of(FRAMEWORK))
                 .build();
-          }
-        });
+    builder.setPublisherFactory(publisherFactory);
     return builder.build();
   }
 }

@@ -22,7 +22,7 @@ import com.hazelcast.cluster.MembershipListener;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.LifecycleEvent;
 import com.hazelcast.core.LifecycleEvent.LifecycleState;
-import com.hazelcast.cluster.MemberAttributeEvent;
+import com.hazelcast.map.listener.MapAttributeEvent;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterManager;
 import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
@@ -48,7 +48,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * ClusterListener reacts to membership changes in the cluster. It takes care of cleaning up the state
  * of the routing table and the sessions within it when a node which manages those sessions goes down.
  */
-public class ClusterListener implements MembershipListener, com.hazelcast.core.LifecycleListener {
+public class ClusterListener implements MembershipListener, LifecycleListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ClusterListener.class);
 
@@ -267,7 +267,7 @@ public class ClusterListener implements MembershipListener, com.hazelcast.core.L
     }
 
     @Override
-    public void memberAttributeChanged(final MemberAttributeEvent event) {
+    public void memberAttributeChanged(final com.hazelcast.cluster.MemberAttributeEvent event) {
         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
         isSenior = isSeniorClusterMember();
         final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));

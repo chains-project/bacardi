@@ -11,8 +11,8 @@ import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
-import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
 import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
+import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -35,8 +35,7 @@ public class PubnubStreamingService {
   public PubnubStreamingService(String publicKey) {
     mapper = new ObjectMapper();
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    // Updated PNConfiguration instantiation: using the constructor that accepts the subscribe key.
-    PNConfiguration pnConfiguration = new PNConfiguration(publicKey);
+    PNConfiguration pnConfiguration = new PNConfiguration("", publicKey);
     pubnub = new PubNub(pnConfiguration);
     pnStatusCategory = PNStatusCategory.PNDisconnectedCategory;
   }
@@ -54,9 +53,9 @@ public class PubnubStreamingService {
                       pnStatusCategory.toString(),
                       pnStatus.getStatusCode());
                   if (pnStatusCategory == PNStatusCategory.PNConnectedCategory) {
-                    // e.onComplete();
+                    //              e.onComplete();
                   } else if (pnStatus.isError()) {
-                    // e.onError(pnStatus.getErrorData().getThrowable());
+                    //              e.onError(pnStatus.getErrorData().getThrowable());
                   }
                 }
 
@@ -88,7 +87,6 @@ public class PubnubStreamingService {
                   LOG.debug("PubNub signal: {}", pnSignalResult.toString());
                 }
 
-                // Implementation for the new abstract method from SubscribeCallback.
                 @Override
                 public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
                   LOG.debug("PubNub file: {}", pnFileEventResult.toString());

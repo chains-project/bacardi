@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2012 to original author or authors
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
 package org.sonatype.maven.polyglot.yaml;
 
 import org.apache.maven.model.*;
@@ -13,6 +6,7 @@ import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.constructor.Construct;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.error.YAMLException;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.nodes.*;
 
 import java.util.Arrays;
@@ -28,6 +22,7 @@ import static java.lang.String.format;
  * @author jvanzyl
  * @author bentmann
  * @author
+ *   <a href="mailto:jason@planet57.com">Jason Dillon</a>
  * @since 0.7
  */
 public final class ModelConstructor extends Constructor {
@@ -40,7 +35,8 @@ public final class ModelConstructor extends Constructor {
   private final Map<Class<?>, Construct> pomConstructors = new HashMap<>();
 
   public ModelConstructor() {
-    super(); // Updated: call the no-argument constructor due to dependency changes
+    super(Model.class, new LoaderOptions());
+
     yamlConstructors.put(XPP3DOM_TAG, new ConstructXpp3Dom());
     yamlClassConstructors.put(NodeId.mapping, new MavenObjectConstruct());
     pomConstructors.put(Dependency.class, new ConstructDependency());
@@ -137,7 +133,7 @@ public final class ModelConstructor extends Constructor {
   @Override
   protected Construct getConstructor(Node node) {
     if (pomConstructors.containsKey(node.getType()) && node instanceof ScalarNode) {
-      // construct compact form from scalar
+      //construct compact form from scalar
       return pomConstructors.get(node.getType());
     } else {
       return super.getConstructor(node);
@@ -148,6 +144,7 @@ public final class ModelConstructor extends Constructor {
     private static final String ATTRIBUTE_PREFIX = "attr/";
 
     private Xpp3Dom toDom(Xpp3Dom parent, Map<Object, Object> map) {
+
       for (Map.Entry<Object, Object> entry : map.entrySet()) {
         String key = entry.getKey().toString();
         Object entryValue = entry.getValue();
@@ -174,6 +171,7 @@ public final class ModelConstructor extends Constructor {
 
     private void toDom(Xpp3Dom parent, String parentKey, List list) {
       Object firstItem = list.get(0);
+
       String childKey;
 
       // deal with YAML explicit pairs which are mapped to Object[] by SnakeYAML
@@ -220,6 +218,7 @@ public final class ModelConstructor extends Constructor {
       if (value instanceof List || value instanceof Map) {
         throw new YAMLException("Attribute's value has to be a plain string. Node: " + parent);
       }
+
       parent.setAttribute(key, value.toString());
     }
 

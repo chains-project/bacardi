@@ -1,23 +1,3 @@
-<code_analysis>
-1. The error message indicates that several import statements reference packages that no longer exist in the updated dependencies:
-   - The class "Vector3d" is no longer available under "com.flowpowered.math.vector" but has been moved to "org.spongepowered.math.vector".
-   - The "CommandSource" class has moved from "org.spongepowered.api.command.CommandSource" to "org.spongepowered.api.command.source.CommandSource".
-   - Similarly, "Keys" now resides in "org.spongepowered.api.data.Keys" instead of "org.spongepowered.api.data.key.Keys".
-
-2. In the client code, the problematic areas are the import statements and the subsequent usages of:
-   - Vector3d (line 3)
-   - CommandSource (lines 12, 23, 26)
-   - Keys (line 13 and usages in sendUpdate())
-
-3. To fix the issue without changing any function signatures, we only need to update the import statements to use the correct packages provided in the updated dependencies. This change directly addresses the missing symbols.
-
-4. The changes required:
-   - Replace "import com.flowpowered.math.vector.Vector3d;" with "import org.spongepowered.math.vector.Vector3d;".
-   - Replace "import org.spongepowered.api.command.CommandSource;" with "import org.spongepowered.api.command.source.CommandSource;".
-   - Replace "import org.spongepowered.api.data.key.Keys;" with "import org.spongepowered.api.data.Keys;".
-   No other code changes are necessary as the rest of the class uses these types correctly.
-</code_analysis>
-
 ```java
 package com.github.games647.changeskin.sponge.task;
 
@@ -46,7 +26,6 @@ public class SkinApplier extends SharedApplier {
 
     public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin, boolean keepSkin) {
         super(plugin.getCore(), targetSkin, keepSkin);
-
         this.plugin = plugin;
         this.invoker = invoker;
         this.receiver = receiver;
@@ -58,7 +37,6 @@ public class SkinApplier extends SharedApplier {
             return;
         }
 
-        // uuid was successfully resolved, we could now make a cooldown check
         if (invoker instanceof Player) {
             UUID uniqueId = ((Player) invoker).getUniqueId();
             core.getCooldownService().trackPlayer(uniqueId);
@@ -80,7 +58,6 @@ public class SkinApplier extends SharedApplier {
     @Override
     protected void applyInstantUpdate() {
         plugin.getApi().applySkin(receiver, targetSkin);
-
         sendUpdate();
         plugin.sendMessage(invoker, "skin-changed");
     }
@@ -99,8 +76,6 @@ public class SkinApplier extends SharedApplier {
 
     private void sendUpdate() {
         sendUpdateSelf();
-
-        // triggers an update for others to see the new skin
         receiver.offer(Keys.VANISH, true);
         receiver.offer(Keys.VANISH, false);
     }

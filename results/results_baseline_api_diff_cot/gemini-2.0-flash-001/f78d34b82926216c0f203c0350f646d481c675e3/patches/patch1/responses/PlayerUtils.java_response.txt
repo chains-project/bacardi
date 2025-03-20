@@ -33,6 +33,8 @@ import java.util.stream.Collectors;
 import static ml.peya.plugins.Utils.MessageEngine.get;
 import static ml.peya.plugins.Variables.skin;
 
+import tokyo.peya.lib.LeetConverter;
+
 /**
  * プレイヤーに関してまとめたやつ！
  */
@@ -110,8 +112,8 @@ public class PlayerUtils
 
         if (random.nextBoolean())
         {
-            first = tokyo.peya.lib.LeetConverter.convert(first);
-            last = tokyo.peya.lib.LeetConverter.convert(last);
+            first = LeetConverter.convert(first);
+            last = LeetConverter.convert(last);
         }
 
         String name = first + (random.nextBoolean() ? "_": "") + last + (random.nextBoolean() ? "19" + random.nextInt(120): "");

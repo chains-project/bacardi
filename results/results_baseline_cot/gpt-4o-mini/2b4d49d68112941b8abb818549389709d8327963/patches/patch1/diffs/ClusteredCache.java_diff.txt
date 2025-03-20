@@ -1,7 +1,44 @@
-20,21c20
-< import com.hazelcast.core.IMap;
+1,15d0
+< /*
+<  * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+21d5
 < import com.hazelcast.core.MapEvent;
+22a7
+> import com.hazelcast.map.listener.MapEvent;
+58c43
+<     final IMap<K, V> map;
 ---
-> import com.hazelcast.map.IMap; // Updated import for IMap
-22a22
-> import com.hazelcast.map.event.MapEvent; // Updated import for MapEvent
+>     final com.hazelcast.map.IMap<K, V> map; // Updated to use the correct package
+74c59
+<     protected ClusteredCache(final String name, final IMap<K, V> cache) {
+---
+>     protected ClusteredCache(final String name, final com.hazelcast.map.IMap<K, V> cache) { // Updated to use the correct package
+107c92
+<             public void entryUpdated(EntryEvent event) {
+---
+>             public void entryUpdated(EntryEvent<K, V> event) { // Updated to use generic types
+116c101
+<             public void entryRemoved(EntryEvent event) {
+---
+>             public void entryRemoved(EntryEvent<K, V> event) { // Updated to use generic types
+125c110
+<             public void entryEvicted(EntryEvent event) {
+---
+>             public void entryEvicted(EntryEvent<K, V> event) { // Updated to use generic types
+134c119
+<             public void entryAdded(EntryEvent event) {
+---
+>             public void entryAdded(EntryEvent<K, V> event) { // Updated to use generic types

@@ -2,9 +2,6 @@ package ml.peya.plugins.Learn;
 
 import java.util.ArrayList;
 
-/**
- * 重みを突っ込む器。
- */
 public class Neuron
 {
     /**
@@ -58,12 +55,6 @@ public class Neuron
         sum += value;
     }
     
-    /**
-     * Local implementation of the sigmoid function.
-     *
-     * @param x the input value
-     * @return the sigmoid of x
-     */
     private static double sigmoid(double x)
     {
         return 1.0 / (1.0 + Math.exp(-x));

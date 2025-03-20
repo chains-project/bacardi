@@ -38,7 +38,7 @@ public final class ConfigurationLoader
   {
     File file = new File(URLDecoder.decode(String.valueOf(configurationFilePath.toFile()), StandardCharsets.UTF_8));
     LoaderOptions loaderOptions = new LoaderOptions();
-    Constructor yamlTargetClass = new Constructor(Configuration.class, loaderOptions);
+    Constructor yamlTargetClass = new Constructor(loaderOptions, Configuration.class);
     Yaml yaml = new Yaml(yamlTargetClass);
 
     log.info("Loading configuration file from: {}", configurationFilePath);
@@ -48,13 +48,11 @@ public final class ConfigurationLoader
       InputStream inputStream = new FileInputStream(file);
       configuration = yaml.load(inputStream);
       log.info("Configuration file loaded successfully");
-    }
-    catch (FileNotFoundException e)
+    } catch (FileNotFoundException e)
     {
       log.info("Configuration file not present");
       return new Configuration();
-    }
-    catch (Exception e)
+    } catch (Exception e)
     {
       log.error("Unable to load configuration: {}", e.getMessage());
       throw new ConfigurationException();

@@ -1,29 +1,22 @@
-9a10
-> import java.nio.ByteBuffer;
-14c15
+9d8
+< 
+11d9
+< 
+14c12
 < import org.spongepowered.api.command.CommandSource;
 ---
 > import org.spongepowered.api.command.source.CommandSource;
-16,17d16
+16,17d13
 < import org.spongepowered.api.network.ChannelBuf;
 < import org.spongepowered.api.network.RawDataListener;
-21c20
+21c17
 < public class UpdateSkinListener implements RawDataListener {
 ---
 > public class UpdateSkinListener {
-26,28c25,35
+26,28c22,23
 <     @Override
 <     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
 <         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
 ---
->     // Note: This method no longer overrides an interface method in the new API.
->     public void handlePayload(ByteBuffer data, RemoteConnection connection, Type side) {
->         byte[] payload;
->         if (data.hasArray()) {
->             payload = data.array();
->         } else {
->             payload = new byte[data.remaining()];
->             data.get(payload);
->         }
-> 
->         ByteArrayDataInput dataInput = ByteStreams.newDataInput(payload);
+>     public void handlePayload(byte[] data, RemoteConnection connection, Type side) {
+>         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data);

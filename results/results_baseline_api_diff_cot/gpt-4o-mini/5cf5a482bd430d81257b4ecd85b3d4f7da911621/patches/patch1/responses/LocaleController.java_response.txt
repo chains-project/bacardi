@@ -4,9 +4,9 @@ import java.util.Locale;
 import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import jakarta.mvc.Controller; // Updated import
-import jakarta.mvc.Models; // Updated import
-import jakarta.mvc.MvcContext; // Updated import
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.mvc.MvcContext;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 

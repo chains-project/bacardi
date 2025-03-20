@@ -32,7 +32,14 @@ public class ChartUtil {
                     "delete(window.Array.prototype.toJSON) %n"
                             + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
                     elementId));
-            String scriptResult = ScriptableObject.getProperty(pageObject.getCurrentWindow().getScope(), "JSON").callMethod(pageObject.getCurrentWindow().getScope(), "stringify", new Object[]{result}, 0).toString();
+            String scriptResult;
+            if (result instanceof String) {
+                scriptResult = (String) result;
+            } else if (result instanceof ScriptableObject) {
+                scriptResult = result.toString();
+            } else {
+                scriptResult = null;
+            }
             return scriptResult;
         }
         return null;
@@ -57,7 +64,14 @@ public class ChartUtil {
                                 + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
                         toolAttribute));
 
-                String scriptResult = ScriptableObject.getProperty(pageObject.getCurrentWindow().getScope(), "JSON").callMethod(pageObject.getCurrentWindow().getScope(), "stringify", new Object[]{result}, 0).toString();
+                String scriptResult;
+                if (result instanceof String) {
+                    scriptResult = (String) result;
+                } else if (result instanceof ScriptableObject) {
+                    scriptResult = result.toString();
+                } else {
+                    scriptResult = null;
+                }
                 if (scriptResult != null) {
                     return scriptResult;
                 }

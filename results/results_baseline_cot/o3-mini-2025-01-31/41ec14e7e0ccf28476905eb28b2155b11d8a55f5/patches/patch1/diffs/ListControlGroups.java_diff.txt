@@ -17,10 +17,9 @@
 <  * You should have received a copy of the GNU Lesser General Public License
 <  * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
 <  */
-20a3,4
-> import java.beans.BeanInfo;
+20a3
 > import java.beans.Introspector;
-38,44c22,28
+38,44c21,27
 < import javax.validation.Validator;
 < import javax.validation.constraints.NotBlank;
 < import javax.validation.constraints.NotEmpty;
@@ -36,57 +35,95 @@
 > import jakarta.validation.metadata.BeanDescriptor;
 > import jakarta.validation.metadata.ConstraintDescriptor;
 > import jakarta.validation.metadata.ElementDescriptor;
-46d29
+46d28
 < import org.apache.commons.beanutils.PropertyUtils;
-103c86,88
-<                 for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
----
->         try {
->             BeanInfo beanInfo = Introspector.getBeanInfo(modelClass);
->             for (PropertyDescriptor descriptor : beanInfo.getPropertyDescriptors()) {
-109c94,96
+62d43
 < 
----
->         } catch (Exception e) {
->             throw new RuntimeException("Error introspecting class " + modelClass, e);
->         }
-128c115
-<                                 descriptor = PropertyUtils.getPropertyDescriptor(getModel().getObject(), property);
----
->                 descriptor = getPropertyDescriptor(getModel().getObject(), property);
-157,158c144,147
+64d44
+< 
+67d46
+< 
+74d52
+< 
+90d67
+< 
+98d74
+< 
+109d84
+< 
+118d92
+< 
+120d93
+< 
+122d94
+< 
+132d103
+< 
+134d104
+< 
+145d114
+< 
+148d116
+<                 
+157,158c125,128
 <                                                 if(objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
 <                                                 else typesControlGroup = ObjectChoiceControlGroup.class;
 ---
->                         if (objectProperty.type.isEnum()) 
->                             typesControlGroup = EnumControlGroup.class;
->                         else 
->                             typesControlGroup = ObjectChoiceControlGroup.class;
-167d155
+>                                                 if (objectProperty.type.isEnum())
+>                                                         typesControlGroup = EnumControlGroup.class;
+>                                                 else
+>                                                         typesControlGroup = ObjectChoiceControlGroup.class;
+160d129
 < 
-187,189c175,176
+162d130
+< 
+166,167d133
+< 
+< 
+173d138
+< 
+183d147
+< 
+185,189c149,151
+<                                         controlGroup = controlGroupProviders
+<                                                         .get(objectProperty.type)
 <                                                         .createControlGroup(view.newChildId()
 <                                                                         , new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name)
 <                                                                         , objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
 ---
->                             .createControlGroup(view.newChildId(), new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name),
->                                     objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
-192d178
+>                                         controlGroup = controlGroupProviders.get(objectProperty.type).createControlGroup(
+>                                                         view.newChildId(), new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name),
+>                                                         objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
+192d153
 < 
-228c214,215
+208d168
+< 
+228c188,189
 <                         if(type.isAssignableFrom(mapType)) return typesControlGroups.get(mapType);
 ---
->             if (type.isAssignableFrom(mapType))
->                 return typesControlGroups.get(mapType);
-255a243,253
->     
->     // Helper method to mimic PropertyUtils.getPropertyDescriptor functionality using java.beans.Introspector.
->     private PropertyDescriptor getPropertyDescriptor(Object bean, String propertyName) throws Exception {
->         BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
->         for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
->             if (pd.getName().equals(propertyName)) {
->                 return pd;
->             }
+>                         if (type.isAssignableFrom(mapType))
+>                                 return typesControlGroups.get(mapType);
+255a217,239
+>         
+>         private static class PropertyUtils {
+>                 public static PropertyDescriptor[] getPropertyDescriptors(Class<?> beanClass) {
+>                         try {
+>                                 return Introspector.getBeanInfo(beanClass).getPropertyDescriptors();
+>                         } catch (Exception e) {
+>                                 throw new RuntimeException("Failed to get property descriptors for " + beanClass, e);
+>                         }
+>                 }
+>                 
+>                 public static PropertyDescriptor getPropertyDescriptor(Object bean, String name) {
+>                         if (bean == null) {
+>                                 throw new IllegalArgumentException("Null bean provided");
+>                         }
+>                         PropertyDescriptor[] descriptors = getPropertyDescriptors(bean.getClass());
+>                         for (PropertyDescriptor descriptor : descriptors) {
+>                                 if (descriptor.getName().equals(name)) {
+>                                         return descriptor;
+>                                 }
+>                         }
+>                         return null;
+>                 }
 >         }
->         throw new Exception("No such property: " + propertyName);
->     }

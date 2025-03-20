@@ -14,7 +14,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.CompletionStage;
 import org.cactoos.io.BytesOf;
-import org.cactoos.text.HexOf; // Ensure this import is correct based on the updated dependency
+import org.cactoos.text.HexOf;
+import org.cactoos.text.TextOf;
 
 /**
  * Digest from content.
@@ -58,7 +59,7 @@ public final class DigestFromContent {
             )
             .<Digest>andThen(
                 Single.fromCallable(
-                    () -> new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+                    () -> new Digest.Sha256(new TextOf(new BytesOf(sha.digest())).asString())
                 )
             )
             .to(SingleInterop.get()).toCompletableFuture();

@@ -1,22 +1,5 @@
-/*
- * Copyright 2016 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.google.cloud.resourcemanager;
 
-import com.google.api.services.cloudresourcemanager.model.Binding;
 import com.google.cloud.Identity;
 import com.google.cloud.Policy;
 import com.google.cloud.Policy.Marshaller;
@@ -24,18 +7,17 @@ import com.google.cloud.Role;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.iam.v1.Binding;
+import com.google.protobuf.ByteString;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import com.google.api.services.cloudresourcemanager.model.Policy as CloudResourceManagerPolicy; // Updated import
 
 /** @deprecated v3 GAPIC client of ResourceManager is now available */
 @Deprecated
-final class PolicyMarshaller
-    extends Marshaller<CloudResourceManagerPolicy> { // Updated type parameter
+final class PolicyMarshaller extends Marshaller<com.google.iam.v1.Policy> {
 
   static final PolicyMarshaller INSTANCE = new PolicyMarshaller();
 
@@ -53,15 +35,15 @@ final class PolicyMarshaller
   }
 
   @Override
-  protected Policy fromPb(CloudResourceManagerPolicy policyPb) { // Updated parameter type
+  protected Policy fromPb(com.google.iam.v1.Policy policyPb) {
     Map<Role, Set<Identity>> bindings = new HashMap<>();
-    if (policyPb.getBindings() != null) {
-      for (Binding bindingPb : policyPb.getBindings()) {
+    if (!policyPb.getBindingsList().isEmpty()) {
+      for (Binding bindingPb : policyPb.getBindingsList()) {
         bindings.put(
             Role.of(bindingPb.getRole()),
             ImmutableSet.copyOf(
                 Lists.transform(
-                    bindingPb.getMembers(),
+                    bindingPb.getMembersList(),
                     new Function<String, Identity>() {
                       @Override
                       public Identity apply(String s) {
@@ -70,31 +52,26 @@ final class PolicyMarshaller
                     })));
       }
     }
-    return new Builder(bindings, policyPb.getEtag(), policyPb.getVersion()).build();
+    return new Builder(bindings, policyPb.getEtag().toStringUtf8(), policyPb.getVersion()).build();
   }
 
   @Override
-  protected CloudResourceManagerPolicy toPb(Policy policy) { // Updated return type
-    CloudResourceManagerPolicy policyPb =
-        new CloudResourceManagerPolicy(); // Updated instantiation
-    List<Binding> bindingPbList = new LinkedList<>();
+  protected com.google.iam.v1.Policy toPb(Policy policy) {
+    com.google.iam.v1.Policy.Builder policyPbBuilder = com.google.iam.v1.Policy.newBuilder();
     for (Map.Entry<Role, Set<Identity>> binding : policy.getBindings().entrySet()) {
-      Binding bindingPb = new Binding();
-      bindingPb.setRole(binding.getKey().getValue());
-      bindingPb.setMembers(
-          Lists.transform(
-              new ArrayList<>(binding.getValue()),
-              new Function<Identity, String>() {
-                @Override
-                public String apply(Identity identity) {
-                  return IDENTITY_STR_VALUE_FUNCTION.apply(identity);
-                }
-              }));
-      bindingPbList.add(bindingPb);
+      Binding.Builder bindingPbBuilder = Binding.newBuilder();
+      bindingPbBuilder.setRole(binding.getKey().getValue());
+      List<String> members = new ArrayList<>();
+      for (Identity identity : binding.getValue()) {
+        members.add(IDENTITY_STR_VALUE_FUNCTION.apply(identity));
+      }
+      bindingPbBuilder.addAllMembers(members);
+      policyPbBuilder.addBindings(bindingPbBuilder.build());
     }
-    policyPb.setBindings(bindingPbList);
-    policyPb.setEtag(policy.getEtag());
-    policyPb.setVersion(policy.getVersion());
-    return policyPb;
+    policyPbBuilder.setEtag(ByteString.copyFromUtf8(policy.getEtag()));
+    if (policy.getVersion() != null) {
+      policyPbBuilder.setVersion(policy.getVersion());
+    }
+    return policyPbBuilder.build();
   }
 }

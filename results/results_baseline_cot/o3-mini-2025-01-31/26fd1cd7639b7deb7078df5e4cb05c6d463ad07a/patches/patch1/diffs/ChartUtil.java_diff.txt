@@ -1,38 +1,30 @@
-7c7,8
+6,8d5
+< 
 < import com.gargoylesoftware.htmlunit.ScriptResult;
----
-> // Removed the HtmlUnit ScriptResult import since it's no longer available.
-> // import com.gargoylesoftware.htmlunit.ScriptResult;
-32,33c33,34
-<                     "delete(window.Array.prototype.toJSON) %n"
-<                             + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
----
->                     "delete(window.Array.prototype.toJSON); " +
->                     "return JSON.stringify(echarts.getInstanceByDom(document.getElementById('%s')).getOption());",
-35,36c36
+< 
+35,36c32
 <             ScriptResult scriptResult = new ScriptResult(result);
 <             return scriptResult.getJavaScriptResult().toString();
 ---
 >             return result != null ? result.toString() : null;
-56,57c56,57
-<                         "delete(window.Array.prototype.toJSON) %n"
-<                                 + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
----
->                         "delete(window.Array.prototype.toJSON); " +
->                         "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div[tool='%s']\")).getOption());",
-59,62c59,60
-< 
+60,62c56,57
 <                 Object scriptResult = new ScriptResult(result).getJavaScriptResult();
 <                 if (scriptResult != null) {
 <                     return scriptResult.toString();
 ---
 >                 if (result != null) {
 >                     return result.toString();
-67c65
-<         throw new java.util.NoSuchElementException("Found no trend chart with ID '%s''" + toolAttribute);
+84,85c79
+<         }
+<         catch (NoSuchElementException exception) {
 ---
->         throw new java.util.NoSuchElementException("Found no trend chart with tool attribute: " + toolAttribute);
-108d105
+>         } catch (NoSuchElementException exception) {
+104,105c98
+<         }
+<         catch (NoSuchElementException exception) {
+---
+>         } catch (NoSuchElementException exception) {
+108d100
 < 
-110d106
+110d101
 < 

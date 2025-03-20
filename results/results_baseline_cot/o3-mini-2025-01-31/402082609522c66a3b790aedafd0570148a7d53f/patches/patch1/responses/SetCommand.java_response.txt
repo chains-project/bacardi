@@ -6,19 +6,19 @@ import com.github.games647.changeskin.sponge.PomData;
 import com.github.games647.changeskin.sponge.task.NameResolver;
 import com.github.games647.changeskin.sponge.task.SkinDownloader;
 import com.google.inject.Inject;
-
+import java.util.Optional;
 import java.util.UUID;
-
 import org.spongepowered.api.command.Command;
-import org.spongepowered.api.command.CommandExecutor;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.CommandException;
+import org.spongepowered.api.command.CommandExecutor;
 import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.parameter.CommandParameters;
 import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
-
-import static org.spongepowered.api.text.Text.of;
+import org.spongepowered.api.text.Text;
 
 public class SetCommand implements CommandExecutor, ChangeSkinCommand {
 
@@ -31,22 +31,16 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
         this.core = core;
     }
 
-    @Override
-    public CommandResult execute(CommandSource src, CommandContext args) {
-        if (!(src instanceof Player)) {
-            plugin.sendMessage(src, "no-console");
+    public CommandResult execute(CommandContext context) throws CommandException {
+        Optional<CommandSource> optSrc = context.cause().first(CommandSource.class);
+        if (!optSrc.isPresent() || !(optSrc.get() instanceof Player)) {
+            plugin.sendMessage(optSrc.orElse(null), "no-console");
             return CommandResult.empty();
         }
-
-        UUID uniqueId = ((Player) src).getUniqueId();
-        if (core.getCooldownService().isTracked(uniqueId)) {
-            plugin.sendMessage(src, "cooldown");
-            return CommandResult.empty();
-        }
-
+        CommandSource src = optSrc.get();
         Player receiver = (Player) src;
-        String targetSkin = args.<String>getOne("skin").get();
-        boolean keepSkin = args.<Boolean>getOne("keep").orElse(false);
+        String targetSkin = context.requireOne("skin");
+        boolean keepSkin = context.hasAny("keep");
 
         if ("reset".equals(targetSkin)) {
             targetSkin = receiver.getUniqueId().toString();
@@ -70,12 +64,11 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
         return CommandResult.success();
     }
 
-    @Override
-    public Command buildSpec() {
+    public Command.Parameterized buildSpec() {
         return Command.builder()
                 .executor(this)
-                .addParameter(Parameter.string().key("skin").build())
-                .addParameter(Parameter.bool().key("keep").optional().build())
+                .addParameter(CommandParameters.string(Text.of("skin")))
+                .addParameter(Parameter.flags().flag("keep").buildWith(CommandParameters.none()))
                 .permission(PomData.ARTIFACT_ID + ".command.setskin.base")
                 .build();
     }

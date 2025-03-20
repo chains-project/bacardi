@@ -1,20 +1,16 @@
 8d7
 < import org.spongepowered.api.command.CommandSource;
 9a9
-> import org.spongepowered.api.command.CommandSource; // This import is removed as CommandSource no longer exists
+> import org.spongepowered.api.command.CommandSource; // Adjusted import based on new API
 14c14
 <     private final CommandSource invoker;
 ---
->     private final Object invoker; // Changed from CommandSource to Object as CommandSource is removed
+>     private final Object invoker; // Changed type to Object as CommandSource is removed
 18c18
 <     public NameResolver(ChangeSkinSponge plugin, CommandSource invoker, String targetName, Player receiver
 ---
 >     public NameResolver(ChangeSkinSponge plugin, Object invoker, String targetName, Player receiver
-23c23
-<         this.invoker = invoker;
+42c42
+<         new SkinDownloader(plugin, invoker, receiver, uuid, keepSkin).run();
 ---
->         this.invoker = invoker; // Updated to use Object type
-30c30
-<         plugin.sendMessage(invoker, id);
----
->         plugin.sendMessage(invoker, id); // This may need to be updated based on how messages are sent now
+>         new SkinDownloader(plugin, (CommandSource) invoker, receiver, uuid, keepSkin).run();

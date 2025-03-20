@@ -10,6 +10,7 @@ import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.AllOf;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.StringContains;
+import static org.hamcrest.CoreMatchers.not;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -59,8 +60,8 @@ class TagValidTest {
             throwable.getMessage(),
             new AllOf<>(
                 Arrays.asList(
-                    StringContains.containsString("Invalid tag"),
-                    StringContains.containsString(original)
+                    new StringContains("Invalid tag"),
+                    not(new StringContains(original))
                 )
             )
         );

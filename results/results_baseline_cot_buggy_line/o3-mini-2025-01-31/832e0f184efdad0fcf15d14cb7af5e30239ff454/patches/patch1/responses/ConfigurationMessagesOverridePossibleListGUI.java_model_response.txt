@@ -1,25 +1,3 @@
-<code_analysis>
-1. Error Analysis:
-   - The error indicates that the method parseEnchantment() is not found in the XEnchantment class.
-   - The problematic code line is:
-     currentEntryMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
-   - This suggests that after an update of the xSeries dependency, the parseEnchantment() method has been removed or renamed.
-
-2. Client Code Review:
-   - The code uses XEnchantment.matchXEnchantment("power").get() to obtain an XEnchantment instance.
-   - The subsequent call parseEnchantment() was originally used to retrieve the org.bukkit.enchantments.Enchantment.
-   - In the updated dependency version, a new method (getEnchant()) now provides the needed conversion.
-
-3. Potential Fix:
-   - Replace the call to parseEnchantment() with getEnchant(), which is available in the updated dependency.
-   - This change directly addresses the compilation issue without altering the overall functionality.
-
-4. Modifications:
-   - Modify the line adding the enchantment as follows:
-     currentEntryMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
-   - Ensure that the rest of the code remains unchanged for compatibility.
-</code_analysis>
-
 ```java
 package com.expl0itz.worldwidechat.inventory.configuration;
 
@@ -92,7 +70,6 @@ public class ConfigurationMessagesOverridePossibleListGUI implements InventoryPr
 				if (messagesConfig.getString("Overrides." + entry.getKey()) != null) {
 					lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwcConfigGUIMessagesAlreadyOverriden"));
 					currentEntryMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					// Fix: Replace parseEnchantment() with getEnchant() due to dependency update.
 					currentEntryMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
 				}
 				lore.add(CommonDefinitions.getMessage("wwcConfigGUIMessagesOverrideOriginalLabel") + ": " + messagesConfig.getString("Messages." + entry.getKey()));
@@ -141,5 +118,6 @@ public class ConfigurationMessagesOverridePossibleListGUI implements InventoryPr
 
 	@Override
 	public void update(Player player, InventoryContents contents) {}
+
 }
 ```

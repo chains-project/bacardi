@@ -1,6 +1,6 @@
 package ml.peya.plugins.Objects;
 
-import tokyo.peya.lib.WaveCreator; // Updated import to the new package
+import tokyo.peya.lib.WaveCreator; // Updated import
 import ml.peya.plugins.PeyangSuperbAntiCheat;
 import ml.peya.plugins.Variables;
 import org.bukkit.Location;
@@ -182,7 +182,7 @@ public class Decorations
     public static void magic(Player player, int seconds)
     {
         final int[] count = {0};
-        WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1); // Updated to use the new WaveCreator
+        WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1); // Updated constructor
 
         BukkitRunnable runnable = new BukkitRunnable()
         {

@@ -1,13 +1,3 @@
-<code_analysis>
-1. The error message indicates that the class ScriptResult from the package com.gargoylesoftware.htmlunit cannot be found. This error occurs on line 35 and line 60 where ScriptResult is used, and the import on line 7 fails because the new dependency update removed or relocated this class.
-2. In the client code, both getChartDataById and getDataOfOnlyChartOnPageWithGivenToolAttribute methods instantiate a ScriptResult to retrieve the JavaScript execution result from pageObject.executeScript. With the dependency update, this ScriptResult class is no longer available.
-3. To fix this issue without changing the function signatures, we can remove the dependency on ScriptResult. Since pageObject.executeScript already returns the JavaScript result, we can simply cast or convert this returned Object directly by calling its toString() method.
-4. The necessary modifications are:
-   - Remove the import for com.gargoylesoftware.htmlunit.ScriptResult.
-   - Replace the creation and usage of ScriptResult in the getChartDataById and getDataOfOnlyChartOnPageWithGivenToolAttribute methods by using the result of pageObject.executeScript directly.
-These modifications resolve the dependency issue while maintaining the existing functionality.
-</code_analysis>
-
 ```java
 package io.jenkins.plugins.coverage.util;
 
@@ -18,10 +8,10 @@ import org.openqa.selenium.WebElement;
 import org.jenkinsci.test.acceptance.po.PageObject;
 
 /**
- * Charts are displayed on multiple PageObjects. This util provides some helper methods to deal with charts.
+ * Charts are displayed one multiple PageObjects. This util provides some helper methods to deal with charts.
  */
-// TODO: Move this code to ATH so we can reuse it from other plugins
 @SuppressWarnings("hideutilityclassconstructor")
+// TODO: Move this code to ATH so we can reuse it from other plugins
 public class ChartUtil {
     private static final int MAX_ATTEMPTS = 5;
 
@@ -41,9 +31,7 @@ public class ChartUtil {
                     "delete(window.Array.prototype.toJSON) %n"
                             + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
                     elementId));
-            if (result != null) {
-                return result.toString();
-            }
+            return result == null ? null : result.toString();
         }
         return null;
     }
@@ -66,7 +54,6 @@ public class ChartUtil {
                         "delete(window.Array.prototype.toJSON) %n"
                                 + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
                         toolAttribute));
-    
                 if (result != null) {
                     return result.toString();
                 }

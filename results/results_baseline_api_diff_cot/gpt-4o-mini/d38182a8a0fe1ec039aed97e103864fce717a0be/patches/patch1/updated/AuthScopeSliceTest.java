@@ -54,8 +54,7 @@ class AuthScopeSliceTest {
                 new AuthScheme.Result() {
                     @Override
                     public Optional<Authentication.User> user() {
-                        // Updated to use the new User constructor or method
-                        return Optional.of(new Authentication.User("alice", null)); // Assuming null for roles
+                        return Optional.of(new Authentication.User("alice", null));
                     }
 
                     @Override

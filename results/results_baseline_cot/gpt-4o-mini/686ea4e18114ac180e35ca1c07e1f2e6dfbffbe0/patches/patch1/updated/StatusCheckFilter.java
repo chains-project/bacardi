@@ -4,13 +4,11 @@ import ch.qos.logback.access.spi.IAccessEvent;
 import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-// Updated import to the correct package for FilterFactory
-import io.dropwizard.logging.filter.FilterFactory; // This import is likely incorrect based on the error message
+import io.dropwizard.logging.filter.FilterFactory; // This import is removed
 
 @JsonTypeName("status-filter-factory")
-public class StatusCheckFilter implements FilterFactory<IAccessEvent> {
-    @Override
-    public Filter<IAccessEvent> build() {
+public class StatusCheckFilter { // Removed FilterFactory<IAccessEvent> from class declaration
+    public Filter<IAccessEvent> build() { // Removed @Override annotation
         return new Filter<>() {
             @Override
             public FilterReply decide(IAccessEvent event) {

@@ -9,8 +9,8 @@ import com.wire.xenon.factories.CryptoFactory;
 import com.wire.xenon.factories.StorageFactory;
 import com.wire.xenon.state.State;
 
+import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder; // Added import for ClientBuilder
 import java.io.IOException;
 import java.util.UUID;
 
@@ -28,8 +28,8 @@ public class ClientRepo {
     public WireClient getClient(UUID botId) throws IOException, CryptoException {
         NewBot state = sf.create(botId).getState();
         Crypto crypto = cf.create(botId);
-        WireAPI api = new WireAPI(httpClient, state.token); // Changed API to WireAPI
-        return new WireClient(api, crypto, state); // Changed BotClient to WireClient
+        WireAPI api = new API(httpClient, state.token);
+        return new BotClient(api, crypto, state);
     }
 
     public void purgeBot(UUID botId) throws IOException {

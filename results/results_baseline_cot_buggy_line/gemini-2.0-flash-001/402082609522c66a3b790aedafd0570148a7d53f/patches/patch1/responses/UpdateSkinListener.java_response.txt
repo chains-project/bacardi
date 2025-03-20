@@ -9,27 +9,32 @@ import com.google.inject.Inject;
 
 import java.util.Optional;
 
-import org.spongepowered.api.Platform;
+import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
 import org.spongepowered.api.network.ChannelBuf;
-import org.spongepowered.api.network.ChannelRegistrar;
-import org.spongepowered.api.network.MessageReader;
-import org.spongepowered.api.network.MessageHandler;
+import org.spongepowered.api.network.MessageReceiver;
+import org.spongepowered.api.network.RemoteConnection;
+import org.spongepowered.api.scheduler.Task;
 
-public class UpdateSkinListener implements MessageHandler<SkinUpdateMessage> {
+public class UpdateSkinListener implements MessageReceiver {
 
     @Inject
     private ChangeSkinSponge plugin;
 
     @Override
-    public void handleMessage(SkinUpdateMessage updateMessage, org.spongepowered.api.network.RemoteConnection connection, Platform.Type side) {
+    public void handlePayload(RawDataChannel channel, ChannelBuf data, RemoteConnection connection) {
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+        SkinUpdateMessage updateMessage = new SkinUpdateMessage();
+        updateMessage.readFrom(dataInput);
+
         String playerName = updateMessage.getPlayerName();
         Optional<Player> receiver = Sponge.getServer().getPlayer(playerName);
         if (receiver.isPresent()) {
             Runnable skinUpdater = new SkinApplier(plugin, (CommandSource) connection, receiver.get(), null, false);
-            Sponge.getServer().getScheduler().createTaskBuilder().execute(skinUpdater).submit(plugin);
+            Task.builder().execute(skinUpdater).submit(plugin);
         }
     }
 }

@@ -109,13 +109,6 @@ class EventMessageHandlerTest {
         );
 
         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
-        // Use reflection to set the logger level to avoid compile-time dependency on LoggingEventAware.
-        try {
-            java.lang.reflect.Method setLevelMethod = logger.getClass().getMethod("setLevel", Level.class);
-            setLevelMethod.invoke(logger, Level.INFO);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to set logger level via reflection", e);
-        }
         logger.addAppender(mockLogAppender);
     }
 

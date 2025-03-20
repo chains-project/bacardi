@@ -18,12 +18,14 @@ package com.feedzai.commons.sql.abstraction.engine.impl.mysql;
 
 import com.feedzai.commons.sql.abstraction.engine.handler.QueryExceptionHandler;
 
+import com.mysql.cj.jdbc.exceptions.MySQLTimeoutException;
+
 import java.sql.SQLException;
 
 /**
  * A specific implementation of {@link QueryExceptionHandler} for MySQL engine.
  *
- * @author José Fidalgo
+ * @author José Fidalgo (jose.fidalgo@feedzai.com)
  * @since 2.5.1
  */
 public class MySqlQueryExceptionHandler extends QueryExceptionHandler {
@@ -35,9 +37,7 @@ public class MySqlQueryExceptionHandler extends QueryExceptionHandler {
 
     @Override
     public boolean isTimeoutException(final SQLException exception) {
-        // The specific MySQL timeout exception is no longer present in the updated dependency.
-        // Rely on the superclass implementation to determine if the exception represents a timeout.
-        return super.isTimeoutException(exception);
+        return exception instanceof MySQLTimeoutException || super.isTimeoutException(exception);
     }
 
     @Override

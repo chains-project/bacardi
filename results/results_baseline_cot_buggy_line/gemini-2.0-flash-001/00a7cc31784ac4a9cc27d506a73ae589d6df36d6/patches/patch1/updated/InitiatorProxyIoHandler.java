@@ -62,7 +62,7 @@ class InitiatorProxyIoHandler extends AbstractProxyIoHandler {
     @Override
     public void proxySessionOpened(IoSession ioSession) throws Exception {
         if (this.sslFilter != null) {
-            ioSession.setAttribute(SSLFilter.ATTRIBUTE_WANT_CLIENT_AUTH, true);
+            sslFilter.onSessionOpened(ioSession);
         }
     }
 }

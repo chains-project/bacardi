@@ -1,21 +1,3 @@
-/*
- * Copyright (C) 2017 Premium Minds.
- *
- * This file is part of billy GIN.
- *
- * billy GIN is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
- * later version.
- *
- * billy GIN is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with billy GIN. If not, see <http://www.gnu.org/licenses/>.
- */
 package com.premiumminds.billy.gin.services.impl.pdf;
 
 import com.google.zxing.BarcodeFormat;
@@ -111,7 +93,7 @@ public abstract class FOPPDFTransformer {
         // creation of transform source
         StreamSource transformSource = new StreamSource(templateStream);
 
-        // create an instance of fop factory using the current directory as the base URI
+        // create an instance of fop factory with a base URI
         FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
         // a user agent is needed for transformation
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
@@ -126,7 +108,7 @@ public abstract class FOPPDFTransformer {
 
         Path qr = null;
         try {
-            if (qrCodeString.isPresent() && !qrCodeString.get().getValue().isEmpty()) {
+            if(qrCodeString.isPresent() && !qrCodeString.get().getValue().isEmpty()){
                 qr = createQR(qrCodeString.get().getValue());
                 documentParams.getRoot().addChild(QR_CODE_PATH, qr.toString());
             }
@@ -178,7 +160,7 @@ public abstract class FOPPDFTransformer {
         throws WriterException, IOException
     {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
-        EnumMap<EncodeHintType, String> hints = new EnumMap<>(EncodeHintType.class);
+        EnumMap<EncodeHintType, String> hints = new EnumMap<> (EncodeHintType.class);
         hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M.name());
         hints.put(EncodeHintType.MARGIN, String.valueOf(4));
         hints.put(EncodeHintType.QR_VERSION, String.valueOf(9));
@@ -197,7 +179,7 @@ public abstract class FOPPDFTransformer {
     }
 
     private void deleteTempFileIfExists(Path path) {
-        if (path != null) {
+        if(path != null) {
             try {
                 Files.deleteIfExists(path);
             } catch (IOException e) {

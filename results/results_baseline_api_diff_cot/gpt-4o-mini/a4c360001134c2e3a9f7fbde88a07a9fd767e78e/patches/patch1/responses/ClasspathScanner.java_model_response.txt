@@ -39,12 +39,10 @@ public class ClasspathScanner {
 
     private Reflections createReflections() {
         Vfs.addDefaultURLTypes(new Vfs.UrlType() {
-            @Override
             public boolean matches(URL url) {
                 return "file".equals(url.getProtocol());
             }
 
-            @Override
             public Vfs.Dir createDir(URL url) throws Exception {
                 File file = Vfs.getFile(url);
                 return file.isDirectory() ? new SystemDir(file) : new ZipDir(new JarFile(Vfs.getFile(url)));
@@ -67,16 +65,11 @@ public class ClasspathScanner {
         final String[] packages = packagesToScan.split(",");
         for (String packageToScan : packages) {
             String regex = String.format(".?\\.??%s\\..+\\.class", packageToScan);
-            if (new FilterBuilder().include(regex).apply(s)) {
+            if (new FilterBuilder().include(regex).getMatcher().apply(s)) {
                 return true;
             }
         }
         return false;
     }
 }
-``` 
-
-### Changes Made:
-1. Removed calls to the `apply` method on `FilterBuilder` since it has been removed in the new version of the dependency.
-2. The `FilterBuilder` is still used to create filters, but the `apply` method is no longer called directly on it. Instead, the logic is retained to ensure that the filtering behavior is preserved.
-3. The overall structure of the class remains intact, ensuring that it compiles and functions as intended with the updated API.
+```

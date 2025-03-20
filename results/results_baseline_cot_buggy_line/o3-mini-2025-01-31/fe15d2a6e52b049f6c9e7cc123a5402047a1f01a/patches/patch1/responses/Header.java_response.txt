@@ -86,7 +86,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "website"
 })
 @XmlRootElement(name = "Header")
-public class Header implements ToString2 {
+public class Header implements ToString2
+{
 
     @XmlElement(name = "AuditFileVersion", required = true)
     protected String auditFileVersion;
@@ -141,7 +142,10 @@ public class Header implements ToString2 {
     /**
      * Gets the value of the auditFileVersion property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getAuditFileVersion() {
         return auditFileVersion;
@@ -150,7 +154,10 @@ public class Header implements ToString2 {
     /**
      * Sets the value of the auditFileVersion property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setAuditFileVersion(String value) {
         this.auditFileVersion = value;
@@ -159,7 +166,10 @@ public class Header implements ToString2 {
     /**
      * Gets the value of the companyID property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getCompanyID() {
         return companyID;
@@ -168,7 +178,10 @@ public class Header implements ToString2 {
     /**
      * Sets the value of the companyID property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setCompanyID(String value) {
         this.companyID = value;
@@ -176,6 +189,7 @@ public class Header implements ToString2 {
 
     /**
      * Gets the value of the taxRegistrationNumber property.
+     * 
      */
     public int getTaxRegistrationNumber() {
         return taxRegistrationNumber;
@@ -183,6 +197,7 @@ public class Header implements ToString2 {
 
     /**
      * Sets the value of the taxRegistrationNumber property.
+     * 
      */
     public void setTaxRegistrationNumber(int value) {
         this.taxRegistrationNumber = value;
@@ -191,7 +206,10 @@ public class Header implements ToString2 {
     /**
      * Gets the value of the taxAccountingBasis property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getTaxAccountingBasis() {
         return taxAccountingBasis;
@@ -200,7 +218,10 @@ public class Header implements ToString2 {
     /**
      * Sets the value of the taxAccountingBasis property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setTaxAccountingBasis(String value) {
         this.taxAccountingBasis = value;
@@ -209,7 +230,10 @@ public class Header implements ToString2 {
     /**
      * Gets the value of the companyName property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getCompanyName() {
         return companyName;
@@ -218,7 +242,10 @@ public class Header implements ToString2 {
     /**
      * Sets the value of the companyName property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setCompanyName(String value) {
         this.companyName = value;
@@ -227,7 +254,10 @@ public class Header implements ToString2 {
     /**
      * Gets the value of the businessName property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getBusinessName() {
         return businessName;
@@ -236,7 +266,10 @@ public class Header implements ToString2 {
     /**
      * Sets the value of the businessName property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setBusinessName(String value) {
         this.businessName = value;
@@ -245,7 +278,10 @@ public class Header implements ToString2 {
     /**
      * Gets the value of the companyAddress property.
      * 
-     * @return possible object is {@link AddressStructurePT }
+     * @return
+     *     possible object is
+     *     {@link AddressStructurePT }
+     *     
      */
     public AddressStructurePT getCompanyAddress() {
         return companyAddress;
@@ -254,7 +290,10 @@ public class Header implements ToString2 {
     /**
      * Sets the value of the companyAddress property.
      * 
-     * @param value allowed object is {@link AddressStructurePT }
+     * @param value
+     *     allowed object is
+     *     {@link AddressStructurePT }
+     *     
      */
     public void setCompanyAddress(AddressStructurePT value) {
         this.companyAddress = value;
@@ -262,6 +301,7 @@ public class Header implements ToString2 {
 
     /**
      * Gets the value of the fiscalYear property.
+     * 
      */
     public int getFiscalYear() {
         return fiscalYear;
@@ -269,6 +309,7 @@ public class Header implements ToString2 {
 
     /**
      * Sets the value of the fiscalYear property.
+     * 
      */
     public void setFiscalYear(int value) {
         this.fiscalYear = value;
@@ -277,7 +318,10 @@ public class Header implements ToString2 {
     /**
      * Gets the value of the startDate property.
      * 
-     * @return possible object is {@link XMLGregorianCalendar }
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public XMLGregorianCalendar getStartDate() {
         return startDate;
@@ -286,7 +330,10 @@ public class Header implements ToString2 {
     /**
      * Sets the value of the startDate property.
      * 
-     * @param value allowed object is {@link XMLGregorianCalendar }
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public void setStartDate(XMLGregorianCalendar value) {
         this.startDate = value;
@@ -295,7 +342,10 @@ public class Header implements ToString2 {
     /**
      * Gets the value of the endDate property.
      * 
-     * @return possible object is {@link XMLGregorianCalendar }
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public XMLGregorianCalendar getEndDate() {
         return endDate;
@@ -304,7 +354,10 @@ public class Header implements ToString2 {
     /**
      * Sets the value of the endDate property.
      * 
-     * @param value allowed object is {@link XMLGregorianCalendar }
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public void setEndDate(XMLGregorianCalendar value) {
         this.endDate = value;
@@ -313,7 +366,10 @@ public class Header implements ToString2 {
     /**
      * Gets the value of the currencyCode property.
      * 
-     * @return possible object is {@link Object }
+     * @return
+     *     possible object is
+     *     {@link Object }
+     *     
      */
     public Object getCurrencyCode() {
         return currencyCode;
@@ -322,7 +378,10 @@ public class Header implements ToString2 {
     /**
      * Sets the value of the currencyCode property.
      * 
-     * @param value allowed object is {@link Object }
+     * @param value
+     *     allowed object is
+     *     {@link Object }
+     *     
      */
     public void setCurrencyCode(Object value) {
         this.currencyCode = value;
@@ -331,7 +390,10 @@ public class Header implements ToString2 {
     /**
      * Gets the value of the dateCreated property.
      * 
-     * @return possible object is {@link XMLGregorianCalendar }
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public XMLGregorianCalendar getDateCreated() {
         return dateCreated;
@@ -340,7 +402,10 @@ public class Header implements ToString2 {
     /**
      * Sets the value of the dateCreated property.
      * 
-     * @param value allowed object is {@link XMLGregorianCalendar }
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public void setDateCreated(XMLGregorianCalendar value) {
         this.dateCreated = value;
@@ -349,7 +414,10 @@ public class Header implements ToString2 {
     /**
      * Gets the value of the taxEntity property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getTaxEntity() {
         return taxEntity;
@@ -358,7 +426,10 @@ public class Header implements ToString2 {
     /**
      * Sets the value of the taxEntity property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setTaxEntity(String value) {
         this.taxEntity = value;
@@ -367,7 +438,10 @@ public class Header implements ToString2 {
     /**
      * Gets the value of the productCompanyTaxID property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getProductCompanyTaxID() {
         return productCompanyTaxID;
@@ -376,7 +450,10 @@ public class Header implements ToString2 {
     /**
      * Sets the value of the productCompanyTaxID property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setProductCompanyTaxID(String value) {
         this.productCompanyTaxID = value;
@@ -385,7 +462,10 @@ public class Header implements ToString2 {
     /**
      * Gets the value of the softwareCertificateNumber property.
      * 
-     * @return possible object is {@link BigInteger }
+     * @return
+     *     possible object is
+     *     {@link BigInteger }
+     *     
      */
     public BigInteger getSoftwareCertificateNumber() {
         return softwareCertificateNumber;
@@ -394,7 +474,10 @@ public class Header implements ToString2 {
     /**
      * Sets the value of the softwareCertificateNumber property.
      * 
-     * @param value allowed object is {@link BigInteger }
+     * @param value
+     *     allowed object is
+     *     {@link BigInteger }
+     *     
      */
     public void setSoftwareCertificateNumber(BigInteger value) {
         this.softwareCertificateNumber = value;
@@ -403,7 +486,10 @@ public class Header implements ToString2 {
     /**
      * Gets the value of the productID property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getProductID() {
         return productID;
@@ -412,7 +498,10 @@ public class Header implements ToString2 {
     /**
      * Sets the value of the productID property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setProductID(String value) {
         this.productID = value;
@@ -421,7 +510,10 @@ public class Header implements ToString2 {
     /**
      * Gets the value of the productVersion property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getProductVersion() {
         return productVersion;
@@ -430,7 +522,10 @@ public class Header implements ToString2 {
     /**
      * Sets the value of the productVersion property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setProductVersion(String value) {
         this.productVersion = value;
@@ -439,7 +534,10 @@ public class Header implements ToString2 {
     /**
      * Gets the value of the headerComment property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getHeaderComment() {
         return headerComment;
@@ -448,7 +546,10 @@ public class Header implements ToString2 {
     /**
      * Sets the value of the headerComment property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setHeaderComment(String value) {
         this.headerComment = value;
@@ -457,7 +558,10 @@ public class Header implements ToString2 {
     /**
      * Gets the value of the telephone property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getTelephone() {
         return telephone;
@@ -466,7 +570,10 @@ public class Header implements ToString2 {
     /**
      * Sets the value of the telephone property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setTelephone(String value) {
         this.telephone = value;
@@ -475,7 +582,10 @@ public class Header implements ToString2 {
     /**
      * Gets the value of the fax property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getFax() {
         return fax;
@@ -484,7 +594,10 @@ public class Header implements ToString2 {
     /**
      * Sets the value of the fax property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setFax(String value) {
         this.fax = value;
@@ -493,7 +606,10 @@ public class Header implements ToString2 {
     /**
      * Gets the value of the email property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getEmail() {
         return email;
@@ -502,7 +618,10 @@ public class Header implements ToString2 {
     /**
      * Sets the value of the email property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setEmail(String value) {
         this.email = value;
@@ -511,7 +630,10 @@ public class Header implements ToString2 {
     /**
      * Gets the value of the website property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getWebsite() {
         return website;
@@ -520,7 +642,10 @@ public class Header implements ToString2 {
     /**
      * Sets the value of the website property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setWebsite(String value) {
         this.website = value;
@@ -547,12 +672,12 @@ public class Header implements ToString2 {
         {
             String theAuditFileVersion;
             theAuditFileVersion = this.getAuditFileVersion();
-            strategy.appendField(locator, this, "auditFileVersion", buffer, theAuditFileVersion, (this.auditFileVersion != null));
+            strategy.appendField(locator, this, "auditFileVersion", buffer, theAuditFileVersion, (this.auditFileVersion!= null));
         }
         {
             String theCompanyID;
             theCompanyID = this.getCompanyID();
-            strategy.appendField(locator, this, "companyID", buffer, theCompanyID, (this.companyID != null));
+            strategy.appendField(locator, this, "companyID", buffer, theCompanyID, (this.companyID!= null));
         }
         {
             int theTaxRegistrationNumber;
@@ -562,22 +687,22 @@ public class Header implements ToString2 {
         {
             String theTaxAccountingBasis;
             theTaxAccountingBasis = this.getTaxAccountingBasis();
-            strategy.appendField(locator, this, "taxAccountingBasis", buffer, theTaxAccountingBasis, (this.taxAccountingBasis != null));
+            strategy.appendField(locator, this, "taxAccountingBasis", buffer, theTaxAccountingBasis, (this.taxAccountingBasis!= null));
         }
         {
             String theCompanyName;
             theCompanyName = this.getCompanyName();
-            strategy.appendField(locator, this, "companyName", buffer, theCompanyName, (this.companyName != null));
+            strategy.appendField(locator, this, "companyName", buffer, theCompanyName, (this.companyName!= null));
         }
         {
             String theBusinessName;
             theBusinessName = this.getBusinessName();
-            strategy.appendField(locator, this, "businessName", buffer, theBusinessName, (this.businessName != null));
+            strategy.appendField(locator, this, "businessName", buffer, theBusinessName, (this.businessName!= null));
         }
         {
             AddressStructurePT theCompanyAddress;
             theCompanyAddress = this.getCompanyAddress();
-            strategy.appendField(locator, this, "companyAddress", buffer, theCompanyAddress, (this.companyAddress != null));
+            strategy.appendField(locator, this, "companyAddress", buffer, theCompanyAddress, (this.companyAddress!= null));
         }
         {
             int theFiscalYear;
@@ -587,73 +712,74 @@ public class Header implements ToString2 {
         {
             XMLGregorianCalendar theStartDate;
             theStartDate = this.getStartDate();
-            strategy.appendField(locator, this, "startDate", buffer, theStartDate, (this.startDate != null));
+            strategy.appendField(locator, this, "startDate", buffer, theStartDate, (this.startDate!= null));
         }
         {
             XMLGregorianCalendar theEndDate;
             theEndDate = this.getEndDate();
-            strategy.appendField(locator, this, "endDate", buffer, theEndDate, (this.endDate != null));
+            strategy.appendField(locator, this, "endDate", buffer, theEndDate, (this.endDate!= null));
         }
         {
             Object theCurrencyCode;
             theCurrencyCode = this.getCurrencyCode();
-            strategy.appendField(locator, this, "currencyCode", buffer, theCurrencyCode, (this.currencyCode != null));
+            strategy.appendField(locator, this, "currencyCode", buffer, theCurrencyCode, (this.currencyCode!= null));
         }
         {
             XMLGregorianCalendar theDateCreated;
             theDateCreated = this.getDateCreated();
-            strategy.appendField(locator, this, "dateCreated", buffer, theDateCreated, (this.dateCreated != null));
+            strategy.appendField(locator, this, "dateCreated", buffer, theDateCreated, (this.dateCreated!= null));
         }
         {
             String theTaxEntity;
             theTaxEntity = this.getTaxEntity();
-            strategy.appendField(locator, this, "taxEntity", buffer, theTaxEntity, (this.taxEntity != null));
+            strategy.appendField(locator, this, "taxEntity", buffer, theTaxEntity, (this.taxEntity!= null));
         }
         {
             String theProductCompanyTaxID;
             theProductCompanyTaxID = this.getProductCompanyTaxID();
-            strategy.appendField(locator, this, "productCompanyTaxID", buffer, theProductCompanyTaxID, (this.productCompanyTaxID != null));
+            strategy.appendField(locator, this, "productCompanyTaxID", buffer, theProductCompanyTaxID, (this.productCompanyTaxID!= null));
         }
         {
             BigInteger theSoftwareCertificateNumber;
             theSoftwareCertificateNumber = this.getSoftwareCertificateNumber();
-            strategy.appendField(locator, this, "softwareCertificateNumber", buffer, theSoftwareCertificateNumber, (this.softwareCertificateNumber != null));
+            strategy.appendField(locator, this, "softwareCertificateNumber", buffer, theSoftwareCertificateNumber, (this.softwareCertificateNumber!= null));
         }
         {
             String theProductID;
             theProductID = this.getProductID();
-            strategy.appendField(locator, this, "productID", buffer, theProductID, (this.productID != null));
+            strategy.appendField(locator, this, "productID", buffer, theProductID, (this.productID!= null));
         }
         {
             String theProductVersion;
             theProductVersion = this.getProductVersion();
-            strategy.appendField(locator, this, "productVersion", buffer, theProductVersion, (this.productVersion != null));
+            strategy.appendField(locator, this, "productVersion", buffer, theProductVersion, (this.productVersion!= null));
         }
         {
             String theHeaderComment;
             theHeaderComment = this.getHeaderComment();
-            strategy.appendField(locator, this, "headerComment", buffer, theHeaderComment, (this.headerComment != null));
+            strategy.appendField(locator, this, "headerComment", buffer, theHeaderComment, (this.headerComment!= null));
         }
         {
             String theTelephone;
             theTelephone = this.getTelephone();
-            strategy.appendField(locator, this, "telephone", buffer, theTelephone, (this.telephone != null));
+            strategy.appendField(locator, this, "telephone", buffer, theTelephone, (this.telephone!= null));
         }
         {
             String theFax;
             theFax = this.getFax();
-            strategy.appendField(locator, this, "fax", buffer, theFax, (this.fax != null));
+            strategy.appendField(locator, this, "fax", buffer, theFax, (this.fax!= null));
         }
         {
             String theEmail;
             theEmail = this.getEmail();
-            strategy.appendField(locator, this, "email", buffer, theEmail, (this.email != null));
+            strategy.appendField(locator, this, "email", buffer, theEmail, (this.email!= null));
         }
         {
             String theWebsite;
             theWebsite = this.getWebsite();
-            strategy.appendField(locator, this, "website", buffer, theWebsite, (this.website != null));
+            strategy.appendField(locator, this, "website", buffer, theWebsite, (this.website!= null));
         }
         return buffer;
     }
+
 }

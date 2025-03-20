@@ -1,38 +1,17 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error "cannot find symbol: class MvcContext" indicates that the compiler cannot locate the MvcContext class.
-   - The error points to line 23 where MvcContext is used, which means the dependency providing MvcContext has likely changed its package or been updated.
-   - The updated dependency (Jakarta MVC) now provides MvcContext in a different package than before.
-
-2. Code Review:
-   - The code currently imports MvcContext from "javax.mvc.MvcContext".
-   - With the breaking dependency update (from Java EE to Jakarta EE libraries), the correct package is now "jakarta.mvc.MvcContext".
-   - This mismatch in package names is causing the compiler error.
-
-3. Potential Fix:
-   - Update the import statement for MvcContext to reflect the new dependency package.
-   - Do not change any function signatures or other code parts.
-   - Ensure that the rest of the class remains unchanged.
-
-4. Proposed Changes:
-   - Replace "import javax.mvc.MvcContext;" with "import jakarta.mvc.MvcContext;".
-   - This adheres to the new dependency version and resolves the symbol issue.
-</code_analysis>
-
 ```java
 import java.util.ResourceBundle;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import jakarta.mvc.MvcContext; // Updated import to reflect the new dependency package
+import jakarta.mvc.MvcContext;
 
 /**
  * Provides I18n messages for the UI per request. To get the correct locale, the method {@link MvcContext#getLocale()}
- * is used. This method uses the built-in {@link javax.mvc.locale.LocaleResolver} of the used MVC Implementation.
+ * is used. This method uses the built-in {@link jakarta.mvc.locale.LocaleResolver} of the used MVC Implementation.
  *
  * @author Tobias Erdle
  * @see MvcContext#getLocale()
- * @see javax.mvc.locale.LocaleResolver
+ * @see jakarta.mvc.locale.LocaleResolver
  */
 @RequestScoped
 @Named("msg")
@@ -52,6 +31,7 @@ public class Messages {
      */
     public final String get(final String key) {
         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
+
         return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);
     }
 

@@ -386,22 +386,22 @@ public final class AuthTest {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-token -> CompletableFuture.completedFuture(
+.map(user -> new Authentication.User(user.name()))
 ```
 ```java
-.map(user -> new Authentication.User(user.name()))
+token -> CompletableFuture.completedFuture(
 ```
 
 
  And here is the error message:
+[ERROR] /docker-adapter/src/test/java/com/artipie/docker/http/AuthTest.java:[353,60] cannot find symbol
+  symbol:   class User
+  location: interface com.artipie.http.auth.Authentication
+
 [ERROR] /docker-adapter/src/test/java/com/artipie/docker/http/AuthTest.java:[350,63] incompatible types: bad return type in lambda expression
     inference variable U has incompatible bounds
       equality constraints: java.util.Optional<com.artipie.http.auth.AuthUser>
       lower bounds: java.util.Optional<java.lang.Object>
-
-[ERROR] /docker-adapter/src/test/java/com/artipie/docker/http/AuthTest.java:[353,60] cannot find symbol
-  symbol:   class User
-  location: interface com.artipie.http.auth.Authentication
 
 
 

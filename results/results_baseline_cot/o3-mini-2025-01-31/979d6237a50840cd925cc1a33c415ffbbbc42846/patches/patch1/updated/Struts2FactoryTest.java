@@ -16,7 +16,6 @@
 
 package com.google.inject.struts2;
 
-// Updated import for the newer dependency version of Struts 2
 import org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;

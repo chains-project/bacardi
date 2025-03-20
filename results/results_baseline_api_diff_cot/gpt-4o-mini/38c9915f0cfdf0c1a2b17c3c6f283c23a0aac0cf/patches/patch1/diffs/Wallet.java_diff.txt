@@ -30,16 +30,7 @@
 < import org.cactoos.text.SplitText;
 42d15
 < import org.cactoos.text.UncheckedText;
-44,51d16
-< /**
-<  * Wallet.
-<  * @since 0.1
-<  * @todo #16:30min Merge method should update transactions
-<  *  in wallet's file and return concrete implementation not a fake one.
-<  *  Beware that tests should be refactored to take care of file cleanup
-<  *  after each case that merges wallets.
-<  */
-55,61d19
+55,178c28
 <     /**
 <      * This wallet's ID: an unsigned 64-bit integer.
 <      * @return This wallet's id
@@ -47,14 +38,16 @@
 <      * @checkstyle ClassDataAbstractionCouplingCheck (500 lines)
 <      * @checkstyle MethodName (2 lines)
 <      */
-64,69d21
+<     long id() throws IOException;
+< 
 <     /**
 <      * Make a payment.
 <      * @param amt Amount to pay in zents
 <      * @param bnf Wallet ID of beneficiary
 <      * @throws IOException If an IO error occurs
 <      */
-72,78d23
+<     void pay(long amt, long bnf) throws IOException;
+< 
 <     /**
 <      * Merge both {@code this} and {@code other}. Fails if they are not the
 <      * same wallet, as identified by their {@link #id() id}.
@@ -62,17 +55,20 @@
 <      * @return The merged wallet
 <      * @throws IOException If an IO error occurs
 <      */
-81,84d25
+<     Wallet merge(Wallet other) throws IOException;
+< 
 <     /**
 <      * This wallet's ledger.
 <      * @return This wallet's ledger
 <      */
-87,90d27
+<     Iterable<Transaction> ledger();
+< 
 <     /**
 <      * This wallet's RSA key.
 <      * @return This wallet's RSA key.
 <      */
-93,103d29
+<     String key();
+< 
 <     /**
 <      * A Fake {@link Wallet}.
 <      * @since 1.0
@@ -84,28 +80,35 @@
 <      *  completing these implementations fix tests that uses Wallets.create()
 <      *  and all Wallet realizations.
 <      */
-105,108d30
+<     final class Fake implements Wallet {
 < 
 <         /**
 <          * The wallet id.
 <          */
-110,113d31
+<         private final long id;
 < 
 <         /**
 <          * Transactions.
 <          */
-116,119d33
+<         private final Iterable<Transaction> transactions;
+< 
 <         /**
 <          * Constructor.
 <          * @param id The wallet id.
 <          */
-124,128d37
+<         public Fake(final long id) {
+<             this(id, new IterableOf<>());
+<         }
+< 
 <         /**
 <          * Ctor.
 <          * @param id The wallet id.
 <          * @param transactions Transactions.
 <          */
-133,139d41
+<         public Fake(final long id, final Transaction... transactions) {
+<             this(id, new IterableOf<>(transactions));
+<         }
+< 
 <         /**
 <          * Constructor.
 <          * @param id The wallet id.
@@ -113,49 +116,68 @@
 <          * @param network The network the walet belongs to.
 <          * @checkstyle UnusedFormalParameter (2 lines)
 <          */
-144,148d45
+<         public Fake(final long id, final String pubkey, final String network) {
+<             this(id);
+<         }
+< 
 <         /**
 <          * Ctor.
 <          * @param id The wallet id.
 <          * @param transactions Transactions.
 <          */
-180,183d76
-<     /**
-<      * Default File implementation.
-<      * @checkstyle ClassDataAbstractionCouplingCheck (2 lines)
-<      */
-185,188d77
+<         public Fake(final long id, final Iterable<Transaction> transactions) {
+<             this.id = id;
+<             this.transactions = transactions;
+<         }
 < 
-<         /**
-<          * Path of this wallet.
-<          */
-191,194d79
-<         /**
-<          * Ctor.
-<          * @param path Path of wallet
-<          */
-201,202c86
+<         @Override
+<         public long id() throws IOException {
+<             return this.id;
+<         }
+< 
+<         @Override
+<         public void pay(final long amt, final long bnf) {
+<             // nothing
+<         }
+< 
+<         @Override
+<         public Wallet merge(final Wallet other) {
+<             return other;
+<         }
+< 
+<         @Override
+<         public Iterable<Transaction> ledger() {
+<             return this.transactions;
+<         }
+< 
+<         @Override
+<         public String key() {
+<             return Long.toString(this.id);
+<         }
+<     }
+---
+>     // ... (rest of the code remains unchanged)
+201,202c51
 <             return new CheckedScalar<>(
 <                 () -> Long.parseUnsignedLong(
 ---
 >             return Long.parseUnsignedLong(
-204,209c88,89
+204,208c53,54
 <                         new SplitText(
 <                             new TextOf(this.path),
 <                             "\n"
 <                         )
 <                     ).get(2).asString(),
-<                     // @checkstyle MagicNumber (1 line)
 ---
 >                     new TextOf(this.path).asString().split("\n")
 >                 )[2],
-211,213c91
+211,213c57
 <                 ),
 <                 e -> new IOException(e)
 <             ).value();
 ---
 >             );
-224,232d101
+224,232d67
 <         // @todo #16:30min Following transactions should be ignored according
 <         //  to the whitepaper:
 <         //  a) If the transaction is negative and its signature is not valid,
@@ -165,11 +187,11 @@
 <         //  c) If the transaction is positive and it’s absent in the paying
 <         //  wallet (which exists at the node), it’s ignored; If the paying
 <         //  wallet doesn’t exist at the node, the transaction is ignored;
-237d105
+237d71
 <                     new UncheckedText(
-242d109
+242d75
 <                         )
-249,258c116,120
+249,258c82,86
 <                     origin -> new UncheckedScalar<>(
 <                         new Or(
 <                             () -> incoming.equals(origin),
@@ -186,16 +208,10 @@
 >                         (incoming.id() == origin.id() && incoming.bnf().equals(origin.bnf())) ||
 >                         (incoming.id() == origin.id() && incoming.amount() < 0L) ||
 >                         incoming.prefix().equals(origin.prefix()),
-275,278c137
+275,278c103
 <                         new SplitText(
 <                             new TextOf(this.path),
 <                             "\\n"
 <                         )
 ---
 >                         new TextOf(this.path).asString().split("\\n")
-280d138
-<                     // @checkstyle MagicNumberCheck (1 line)
-286,288d143
-<         // @todo #54:30min Implement key method. This should return the
-<         //  public RSA key of the wallet owner in Base64. Also add a unit test
-<         //  to replace WalletTest.keyIsNotYetImplemented().

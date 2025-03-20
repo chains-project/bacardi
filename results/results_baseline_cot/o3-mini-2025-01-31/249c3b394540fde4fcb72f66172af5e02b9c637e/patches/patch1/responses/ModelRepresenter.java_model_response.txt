@@ -1,24 +1,3 @@
-<code_analysis>
-1. Error message analysis:
-   - The error indicates that the overridden method getProperties in ModelRepresenter declares a throws clause for IntrospectionException, but the current version of SnakeYAML’s Representer.getProperties does not allow any checked exceptions. This is causing a signature incompatibility.
-   - The error points to the method getProperties (around line 218), which now must match its parent’s signature.
-
-2. Client code review:
-   - The method protected Set<Property> getProperties(Class<? extends Object> type) currently declares "throws IntrospectionException".
-   - The private helper method sortTypeWithOrder also declares the exception.
-   - In the updated dependency (SnakeYAML), Representer.getProperties no longer declares an IntrospectionException, causing this incompatibility.
-
-3. Potential fixes:
-   - Remove the "throws IntrospectionException" clause from getProperties and sortTypeWithOrder so that their signatures match the updated dependency.
-   - Ensure that the rest of the code remains unchanged since only these exception declarations cause the problem.
-   - Keep the @Override annotation because the overridden method now correctly matches the parent's signature.
-
-4. Planned modifications:
-   - Remove "throws IntrospectionException" from the method signature of getProperties.
-   - Remove "throws IntrospectionException" from the method signature of sortTypeWithOrder.
-   - No other changes or removals are necessary.
-</code_analysis>
-
 ```java
 /**
  * Copyright (c) 2012 to original author or authors
@@ -44,6 +23,8 @@ import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
 
 import java.util.*;
+
+import static java.lang.String.format;
 
 /**
  * YAML model representer.
@@ -110,7 +91,6 @@ class ModelRepresenter extends Representer {
     return false;
   }
 
-
   private class RepresentXpp3Dom implements Represent {
     private static final String ATTRIBUTE_PREFIX = "attr/";
 
@@ -169,7 +149,7 @@ class ModelRepresenter extends Representer {
         Xpp3Dom child = node.getChild(i);
 
         if (!childName.equals(child.getName())) {
-          throw new YAMLException(String.format("child name: '%s' does not match expected name: '%s' at node %s",
+          throw new YAMLException(format("child name: '%s' does not match expected name: '%s' at node %s",
               child.getName(), childName, node));
         }
 
@@ -194,7 +174,6 @@ class ModelRepresenter extends Representer {
       "artifactId",
       "version",
       "packaging",
-
       "name",
       "description",
       "url",
@@ -207,15 +186,12 @@ class ModelRepresenter extends Representer {
       "scm",
       "issueManagement",
       "ciManagement",
-
       "properties",
       "prerequisites",
       "modules",
       "dependencyManagement",
       "dependencies",
       "distributionManagement",
-      //"repositories",
-      //"pluginRepositories",
       "build",
       "profiles",
       "reporting"
@@ -251,10 +227,10 @@ class ModelRepresenter extends Representer {
   }
 
   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
-    Set<Property> standard = super.getProperties(type);
-    Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
-    sorted.addAll(standard);
-    return sorted;
+      Set<Property> standard = super.getProperties(type);
+      Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
+      sorted.addAll(standard);
+      return sorted;
   }
 
   private class ModelPropertyComparator implements Comparator<Property> {
@@ -265,14 +241,12 @@ class ModelRepresenter extends Representer {
     }
 
     public int compare(Property o1, Property o2) {
-      // important go first
       for (String name : names) {
         int c = compareByName(o1, o2, name);
         if (c != 0) {
           return c;
         }
       }
-      // all the rest
       return o1.compareTo(o2);
     }
 
@@ -282,7 +256,7 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0; // compare further
+      return 0;
     }
   }
 }

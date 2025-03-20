@@ -1,31 +1,8 @@
-5a6
-> import java.util.Iterator;
-70c71,72
+70c70,72
 <                         if (tree.size() == 0 || tree.query1NN(coords).dist() > distanceTolerance) {
 ---
->                         // Use the new query API: query(queryPoint, k).iterator().next() returns the nearest neighbor.
->                         if (tree.size() == 0 || tree.query(coords, 1).iterator().next().dist() > distanceTolerance) {
-217c219
-<          * @param yMax y-coordinate of boundary maximum
----
->          * @param yMax x-coordinate of boundary maximum
-233c235
-<          * @param yMax y-coordinate of boundary maximum
----
->          * @param yMax x-coordinate of boundary maximum
-304c306
-<          * @param yMax y-coordinate of boundary maximum
----
->          * @param yMax x-coordinate of boundary maximum
-473c475
-<          * @param yMax    y-coordinate of boundary maximum
----
->          * @param yMax    x-coordinate of boundary maximum
-494c496
-<          * @param yMax    y-coordinate of boundary maximum
----
->          * @param yMax    x-coordinate of boundary maximum
-518c520
-<          * @param yMax y-coordinate of boundary maximum
----
->          * @param yMax x-coordinate of boundary maximum
+>                         // Use queryKNN instead of the removed query1NN
+>                         List<KDTree.Entry<PVector>> nearest = tree.queryKNN(coords, 1);
+>                         if (nearest.isEmpty() || nearest.get(0).distance() > distanceTolerance) {
+981d982
+<                 @Override

@@ -1,28 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The errors indicate that methods such as setValidateOnMigrate, setLocations, setClassLoader, and setDataSource no longer exist on the Flyway object.
-   - The constructor Flyway() with no arguments is no longer available; instead, the updated Flyway API requires a Configuration object to be provided via a builder.
-   - This strongly suggests a breaking dependency update in Flyway (likely to version 6 or later) where the API now uses the builder pattern (i.e., Flyway.configure()) rather than direct setters.
-
-2. Review the client code:
-   - The problematic code is in the flyway() bean method, where the old constructor "new Flyway()" and the subsequent setters (setDataSource, setClassLoader, setLocations, setValidateOnMigrate) are used.
-   - Hence the Flyway bean must be updated to use the builder pattern.
-
-3. Consider potential fixes:
-   - Replace the instantiation with new Flyway() by using Flyway.configure().
-   - Chain the calls to dataSource(), classLoader(), locations(), and validateOnMigrate() on the configuration builder.
-   - Finally, call .load() to return a Flyway instance.
-   - This update resolves the “cannot find symbol” errors without affecting other parts of the code.
-
-4. Plan the necessary changes:
-   - Remove the usage of the no-argument constructor.
-   - Replace the setter calls with the builder pattern.
-   - Ensure that the property values (for "flyway.locations" and "flyway.validate") are passed to the builder.
-   - Verify that no other function signatures are changed.
-
-The following patch implements these changes.
-</code_analysis>
-
 ```java
 package org.nem.specific.deploy.appconfig;
 
@@ -131,12 +106,13 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		return Flyway.configure()
+		Flyway flyway = Flyway.configure()
 				.dataSource(this.dataSource())
 				.classLoader(NisAppConfig.class.getClassLoader())
 				.locations(prop.getProperty("flyway.locations"))
 				.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
 				.load();
+		return flyway;
 	}
 
 	@Bean

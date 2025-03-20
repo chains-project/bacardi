@@ -4,8 +4,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 
-import com.gargoylesoftware.htmlunit.javascript.JavaScriptEngine;
-
 import org.jenkinsci.test.acceptance.po.PageObject;
 
 /**
@@ -32,9 +30,9 @@ public class ChartUtil {
                     "delete(window.Array.prototype.toJSON) %n"
                             + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
                     elementId));
-            if (result != null) {
-                return result.toString();
-            }
+            // ScriptResult scriptResult = new ScriptResult(result);
+            // return scriptResult.getJavaScriptResult().toString();
+            return result != null ? result.toString() : null;
         }
         return null;
     }
@@ -58,11 +56,12 @@ public class ChartUtil {
                                 + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
                         toolAttribute));
 
+                // Object scriptResult = new ScriptResult(result).getJavaScriptResult();
+                // if (scriptResult != null) {
+                //     return scriptResult.toString();
+                // }
                 if (result != null) {
-                    String scriptResult = result.toString();
-                    if (scriptResult != null) {
-                        return scriptResult;
-                    }
+                    return result.toString();
                 }
                 pageObject.elasticSleep(1000);
             }

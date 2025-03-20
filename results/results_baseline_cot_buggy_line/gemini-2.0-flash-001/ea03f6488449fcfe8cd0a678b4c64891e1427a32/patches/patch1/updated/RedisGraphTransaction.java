@@ -1,24 +1,29 @@
 package com.redislabs.redisgraph;
 
-import redis.clients.jedis.Response;
-import redis.clients.jedis.commands.BasicCommandsPipeline;
+import redis.clients.jedis.commands.BasicCommands;
+import redis.clients.jedis.commands.BasicPipeline;
 import redis.clients.jedis.commands.BinaryScriptingCommands;
-import redis.clients.jedis.commands.ScriptingCommandsPipeline;
-import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
-import redis.clients.jedis.commands.RedisBinaryCommandsPipeline;
-import redis.clients.jedis.commands.RedisCommandsPipeline;
+import redis.clients.jedis.commands.MultiKeyBinaryCommands;
+import redis.clients.jedis.commands.MultiKeyCommands;
+import redis.clients.jedis.commands.ScriptingCommands;
 
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
 
+import redis.clients.jedis.Response;
+
 /**
  * An interface which aligned to Jedis transactional interface
  */
 public interface RedisGraphTransaction extends
-        MultiKeyCommandsPipeline,
-        BinaryScriptingCommands, ScriptingCommandsPipeline,
-        BasicCommandsPipeline, RedisBinaryCommandsPipeline, RedisCommandsPipeline, Closeable {
+        MultiKeyBinaryCommands,
+        MultiKeyCommands,
+        BinaryScriptingCommands,
+        ScriptingCommands,
+        BasicCommands,
+        BasicPipeline,
+        Closeable {
 
     /**
      * Execute a Cypher query.

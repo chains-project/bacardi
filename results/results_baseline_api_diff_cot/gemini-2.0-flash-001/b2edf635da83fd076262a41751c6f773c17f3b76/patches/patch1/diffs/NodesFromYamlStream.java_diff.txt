@@ -1,0 +1,17 @@
+31a32
+> import org.yaml.snakeyaml.LoaderOptions;
+83,84c84
+<       Constructor constructor = new Constructor(Config.class);
+< 
+---
+>       LoaderOptions loaderOptions = new LoaderOptions();
+87c87
+<       constructor.addTypeDescription(nodeDesc);
+---
+>       loaderOptions.addTypeDescription(nodeDesc);
+91c91,93
+<       constructor.addTypeDescription(configDesc);
+---
+>       loaderOptions.addTypeDescription(configDesc);
+> 
+>       Constructor constructor = new Constructor(Config.class, loaderOptions);

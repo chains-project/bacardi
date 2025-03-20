@@ -4,36 +4,27 @@
 > import java.security.MessageDigest;
 > import java.security.NoSuchAlgorithmException;
 > import java.nio.charset.StandardCharsets;
-44,45c46,47
+44,45c46
 <          *                 automatically runs {@code DigestUtils.md5Hex}
 <          *                 on the string passed to it.
 ---
->          *                 automatically computes the MD5 hexadecimal digest
->          *                 of the string passed to it.
-49c51
+>          *                 automatically runs MD5 on the string passed to it.
+49c50
 <             this.usernameMd5 = DigestUtils.md5Hex(username);
 ---
->             this.usernameMd5 = computeMD5Hex(username);
-50a53,74
->         }
+>             this.usernameMd5 = Account.md5Hex(username);
+75a77,90
+>     }
 > 
->         /**
->          * Computes the MD5 hexadecimal digest of a given string.
->          *
->          * @param input the string to hash
->          * @return the MD5 hash as a hexadecimal string
->          */
->         private static String computeMD5Hex(String input) {
->             try {
->                 MessageDigest md = MessageDigest.getInstance("MD5");
->                 byte[] digest = md.digest(input.getBytes(StandardCharsets.UTF_8));
->                 StringBuilder hexString = new StringBuilder();
->                 for (byte b : digest) {
->                     String hex = Integer.toHexString(0xff & b);
->                     if (hex.length() == 1) hexString.append('0');
->                     hexString.append(hex);
->                 }
->                 return hexString.toString();
->             } catch (NoSuchAlgorithmException e) {
->                 throw new RuntimeException("MD5 algorithm not available", e);
+>     private static String md5Hex(String data) {
+>         try {
+>             MessageDigest md = MessageDigest.getInstance("MD5");
+>             byte[] digest = md.digest(data.getBytes(StandardCharsets.UTF_8));
+>             StringBuilder hexString = new StringBuilder();
+>             for (byte b : digest) {
+>                 hexString.append(String.format("%02x", b));
 >             }
+>             return hexString.toString();
+>         } catch (NoSuchAlgorithmException e) {
+>             throw new RuntimeException("MD5 algorithm not available", e);
+>         }

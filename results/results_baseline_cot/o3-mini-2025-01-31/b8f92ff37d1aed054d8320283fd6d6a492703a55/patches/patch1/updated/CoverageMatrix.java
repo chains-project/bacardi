@@ -25,162 +25,159 @@ import java.util.stream.Collectors;
  */
 public class CoverageMatrix {
 
-    private static final String DEFAULT_WILDCARD = "**/*.class";
+	private Logger logger = Logger.getLogger(CoverageMatrix.class);
 
-    private Logger logger = Logger.getLogger(CoverageMatrix.class);
+	private FlacocoConfig config;
 
-    private FlacocoConfig config;
+	public CoverageMatrix(FlacocoConfig config) {
+		this.config = config;
+	}
 
-    public CoverageMatrix(FlacocoConfig config) {
-        this.config = config;
-    }
+	/**
+	 * Key is the line, value is a set of test methods that execute that line
+	 */
+	protected Map<Location, Set<TestMethod>> resultExecution = new HashMap<>();
 
-    /**
-     * Key is the line, value is a set of test methods that execute that line
-     */
-    protected Map<Location, Set<TestMethod>> resultExecution = new HashMap<>();
+	/**
+	 * Map between executed test methods and their result. True if passing, false is failing.
+	 */
+	protected Map<TestMethod, Boolean> tests = new HashMap<>();
 
-    /**
-     * Map between executed test methods and their result. True if passing, false is failing.
-     */
-    protected Map<TestMethod, Boolean> tests = new HashMap<>();
+	/**
+	 * Processes a wrapper for the coverage from a single test unit
+	 *
+	 * @param iCovWrapper The coverage information related to the single unit test
+	 * @param testClasses Classes which contain tests
+	 */
+	public void processSingleTest(CoverageFromSingleTestUnit iCovWrapper, Set<String> testClasses) {
+		CoverageDetailed covLine = iCovWrapper.getCov();
 
-    /**
-     * Processes a wrapper for the coverage from a single test unit
-     *
-     * @param iCovWrapper The coverage information related to the single unit test
-     * @param testClasses Classes which contain tests
-     */
-    public void processSingleTest(CoverageFromSingleTestUnit iCovWrapper, Set<String> testClasses) {
-        CoverageDetailed covLine = iCovWrapper.getCov();
+		if (iCovWrapper.isSkip()) {
+			logger.debug("Ignoring skipped test: " + iCovWrapper.getTestMethod().getFullyQualifiedMethodName());
+			return;
+		}
 
-        if (iCovWrapper.isSkip()) {
-            logger.debug("Ignoring skipped test: " + iCovWrapper.getTestMethod().getFullyQualifiedMethodName());
-            return;
-        }
+		boolean isPassing = iCovWrapper.isPassing();
 
-        boolean isPassing = iCovWrapper.isPassing();
+		// Let's navigate the covered class per line.
+		for (String iClassNameCovered : covLine.getDetailedCoverage().keySet()) {
 
-        // Let's navigate the covered class per line.
-        for (String iClassNameCovered : covLine.getDetailedCoverage().keySet()) {
+			String className = iClassNameCovered.replace("/", ".");
+			if (!config.isCoverTests() && testClasses.contains(className)) {
+				continue;
+			}
 
-            String className = iClassNameCovered.replace("/", ".");
-            if (!config.isCoverTests() && testClasses.contains(className)) {
-                continue;
-            }
+			// Lines covered in that class
+			CoverageFromClass lines = covLine.getDetailedCoverage().get(iClassNameCovered);
 
-            // Lines covered in that class
-            CoverageFromClass lines = covLine.getDetailedCoverage().get(iClassNameCovered);
+			for (int iLineNumber : lines.getCov().keySet()) {
 
-            for (int iLineNumber : lines.getCov().keySet()) {
+				int instExecutedAtLineI = lines.getCov().get(iLineNumber);
 
-                int instExecutedAtLineI = lines.getCov().get(iLineNumber);
+				this.add(new Location(className, iLineNumber), iCovWrapper.getTestMethod(), instExecutedAtLineI, isPassing);
 
-                this.add(new Location(className, iLineNumber), iCovWrapper.getTestMethod(), instExecutedAtLineI, isPassing);
+			}
+		}
 
-            }
-        }
+		// Now, we check if any exception was thrown and, if so, add the line where it was thrown
+		// since JaCoCo does not include them in coverage
+		// Handle tests that throw exceptions
+		CoveredTestResultPerTestMethod result = iCovWrapper.getCoveredTestResultPerTestMethod();
+		TestMethod testMethod = iCovWrapper.getTestMethod();
+		if (!isPassing && result.getFailureOf(testMethod.getFullyQualifiedMethodName()) != null) {
 
-        // Now, we check if any exception was thrown and, if so, add the line where it was thrown
-        // since JaCoCo does not include them in coverage
-        // Handle tests that throw exceptions
-        CoveredTestResultPerTestMethod result = iCovWrapper.getCoveredTestResultPerTestMethod();
-        TestMethod testMethod = iCovWrapper.getTestMethod();
-        if (!isPassing && result.getFailureOf(testMethod.getFullyQualifiedMethodName()) != null) {
+			try {
+				StackTrace trace = StackTraceParser
+						.parse(result.getFailureOf(testMethod.getFullyQualifiedMethodName()).stackTrace);
 
-            try {
-                StackTrace trace = StackTraceParser
-                        .parse(result.getFailureOf(testMethod.getFullyQualifiedMethodName()).stackTrace);
+				for (StackTraceElement element : trace.getStackTraceLines()) {
+					// Search for first non-native element
+					if (!element.isNativeMethod()) {
+						// We want to keep it if and only if it the class was included in the coverage
+						// computation, which will ignore classes like org.junit.Assert
+						if (classToInclude(element.getClassName())) {
 
-                for (StackTraceElement element : trace.getStackTraceLines()) {
-                    // Search for first non-native element
-                    if (!element.isNativeMethod()) {
-                        // We want to keep it if and only if it the class was included in the coverage
-                        // computation, which will ignore classes like org.junit.Assert
-                        if (classToInclude(element.getClassName())) {
+							// We also want to ignore test classes if they coverTests is not set
+							if (!config.isCoverTests() && testClasses.contains(element.getClassName())) {
+								continue;
+							}
 
-                            // We also want to ignore test classes if they coverTests is not set
-                            if (!config.isCoverTests() && testClasses.contains(element.getClassName())) {
-                                continue;
-                            }
+							Location location = new Location(
+									element.getClassName(),
+									element.getLineNumber()
+							);
 
-                            Location location = new Location(
-                                    element.getClassName(),
-                                    element.getLineNumber()
-                            );
+							logger.debug("Adding a line where an exception was thrown: " + location);
+							this.add(location, testMethod, 1, false);
 
-                            logger.debug("Adding a line where an exception was thrown: " + location);
-                            this.add(location, testMethod, 1, false);
+							// Compute the executed lines from the block where the exception was thrown
+							// See: https://github.com/SpoonLabs/flacoco/issues/109
+							SpoonBlockInspector blockMatcher = new SpoonBlockInspector(config);
+							List<Location> locations = blockMatcher.getBlockLocations(element);
 
-                            // Compute the executed lines from the block where the exception was thrown
-                            // See: https://github.com/SpoonLabs/flacoco/issues/109
-                            SpoonBlockInspector blockMatcher = new SpoonBlockInspector(config);
-                            List<Location> locations = blockMatcher.getBlockLocations(element);
+							for (Location blockLocation : locations) {
+								logger.debug("Adding a line from the block where an exception was thrown: " + blockLocation);
+								this.add(blockLocation, testMethod, 1, false);
+							}
+						}
+					}
+				}
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
 
-                            for (Location blockLocation : locations) {
-                                logger.debug("Adding a line from the block where an exception was thrown: " + blockLocation);
-                                this.add(blockLocation, testMethod, 1, false);
-                            }
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
+	public Map<Location, Set<TestMethod>> getResultExecution() {
+		return resultExecution;
+	}
 
-    public Map<Location, Set<TestMethod>> getResultExecution() {
-        return resultExecution;
-    }
+	public Map<TestMethod, Boolean> getTests() {
+		return tests;
+	}
 
-    public Map<TestMethod, Boolean> getTests() {
-        return tests;
-    }
+	public Set<TestMethod> getFailingTestCases() {
+		return this.tests.entrySet().stream().filter(x -> !x.getValue())
+				.map(Map.Entry::getKey).collect(Collectors.toSet());
+	}
 
-    public Set<TestMethod> getFailingTestCases() {
-        return this.tests.entrySet().stream().filter(x -> !x.getValue())
-                .map(Map.Entry::getKey).collect(Collectors.toSet());
-    }
+	/**
+	 * Auxiliary method to introduce the gathered information about a test unit run in the coverage matrix
+	 * <p>
+	 * The modifier is public for testing purposes
+	 *
+	 * @param location The location to be added
+	 * @param testMethod The test method which covered the location
+	 * @param instExecutedAtLineI Number of instructions executed at the location
+	 * @param testResult The result of the test method
+	 */
+	public void add(Location location, TestMethod testMethod, int instExecutedAtLineI, Boolean testResult) {
+		if (instExecutedAtLineI > 0) {
+			Set<TestMethod> currentExecution;
 
-    /**
-     * Auxiliary method to introduce the gathered information about a test unit run in the coverage matrix
-     * <p>
-     * The modifier is public for testing purposes
-     *
-     * @param location The location to be added
-     * @param testMethod The test method which covered the location
-     * @param instExecutedAtLineI Number of instructions executed at the location
-     * @param testResult The result of the test method
-     */
-    public void add(Location location, TestMethod testMethod, int instExecutedAtLineI, Boolean testResult) {
-        if (instExecutedAtLineI > 0) {
-            Set<TestMethod> currentExecution;
+			if (this.resultExecution.containsKey(location)) {
+				currentExecution = this.resultExecution.get(location);
+			} else {
+				currentExecution = new HashSet<>();
+				this.resultExecution.put(location, currentExecution);
+			}
 
-            if (this.resultExecution.containsKey(location)) {
-                currentExecution = this.resultExecution.get(location);
-            } else {
-                currentExecution = new HashSet<>();
-                this.resultExecution.put(location, currentExecution);
-            }
+			currentExecution.add(testMethod);
+		}
 
-            currentExecution.add(testMethod);
-        }
+		this.tests.put(testMethod, testResult);
+	}
 
-        this.tests.put(testMethod, testResult);
-    }
-
-    /**
-     * Computes if a given class is to be included in the post-coverage computation
-     *
-     * If we have include-exclude patterns for Jacoco:
-     * - We include the class if it matches the include patterns and does not match the excludes patterns
-     * Else:
-     * - We include the class if it is available in the binary directories
-     *
-     * @param className
-     * @return true if the class should be included in the coverage result, false otherwise
-     */
+	/**
+	 * Computes if a given class is to be included in the post-coverage computation
+	 *
+	 * If we have include-exclude patterns for Jacoco:
+	 * - We include the class if it matches the include patterns and does not match the excludes patterns
+	 * Else:
+	 * - We include the class if it is available in the binary directories
+	 * @param className
+	 * @return true if the class should be included in the coverage result, false otherwise
+	 */
     private boolean classToInclude(String className) {
         // False if it matches an excludes pattern
         for (String pattern : config.getJacocoExcludes()) {
@@ -198,14 +195,15 @@ public class CoverageMatrix {
         }
 
         // True if it is present in the available binaries
+        String wildcardPattern = "**/*.class";
         for (String dir : config.getBinJavaDir()) {
-            DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), DEFAULT_WILDCARD);
+            DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), wildcardPattern);
             if (directoryScanner.scan().getClasses().contains(className)) {
                 return true;
             }
         }
         for (String dir : config.getBinTestDir()) {
-            DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), DEFAULT_WILDCARD);
+            DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), wildcardPattern);
             if (directoryScanner.scan().getClasses().contains(className)) {
                 return true;
             }

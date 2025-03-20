@@ -1,28 +1,3 @@
-<code_analysis>
-1. Error message analysis:
-   - The errors indicate that the Flyway API used in this configuration is no longer available. The constructor Flyway() with no arguments, as well as the methods setDataSource(...), setClassLoader(...), setLocations(...) and setValidateOnMigrate(...) no longer exist in the updated Flyway dependency.
-   - The errors occur in the flyway() bean method (lines around 108–112), where these obsolete API methods are being called.
-
-2. Client code review:
-   - The client code in the flyway() bean method is trying to create and configure a Flyway instance using a no-argument constructor and setter methods.
-   - The updated Flyway version now uses the Fluent Configuration API via Flyway.configure() to set up its configuration.
-
-3. Potential fixes:
-   - Replace the creation of a new Flyway() instance with Flyway.configure().
-   - Use the fluent API methods dataSource(...), locations(...), validateOnMigrate(...), and classLoader(...) to configure Flyway.
-   - Return the Flyway instance using .load(), which constructs the Flyway instance with the given configuration.
-   - This adheres to the existing method signature and leaves other parts of the class unchanged.
-
-4. Planned modifications:
-   - In flyway() bean method, remove the call to new Flyway(), along with the obsolete setter methods.
-   - Instead, load the properties and then return Flyway.configure().dataSource(…)
-     .locations(…)
-     .validateOnMigrate(…)
-     .classLoader(…)
-     .load();
-   - This change will correct the dependency breaking error due to the updated Flyway API.
-</code_analysis>
-
 ```java
 package org.nem.specific.deploy.appconfig;
 
@@ -130,12 +105,11 @@ public class NisAppConfig {
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
-
 		return Flyway.configure()
 				.dataSource(this.dataSource())
-				.locations(prop.getProperty("flyway.locations"))
-				.validateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate")))
 				.classLoader(NisAppConfig.class.getClassLoader())
+				.locations(prop.getProperty("flyway.locations"))
+				.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
 				.load();
 	}
 

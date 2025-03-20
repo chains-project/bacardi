@@ -4,35 +4,16 @@
 > import java.beans.Introspector;
 27d29
 < import org.apache.commons.beanutils.PropertyUtils;
-58d59
-< 
-62,64d62
+63,64d64
 < 
 < 
-< 
-65a64
-> 
-71c70
-<                 if(null != getModelObject()) {
----
->                 if (getModelObject() != null) {
-101c100
-<                         if(!entitySettings.getHiddenFields().contains(property))
----
->                         if (!entitySettings.getHiddenFields().contains(property)) {
-104c103,106
+104c104,106
 <                 for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
 ---
->                 }
 >                 try {
 >                         BeanInfo beanInfo = Introspector.getBeanInfo(modelClass);
->                         for (PropertyDescriptor descriptor : beanInfo.getPropertyDescriptors()) {
-107c109
-<                                         !descriptor.getName().equals("class"))
----
->                                                 !descriptor.getName().equals("class")) {
-109a112,115
->                         }
+>                         for(PropertyDescriptor descriptor : beanInfo.getPropertyDescriptors()){
+109a112,114
 >                 } catch (IntrospectionException e) {
->                         throw new RuntimeException("Error while introspecting class " + modelClass.getName(), e);
+>                         throw new RuntimeException(e);
 >                 }

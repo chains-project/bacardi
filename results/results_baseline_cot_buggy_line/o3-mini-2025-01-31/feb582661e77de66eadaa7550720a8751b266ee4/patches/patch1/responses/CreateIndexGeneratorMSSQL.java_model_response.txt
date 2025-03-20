@@ -1,26 +1,3 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error message indicates that the class liquibase.util.StringUtils cannot be found.
-   - The error is reported at the import statement (line 12) and where its static method trimToNull is used (line 77).
-   - This suggests that a dependency update has removed or relocated the StringUtils class from liquibase.util.
-
-2. Client Code Review:
-   - The code imports liquibase.util.StringUtils and calls its trimToNull method to verify if the tablespace string is not blank.
-   - Since liquibase.util.StringUtils is no longer available, this causes a compilation failure.
-
-3. Potential Fix:
-   - Remove the reference to liquibase.util.StringUtils.
-   - Replace its functionality with an inline check that trims the tablespace string and compares it against null or empty.
-   - This ensures that if statement.getTablespace() returns a null or empty string (even after trimming), the subsequent code is not executed.
-   - All function signatures remain unchanged.
-
-4. Specific Modifications:
-   - Remove the import statement for liquibase.util.StringUtils.
-   - Modify the if condition checking the tablespace to:
-     if (statement.getTablespace() != null && !statement.getTablespace().trim().isEmpty()) { ... }
-   - This preserves the intent of the original code without relying on the removed dependency class.
-</code_analysis>
-
 ```java
 package liquibase.ext.mssql.sqlgenerator;
 
@@ -32,6 +9,7 @@ import liquibase.sql.Sql;
 import liquibase.sql.UnparsedSql;
 import liquibase.sqlgenerator.SqlGeneratorChain;
 import liquibase.sqlgenerator.core.CreateIndexGenerator;
+import liquibase.statement.core.CreateIndexStatement;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -47,6 +25,7 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
     if (statement instanceof CreateIndexStatementMSSQL) {
       return generateMSSQLSql((CreateIndexStatementMSSQL) statement, database, sqlGeneratorChain);
     }
+
     return super.generateSql(statement, database, sqlGeneratorChain);
   }
 
@@ -60,11 +39,11 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
     }
     
     if (statement.isClustered() != null) {
-      if (statement.isClustered()) {
-        builder.append("CLUSTERED ");
-      } else {
-        builder.append("NONCLUSTERED ");
-      }
+        if (statement.isClustered()) {
+            builder.append("CLUSTERED ");
+        } else {
+            builder.append("NONCLUSTERED ");
+        }
     }
     
     builder.append("INDEX ");
@@ -80,13 +59,13 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
       AddColumnConfig column = iterator.next();
       builder.append(database.escapeColumnName(statement.getTableCatalogName(), statement.getTableSchemaName(), statement.getTableName(), column.getName()));
       if (column.getDescending() != null && column.getDescending()) {
-        builder.append(" DESC");
+          builder.append(" DESC");
       }
       if (iterator.hasNext()) {
         builder.append(", ");
       }
     }
-    if (statement.getIncludedColumns() != null && ! statement.getIncludedColumns().isEmpty()) {
+    if (statement.getIncludedColumns() != null && !statement.getIncludedColumns().isEmpty()) {
       builder.append(") INCLUDE (");
       builder.append(database.escapeColumnNameList(statement.getIncludedColumns()));
     }
@@ -94,17 +73,27 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
     if (statement.getFillFactor() != null) {
       builder.append(" WITH (FILLFACTOR = ").append(statement.getFillFactor()).append(")");
     }
-    // Updated check for tablespace; replacing the removed StringUtils.trimToNull() with an inline check.
-    if (statement.getTablespace() != null && !statement.getTablespace().trim().isEmpty()) {
+    // This block simplified, since we know we have MSSQLDatabase
+    if (StringUtils.trimToNull(statement.getTablespace()) != null) {
       builder.append(" ON ").append(statement.getTablespace());
     }
 
-    return new Sql[] { new UnparsedSql(builder.toString(), getAffectedIndex(statement)) };
+    return new Sql[]{new UnparsedSql(builder.toString(), getAffectedIndex(statement))};
   }
 
   @Override
   public boolean supports(CreateIndexStatement statement, Database database) {
     return database instanceof MSSQLDatabase;
+  }
+
+  private static class StringUtils {
+    public static String trimToNull(String input) {
+      if (input == null) {
+        return null;
+      }
+      String trimmed = input.trim();
+      return trimmed.isEmpty() ? null : trimmed;
+    }
   }
 }
 ```

@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.command.CommandSource; // Added import for updated API
 
 public class NameResolver extends SharedNameResolver {
 

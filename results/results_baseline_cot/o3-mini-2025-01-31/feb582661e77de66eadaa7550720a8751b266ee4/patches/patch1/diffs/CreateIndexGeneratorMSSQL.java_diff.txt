@@ -1,8 +1,9 @@
 12d11
 < import liquibase.util.StringUtils;
-76,77c75,76
-<     // This block simplified, since we know we have MSSQLDatabase
+77,78c76,78
 <     if (StringUtils.trimToNull(statement.getTablespace()) != null) {
+<       builder.append(" ON ").append(statement.getTablespace());
 ---
->     // Replace StringUtils.trimToNull with a manual non-null & non-empty check.
->     if (statement.getTablespace() != null && !statement.getTablespace().trim().isEmpty()) {
+>     String tablespace = statement.getTablespace();
+>     if (tablespace != null && !tablespace.trim().isEmpty()) {
+>       builder.append(" ON ").append(tablespace);

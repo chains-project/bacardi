@@ -15,7 +15,9 @@ import org.apache.maven.model.Plugin;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.error.YAMLException;
+import org.yaml.snakeyaml.introspector.BeanAccess;
 import org.yaml.snakeyaml.introspector.Property;
+import org.yaml.snakeyaml.introspector.PropertyUtils;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
@@ -35,12 +37,12 @@ import static java.lang.String.format;
  * @since 0.7
  */
 class ModelRepresenter extends Representer {
-  public ModelRepresenter() {
-    this(new DumperOptions());
-  }
+  private final PropertyUtils propertyUtils;
 
-  public ModelRepresenter(DumperOptions dumperOptions) {
-    super(dumperOptions);
+  public ModelRepresenter() {
+    DumperOptions options = new DumperOptions();
+    this.propertyUtils = new PropertyUtils();
+    this.setPropertyUtils(propertyUtils);
     this.representers.put(Xpp3Dom.class, new RepresentXpp3Dom());
     Represent stringRepresenter = this.representers.get(String.class);
     this.representers.put(Boolean.class, stringRepresenter);
@@ -242,7 +244,7 @@ class ModelRepresenter extends Representer {
 
   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
           throws IntrospectionException {
-      Set<Property> standard = super.getProperties(type);
+      Set<Property> standard = propertyUtils.getProperties(type, BeanAccess.DEFAULT);
       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
       sorted.addAll(standard);
       return sorted;

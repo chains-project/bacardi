@@ -1,15 +1,6 @@
-<code_analysis>
-1. The error message indicates that the package "javax.mvc.locale" does not exist, and the classes LocaleResolver and LocaleResolverContext cannot be found. This is due to a dependency update where the package has been migrated from javax.mvc.locale to jakarta.mvc.locale.
-2. In the client code, the error occurs because the imports and references to LocaleResolver and LocaleResolverContext are still using the old package name.
-3. The fix is to update the import statements to reference the new package (jakarta.mvc.locale) as per the updated dependency.
-4. The modifications required:
-   - Change the import "javax.mvc.locale.LocaleResolver" to "jakarta.mvc.locale.LocaleResolver".
-   - Change the import "javax.mvc.locale.LocaleResolverContext" to "jakarta.mvc.locale.LocaleResolverContext".
-   - No changes to function signatures or method overrides are needed.
-</code_analysis>
-
 ```java
 package com.example.web;
+// https://www.mvc-spec.org/learn/cookbook/custom_localeresolver_en.html
 
 import java.util.Locale;
 import java.util.logging.Level;
@@ -22,7 +13,7 @@ import jakarta.mvc.locale.LocaleResolverContext;
 import javax.ws.rs.core.UriInfo;
 
 /**
- * Resolver to get the {@link Locale} to use from the request's query param <i>lang</i>.
+ * Resolver to get the {@link Locale} to use from the requests query param <i>lang</i>.
  *
  * In case there is no request param with this name, the {@link Locale} will be resolved by a higher prioritised
  * implementation.
@@ -38,7 +29,7 @@ import javax.ws.rs.core.UriInfo;
  * }
  * </pre>
  *
- * Author: Tobias Erdle
+ * author Tobias Erdle
  */
 @Priority(1)
 @ApplicationScoped

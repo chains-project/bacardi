@@ -1,20 +1,20 @@
 19c19
 < import com.google.api.services.translate.model.LanguagesResource;
 ---
-> import com.google.cloud.translate.v3.TranslateLanguage;
+> import com.google.cloud.translate.spi.v2.TranslateRpc;
 36,37c36,37
 <   static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
 <       new Function<LanguagesResource, Language>() {
 ---
->   static final Function<TranslateLanguage, Language> FROM_PB_FUNCTION =
->       new Function<TranslateLanguage, Language>() {
+>   static final Function<TranslateRpc.Language, Language> FROM_PB_FUNCTION =
+>       new Function<TranslateRpc.Language, Language>() {
 39c39
 <         public Language apply(LanguagesResource languagePb) {
 ---
->         public Language apply(TranslateLanguage languagePb) {
+>         public Language apply(TranslateRpc.Language languagePb) {
 84,85c84,85
 <   static Language fromPb(LanguagesResource languagePb) {
 <     return new Language(languagePb.getLanguage(), languagePb.getName());
 ---
->   static Language fromPb(TranslateLanguage languagePb) {
->     return new Language(languagePb.getLanguageCode(), languagePb.getDisplayName());
+>   static Language fromPb(TranslateRpc.Language languagePb) {
+>     return new Language(languagePb.getCode(), languagePb.getName());

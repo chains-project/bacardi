@@ -6,8 +6,6 @@ import org.bouncycastle.crypto.engines.ChaChaEngine;
 import org.bouncycastle.crypto.generators.Poly1305KeyGenerator;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
-import org.bouncycastle.crypto.tls.AlertDescription;
-import org.bouncycastle.crypto.tls.TlsFatalAlert; // This import is causing the issue
 import org.bouncycastle.util.Arrays;
 
 public class ChachaDecoder {
@@ -29,7 +27,7 @@ public class ChachaDecoder {
     byte[] calculatedMAC = PolyKeyCreator.create(macKey, additionalData, ciphertext);
 
     if (!Arrays.constantTimeAreEqual(calculatedMAC, receivedMAC)) {
-      throw new TlsFatalAlert(AlertDescription.bad_record_mac);
+      throw new IOException("Bad record MAC");
     }
 
     byte[] output = new byte[ciphertext.length];
@@ -54,10 +52,3 @@ public class ChachaDecoder {
   }
 }
 ```
-
-### Changes Made:
-1. The import statement for `TlsFatalAlert` was retained as it is still required for the functionality of the class. If the class is not found in the updated version of the Bouncy Castle library, you may need to check the library documentation for the correct replacement or alternative handling of TLS fatal alerts.
-2. No changes were made to function signatures or existing code logic, ensuring that the class remains functional as intended. 
-
-### Note:
-If `TlsFatalAlert` is indeed removed in the newer version of the Bouncy Castle library, you will need to replace its usage with an appropriate alternative based on the library's documentation.

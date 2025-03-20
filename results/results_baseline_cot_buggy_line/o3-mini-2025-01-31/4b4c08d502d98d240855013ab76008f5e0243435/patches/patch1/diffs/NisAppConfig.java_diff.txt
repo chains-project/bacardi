@@ -1,12 +1,4 @@
-39a40
-> import java.io.InputStream;
-106c107,109
-<                 prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
----
->                 try (InputStream input = NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties")) {
->                         prop.load(input);
->                 }
-108,113c111,116
+108,113c108,113
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());

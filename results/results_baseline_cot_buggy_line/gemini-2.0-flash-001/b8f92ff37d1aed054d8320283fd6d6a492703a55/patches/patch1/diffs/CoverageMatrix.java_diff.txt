@@ -1,10 +1,14 @@
-14a15
-> import org.apache.maven.surefire.api.testset.ResolvedTestList;
-199c200
+14c14
+< import org.apache.maven.surefire.api.testset.TestListResolver;
+---
+> import org.apache.maven.surefire.api.testset.TestRequest;
+199c199,200
 <             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), TestListResolver.getWildcard());
 ---
->             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), new ResolvedTestList(Collections.emptyList(), Collections.emptyList()));
-205c206
+>             TestRequest testRequest = new TestRequest(null, null, null, null);
+>             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), testRequest);
+205c206,207
 <             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), TestListResolver.getWildcard());
 ---
->             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), new ResolvedTestList(Collections.emptyList(), Collections.emptyList()));
+>             TestRequest testRequest = new TestRequest(null, null, null, null);
+>             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), testRequest);

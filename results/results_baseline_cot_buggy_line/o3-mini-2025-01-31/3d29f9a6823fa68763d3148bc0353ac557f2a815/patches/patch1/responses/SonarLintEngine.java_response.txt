@@ -73,6 +73,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     private SonarLintEngine() {
         super(null);
         setLogging(null);
+
         this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, null);
     }
 
@@ -84,6 +85,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
         if (sonarJavaPlugin.exists()) {
             return new SonarJavaJarHolder(sonarJavaPlugin.toPath(), false);
         }
+
         try {
             InputStream inputStream = new URL(ConfigLoader.getSonarJavaPluginUrl()).openStream();
             Files.copy(
@@ -128,15 +130,19 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                         globalConfig.getPluginPaths(),
                         globalConfig.getEnabledLanguages(),
                         Optional.ofNullable(globalConfig.getNodeJsVersion()));
+
         PluginsLoadResult loadedResult = new PluginsLoader().load(config);
         // Default loaded result stops the loader. The following code prevents that.
+
         Map<String, PluginRequirementsCheckResult> pluginCheckResultByKeys =
                 loadedResult.getPluginCheckResultByKeys();
         Collection<PluginInfo> allPlugins = getAllPlugins(pluginCheckResultByKeys);
+
         // We do not want this loader to close.
         PluginInstancesLoader instancesLoader = new PluginInstancesLoader();
         Map<String, Plugin> pluginInstancesByKeys =
                 instancesLoader.instantiatePluginClasses(allPlugins);
+
         return new LoadedPluginsThatDoesNotCloseLoader(
                 pluginInstancesByKeys, new PluginInstancesLoader());
     }
@@ -152,10 +158,9 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
         return loadPluginMetadata(loadedPlugins, globalConfig.getEnabledLanguages(), false, false);
     }
 
-    // Updated here: Replaced addEnabledLanguages with setEnabledLanguages.
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
         return AnalysisEngineConfiguration.builder()
-                .setEnabledLanguages(globalConfig.getEnabledLanguages())
+                .setLanguages(globalConfig.getEnabledLanguages())
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())
@@ -194,6 +199,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
         requireNonNull(configuration);
         requireNonNull(issueListener);
         setLogging(logOutput);
+
         var analysisConfig =
                 AnalysisConfiguration.builder()
                         .addInputFiles(configuration.inputFiles())
@@ -235,6 +241,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
             StandaloneAnalysisConfiguration configuration) {
         Set<String> includedRules =
                 configuration.includedRules().stream().map(RuleKey::toString).collect(toSet());
+
         return allRulesDefinitionsByKey.values().stream()
                 .filter(isImplementedBySonarJavaPlugin(includedRules))
                 .map(

@@ -1,101 +1,91 @@
-23,24c23,25
+1,16d0
+< /*
+<  * Copyright 2015 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+23,24c7,8
 < import com.google.api.services.cloudresourcemanager.model.Constraint;
 < import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
 ---
-> import com.google.api.services.cloudresourcemanager.v1.model.Constraint; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.OrgPolicy; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.Project; // Updated import
-31,32c32,33
-< import com.google.cloud.resourcemanager.spi.v1beta1.ResourceManagerRpc;
-< import com.google.cloud.resourcemanager.spi.v1beta1.ResourceManagerRpc.ListResult;
----
-> import com.google.cloud.resourcemanager.spi.v1.ResourceManagerRpc; // Updated import
-> import com.google.cloud.resourcemanager.spi.v1.ResourceManagerRpc.ListResult; // Updated import
-52c53
-<     resourceManagerRpc = options.getResourceManagerRpcV1Beta1();
----
->     resourceManagerRpc = options.getResourceManagerRpcV1();
-61c62
+> import com.google.api.services.cloudresourcemanager.v1.model.Constraint;
+> import com.google.api.services.cloudresourcemanager.v1.model.OrgPolicy;
+61c45
 <               new Callable<com.google.api.services.cloudresourcemanager.model.Project>() {
 ---
->               new Callable<Project>() { // Updated return type
-63c64
+>               new Callable<com.google.api.services.cloudresourcemanager.v1.model.Project>() {
+63c47
 <                 public com.google.api.services.cloudresourcemanager.model.Project call() {
 ---
->                 public Project call() {
-98c99
+>                 public com.google.api.services.cloudresourcemanager.v1.model.Project call() {
+98c82
 <       com.google.api.services.cloudresourcemanager.model.Project answer =
 ---
->       Project answer = // Updated return type
-100c101
+>       com.google.api.services.cloudresourcemanager.v1.model.Project answer =
+100c84
 <               new Callable<com.google.api.services.cloudresourcemanager.model.Project>() {
 ---
->               new Callable<Project>() {
-102c103
+>               new Callable<com.google.api.services.cloudresourcemanager.v1.model.Project>() {
+102c86
 <                 public com.google.api.services.cloudresourcemanager.model.Project call() {
 ---
->                 public Project call() {
-145c146
+>                 public com.google.api.services.cloudresourcemanager.v1.model.Project call() {
+145c129
 <       Tuple<String, Iterable<com.google.api.services.cloudresourcemanager.model.Project>> result =
 ---
->       Tuple<String, Iterable<Project>> result = // Updated return type
-150c151
+>       Tuple<String, Iterable<com.google.api.services.cloudresourcemanager.v1.model.Project>> result =
+150c134
 <                       Iterable<com.google.api.services.cloudresourcemanager.model.Project>>>() {
 ---
->                       Iterable<Project>>>() {
-154c155
+>                       Iterable<com.google.api.services.cloudresourcemanager.v1.model.Project>>>() {
+154c138
 <                         Iterable<com.google.api.services.cloudresourcemanager.model.Project>>
 ---
->                         Iterable<Project>>
-156c157
-<                   return serviceOptions.getResourceManagerRpcV1Beta1().list(optionsMap);
----
->                   return serviceOptions.getResourceManagerRpcV1().list(optionsMap);
-169c170
+>                         Iterable<com.google.api.services.cloudresourcemanager.v1.model.Project>>
+169c153
 <                       com.google.api.services.cloudresourcemanager.model.Project, Project>() {
 ---
->                       Project, Project>() { // Updated input type
-172c173
+>                       com.google.api.services.cloudresourcemanager.v1.model.Project, Project>() {
+172c156
 <                         com.google.api.services.cloudresourcemanager.model.Project projectPb) {
 ---
->                         Project projectPb) {
-191c192
+>                         com.google.api.services.cloudresourcemanager.v1.model.Project projectPb) {
+191c175
 <               new Callable<com.google.api.services.cloudresourcemanager.model.Project>() {
 ---
->               new Callable<Project>() { // Updated return type
-193c194
+>               new Callable<com.google.api.services.cloudresourcemanager.v1.model.Project>() {
+193c177
 <                 public com.google.api.services.cloudresourcemanager.model.Project call() {
 ---
->                 public Project call() {
-227c228
+>                 public com.google.api.services.cloudresourcemanager.v1.model.Project call() {
+227c211
 <       com.google.api.services.cloudresourcemanager.model.Policy answer =
 ---
->       com.google.api.services.cloudresourcemanager.v1.model.Policy answer = // Updated import
-229c230
+>       com.google.api.services.cloudresourcemanager.v1.model.Policy answer =
+229c213
 <               new Callable<com.google.api.services.cloudresourcemanager.model.Policy>() {
 ---
 >               new Callable<com.google.api.services.cloudresourcemanager.v1.model.Policy>() {
-231c232
+231c215
 <                 public com.google.api.services.cloudresourcemanager.model.Policy call() {
 ---
 >                 public com.google.api.services.cloudresourcemanager.v1.model.Policy call() {
-249c250
+249c233
 <               new Callable<com.google.api.services.cloudresourcemanager.model.Policy>() {
 ---
 >               new Callable<com.google.api.services.cloudresourcemanager.v1.model.Policy>() {
-251c252
+251c235
 <                 public com.google.api.services.cloudresourcemanager.model.Policy call() {
 ---
 >                 public com.google.api.services.cloudresourcemanager.v1.model.Policy call() {
-393,394c394,395
-<       final ResourceManagerRpc rpc = serviceOptions.getResourceManagerRpcV1Beta1();
-<       ListResult<Constraint> constraintList =
----
->       final ResourceManagerRpc rpc = serviceOptions.getResourceManagerRpcV1();
->       ListResult<Constraint> constraintList = // Updated return type
-454,455c455,456
-<       final ResourceManagerRpc rpc = serviceOptions.getResourceManagerRpcV1Beta1();
-<       ListResult<OrgPolicy> orgPolicy =
----
->       final ResourceManagerRpc rpc = serviceOptions.getResourceManagerRpcV1();
->       ListResult<OrgPolicy> orgPolicy = // Updated return type

@@ -6,72 +6,19 @@
 < import javax.mvc.binding.ParamError;
 < import javax.mvc.security.CsrfProtected;
 ---
-> import jakarta.mvc.Controller; // Updated import
-> import jakarta.mvc.Models; // Updated import
-> import jakarta.mvc.View; // Updated import
-> import jakarta.mvc.binding.BindingResult; // Removed as it no longer exists
-> import jakarta.mvc.binding.ParamError; // Removed as it no longer exists
-> import jakarta.mvc.security.CsrfProtected; // Updated import
-43,44c43,45
-<     @Inject
-<     private BindingResult validationResult;
+> import jakarta.mvc.Controller;
+> import jakarta.mvc.Models;
+> import jakarta.mvc.Viewable;
+> import jakarta.mvc.binding.BindingResult;
+> import jakarta.mvc.binding.ParamError;
+> import jakarta.mvc.security.CsrfProtected;
+30d29
+< import org.eclipse.krazo.engine.Viewable;
+53c52
+<     @View("tasks.xhtml")
 ---
->     // Removed BindingResult as it no longer exists
->     // @Inject
->     // private BindingResult validationResult;
-66d66
-< 
-90d89
+>     @Viewable("tasks.xhtml")
+90d88
 <     //@ValidateOnExecution(type = ExecutableType.NONE)
-94,104c93,104
-<         if (validationResult.isFailed()) {
-<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-<             validationResult.getAllErrors()
-<                     .stream()
-<                     .forEach((ParamError t) -> {
-<                         alert.addError(t.getParamName(), "", t.getMessage());
-<                     });
-<             models.put("errors", alert);
-<             models.put("task", form);
-<             return Response.status(BAD_REQUEST).entity("add.xhtml").build();
-<         }
----
->         // Validation logic needs to be updated as BindingResult is removed
->         // if (validationResult.isFailed()) {
->         //     AlertMessage alert = AlertMessage.danger("Validation violations!");
->         //     validationResult.getAllErrors()
->         //             .stream()
->         //             .forEach((ParamError t) -> {
->         //                 alert.addError(t.getParamName(), "", t.getMessage());
->         //             });
->         //     models.put("errors", alert);
->         //     models.put("task", form);
->         //     return Response.status(BAD_REQUEST).entity("add.xhtml").build();
->         // }
-138,148c138,149
-<         if (validationResult.isFailed()) {
-<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-<             validationResult.getAllErrors()
-<                     .stream()
-<                     .forEach((ParamError t) -> {
-<                         alert.addError(t.getParamName(), "", t.getMessage());
-<                     });
-<             models.put("errors", alert);
-<             models.put("task", form);
-<             return Response.status(BAD_REQUEST).entity("edit.xhtml").build();
-<         }
----
->         // Validation logic needs to be updated as BindingResult is removed
->         // if (validationResult.isFailed()) {
->         //     AlertMessage alert = AlertMessage.danger("Validation violations!");
->         //     validationResult.getAllErrors()
->         //             .stream()
->         //             .forEach((ParamError t) -> {
->         //                 alert.addError(t.getParamName(), "", t.getMessage());
->         //             });
->         //     models.put("errors", alert);
->         //     models.put("task", form);
->         //     return Response.status(BAD_REQUEST).entity("edit.xhtml").build();
->         // }
-164d164
+164d161
 <     //@CsrfProtected

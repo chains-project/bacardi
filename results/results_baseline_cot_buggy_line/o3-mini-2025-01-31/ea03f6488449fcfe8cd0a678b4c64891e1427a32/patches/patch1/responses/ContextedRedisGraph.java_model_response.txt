@@ -1,25 +1,3 @@
-<code_analysis>
-1. The error message indicates that the class "Client" in the package "redis.clients.jedis" cannot be found. This error is triggered when trying to call:
-   - jedis.getClient() in the multi() method,
-   - jedis.getClient() in the pipelined() method, and
-   - the import statement for redis.clients.jedis.Client.
-   This suggests that the updated Jedis dependency has removed or relocated the Client API.
-
-2. In the client code, the problematic areas are within the multi() and pipelined() methods where the code attempts to obtain a Client instance via jedis.getClient(). Since the new Jedis version no longer exposes or even contains this Client class, these calls cause compile errors.
-
-3. The appropriate fix is to use the higher-level API methods offered by the updated dependency:
-   - Use jedis.multi() to obtain a Transaction object for starting a transaction.
-   - Use jedis.pipelined() to obtain a Pipeline object for pipelining commands.
-   In doing this, we must remove the outdated import of redis.clients.jedis.Client and update the variable types used in the multi() and pipelined() methods.
-
-4. The patch involves:
-   - Removing the "import redis.clients.jedis.Client;" line.
-   - Adding appropriate imports for redis.clients.jedis.Transaction and redis.clients.jedis.Pipeline.
-   - Modifying the multi() method to use Transaction tx = jedis.multi() instead of using getClient().
-   - Modifying the pipelined() method to use Pipeline pl = jedis.pipelined() instead of using getClient().
-   These changes adhere to the constraints by not altering function signatures or removing existing code unnecessarily.
-</code_analysis>
-
 ```java
 package com.redislabs.redisgraph.impl.api;
 
@@ -33,8 +11,6 @@ import com.redislabs.redisgraph.impl.graph_cache.RedisGraphCaches;
 import com.redislabs.redisgraph.impl.resultset.ResultSetImpl;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Transaction;
-import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.util.SafeEncoder;
 
@@ -163,8 +139,8 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphTransaction multi() {
         Jedis jedis = getConnection();
-        Transaction tx = jedis.multi();
-        RedisGraphTransaction transaction = new RedisGraphTransaction(tx, this);
+        jedis.multi();
+        RedisGraphTransaction transaction = new RedisGraphTransaction(jedis, this);
         transaction.setRedisGraphCaches(caches);
         return transaction;
     }
@@ -176,8 +152,7 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphPipeline pipelined() {
         Jedis jedis = getConnection();
-        Pipeline pl = jedis.pipelined();
-        RedisGraphPipeline pipeline = new RedisGraphPipeline(pl, this);
+        RedisGraphPipeline pipeline = new RedisGraphPipeline(jedis, this);
         pipeline.setRedisGraphCaches(caches);
         return pipeline;
     }
@@ -227,6 +202,7 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public void close() {
         this.connectionContext.close();
+
     }
 
     @Override

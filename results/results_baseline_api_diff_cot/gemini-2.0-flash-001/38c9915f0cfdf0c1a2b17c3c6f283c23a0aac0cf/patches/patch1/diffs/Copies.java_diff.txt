@@ -1,0 +1,16 @@
+30c30,32
+< import org.cactoos.collection.CollectionOf;
+---
+> import java.util.Collection;
+> import java.util.stream.Collectors;
+> import java.util.stream.StreamSupport;
+91,93c93,97
+<         return first.id() == second.id() && new CollectionOf<>(
+<             first.ledger()
+<         ).size() == new CollectionOf<>(second.ledger()).size();
+---
+>         return first.id() == second.id() && Copies.collectionSize(first.ledger()) == Copies.collectionSize(second.ledger());
+>     }
+> 
+>     private static int collectionSize(final Iterable<?> iterable) {
+>         return (int) StreamSupport.stream(iterable.spliterator(), false).count();

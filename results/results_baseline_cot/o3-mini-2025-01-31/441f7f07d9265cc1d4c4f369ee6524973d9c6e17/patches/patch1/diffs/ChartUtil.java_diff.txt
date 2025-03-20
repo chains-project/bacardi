@@ -1,43 +1,15 @@
-6,8d5
-< 
+7,8d6
 < import com.gargoylesoftware.htmlunit.ScriptResult;
 < 
-12c9
-<  * Charts are displayed one multiple PageObjects. This util provides some helper methods to deal with charts.
----
->  * Charts are displayed on multiple PageObjects. This util provides some helper methods to deal with charts.
-31c28
-<             Object result = pageObject.executeScript(String.format(
----
->             Object scriptResult = pageObject.executeScript(String.format(
-35,36c32,34
-<             ScriptResult scriptResult = new ScriptResult(result);
-<             return scriptResult.getJavaScriptResult().toString();
----
->             if (scriptResult != null) {
->                 return scriptResult.toString();
->             }
-55c53
-<                 Object result = pageObject.executeScript(String.format(
----
->                 Object scriptResult = pageObject.executeScript(String.format(
-60d57
-<                 Object scriptResult = new ScriptResult(result).getJavaScriptResult();
-67c64
-<         throw new java.util.NoSuchElementException("Found no trend chart with ID '%s''" + toolAttribute);
----
->         throw new java.util.NoSuchElementException("Found no trend chart with ID '" + toolAttribute + "'");
-84,85c81
-<         }
-<         catch (NoSuchElementException exception) {
----
->         } catch (NoSuchElementException exception) {
-104,105c100
-<         }
-<         catch (NoSuchElementException exception) {
----
->         } catch (NoSuchElementException exception) {
-108d102
-< 
-110d103
-< 
+110a109,119
+>     private static class ScriptResult {
+>         private final Object result;
+> 
+>         public ScriptResult(Object result) {
+>             this.result = result;
+>         }
+> 
+>         public Object getJavaScriptResult() {
+>             return result;
+>         }
+>     }

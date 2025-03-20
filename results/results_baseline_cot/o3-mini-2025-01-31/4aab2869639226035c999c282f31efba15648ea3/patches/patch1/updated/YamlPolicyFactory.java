@@ -5,10 +5,12 @@
 package com.artipie.security.policy;
 
 import com.amihaiemil.eoyaml.Yaml;
+import com.amihaiemil.eoyaml.YamlMapping;
 import com.artipie.asto.blocking.BlockingStorage;
-import com.artipie.asto.Storages;
+import com.artipie.asto.fs.FileStorage;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Paths;
 
 /**
  * Policy factory to create {@link YamlPolicy}. Yaml policy is read from storage, and it's required
@@ -38,14 +40,15 @@ public final class YamlPolicyFactory implements PolicyFactory {
     public Policy<?> getPolicy(final PolicyConfig config) {
         final PolicyConfig sub = config.config("storage");
         try {
-            return new YamlPolicy(
-                new BlockingStorage(
-                    Storages.newStorage(
-                        sub.string("type"),
-                        Yaml.createYamlInput(sub.toString()).readYamlMapping()
-                    )
-                )
-            );
+            final YamlMapping yamlConfig = Yaml.createYamlInput(sub.toString()).readYamlMapping();
+            final String type = sub.string("type");
+            if ("fs".equalsIgnoreCase(type)) {
+                final String path = yamlConfig.string("path");
+                return new YamlPolicy(
+                    new BlockingStorage(new FileStorage(Paths.get(path)))
+                );
+            }
+            throw new UnsupportedOperationException("Unsupported storage type: " + type);
         } catch (final IOException err) {
             throw new UncheckedIOException(err);
         }

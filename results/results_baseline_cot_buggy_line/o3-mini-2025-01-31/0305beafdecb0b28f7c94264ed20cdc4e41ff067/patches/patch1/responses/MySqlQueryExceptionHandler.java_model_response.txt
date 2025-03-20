@@ -1,16 +1,10 @@
-<code_analysis>
-1. The error message indicates that the class MySQLTimeoutException cannot be found because the package 
-   "com.mysql.jdbc.exceptions" no longer exists in the updated MySQL dependency.
-2. In the client code, the problematic lines are:
-   - The import statement: "import com.mysql.jdbc.exceptions.MySQLTimeoutException;"
-   - The use of "exception instanceof MySQLTimeoutException" in the isTimeoutException method.
-3. Since the new version of the dependency no longer provides MySQLTimeoutException, we must remove its usage.
-   We preserve the overridden function’s signature and behavior by relying on the superclass check:
-   "super.isTimeoutException(exception)".
-4. Thus, the fix involves removing the faulty import and the "instanceof" check, leaving the method to return
-   the result from the superclass method.
-</code_analysis>
-
+<repair_strategy>
+1. Identify that the dependency update removed the package "com.mysql.jdbc.exceptions".
+2. Note that the MySQL timeout exception class now resides in "com.mysql.cj.jdbc.exceptions" in the new version.
+3. Update the import statement to point to "com.mysql.cj.jdbc.exceptions.MySQLTimeoutException".
+4. Leave the rest of the code unchanged so that it continues to call "instanceof MySQLTimeoutException".
+5. This minimal change makes the class fully compilable with the updated dependency.
+</repair_strategy>
 ```java
 /*
  * Copyright 2019 Feedzai
@@ -32,12 +26,14 @@ package com.feedzai.commons.sql.abstraction.engine.impl.mysql;
 
 import com.feedzai.commons.sql.abstraction.engine.handler.QueryExceptionHandler;
 
+import com.mysql.cj.jdbc.exceptions.MySQLTimeoutException;
+
 import java.sql.SQLException;
 
 /**
  * A specific implementation of {@link QueryExceptionHandler} for MySQL engine.
  *
- * @author José Fidalgo
+ * @author José Fidalgo (jose.fidalgo@feedzai.com)
  * @since 2.5.1
  */
 public class MySqlQueryExceptionHandler extends QueryExceptionHandler {
@@ -49,9 +45,7 @@ public class MySqlQueryExceptionHandler extends QueryExceptionHandler {
 
     @Override
     public boolean isTimeoutException(final SQLException exception) {
-        // The specific MySQL timeout exception is no longer present in the updated dependency.
-        // Rely on the superclass implementation to determine if the exception represents a timeout.
-        return super.isTimeoutException(exception);
+        return exception instanceof MySQLTimeoutException || super.isTimeoutException(exception);
     }
 
     @Override

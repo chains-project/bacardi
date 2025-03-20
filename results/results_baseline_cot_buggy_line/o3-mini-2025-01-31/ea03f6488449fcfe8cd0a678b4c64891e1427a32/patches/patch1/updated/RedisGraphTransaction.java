@@ -30,7 +30,7 @@ public interface RedisGraphTransaction extends Closeable {
      * Execute a Cypher query with timeout.
      * @param graphId a graph to perform the query on
      * @param query Cypher query
-     * @param timeout query timeout
+     * @param timeout
      * @return a response which builds the result set with the query answer.
      */
     Response<ResultSet> query(String graphId, String query, long timeout);
@@ -39,7 +39,7 @@ public interface RedisGraphTransaction extends Closeable {
      * Execute a Cypher read-only query with timeout.
      * @param graphId a graph to perform the query on
      * @param query Cypher query
-     * @param timeout query timeout
+     * @param timeout
      * @return a response which builds the result set with the query answer.
      */
     Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout);
@@ -48,7 +48,7 @@ public interface RedisGraphTransaction extends Closeable {
      * Execute a Cypher query with arguments
      * @param graphId a graph to perform the query on
      * @param query Cypher query
-     * @param args query arguments
+     * @param args
      * @return a response which builds the result set with the query answer.
      * @deprecated use {@link #query(String, String, Map)} instead.
      */
@@ -78,7 +78,7 @@ public interface RedisGraphTransaction extends Closeable {
      * @param graphId a graph to perform the query on.
      * @param query Cypher query.
      * @param params parameters map.
-     * @param timeout query timeout.
+     * @param timeout
      * @return  a response which builds the result set with the query answer.
      */
     Response<ResultSet> query(String graphId, String query, Map<String, Object> params, long timeout);
@@ -88,7 +88,7 @@ public interface RedisGraphTransaction extends Closeable {
      * @param graphId a graph to perform the query on.
      * @param query Cypher query.
      * @param params parameters map.
-     * @param timeout query timeout.
+     * @param timeout
      * @return  a response which builds the result set with the query answer.
      */
     Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params, long timeout);
@@ -113,9 +113,9 @@ public interface RedisGraphTransaction extends Closeable {
     /**
      * Invoke a stored procedure
      * @param graphId a graph to perform the query on
-     * @param procedure procedure to execute
-     * @param args procedure arguments
-     * @param kwargs procedure output arguments
+     * @param procedure - procedure to execute
+     * @param args - procedure arguments
+     * @param kwargs - procedure output arguments
      * @return a response which builds result set with the procedure data
      */
     Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args, Map<String, List<String>> kwargs);
@@ -128,26 +128,25 @@ public interface RedisGraphTransaction extends Closeable {
     Response<String> deleteGraph(String graphId);
 
     /**
-     * Executes the transaction.
-     * @return a list of the executed transaction commands answers, in case of successful transaction, null otherwise.
+     * executes the transaction
+     * @return a list of the executed transaction commands answers, in case of successful transaction, null otherwise
      */
     List<Object> exec();
 
     /**
      * If object is in transaction mode,
-     * flushes all previously queued commands in a transaction and restores the connection state to normal.
+     * flushes all previously queued commands in a transaction and restores the connection state to normal
      */
     void clear();
 
     /**
-     * Executes the transaction and returns a list of responses.
-     * @return list of responses for the executed transaction commands.
+     *
+     * @return
      */
     List<Response<?>> execGetResponse();
 
     /**
-     * Flushes all previously queued commands in a transaction and restores the connection state to normal.
-     * @return a string result.
+     * Flushes all previously queued commands in a transaction and restores the connection state to normal
      */
     String discard();
 }

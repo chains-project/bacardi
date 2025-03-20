@@ -1,21 +1,3 @@
-//
-// Wire
-// Copyright (C) 2016 Wire Swiss GmbH
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program. If not, see http://www.gnu.org/licenses/.
-//
-
 package com.wire.lithium;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -35,6 +17,7 @@ import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.media.multipart.BodyPart;
 import org.glassfish.jersey.media.multipart.MultiPart;
 
+import javax.annotation.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -42,7 +25,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.logging.Level;
 
-import jakarta.annotation.Nullable;
 import jakarta.ws.rs.NotSupportedException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
@@ -52,6 +34,7 @@ import jakarta.ws.rs.core.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.GenericType;
 
 public class API implements WireAPI {
     private final String wireHost;
@@ -129,9 +112,9 @@ public class API implements WireAPI {
     public Devices sendMessage(OtrMessage msg, Object... ignoreMissing) throws HttpException {
         Response response = messages
                 .queryParam("ignore_missing", ignoreMissing)
-                .request(jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
-                .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, bearer())
-                .post(Entity.entity(msg, jakarta.ws.rs.core.MediaType.APPLICATION_JSON));
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, bearer())
+                .post(Entity.entity(msg, MediaType.APPLICATION_JSON));
 
         int statusCode = response.getStatus();
         if (statusCode == 412) {
@@ -150,9 +133,9 @@ public class API implements WireAPI {
     public Devices sendPartialMessage(OtrMessage msg, UUID userId) throws HttpException {
         Response response = messages
                 .queryParam("report_missing", userId)
-                .request(jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
-                .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, bearer())
-                .post(Entity.entity(msg, jakarta.ws.rs.core.MediaType.APPLICATION_JSON));
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, bearer())
+                .post(Entity.entity(msg, MediaType.APPLICATION_JSON));
 
         int statusCode = response.getStatus();
         if (statusCode == 412) {
@@ -171,8 +154,8 @@ public class API implements WireAPI {
     public Collection<User> getUsers(Collection<UUID> ids) {
         return users
                 .queryParam("ids", ids.toArray())
-                .request(jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
-                .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, bearer())
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, bearer())
                 .get(new GenericType<ArrayList<User>>() {
                 });
     }
@@ -181,8 +164,8 @@ public class API implements WireAPI {
     public User getSelf() {
         return bot
                 .path("self")
-                .request(jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
-                .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, bearer())
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, bearer())
                 .get(User.class);
     }
 
@@ -190,26 +173,26 @@ public class API implements WireAPI {
     public Conversation getConversation() {
         return conversation
                 .request()
-                .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, bearer())
-                .accept(jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, bearer())
+                .accept(MediaType.APPLICATION_JSON)
                 .get(Conversation.class);
     }
 
     @Override
     public PreKeys getPreKeys(Missing missing) {
         return prekeys
-                .request(jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
-                .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, bearer())
-                .accept(jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
-                .post(Entity.entity(missing, jakarta.ws.rs.core.MediaType.APPLICATION_JSON), PreKeys.class);
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, bearer())
+                .accept(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(missing, MediaType.APPLICATION_JSON), PreKeys.class);
     }
 
     @Override
     public ArrayList<Integer> getAvailablePrekeys(@Nullable String clientId) {
         return client
                 .request()
-                .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, bearer())
-                .accept(jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, bearer())
+                .accept(MediaType.APPLICATION_JSON)
                 .get(new GenericType<>() {
                 });
     }
@@ -220,10 +203,10 @@ public class API implements WireAPI {
         model.preKeys = preKeys;
 
         Response res = client
-                .request(jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
-                .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, bearer())
-                .accept(jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
-                .post(Entity.entity(model, jakarta.ws.rs.core.MediaType.APPLICATION_JSON));
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, bearer())
+                .accept(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(model, MediaType.APPLICATION_JSON));
 
         int statusCode = res.getStatus();
         if (statusCode >= 400) {
@@ -267,7 +250,7 @@ public class API implements WireAPI {
 
         Response response = assets
                 .request(jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE)
-                .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, bearer())
+                .header(HttpHeaders.AUTHORIZATION, bearer())
                 .post(Entity.entity(os.toByteArray(), "multipart/mixed; boundary=frontier"));
 
         if (response.getStatus() >= 400) {
@@ -300,7 +283,7 @@ public class API implements WireAPI {
                 .path(assetId)
                 .request()
                 .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
-                .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, bearer());
+                .header(HttpHeaders.AUTHORIZATION, bearer());
 
         if (assetToken != null && !assetToken.isBlank())
             req.header("Asset-Token", assetToken);
@@ -311,7 +294,7 @@ public class API implements WireAPI {
             throw new HttpException(response.readEntity(String.class), response.getStatus());
         }
 
-        final String location = response.getHeaderString(jakarta.ws.rs.core.HttpHeaders.LOCATION);
+        final String location = response.getHeaderString(HttpHeaders.LOCATION);
         response.close();
 
         response = httpClient

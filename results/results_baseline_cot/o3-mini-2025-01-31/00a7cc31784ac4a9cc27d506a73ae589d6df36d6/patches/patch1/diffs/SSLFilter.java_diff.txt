@@ -1,19 +1,48 @@
-25d24
+1,19d0
+< /*******************************************************************************
+<  * Copyright (c) quickfixengine.org  All rights reserved.
+<  *
+<  * This file is part of the QuickFIX FIX Engine
+<  *
+<  * This file may be distributed under the terms of the quickfixengine.org
+<  * license as defined by quickfixengine.org and appearing in the file
+<  * LICENSE included in the packaging of this file.
+<  *
+<  * This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING
+<  * THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A
+<  * PARTICULAR PURPOSE.
+<  *
+<  * See http://www.quickfixengine.org/LICENSE for licensing information.
+<  *
+<  * Contact ask@quickfixengine.org if any conditions of this licensing
+<  * are not clear to you.
+<  ******************************************************************************/
 < 
-27a27
+25d5
+< 
+27a8
 > import org.apache.mina.core.filterchain.IoFilter.NextFilter;
-41a42,44
->     // Define the missing constant from the previous dependency version.
+33,36d13
+< /**
+<  * An extended SSL filter based on MINA {@link SslFilter} that applies
+<  * some adaptations.
+<  */
+40a18
 >     private static final String PEER_ADDRESS = "PEER_ADDRESS";
-> 
-43c46,47
+43c21
 <         super(sslContext, autoStart);
 ---
->         // Updated constructor call to use only SSLContext as required by the new version.
 >         super(sslContext);
-56a61
->         // Intentionally left blank to disable automatic cipher suite configuration
-76c81
+50,54d27
+<     /**
+<      * Called from {@link SslFilter#onPreAdd} every time a new
+<      * session is created which makes it impossible to override enabled cipher
+<      * suites configuration.
+<      */
+63,66d35
+<     /**
+<      * Called before filter is added into the chain.
+<      * We activate Server Name Indication if it is enabled in the session config.
+<      */
+76d44
 <                 // activate the SNI support in the JSSE SSLEngine
----
->                 // Activate the SNI support in the JSSE SSLEngine

@@ -8,15 +8,15 @@ import com.google.inject.Inject;
 
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.parameter.Parameter;
-import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.Command;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
 import static org.spongepowered.api.command.parameter.Parameter.string;
 import static org.spongepowered.api.text.Text.of;
 
-public class SelectCommand implements ChangeSkinCommand {
+public class SelectCommand implements Command.Executor, ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
 
@@ -25,7 +25,8 @@ public class SelectCommand implements ChangeSkinCommand {
         this.plugin = plugin;
     }
 
-    public CommandResult execute(CommandSource src, org.spongepowered.api.command.CommandContext args) {
+    @Override
+    public CommandResult execute(CommandSource src, CommandContext args) {
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
             return CommandResult.empty();
@@ -44,12 +45,11 @@ public class SelectCommand implements ChangeSkinCommand {
         return CommandResult.success();
     }
 
-    public CommandSpec buildSpec() {
-        return CommandSpec.builder()
+    public Command.Builder buildSpec() {
+        return Command.builder()
                 .executor(this)
-                .arguments(string(of("skinName")))
-                .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
-                .build();
+                .arguments(string("skinName"))
+                .permission(PomData.ARTIFACT_ID + ".command.skinselect.base");
     }
 }
 ```

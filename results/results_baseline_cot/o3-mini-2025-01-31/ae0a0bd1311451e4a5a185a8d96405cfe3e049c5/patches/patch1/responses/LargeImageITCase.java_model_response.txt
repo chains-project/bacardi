@@ -1,23 +1,3 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error indicates that the constructor of org.hamcrest.core.StringContains is being called with two parameters (a boolean and a String), but the updated Hamcrest dependency now expects only a single String parameter.
-   - The errors occur at the lines corresponding to the instantiation of new StringContains in the assertions (line 69 and line 84).
-
-2. Client Code Review:
-   - In the test methods largeImagePullWorks() and largeImageUploadWorks(), the code creates a new StringContains with a boolean flag followed by a String.
-   - The boolean parameter (false) is no longer supported by the updated Hamcrest version.
-
-3. Potential Fix:
-   - Remove the boolean argument from the constructor calls. This will change the call from new StringContains(false, <substring>) to new StringContains(<substring>).
-   - This change adheres to the constraints, leaving the rest of the code unchanged and preserving the functionality of checking for substring presence in output.
-
-4. Side Effects:
-   - The fix will ensure the assertions still check if the expected substrings are present in the output.
-   - The behavior remains identical, as the removed boolean flag was likely controlling case sensitivity or similar behavior that is now standardized in the updated dependency.
-
-Based on the analysis, the following patch fixes the issue.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com

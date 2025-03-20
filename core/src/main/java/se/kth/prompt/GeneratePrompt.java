@@ -40,8 +40,8 @@ public class GeneratePrompt {
                 promptTemplate = new BasePromptTemplate();
                 promptTemplate.setPromptModel(promptModel);
                 break;
-            case BASELINE_ANTHROPIC:
-                promptTemplate = new BasePromptAnthropicTemplate();
+            case BASELINE_COT:
+                promptTemplate = new BaseLineCotTemplate();
                 promptTemplate.setPromptModel(promptModel);
                 break;
             case BASELINE_COT_API_DIFF:
@@ -52,8 +52,8 @@ public class GeneratePrompt {
                 promptTemplate = new BasePromptBuggyLineTemplate();
                 promptTemplate.setPromptModel(promptModel);
                 break;
-            case BASELINE_ANTHROPIC_BUGGY:
-                promptTemplate = new BasePromptAnthropicBuggyTemplate();
+            case BASELINE_COT_BUGGY:
+                promptTemplate = new BaseLineBuggyCotTemplate();
                 promptTemplate.setPromptModel(promptModel);
                 break;
             case BASELINE_API_DIFF:
@@ -65,7 +65,7 @@ public class GeneratePrompt {
                 promptTemplate.setPromptModel(promptModel);
                 break;
             case BASELINE_COT_API_DIFF_BUGGY:
-                promptTemplate =  new BasePromptCotBuggyLineApiDiffTemplate();
+                promptTemplate =  new BaseLineCotBuggyLineApiDiffTemplate();
                 promptTemplate.setPromptModel(promptModel);
                 break;
             case FIX_YOU:

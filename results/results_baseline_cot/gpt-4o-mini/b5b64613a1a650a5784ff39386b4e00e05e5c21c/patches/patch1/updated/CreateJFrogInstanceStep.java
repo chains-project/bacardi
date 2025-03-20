@@ -136,8 +136,9 @@ public class CreateJFrogInstanceStep extends AbstractStepImpl {
          * @throws IOException if there is an illegal step configuration.
          */
         private void checkInputs(JFrogPlatformInstance server) throws IOException {
-            if (isAllBlank(server.getUrl(), server.getArtifactory().getUrl(), server.getDistribution().getUrl(),
-                    step.url, step.artifactoryUrl, step.distributionUrl)) {
+            boolean isAllBlank = isAllBlank(server.getUrl(), server.getArtifactory().getUrl(), server.getDistribution().getUrl(),
+                    step.url, step.artifactoryUrl, step.distributionUrl);
+            if (isAllBlank) {
                 throw new IOException("Server URL is missing");
             }
             if (isNotBlank(step.credentialsId)) {
@@ -148,21 +149,6 @@ public class CreateJFrogInstanceStep extends AbstractStepImpl {
                     throw new IOException("'rtServer' step can't include both credentialsId and password");
                 }
             }
-        }
-
-        /**
-         * Check if all provided strings are blank.
-         *
-         * @param strings - The strings to check
-         * @return true if all strings are blank, false otherwise
-         */
-        private boolean isAllBlank(String... strings) {
-            for (String str : strings) {
-                if (isNotBlank(str)) {
-                    return false;
-                }
-            }
-            return true;
         }
 
         /**
@@ -210,6 +196,15 @@ public class CreateJFrogInstanceStep extends AbstractStepImpl {
             if (step.timeout != null) {
                 server.getArtifactory().getConnection().setTimeout(step.timeout);
             }
+        }
+
+        private boolean isAllBlank(String... values) {
+            for (String value : values) {
+                if (isNotBlank(value)) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 

@@ -32,10 +32,6 @@ import java.util.Objects;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.format.DateTimeFormatter;
-import com.google.cloud.resourcemanager.v3.Project;
-import com.google.cloud.resourcemanager.v3.Project.State;
-import com.google.cloud.resourcemanager.v3.ResourceId;
-import com.google.protobuf.Descriptors.EnumValueDescriptor;
 
 /**
  * A Google Cloud Resource Manager project metadata object. A Project is a high-level Google Cloud
@@ -147,12 +143,17 @@ public class ProjectInfo implements Serializable {
       return Objects.hash(id, type);
     }
 
-    com.google.cloud.resourcemanager.v3.ResourceId toPb() {
-      return com.google.cloud.resourcemanager.v3.ResourceId.newBuilder().setId(id).setType(type.toLowerCase()).build();
+    com.google.cloud.resourcemanager.v1.ResourceId toPb() {
+      com.google.cloud.resourcemanager.v1.ResourceId resourceIdPb =
+          com.google.cloud.resourcemanager.v1.ResourceId.newBuilder()
+              .setId(id)
+              .setType(type.toLowerCase())
+              .build();
+      return resourceIdPb;
     }
 
     static ResourceId fromPb(
-        com.google.cloud.resourcemanager.v3.ResourceId resourceIdPb) {
+        com.google.cloud.resourcemanager.v1.ResourceId resourceIdPb) {
       return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType());
     }
   }
@@ -389,32 +390,31 @@ public class ProjectInfo implements Serializable {
     return new BuilderImpl(this);
   }
 
-  com.google.cloud.resourcemanager.v3.Project toPb() {
-    com.google.cloud.resourcemanager.v3.Project.Builder projectPb = com.google.cloud.resourcemanager.v3.Project.newBuilder();
-    projectPb.setName(name);
-    projectPb.setProjectId(projectId);
-    projectPb.putAllLabels(labels);
-    if (projectNumber != null) {
-        projectPb.setProjectNumber(projectNumber);
-    }
-
-    if (state != null) {
-        projectPb.setState(com.google.cloud.resourcemanager.v3.Project.State.valueOf(state.toString()));
-    }
-
-    if (createTimeMillis != null) {
-        projectPb.setCreateTime(com.google.protobuf.Timestamp.newBuilder().setSeconds(createTimeMillis / 1000).setNanos((int) ((createTimeMillis % 1000) * 1e6)).build());
-    }
-
-    if (parent != null) {
-        projectPb.setParent(parent.toPb().toString());
-    }
-    return projectPb.build();
+  com.google.cloud.resourcemanager.v1.Project toPb() {
+    com.google.cloud.resourcemanager.v1.Project projectPb =
+        com.google.cloud.resourcemanager.v1.Project.newBuilder()
+            .setName(name)
+            .setProjectId(projectId)
+            .putAllLabels(labels)
+            .setProjectNumber(projectNumber)
+            .setState(
+                state != null
+                    ? com.google.cloud.resourcemanager.v1.Project.State.valueOf(state.toString())
+                    : com.google.cloud.resourcemanager.v1.Project.State.UNRECOGNIZED)
+            .setCreateTime(
+                createTimeMillis != null
+                    ? com.google.protobuf.Timestamp.newBuilder()
+                        .setSeconds(Instant.ofEpochMilli(createTimeMillis).getEpochSecond())
+                        .setNanos(Instant.ofEpochMilli(createTimeMillis).getNano())
+                        .build()
+                    : null)
+            .setParent(parent != null ? parent.toPb() : null)
+            .build();
+    return projectPb;
   }
 
-  static ProjectInfo fromPb(com.google.cloud.resourcemanager.v3.Project projectPb) {
-    Builder builder =
-        newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
+  static ProjectInfo fromPb(com.google.cloud.resourcemanager.v1.Project projectPb) {
+    Builder builder = newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
     if (projectPb.getName() != null && !projectPb.getName().equals("Unnamed")) {
       builder.setName(projectPb.getName());
     }
@@ -422,27 +422,14 @@ public class ProjectInfo implements Serializable {
       builder.setLabels(projectPb.getLabelsMap());
     }
     if (projectPb.getState() != null) {
-        String stateString = projectPb.getState().toString();
-        try {
-            builder.setState(State.valueOf(stateString));
-        } catch (IllegalArgumentException e) {
-            // Handle the case where the state is not a known value.
-            // You might want to log this or use a default state.
-            System.err.println("Unknown project state: " + stateString);
-        }
+      builder.setState(State.valueOf(projectPb.getState().toString()));
     }
-
     if (projectPb.getCreateTime() != null) {
-        builder.setCreateTimeMillis(projectPb.getCreateTime().getSeconds() * 1000 + projectPb.getCreateTime().getNanos() / 1000000);
+      builder.setCreateTimeMillis(
+          Instant.ofEpochSecond(projectPb.getCreateTime().getSeconds(), projectPb.getCreateTime().getNanos()).toEpochMilli());
     }
     if (projectPb.getParent() != null) {
-      String parentString = projectPb.getParent();
-      String[] parts = parentString.split("/");
-      if (parts.length == 4) {
-          String type = parts[2];
-          String id = parts[3];
-          builder.setParent(ResourceId.of(id, type));
-      }
+      builder.setParent(ResourceId.fromPb(projectPb.getParent()));
     }
     return builder.build();
   }

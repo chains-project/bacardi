@@ -1,14 +1,16 @@
+6,7c6,7
+<  *  (the "License"); you may not use this file except in compliance with
+<  *  the License.  You may obtain a copy of the License at
+---
+>  *  (the "License"); you may not use this file except in compliance with the
+>  *  License.  You may obtain a copy of the License at
 27a28
 > import org.apache.commons.io.output.ByteArrayOutputStream;
-112c113
-<         memoryOutputStream = new ByteArrayOutputStream( threshold / 10 );
+129d129
+<     @Override
+143d142
+<     @Override
+156c155
+<         InputStream memoryAsInput = memoryOutputStream.toInputStream();
 ---
->         memoryOutputStream = new ByteArrayOutputStream();
-116a118
->         this.threshold = threshold;
-209a212
->         try {
-210a214,216
->         } catch (IOException e) {
->             //ignore
->         }
+>         java.io.ByteArrayInputStream memoryAsInput = new java.io.ByteArrayInputStream(memoryOutputStream.toByteArray());

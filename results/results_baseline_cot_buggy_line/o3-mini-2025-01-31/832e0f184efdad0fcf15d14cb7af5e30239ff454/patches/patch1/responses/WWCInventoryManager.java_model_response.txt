@@ -1,25 +1,3 @@
-<code_analysis>
-1. Error message analysis:
-   - The error indicates that the method parseEnchantment() is no longer found in the XEnchantment class.
-   - It occurs in the line where an enchantment is added to the item meta for the "Page Number" button.
-   - This issue suggests that the version update of the XSeries dependency removed or renamed the parseEnchantment() method.
-
-2. Client code review:
-   - In the getCommonButton method, under the “Page Number” buttonType, the code attempts to call:
-     XEnchantment.matchXEnchantment("power").get().parseEnchantment()
-   - Given the dependency update, the parseEnchantment() method no longer exists, likely replaced by a new method.
-
-3. Considerations for the fix:
-   - The function signature must remain unchanged.
-   - Change only what is necessary to substitute the non-existent parseEnchantment() method.
-   - Based on the update in the XSeries dependency, the correct method to use is likely getEnchant().
-
-4. Proposed modifications:
-   - Replace pageMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
-     with pageMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
-   - This change addresses the dependency update without altering the overall functionality of the code.
-</code_analysis>
-
 ```java
 package com.expl0itz.worldwidechat.inventory;
 
@@ -27,6 +5,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -99,7 +78,6 @@ public class WWCInventoryManager extends InventoryManager {
 			pageMeta.setDisplayName(ChatColor.AQUA
 					+ CommonDefinitions.getMessage("wwcGUIPageNumber", args));
 			if (args[0].equals("1")) {
-				// Use getEnchant() instead of parseEnchantment() due to dependency update.
 				pageMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
 			}
 		} else {

@@ -28,7 +28,7 @@ import ch.qos.logback.core.util.FileSize;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.layered.TFastFramedTransport; // Updated import
+import org.apache.thrift.transport.layered.TFastFramedTransport;
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.apache.thrift.transport.TTransport;
 
@@ -58,9 +58,10 @@ public class AppenderUtils {
     @Override
     public void init(OutputStream os) {
       this.os = os;
-      // Use the TFastFramedTransport to be compatible with singer_thrift log.
+      // Use the TFastFramedTransport to be compatible with singer_thrift
+      // log.
       final int bufferCapacity = 10;
-      framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity, bufferCapacity); // Updated constructor
+      framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity, 0);
       protocol = new TBinaryProtocol(framedTransport);
     }
 

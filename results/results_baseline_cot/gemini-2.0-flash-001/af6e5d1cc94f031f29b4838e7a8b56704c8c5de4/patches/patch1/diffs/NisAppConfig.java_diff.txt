@@ -7,10 +7,14 @@
 <                 flyway.setLocations(prop.getProperty("flyway.locations"));
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 ---
->                 FluentConfiguration configuration = new FluentConfiguration();
->                 configuration.dataSource(this.dataSource());
->                 configuration.classLoader(NisAppConfig.class.getClassLoader());
->                 configuration.locations(prop.getProperty("flyway.locations"));
->                 configuration.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 FluentConfiguration fluentConfiguration = new FluentConfiguration();
+>                 fluentConfiguration.dataSource(this.dataSource());
+>                 fluentConfiguration.classLoader(NisAppConfig.class.getClassLoader());
+>                 fluentConfiguration.locations(prop.getProperty("flyway.locations"));
+>                 fluentConfiguration.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 > 
->                 final Flyway flyway = new Flyway(configuration);
+>                 final Flyway flyway = new Flyway(fluentConfiguration);
+247c250
+<                 final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<ImportanceCalculator>>() {
+---
+>                 final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<ImportanceCalculator>>>() {

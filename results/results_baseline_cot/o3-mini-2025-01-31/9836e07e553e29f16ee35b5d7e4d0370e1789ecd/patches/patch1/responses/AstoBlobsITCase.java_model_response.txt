@@ -1,10 +1,3 @@
-<code_analysis>
-1. The error message indicates that the constructor of org.hamcrest.core.StringContains no longer accepts two parameters (a boolean and a String). The updated dependency now only provides a constructor that takes a single String argument.
-2. In the client code, the error occurs in the failsOnDigestMismatch() test method at the assertions that expect the exception message to contain specific substrings. The original code calls new StringContains(true, "…") and new StringContains(true, digest).
-3. To fix the issue, we need to remove the boolean parameter and simply pass the expected substring to the StringContains constructor.
-4. This change directly addresses the breaking dependency update without altering method signatures or other functionality.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
@@ -38,7 +31,6 @@ import org.junit.jupiter.api.Test;
  * @checkstyle ClassDataAbstractionCouplingCheck (500 lines)
  */
 final class AstoBlobsITCase {
-
     @Test
     void saveBlobDataAtCorrectPath() throws Exception {
         final InMemoryStorage storage = new InMemoryStorage();

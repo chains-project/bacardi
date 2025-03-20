@@ -6,8 +6,8 @@ import se.kth.prompt.GeneratePrompt;
 
 public enum PromptPipeline {
     BASELINE,
-    BASELINE_ANTHROPIC,
-    BASELINE_ANTHROPIC_BUGGY,
+    BASELINE_COT,
+    BASELINE_COT_BUGGY,
     BASELINE_API_DIFF,
     BASELINE_BUGGY_LINE,
     BASELINE_API_DIFF_BUGGY,
@@ -22,11 +22,11 @@ public enum PromptPipeline {
 
         return switch (pipeline) {
             case "BASELINE" -> BASELINE;
-            case "BASELINE_ANTHROPIC" -> BASELINE_ANTHROPIC;
+            case "BASELINE_COT" -> BASELINE_COT;
             case "BASELINE_API_DIFF" -> BASELINE_API_DIFF;
             case "BASELINE_API_DIFF_BUGGY" -> BASELINE_API_DIFF_BUGGY;
             case "BASELINE_BUGGY_LINE" -> BASELINE_BUGGY_LINE;
-            case "BASELINE_ANTHROPIC_BUGGY" -> BASELINE_ANTHROPIC_BUGGY;
+            case "BASELINE_COT_BUGGY" -> BASELINE_COT_BUGGY;
             case "BASELINE_COT_API_DIFF" -> BASELINE_COT_API_DIFF;
             case "BASELINE_COT_API_DIFF_BUGGY" -> BASELINE_COT_API_DIFF_BUGGY;
             case "ADVANCED" -> ADVANCED;

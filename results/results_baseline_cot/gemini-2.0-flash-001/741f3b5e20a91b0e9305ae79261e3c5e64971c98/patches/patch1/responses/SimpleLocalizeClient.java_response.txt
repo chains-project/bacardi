@@ -1,7 +1,6 @@
 package io.simplelocalize.cli.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import io.simplelocalize.cli.client.dto.DownloadRequest;
@@ -86,15 +85,14 @@ public class SimpleLocalizeClient
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
     throwOnError(httpResponse);
     String body = httpResponse.body();
-    ExportResponse exportResponse = null;
     try
     {
-      exportResponse = objectMapper.readValue(body, ExportResponse.class);
-    } catch (JsonProcessingException e)
+      ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
+      return exportResponse.getFiles();
+    } catch (com.fasterxml.jackson.core.JsonProcessingException e)
     {
       throw new IOException(e);
     }
-    return exportResponse.getFiles();
   }
 
   public void downloadFile(DownloadableFile downloadableFile, String downloadPathTemplate)

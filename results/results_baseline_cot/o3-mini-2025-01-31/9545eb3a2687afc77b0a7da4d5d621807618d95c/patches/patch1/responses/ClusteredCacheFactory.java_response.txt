@@ -20,14 +20,15 @@ import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.EvictionConfig;
+import com.hazelcast.config.MaxSizePolicy;
 import com.hazelcast.config.MemberAttributeConfig;
 import com.hazelcast.config.MemcacheProtocolConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.config.RestApiConfig;
 import com.hazelcast.cluster.Cluster;
+import com.hazelcast.cluster.Member;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.cluster.Member;
 import org.jivesoftware.openfire.JMXManager;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterEventListener;
@@ -285,11 +286,9 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         if (staticConfig == null) {
             final MapConfig dynamicConfig = new MapConfig(name);
             dynamicConfig.setTimeToLiveSeconds(hazelcastLifetimeInSeconds);
-            // Use EvictionConfig instead of the deprecated MaxSizeConfig
-            EvictionConfig evictionConfig = new EvictionConfig();
-            evictionConfig.setSize(hazelcastMaxCacheSizeInMegaBytes);
-            evictionConfig.setMaximumSizePolicy(EvictionConfig.MaxSizePolicy.USED_HEAP_SIZE);
-            dynamicConfig.setEvictionConfig(evictionConfig);
+            dynamicConfig.setEvictionConfig(new EvictionConfig()
+                .setSize(hazelcastMaxCacheSizeInMegaBytes)
+                .setMaximumSizePolicy(MaxSizePolicy.USED_HEAP_SIZE));
             logger.debug("Creating dynamic map config for cache={}, dynamicConfig={}", name, dynamicConfig);
             hazelcast.getConfig().addMapConfig(dynamicConfig);
         } else {
@@ -378,6 +377,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
                 members.add(member);
             }
         }
+
 
         if (!members.isEmpty()) {
             // Asynchronously execute the task on the other cluster members

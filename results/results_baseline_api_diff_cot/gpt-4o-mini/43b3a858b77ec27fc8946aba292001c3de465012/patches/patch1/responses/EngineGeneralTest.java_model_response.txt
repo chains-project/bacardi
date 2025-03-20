@@ -4,7 +4,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * you may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -17,7 +17,8 @@
 package com.feedzai.commons.sql.abstraction.engine.impl.abs;
 
 import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import com.feedzai.commons.sql.abstraction.ddl.AlterColumn;
 import com.feedzai.commons.sql.abstraction.ddl.DbColumn;
 import com.feedzai.commons.sql.abstraction.ddl.DbColumnConstraint;
@@ -65,7 +66,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
@@ -162,6 +162,7 @@ import static org.junit.Assume.assumeTrue;
  */
 @RunWith(Parameterized.class)
 public class EngineGeneralTest {
+
 
     private static final double DELTA = 1e-7;
 
@@ -681,6 +682,21 @@ public class EngineGeneralTest {
         assertEquals("COL5  ok?", "OLA", query.get(1).get("COL5").toString());
     }
 
+    /**
+     * Tests that on a rollback situation, the prepared statement batches are cleared.
+     *
+     * The steps performed on this test are:
+     * <ol>
+     *     <li>Add batch to transaction and purposely fail to flush</li>
+     *     <li>Ensure the existence of the Exception and rollback transaction</li>
+     *     <li>Flush again successfully and ensure that the DB table doesn't have any rows</li>
+     * </ol>
+     *
+     * This is a regression test.
+     *
+     * @throws DatabaseEngineException If there is a problem on {@link DatabaseEngine} operations.
+     * @since 2.1.12
+     */
     @Test
     public void batchInsertRollback() throws DatabaseEngineException {
         final CountDownLatch latch = new CountDownLatch(1);
@@ -1715,7 +1731,7 @@ public class EngineGeneralTest {
     }
 
     /**
-     * Tests that the {@link SqlBuilder#in(Expression, Expression) IN} clause with a value filters a row correctly,
+     * Tests that the {@link SqlBuilder#in(Expression, Expression) IN} clause with values filters a row correctly,
      * when many values are provided.
      * <p>
      * This is a regression test for Oracle, which only supports up to 1000 values in IN clauses; the test uses
@@ -1878,30 +1894,3 @@ public class EngineGeneralTest {
     }
 
     @Test
-    public void coalesceTest() throws DatabaseEngineException {
-        create5ColumnsEntity();
-
-        engine.query(
-                select(all())
-                        .from(table("TEST"))
-                        .where(
-                                eq(coalesce(column("COL2"), k(false)), k(false))
-                        )
-        );
-    }
-
-    @Test
-    public void multipleCoalesceTest() throws DatabaseEngineException {
-        create5ColumnsEntity();
-
-        engine.query(
-                select(all())
-                        .from(table("TEST"))
-                        .where(
-                                eq(coalesce(column("COL2"), k(false), k(true)), k(false))
-                        )
-        );
-    }
-
-    @Test
-    public void betweenTest() throws DatabaseEngine

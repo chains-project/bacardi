@@ -1,14 +1,33 @@
-8d7
+8,11d7
 < import javax.mvc.UriRef;
-10d8
+< import javax.mvc.binding.BindingResult;
 < import javax.mvc.binding.MvcBinding;
-12d9
-< import javax.mvc.security.CsrfProtected;
-17a15,17
-> import javax.ws.rs.core.Response; // Updated import for response handling
-> import org.eclipse.krazo.mvc.CsrfProtected; // Updated import for CsrfProtected
-> import org.eclipse.krazo.mvc.MvcBinding; // Updated import for MvcBinding
-52c52
-<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
+< import javax.mvc.binding.ParamError;
+29,32c25
+<     BindingResult bindingResult;
+< 
+<     @Inject
+<     Models models;
 ---
->             AlertMessage alert = AlertMessage.danger("Validation violations!");
+>     Logger log;
+37,39d29
+<     @Inject
+<     Logger log;
+< 
+49d38
+<             @MvcBinding
+51,62c40
+<         if (bindingResult.isFailed()) {
+<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
+<             bindingResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+<                         alert.addError(t.getParamName(), "", t.getMessage());
+<                     });
+<             models.put("errors", alert);
+<             log.info("mvc binding failed.");
+<             return "csrf.xhtml";
+<         }
+< 
+---
+>         AlertMessage alert = AlertMessage.danger("Validation violations!");

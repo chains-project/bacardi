@@ -2,110 +2,43 @@ package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
 import org.hibernate.SessionFactory;
-import org.nem.core.model.Account;
-import org.nem.core.model.NamespaceCacheLookupAdapters;
-import org.nem.core.model.primitive.Amount;
+import org.nem.core.model.*;
+import org.nem.core.model.primitive.*;
 import org.nem.core.node.NodeFeature;
 import org.nem.core.time.TimeProvider;
-import org.nem.deploy.BlockAnalyzer;
-import org.nem.deploy.BlockChain;
-import org.nem.deploy.BlockChainServices;
-import org.nem.deploy.BlockChainUpdater;
-import org.nem.deploy.BlockChainContextFactory;
-import org.nem.deploy.Harvester;
-import org.nem.deploy.HarvestingTask;
-import org.nem.deploy.HttpConnectorPool;
-import org.nem.deploy.LocalHostDetector;
-import org.nem.deploy.NemConfigurationPolicy;
-import org.nem.deploy.NemGlobals;
-import org.nem.deploy.NisConfiguration;
-import org.nem.deploy.NisConfigurationPolicy;
-import org.nem.deploy.NisMain;
-import org.nem.deploy.NisPeerNetworkHost;
-import org.nem.deploy.NetworkHostBootstrapper;
-import org.nem.deploy.ValidatorState;
-import org.nem.deploy.chainservices.DefaultChainServices;
-import org.nem.deploy.chainservices.ChainServices;
-import org.nem.deploy.harvesting.BlockGenerator;
-import org.nem.deploy.harvesting.BlockScorer;
-import org.nem.deploy.harvesting.DefaultNewBlockTransactionsProvider;
-import org.nem.deploy.harvesting.DefaultUnconfirmedTransactions;
-import org.nem.deploy.harvesting.HarvestAwareNetworkHostBootstrapper;
-import org.nem.deploy.harvesting.NewBlockTransactionsProvider;
-import org.nem.deploy.harvesting.UnconfirmedStateFactory;
-import org.nem.deploy.harvesting.UnconfirmedTransactions;
-import org.nem.deploy.harvesting.UnconfirmedTransactionsFilter;
-import org.nem.deploy.harvesting.DefaultUnconfirmedTransactions;
-import org.nem.deploy.mapper.DefaultMapperFactory;
-import org.nem.deploy.mapper.MapperFactory;
-import org.nem.deploy.nis.NisDbModelToModelMapper;
-import org.nem.deploy.nis.NisMapperFactory;
-import org.nem.deploy.nis.NisModelToDbModelMapper;
-import org.nem.deploy.nis.audit.AuditCollection;
-import org.nem.deploy.nis.boot.CommonStarter;
-import org.nem.deploy.nis.cache.DefaultAccountCache;
-import org.nem.deploy.nis.cache.DefaultAccountStateCache;
-import org.nem.deploy.nis.cache.SynchronizedAccountCache;
-import org.nem.deploy.nis.cache.SynchronizedAccountStateCache;
-import org.nem.deploy.nis.cache.DefaultHashCache;
-import org.nem.deploy.nis.cache.SynchronizedHashCache;
-import org.nem.deploy.nis.cache.DefaultMosaicIdCache;
-import org.nem.deploy.nis.cache.SynchronizedMosaicIdCache;
-import org.nem.deploy.nis.connect.CountingBlockSynchronizer;
-import org.nem.deploy.nis.controller.interceptors.LocalHostDetector;
-import org.nem.deploy.nis.dao.AccountDao;
-import org.nem.deploy.nis.dao.BlockDao;
-import org.nem.deploy.nis.dao.TransferDao;
-import org.nem.deploy.nis.harvesting.BlockAnalyzer;
-import org.nem.deploy.nis.harvesting.BlockTransactionObserverFactory;
-import org.nem.deploy.nis.harvesting.BlockValidatorFactory;
-import org.nem.deploy.nis.harvesting.DefaultNewBlockTransactionsProvider;
-import org.nem.deploy.nis.harvesting.UnlockedAccounts;
-import org.nem.deploy.nis.mappers.AccountDaoLookupAdapter;
-import org.nem.deploy.nis.service.BlockChainLastBlockLayer;
-import org.nem.deploy.nis.state.DefaultNisCache;
-import org.nem.deploy.nis.state.NisCacheUtils;
-import org.nem.deploy.nis.state.ReadOnlyNisCache;
-import org.nem.deploy.nis.sync.BlockChainFeatureDependentFactory;
-import org.nem.deploy.nis.sync.DefaultUnconfirmedTransactions;
-import org.nem.deploy.nis.sync.SynchronizedUnconfirmedTransactions;
-import org.nem.deploy.nis.validators.BlockTransactionObserverFactory;
-import org.nem.deploy.nis.validators.BlockValidatorFactory;
-import org.nem.deploy.nis.validators.SingleTransactionValidator;
+import org.nem.deploy.*;
+import org.nem.nis.*;
+import org.nem.nis.audit.AuditCollection;
+import org.nem.nis.boot.*;
+import org.nem.nis.cache.*;
+import org.nem.nis.connect.*;
+import org.nem.nis.controller.interceptors.LocalHostDetector;
+import org.nem.nis.dao.*;
+import org.nem.nis.harvesting.*;
+import org.nem.nis.mappers.*;
 import org.nem.nis.pox.ImportanceCalculator;
-import org.nem.nis.pox.poi.PoiImportanceCalculator;
-import org.nem.nis.pox.poi.PoiOptionsBuilder;
+import org.nem.nis.pox.poi.*;
 import org.nem.nis.pox.pos.PosImportanceCalculator;
-import org.nem.nis.secret.DefaultPoxFacade;
-import org.nem.nis.secret.SynchronizedPoxFacade;
+import org.nem.nis.secret.*;
+import org.nem.nis.service.BlockChainLastBlockLayer;
+import org.nem.nis.state.*;
+import org.nem.nis.sync.*;
+import org.nem.nis.validators.*;
 import org.nem.peer.connect.CommunicationMode;
-import org.nem.peer.node.DefaultNodeCompatibilityChecker;
-import org.nem.peer.node.NodeCompatibilityChecker;
-import org.nem.peer.services.DefaultChainServices;
-import org.nem.peer.trust.CachedTrustProvider;
-import org.nem.peer.trust.EigenTrustPlusPlus;
-import org.nem.peer.trust.LowComTrustProvider;
-import org.nem.peer.trust.TrustProvider;
+import org.nem.peer.node.*;
+import org.nem.peer.services.ChainServices;
+import org.nem.peer.trust.*;
+import org.nem.specific.deploy.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.ComponentScan.Filter;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.*;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.function.Supplier;
-import java.util.function.Function;
+import java.util.*;
+import java.util.function.*;
 
 @Configuration
 @ComponentScan(basePackages = {
@@ -171,11 +104,12 @@ public class NisAppConfig {
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+
 		return Flyway.configure()
 				.dataSource(this.dataSource())
 				.classLoader(NisAppConfig.class.getClassLoader())
 				.locations(prop.getProperty("flyway.locations"))
-				.validateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate")))
+				.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
 				.load();
 	}
 

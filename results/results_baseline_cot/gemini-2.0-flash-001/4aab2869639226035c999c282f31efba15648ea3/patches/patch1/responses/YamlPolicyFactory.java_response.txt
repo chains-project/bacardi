@@ -1,16 +1,12 @@
-/*
- * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
- * https://github.com/artipie/http/blob/master/LICENSE.txt
- */
 package com.artipie.security.policy;
 
 import com.amihaiemil.eoyaml.Yaml;
 import com.artipie.asto.blocking.BlockingStorage;
 import com.artipie.asto.factory.StorageFactory;
 import com.artipie.asto.factory.Storages;
-
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Map;
 
 /**
  * Policy factory to create {@link YamlPolicy}. Yaml policy is read from storage, and it's required
@@ -40,12 +36,12 @@ public final class YamlPolicyFactory implements PolicyFactory {
     public Policy<?> getPolicy(final PolicyConfig config) {
         final PolicyConfig sub = config.config("storage");
         try {
-            final StorageFactory storageFactory = new Storages();
+            final String type = sub.string("type");
+            final Map<String, Object> settings = sub.map();
+            final StorageFactory storageFactory = new Storages().storage(type);
             return new YamlPolicy(
                 new BlockingStorage(
-                    storageFactory.newStorage(
-                        sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
-                    )
+                    storageFactory.newStorage(settings)
                 )
             );
         } catch (final IOException err) {

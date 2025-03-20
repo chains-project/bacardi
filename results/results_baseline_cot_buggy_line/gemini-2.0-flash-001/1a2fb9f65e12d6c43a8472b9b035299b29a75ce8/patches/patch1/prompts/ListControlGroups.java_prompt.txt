@@ -263,98 +263,98 @@ public abstract class ListControlGroups<T> extends Panel {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-for(ConstraintDescriptor<?> constraint : constraintsSet){
+import javax.validation.Validator;
 ```
 ```java
-Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
-```
-```java
-import javax.validation.constraints.NotBlank;
-```
-```java
-import javax.validation.metadata.ElementDescriptor;
-```
-```java
-import javax.validation.constraints.NotNull;
-```
-```java
-Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
+import javax.validation.metadata.BeanDescriptor;
 ```
 ```java
 import javax.validation.constraints.NotEmpty;
 ```
 ```java
-BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
-```
-```java
-ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+import javax.validation.metadata.ConstraintDescriptor;
 ```
 ```java
 constraint.getAnnotation() instanceof NotBlank)
 ```
 ```java
-if(constraint.getAnnotation() instanceof NotNull ||
+import javax.validation.metadata.ElementDescriptor;
 ```
 ```java
-import javax.validation.Validator;
+Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
+```
+```java
+BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
+```
+```java
+import javax.validation.constraints.NotBlank;
+```
+```java
+Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
+```
+```java
+import javax.validation.constraints.NotNull;
+```
+```java
+for(ConstraintDescriptor<?> constraint : constraintsSet){
 ```
 ```java
 constraint.getAnnotation() instanceof NotEmpty ||
 ```
 ```java
-import javax.validation.metadata.ConstraintDescriptor;
+if(constraint.getAnnotation() instanceof NotNull ||
 ```
 ```java
-import javax.validation.metadata.BeanDescriptor;
+ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
 ```
 
 
  And here is the error message:
-[ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[136,37] cannot find symbol
-  symbol:   class ConstraintDescriptor
+[ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[37,24] package javax.validation does not exist
+
+[ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[41,33] package javax.validation.metadata does not exist
+
+[ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[39,36] package javax.validation.constraints does not exist
+
+[ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[42,33] package javax.validation.metadata does not exist
+
+[ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[139,82] cannot find symbol
+  symbol:   class NotBlank
   location: class com.premiumminds.wicket.crudifier.form.elements.ListControlGroups<T>
+
+[ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[43,33] package javax.validation.metadata does not exist
 
 [ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[121,17] cannot find symbol
   symbol:   class Validator
   location: class com.premiumminds.wicket.crudifier.form.elements.ListControlGroups<T>
 
+[ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[122,17] cannot find symbol
+  symbol:   class BeanDescriptor
+  location: class com.premiumminds.wicket.crudifier.form.elements.ListControlGroups<T>
+
 [ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[38,36] package javax.validation.constraints does not exist
-
-[ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[43,33] package javax.validation.metadata does not exist
-
-[ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[40,36] package javax.validation.constraints does not exist
 
 [ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[135,37] cannot find symbol
   symbol:   class ConstraintDescriptor
   location: class com.premiumminds.wicket.crudifier.form.elements.ListControlGroups<T>
 
-[ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[39,36] package javax.validation.constraints does not exist
+[ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[40,36] package javax.validation.constraints does not exist
 
-[ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[122,17] cannot find symbol
-  symbol:   class BeanDescriptor
+[ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[136,37] cannot find symbol
+  symbol:   class ConstraintDescriptor
   location: class com.premiumminds.wicket.crudifier.form.elements.ListControlGroups<T>
 
-[ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[133,25] cannot find symbol
-  symbol:   class ElementDescriptor
-  location: class com.premiumminds.wicket.crudifier.form.elements.ListControlGroups<T>
-
-[ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[139,82] cannot find symbol
-  symbol:   class NotBlank
+[ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[138,82] cannot find symbol
+  symbol:   class NotEmpty
   location: class com.premiumminds.wicket.crudifier.form.elements.ListControlGroups<T>
 
 [ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[137,82] cannot find symbol
   symbol:   class NotNull
   location: class com.premiumminds.wicket.crudifier.form.elements.ListControlGroups<T>
 
-[ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[37,24] package javax.validation does not exist
-
-[ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[138,82] cannot find symbol
-  symbol:   class NotEmpty
+[ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[133,25] cannot find symbol
+  symbol:   class ElementDescriptor
   location: class com.premiumminds.wicket.crudifier.form.elements.ListControlGroups<T>
-
-[ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[42,33] package javax.validation.metadata does not exist
-
-[ERROR] /wicket-crudifier/src/main/java/com/premiumminds/wicket/crudifier/form/elements/ListControlGroups.java:[41,33] package javax.validation.metadata does not exist
 
 
 

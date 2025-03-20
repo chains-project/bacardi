@@ -1,23 +1,24 @@
-27c27,28
+22,23d21
+< import com.hazelcast.config.MaxSizeConfig;
+< import com.hazelcast.config.MemberAttributeConfig;
+27d24
 < import com.hazelcast.core.Cluster;
----
+30a28
 > import com.hazelcast.cluster.Cluster;
-> import com.hazelcast.cluster.Member;
-30d30
-< import com.hazelcast.core.Member;
-247a248
->         if (cluster != null) {
-248a250
->         }
-356c358
-<         return cluster == null ? System.currentTimeMillis() : cluster.getClusterTime();
+193,195c191,194
+<                 final MemberAttributeConfig memberAttributeConfig = config.getMemberAttributeConfig();
+<                 memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
+<                 memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
 ---
->         return cluster == null ? System.currentTimeMillis() : hazelcast.getCluster().getClusterTime();
-496c498
-<             result = new HazelcastClusterNodeInfo(member, cluster.getClusterTime());
+>                 // MemberAttributeConfig is deprecated and removed in newer versions of Hazelcast.
+>                 // The functionality is now part of Config.
+>                 config.setAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
+>                 config.setAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
+288c287
+<             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
 ---
->             result = new HazelcastClusterNodeInfo(member, hazelcast.getCluster().getClusterTime());
-701,703d702
+>             dynamicConfig.setMaxSizeConfig(new com.hazelcast.config.MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, com.hazelcast.config.MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+701,703d699
 < 
 < 
 < 

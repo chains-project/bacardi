@@ -62,6 +62,12 @@ public class MockHttpSession implements HttpSession {
 
   /** @deprecated */
   @Deprecated
+  public HttpSessionContext getSessionContext() {
+    return null;
+  }
+
+  /** @deprecated */
+  @Deprecated
   @Override
   public Object getValue(final String s) {
     return null;
@@ -110,5 +116,9 @@ public class MockHttpSession implements HttpSession {
   @Override
   public ServletContext getServletContext() {
     return null;
+  }
+
+  // Dummy stub for HttpSessionContext missing from the updated dependency
+  public static interface HttpSessionContext {
   }
 }

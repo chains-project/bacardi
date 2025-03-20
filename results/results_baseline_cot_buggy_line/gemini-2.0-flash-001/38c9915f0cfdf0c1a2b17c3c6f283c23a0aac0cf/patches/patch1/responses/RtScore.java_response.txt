@@ -7,7 +7,8 @@
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the software, and to permit persons to do so, subject to the following conditions:
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
@@ -17,14 +18,13 @@
  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 package io.zold.api;
 
+import java.util.Iterator;
 import org.cactoos.Text;
-import org.cactoos.iterable.IterableOf;
-import org.cactoos.scalar.LengthOf;
 
 /**
  * Default implementation for {@link Score}.
@@ -49,12 +49,19 @@ public final class RtScore implements Score {
 
     @Override
     public int compareTo(final Score other) {
-        try {
-            return new LengthOf(new IterableOf<>(other.suffixes())).value().intValue()
-                - new LengthOf(new IterableOf<>(this.sfxs)).value().intValue();
-        } catch (final Exception ex) {
-            throw new IllegalStateException(ex);
+        int left = 0;
+        final Iterator<Text> leftIterator = other.suffixes().iterator();
+        while (leftIterator.hasNext()) {
+            leftIterator.next();
+            left++;
         }
+        int right = 0;
+        final Iterator<Text> rightIterator = this.sfxs.iterator();
+        while (rightIterator.hasNext()) {
+            rightIterator.next();
+            right++;
+        }
+        return left - right;
     }
 
     @Override

@@ -1,20 +1,3 @@
-/*
- * Copyright 2014-2022 Grzegorz Slowikowski (gslowikowski at gmail dot com)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software is distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-
 package org.scoverage.plugin;
 
 import java.io.BufferedReader;
@@ -30,7 +13,6 @@ import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.maven.doxia.sink.Sink;
-import org.apache.maven.doxia.siterenderer.Renderer;
 import org.apache.maven.doxia.siterenderer.sink.SiteRendererSink;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -59,6 +41,23 @@ import scoverage.reporter.CoberturaXmlWriter;
 import scoverage.reporter.CoverageAggregator;
 import scoverage.reporter.ScoverageHtmlWriter;
 import scoverage.reporter.ScoverageXmlWriter;
+import org.apache.maven.doxia.site.decoration.DecorationModel;
+import org.apache.maven.doxia.site.decoration.Skin;
+import org.apache.maven.doxia.site.decoration.inheritance.DecorationModelInheritanceUtils;
+import org.apache.maven.doxia.module.xhtml.XhtmlSinkFactory;
+import org.apache.maven.doxia.parser.ParseException;
+import org.apache.maven.doxia.site.module.SiteModule;
+import org.apache.maven.doxia.site.module.SiteModuleException;
+import org.apache.maven.doxia.site.module.SiteModuleRequest;
+import org.apache.maven.doxia.siterenderer.Renderer;
+import org.apache.maven.doxia.siterenderer.RenderingContext;
+import org.apache.maven.doxia.siterenderer.SiteRenderingContext;
+import org.apache.maven.doxia.siterenderer.SiteRenderer;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.i18n.I18N;
+import org.codehaus.plexus.util.PathTool;
+import org.codehaus.plexus.util.ReaderFactory;
 
 /**
  * Generates code coverage by unit tests report in forked {@code scoverage} life cycle.
@@ -173,12 +172,6 @@ public class SCoverageReportMojo
      */
     @Parameter( property = "description", readonly = true )
     private String description;
-
-    /**
-     * Site renderer.
-     */
-    @Parameter( defaultValue = "${component.org.apache.maven.doxia.siterenderer.Renderer}", required = true, readonly = true )
-    private Renderer siteRenderer;
 
     /** {@inheritDoc} */
     @Override
@@ -388,7 +381,8 @@ public class SCoverageReportMojo
 
         try
         {
-            SiteRendererSink sink = new SiteRendererSink( siteRenderer.createContext( project, getOutputName(), getBundle( Locale.getDefault() ) ) );
+            SiteRenderingContext context = new RenderingContext( outputDirectory, getOutputName() + ".html" );
+            SiteRendererSink sink = new SiteRendererSink( context );
             Locale locale = Locale.getDefault();
             generate( sink, locale );
         }

@@ -1,18 +1,3 @@
-/**
- * Copyright 2019 Pinterest, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *    http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.pinterest.singer.reader;
 
 import com.google.common.base.Preconditions;
@@ -37,7 +22,7 @@ import java.io.RandomAccessFile;
 public class ThriftReader<T extends TBase> implements Closeable {
 
   /**
-   * Factory that gets a TBase instance of the thrift type to be read.
+   * Factory that get a TBase instance of the thrift type to be read.
    *
    * @param <T> The thrift message type to be read.
    */
@@ -46,7 +31,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
   }
 
   /**
-   * Factory that gets a TProtocol instance.
+   * Factory that get a TProtocol instance.
    */
   public static interface TProtocolFactory {
     TProtocol get(TTransport transport);
@@ -58,7 +43,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
   // The ByteOffsetInputStream to read from.
   private final ByteOffsetInputStream byteOffsetInputStream;
 
-  // The framed transport.
+  // The framedTransport.
   private final TFramedTransport framedTransport;
 
   // TProtocol implementation.
@@ -75,10 +60,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
 
     this.byteOffsetInputStream = new ByteOffsetInputStream(
         new RandomAccessFile(path, "r"), readBufferSize);
-    // Updated constructor: use the new TFramedTransport from the layered package.
-    // The new TFramedTransport no longer accepts a maxMessageSize parameter.
-    this.framedTransport = new TFramedTransport(
-        new TIOStreamTransport(this.byteOffsetInputStream));
+    this.framedTransport = new TFramedTransport(new TIOStreamTransport(this.byteOffsetInputStream), maxMessageSize);
     this.baseFactory = Preconditions.checkNotNull(baseFactory);
     this.protocol = protocolFactory.get(this.framedTransport);
   }
@@ -86,7 +68,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
   /**
    * Read one thrift message.
    *
-   * @return next thrift message from the reader, or null if no thrift message is present.
+   * @return next thrift message from the reader. null if no thrift message in the reader.
    * @throws IOException when file error.
    * @throws TException  when parse error.
    */
@@ -118,7 +100,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
    * @throws IOException on file error.
    */
   public void setByteOffset(long byteOffset) throws IOException {
-    // If we are already at the byte offset, return.
+    // If we already at the byte offset, return.
     if (getByteOffset() == byteOffset) {
       return;
     }

@@ -4,11 +4,25 @@
 > import redis.clients.jedis.JedisPooled;
 15a16
 > import redis.clients.jedis.commands.RedisCommand;
-142c143
+142c143,147
 <         Client client = jedis.getClient();
 ---
+>         //Client client = jedis.getClient(); //jedis.getClient() is no longer available
 >         RedisCommand client = jedis;
-157c158
-<         Client client = jedis.getClient();
+>         if (jedis instanceof JedisPooled) {
+>             client = ((JedisPooled) jedis).getPool().getResource();
+>         }
+145c150
+<         RedisGraphTransaction transaction = new RedisGraphTransaction(client, this);
 ---
+>         RedisGraphTransaction transaction = new RedisGraphTransaction((Jedis) client, this);
+157,158c162,167
+<         Client client = jedis.getClient();
+<         RedisGraphPipeline pipeline = new RedisGraphPipeline(client, this);
+---
+>         //Client client = jedis.getClient(); //jedis.getClient() is no longer available
 >         RedisCommand client = jedis;
+>         if (jedis instanceof JedisPooled) {
+>             client = ((JedisPooled) jedis).getPool().getResource();
+>         }
+>         RedisGraphPipeline pipeline = new RedisGraphPipeline((Jedis) client, this);

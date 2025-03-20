@@ -81,10 +81,9 @@ public class AppenderUtils {
       framedTransport.close();
     }
 
-    // Added footerBytes method to satisfy the Encoder interface
     @Override
     public byte[] footerBytes() {
-      return new byte[0]; // Return an empty byte array as a placeholder
+      return new byte[0]; // Implementing the missing method
     }
   }
 
@@ -135,6 +134,4 @@ public class AppenderUtils {
     return appender;
   }
 }
-``` 
-
-In this patch, I added the `footerBytes()` method to the `LogMessageEncoder` class to satisfy the `Encoder` interface, which was likely introduced or modified in the updated version of the Logback dependency. This resolves the compilation errors while adhering to the constraints provided.
+```

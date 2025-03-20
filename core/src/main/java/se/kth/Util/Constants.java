@@ -24,7 +24,7 @@ public class Constants {
 
     public static final String LLM = dotenv.get("LLM", "gtp4o-mini");
 
-    public static final String OUTPUT_PATH = dotenv.get("OUTPUT_PATH", System.getProperty("user.dir") + "/output") + "/" + (LLM.contains("/") ? LLM.replace("/","-") : LLM);
+    public static final String OUTPUT_PATH = dotenv.get("OUTPUT_PATH", System.getProperty("user.dir") + "/output") + "/" + (LLM.contains("/") ? LLM.replace("/", "-") : LLM);
 
     public static final PromptPipeline PIPELINE = PromptPipeline
             .fromString(dotenv.get("PIPELINE", PromptPipeline.BASELINE.toString()));
@@ -34,4 +34,6 @@ public class Constants {
     public static final boolean RESTART = Boolean.parseBoolean(dotenv.get("RESTART", "true"));
 
     public static final String SPECIFIC_FILE = dotenv.get("SPECIFIC_FILE", "");
+
+    public static final String APIDIFF_FILE = dotenv.get("APIDIFF_FILE", "");
 }

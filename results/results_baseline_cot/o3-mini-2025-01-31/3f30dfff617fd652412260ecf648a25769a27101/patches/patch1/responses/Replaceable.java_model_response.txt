@@ -1,17 +1,15 @@
-<code_analysis>
-1. The error message indicates that the package "javax.interceptor" does not exist. This is likely due to an update in the dependency where the package namespace has changed (e.g., from javax to jakarta in Jakarta EE 9+).
-2. The client code uses the @InterceptorBinding annotation imported from "javax.interceptor". Since that package is no longer available, the import and annotation reference must be updated.
-3. The necessary fix is to update the import statement from "javax.interceptor.InterceptorBinding" to the correct package provided by the updated dependency, which is "jakarta.interceptor.InterceptorBinding".
-4. This change directly addresses the compile error without modifying any method signatures or annotations other than the corrected import.
-</code_analysis>
-
 ```java
 package de.hilling.junit.cdi.scope;
 
 import org.immutables.value.Value;
+
 import jakarta.interceptor.InterceptorBinding;
 import java.lang.annotation.*;
 
+/**
+ * Marker interface used internally by the {@link de.hilling.junit.cdi.scope.TestScopeExtension} to
+ * mark classes that can be mocked or replaced by other test beans.
+ */
 @Inherited
 @InterceptorBinding
 @Target({ElementType.METHOD, ElementType.TYPE})

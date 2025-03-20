@@ -1,27 +1,3 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error indicates that the class liquibase.util.StringUtils is no longer available. The error occurs both on the import line and when the code attempts to use StringUtils.trimToNull().
-   - The issue likely arises due to a breaking change in the Liquibase dependency update, where StringUtils has been removed or relocated.
-
-2. Client Code Review:
-   - The problematic import statement "import liquibase.util.StringUtils;" (line 12) and the usage at line 67 (within the if-statement checking the tablespace) are causing the build to fail.
-   - The functionality provided by StringUtils.trimToNull() (trimming the string and returning null if empty) can be replicated using core Java methods.
-
-3. Fix Requirements and Constraints:
-   - Do not change any function signatures.
-   - Remove the dependency on the removed StringUtils by eliminating its import.
-   - Replace the usage of StringUtils.trimToNull() with a direct check using String.trim() and isEmpty().
-   - Retain all existing logic and functionality.
-
-4. Proposed Modifications:
-   - Remove the import statement "import liquibase.util.StringUtils;".
-   - Replace the code:
-       if (StringUtils.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) { ... }
-     with:
-       if (statement.getTablespace() != null && !statement.getTablespace().trim().isEmpty() && database.supportsTablespaces()) { ... }
-   - This patch uses core Java string trimming methods to check validity, thereby resolving the dependency error while preserving the original intent.
-</code_analysis>
-
 ```java
 package liquibase.ext.mssql.sqlgenerator;
 
@@ -57,7 +33,6 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
     if (statement instanceof AddPrimaryKeyStatementMSSQL && ((AddPrimaryKeyStatementMSSQL) statement).getFillFactor() != null) {
       return generateMSSQLSql((AddPrimaryKeyStatementMSSQL) statement, database, sqlGeneratorChain);
     }
-
     return super.generateSql(statement, database, sqlGeneratorChain);
   }
 
@@ -90,17 +65,18 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
     // the only new feature being added is support for fillFactor
     sql += " WITH (FILLFACTOR = " + statement.getFillFactor() + ")";
 
-    // Replace StringUtils.trimToNull() with manual trimming check using core Java methods
-    if (statement.getTablespace() != null && !statement.getTablespace().trim().isEmpty() && database.supportsTablespaces()) {
-      sql += " ON " + statement.getTablespace().trim();
+    String tablespace = statement.getTablespace();
+    if (tablespace != null && !tablespace.trim().isEmpty() && database.supportsTablespaces()) {
+      sql += " ON " + tablespace.trim();
     }
 
     if (statement.getForIndexName() != null) {
-      sql += " USING INDEX " +
-              database.escapeObjectName(statement.getForIndexCatalogName(),
-                                          statement.getForIndexSchemaName(),
-                                          statement.getForIndexName(),
-                                          Index.class);
+      sql += " USING INDEX " + database.escapeObjectName(
+          statement.getForIndexCatalogName(),
+          statement.getForIndexSchemaName(),
+          statement.getForIndexName(),
+          Index.class
+      );
     }
 
     return new Sql[] {

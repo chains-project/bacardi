@@ -236,9 +236,8 @@ public final class UpdateChecker {
      */
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
-            // Use getStatus() instead of accessing the private field "status"
-            GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
-            GHCompare.Status status = compare.getStatus();
+            GHCompare ghCompare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
+            GHCompare.Status status = ghCompare.getStatus();
             return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
         } catch (FileNotFoundException x) {
             // For example, that branch does not exist in this repository.
@@ -270,8 +269,7 @@ public final class UpdateChecker {
         }
         VersionAndRepo result = new UpdateChecker(
                 message -> System.err.println(message),
-                Arrays.asList("https://repo.jenkins-ci.org/releases/", "https://repo.jenkins-ci.org/incrementals/")).
-            find(argv[0], argv[1], argv[2], argv[3]);
+                Arrays.asList("https://repo.jenkins-ci.org/releases/", "https://repo.jenkins-ci.org/incrementals/")).find(argv[0], argv[1], argv[2], argv[3]);
         if (result != null) {
             System.err.println("Found: " + result);
         } else {

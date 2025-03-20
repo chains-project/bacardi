@@ -1,2 +1,11 @@
-166d165
-< 
+3a4
+> import com.fasterxml.jackson.core.JsonParseException;
+144c145,150
+<       String message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH);
+---
+>       String message = null;
+>       try {
+>         message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH);
+>       } catch (JsonParseException e) {
+>         message = "Error parsing JSON response";
+>       }

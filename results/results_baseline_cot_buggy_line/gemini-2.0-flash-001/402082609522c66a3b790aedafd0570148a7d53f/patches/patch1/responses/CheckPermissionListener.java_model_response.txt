@@ -15,10 +15,9 @@ import java.util.UUID;
 
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.network.Channel;
-import org.spongepowered.api.network.ChannelRegistry;
-import org.spongepowered.api.network.MessageChannel;
-import org.spongepowered.api.network.MessageHandler;
+import org.spongepowered.api.network.channel.raw.RawDataChannel;
+import org.spongepowered.api.network.channel.raw.RawDataListener;
+import org.spongepowered.api.network.ChannelRegistrar;
 import org.spongepowered.api.network.RemoteConnection;
 
 import io.netty.buffer.ByteBuf;
@@ -26,36 +25,28 @@ import io.netty.buffer.ByteBuf;
 import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
 import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 
-public class CheckPermissionListener implements MessageHandler<ByteBuf> {
+public class CheckPermissionListener implements RawDataListener {
 
     private final ChangeSkinSponge plugin;
-    private final MessageChannel permissionsResultChannel;
+    private final RawDataChannel permissionsResultChannel;
 
     @Inject
-    CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistry channelRegistry) {
+    CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
         this.plugin = plugin;
 
         String combinedName = new NamespaceKey(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL).getCombinedName();
-        Channel channel = channelRegistry.findChannel(plugin, combinedName).orElse(channelRegistry.createChannel(plugin, combinedName));
-        permissionsResultChannel = channel.asMessageChannel();
+        permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
     }
 
     @Override
-    public void handleMessage(ByteBuf data, RemoteConnection connection, Type side) {
-        byte[] array;
-        int offset;
+    public void handlePayload(ByteBuf data, RemoteConnection connection, Type side) {
+        byte[] content = new byte[data.readableBytes()];
+        data.readBytes(content);
 
-        int readableBytes = data.readableBytes();
-        if (data.hasArray()) {
-            array = data.array();
-            offset = data.arrayOffset() + data.readerIndex();
-        } else {
-            array = new byte[readableBytes];
-            data.getBytes(data.readerIndex(), array);
-            offset = 0;
-        }
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(content);
 
-        ByteArrayDataInput dataInput = ByteStreams.newDataInput(array, offset, readableBytes);
+        CheckPermMessage checkMessage = new CheckPermMessage();
+        checkMessage.readFrom(dataInput);
 
         CheckPermMessage message = new CheckPermMessage();
         message.readFrom(dataInput);
@@ -94,8 +85,7 @@ public class CheckPermissionListener implements MessageHandler<ByteBuf> {
     private void sendResultMessage(Player receiver, PermResultMessage resultMessage) {
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
         resultMessage.writeTo(dataOutput);
-        byte[] bytes = dataOutput.toByteArray();
-        permissionsResultChannel.sendTo(receiver, bytes);
+        permissionsResultChannel.sendTo(receiver, dataOutput.toByteArray());
     }
 }
 ```

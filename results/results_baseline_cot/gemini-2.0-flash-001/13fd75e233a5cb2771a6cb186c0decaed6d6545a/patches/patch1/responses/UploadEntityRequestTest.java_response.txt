@@ -1,7 +1,3 @@
-/*
- * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
- * https://github.com/artipie/docker-adapter/LICENSE.txt
- */
 package com.artipie.docker.http;
 
 import com.artipie.docker.Digest;

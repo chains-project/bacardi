@@ -55,16 +55,14 @@ public final class DigestFromContent {
                 )
             )
             .<Digest>andThen(
-                Single.fromCallable(
-                    () -> {
-                        final byte[] digestBytes = sha.digest();
-                        final StringBuilder hexString = new StringBuilder();
-                        for (final byte b : digestBytes) {
-                            hexString.append(String.format("%02x", b));
-                        }
-                        return new Digest.Sha256(hexString.toString());
+                Single.fromCallable(() -> {
+                    byte[] digestBytes = sha.digest();
+                    StringBuilder hex = new StringBuilder();
+                    for (byte b : digestBytes) {
+                        hex.append(String.format("%02x", b));
                     }
-                )
+                    return new Digest.Sha256(hex.toString());
+                })
             )
             .to(SingleInterop.get()).toCompletableFuture();
     }

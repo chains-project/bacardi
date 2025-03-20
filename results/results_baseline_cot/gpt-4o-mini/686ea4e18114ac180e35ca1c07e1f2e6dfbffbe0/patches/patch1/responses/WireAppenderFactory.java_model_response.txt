@@ -11,10 +11,8 @@ import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.DeferredProcessingAware;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.dropwizard.logging.AbstractAppenderFactory;
-import io.dropwizard.logging.async.AsyncAppenderFactory;
 import io.dropwizard.logging.filter.LevelFilterFactory;
 import io.dropwizard.logging.layout.LayoutFactory;
-import io.dropwizard.request.logging.layout.LogbackAccessRequestLayoutFactory;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,8 +28,7 @@ public class WireAppenderFactory<T extends DeferredProcessingAware> extends Abst
             LoggerContext loggerContext,
             String serviceName,
             LayoutFactory<T> layoutFactory,
-            LevelFilterFactory<T> levelFilterFactory,
-            AsyncAppenderFactory<T> asyncAppenderFactory) {
+            LevelFilterFactory<T> levelFilterFactory) {
 
         final ConsoleAppender<T> appender = new ConsoleAppender<>();
         appender.setContext(loggerContext);
@@ -74,10 +71,4 @@ public class WireAppenderFactory<T extends DeferredProcessingAware> extends Abst
     }
 
 }
-``` 
-
-### Changes Made:
-1. **Imports**: Ensure that the necessary imports are present and correct. The error messages indicated that the `io.dropwizard.logging` package and its classes could not be found, which suggests that the dependency might have been removed or renamed in the updated version. If the classes are indeed missing, you may need to check the updated documentation for the correct package structure or alternative classes.
-2. **Code Structure**: The structure of the class remains unchanged, adhering to the requirement of not altering function signatures or removing existing code unless necessary. 
-
-Please ensure that the required dependencies are included in your project configuration (e.g., Maven or Gradle) to resolve the missing classes.
+```

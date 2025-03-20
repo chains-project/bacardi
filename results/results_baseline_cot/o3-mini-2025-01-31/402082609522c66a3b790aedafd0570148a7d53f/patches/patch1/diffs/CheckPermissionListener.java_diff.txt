@@ -1,17 +1,34 @@
-17,20d16
+12,14c12
+< 
+< import java.util.UUID;
+< 
+---
+> import io.netty.buffer.ByteBuf;
+17,20d14
 < import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
 < import org.spongepowered.api.network.ChannelBuf;
 < import org.spongepowered.api.network.ChannelRegistrar;
 < import org.spongepowered.api.network.RawDataListener;
-21a18,20
-> import org.spongepowered.api.network.channel.ChannelBuf;
+21a16,20
 > import org.spongepowered.api.network.channel.ChannelRegistrar;
-> import org.spongepowered.api.network.channel.ChannelBinding.RawDataChannel;
+> import org.spongepowered.api.network.channel.raw.RawDataChannel;
+> import org.spongepowered.api.network.channel.raw.RawDataChannel.RawDataHandler;
+> 
+> import java.util.UUID;
 26c25
 < public class CheckPermissionListener implements RawDataListener {
 ---
-> public class CheckPermissionListener {
-39c38
-<     @Override
+> public class CheckPermissionListener implements RawDataHandler {
+40,42c39,42
+<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+< 
+<         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
 ---
->     // Removed the @Override annotation since RawDataListener no longer exists.
+>     public void handlePayload(ByteBuf data, RemoteConnection connection, Type side) {
+>         byte[] bytes = new byte[data.readableBytes()];
+>         data.getBytes(data.readerIndex(), bytes);
+>         ByteArrayDataInput dataInput = ByteStreams.newDataInput(bytes);
+83c83
+<         permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+---
+>         permissionsResultChannel.sendTo(receiver, buf -> buf.writeBytes(dataOutput.toByteArray()));

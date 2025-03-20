@@ -18,12 +18,10 @@ public class DubboConsumerExtractor extends DubboExtractor {
     public void record(Result result) {
         adapter.execute(result, makeMocker());
     }
-
     private Mocker makeMocker() {
         Mocker mocker = MockUtils.createDubboConsumer(adapter.getServiceOperation());
         return buildMocker(mocker, adapter, null, null);
     }
-
     public MockResult replay() {
         MockResult mockResult = null;
         Object result = MockUtils.replayBody(makeMocker());

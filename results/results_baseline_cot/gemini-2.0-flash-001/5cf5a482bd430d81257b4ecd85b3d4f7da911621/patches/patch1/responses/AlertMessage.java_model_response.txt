@@ -4,16 +4,19 @@ package com.example.web;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.inject.Named;
-import jakarta.mvc.RedirectScoped;
+import javax.inject.Named;
+import jakarta.faces.view.ViewScoped;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.application.FacesMessage;
 
 /**
  * Used to transport messages back to the client.
  *
  * @author Hantsy Bai<hantsy@gmail.com>
  */
-@RedirectScoped
 @Named("flashMessage")
+@ViewScoped
 public class AlertMessage implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -58,18 +61,22 @@ public class AlertMessage implements Serializable {
     }
 
     public static AlertMessage success(String text) {
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, text, null));
         return new AlertMessage(Type.success, text);
     }
 
     public static AlertMessage warning(String text) {
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, text, null));
         return new AlertMessage(Type.warning, text);
     }
 
     public static AlertMessage danger(String text) {
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, text, null));
         return new AlertMessage(Type.danger, text);
     }
 
     public static AlertMessage info(String text) {
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, text, null));
         return new AlertMessage(Type.info, text);
     }
 

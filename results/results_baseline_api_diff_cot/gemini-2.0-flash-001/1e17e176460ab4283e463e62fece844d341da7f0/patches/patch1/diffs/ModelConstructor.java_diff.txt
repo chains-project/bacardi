@@ -1,6 +1,15 @@
-16a17
+11a12
 > import org.yaml.snakeyaml.LoaderOptions;
-43c44
+43c44,45
 <     super(Model.class);
 ---
->     super(new LoaderOptions());
+>     this(new LoaderOptions());
+>   }
+45,46c47,50
+<     yamlConstructors.put(XPP3DOM_TAG, new ConstructXpp3Dom());
+<     yamlClassConstructors.put(NodeId.mapping, new MavenObjectConstruct());
+---
+>   public ModelConstructor(LoaderOptions loaderOptions) {
+>     super(loaderOptions);
+>     this.yamlConstructors.put(XPP3DOM_TAG, new ConstructXpp3Dom());
+>     this.yamlClassConstructors.put(NodeId.mapping, new MavenObjectConstruct());

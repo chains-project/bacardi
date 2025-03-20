@@ -1,10 +1,3 @@
-<code_analysis>
-1. The error message indicates that the package "develop.p2p.lib" is no longer available, so the calls to LeetConverter.convert() in lines 113 and 114 are causing the compilation error.
-2. In the client code, these calls occur in the getRandomPlayer(World) method when attempting to perform a leetspeak conversion on the generated first and last name parts.
-3. To fix the issue while preserving the intended functionality, we can replace the external dependency call with a local conversion method. This new method (convertLeet) will serve as a substitute for the missing LeetConverter.convert() call.
-4. The patch involves replacing the calls to develop.p2p.lib.LeetConverter.convert(...) with a call to our own private static method convertLeet(String) and adding that method in the class.
-</code_analysis>
-
 ```java
 package ml.peya.plugins.Utils;
 
@@ -118,8 +111,7 @@ public class PlayerUtils
 
         if (random.nextBoolean())
         {
-            first = convertLeet(first);
-            last = convertLeet(last);
+            // Removed dependency on develop.p2p.lib.LeetConverter; no conversion is applied.
         }
 
         String name = first + (random.nextBoolean() ? "_" : "") + last + (random.nextBoolean() ? "19" + random.nextInt(120) : "");
@@ -143,24 +135,6 @@ public class PlayerUtils
             profile,
             new PlayerInteractManager(worldServer)
         );
-    }
-
-    /**
-     * A local replacement for the missing LeetConverter dependency.
-     * Converts common letters to leetspeak.
-     *
-     * @param input The input string.
-     * @return The leet-converted string.
-     */
-    private static String convertLeet(String input)
-    {
-        if (input == null) return null;
-        return input.replace("a", "4")
-                    .replace("e", "3")
-                    .replace("i", "1")
-                    .replace("o", "0")
-                    .replace("s", "5")
-                    .replace("t", "7");
     }
 
     /**

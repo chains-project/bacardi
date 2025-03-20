@@ -5,7 +5,6 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 
 import org.jenkinsci.test.acceptance.po.PageObject;
-import net.sf.json.JSONObject;
 
 /**
  * Charts are displayed one multiple PageObjects. This util provides some helper methods to deal with charts.
@@ -31,9 +30,8 @@ public class ChartUtil {
                     "delete(window.Array.prototype.toJSON) %n"
                             + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
                     elementId));
-            if (result != null) {
-                return result.toString();
-            }
+            String scriptResult = String.valueOf(result);
+            return scriptResult;
         }
         return null;
     }
@@ -57,8 +55,9 @@ public class ChartUtil {
                                 + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
                         toolAttribute));
 
-                if (result != null) {
-                    return result.toString();
+                String scriptResult = String.valueOf(result);
+                if (scriptResult != null) {
+                    return scriptResult;
                 }
                 pageObject.elasticSleep(1000);
             }

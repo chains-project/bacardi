@@ -1,19 +1,3 @@
-/*
- * Copyright 2016 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * you may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.google.cloud.translate.spi.v2;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -47,8 +31,9 @@ public class HttpTranslateRpc implements TranslateRpc {
     HttpRequestInitializer initializer = transportOptions.getHttpRequestInitializer(options);
     this.options = options;
     translate =
-        Translate.newBuilder(transport, new JacksonFactory(), initializer)
-            .setApiKey(options.getApiKey())
+        new Translate.Builder(transport, new JacksonFactory(), initializer)
+            .setRootUrl(options.getHost())
+            .setApplicationName(options.getApplicationName())
             .build();
   }
 
@@ -57,7 +42,7 @@ public class HttpTranslateRpc implements TranslateRpc {
   }
 
   private GenericUrl buildTargetUrl(String path) {
-    GenericUrl genericUrl = new GenericUrl(translate.getBaseUrl() + "v2/" + path);
+    GenericUrl genericUrl = new GenericUrl(translate.getRootUrl() + "v3/" + path);
     if (options.getApiKey() != null) {
       genericUrl.put("key", options.getApiKey());
     }
@@ -68,10 +53,7 @@ public class HttpTranslateRpc implements TranslateRpc {
   public List<List<DetectLanguageResponse>> detect(List<String> texts) {
     try {
       List<List<DetectLanguageResponse>> detections =
-          translate.projects().detectLanguage("projects/" + options.getProjectId())
-              .setContents(texts)
-              .execute()
-              .getResponses();
+          translate.projects().locations().detectLanguage("projects/" + options.getProjectId(), texts).execute().getResponses();
       return detections != null ? detections : ImmutableList.<List<DetectLanguageResponse>>of();
     } catch (IOException ex) {
       throw translate(ex);
@@ -82,10 +64,11 @@ public class HttpTranslateRpc implements TranslateRpc {
   public List<Language> listSupportedLanguages(Map<Option, ?> optionMap) {
     try {
       List<Language> languages =
-          translate.projects().locations().getSupportedLanguages("projects/" + options.getProjectId())
-              .setTarget(
-                  firstNonNull(
-                      Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
+          translate
+              .projects()
+              .locations()
+              .getSupportedLanguages("projects/" + options.getProjectId())
+              .setTarget(firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
               .execute()
               .getLanguages();
       return languages != null ? languages : ImmutableList.<Language>of();
@@ -99,11 +82,28 @@ public class HttpTranslateRpc implements TranslateRpc {
     try {
       String targetLanguage =
           firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
+      final String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
       List<TranslateTextResponse> translations =
-          translate.projects().locations().translateText("projects/" + options.getProjectId(), texts, targetLanguage)
+          translate
+              .projects()
+              .locations()
+              .translateText("projects/" + options.getProjectId(), texts, targetLanguage)
+              .setSource(sourceLanguage)
+              .setModel(Option.MODEL.getString(optionMap))
+              .setFormat(Option.FORMAT.getString(optionMap))
               .execute()
               .getTranslations();
-      return translations != null ? translations : ImmutableList.<TranslateTextResponse>of();
+      return Lists.transform(
+          translations != null ? translations : ImmutableList.<TranslateTextResponse>of(),
+          new Function<TranslateTextResponse, TranslateTextResponse>() {
+            @Override
+            public TranslateTextResponse apply(TranslateTextResponse translateTextResponse) {
+              if (translateTextResponse.getDetectedSourceLanguage() == null) {
+                translateTextResponse.setDetectedSourceLanguage(sourceLanguage);
+              }
+              return translateTextResponse;
+            }
+          });
     } catch (IOException ex) {
       throw translate(ex);
     }

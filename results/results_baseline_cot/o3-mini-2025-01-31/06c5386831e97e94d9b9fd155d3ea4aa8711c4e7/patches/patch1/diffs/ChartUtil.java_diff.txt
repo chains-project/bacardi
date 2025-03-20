@@ -1,41 +1,23 @@
-7,8d6
+6,8d5
+< 
 < import com.gargoylesoftware.htmlunit.ScriptResult;
 < 
-12c10
+12c9
 <  * Charts are displayed one multiple PageObjects. This util provides some helper methods to deal with charts.
 ---
 >  * Charts are displayed on multiple PageObjects. This util provides some helper methods to deal with charts.
-14d11
-< @SuppressWarnings("hideutilityclassconstructor")
-15a13
-> @SuppressWarnings("hideutilityclassconstructor")
-35,36c33
+35,36c32
 <             ScriptResult scriptResult = new ScriptResult(result);
 <             return scriptResult.getJavaScriptResult().toString();
 ---
 >             return result != null ? result.toString() : null;
-60,62c57,58
+59,62c55,56
+< 
 <                 Object scriptResult = new ScriptResult(result).getJavaScriptResult();
 <                 if (scriptResult != null) {
 <                     return scriptResult.toString();
 ---
 >                 if (result != null) {
 >                     return result.toString();
-67c63
-<         throw new java.util.NoSuchElementException("Found no trend chart with ID '%s''" + toolAttribute);
----
->         throw new java.util.NoSuchElementException("Found no trend chart with ID '" + toolAttribute + "'");
-84,85c80
-<         }
-<         catch (NoSuchElementException exception) {
----
->         } catch (NoSuchElementException exception) {
-104,105c99
-<         }
-<         catch (NoSuchElementException exception) {
----
->         } catch (NoSuchElementException exception) {
 108d101
-< 
-110d102
 < 

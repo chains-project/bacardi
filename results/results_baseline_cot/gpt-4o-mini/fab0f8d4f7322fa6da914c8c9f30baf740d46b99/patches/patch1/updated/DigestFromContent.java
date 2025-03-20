@@ -13,8 +13,8 @@ import io.reactivex.Single;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.CompletionStage;
-import org.cactoos.io.BytesOf;
-import org.cactoos.text.HexOf; // Ensure this import is correct based on the updated dependency
+import org.cactoos.bytes.BytesOf;
+import org.cactoos.text.HexOf;
 
 /**
  * Digest from content.

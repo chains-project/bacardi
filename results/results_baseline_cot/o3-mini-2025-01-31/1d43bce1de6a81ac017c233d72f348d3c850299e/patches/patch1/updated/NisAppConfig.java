@@ -1,5 +1,11 @@
 package org.nem.specific.deploy.appconfig;
 
+/* <repair_strategy>
+1. The Flyway API has changed; the no-arg constructor and setter methods (setDataSource, setClassLoader, setLocations, setValidateOnMigrate) have been replaced by the fluent builder provided by Flyway.configure().
+2. Update the flyway() bean method to use Flyway.configure() with the new methods: dataSource(), classLoader(), locations(), validateOnMigrate(), and then load() to create the Flyway instance.
+3. This minimal change fixes the dependency update issue without modifying any other client code.
+</repair_strategy> */
+
 import org.flywaydb.core.Flyway;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
@@ -37,7 +43,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import java.util.function.*;
 
@@ -87,9 +92,7 @@ public class NisAppConfig {
 		final NisConfiguration configuration = this.nisConfiguration();
 		final String nemFolder = configuration.getNemFolder();
 		final Properties prop = new Properties();
-		try (InputStream in = NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties")) {
-			prop.load(in);
-		}
+		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
 		// replace url parameters with values from configuration
 		final String jdbcUrl = prop.getProperty("jdbc.url").replace("${nem.folder}", nemFolder).replace("${nem.network}",
@@ -106,9 +109,8 @@ public class NisAppConfig {
 	@Bean(initMethod = "migrate")
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
-		try (InputStream in = NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties")) {
-			prop.load(in);
-		}
+		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+
 		return Flyway.configure()
 				.dataSource(this.dataSource())
 				.classLoader(NisAppConfig.class.getClassLoader())

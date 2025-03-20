@@ -19,11 +19,11 @@ class LLMType(Enum):
     def __str__(self):
         return self.value
 
-    def get_model(self, prompt):
-        return LLMResolver.get_model(self, prompt)
+    def get_model(self, prompt, file_path):
+        return LLMResolver.get_model(self, prompt, file_path)
 
 
-def init_gpt4(prompt):
+def init_gpt4(prompt, file_path):
     model_response = OpenAiModel(
         os.getenv("LLM"),
         prompt
@@ -31,7 +31,7 @@ def init_gpt4(prompt):
     return model_response._generate_response()
 
 
-def init_anthropic(prompt):
+def init_anthropic(prompt, file_path):
     model_response = AnthropicModel(
         os.getenv("LLM"),
         prompt
@@ -39,35 +39,39 @@ def init_anthropic(prompt):
     return model_response._generate_response()
 
 
-def init_gemini(prompt):
+def init_gemini(prompt, file_path):
     model_response = GoogleModels(os.getenv("LLM"), prompt)
     _result = model_response._generate_response()
     text = extract_text(_result)
     cost = model_response.token_cost(_result, os.getenv("LLM"))
     # Instantiate LLMResolver so that update_costs gets self with cost_data and file_path initialized
     resolver = LLMResolver()
+    cost['file_path'] = file_path
     update_costs(resolver, os.getenv("LLM"), cost)
 
     return text
 
-def init_openroute(prompt):
+
+def init_openroute(prompt, file_path):
     model_response = OpenRouterModels(os.getenv("LLM"), prompt)
     _result = model_response._generate_response()
     text = _result['choices'][0]['message']['content']
     cost = model_response.token_cost(_result, os.getenv("LLM"))
     # Instantiate LLMResolver so that update_costs gets self with cost_data and file_path initialized
     resolver = LLMResolver()
+    cost['file_path'] = file_path
     update_costs(resolver, os.getenv("LLM"), cost)
     return text
 
 
 def get_llm_response(prompt, _llm_type: LLMType):
+    file_prompt_path = os.path.relpath(prompt, start=os.getcwd())
     load_dotenv()
 
     with open(prompt, "r") as f:
         prompt_from_file = f.read()
 
-    return _llm_type.get_model(prompt_from_file)
+    return _llm_type.get_model(prompt_from_file, file_prompt_path)
 
 
 def update_costs(self, model_name, new_cost_data):
@@ -92,7 +96,8 @@ def update_costs(self, model_name, new_cost_data):
     model_costs['completion_cost'] += new_cost_data['completion_cost']
     model_costs['total_cost'] += new_cost_data['total_cost']
 
-    # Append the new cost data to the results array
+    # Append the new cost data to the results array, including the file_path
+    # new_cost_data['file_path'] = os.path.basename(self.file_path)
     model_costs['results'].append(new_cost_data)
 
     # Write the updated cost data back to the JSON file
@@ -118,7 +123,7 @@ class LLMResolver:
             self.cost_data = json.load(cost_file)
 
     @staticmethod
-    def get_model(for_type: LLMType, prompt):
+    def get_model(for_type: LLMType, prompt, file_path):
         definitions = {
             LLMType.OPENAI: init_gpt4,
             LLMType.ANTHROPIC: init_anthropic,
@@ -126,7 +131,7 @@ class LLMResolver:
             LLMType.OPENROUTE: init_openroute
         }
 
-        return definitions[for_type](prompt)
+        return definitions[for_type](prompt, file_path)
 
 
 if __name__ == "__main__":

@@ -18,16 +18,16 @@ package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
-import com.hazelcast.config.EvictionConfig;
 import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.EvictionConfig;
 import com.hazelcast.config.MemberAttributeConfig;
 import com.hazelcast.config.MemcacheProtocolConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.config.RestApiConfig;
 import com.hazelcast.cluster.Cluster;
-import com.hazelcast.cluster.Member;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.cluster.Member;
 import org.jivesoftware.openfire.JMXManager;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterEventListener;
@@ -378,7 +378,6 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
             }
         }
 
-
         if (!members.isEmpty()) {
             // Asynchronously execute the task on the other cluster members
             logger.debug("Executing asynchronous MultiTask: " + task.getClass().getName());
@@ -656,7 +655,9 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
     }
 
     public static NodeID getNodeID(final Member member) {
-        return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
+        Object attribute = member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
+        String attrStr = attribute != null ? attribute.toString() : "";
+        return NodeID.getInstance(attrStr.getBytes(StandardCharsets.UTF_8));
     }
 
     static void fireLeftClusterAndWaitToComplete(final Duration timeout) {
@@ -699,4 +700,5 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
             ClusterManager.removeListener(clusterEventListener);
         }
     }
+
 }

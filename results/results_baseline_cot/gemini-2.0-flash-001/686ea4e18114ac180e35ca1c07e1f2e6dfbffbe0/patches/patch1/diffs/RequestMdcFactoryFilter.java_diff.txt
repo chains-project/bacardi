@@ -1,8 +1,27 @@
-3a4,6
-> import jakarta.ws.rs.container.ContainerRequestContext;
-> import jakarta.ws.rs.container.ContainerRequestFilter;
-> import jakarta.ws.rs.ext.Provider;
-7,9d9
-< import javax.ws.rs.container.ContainerRequestContext;
-< import javax.ws.rs.container.ContainerRequestFilter;
-< import javax.ws.rs.ext.Provider;
+3c3
+< import io.dropwizard.util.Strings;
+---
+> import org.apache.commons.lang3.StringUtils;
+6a7
+> import javax.servlet.http.HttpServletRequest;
+8a10
+> import javax.ws.rs.core.Context;
+16a19,22
+> 
+>     @Context
+>     private HttpServletRequest request;
+> 
+20c26
+<         addIfNotNull("forwardedFor", requestContext.getHeaderString("X-Request-Id"));
+---
+>         addIfNotNull("forwardedFor", request.getHeader("X-Request-Id"));
+24,25c30,31
+<         addIfNotNull("forwardedFor", requestContext.getHeaderString("X-Forwarded-For"));
+<         addIfNotNull("realIp", requestContext.getHeaderString("X-Real-IP"));
+---
+>         addIfNotNull("forwardedFor", request.getHeader("X-Forwarded-For"));
+>         addIfNotNull("realIp", request.getHeader("X-Real-IP"));
+29c35
+<         if (!Strings.isNullOrEmpty(value)) {
+---
+>         if (!StringUtils.isEmpty(value)) {

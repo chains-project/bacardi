@@ -94,22 +94,7 @@ public class CheckPermissionListener implements RawDataListener {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
-```
-```java
-import org.spongepowered.api.network.ChannelRegistrar;
-```
-```java
-CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
-```
-```java
-import org.spongepowered.api.network.RawDataListener;
-```
-```java
 import org.spongepowered.api.network.ChannelBuf;
-```
-```java
-public class CheckPermissionListener implements RawDataListener {
 ```
 ```java
 public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
@@ -117,29 +102,27 @@ public void handlePayload(ChannelBuf data, RemoteConnection connection, Type sid
 ```java
 private final RawDataChannel permissionsResultChannel;
 ```
+```java
+CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+```
+```java
+import org.spongepowered.api.network.ChannelRegistrar;
+```
+```java
+import org.spongepowered.api.network.RawDataListener;
+```
+```java
+import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+```
+```java
+public class CheckPermissionListener implements RawDataListener {
+```
 
 
  And here is the error message:
-[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[17,52] package org.spongepowered.api.network.ChannelBinding does not exist
-
-[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[19,37] cannot find symbol
-  symbol:   class ChannelRegistrar
-  location: package org.spongepowered.api.network
-
-[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[32,54] cannot find symbol
-  symbol:   class ChannelRegistrar
-  location: class com.github.games647.changeskin.sponge.bungee.CheckPermissionListener
-
-[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[20,37] cannot find symbol
-  symbol:   class RawDataListener
-  location: package org.spongepowered.api.network
-
 [ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[18,37] cannot find symbol
   symbol:   class ChannelBuf
   location: package org.spongepowered.api.network
-
-[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[26,49] cannot find symbol
-  symbol: class RawDataListener
 
 [ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[40,31] cannot find symbol
   symbol:   class ChannelBuf
@@ -148,6 +131,23 @@ private final RawDataChannel permissionsResultChannel;
 [ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[29,19] cannot find symbol
   symbol:   class RawDataChannel
   location: class com.github.games647.changeskin.sponge.bungee.CheckPermissionListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[32,54] cannot find symbol
+  symbol:   class ChannelRegistrar
+  location: class com.github.games647.changeskin.sponge.bungee.CheckPermissionListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[19,37] cannot find symbol
+  symbol:   class ChannelRegistrar
+  location: package org.spongepowered.api.network
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[20,37] cannot find symbol
+  symbol:   class RawDataListener
+  location: package org.spongepowered.api.network
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[17,52] package org.spongepowered.api.network.ChannelBinding does not exist
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[26,49] cannot find symbol
+  symbol: class RawDataListener
 
 
 

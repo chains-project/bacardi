@@ -63,14 +63,14 @@ public class BacardiCore {
             case BASELINE_BUGGY_LINE:
                 promptPipeline = PromptPipeline.BASELINE_BUGGY_LINE;
                 break;
-            case BASELINE_ANTHROPIC:
-                promptPipeline = PromptPipeline.BASELINE_ANTHROPIC;
+            case BASELINE_COT:
+                promptPipeline = PromptPipeline.BASELINE_COT;
                 break;
             case BASELINE_COT_API_DIFF:
                 promptPipeline = PromptPipeline.BASELINE_COT_API_DIFF;
                 break;
-            case BASELINE_ANTHROPIC_BUGGY:
-                promptPipeline = PromptPipeline.BASELINE_ANTHROPIC_BUGGY;
+            case BASELINE_COT_BUGGY:
+                promptPipeline = PromptPipeline.BASELINE_COT_BUGGY;
                 break;
             case FIX_YOU:
                 promptPipeline = PromptPipeline.FIX_YOU;
@@ -320,8 +320,8 @@ public class BacardiCore {
         PromptPipeline promptPipeLine = PIPELINE;
 
         return switch (promptPipeLine) {
-            case BASELINE, BASELINE_ANTHROPIC, FIX_YOU -> repairDirectFailures.basePipeLine();
-            case BASELINE_BUGGY_LINE, BASELINE_ANTHROPIC_BUGGY -> repairDirectFailures.buggyLinePipeLine();
+            case BASELINE, BASELINE_COT, FIX_YOU -> repairDirectFailures.basePipeLine();
+            case BASELINE_BUGGY_LINE, BASELINE_COT_BUGGY -> repairDirectFailures.buggyLinePipeLine();
             case BASELINE_API_DIFF, BASELINE_COT_API_DIFF -> repairDirectFailures.extractConstructsFromDirectFailures();
             case BASELINE_API_DIFF_BUGGY, BASELINE_COT_API_DIFF_BUGGY -> repairDirectFailures.extractConstructsFromDirectFailuresWithBuggyLine();
             default -> throw new IllegalStateException("Unexpected value: " + promptPipeLine);

@@ -20,9 +20,8 @@ package org.codehaus.plexus.archiver.zip;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-
 import org.apache.commons.compress.parallel.ScatterGatherBackingStore;
+import java.io.OutputStream;
 
 public class DeferredScatterOutputStream implements ScatterGatherBackingStore
 {

@@ -1,5 +1,5 @@
 ```java
-/**
+    /**
  * Copyright (C) 2014 Premium Minds.
  *
  * This file is part of wicket-crudifier.
@@ -101,15 +101,15 @@ public abstract class ListControlGroups<T> extends Panel {
 			if(!entitySettings.getHiddenFields().contains(property))
 				properties.add(property);
 		}
-		try {
-			for(PropertyDescriptor descriptor : org.apache.commons.beanutils.PropertyUtils.getPropertyDescriptors(modelClass)){
+		try{
+			for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
 				if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
 				   !properties.contains(descriptor.getName()) &&
 				   !descriptor.getName().equals("class"))
 					properties.add(descriptor.getName());
 			}
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException("error getting property descriptors", e);
 		}
 
 		return properties;
@@ -130,7 +130,7 @@ public abstract class ListControlGroups<T> extends Panel {
 		for(String property : properties){
 			PropertyDescriptor descriptor;
 			try {
-				descriptor = org.apache.commons.beanutils.PropertyUtils.getPropertyDescriptor(getModel().getObject(), property);
+				descriptor = PropertyUtils.getPropertyDescriptor(getModel().getObject(), property);
 			} catch (Exception e) {
 				throw new RuntimeException("error getting property "+property, e);
 			}

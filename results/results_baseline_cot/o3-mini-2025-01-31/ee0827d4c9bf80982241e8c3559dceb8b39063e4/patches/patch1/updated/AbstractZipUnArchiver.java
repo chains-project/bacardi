@@ -19,25 +19,25 @@ package org.codehaus.plexus.archiver.zip;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.FilterInputStream;
 import java.net.URL;
 import java.util.Date;
 import java.util.Enumeration;
 import javax.annotation.Nonnull;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
-// Updated import: use BoundedInputStream from Apache Commons Compress utils
-import org.apache.commons.compress.utils.BoundedInputStream;
 import org.apache.commons.io.input.CountingInputStream;
 import org.codehaus.plexus.archiver.AbstractUnArchiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.components.io.resources.PlexusIoResource;
 
 /**
- * @author
+ * @author <a href="mailto:evenisse@codehaus.org">Emmanuel Venisse</a>
  */
 public abstract class AbstractZipUnArchiver
     extends AbstractUnArchiver
 {
+
     private static final String NATIVE_ENCODING = "native-encoding";
 
     private String encoding = "UTF8";
@@ -224,4 +224,54 @@ public abstract class AbstractZipUnArchiver
         }
     }
 
+    private static class BoundedInputStream extends FilterInputStream {
+
+        private final long max;
+        private long pos;
+
+        protected BoundedInputStream(InputStream in, long max) {
+            super(in);
+            this.max = max;
+            this.pos = 0;
+        }
+
+        @Override
+        public int read() throws IOException {
+            if ( pos >= max ) {
+                return -1;
+            }
+            int result = in.read();
+            if ( result != -1 ) {
+                pos++;
+            }
+            return result;
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            if ( pos >= max ) {
+                return -1;
+            }
+            long remaining = max - pos;
+            if ( len > remaining ) {
+                len = (int) remaining;
+            }
+            int count = in.read(b, off, len);
+            if ( count > 0 ) {
+                pos += count;
+            }
+            return count;
+        }
+
+        @Override
+        public long skip(long n) throws IOException {
+            long remaining = max - pos;
+            if ( n > remaining ) {
+                n = remaining;
+            }
+            long skipped = in.skip(n);
+            pos += skipped;
+            return skipped;
+        }
+    }
 }

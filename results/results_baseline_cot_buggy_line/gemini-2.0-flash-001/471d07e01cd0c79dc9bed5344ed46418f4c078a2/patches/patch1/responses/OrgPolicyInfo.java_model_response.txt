@@ -16,14 +16,14 @@
  */
 package com.google.cloud.resourcemanager;
 
-import com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy;
-import com.google.api.services.cloudresourcemanager.v3.model.ListPolicy;
-import com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy;
-import com.google.api.services.cloudresourcemanager.v3.model.RestoreDefault;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.List;
 import java.util.Objects;
+import com.google.cloud.resourcemanager.v3.BooleanPolicy;
+import com.google.cloud.resourcemanager.v3.ListPolicy;
+import com.google.cloud.resourcemanager.v3.OrgPolicy;
+import com.google.cloud.resourcemanager.v3.RestoreDefault;
 
 /**
  * A Google Cloud Resource Manager organization policy metadata object.
@@ -95,7 +95,9 @@ public class OrgPolicyInfo {
     }
 
     BooleanPolicy toProtobuf() {
-      return new BooleanPolicy().setEnforced(enforce);
+      BooleanPolicy booleanPolicy = new BooleanPolicy();
+      booleanPolicy.setEnforced(enforce);
+      return booleanPolicy;
     }
 
     static BoolPolicy fromProtobuf(BooleanPolicy booleanPolicy) {
@@ -199,12 +201,13 @@ public class OrgPolicyInfo {
     }
 
     ListPolicy toProtobuf() {
-      return new ListPolicy()
-          .setAllValues(allValues)
-          .setAllowedValues(allowedValues)
-          .setDeniedValues(deniedValues)
-          .setInheritFromParent(inheritFromParent)
-          .setSuggestedValue(suggestedValue);
+      ListPolicy listPolicy = new ListPolicy();
+      listPolicy.setAllValues(allValues);
+      listPolicy.setAllowedValues(allowedValues);
+      listPolicy.setDeniedValues(deniedValues);
+      listPolicy.setInheritFromParent(inheritFromParent);
+      listPolicy.setSuggestedValue(suggestedValue);
+      return listPolicy;
     }
 
     static Policies fromProtobuf(ListPolicy listPolicy) {

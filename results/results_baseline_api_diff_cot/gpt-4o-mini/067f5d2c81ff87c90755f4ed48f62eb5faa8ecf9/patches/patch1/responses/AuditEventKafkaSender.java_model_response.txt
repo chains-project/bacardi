@@ -4,7 +4,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * you may obtain a copy of the License at
+ * You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -32,8 +32,8 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.thrift.TException;
 import org.apache.thrift.TSerializer;
-import org.apache.thrift.protocol.TProtocolFactory; // Added import for TProtocolFactory
-import org.apache.thrift.transport.TTransportException; // Added import for TTransportException
+import org.apache.thrift.protocol.TProtocolFactory;
+import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +76,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
 
   private KafkaProducer<byte[], byte[]> kafkaProducer;
 
-  private TSerializer serializer; // Changed to be initialized in the constructor
+  private TSerializer serializer;
 
   private AtomicBoolean cancelled = new AtomicBoolean(false);
 
@@ -106,7 +106,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
     this.name = name;
     this.stopGracePeriodInSeconds = config.getStopGracePeriodInSeconds();
     this.badPartitions.add(-1);
-    this.serializer = new TSerializer(); // Initialize serializer here
+    this.serializer = new TSerializer(new TProtocolFactory()); // Updated constructor
   }
 
   public KafkaProducer<byte[], byte[]> getKafkaProducer() {

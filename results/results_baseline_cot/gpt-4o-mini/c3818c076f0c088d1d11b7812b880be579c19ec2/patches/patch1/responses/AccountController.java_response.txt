@@ -13,7 +13,6 @@ import org.nem.nis.service.AccountIo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.NotNull; // Updated import
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,7 +43,7 @@ public class AccountController {
 	 */
 	@RequestMapping(value = "/account/unlock", method = RequestMethod.POST)
 	@ClientApi
-	public void accountUnlock(@NotNull @RequestBody final PrivateKey privateKey) { // Changed @Valid to @NotNull
+	public void accountUnlock(@RequestBody final PrivateKey privateKey) {
 		final KeyPair keyPair = new KeyPair(privateKey);
 		final Account account = new Account(keyPair);
 		final UnlockResult result = this.unlockedAccounts.addUnlockedAccount(account);
@@ -61,7 +60,7 @@ public class AccountController {
 	 */
 	@RequestMapping(value = "/account/lock", method = RequestMethod.POST)
 	@ClientApi
-	public void accountLock(@NotNull @RequestBody final PrivateKey privateKey) { // Changed @Valid to @NotNull
+	public void accountLock(@RequestBody final PrivateKey privateKey) {
 		final Account account = new Account(new KeyPair(privateKey));
 		this.unlockedAccounts.removeUnlockedAccount(account);
 	}
@@ -90,7 +89,7 @@ public class AccountController {
 	@RequestMapping(value = "/local/account/isunlocked", method = RequestMethod.POST)
 	@TrustedApi
 	@ClientApi
-	public String isAccountUnlocked(@NotNull @RequestBody final PrivateKey privateKey) { // Changed @Valid to @NotNull
+	public String isAccountUnlocked(@RequestBody final PrivateKey privateKey) {
 		return this.isAccountUnlocked(Address.fromPublicKey(new KeyPair(privateKey).getPublicKey()));
 	}
 

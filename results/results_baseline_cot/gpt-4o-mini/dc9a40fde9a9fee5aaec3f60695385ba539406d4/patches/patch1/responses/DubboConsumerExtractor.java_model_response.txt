@@ -19,12 +19,10 @@ public class DubboConsumerExtractor extends DubboExtractor {
     public void record(Result result) {
         adapter.execute(result, makeMocker());
     }
-
     private Mocker makeMocker() {
         Mocker mocker = MockUtils.createDubboConsumer(adapter.getServiceOperation());
         return buildMocker(mocker, adapter, null, null);
     }
-
     public MockResult replay() {
         MockResult mockResult = null;
         Object result = MockUtils.replayBody(makeMocker());
@@ -50,9 +48,4 @@ public class DubboConsumerExtractor extends DubboExtractor {
         return mockResult;
     }
 }
-``` 
-
-### Explanation of Changes:
-- The original code was attempting to use `AsyncRpcResult` where a `CompletableFuture` was expected, leading to type incompatibility errors. 
-- The `AsyncRpcResult` is retained as it is part of the existing logic, but the context in which it is used (specifically in `RpcContext.getContext().setFuture(asyncRpcResult);`) may need to be adjusted based on the updated API of the dependencies.
-- The code structure and logic remain intact, ensuring that the function signatures and overall functionality are preserved while addressing the type compatibility issue.
+```

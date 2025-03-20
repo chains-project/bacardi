@@ -1,10 +1,3 @@
-<code_analysis>
-1. The error indicates that the class ClientConnectionEvent (and its inner class Auth) can no longer be found in the package org.spongepowered.api.event.network. This is likely because the Sponge dependency was updated and the event has been renamed or moved.
-2. Reviewing the code, the method onPlayerPreLogin is declared with a parameter of type ClientConnectionEvent.Auth and the corresponding import is used. Both of these now cause compilation errors.
-3. The solution is to update the import and parameter type to use the new event class provided by the updated Sponge API. In Sponge 8, ClientConnectionEvent has been replaced with ServerSideConnectionEvent. Therefore, the parameter type should be updated to ServerSideConnectionEvent.Auth and the corresponding import adjusted.
-4. No other changes are required, and no function signatures are modified. Only the necessary type and import are updated to align with the dependency changes.
-</code_analysis>
-
 ```java
 package com.github.games647.changeskin.sponge;
 
@@ -29,6 +22,7 @@ public class LoginListener extends SharedListener {
     @Inject
     LoginListener(ChangeSkinSponge plugin) {
         super(plugin.getCore());
+
         this.plugin = plugin;
     }
 
@@ -45,6 +39,7 @@ public class LoginListener extends SharedListener {
             if (!preferences.isKeepSkin()) {
                 targetSkin = core.checkAutoUpdate(targetSkin);
             }
+
             plugin.getApi().applyProperties(profile, targetSkin);
             save(preferences);
         } else {

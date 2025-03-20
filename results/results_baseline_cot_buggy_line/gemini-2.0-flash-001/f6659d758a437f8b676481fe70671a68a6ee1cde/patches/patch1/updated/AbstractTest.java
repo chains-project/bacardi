@@ -40,6 +40,8 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.time.ZoneId;
+import org.yaml.snakeyaml.inspector.TagInspector;
+import java.util.function.Predicate;
 
 public class AbstractTest {
 
@@ -62,7 +64,8 @@ public class AbstractTest {
 
     public <T extends MockBaseEntity> T createMockEntity(Class<T> clazz, String path) {
         final LoaderOptions loadingConfig = new LoaderOptions();
-        // loadingConfig.setTagInspector(new TrustedTagInspector()); // TrustedTagInspector is removed
+        Predicate<Tag> tagInspector = tag -> true;
+        loadingConfig.setTagInspector(tagInspector::test);
 
         final Representer representer = new Representer(new DumperOptions());
         final Tag zoneIdTag = new Tag("!ZoneId");

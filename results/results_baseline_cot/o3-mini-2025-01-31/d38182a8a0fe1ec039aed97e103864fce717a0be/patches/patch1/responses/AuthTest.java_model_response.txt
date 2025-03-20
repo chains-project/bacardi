@@ -1,25 +1,3 @@
-<code_analysis>
-1. Error message analysis:
-   - The first error occurs in the lambda expression used in the Bearer authentication method. The lambda is expected to return a CompletableFuture<Optional<AuthUser>>, but the code instantiates a user using “new Authentication.User(user.name())”. In the updated dependency, the nested type Authentication.User no longer exists, and instead an AuthUser type (in package com.artipie.http.auth) should be used.
-   - The second error indicates that the class “User” cannot be found in the interface Authentication, confirming that the inner User type has been removed in the dependency update.
-
-2. Client code review:
-   - In the Bearer inner class (line ~350-353), the lambda expression in the BearerAuthScheme constructor incorrectly creates a user via “new Authentication.User(user.name())”.
-   - The lambda is expected to return an Optional<AuthUser>, but it does not compile due to the missing Authentication.User.
-
-3. Potential fixes:
-   - Replace “new Authentication.User(user.name())” with “new AuthUser(user.name())”.
-   - Add the required import for com.artipie.http.auth.AuthUser.
-   - No function signatures are changed. We only modify the instantiation and the import.
-
-4. Planned modifications:
-   - Modify the lambda in the Bearer.auth slice method to return a new AuthUser.
-   - Import the updated AuthUser class from the correct package.
-   - No other changes are necessary.
-
-The following patch applies these modifications.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
@@ -38,8 +16,9 @@ import com.artipie.http.Headers;
 import com.artipie.http.Response;
 import com.artipie.http.Slice;
 import com.artipie.http.auth.Authentication;
-import com.artipie.http.auth.AuthUser;
 import com.artipie.http.auth.BasicAuthScheme;
+import com.artipie.http.auth.BearerAuthScheme;
+import com.artipie.http.auth.AuthUser;
 import com.artipie.http.auth.Permissions;
 import com.artipie.http.headers.Authorization;
 import com.artipie.http.headers.Header;
@@ -369,7 +348,7 @@ public final class AuthTest {
             return new DockerSlice(
                 new AstoDocker(new InMemoryStorage()),
                 new Permissions.Single(TestAuthentication.ALICE.name(), action),
-                new com.artipie.http.auth.BearerAuthScheme(
+                new BearerAuthScheme(
                     token -> CompletableFuture.completedFuture(
                         Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
                             .filter(user -> token.equals(token(user)))

@@ -1,40 +1,17 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the method TestListResolver.getWildcard() cannot be found.
-   - This is caused by an update in the Apache Maven Surefire API where the getWildcard() method has been removed.
-   - The specific error occurs on the line that instantiates DirectoryScanner within the getClassesLoc method.
-
-2. Review the client code:
-   - The problematic code is in the getClassesLoc(File testSrcFolder) method which calls TestListResolver.getWildcard().
-   - This call is now invalid because the newer version of surefire has removed that static method.
-
-3. Consider potential fixes:
-   - We must not change any method signatures.
-   - We are allowed to remove the unused @Override annotation only if necessary; however, the getClasses() method correctly overrides a method from ClassFinder, so we keep it.
-   - The simplest fix is to replace TestListResolver.getWildcard() with an inline constant representing the intended wildcard pattern.
-   - Typically, in surefire the default test file pattern is something along the lines of "**/*Test.java". This should serve as a proper replacement.
-
-4. Plan the necessary changes:
-   - Define a private static final constant (e.g., DEFAULT_TEST_WILDCARD) with the value "**/*Test.java".
-   - Replace the call to TestListResolver.getWildcard() with the constant.
-   - Remove the now unnecessary import for TestListResolver.
-   - Ensure that the rest of the class remains intact and compiles correctly.
-</code_analysis>
-
 ```java
 package fr.spoonlabs.flacoco.core.test.strategies.classloader.finder.classes.impl;
 
 import fr.spoonlabs.flacoco.core.test.strategies.classloader.finder.classes.ClassFinder;
 import org.apache.maven.plugin.surefire.util.DirectoryScanner;
+import org.apache.maven.surefire.api.testset.TestListResolver;
 
 import java.io.File;
 import java.util.List;
 
 public class SourceFolderFinder implements ClassFinder {
 
-    private static final String DEFAULT_TEST_WILDCARD = "**/*Test.java";
-
     private String srcFolder;
+    private static final String DEFAULT_WILDCARD = "Test*.java";
 
     public SourceFolderFinder(String srcFolder) {
         this.srcFolder = srcFolder;
@@ -46,7 +23,7 @@ public class SourceFolderFinder implements ClassFinder {
     }
 
     static List<String> getClassesLoc(File testSrcFolder) {
-        DirectoryScanner directoryScanner = new DirectoryScanner(testSrcFolder, DEFAULT_TEST_WILDCARD);
+        DirectoryScanner directoryScanner = new DirectoryScanner(testSrcFolder, DEFAULT_WILDCARD);
         return directoryScanner.scan().getClasses();
     }
 }

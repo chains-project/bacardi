@@ -1,18 +1,15 @@
-15,17c15
+13a14
+> import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
+15,17d15
 < import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
 < import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
 < import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
----
-> import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
-40,41c38,39
+40,41c38
 <     PNConfiguration pnConfiguration = new PNConfiguration();
 <     pnConfiguration.setSubscribeKey(publicKey);
 ---
->     // Updated PNConfiguration instantiation: using the constructor that accepts the subscribe key.
->     PNConfiguration pnConfiguration = new PNConfiguration(publicKey);
-92a91
->                 // Implementation for the new abstract method from SubscribeCallback.
-94,105c93,94
+>     PNConfiguration pnConfiguration = new PNConfiguration("", publicKey);
+94,105c91,92
 <                 public void user(PubNub pubnub, PNUserResult pnUserResult) {
 <                   LOG.debug("PubNub user: {}", pnUserResult.toString());
 <                 }

@@ -43,35 +43,12 @@ public final class Account extends AbstractModel {
         /**
          * @param username The username associated with the account. This is
          *                 <em>not</em> the MD5 of username. This method
-         *                 automatically computes the MD5 hexadecimal digest
-         *                 of the string passed to it.
+         *                 automatically runs MD5 on the string passed to it.
          * @return The builder object.
          */
         public Account.Builder username(String username) {
-            this.usernameMd5 = computeMD5Hex(username);
+            this.usernameMd5 = Account.md5Hex(username);
             return this;
-        }
-
-        /**
-         * Computes the MD5 hexadecimal digest of a given string.
-         *
-         * @param input the string to hash
-         * @return the MD5 hash as a hexadecimal string
-         */
-        private static String computeMD5Hex(String input) {
-            try {
-                MessageDigest md = MessageDigest.getInstance("MD5");
-                byte[] digest = md.digest(input.getBytes(StandardCharsets.UTF_8));
-                StringBuilder hexString = new StringBuilder();
-                for (byte b : digest) {
-                    String hex = Integer.toHexString(0xff & b);
-                    if (hex.length() == 1) hexString.append('0');
-                    hexString.append(hex);
-                }
-                return hexString.toString();
-            } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException("MD5 algorithm not available", e);
-            }
         }
 
         /**
@@ -97,5 +74,19 @@ public final class Account extends AbstractModel {
     @JsonProperty("username_md5")
     public String getUsernameMd5() {
         return usernameMd5;
+    }
+
+    private static String md5Hex(String data) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] digest = md.digest(data.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : digest) {
+                hexString.append(String.format("%02x", b));
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("MD5 algorithm not available", e);
+        }
     }
 }

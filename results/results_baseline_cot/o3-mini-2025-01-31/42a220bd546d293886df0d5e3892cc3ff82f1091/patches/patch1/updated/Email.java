@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.maxmind.minfraud.AbstractModel;
 import org.apache.commons.validator.routines.DomainValidator;
 import org.apache.commons.validator.routines.EmailValidator;
-
 import java.net.IDN;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,9 +12,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.nio.charset.StandardCharsets;
 
-/**
- * The email information for the transaction.
- */
 public final class Email extends AbstractModel {
     private final String address;
     private final boolean hashAddress;
@@ -24,7 +20,6 @@ public final class Email extends AbstractModel {
 
     static {
         HashMap<String, String> m = new HashMap<>() {{
-            // gmail.com
             put("35gmai.com", "gmail.com");
             put("636gmail.com", "gmail.com");
             put("gamil.com", "gmail.com");
@@ -32,7 +27,6 @@ public final class Email extends AbstractModel {
             put("gmial.com", "gmail.com");
             put("gmil.com", "gmail.com");
             put("yahoogmail.com", "gmail.com");
-            // outlook.com
             put("putlook.com", "outlook.com");
         }};
 
@@ -45,49 +39,20 @@ public final class Email extends AbstractModel {
         domain = builder.domain;
     }
 
-    /**
-     * {@code Builder} creates instances of {@code Email}
-     * from values set by the builder's methods.
-     */
     public static final class Builder {
         private final boolean enableValidation;
         private String address;
         private boolean hashAddress;
         private String domain;
 
-        /**
-         * The constructor for the builder.
-         * <p>
-         * By default, validation will be enabled.
-         */
         public Builder() {
             enableValidation = true;
         }
 
-        /**
-         * The constructor for the builder.
-         *
-         * @param enableValidation Whether validation should be enabled.
-         */
         public Builder(boolean enableValidation) {
             this.enableValidation = enableValidation;
         }
 
-        /**
-         * Set the email address and domain fields for the request. If
-         * you set the email address from this method, you do <em>not</em>
-         * need to set the domain separately. The domain will be set to
-         * the domain of the email address and the address field will be
-         * set to the email address passed.
-         * <p>
-         * The email address will be sent in plain text unless you also call
-         * {@link #hashAddress()} to instead send it as an MD5 hash.
-         *
-         * @param address The valid email address used in the transaction.
-         * @return The builder object.
-         * @throws IllegalArgumentException when address is not a valid email
-         *                                  address.
-         */
         public Email.Builder address(String address) {
             if (enableValidation && !EmailValidator.getInstance().isValid(address)) {
                 throw new IllegalArgumentException("The email address " + address + " is not valid.");
@@ -103,26 +68,11 @@ public final class Email extends AbstractModel {
             return this;
         }
 
-        /**
-         * Send the email address as its MD5 hash.
-         * <p>
-         * By default, the email address set by {@link #address(String)} will be
-         * sent in plain text. Enable sending it as an MD5 hash instead by
-         * calling this method.
-         *
-         * @return The builder object.
-         */
         public Email.Builder hashAddress() {
             this.hashAddress = true;
             return this;
         }
 
-        /**
-         * @param domain The domain of the email address. This only needs
-         *               to be set if the email address is not set.
-         * @return The builder object.
-         * @throws IllegalArgumentException when domain is not a valid domain.
-         */
         public Email.Builder domain(String domain) {
             if (enableValidation && !DomainValidator.getInstance().isValid(domain)) {
                 throw new IllegalArgumentException("The email domain " + domain + " is not valid.");
@@ -131,21 +81,11 @@ public final class Email extends AbstractModel {
             return this;
         }
 
-        /**
-         * @return An instance of {@code Email} created from the
-         * fields set on this builder.
-         */
         public Email build() {
             return new Email(this);
         }
     }
 
-    /**
-     * @return The email address field to use in the transaction. This will be
-     * a valid email address if you used {@link Builder#address(String)}, an MD5
-     * hash if you used {@link Builder#hashAddress()} as well, or null if you
-     * did not set an email address.
-     */
     @JsonProperty("address")
     public String getAddress() {
         if (address == null) {
@@ -204,9 +144,6 @@ public final class Email extends AbstractModel {
         return domain;
     }
 
-    /**
-     * @return The domain of the email address used in the transaction.
-     */
     @JsonProperty("domain")
     public String getDomain() {
         return domain;
@@ -216,21 +153,13 @@ public final class Email extends AbstractModel {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] digest = md.digest(input.getBytes(StandardCharsets.UTF_8));
-            return bytesToHex(digest);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("MD5 algorithm not available", e);
-        }
-    }
-
-    private static String bytesToHex(byte[] bytes) {
-        StringBuilder hexString = new StringBuilder();
-        for (byte b : bytes) {
-            String hex = Integer.toHexString(0xff & b);
-            if (hex.length() == 1) {
-                hexString.append('0');
+            StringBuilder sb = new StringBuilder();
+            for (byte b : digest) {
+                sb.append(String.format("%02x", b));
             }
-            hexString.append(hex);
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
         }
-        return hexString.toString();
     }
 }

@@ -4,8 +4,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
-import ch.qos.logback.core.filter.Filter;
-import ch.qos.logback.core.spi.FilterReply;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.GsonBuilder;
 import org.hamcrest.core.Is;
@@ -14,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Mockito;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
@@ -84,11 +81,11 @@ class EventMessageHandlerTest {
     @Captor
     ArgumentCaptor<Map<String, String>> personalisationCaptor;
     
-    // Removed the @Mock annotation from the logger appender to avoid dynamic proxy issues.
-    private Appender<ILoggingEvent> mockLogAppender;
-    
+    @Mock
+    private Appender mockLogAppender;
+
     @Captor
-    ArgumentCaptor<ILoggingEvent> loggingEventArgumentCaptor;
+    ArgumentCaptor loggingEventArgumentCaptor;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final String gatewayAccountId = "123";
@@ -115,8 +112,6 @@ class EventMessageHandlerTest {
 
         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
         logger.setLevel(Level.INFO);
-        // Instead of using a Mockito mock (which caused dependency issues), we use a spy on a concrete appender.
-        mockLogAppender = Mockito.spy(new TestLogAppender());
         logger.addAppender(mockLogAppender);
     }
 
@@ -183,9 +178,9 @@ class EventMessageHandlerTest {
 
         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
-        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
+        List capturedEvents = loggingEventArgumentCaptor.getAllValues();
+        assertThat(((ILoggingEvent) capturedEvents.get(0)).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+        assertThat(((ILoggingEvent) capturedEvents.get(1)).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
 
     @Test
@@ -220,9 +215,9 @@ class EventMessageHandlerTest {
 
         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
-        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
+        List capturedEvents = loggingEventArgumentCaptor.getAllValues();
+        assertThat(((ILoggingEvent) capturedEvents.get(0)).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+        assertThat(((ILoggingEvent) capturedEvents.get(1)).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
 
     @Test
@@ -257,9 +252,9 @@ class EventMessageHandlerTest {
 
         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
-        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
+        List capturedEvents = loggingEventArgumentCaptor.getAllValues();
+        assertThat(((ILoggingEvent) capturedEvents.get(0)).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+        assertThat(((ILoggingEvent) capturedEvents.get(1)).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
 
     @Test
@@ -294,9 +289,9 @@ class EventMessageHandlerTest {
 
         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
-        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
+        List capturedEvents = loggingEventArgumentCaptor.getAllValues();
+        assertThat(((ILoggingEvent) capturedEvents.get(0)).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+        assertThat(((ILoggingEvent) capturedEvents.get(1)).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
 
     @Test
@@ -352,55 +347,5 @@ class EventMessageHandlerTest {
         eventMessageHandler.processMessages();
 
         verify(mockNotificationService, never()).sendStripeDisputeCreatedEmail(anySet(), anyMap());
-    }
-
-    // A concrete implementation of the Appender interface that avoids any dependency on LoggingEventAware.
-    private static class TestLogAppender implements Appender<ILoggingEvent> {
-        private String name = "TestLogAppender";
-
-        @Override
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public void doAppend(ILoggingEvent event) {
-            // No-op implementation. Calls will be captured via the spy.
-        }
-
-        @Override
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public void addFilter(Filter<ILoggingEvent> newFilter) {
-            // No-op.
-        }
-
-        @Override
-        public void clearAllFilters() {
-            // No-op.
-        }
-
-        @Override
-        public List<Filter<ILoggingEvent>> getCopyOfAttachedFiltersList() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public void start() {
-            // No-op.
-        }
-
-        @Override
-        public void stop() {
-            // No-op.
-        }
-
-        @Override
-        public boolean isStarted() {
-            return true;
-        }
     }
 }

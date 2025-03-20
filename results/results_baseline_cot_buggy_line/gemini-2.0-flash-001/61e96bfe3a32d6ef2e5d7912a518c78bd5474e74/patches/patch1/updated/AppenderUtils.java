@@ -8,7 +8,7 @@
  *    http://www.apache.org/licenses/LICENSE-2.0
  * 
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -54,30 +54,9 @@ public class AppenderUtils {
     private TProtocol protocol;
     private OutputStream os;
 
-    //@Override  // Removed due to potential breaking change in logback
-    public void init(OutputStream os) {
-      this.os = os;
-      // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
-      // log.
-      final int bufferCapacity = 10;
-      framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
-          bufferCapacity);
-      protocol = new TBinaryProtocol(framedTransport);
-    }
-
-    //@Override // Removed due to potential breaking change in logback
-    public void doEncode(LogMessage logMessage) throws IOException {
-      try {
-        logMessage.write(protocol);
-        framedTransport.flush();
-      } catch (TException e) {
-        throw new IOException(e);
-      }
-    }
-
-    //@Override // Removed due to potential breaking change in logback
-    public void close() throws IOException {
-      framedTransport.close();
+    @Override
+    public void start() {
+      super.start();
     }
 
     @Override
@@ -88,6 +67,31 @@ public class AppenderUtils {
     @Override
     public byte[] footerBytes() {
       return null;
+    }
+
+    @Override
+    public void init(OutputStream os) {
+      this.os = os;
+      // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
+      // log.
+      final int bufferCapacity = 10;
+      framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
+          bufferCapacity);
+      protocol = new TBinaryProtocol(framedTransport);
+    }
+
+    public void doEncode(LogMessage logMessage) throws IOException {
+      try {
+        logMessage.write(protocol);
+        framedTransport.flush();
+      } catch (TException e) {
+        throw new IOException(e);
+      }
+    }
+
+    @Override
+    public void close() throws IOException {
+      framedTransport.close();
     }
   }
 

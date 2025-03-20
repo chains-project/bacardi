@@ -42,7 +42,7 @@ public class P4Manager extends AbstractPerforceManager<PerforceScm> {
         try {
             String clientString = getClientString();
             if (connection.isClient(clientString)) {
-                ManualWorkspace workspace = new ManualWorkspace(clientString, null, null, null);
+                ManualWorkspace workspace = new ManualWorkspace(clientString, null, null, null, null);
                 ClientHelper perforceClient = new ClientHelper(build.getParent(), credentials, buildListener, workspace);
                 IClient client = perforceClient.getClient();
                 try {

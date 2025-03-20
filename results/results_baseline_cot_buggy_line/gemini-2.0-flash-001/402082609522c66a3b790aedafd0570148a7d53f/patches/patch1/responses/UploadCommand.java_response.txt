@@ -14,12 +14,13 @@ import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
-import org.spongepowered.api.command.spec.CommandExecutor;
-import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.text.Text;
 
-public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.Component;
+
+public class UploadCommand implements Command.Executor, ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
     private final ChangeSkinCore core;
@@ -31,39 +32,41 @@ public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
     }
 
     @Override
-    public CommandResult execute(CommandContext args) {
-        Optional<String> urlOptional = args.one(Parameter.string().key("url").build());
+    public CommandResult execute(CommandContext context) {
+        CommandSource src = context.cause().first(CommandSource.class).orElse(null);
 
-        if (!urlOptional.isPresent()) {
-            plugin.sendMessage(args.cause().getNotifier(), "no-valid-url");
+        if (src == null) {
             return CommandResult.empty();
         }
 
-        String url = urlOptional.get();
+        Parameter.Value<String> urlParameter = context.one(Parameter.string("url")).orElse(null);
+        if (urlParameter == null) {
+            plugin.sendMessage(src, "no-valid-url");
+            return CommandResult.empty();
+        }
+
+        String url = urlParameter;
         if (url.startsWith("http://") || url.startsWith("https://")) {
             List<Account> accounts = plugin.getCore().getUploadAccounts();
             if (accounts.isEmpty()) {
-                plugin.sendMessage(args.cause().getNotifier(), "no-accounts");
+                plugin.sendMessage(src, "no-accounts");
             } else {
                 Account uploadAccount = accounts.get(0);
-                Runnable skinUploader = new SkinUploader(plugin, args.cause().getNotifier(), uploadAccount, url);
+                Runnable skinUploader = new SkinUploader(plugin, src, uploadAccount, url);
                 Task.builder().async().execute(skinUploader).submit(plugin);
             }
         } else {
-            plugin.sendMessage(args.cause().getNotifier(), "no-valid-url");
+            plugin.sendMessage(src, "no-valid-url");
         }
 
         return CommandResult.success();
     }
 
     @Override
-    public CommandSpec buildSpec() {
-        Parameter.Value<String> urlParameter = Parameter.string().key("url").build();
-
-        return CommandSpec.builder()
+    public Command.Builder buildSpec() {
+        return Command.builder()
                 .executor(this)
-                .addParameter(urlParameter)
-                .permission(PomData.ARTIFACT_ID + ".command.skinupload.base")
-                .build();
+                .addParameter(Parameter.string("url"))
+                .permission(PomData.ARTIFACT_ID + ".command.skinupload.base");
     }
 }

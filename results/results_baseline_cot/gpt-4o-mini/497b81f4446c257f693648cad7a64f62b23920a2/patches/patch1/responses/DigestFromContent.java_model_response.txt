@@ -15,7 +15,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.CompletionStage;
 import org.cactoos.io.BytesOf;
-import org.cactoos.text.HexOf; // Ensure this import is correct based on the updated dependency
+import org.cactoos.text.HexOf;
+import org.cactoos.text.TextOf;
 
 /**
  * Digest from content.
@@ -59,13 +60,11 @@ public final class DigestFromContent {
             )
             .<Digest>andThen(
                 Single.fromCallable(
-                    () -> new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+                    () -> new Digest.Sha256(new TextOf(new BytesOf(sha.digest())).asString())
                 )
             )
             .to(SingleInterop.get()).toCompletableFuture();
     }
 
 }
-``` 
-
-In this patch, I ensured that the necessary imports for `HexOf` and `BytesOf` are retained, assuming they are still valid in the updated version of the `org.cactoos` library. If the classes have been moved or renamed in the new version, you would need to adjust the imports accordingly. The rest of the code remains unchanged, adhering to the constraints provided.
+```

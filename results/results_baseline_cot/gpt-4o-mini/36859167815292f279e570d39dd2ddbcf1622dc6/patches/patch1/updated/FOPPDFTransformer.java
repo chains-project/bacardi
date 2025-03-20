@@ -1,21 +1,3 @@
-/*
- * Copyright (C) 2017 Premium Minds.
- *
- * This file is part of billy GIN.
- *
- * billy GIN is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
- * later version.
- *
- * billy GIN is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with billy GIN. If not, see <http://www.gnu.org/licenses/>.
- */
 package com.premiumminds.billy.gin.services.impl.pdf;
 
 import com.google.zxing.BarcodeFormat;
@@ -55,7 +37,7 @@ import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
-import org.apache.fop.apps.FopFactoryBuilder;
+import org.apache.fop.apps.FopFactoryConfig;
 import org.apache.xmlgraphics.util.MimeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,8 +95,8 @@ public abstract class FOPPDFTransformer {
         StreamSource transformSource = new StreamSource(templateStream);
 
         // create an instance of fop factory
-        FopFactoryBuilder fopFactoryBuilder = new FopFactoryBuilder(new File(".").toURI());
-        FopFactory fopFactory = fopFactoryBuilder.build();
+        FopFactoryConfig config = new FopFactoryConfig();
+        FopFactory fopFactory = FopFactory.newInstance(config);
         // a user agent is needed for transformation
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
         // to store output

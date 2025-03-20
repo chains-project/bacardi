@@ -7,9 +7,9 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.ws.Action;
-import javax.xml.ws.RequestWrapper;
-import javax.xml.ws.ResponseWrapper;
+import javax.jws.Action;
+import javax.jws.RequestWrapper;
+import javax.jws.ResponseWrapper;
 
 
 /**

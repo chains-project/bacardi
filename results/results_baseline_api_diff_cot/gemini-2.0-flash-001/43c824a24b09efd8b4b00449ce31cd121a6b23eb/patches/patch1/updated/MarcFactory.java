@@ -42,6 +42,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import de.gwdg.metadataqa.api.schema.JsonPath;
 
 /**
  * Factory class to create MarcRecord from JsonPathCache
@@ -63,8 +64,7 @@ public class MarcFactory {
 
   public static BibliographicRecord create(JsonPathCache cache, MarcVersion version) {
     var marcRecord = new Marc21Record();
-    List<de.gwdg.metadataqa.api.model.pathcache.Path> paths = schema.getPaths();
-    for (de.gwdg.metadataqa.api.model.pathcache.Path branch : paths) {
+    for (JsonPath branch : schema.getPaths()) {
       if (branch.getParent() != null)
         continue;
       switch (branch.getLabel()) {
@@ -310,7 +310,7 @@ public class MarcFactory {
     return field;
   }
 
-  private static List<String> extractList(JsonPathCache cache, de.gwdg.metadataqa.api.model.pathcache.Path branch) {
+  private static List<String> extractList(JsonPathCache cache, JsonPath branch) {
     List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
     List<String> values = new ArrayList<>();
     if (instances != null)
@@ -319,7 +319,7 @@ public class MarcFactory {
     return values;
   }
 
-  private static String extractFirst(JsonPathCache cache, de.gwdg.metadataqa.api.model.pathcache.Path branch) {
+  private static String extractFirst(JsonPathCache cache, JsonPath branch) {
     List<String> list = extractList(cache, branch);
     if (!list.isEmpty())
       return list.get(0);

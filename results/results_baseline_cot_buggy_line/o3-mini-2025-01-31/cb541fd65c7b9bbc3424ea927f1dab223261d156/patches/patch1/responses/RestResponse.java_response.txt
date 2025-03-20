@@ -15,8 +15,8 @@
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+ * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
  * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
@@ -45,7 +45,10 @@ import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.CoreMatchers;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.collection.IsEmptyCollection.empty;
+import static org.hamcrest.collection.IsIterableContainingInAnyOrder.hasItems;
 
 /**
  * REST response.
@@ -57,8 +60,8 @@ import org.hamcrest.CoreMatchers;
  *   .fetch()
  *   .as(RestResponse.class)
  *   .assertStatus(200)
- *   .assertBody(CoreMatchers.containsString("hello, world!"))
- *   .assertHeader("Content-Type", CoreMatchers.hasItem("text/plain"))
+ *   .assertBody(Matchers.containsString("hello, world!"))
+ *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
  *   .jump(URI.create("/users"))
  *   .fetch();</pre>
  *
@@ -207,7 +210,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, RestResponse.hasItems(value));
+        return this.assertHeader(name, hasItems(value));
     }
 
     /**
@@ -243,7 +246,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            CoreMatchers.not(RestResponse.emptyIterableOf(String.class))
+            not(empty())
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -281,7 +284,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            CoreMatchers.notNullValue()
+            notNullValue()
         );
         assert cookie != null;
         return cookie;
@@ -324,50 +327,9 @@ public final class RestResponse extends AbstractResponse {
             this.status = sts;
         }
 
-        @Override
         public boolean matches(final Object resp) {
             return Response.class.cast(resp).status() == this.status;
         }
     }
 
-    /**
-     * Returns a matcher that verifies an iterable is empty.
-     * @param <T> Type parameter
-     * @param clazz the class of the items in the iterable
-     * @return Matcher for checking empty iterable
-     */
-    private static <T> Matcher<Iterable<T>> emptyIterableOf(final Class<T> clazz) {
-        return new CustomMatcher<Iterable<T>>("empty iterable of " + clazz.getName()) {
-            @Override
-            public boolean matches(final Object item) {
-                if (!(item instanceof Iterable)) {
-                    return false;
-                }
-                return !((Iterable<?>) item).iterator().hasNext();
-            }
-        };
-    }
-
-    /**
-     * Returns a matcher that verifies an iterable contains the given item.
-     * @param <T> Type parameter
-     * @param value the expected item
-     * @return Matcher for checking if iterable contains the given item
-     */
-    private static <T> Matcher<Iterable<T>> hasItems(final T value) {
-        return new CustomMatcher<Iterable<T>>("iterable containing " + value) {
-            @Override
-            public boolean matches(final Object item) {
-                if (!(item instanceof Iterable)) {
-                    return false;
-                }
-                for (final Object element : (Iterable<?>) item) {
-                    if (value.equals(element)) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        };
-    }
 }

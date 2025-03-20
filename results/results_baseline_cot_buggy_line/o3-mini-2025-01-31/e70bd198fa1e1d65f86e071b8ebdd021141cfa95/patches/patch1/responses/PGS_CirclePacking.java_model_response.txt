@@ -25,16 +25,13 @@ import org.tinfour.common.IIncrementalTin;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
 import org.tinspin.index.covertree.CoverTree;
-// Updated imports for tinspin dependency:
-import org.tinspin.index.api.NearestNeighbourEntry;
-import org.tinspin.index.api.DistanceFunction;
+import processing.core.PShape;
+import processing.core.PVector;
 
 import micycle.pgs.commons.FrontChainPacker;
 import micycle.pgs.commons.LargestEmptyCircles;
 import micycle.pgs.commons.RepulsionCirclePack;
 import micycle.pgs.commons.TangencyPack;
-import processing.core.PShape;
-import processing.core.PVector;
 
 /**
  * Circle packings of shapes, subject to varying constraints and patterns of
@@ -43,8 +40,8 @@ import processing.core.PVector;
  * Each method produces a circle packing with different characteristics using a
  * different technique; for this reason input arguments vary across the methods.
  * <p>
- * The output of each method is a list of PVectors, each representing one circle: (.x, .y) represent
- * the center point and .z represents radius.
+ * The output of each method is a list of PVectors, each representing one
+ * circle: (.x, .y) represent the center point and .z represents radius.
  * <p>
  * Where applicable, packings will include circles that overlap with the shape,
  * rather than only including those circles whose center point lies inside the
@@ -157,14 +154,13 @@ public final class PGS_CirclePacking {
 	 *                          shape more evenly (particularly when points is
 	 *                          small), which is sometimes desirable
 	 * @return A list of PVectors, each representing one circle: (.x, .y) represent
-	 *         the center point and .z represents the radius.
+	 *         the center point and .z represents radius.
 	 */
 	public static List<PVector> stochasticPack(final PShape shape, final int points, final double minRadius, boolean triangulatePoints) {
 		return stochasticPack(shape, points, minRadius, triangulatePoints, System.nanoTime());
 	}
 
 	/**
-	 * 
 	 * Generates a seeded random circle packing within the input shape. Circles are
 	 * created one-by-one by generating random points and calculating the maximum
 	 * possible radius for a circle at each point, ensuring it is tangent to its
@@ -225,7 +221,7 @@ public final class PGS_CirclePacking {
 		float largestR = 0; // the radius of the largest circle in the tree
 
 		for (PVector p : steinerPoints) {
-			final NearestNeighbourEntry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+			final CoverTree.Entry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
 
 			/*
 			 * nn.dist() does not return the radius (since it's a distance metric used to
@@ -645,14 +641,12 @@ public final class PGS_CirclePacking {
 	 * @return the distance between the two points based on the custom metric
 	 */
 	private static final DistanceFunction circleDistanceMetric = (p1, p2) -> {
-		// from https://stackoverflow.com/a/21975136/
 		final double dx = p1[0] - p2[0];
 		final double dy = p1[1] - p2[1];
 		final double dz = p1[2] - p2[2];
-
 		double euclideanDistance = Math.sqrt(dx * dx + dy * dy);
 		double absZDifference = Math.abs(dz);
-		return euclideanDistance + absZDifference; // negative if inside
+		return euclideanDistance + absZDifference;
 	};
 
 	/**
@@ -663,5 +657,9 @@ public final class PGS_CirclePacking {
 			&& !t.getEdgeA().isConstrainedRegionBorder() && !t.getEdgeB().isConstrainedRegionBorder()
 			&& !t.getEdgeC().isConstrainedRegionBorder();
 
+	// New interface to replace the removed dependency PointDistanceFunction.
+	private static interface DistanceFunction {
+		double distance(double[] p1, double[] p2);
+	}
 }
 ```

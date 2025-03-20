@@ -1,73 +1,88 @@
-22a23
+1,16d0
+< /**
+<  *
+<  * Copyright 2018 The Apache Software Foundation
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  * http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+23a8
 > import java.io.OutputStream;
-41d41
+41d25
 < import org.apache.commons.io.output.NullPrintStream;
-67,68c67
-<     private static final String MODULE_DESCRIPTOR_FILE_NAME
-<         = "module-info.class";
----
->     private static final String MODULE_DESCRIPTOR_FILE_NAME = "module-info.class";
-70,71c69,79
-<     private static final Pattern MRJAR_VERSION_AREA
-<         = Pattern.compile( "META-INF/versions/\\d+/" );
----
->     private static final Pattern MRJAR_VERSION_AREA = Pattern.compile( "META-INF/versions/\\d+/" );
-> 
->     // Define a dummy PrintStream that discards output, replacing the missing NullPrintStream.
->     private static final PrintStream NULL_PRINT_STREAM = new PrintStream(new OutputStream()
->     {
->         @Override
->         public void write(int b) throws IOException
->         {
->             // Discard the byte.
->         }
->     });
-83,86c91,92
-<             Class<?> toolProviderClass =
-<                 Class.forName( "java.util.spi.ToolProvider" );
-<             Object jarToolOptional = toolProviderClass
-<                 .getMethod( "findFirst", String.class )
----
->             Class<?> toolProviderClass = Class.forName( "java.util.spi.ToolProvider" );
->             Object jarToolOptional = toolProviderClass.getMethod( "findFirst", String.class )
-129,130c135
-<             getLogger().debug( "Using the jar tool to " +
-<                 "update the archive to modular JAR." );
----
->             getLogger().debug( "Using the jar tool to update the archive to modular JAR." );
-159,160c164
-<             throw new ArchiverException( "Exception occurred " +
-<                 "while creating modular JAR file", e );
----
->             throw new ArchiverException( "Exception occurred while creating modular JAR file", e );
-195,196c199
+46,62d29
+< /**
+<  * A {@link ModularJarArchiver} implementation that uses
+<  * the {@code jar} tool provided by
+<  * {@code java.util.spi.ToolProvider} to create
+<  * modular JAR files.
+<  *
+<  * <p>
+<  * The basic JAR archive is created by {@link JarArchiver}
+<  * and the {@code jar} tool is used to upgrade it to modular JAR.
+<  *
+<  * <p>
+<  * If the JAR file does not contain module descriptor
+<  * or the JDK does not provide the {@code jar} tool
+<  * (for example JDK prior to Java 9), then the
+<  * archive created by {@link JarArchiver}
+<  * is left unchanged.
+<  */
+152,153d118
+<                 // --date option not supported, fallback to rewrite the JAR file
+<                 // https://github.com/codehaus-plexus/plexus-archiver/issues/164
+164,166d128
+<     /**
+<      * Fallback to rewrite the JAR file with the correct timestamp if the {@code --date} option is not available.
+<      */
+180,181d141
+<                 // Not using setLastModifiedTime(FileTime) as it sets the extended timestamp
+<                 // which is not compatible with the jar tool output.
+194,197d153
+<     /**
 <      * Returns {@code true} if {@code path}
 <      * is a module descriptor.
----
->      * Returns {@code true} if {@code path} is a module descriptor.
-202,206c205,206
-<             String prefix = path.substring( 0,
-<                 path.lastIndexOf( MODULE_DESCRIPTOR_FILE_NAME ) );
-< 
+<      */
+205,207d160
 <             // the path is a module descriptor if it located
 <             // into the root of the archive or into the
----
->             String prefix = path.substring( 0, path.lastIndexOf( MODULE_DESCRIPTOR_FILE_NAME ) );
->             // the path is a module descriptor if it located into the root of the archive or into the
-208,209c208
-<             return prefix.isEmpty() ||
-<                 MRJAR_VERSION_AREA.matcher( prefix ).matches();
----
->             return prefix.isEmpty() || MRJAR_VERSION_AREA.matcher( prefix ).matches();
-219,220c218
+<             // version area of a multi-release JAR file
+217,221d169
+<     /**
+<      * Prepares the arguments for the jar tool.
 <      * It takes into account the module version,
 <      * main class, etc.
----
->      * It takes into account the module version, main class, etc.
-300,301c298
+<      */
+225,233d172
+<         // We add empty temporary directory to the JAR file.
+<         // It may look strange at first, but to update a JAR file
+<         // you need to add new files[1]. If we add empty directory
+<         // it will be ignored (not added to the archive), but
+<         // the module descriptor will be updated and validated.
+<         //
+<         // [1] There are some exceptions (such as when the main class
+<         // is updated) but we need at least empty directory
+<         // to ensure it will work in all cases.
+266d204
+<             // The --date option already normalize the time, so revert to the local time
+288,292d225
+<     /**
+<      * Check support for {@code --date} option introduced since Java 17.0.3 (JDK-8279925).
+<      *
+<      * @return true if the JAR tool supports the {@code --date} option
+<      */
+297d229
+<             // Test the output code validating the --date option.
+300c232
 <             PrintStream nullPrintStream = NullPrintStream.NULL_PRINT_STREAM;
-<             Integer result = (Integer) runMethod.invoke( jarTool, nullPrintStream, nullPrintStream, args );
 ---
->             Integer result = (Integer) runMethod.invoke( jarTool, NULL_PRINT_STREAM, NULL_PRINT_STREAM, args );
-310d306
-< 
+>             PrintStream nullPrintStream = new PrintStream(OutputStream.nullOutputStream());

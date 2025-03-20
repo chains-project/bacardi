@@ -7,10 +7,10 @@ import org.openqa.selenium.WebElement;
 import org.jenkinsci.test.acceptance.po.PageObject;
 
 /**
- * Charts are displayed on multiple PageObjects. This util provides some helper methods to deal with charts.
+ * Charts are displayed one multiple PageObjects. This util provides some helper methods to deal with charts.
  */
-// TODO: Move this code to ATH so we can reuse it from other plugins
 @SuppressWarnings("hideutilityclassconstructor")
+// TODO: Move this code to ATH so we can reuse it from other plugins
 public class ChartUtil {
     private static final int MAX_ATTEMPTS = 5;
 
@@ -30,9 +30,7 @@ public class ChartUtil {
                     "delete(window.Array.prototype.toJSON) %n"
                             + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
                     elementId));
-            if (result != null) {
-                return result.toString();
-            }
+            return result == null ? null : result.toString();
         }
         return null;
     }
@@ -55,7 +53,6 @@ public class ChartUtil {
                         "delete(window.Array.prototype.toJSON) %n"
                                 + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
                         toolAttribute));
-    
                 if (result != null) {
                     return result.toString();
                 }

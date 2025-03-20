@@ -12,7 +12,6 @@ import java.util.UUID;
 /**
  * Filter that sets MDC.
  */
-@Provider
 public class RequestMdcFactoryFilter implements ContainerRequestFilter {
     @Override
     public void filter(ContainerRequestContext requestContext) {
@@ -31,9 +30,4 @@ public class RequestMdcFactoryFilter implements ContainerRequestFilter {
         }
     }
 }
-``` 
-
-### Changes Made:
-1. Removed the import for `io.dropwizard.util.Strings` since it was causing a compilation error due to the missing class.
-2. Replaced the usage of `Strings.isNullOrEmpty(value)` with a direct null and empty check (`value != null && !value.isEmpty()`) to avoid dependency on the removed class.
-3. Ensured that all other imports and functionality remain intact, adhering to the constraints provided.
+```

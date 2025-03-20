@@ -457,6 +457,12 @@ public class NisAppConfig {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
+flyway.setLocations(prop.getProperty("flyway.locations"));
+```
+```java
+flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+```
+```java
 flyway.setDataSource(this.dataSource());
 ```
 ```java
@@ -465,15 +471,17 @@ flyway.setClassLoader(NisAppConfig.class.getClassLoader());
 ```java
 final org.flywaydb.core.Flyway flyway = new Flyway();
 ```
-```java
-flyway.setLocations(prop.getProperty("flyway.locations"));
-```
-```java
-flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-```
 
 
  And here is the error message:
+[ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[111,23] cannot find symbol
+  symbol:   method setLocations(java.lang.String)
+  location: variable flyway of type org.flywaydb.core.Flyway
+
+[ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[112,23] cannot find symbol
+  symbol:   method setValidateOnMigrate(java.lang.Boolean)
+  location: variable flyway of type org.flywaydb.core.Flyway
+
 [ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[109,23] cannot find symbol
   symbol:   method setDataSource(javax.sql.DataSource)
   location: variable flyway of type org.flywaydb.core.Flyway
@@ -486,14 +494,6 @@ flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate"))
   required: org.flywaydb.core.api.configuration.Configuration
   found: no arguments
   reason: actual and formal argument lists differ in length
-
-[ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[111,23] cannot find symbol
-  symbol:   method setLocations(java.lang.String)
-  location: variable flyway of type org.flywaydb.core.Flyway
-
-[ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[112,23] cannot find symbol
-  symbol:   method setValidateOnMigrate(java.lang.Boolean)
-  location: variable flyway of type org.flywaydb.core.Flyway
 
 
 

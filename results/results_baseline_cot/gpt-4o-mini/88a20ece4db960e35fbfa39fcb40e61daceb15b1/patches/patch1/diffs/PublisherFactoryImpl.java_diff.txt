@@ -1,18 +1,42 @@
-20d19
+1,15d0
+< /*
+<  * Copyright 2020 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+20d4
 < import com.google.cloud.pubsublite.PublishMetadata;
-27a27
-> import com.google.cloud.pubsublite.internal.wire.PartitionPublisherFactory; // Added import for PartitionPublisherFactory
-49,50c49,52
+27a12
+> import com.google.cloud.pubsublite.internal.wire.PartitionPublisherFactory;
+36c21
+<   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
+---
+>   public Publisher<Void> newPublisher(Map<String, String> params) {
+38c23
+<     RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
+---
+>     RoutingPublisherBuilder.Builder<Void> builder = RoutingPublisherBuilder.newBuilder();
+49,50c34,37
 <         partition ->
 <             SinglePartitionPublisherBuilder.newBuilder()
 ---
->         new PartitionPublisherFactory() { // Changed to use the correct functional interface
->             @Override
->             public Publisher<PublishMetadata> create(int partition) {
->                 return SinglePartitionPublisherBuilder.newBuilder()
-54c56,58
+>         new PartitionPublisherFactory<Void>() {
+>           @Override
+>           public Publisher<Void> create(int partition) {
+>             return SinglePartitionPublisherBuilder.newBuilder()
+54c41,43
 <                 .build());
 ---
->                     .build();
->             }
+>                 .build();
+>           }
 >         });

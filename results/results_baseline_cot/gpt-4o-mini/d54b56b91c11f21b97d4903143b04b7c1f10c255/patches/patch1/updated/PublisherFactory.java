@@ -15,15 +15,11 @@
  */
 package com.google.pubsublite.kafka.sink;
 
-import com.google.cloud.pubsublite.PublishMetadata; // Ensure this import is correct
+import com.google.cloud.pubsublite.PublishMetadata; // Ensure this import is correct based on the new API
 import com.google.cloud.pubsublite.internal.Publisher;
 import java.util.Map;
 
-// Check if PublishMetadata has been moved or renamed in the updated dependency
-// If it has been renamed or moved, update the import statement accordingly
-// For example, if it has been moved to a different package, update the import to reflect that.
-
 interface PublisherFactory {
 
-  Publisher<PublishMetadata> newPublisher(Map<String, String> params);
+  Publisher<com.google.cloud.pubsublite.PublishMetadata> newPublisher(Map<String, String> params);
 }

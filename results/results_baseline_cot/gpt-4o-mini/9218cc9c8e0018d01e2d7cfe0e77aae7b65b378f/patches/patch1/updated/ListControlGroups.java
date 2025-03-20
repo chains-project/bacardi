@@ -34,14 +34,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import javax.validation.metadata.BeanDescriptor;
-import javax.validation.metadata.ConstraintDescriptor;
-import javax.validation.metadata.ElementDescriptor;
 
 import com.premiumminds.webapp.wicket.validators.HibernateValidatorProperty;
 import com.premiumminds.wicket.crudifier.IObjectRenderer;
@@ -119,8 +115,7 @@ public abstract class ListControlGroups<T> extends Panel {
 
 		Set<String> properties = getPropertiesByOrder(modelClass);
 
-		Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-		BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
+		Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
 		for(String property : properties){
 			PropertyDescriptor descriptor;
 			try {
@@ -131,15 +126,8 @@ public abstract class ListControlGroups<T> extends Panel {
 
 			boolean required = false;
 
-			ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
-			if(constraintDescriptor!=null){
-				Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
-				for(ConstraintDescriptor<?> constraint : constraintsSet){
-					if(constraint.getAnnotation() instanceof NotNull ||
-					   constraint.getAnnotation() instanceof NotEmpty ||
-					   constraint.getAnnotation() instanceof NotBlank)
-						required = true;
-				}
+			if(validator.getConstraintsForClass(modelClass).getConstraintsForProperty(descriptor.getName()) != null){
+				required = true;
 			}
 
 			objectProperties.add(new ObjectProperties(descriptor, required));

@@ -1,4 +1,7 @@
-70c70
+70c70,71
 <                         if (tree.size() == 0 || tree.query1NN(coords).dist() > distanceTolerance) {
 ---
->                         if (tree.size() == 0 || tree.queryKNN(coords, 1).get(0).getDistance() > distanceTolerance) {
+>                         // Use queryKNN in place of the removed query1NN API.
+>                         if (tree.size() == 0 || tree.queryKNN(coords, 1).get(0).d > distanceTolerance) {
+605d605
+<                 // https://github.com/Atrix256/SampleZoo/blob/master/src/families/_2d/samples/irrational_numbers/irrational_numbers.cpp

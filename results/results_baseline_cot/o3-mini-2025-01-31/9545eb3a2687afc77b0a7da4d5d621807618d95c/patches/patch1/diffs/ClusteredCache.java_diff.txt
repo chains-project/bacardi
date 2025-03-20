@@ -1,4 +1,20 @@
-18,21c18,21
+1,15d0
+< /*
+<  * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+18,21c3,6
 < import com.hazelcast.core.EntryEvent;
 < import com.hazelcast.core.EntryListener;
 < import com.hazelcast.core.IMap;
@@ -8,7 +24,44 @@
 > import com.hazelcast.map.listener.EntryEvent;
 > import com.hazelcast.map.listener.EntryListener;
 > import com.hazelcast.map.listener.MapEvent;
-23c23
+23d7
 < import com.hazelcast.monitor.LocalMapStats;
+60a45
+>     private long cacheHits = 0;
+85,86c70
+<     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode)
+<     {
 ---
-> import com.hazelcast.map.LocalMapStats;
+>     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode) {
+177c161,165
+<         return map.get(key);
+---
+>         V value = map.get(key);
+>         if (value != null) {
+>             cacheHits++;
+>         }
+>         return value;
+192,193c180
+<         final LocalMapStats stats = map.getLocalMapStats();
+<         return (int) (stats.getOwnedEntryCount() + stats.getBackupEntryCount());
+---
+>         return map.size();
+224,225d210
+< 
+<         // Instances are likely all loaded by the same class loader. For resource usage optimization, let's test just one, not all.
+241c226
+<         return map.getLocalMapStats().getHits();
+---
+>         return cacheHits;
+246,247c231
+<         final long hits = map.getLocalMapStats().getHits();
+<         return numberOfGets > hits ? numberOfGets - hits : 0;
+---
+>         return numberOfGets > cacheHits ? numberOfGets - cacheHits : 0;
+257,258c241
+<         final LocalMapStats stats = map.getLocalMapStats();
+<         return stats.getOwnedEntryMemoryCost() + stats.getBackupEntryMemoryCost();
+---
+>         return map.size();
+329d311
+<             // Try to determine what plugin loaded the offending class.

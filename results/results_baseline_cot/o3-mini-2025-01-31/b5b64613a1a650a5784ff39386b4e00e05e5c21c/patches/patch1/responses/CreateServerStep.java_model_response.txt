@@ -1,24 +1,3 @@
-<code_analysis>
-1. Analyze the error message:
-   - The error occurs when calling isAllBlank(server.getUrl(), step.url) in the checkInputs() method.
-   - The compiler cannot find the method isAllBlank(String, String), which indicates that a recent dependency update to Apache Commons Lang3 has removed or modified this method.
-   - The issue is in the dependency update of Apache Commons Lang, where the expected isAllBlank method is no longer available or has changed its signature.
-
-2. Review the client code:
-   - The method checkInputs() in the inner class Execution is calling isAllBlank with two string parameters.
-   - Since we only need to verify that both the URL values are blank, we can replace isAllBlank(server.getUrl(), step.url) with a combination of isBlank() calls.
-
-3. Proposed fix:
-   - Replace the call to isAllBlank(server.getUrl(), step.url) with (isBlank(server.getUrl()) && isBlank(step.url)).
-   - This change retains the logic: throw an exception when both URL values are blank.
-   - Ensure the proper static import for isBlank (and isNotBlank) from org.apache.commons.lang3.StringUtils is used.
-   - All other code remains unchanged as it does not conflict with the dependency update.
-
-4. Side effects:
-   - The logical checking remains correct because isBlank(a) && isBlank(b) is equivalent to isAllBlank(a, b).
-   - No other parts of the code require changes based on this dependency update.
-</code_analysis>
-
 ```java
 package org.jfrog.hudson.pipeline.declarative.steps;
 
@@ -40,8 +19,7 @@ import org.kohsuke.stapler.DataBoundSetter;
 
 import java.io.IOException;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.*;
 
 @SuppressWarnings("unused")
 public class CreateServerStep extends AbstractStepImpl {
@@ -56,6 +34,7 @@ public class CreateServerStep extends AbstractStepImpl {
     private Integer timeout;
     private Integer retry;
     private String url;
+
 
     @DataBoundConstructor
     public CreateServerStep(String id) {

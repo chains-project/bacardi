@@ -134,7 +134,7 @@ public abstract class AbstractSocketAcceptor extends SessionConnector implements
         SSLConfig sslConfig = descriptor.getSslConfig();
         SSLContext sslContext = SSLContextFactory.getInstance(sslConfig);
         SSLFilter sslFilter = new SSLFilter(sslContext);
-        sslFilter.setUseClientMode(false); // This line is causing the error
+        sslFilter.setClientMode(false); // Updated method name
         sslFilter.setNeedClientAuth(sslConfig.isNeedClientAuth());
         sslFilter.setCipherSuites(sslConfig.getEnabledCipherSuites() != null ? sslConfig.getEnabledCipherSuites()
                 : SSLSupport.getDefaultCipherSuites(sslContext));
@@ -371,6 +371,4 @@ public abstract class AbstractSocketAcceptor extends SessionConnector implements
     }
 
 }
-``` 
-
-In this patch, I have removed the line `sslFilter.setUseClientMode(false);` which was causing the compilation error due to the method not being found in the updated `SSLFilter` class. This change should resolve the issue while keeping the rest of the class intact.
+```

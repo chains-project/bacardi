@@ -1,18 +1,3 @@
-<code_analysis>
-1. The error message indicates that the compiler cannot access the class org.slf4j.spi.LoggingEventAware. This error is triggered by a call to logger.setLevel(Level.INFO) in the test setup. It suggests that the updated SLF4J (or related logging library) no longer contains the LoggingEventAware interface (or it has been moved), causing the call in the test code to fail to compile.
-2. In the client code the problematic lines are:
-   • Casting the logger to a Logback Logger
-   • Calling logger.setLevel(Level.INFO)
-   Since the updated dependency removed (or relocated) LoggingEventAware, calling setLevel now produces a compilation error.
-3. A potential fix is to remove the call to setLevel(Level.INFO) in the test's setUp() method. It is acceptable to remove this call because:
-   • It is causing a compilation error.
-   • It is only used for test configuration.
-   • The test's verifications are mainly focused on log appender behavior and notification service invocations.
-4. The change involves removing that single line. This does not change any function signatures and is localized to a test setup method. This avoids introducing any unwanted side effects while restoring the compilation using the updated dependency versions.
-</code_analysis>
-
-Below is the complete, fixed Java class:
-
 ```java
 package uk.gov.pay.adminusers.queue.event;
 
@@ -96,10 +81,8 @@ class EventMessageHandlerTest {
 
     @Captor
     ArgumentCaptor<Map<String, String>> personalisationCaptor;
-    
     @Mock
     private Appender<ILoggingEvent> mockLogAppender;
-    
     @Captor
     ArgumentCaptor<ILoggingEvent> loggingEventArgumentCaptor;
 
@@ -127,8 +110,6 @@ class EventMessageHandlerTest {
         );
 
         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
-        // Removed the following line due to the breaking dependency update:
-        // logger.setLevel(Level.INFO);
         logger.addAppender(mockLogAppender);
     }
 

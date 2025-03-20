@@ -22,23 +22,24 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import io.vavr.control.Validation;
 import net.bytebuddy.ByteBuddy;
-import net.bytebuddy.utility.cache.TypeCache;
-import net.bytebuddy.utility.cache.TypeCache.SimpleKey;
 import net.bytebuddy.dynamic.scaffold.TypeValidation;
 import net.bytebuddy.implementation.Implementation;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.implementation.auxiliary.AuxiliaryType;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
-import net.bytebuddy.implementation.bind.annotation.This;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
-import static net.bytebuddy.matcher.ElementMatchers.any;
-
+import net.bytebuddy.implementation.bind.annotation.This;
+import net.bytebuddy.matcher.ElementMatchers;
+import net.bytebuddy.utility.cache.TypeCache;
+import net.bytebuddy.utility.cache.TypeCache.SimpleKey;
 import org.assertj.core.util.CheckReturnValue;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
 
+import static net.bytebuddy.matcher.ElementMatchers.any;
+import static org.assertj.core.util.Arrays.array;
 import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrategy;
 
 public class VavrAssumptions {
@@ -195,7 +196,7 @@ public class VavrAssumptions {
     private static <ASSERTION, ACTUAL> ASSERTION asAssumption(Class<ASSERTION> assertionType,
                                                               Class<ACTUAL> actualType,
                                                               Object actual) {
-        return asAssumption(assertionType, new Class<?>[] { actualType }, actual);
+        return asAssumption(assertionType, array(actualType), array(actual));
     }
 
     private static <ASSERTION> ASSERTION asAssumption(Class<ASSERTION> assertionType,

@@ -1,16 +1,3 @@
-<code_analysis>
-1. The error message indicates that the package "org.apache.commons.codec.digest" and the symbol "DigestUtils" cannot be found. This is because the dependency providing DigestUtils (Apache Commons Codec) has either been removed or updated in a way that this package is no longer available.
-2. In the client code, the problematic usage is in the Builder.username() method:
-   • The import "org.apache.commons.codec.digest.DigestUtils" is causing an issue.
-   • The call to "DigestUtils.md5Hex(username)" in the username() method is failing.
-3. To fix the issue without changing the function signatures, we can remove the dependency on DigestUtils and instead use Java’s built-in MD5 functionality from java.security.MessageDigest. We can implement a helper method that takes the username string, computes its MD5 hash, and converts it to a hexadecimal string.
-4. The necessary changes are:
-   • Remove the import for org.apache.commons.codec.digest.DigestUtils.
-   • Add imports for java.security.MessageDigest, java.security.NoSuchAlgorithmException, and java.nio.charset.StandardCharsets.
-   • Replace the call to DigestUtils.md5Hex(username) with a call to a helper method (e.g., computeMD5Hex) that performs the same functionality.
-   • Implement computeMD5Hex as a private static method within the Builder class.
-</code_analysis>
-
 ```java
 package com.maxmind.minfraud.request;
 
@@ -57,35 +44,12 @@ public final class Account extends AbstractModel {
         /**
          * @param username The username associated with the account. This is
          *                 <em>not</em> the MD5 of username. This method
-         *                 automatically computes the MD5 hexadecimal digest
-         *                 of the string passed to it.
+         *                 automatically runs MD5 on the string passed to it.
          * @return The builder object.
          */
         public Account.Builder username(String username) {
-            this.usernameMd5 = computeMD5Hex(username);
+            this.usernameMd5 = Account.md5Hex(username);
             return this;
-        }
-
-        /**
-         * Computes the MD5 hexadecimal digest of a given string.
-         *
-         * @param input the string to hash
-         * @return the MD5 hash as a hexadecimal string
-         */
-        private static String computeMD5Hex(String input) {
-            try {
-                MessageDigest md = MessageDigest.getInstance("MD5");
-                byte[] digest = md.digest(input.getBytes(StandardCharsets.UTF_8));
-                StringBuilder hexString = new StringBuilder();
-                for (byte b : digest) {
-                    String hex = Integer.toHexString(0xff & b);
-                    if (hex.length() == 1) hexString.append('0');
-                    hexString.append(hex);
-                }
-                return hexString.toString();
-            } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException("MD5 algorithm not available", e);
-            }
         }
 
         /**
@@ -111,6 +75,20 @@ public final class Account extends AbstractModel {
     @JsonProperty("username_md5")
     public String getUsernameMd5() {
         return usernameMd5;
+    }
+
+    private static String md5Hex(String data) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] digest = md.digest(data.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : digest) {
+                hexString.append(String.format("%02x", b));
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("MD5 algorithm not available", e);
+        }
     }
 }
 ```

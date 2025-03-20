@@ -6,9 +6,10 @@ import io.github.wesleyosantos91.core.domain.PersonDomain;
 import java.util.ArrayList;
 import java.util.List;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring") // Added componentModel to ensure compatibility with Spring
+@Mapper
 public interface PersonHttpMapper {
 
     PersonHttpMapper INSTANCE = Mappers.getMapper(PersonHttpMapper.class);

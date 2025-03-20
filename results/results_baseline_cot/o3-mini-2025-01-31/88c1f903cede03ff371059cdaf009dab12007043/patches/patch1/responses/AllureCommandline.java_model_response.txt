@@ -1,3 +1,10 @@
+<repair_strategy>
+1. The build error indicates that the package "net.lingala.zip4j.core" no longer exists in the updated zip4j dependency.
+2. In newer versions of zip4j (2.x and later), the ZipFile class is now in the "net.lingala.zip4j" package.
+3. The client code uses "new ZipFile(file)" and "extractAll(String destination)", which are still valid in zip4j 2.x.
+4. Therefore, the only change needed is to update the import statement for the ZipFile class.
+5. This minimal change will resolve the error and ensure the client code compiles without modifying the API usages.
+</repair_strategy>
 ```java
 /*
  *  Copyright 2021 Qameta Software OÜ
@@ -16,7 +23,7 @@
  */
 package io.qameta.allure.maven;
 
-import net.lingala.zip4j.ZipFile; // Updated import statement
+import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
@@ -197,7 +204,6 @@ public class AllureCommandline {
                 final String proxyPassword = mavenProxy.getPassword();
 
                 Authenticator.setDefault(new Authenticator() {
-                    @Override
                     public PasswordAuthentication getPasswordAuthentication() {
                         return new PasswordAuthentication(proxyUser, proxyPassword.toCharArray());
                     }

@@ -1,51 +1,4 @@
-<code_analysis>
-1. Error Analysis:
-   - The error message indicates that somewhere in the code (specifically at the line creating the Jersey client), a reference is made to the class io.dropwizard.core.setup.Environment, but the compiler cannot locate it. This is due to a breaking dependency update in Dropwizard where classes such as Bootstrap and Environment have been relocated.
-   - The error is triggered at the line:
-     return new JerseyClientBuilder(env)
-     which internally expects an Environment from the new package.
-
-2. Client Code Review:
-   - The code imports Environment and Bootstrap from io.dropwizard.setup.
-   - After the dependency update, these types have been relocated to io.dropwizard.core.setup.
-   - As a result, the Environment passed to JerseyClientBuilder (which now expects io.dropwizard.core.setup.Environment) is of the wrong type.
-
-3. Proposed Fix:
-   - Update the import statements for Environment and Bootstrap to use the new package name io.dropwizard.core.setup.
-   - This ensures that the type of env passed to JerseyClientBuilder is now consistent with its expected type.
-   - No changes to function signatures or method logic are required.
-
-4. Modifications Summary:
-   - Replace:
-       import io.dropwizard.setup.Bootstrap;
-       import io.dropwizard.setup.Environment;
-     with:
-       import io.dropwizard.core.setup.Bootstrap;
-       import io.dropwizard.core.setup.Environment;
-   - This change aligns the client code with the updated dependency packaging.
-
-The following patch shows the complete fixed class:
-</code_analysis>
-
 ```java
-//
-// Wire
-// Copyright (C) 2016 Wire Swiss GmbH
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program. If not, see http://www.gnu.org/licenses/.
-//
-
 package com.wire.lithium;
 
 import com.codahale.metrics.Gauge;
@@ -79,8 +32,8 @@ import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.servlets.tasks.Task;
-import io.dropwizard.core.setup.Bootstrap;
-import io.dropwizard.core.setup.Environment;
+import io.dropwizard.setup.Bootstrap;
+import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.flywaydb.core.Flyway;
@@ -187,7 +140,7 @@ public abstract class Server<Config extends Configuration> extends Application<C
     }
 
     private Client createHttpClient(Config config, Environment env) {
-        return new JerseyClientBuilder(env)
+        return new JerseyClientBuilder(env.metrics())
                 .using(config.getJerseyClient())
                 .withProvider(MultiPartFeature.class)
                 .withProvider(JacksonJsonProvider.class)

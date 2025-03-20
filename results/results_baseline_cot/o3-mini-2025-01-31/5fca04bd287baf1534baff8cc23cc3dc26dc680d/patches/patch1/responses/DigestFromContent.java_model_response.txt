@@ -1,24 +1,3 @@
-<code_analysis>
-1. Error Message Details:
-   - The error indicates that the packages "org.cactoos.io" and "org.cactoos.text" cannot be found, and hence the "HexOf" class is missing. This suggests that a dependency update removed or relocated the classes that provided byte-to-hex conversion.
-   - The error occurs at the import statements (lines 16 and 17) and at the usage of HexOf in the digest() method (line 61).
-
-2. Client Code Review:
-   - The digest() method computes a SHA-256 hash and then uses "HexOf" (with "BytesOf") to convert the resulting byte array into a hexadecimal string representation.
-   - Since the cactoos dependency no longer provides these classes, the conversion code must be replaced with an equivalent implementation.
-
-3. Potential Fixes:
-   - Remove the imports for "org.cactoos.io.BytesOf" and "org.cactoos.text.HexOf".
-   - Replace the usage of "new HexOf(new BytesOf(sha.digest())).asString()" with a manual conversion mechanism that transforms the byte array returned by "sha.digest()" into a hex string.
-
-4. Proposed Changes:
-   - Update the Single.fromCallable block in the digest() method to include standard Java code that converts the byte array into a hexadecimal string.
-   - Remove the unused cactoos imports.
-   - Ensure the function signature and overall logic remain unchanged.
-
-The following patch applies the necessary modifications to resolve the dependency issue.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
@@ -78,18 +57,18 @@ public final class DigestFromContent {
             )
             .<Digest>andThen(
                 Single.fromCallable(
-                    () -> {
-                        final byte[] hash = sha.digest();
-                        final StringBuilder hex = new StringBuilder(2 * hash.length);
-                        for (byte b : hash) {
-                            hex.append(String.format("%02x", b));
-                        }
-                        return new Digest.Sha256(hex.toString());
-                    }
+                    () -> new Digest.Sha256(toHex(sha.digest()))
                 )
             )
             .to(SingleInterop.get()).toCompletableFuture();
     }
-
+    
+    private static String toHex(final byte[] bytes) {
+        StringBuilder hexString = new StringBuilder();
+        for (final byte b : bytes) {
+            hexString.append(String.format("%02x", b));
+        }
+        return hexString.toString();
+    }
 }
 ```

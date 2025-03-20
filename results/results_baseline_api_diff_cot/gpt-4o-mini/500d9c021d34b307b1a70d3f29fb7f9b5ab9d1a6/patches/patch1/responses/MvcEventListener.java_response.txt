@@ -5,11 +5,11 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import jakarta.mvc.event.AfterControllerEvent; // Updated import
-import jakarta.mvc.event.AfterProcessViewEvent; // Updated import
-import jakarta.mvc.event.BeforeControllerEvent; // Updated import
-import jakarta.mvc.event.BeforeProcessViewEvent; // Updated import
-import jakarta.mvc.event.ControllerRedirectEvent; // Updated import
+import jakarta.mvc.event.AfterControllerEvent;
+import jakarta.mvc.event.AfterProcessViewEvent;
+import jakarta.mvc.event.BeforeControllerEvent;
+import jakarta.mvc.event.BeforeProcessViewEvent;
+import jakarta.mvc.event.ControllerRedirectEvent;
 
 @ApplicationScoped
 public class MvcEventListener {

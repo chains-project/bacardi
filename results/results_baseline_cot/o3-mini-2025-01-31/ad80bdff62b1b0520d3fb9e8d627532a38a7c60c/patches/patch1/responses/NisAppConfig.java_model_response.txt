@@ -1,22 +1,3 @@
-<code_analysis>
-1. Error message analysis:
-   - The error messages indicate that several methods (setDataSource, setClassLoader, setLocations, setValidateOnMigrate) called on a Flyway instance are not found.
-   - Additionally, the Flyway no-argument constructor is no longer available in the updated Flyway dependency. This indicates a breaking change in the Flyway API.
-
-2. Client code review:
-   - The problematic code is in the flyway() bean method where a new Flyway instance is created using the no-argument constructor followed by calls to various setter methods.
-   - The new Flyway API now uses a builder pattern that requires calling Flyway.configure(), setting the properties, and then calling load() to obtain a Flyway instance.
-
-3. Potential fix:
-   - Replace the old Flyway instantiation with the new builder-style configuration.
-   - Specifically, change the flyway() bean method to use Flyway.configure().dataSource(...).classLoader(...).locations(...).validateOnMigrate(...).load();
-   - This adheres to the constraints: function signatures remain unchanged and only the problematic code is updated.
-
-4. Necessary modifications:
-   - Remove the use of the no-argument constructor and the setter methods and use the Flyway builder API.
-   - Ensure that the db.properties file is read as before and that the flyway bean is returned correctly, so the rest of the configuration remains unchanged.
-</code_analysis>
-
 ```java
 package org.nem.specific.deploy.appconfig;
 
@@ -125,12 +106,13 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		return Flyway.configure()
+		final Flyway flyway = Flyway.configure()
 				.dataSource(this.dataSource())
 				.classLoader(NisAppConfig.class.getClassLoader())
 				.locations(prop.getProperty("flyway.locations"))
-				.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
+				.validateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate")))
 				.load();
+		return flyway;
 	}
 
 	@Bean

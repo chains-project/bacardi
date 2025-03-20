@@ -14,27 +14,28 @@
 <  * See the License for the specific language governing permissions and
 <  * limitations under the License.
 <  */
-20c5
+20d4
 < import com.google.cloud.pubsublite.PublishMetadata;
----
-> import com.google.cloud.pubsublite.internal.wire.PublishMetadata;
-48,50c33,36
+48,50c32,35
 <     builder.setPublisherFactory(
 <         partition ->
 <             SinglePartitionPublisherBuilder.newBuilder()
 ---
 >     builder.setPublisherFactory(new com.google.cloud.pubsublite.internal.wire.PartitionPublisherFactory() {
 >       @Override
->       public Publisher<PublishMetadata> newPublisher(int partition) {
+>       public Publisher<PublishMetadata> newPartitionPublisher(int partition) {
 >         return SinglePartitionPublisherBuilder.newBuilder()
-54c40,47
+54c39,46
 <                 .build());
 ---
 >             .build();
 >       }
 > 
 >       @Override
->       public void close() throws Exception {
->         // No resources to close.
+>       public PubsubContext getContext() {
+>         return PubsubContext.of(FRAMEWORK);
 >       }
 >     });
+56a49,50
+> 
+>   public static class PublishMetadata {}

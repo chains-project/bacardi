@@ -1,7 +1,5 @@
-6a7
-> import liquibase.executor.Executor; // Ensure the correct import for Executor
-18c19,20
+18c18,19
 <         ExecutorService.getInstance().getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
 ---
->         Executor executor = ExecutorService.getInstance().getExecutor(this); // Create an executor variable
->         executor.execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+>         ExecutorService executorService = ExecutorService.getInstance();
+>         executorService.getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));

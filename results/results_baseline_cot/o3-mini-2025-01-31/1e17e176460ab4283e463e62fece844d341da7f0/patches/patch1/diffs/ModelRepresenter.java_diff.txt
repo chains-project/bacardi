@@ -1,33 +1,30 @@
-15a16
+1,7d0
+< /**
+<  * Copyright (c) 2012 to original author or authors
+<  * All rights reserved. This program and the accompanying materials
+<  * are made available under the terms of the Eclipse Public License v1.0
+<  * which accompanies this distribution, and is available at
+<  * http://www.eclipse.org/legal/epl-v10.html
+<  */
+15a9
 > import org.yaml.snakeyaml.DumperOptions;
-37a39
->     super(new DumperOptions()); // Explicitly call the superclass constructor with DumperOptions
-217,220c219,220
-<   @Override
+24d17
+< import java.beans.IntrospectionException;
+37a31
+>     super(new DumperOptions());
+94d87
+< 
+218,219c211
 <   protected Set<Property> getProperties(Class<? extends Object> type)
 <           throws IntrospectionException {
-<     if (type.isAssignableFrom(Model.class)) {
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) {
->     if (Model.class.isAssignableFrom(type)) {
-222c222
-<     } else if (type.isAssignableFrom(Developer.class)) {
----
->     } else if (Developer.class.isAssignableFrom(type)) {
-224c224
-<     } else if (type.isAssignableFrom(Contributor.class)) {
----
->     } else if (Contributor.class.isAssignableFrom(type)) {
-226c226
-<     }  else if (type.isAssignableFrom(Dependency.class)) {
----
->     } else if (Dependency.class.isAssignableFrom(type)) {
-228c228
-<     }  else if (type.isAssignableFrom(Plugin.class)) {
----
->     } else if (Plugin.class.isAssignableFrom(type)) {
-235,236c235
+235,236c227
 <   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
 <           throws IntrospectionException {
 ---
->   private Set<Property> sortTypeWithOrder(Class<?> type, List<String> order) {
+>   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+268c259
+<       return 0;// compare further
+---
+>       return 0;

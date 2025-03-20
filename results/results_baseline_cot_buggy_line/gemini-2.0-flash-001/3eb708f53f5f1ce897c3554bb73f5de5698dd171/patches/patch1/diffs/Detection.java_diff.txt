@@ -1,8 +1,15 @@
-19d18
+19c19,20
 < import com.google.api.services.translate.model.DetectionsResourceItems;
-87,88c86,87
+---
+> import com.google.cloud.translate.v3.DetectLanguageResponse;
+> import com.google.cloud.translate.v3.DetectedLanguage;
+87,88c88,93
 <   static Detection fromPb(DetectionsResourceItems detectionPb) {
 <     return new Detection(detectionPb.getLanguage(), detectionPb.getConfidence());
 ---
->   static Detection fromPb(String language, Float confidence) {
->     return new Detection(language, confidence);
+>   static Detection fromPb(DetectLanguageResponse detectionPb) {
+>     if (detectionPb.getLanguagesList() != null && !detectionPb.getLanguagesList().isEmpty()) {
+>       DetectedLanguage detectedLanguage = detectionPb.getLanguagesList().get(0);
+>       return new Detection(detectedLanguage.getLanguageCode(), detectedLanguage.getConfidence());
+>     }
+>     return null;

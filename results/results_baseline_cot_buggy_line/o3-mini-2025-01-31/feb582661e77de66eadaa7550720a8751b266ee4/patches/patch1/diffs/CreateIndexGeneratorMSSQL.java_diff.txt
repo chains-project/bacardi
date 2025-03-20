@@ -1,11 +1,13 @@
-11,12d10
-< import liquibase.statement.core.CreateIndexStatement;
+12d11
 < import liquibase.util.StringUtils;
-28d25
-< 
-76,77c73,74
-<     // This block simplified, since we know we have MSSQLDatabase
-<     if (StringUtils.trimToNull(statement.getTablespace()) != null) {
----
->     // Updated check for tablespace; replacing the removed StringUtils.trimToNull() with an inline check.
->     if (statement.getTablespace() != null && !statement.getTablespace().trim().isEmpty()) {
+87a87,96
+> 
+>   private static class StringUtils {
+>     public static String trimToNull(String input) {
+>       if (input == null) {
+>         return null;
+>       }
+>       String trimmed = input.trim();
+>       return trimmed.isEmpty() ? null : trimmed;
+>     }
+>   }

@@ -1,15 +1,3 @@
-<code_analysis>
-1. The error message indicates that the class ScriptResult cannot be found and that the package com.gargoylesoftware.htmlunit no longer exists. This error occurs in two places because the code instantiates new ScriptResult(result) and calls getJavaScriptResult() on it.
-2. In the client code, both the getChartDataById and getDataOfOnlyChartOnPageWithGivenToolAttribute methods rely on ScriptResult to wrap the result of pageObject.executeScript. The imports for ScriptResult and its usage in these methods are now causing compilation errors.
-3. A potential fix is to remove the dependency on ScriptResult. Since pageObject.executeScript already returns an Object that can be converted to a String (the JSON we expect from JSON.stringify), we can simply check for null and return result.toString() without wrapping it.
-4. The necessary changes include:
-   - Removing the import for com.gargoylesoftware.htmlunit.ScriptResult.
-   - Eliminating the creation of a ScriptResult instance and instead using the result object directly.
-   - Making sure that the rest of the functionality remains the same.
-</code_analysis>
-
-Below is the complete, fixed Java class:
-
 ```java
 package io.jenkins.plugins.coverage.util;
 
@@ -20,10 +8,10 @@ import org.openqa.selenium.WebElement;
 import org.jenkinsci.test.acceptance.po.PageObject;
 
 /**
- * Charts are displayed on multiple PageObjects. This util provides some helper methods to deal with charts.
+ * Charts are displayed one multiple PageObjects. This util provides some helper methods to deal with charts.
  */
-// TODO: Move this code to ATH so we can reuse it from other plugins
 @SuppressWarnings("hideutilityclassconstructor")
+// TODO: Move this code to ATH so we can reuse it from other plugins
 public class ChartUtil {
     private static final int MAX_ATTEMPTS = 5;
 
@@ -41,7 +29,7 @@ public class ChartUtil {
         if (isChartDisplayedByElementId(pageObject, elementId)) {
             Object result = pageObject.executeScript(String.format(
                     "delete(window.Array.prototype.toJSON) %n"
-                    + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
+                            + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
                     elementId));
             return result != null ? result.toString() : null;
         }
@@ -64,9 +52,8 @@ public class ChartUtil {
             for (int i = 0; i < MAX_ATTEMPTS; i++) {
                 Object result = pageObject.executeScript(String.format(
                         "delete(window.Array.prototype.toJSON) %n"
-                        + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
+                                + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
                         toolAttribute));
-
                 if (result != null) {
                     return result.toString();
                 }
@@ -115,8 +102,6 @@ public class ChartUtil {
             return false;
         }
     }
+
 }
-``` 
-
-This patch removes the dependency on the now-missing ScriptResult class and uses the return value of executeScript directly, which should resolve the compilation errors related to the dependency update.
-
+```

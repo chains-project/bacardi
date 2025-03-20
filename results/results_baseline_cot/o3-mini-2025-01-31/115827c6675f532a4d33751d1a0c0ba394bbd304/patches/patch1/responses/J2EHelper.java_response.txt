@@ -1,9 +1,16 @@
 package org.pac4j.dropwizard;
 
+import java.io.IOException;
 import java.util.EnumSet;
 
 import jakarta.servlet.DispatcherType;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
 import jakarta.servlet.FilterRegistration;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 
 import org.pac4j.core.config.Config;
 import org.pac4j.dropwizard.Pac4jFactory.ServletCallbackFilterConfiguration;
@@ -74,9 +81,34 @@ public final class J2EHelper {
         filter.setConfigOnly(config);
 
         final FilterRegistration.Dynamic filterRegistration = environment
-                .servlets().addFilter(filter.getClass().getName(), (jakarta.servlet.Filter) filter);
+                .servlets().addFilter(filter.getClass().getName(), new JakartaFilterAdapter(filter));
 
         filterRegistration.addMappingForUrlPatterns(
                 EnumSet.of(DispatcherType.REQUEST), true, mapping);
+    }
+
+    private static class JakartaFilterAdapter implements Filter {
+
+        private final AbstractConfigFilter delegate;
+
+        JakartaFilterAdapter(AbstractConfigFilter delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public void init(FilterConfig filterConfig) throws ServletException {
+            delegate.init(filterConfig);
+        }
+
+        @Override
+        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+                throws IOException, ServletException {
+            delegate.doFilter(request, response, chain);
+        }
+
+        @Override
+        public void destroy() {
+            delegate.destroy();
+        }
     }
 }

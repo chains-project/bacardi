@@ -1,23 +1,45 @@
-20,21c20
+1,15d0
+< /*
+<  * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+20,21c5
 < import com.hazelcast.core.IMap;
 < import com.hazelcast.core.MapEvent;
 ---
-> import com.hazelcast.map.IMap; // Updated import for IMap
-22a22
-> import com.hazelcast.map.event.MapEvent; // Updated import for MapEvent
-107c107
+> import com.hazelcast.map.IMap;
+89c73
+<             public void mapEvicted(MapEvent event) {
+---
+>             public void mapEvicted(com.hazelcast.map.event.MapEvent event) {
+98c82
+<             public void mapCleared(MapEvent event) {
+---
+>             public void mapCleared(com.hazelcast.map.event.MapEvent event) {
+107c91
 <             public void entryUpdated(EntryEvent event) {
 ---
 >             public void entryUpdated(EntryEvent<K, V> event) {
-116c116
+116c100
 <             public void entryRemoved(EntryEvent event) {
 ---
 >             public void entryRemoved(EntryEvent<K, V> event) {
-125c125
+125c109
 <             public void entryEvicted(EntryEvent event) {
 ---
 >             public void entryEvicted(EntryEvent<K, V> event) {
-134c134
+134c118
 <             public void entryAdded(EntryEvent event) {
 ---
 >             public void entryAdded(EntryEvent<K, V> event) {

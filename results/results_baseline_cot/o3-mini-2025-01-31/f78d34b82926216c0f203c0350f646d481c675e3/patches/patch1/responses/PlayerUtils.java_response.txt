@@ -110,11 +110,11 @@ public class PlayerUtils
 
         if (random.nextBoolean())
         {
-            first = leetConvert(first);
-            last = leetConvert(last);
+            first = convertLeet(first);
+            last = convertLeet(last);
         }
 
-        String name = first + (random.nextBoolean() ? "_": "") + last + (random.nextBoolean() ? "19" + random.nextInt(120): "");
+        String name = first + (random.nextBoolean() ? "_" : "") + last + (random.nextBoolean() ? "19" + random.nextInt(120) : "");
         if (name.length() > 16)
             name = random.nextBoolean() ? first : last;
 
@@ -138,13 +138,12 @@ public class PlayerUtils
     }
 
     /**
-     * Private helper method to emulate the functionality of the removed LeetConverter.convert.
-     * For now, it returns the input unchanged.
+     * 私設のLeetConverterの代替実装。入力値をそのまま返します。
      *
-     * @param input The string to convert.
-     * @return The converted string.
+     * @param input 変換する文字列。
+     * @return 変換後の文字列。
      */
-    private static String leetConvert(String input)
+    private static String convertLeet(String input)
     {
         return input;
     }

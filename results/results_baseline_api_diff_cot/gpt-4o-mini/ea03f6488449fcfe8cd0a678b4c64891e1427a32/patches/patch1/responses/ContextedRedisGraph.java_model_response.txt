@@ -139,10 +139,10 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphTransaction multi() {
         Jedis jedis = getConnection();
-        // Removed Client usage as it is no longer available in the new API
-        RedisGraphTransaction transaction = new RedisGraphTransaction(jedis, this);
-        transaction.setRedisGraphCaches(caches);
-        return transaction;
+        redis.clients.jedis.Transaction transaction = jedis.multi();
+        RedisGraphTransaction redisGraphTransaction = new RedisGraphTransaction(transaction, this);
+        redisGraphTransaction.setRedisGraphCaches(caches);
+        return redisGraphTransaction;
     }
 
     /**
@@ -152,9 +152,10 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphPipeline pipelined() {
         Jedis jedis = getConnection();
-        RedisGraphPipeline pipeline = new RedisGraphPipeline(jedis, this);
-        pipeline.setRedisGraphCaches(caches);
-        return pipeline;
+        redis.clients.jedis.Pipeline pipeline = jedis.pipelined();
+        RedisGraphPipeline redisGraphPipeline = new RedisGraphPipeline(pipeline, this);
+        redisGraphPipeline.setRedisGraphCaches(caches);
+        return redisGraphPipeline;
     }
 
     /**
@@ -202,11 +203,13 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public void close() {
         this.connectionContext.close();
+
     }
 
     @Override
     public void setRedisGraphCaches(RedisGraphCaches caches) {
         this.caches = caches;
     }
+
 }
 ```

@@ -34,6 +34,7 @@ import com.jcabi.log.Logger;
 import com.jcabi.s3.cached.CdRegion;
 import com.jcabi.s3.retry.ReRegion;
 import java.util.Locale;
+import java.util.concurrent.ThreadLocalRandom;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;

@@ -1,3 +1,8 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package com.example.config;
 
 import com.example.domain.TaskNotFoundException;
@@ -9,11 +14,18 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+/**
+ *
+ * @author hantsy
+ */
 @Provider
 public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFoundException> {
 
     @Inject Logger log;
-    @Inject Models models;
+    //private static Logger log = Logger.getLogger(PostNotFoundExceptionMapper.class.getName());
+
+    @Inject
+    Models models;
 
     @Override
     public Response toResponse(TaskNotFoundException exception) {
@@ -21,4 +33,5 @@ public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFound
         models.put("error", exception.getMessage());
         return Response.status(Response.Status.NOT_FOUND).entity("error.xhtml").build();
     }
+
 }

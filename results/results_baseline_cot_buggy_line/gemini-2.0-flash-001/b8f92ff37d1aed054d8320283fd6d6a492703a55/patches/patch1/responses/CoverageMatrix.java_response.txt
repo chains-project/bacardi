@@ -11,8 +11,7 @@ import fr.spoonlabs.flacoco.core.test.method.TestMethod;
 import fr.spoonlabs.flacoco.utils.spoon.SpoonBlockInspector;
 import org.apache.log4j.Logger;
 import org.apache.maven.plugin.surefire.util.DirectoryScanner;
-import org.apache.maven.surefire.api.testset.TestListResolver;
-import org.apache.maven.surefire.api.testset.ResolvedTestList;
+import org.apache.maven.surefire.api.testset.TestRequest;
 import org.jacoco.core.runtime.WildcardMatcher;
 
 import java.io.File;
@@ -197,13 +196,15 @@ public class CoverageMatrix {
 
         // True if it is present in the available binaries
         for (String dir : config.getBinJavaDir()) {
-            DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), new ResolvedTestList(Collections.emptyList(), Collections.emptyList()));
+            TestRequest testRequest = new TestRequest(null, null, null, null);
+            DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), testRequest);
             if (directoryScanner.scan().getClasses().contains(className)) {
                 return true;
             }
         }
         for (String dir : config.getBinTestDir()) {
-            DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), new ResolvedTestList(Collections.emptyList(), Collections.emptyList()));
+            TestRequest testRequest = new TestRequest(null, null, null, null);
+            DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), testRequest);
             if (directoryScanner.scan().getClasses().contains(className)) {
                 return true;
             }

@@ -8,7 +8,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.enchantments.Enchantment;
 
 import com.cryptomorin.xseries.XEnchantment;
 import com.cryptomorin.xseries.XMaterial;
@@ -23,6 +22,8 @@ import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.SmartInventory;
 import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;
+
+import org.bukkit.enchantments.Enchantment;
 
 public class WWCTranslateGUIChatMenu implements InventoryProvider {
 
@@ -69,9 +70,9 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
 				ItemMeta outgoingChatMeta = outgoingChatButton.getItemMeta();
 				if (targetTranslator.getTranslatingChatOutgoing()) {
 					outgoingChatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					Enchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get().getEnchant();
-					if (powerEnchantment != null) {
-						outgoingChatMeta.addEnchant(powerEnchantment, 1, false);
+					Enchantment enchantment = XEnchantment.matchXEnchantment("power").get().getEnchant();
+					if (enchantment != null) {
+						outgoingChatMeta.addEnchant(enchantment, 1, false);
 					}
 					outgoingChatMeta.setDisplayName(ChatColor.GREEN
 							+ CommonDefinitions.getMessage("wwctGUIChatOutgoingButton"));
@@ -94,9 +95,9 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
     			ItemMeta incomingChatMeta = incomingChatButton.getItemMeta();
     			if (targetTranslator.getTranslatingChatIncoming()) {
     				incomingChatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					Enchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get().getEnchant();
-					if (powerEnchantment != null) {
-						incomingChatMeta.addEnchant(powerEnchantment, 1, false);
+					Enchantment enchantment = XEnchantment.matchXEnchantment("power").get().getEnchant();
+					if (enchantment != null) {
+						incomingChatMeta.addEnchant(enchantment, 1, false);
 					}
     				incomingChatMeta.setDisplayName(ChatColor.GREEN
     						+ CommonDefinitions.getMessage("wwctGUIChatIncomingButton"));

@@ -15,7 +15,7 @@
  */
 package io.qameta.allure.maven;
 
-import net.lingala.zip4j.ZipFile; // Updated import
+import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
@@ -215,7 +215,7 @@ public class AllureCommandline {
 
     private void unpack(final File file) throws IOException {
         try {
-            final ZipFile zipFile = new ZipFile(file); // Updated constructor
+            final ZipFile zipFile = new ZipFile(file.getAbsolutePath());
             zipFile.extractAll(getInstallationDirectory().toAbsolutePath().toString());
         } catch (ZipException e) {
             throw new IOException(e);

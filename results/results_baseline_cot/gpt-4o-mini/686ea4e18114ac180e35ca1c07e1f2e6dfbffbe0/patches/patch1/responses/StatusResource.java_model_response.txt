@@ -1,36 +1,32 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the `javax.ws.rs` package does not exist, which suggests that the JAX-RS (Java API for RESTful Web Services) dependency is missing or has been updated to a version that no longer includes these packages.
-   - The specific errors point to the absence of classes such as `Path`, `Produces`, and `Response`, which are essential for the RESTful service implementation.
-
-2. Review the client code:
-   - The client code is using annotations and classes from the `javax.ws.rs` package, which are crucial for defining the REST endpoint.
-   - The absence of these imports means that the code will not compile, as it relies on these classes for its functionality.
-
-3. Consider potential fixes that adhere to the following constraints:
-   - The function signatures will remain unchanged.
-   - The `@Override` annotation is not present, so no need to remove it.
-   - We need to ensure that the correct imports are used based on the updated dependency version.
-
-4. Plan the necessary changes to fix the issue:
-   - We need to add the appropriate JAX-RS dependency to the project (e.g., in Maven or Gradle).
-   - Ensure that the imports are correct and correspond to the updated version of the JAX-RS library.
-   - The root cause of the error is the missing dependency, so we will focus on ensuring that the necessary classes are available.
-
-Based on the analysis, the following patch is proposed to fix the issue by ensuring the correct imports are used and that the necessary dependency is included.
-
 ```java
-// Your complete, fixed Java class here
+//
+// Wire
+// Copyright (C) 2016 Wire Swiss GmbH
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see http://www.gnu.org/licenses/.
+//
+
 package com.wire.lithium.server.monitoring;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 
 @Api
 @Path("/status")
@@ -45,5 +41,3 @@ public class StatusResource {
     }
 }
 ```
-
-In this patch, I have updated the imports to use `jakarta.ws.rs` instead of `javax.ws.rs`, which is the new package structure following the transition from Java EE to Jakarta EE. This change should resolve the compilation errors related to missing packages. Additionally, ensure that the project includes the appropriate Jakarta EE dependencies in the build configuration (e.g., Maven or Gradle) to avoid similar issues in the future.

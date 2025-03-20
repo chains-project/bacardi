@@ -1,42 +1,18 @@
 ```java
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2018-2023 Yegor Bugayenko
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package io.zold.api;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
-import org.cactoos.collection.Filtered;
+import org.cactoos.collection.FilteredCollection;
 import org.cactoos.iterable.IterableOf;
 import org.cactoos.iterable.Joined;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Skipped;
 import org.cactoos.list.ListOf;
-import org.cactoos.scalar.CheckedScalar;
+import org.cactoos.scalar.Unchecked;
 import org.cactoos.scalar.Or;
-import org.cactoos.scalar.UncheckedScalar;
 import org.cactoos.text.FormattedText;
 import org.cactoos.text.SplitText;
 import org.cactoos.text.TextOf;
@@ -97,7 +73,7 @@ public interface Wallet {
      * @todo #65:30min Complete Wallet implementations with id, public RSA
      *  key and network id. Wallets.create(Long, String, String) must
      *  create a Wallet with these strings set and a constructor must be
-     *  added to all Wallet realizations (Wallet(final long id, final String
+     *  added to all Walletl realizations (Wallet(final long id, final String
      *  pubkey, final String network, final Transaction... transactions). After
      *  completing these implementations fix tests that uses Wallets.create()
      *  and all Wallet realizations.
@@ -199,7 +175,7 @@ public interface Wallet {
 
         @Override
         public long id() throws IOException {
-            return new CheckedScalar<>(
+            return new Unchecked<>(
                 () -> Long.parseUnsignedLong(
                     new ListOf<>(
                         new SplitText(
@@ -209,8 +185,7 @@ public interface Wallet {
                     ).get(2).asString(),
                     // @checkstyle MagicNumber (1 line)
                     16
-                ),
-                e -> new IOException(e)
+                )
             ).value();
         }
 
@@ -245,9 +220,9 @@ public interface Wallet {
                 );
             }
             final Iterable<Transaction> ledger = this.ledger();
-            final Iterable<Transaction> candidates = new Filtered<>(
-                incoming -> new Filtered<>(
-                    origin -> new UncheckedScalar<>(
+            final Iterable<Transaction> candidates = new FilteredCollection<>(
+                incoming -> new FilteredCollection<>(
+                    origin -> new Unchecked<>(
                         new Or(
                             () -> incoming.equals(origin),
                             () -> incoming.id() == origin.id()
@@ -275,7 +250,7 @@ public interface Wallet {
                     new ListOf<>(
                         new SplitText(
                             new TextOf(this.path),
-                            "\n" // Changed from "\\n" to "\n" to match the split in id() method
+                            "\\n"
                         )
                     ),
                     // @checkstyle MagicNumberCheck (1 line)

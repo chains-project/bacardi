@@ -141,20 +141,20 @@ final class AstoBlobsITCase {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-new StringContains(true, digest)
+new StringContains(
 ```
 ```java
-new StringContains(
+new StringContains(true, digest)
 ```
 
 
  And here is the error message:
-[ERROR] /docker-adapter/src/test/java/com/artipie/docker/asto/AstoBlobsITCase.java:[95,21] constructor StringContains in class org.hamcrest.core.StringContains cannot be applied to given types;
+[ERROR] /docker-adapter/src/test/java/com/artipie/docker/asto/AstoBlobsITCase.java:[87,21] constructor StringContains in class org.hamcrest.core.StringContains cannot be applied to given types;
   required: java.lang.String
   found: boolean,java.lang.String
   reason: actual and formal argument lists differ in length
 
-[ERROR] /docker-adapter/src/test/java/com/artipie/docker/asto/AstoBlobsITCase.java:[87,21] constructor StringContains in class org.hamcrest.core.StringContains cannot be applied to given types;
+[ERROR] /docker-adapter/src/test/java/com/artipie/docker/asto/AstoBlobsITCase.java:[95,21] constructor StringContains in class org.hamcrest.core.StringContains cannot be applied to given types;
   required: java.lang.String
   found: boolean,java.lang.String
   reason: actual and formal argument lists differ in length

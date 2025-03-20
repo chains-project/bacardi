@@ -313,7 +313,7 @@ public class DSN {
 
     private static class FunctionVisitor extends VoidVisitorAdapter<Void> {
 
-      private final List<Integer> l;
+        private final List<Integer> l;
 
         FunctionVisitor(List<Integer> numbers) {
             this.l = numbers;
@@ -330,12 +330,14 @@ public class DSN {
 
     private static class UnitTestsVisitor extends VoidVisitorAdapter<Void> {
 
-      private final List<Integer> l;
+        private final List<Integer> l;
 
-      private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
+        private final PrettyPrinterConfiguration noComments;
 
         UnitTestsVisitor(List<Integer> numbers) {
             this.l = numbers;
+            noComments = new PrettyPrinterConfiguration();
+            noComments.setPrintComments(false);
         }
 
         @Override
@@ -350,7 +352,7 @@ public class DSN {
 
     private static class SafeplaceTestsVisitor extends VoidVisitorAdapter<Void> {
 
-      private final List<Integer> l;
+        private final List<Integer> l;
 
         SafeplaceTestsVisitor(List<Integer> numbers) {
             this.l = numbers;

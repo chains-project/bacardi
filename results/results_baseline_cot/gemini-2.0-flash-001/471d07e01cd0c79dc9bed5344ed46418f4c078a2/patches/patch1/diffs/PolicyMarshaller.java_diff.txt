@@ -1,30 +1,78 @@
-19d18
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+19d2
 < import com.google.api.services.cloudresourcemanager.model.Binding;
-22d20
+22d4
 < import com.google.cloud.Policy.Marshaller;
-37c35
+26a9,10
+> import com.google.iam.v1.Binding;
+> import com.google.iam.v1.PolicyProto;
+37c21
 <     extends Marshaller<com.google.api.services.cloudresourcemanager.model.Policy> {
 ---
->     extends Policy.Marshaller<com.google.api.resourcemanager.v3.Policy> {
-55c53
+>     extends Marshaller<com.google.iam.v1.Policy> {
+55c39
 <   protected Policy fromPb(com.google.api.services.cloudresourcemanager.model.Policy policyPb) {
 ---
->   protected Policy fromPb(com.google.api.resourcemanager.v3.Policy policyPb) {
-58c56
+>   protected Policy fromPb(com.google.iam.v1.Policy policyPb) {
+57,58c41,42
+<     if (policyPb.getBindings() != null) {
 <       for (Binding bindingPb : policyPb.getBindings()) {
 ---
->       for (com.google.api.resourcemanager.v3.Binding bindingPb : policyPb.getBindings()) {
-76,79c74,77
+>     if (policyPb.getBindingsList() != null) {
+>       for (Binding bindingPb : policyPb.getBindingsList()) {
+63c47
+<                     bindingPb.getMembers(),
+---
+>                     bindingPb.getMembersList(),
+72c56,57
+<     return new Builder(bindings, policyPb.getEtag(), policyPb.getVersion()).build();
+---
+>     String etag = policyPb.getEtag().isEmpty() ? null : policyPb.getEtag().toStringUtf8();
+>     return new Builder(bindings, etag, policyPb.getVersion()).build();
+76,78c61,62
 <   protected com.google.api.services.cloudresourcemanager.model.Policy toPb(Policy policy) {
 <     com.google.api.services.cloudresourcemanager.model.Policy policyPb =
 <         new com.google.api.services.cloudresourcemanager.model.Policy();
-<     List<Binding> bindingPbList = new LinkedList<>();
 ---
->   protected com.google.api.resourcemanager.v3.Policy toPb(Policy policy) {
->     com.google.api.resourcemanager.v3.Policy policyPb =
->         new com.google.api.resourcemanager.v3.Policy();
->     List<com.google.api.resourcemanager.v3.Binding> bindingPbList = new LinkedList<>();
-81c79
+>   protected com.google.iam.v1.Policy toPb(Policy policy) {
+>     com.google.iam.v1.Policy.Builder policyPb = com.google.iam.v1.Policy.newBuilder();
+81,83c65
 <       Binding bindingPb = new Binding();
+<       bindingPb.setRole(binding.getKey().getValue());
+<       bindingPb.setMembers(
 ---
->       com.google.api.resourcemanager.v3.Binding bindingPb = new com.google.api.resourcemanager.v3.Binding();
+>       Binding bindingPb = Binding.newBuilder().setRole(binding.getKey().getValue()).addAllMembers(
+91c73
+<               }));
+---
+>               })).build();
+94,95c76,80
+<     policyPb.setBindings(bindingPbList);
+<     policyPb.setEtag(policy.getEtag());
+---
+>     policyPb.addAllBindings(bindingPbList);
+>     if (policy.getEtag() != null) {
+>       policyPb.setEtag(com.google.protobuf.ByteString.copyFromUtf8(policy.getEtag()));
+>     }
+>     if (policy.getVersion() != null) {
+97c82,83
+<     return policyPb;
+---
+>     }
+>     return policyPb.build();

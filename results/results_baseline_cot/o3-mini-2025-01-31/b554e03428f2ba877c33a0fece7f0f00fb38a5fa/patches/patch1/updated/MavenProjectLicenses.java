@@ -30,7 +30,7 @@ import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilderException;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
-import org.apache.maven.shared.dependency.graph.DefaultDependencyGraphBuilder;
+import org.apache.maven.shared.dependency.graph.internal.MavenDependencyGraphBuilder;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -164,10 +164,6 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
     getLog().info(String.format("%s: %d", INFO_DEPS_DISCOVERED, dependencies.size()));
 
     return artifacts;
-
-    // tempting, but does not resolve dependencies after the scope in which this
-    // plugin is invoked
-    // return project.getArtifacts();
   }
 
   protected Set<MavenProject> getProjects() {
@@ -183,7 +179,7 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
   }
 
   private void setGraph(DependencyGraphBuilder graph) {
-    this.graph = Optional.ofNullable(graph).orElse(new DefaultDependencyGraphBuilder());
+    this.graph = Optional.ofNullable(graph).orElse(new MavenDependencyGraphBuilder());
   }
 
   private ProjectBuilder getProjectBuilder() {

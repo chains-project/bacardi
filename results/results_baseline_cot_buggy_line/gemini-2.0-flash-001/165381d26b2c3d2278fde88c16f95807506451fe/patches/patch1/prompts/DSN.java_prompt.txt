@@ -380,21 +380,21 @@ public class DSN {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-import com.github.javaparser.printer.PrettyPrinterConfiguration;
+private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
 ```
 ```java
-private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
+import com.github.javaparser.printer.PrettyPrinterConfiguration;
 ```
 
 
  And here is the error message:
-[ERROR] /scheduler/safeplace/src/test/java/org/btrplace/safeplace/DSN.java:[15,37] cannot find symbol
-  symbol:   class PrettyPrinterConfiguration
-  location: package com.github.javaparser.printer
-
 [ERROR] /scheduler/safeplace/src/test/java/org/btrplace/safeplace/DSN.java:[335,21] cannot find symbol
   symbol:   class PrettyPrinterConfiguration
   location: class org.btrplace.safeplace.DSN.UnitTestsVisitor
+
+[ERROR] /scheduler/safeplace/src/test/java/org/btrplace/safeplace/DSN.java:[15,37] cannot find symbol
+  symbol:   class PrettyPrinterConfiguration
+  location: package com.github.javaparser.printer
 
 
 

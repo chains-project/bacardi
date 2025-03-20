@@ -1,24 +1,38 @@
-<code_analysis>
-1. The error message indicates that the class Matchers in the package org.hamcrest is no longer available. The line causing the issue is in the hasPath() (and similarly, hasQuery()) method, which calls Matchers.<URI>hasProperty(...). This suggests that the updated version of the Hamcrest dependency has either moved or removed the Matchers class.
-2. Examining the client code, we see that the only direct use of Matchers is in the hasPath() and hasQuery() methods where it is used to produce a Matcher for a URI’s property (“rawPath” and “rawQuery”). The rest of the code remains unaffected.
-3. In recent versions of Hamcrest, the bean matchers (including the hasProperty functionality) are provided not in org.hamcrest.Matchers but in the package org.hamcrest.beans. Therefore, switching the import and replacing the method calls to HasProperty.hasProperty(...) should resolve the compilation error.
-4. Thus, the specific modifications required are:
-   - Remove the import of org.hamcrest.Matchers and instead import org.hamcrest.beans.HasProperty.
-   - In the hasPath() and hasQuery() methods, change the call from Matchers.<URI>hasProperty(...) to HasProperty.<URI>hasProperty(...).
-   This patch directly addresses the root cause of the dependency update issue while preserving the existing functionality and function signatures.
-</code_analysis>
-
 ```java
 package com.jcabi.http.mock;
 
 import java.net.URI;
 import org.hamcrest.Matcher;
-import org.hamcrest.beans.HasProperty;
+import org.hamcrest.beans.HasPropertyWithValue;
 
-/**
- * Convenient set of matchers for {@link MkQuery}.
+/*
+ * Copyright (c) 2011-2022, jcabi.com
+ * All rights reserved.
  *
- * @since 1.5
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met: 1) Redistributions of source code must retain the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer. 2) Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3) Neither the name of the jcabi.com nor
+ * the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
+ * permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+ * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+ * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public final class MkQueryMatchers {
@@ -63,9 +77,9 @@ public final class MkQueryMatchers {
      * @return Matcher for checking the path of MkQuery
      */
     public static Matcher<MkQuery> hasPath(final Matcher<String> path) {
-        return new MkQueryUriMatcher(
-            HasProperty.<URI>hasProperty("rawPath", path)
-        );
+        @SuppressWarnings("unchecked")
+        Matcher<URI> uriMatcher = (Matcher<URI>) HasPropertyWithValue.hasProperty("rawPath", path);
+        return new MkQueryUriMatcher(uriMatcher);
     }
 
     /**
@@ -75,9 +89,9 @@ public final class MkQueryMatchers {
      * @return Matcher for checking the query of MkQuery
      */
     public static Matcher<MkQuery> hasQuery(final Matcher<String> query) {
-        return new MkQueryUriMatcher(
-            HasProperty.<URI>hasProperty("rawQuery", query)
-        );
+        @SuppressWarnings("unchecked")
+        Matcher<URI> uriMatcher = (Matcher<URI>) HasPropertyWithValue.hasProperty("rawQuery", query);
+        return new MkQueryUriMatcher(uriMatcher);
     }
 
 }

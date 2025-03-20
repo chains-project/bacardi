@@ -1,18 +1,12 @@
 11c11
 < import org.apache.maven.surefire.api.testset.TestListResolver;
 ---
-> import org.apache.maven.shared.utils.io.SelectorUtils;
-92,93c92,94
+> import org.apache.maven.surefire.api.testset.TestRequest;
+92c92
 <                         DirectoryScanner directoryScanner = new DirectoryScanner(new File(directory), TestListResolver.getWildcard());
-<                         includes.append(":").append(directoryScanner.scan().getClasses().stream().reduce((x, y) -> x + ":" + y).orElse(""));
 ---
->                         DirectoryScanner directoryScanner = new DirectoryScanner(new File(directory), SelectorUtils.DEFAULT_INCLUDES);
->                         directoryScanner.scan();
->                         includes.append(":").append(directoryScanner.getClasses().stream().reduce((x, y) -> x + ":" + y).orElse(""));
-97,98c98,100
+>                         DirectoryScanner directoryScanner = new DirectoryScanner(new File(directory), new TestRequest().getWildcard());
+97c97
 <                                 DirectoryScanner directoryScanner = new DirectoryScanner(new File(directory), TestListResolver.getWildcard());
-<                                 includes.append(":").append(directoryScanner.scan().getClasses().stream().reduce((x, y) -> x + ":" + y).orElse(""));
 ---
->                                 DirectoryScanner directoryScanner = new DirectoryScanner(new File(directory), SelectorUtils.DEFAULT_INCLUDES);
->                                 directoryScanner.scan();
->                                 includes.append(":").append(directoryScanner.getClasses().stream().reduce((x, y) -> x + ":" + y).orElse(""));
+>                                 DirectoryScanner directoryScanner = new DirectoryScanner(new File(directory),  new TestRequest().getWildcard());

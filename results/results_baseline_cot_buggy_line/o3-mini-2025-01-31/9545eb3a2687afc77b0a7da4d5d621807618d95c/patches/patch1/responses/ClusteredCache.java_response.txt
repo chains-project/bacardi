@@ -1,24 +1,10 @@
-/*
- * Copyright (C) 1999-2009 Jive Software. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.jivesoftware.openfire.plugin.util.cache;
 
+import com.hazelcast.core.EntryEvent;
 import com.hazelcast.map.IMap;
+import com.hazelcast.map.listener.EntryListener;
 import com.hazelcast.map.listener.MapEvent;
 import com.hazelcast.map.listener.MapListener;
-import com.hazelcast.map.LocalMapStats;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusteredCacheEntryListener;
 import org.jivesoftware.openfire.cluster.NodeID;
@@ -40,10 +26,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Clustered implementation of the Cache interface using Hazelcast.
- *
- */
 public class ClusteredCache<K extends Serializable, V extends Serializable> implements Cache<K, V> {
 
     private final Logger logger;
@@ -81,7 +63,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
 
     @Override
     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode) {
-        final com.hazelcast.core.EntryListener<K, V> listener = new com.hazelcast.core.EntryListener<K, V>() {
+        final EntryListener<K, V> listener = new EntryListener<K, V>() {
             @Override
             public void mapEvicted(MapEvent event) {
                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
@@ -101,7 +83,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
             }
 
             @Override
-            public void entryUpdated(com.hazelcast.core.EntryEvent event) {
+            public void entryUpdated(EntryEvent event) {
                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
                     logger.trace("Processing entry update event of node '{}' for key '{}'", eventNodeId, event.getKey());
@@ -110,7 +92,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
             }
 
             @Override
-            public void entryRemoved(com.hazelcast.core.EntryEvent event) {
+            public void entryRemoved(EntryEvent event) {
                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
                     logger.trace("Processing entry removed event of node '{}' for key '{}'", eventNodeId, event.getKey());
@@ -119,7 +101,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
             }
 
             @Override
-            public void entryEvicted(com.hazelcast.core.EntryEvent event) {
+            public void entryEvicted(EntryEvent event) {
                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
                     logger.trace("Processing entry evicted event of node '{}' for key '{}'", eventNodeId, event.getKey());
@@ -128,7 +110,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
             }
 
             @Override
-            public void entryAdded(com.hazelcast.core.EntryEvent event) {
+            public void entryAdded(EntryEvent event) {
                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
                     logger.trace("Processing entry added event of node '{}' for key '{}'", eventNodeId, event.getKey());
@@ -162,7 +144,9 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
 
     @Override
     public V put(final K key, final V object) {
-        if (object == null) { return null; }
+        if (object == null) {
+            return null;
+        }
         checkForPluginClassLoader(key);
         checkForPluginClassLoader(object);
         return map.put(key, object);
@@ -186,8 +170,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
 
     @Override
     public int size() {
-        final LocalMapStats stats = map.getLocalMapStats();
-        return (int) (stats.getOwnedEntryCount() + stats.getBackupEntryCount());
+        return map.size();
     }
 
     @Override
@@ -218,12 +201,10 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     @Override
     public void putAll(final Map<? extends K, ? extends V> entries) {
         map.putAll(entries);
-        entries.entrySet().stream().findAny().ifPresent(
-            e -> {
-                checkForPluginClassLoader(e.getKey());
-                checkForPluginClassLoader(e.getValue());
-            }
-        );
+        entries.entrySet().stream().findAny().ifPresent(e -> {
+            checkForPluginClassLoader(e.getKey());
+            checkForPluginClassLoader(e.getValue());
+        });
     }
 
     @Override
@@ -233,13 +214,12 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
 
     @Override
     public long getCacheHits() {
-        return map.getLocalMapStats().getHits();
+        return 0;
     }
 
     @Override
     public long getCacheMisses() {
-        final long hits = map.getLocalMapStats().getHits();
-        return numberOfGets > hits ? numberOfGets - hits : 0;
+        return numberOfGets;
     }
 
     @Override
@@ -249,8 +229,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
 
     @Override
     public long getLongCacheSize() {
-        final LocalMapStats stats = map.getLocalMapStats();
-        return stats.getOwnedEntryMemoryCost() + stats.getBackupEntryMemoryCost();
+        return map.size();
     }
 
     @Override
@@ -309,9 +288,9 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     }
 
     /**
-     * Clustered caches should not contain instances of classes that are provided by Openfire plugins. These will cause 
-     * issues related to class loading when the providing plugin is reloaded. This method verifies if an instance is 
-     * loaded by a plugin class loader, and logs a warning to the log files when it is. The amount of warnings logged is 
+     * Clustered caches should not contain instances of classes that are provided by Openfire plugins. These will cause
+     * issues related to class loading when the providing plugin is reloaded. This method verifies if an instance is
+     * loaded by a plugin class loader, and logs a warning to the log files when it is. The amount of warnings logged is
      * limited by a time interval.
      *
      * @param o the instance for which to verify the class loader
@@ -319,8 +298,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
      */
     protected void checkForPluginClassLoader(final Object o) {
         if (o != null && o.getClass().getClassLoader() instanceof PluginClassLoader
-            && lastPluginClassLoaderWarning.isBefore(Instant.now().minus(pluginClassLoaderWarningSupression)) )
-        {
+            && lastPluginClassLoaderWarning.isBefore(Instant.now().minus(pluginClassLoaderWarningSupression))) {
             String pluginName = null;
             try {
                 final Collection<Plugin> plugins = XMPPServer.getInstance().getPluginManager().getPlugins();

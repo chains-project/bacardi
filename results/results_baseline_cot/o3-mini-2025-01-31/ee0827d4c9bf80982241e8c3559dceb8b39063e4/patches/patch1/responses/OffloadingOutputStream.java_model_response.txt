@@ -1,45 +1,3 @@
-<code_analysis>
-1. Examining the error message shows that the class and methods from Commons IO’s
-   ThresholdingOutputStream can no longer be found and/or no longer define methods
-   like getStream() or thresholdReached(). In particular:
-   • The compiler complains that it “cannot find symbol: class ThresholdingOutputStream”
-     in the import and in the “extends” clause.
-   • Several methods that were marked with @Override (getStream(), thresholdReached(),
-     and close()) no longer match any method in the updated dependency.
-   This indicates that the breaking change removes or moves this class in the new
-   dependency version.
-
-2. Reviewing the client code we see that OffloadingOutputStream originally extends
-   ThresholdingOutputStream and takes advantage of its internal threshold‐handling (e.g.
-   automatically switching from an in‐memory output stream to a disk‐based stream once
-   a given threshold is exceeded). The methods getStream() and thresholdReached() are
-   implemented to support that behavior. Meanwhile, close() invokes super.close().
-
-3. To fix the issue while leaving the public API intact, we can remove the dependency
-   on Commons IO’s ThresholdingOutputStream. We do this by having OffloadingOutputStream
-   extend java.io.OutputStream instead, and re–implementing the thresholding behavior
-   within this class. In doing so we:
-   • Remove the “extends ThresholdingOutputStream” clause.
-   • Remove the @Override annotations on methods that were formerly overriding superclass methods
-     that no longer exist.
-   • Re–implement the write methods so that data is first written to an in–memory buffer and,
-     once the threshold is exceeded, new writes are directed to disk.
-   • Adjust the close() method (eliminating the call to “super.close()”) so that it calls only
-     the underlying stream’s close().
-   • In addition, fix the call to memoryOutputStream.toInputStream() (which is not part of
-     standard java.io) by instead wrapping the byte[] output in a ByteArrayInputStream.
-     
-4. The patch below shows all the modifications:
-   • The threshold value is stored in a private field.
-   • The write methods check whether adding new bytes would exceed the threshold. In that case,
-     a portion (if any) is written to memory and then thresholdReached() is invoked to switch
-     the underlying stream to a disk–based one.
-   • The getInputStream(), getData(), and getFile() methods behave as before.
-   Side effects: This patch re–implements the threshold functionality locally rather than relying
-   on the removed dependency. Client code that depends on OffloadingOutputStream’s public API remains
-   unchanged.
-</code_analysis>
-
 ```java
 package org.codehaus.plexus.archiver.zip;
 
@@ -52,13 +10,6 @@ import java.io.OutputStream;
 import java.io.SequenceInputStream;
 import java.nio.file.Files;
 
-/**
- * Offloads to disk when a given memory consumption has been reached.
- *
- * This implementation no longer extends Commons IO's ThresholdingOutputStream since that class
- * is no longer present in the updated dependency. Instead, it extends OutputStream and implements
- * the threshold checking logic directly.
- */
 class OffloadingOutputStream extends OutputStream
 {
     // ----------------------------------------------------------- Data members
@@ -70,8 +21,8 @@ class OffloadingOutputStream extends OutputStream
     private ByteArrayOutputStream memoryOutputStream;
 
     /**
-     * The output stream to which data is written at any time. This will always be either the
-     * in–memory stream or the disk–based stream.
+     * The output stream to which data will be written at any given time. This
+     * will always be one of <code>memoryOutputStream</code> or a disk-based stream.
      */
     private OutputStream currentOutputStream;
 
@@ -101,41 +52,45 @@ class OffloadingOutputStream extends OutputStream
     private boolean closed = false;
 
     /**
-     * The threshold at which to switch from the in–memory stream to the disk–based stream.
+     * The threshold of bytes to keep in memory.
      */
-    private final int thresholdLimit;
+    private final int threshold;
 
     /**
-     * The counter of bytes written.
+     * The number of bytes written so far.
      */
-    private long writtenBytes = 0;
+    private long written = 0;
+    
+    /**
+     * Flag indicating if the threshold has been reached.
+     */
+    private boolean thresholdTriggered = false;
 
     // ----------------------------------------------------------- Constructors
 
     /**
-     * Constructs an instance of this class which will trigger an event at the specified threshold,
-     * and save data to a temporary file beyond that point.
+     * Constructs an instance of this class which will trigger an event at the
+     * specified threshold, and save data to a temporary file beyond that point.
      *
-     * @param threshold The number of bytes at which to trigger a threshold event.
+     * @param threshold The number of bytes at which to trigger an event.
      * @param prefix Prefix to use for the temporary file.
      * @param suffix Suffix to use for the temporary file.
      * @param directory Temporary file directory.
-     * @throws IllegalArgumentException if the prefix is null.
      *
      * @since 1.4
      */
-    public OffloadingOutputStream( int threshold, String prefix, String suffix, File directory )
+    public OffloadingOutputStream(int threshold, String prefix, String suffix, File directory)
     {
-        this( threshold, null, prefix, suffix, directory );
-        if ( prefix == null )
+        this(threshold, null, prefix, suffix, directory);
+        if (prefix == null)
         {
-            throw new IllegalArgumentException( "Temporary file prefix is missing" );
+            throw new IllegalArgumentException("Temporary file prefix is missing");
         }
     }
 
     /**
-     * Constructs an instance of this class which will trigger an event at the specified threshold,
-     * and save data either to a file beyond that point.
+     * Constructs an instance of this class which will trigger an event at the
+     * specified threshold, and save data either to a file beyond that point.
      *
      * @param threshold The number of bytes at which to trigger an event.
      * @param outputFile The file to which data is saved beyond the threshold.
@@ -143,26 +98,25 @@ class OffloadingOutputStream extends OutputStream
      * @param suffix Suffix to use for the temporary file.
      * @param directory Temporary file directory.
      */
-    private OffloadingOutputStream( int threshold, File outputFile, String prefix, String suffix, File directory )
+    private OffloadingOutputStream(int threshold, File outputFile, String prefix, String suffix, File directory)
     {
-        this.thresholdLimit = threshold;
+        this.threshold = threshold;
         this.outputFile = outputFile;
-        // Initialize the in–memory stream with an initial capacity of threshold/10.
-        memoryOutputStream = new ByteArrayOutputStream( threshold / 10 );
-        currentOutputStream = memoryOutputStream;
+        // Initialize the memory output stream with an initial size of threshold/10 (at least 1)
+        this.memoryOutputStream = new ByteArrayOutputStream(Math.max(1, threshold / 10));
+        this.currentOutputStream = memoryOutputStream;
         this.prefix = prefix;
         this.suffix = suffix;
         this.directory = directory;
     }
 
-    // ----------------------------------------------------------- Helper methods
-
     /**
-     * Returns the current output stream.
+     * Returns the current output stream. This may be memory based or disk
+     * based, depending on the current state with respect to the threshold.
      *
      * @return The underlying output stream.
      *
-     * @throws IOException if an error occurs.
+     * @exception IOException if an error occurs.
      */
     protected OutputStream getStream() throws IOException
     {
@@ -170,132 +124,54 @@ class OffloadingOutputStream extends OutputStream
     }
 
     /**
-     * Switches the underlying output stream from a memory–based stream to one that is backed by disk.
-     * This method is invoked when too much data is written to be kept in memory.
+     * Switches the underlying output stream from a memory based stream to one
+     * that is backed by disk. This is the point at which we realize that too
+     * much data is being written to keep in memory, so we elect to switch to
+     * disk-based storage.
      *
-     * @throws IOException if an error occurs.
+     * @exception IOException if an error occurs.
      */
     protected void thresholdReached() throws IOException
     {
-        if ( prefix != null )
+        if (!thresholdTriggered)
         {
-            outputFile = File.createTempFile( prefix, suffix, directory );
-        }
-        currentOutputStream = Files.newOutputStream( outputFile.toPath() );
-    }
-
-    // ----------------------------------------------------------- Overridden OutputStream methods
-
-    @Override
-    public void write( int b ) throws IOException
-    {
-        if ( closed )
-        {
-            throw new IOException( "Stream is closed" );
-        }
-        // Check if writing one more byte would exceed the threshold.
-        if ( currentOutputStream == memoryOutputStream && (writtenBytes + 1 > thresholdLimit) )
-        {
-            int bytesToMemory = thresholdLimit - (int) writtenBytes;
-            if ( bytesToMemory > 0 )
+            if (prefix != null)
             {
-                // Write the remaining bytes that fit in memory.
-                memoryOutputStream.write( b );
-                writtenBytes++;
+                outputFile = File.createTempFile(prefix, suffix, directory);
             }
-            else
-            {
-                // Already at or beyond the threshold: switch stream.
-                thresholdReached();
-                currentOutputStream.write( b );
-                writtenBytes++;
-            }
-        }
-        else
-        {
-            currentOutputStream.write( b );
-            writtenBytes++;
+            currentOutputStream = Files.newOutputStream(outputFile.toPath());
+            thresholdTriggered = true;
         }
     }
-
-    @Override
-    public void write( byte[] b, int off, int len ) throws IOException
-    {
-        if ( closed )
-        {
-            throw new IOException( "Stream is closed" );
-        }
-        if ( currentOutputStream == memoryOutputStream && (writtenBytes + len > thresholdLimit) )
-        {
-            int bytesToMemory = thresholdLimit - (int) writtenBytes;
-            if ( bytesToMemory > 0 )
-            {
-                // Write as many bytes as possible into the memory output.
-                memoryOutputStream.write( b, off, bytesToMemory );
-                writtenBytes += bytesToMemory;
-                off += bytesToMemory;
-                len -= bytesToMemory;
-            }
-            // Switch to disk–based stream.
-            thresholdReached();
-            currentOutputStream.write( b, off, len );
-            writtenBytes += len;
-        }
-        else
-        {
-            currentOutputStream.write( b, off, len );
-            writtenBytes += len;
-        }
-    }
-
-    @Override
-    public void flush() throws IOException
-    {
-        if ( !closed )
-        {
-            currentOutputStream.flush();
-        }
-    }
-
-    @Override
-    public void close() throws IOException
-    {
-        if ( !closed )
-        {
-            currentOutputStream.close();
-            closed = true;
-        }
-    }
-
-    // ----------------------------------------------------------- Public methods
 
     /**
-     * Returns an InputStream to read back the data written through this stream.
-     * If the data has not exceeded the threshold, only the in–memory data is returned.
-     * Otherwise, both the in–memory and disk–based data are returned sequentially.
+     * Returns the current data as an input stream.
      *
-     * @return An InputStream for reading the data.
-     * @throws IOException if an error occurs.
+     * @return An input stream constructed from the written data.
+     *
+     * @exception IOException if an error occurs.
      */
     public InputStream getInputStream() throws IOException
     {
-        InputStream memoryAsInput = new ByteArrayInputStream( memoryOutputStream.toByteArray() );
-        if ( outputFile == null )
+        InputStream memoryAsInput = new ByteArrayInputStream(memoryOutputStream.toByteArray());
+        if (outputFile == null)
         {
             return memoryAsInput;
         }
-        return new SequenceInputStream( memoryAsInput, Files.newInputStream( outputFile.toPath() ) );
+        return new SequenceInputStream(memoryAsInput, Files.newInputStream(outputFile.toPath()));
     }
 
     /**
-     * Returns the data for this output stream as a byte array, provided that the data is still kept in memory.
-     * If the data was written to disk, this method returns null.
+     * Returns the data for this output stream as an array of bytes, assuming
+     * that the data has been retained in memory. If the data was written to
+     * disk, this method returns <code>null</code>.
      *
-     * @return The byte array representing the in–memory data, or null if no such data is available.
+     * @return The data for this output stream, or <code>null</code> if no such
+     * data is available.
      */
     public byte[] getData()
     {
-        if ( memoryOutputStream != null )
+        if (memoryOutputStream != null)
         {
             return memoryOutputStream.toByteArray();
         }
@@ -303,14 +179,120 @@ class OffloadingOutputStream extends OutputStream
     }
 
     /**
-     * Returns either the output file specified in the constructor or the temporary file created.
-     * This will be non–null only if the threshold has been exceeded.
+     * Returns either the output file specified in the constructor or
+     * the temporary file created, or null.
      *
-     * @return The file associated with the output stream, or null if no such file exists.
+     * @return The file for this output stream, or <code>null</code> if no such
+     * file exists.
      */
     public File getFile()
     {
         return outputFile;
+    }
+
+    /**
+     * Closes the underlying output stream, and marks this as closed.
+     *
+     * @exception IOException if an error occurs.
+     */
+    @Override
+    public void close() throws IOException
+    {
+        if (!closed)
+        {
+            currentOutputStream.close();
+            closed = true;
+        }
+    }
+    
+    /**
+     * Flushes the underlying output stream.
+     *
+     * @exception IOException if an error occurs.
+     */
+    @Override
+    public void flush() throws IOException
+    {
+        if (!closed)
+        {
+            currentOutputStream.flush();
+        }
+    }
+    
+    /**
+     * Writes a single byte to this output stream.
+     *
+     * @param b the byte.
+     *
+     * @exception IOException if an error occurs.
+     */
+    @Override
+    public void write(int b) throws IOException
+    {
+        if (closed)
+        {
+            throw new IOException("Stream already closed");
+        }
+        if (!thresholdTriggered && (written + 1 > threshold))
+        {
+            thresholdReached();
+        }
+        currentOutputStream.write(b);
+        written++;
+    }
+    
+    /**
+     * Writes <code>len</code> bytes from the specified byte array starting at
+     * offset <code>off</code> to this output stream.
+     *
+     * @param b the data.
+     * @param off the start offset in the data.
+     * @param len the number of bytes to write.
+     *
+     * @exception IOException if an error occurs.
+     */
+    @Override
+    public void write(byte[] b, int off, int len) throws IOException
+    {
+        if (closed)
+        {
+            throw new IOException("Stream already closed");
+        }
+        if (!thresholdTriggered && (written + len > threshold))
+        {
+            int remain = (int) (threshold - written);
+            if (remain > 0)
+            {
+                currentOutputStream.write(b, off, remain);
+                written += remain;
+                off += remain;
+                len -= remain;
+            }
+            thresholdReached();
+            if (len > 0)
+            {
+                currentOutputStream.write(b, off, len);
+                written += len;
+            }
+        }
+        else
+        {
+            currentOutputStream.write(b, off, len);
+            written += len;
+        }
+    }
+
+    /**
+     * Writes the specified byte array to this output stream.
+     *
+     * @param b the data.
+     *
+     * @exception IOException if an error occurs.
+     */
+    @Override
+    public void write(byte[] b) throws IOException
+    {
+        write(b, 0, b.length);
     }
 }
 ```

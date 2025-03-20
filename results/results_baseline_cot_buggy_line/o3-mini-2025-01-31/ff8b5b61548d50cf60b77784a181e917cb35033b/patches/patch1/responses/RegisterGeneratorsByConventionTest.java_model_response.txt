@@ -1,10 +1,3 @@
-<code_analysis>
-1. The error message indicates that the package org.mockito.runners and its class MockitoJUnitRunner do not exist. This suggests that a dependency update (likely Mockito) has moved the MockitoJUnitRunner to a new package.
-2. The affected lines are the import statement and the @RunWith annotation in the test class.
-3. In newer versions of Mockito, the MockitoJUnitRunner class is located in the package org.mockito.junit instead of org.mockito.runners.
-4. The necessary fix is to update the import statement to the correct package while leaving the rest of the code unchanged.
-</code_analysis>
-
 ```java
 package com.pholser.junit.quickcheck.internal.generator;
 
@@ -68,13 +61,11 @@ public class RegisterGeneratorsByConventionTest {
         IllegalArgumentException ex =
             assertThrows(
                 IllegalArgumentException.class,
-                () -> repo.generatorFor(
-                    ParameterTypeContext.forClass(valueClass)));
+                () -> repo.generatorFor(ParameterTypeContext.forClass(valueClass)));
 
         assertThat(
             ex.getMessage(),
-            containsString(
-                "Cannot find generator for " + valueClass.getName()));
+            containsString("Cannot find generator for " + valueClass.getName()));
     }
 }
 ```

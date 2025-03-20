@@ -1,28 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error complains that the overridden method getProperties in ModelRepresenter declares that it throws an IntrospectionException, which is not allowed because the original method in Representer (from SnakeYAML) no longer declares that exception.
-   - The error occurs in the getProperties method (around line 218) because our signature (with "throws IntrospectionException") is incompatible with the updated dependency.
-   - This is caused by a breaking change in the Representer API where getProperties no longer throws a checked exception.
-
-2. Review the client code:
-   - The problematic method is the overridden getProperties(Class<? extends Object> type) in ModelRepresenter.
-   - It calls helper method sortTypeWithOrder which in turn calls super.getProperties(type), and in our version it declares that it may throw IntrospectionException.
-   - Since the updated Representer.getProperties() does not throw any checked exception, our override must not declare it either.
-
-3. Consider potential fixes:
-   - We must remove the "throws IntrospectionException" clause from the overridden getProperties method.
-   - Since sortTypeWithOrder might throw an IntrospectionException, we can wrap its call in a try/catch block and rethrow the exception as an unchecked exception (e.g. IllegalStateException).
-   - All other code should remain unchanged.
-
-4. Plan the necessary changes:
-   - Remove the "throws IntrospectionException" from the getProperties method signature.
-   - Wrap the logic of getProperties inside a try block that catches IntrospectionException.
-   - On catching the exception, rethrow it as a RuntimeException (here, IllegalStateException) so the method signature conforms to the new API.
-   - Leave the other parts of the class unchanged.
-</code_analysis>
-
-Below is the complete fixed class:
-
 ```java
 /**
  * Copyright (c) 2012 to original author or authors
@@ -191,8 +166,6 @@ class ModelRepresenter extends Representer {
     }
   }
 
-  // Model elements order {
-  //TODO move to polyglot-common, or to org.apache.maven:maven-model
   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
       "modelEncoding",
       "modelVersion",
@@ -221,8 +194,6 @@ class ModelRepresenter extends Representer {
       "dependencyManagement",
       "dependencies",
       "distributionManagement",
-      //"repositories",
-      //"pluginRepositories",
       "build",
       "profiles",
       "reporting"
@@ -235,11 +206,7 @@ class ModelRepresenter extends Representer {
       "groupId", "artifactId", "version", "type", "classifier", "scope"));
   private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
       "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
-  //}
 
-  /*
-   * Change the default order. Important data goes first.
-   */
   @Override
   protected Set<Property> getProperties(Class<? extends Object> type) {
     try {
@@ -257,7 +224,7 @@ class ModelRepresenter extends Representer {
         return super.getProperties(type);
       }
     } catch (IntrospectionException e) {
-      throw new IllegalStateException("Failed to introspect properties for type: " + type, e);
+      throw new YAMLException(e);
     }
   }
 
@@ -294,7 +261,7 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0;// compare further
+      return 0;
     }
   }
 }

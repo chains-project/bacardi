@@ -9,11 +9,11 @@ import java.util.Arrays;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.AllOf;
 import org.hamcrest.core.IsEqual;
-import org.hamcrest.core.IsNot;
 import org.hamcrest.core.StringContains;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import static org.hamcrest.CoreMatchers.not;
 
 /**
  * Tests for {@link Tag.Valid}.
@@ -30,7 +30,7 @@ class TagValidTest {
         "MY_TAG",
         "My.Tag.1",
         "_some_tag",
-        // @checkstyle LineLengthCheck (1 line)
+        //@checkstyle LineLengthCheck (1 line)
         "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567"
     })
     void shouldGetValueWhenValid(final String original) {
@@ -46,7 +46,7 @@ class TagValidTest {
         "*",
         "\u00ea",
         "-my-tag",
-        // @checkstyle LineLengthCheck (1 line)
+        //@checkstyle LineLengthCheck (1 line)
         "012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678"
     })
     void shouldFailToGetValueWhenInvalid(final String original) {
@@ -61,7 +61,7 @@ class TagValidTest {
             new AllOf<>(
                 Arrays.asList(
                     new StringContains("Invalid tag"),
-                    IsNot.not(new StringContains(original))
+                    not(new StringContains(original))
                 )
             )
         );

@@ -2,15 +2,15 @@ import java.util.ResourceBundle;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import jakarta.mvc.MvcContext; // Updated import to reflect the new dependency package
+import jakarta.mvc.MvcContext;
 
 /**
  * Provides I18n messages for the UI per request. To get the correct locale, the method {@link MvcContext#getLocale()}
- * is used. This method uses the built-in {@link javax.mvc.locale.LocaleResolver} of the used MVC Implementation.
+ * is used. This method uses the built-in {@link jakarta.mvc.locale.LocaleResolver} of the used MVC Implementation.
  *
  * @author Tobias Erdle
  * @see MvcContext#getLocale()
- * @see javax.mvc.locale.LocaleResolver
+ * @see jakarta.mvc.locale.LocaleResolver
  */
 @RequestScoped
 @Named("msg")
@@ -30,6 +30,7 @@ public class Messages {
      */
     public final String get(final String key) {
         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
+
         return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);
     }
 

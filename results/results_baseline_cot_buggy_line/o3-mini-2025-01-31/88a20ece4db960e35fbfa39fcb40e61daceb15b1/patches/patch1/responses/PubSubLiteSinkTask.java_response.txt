@@ -18,7 +18,6 @@ package com.google.pubsublite.kafka.sink;
 import static com.google.pubsublite.kafka.sink.Schemas.encodeToBytes;
 
 import com.google.api.core.ApiService.State;
-import com.google.cloud.pubsublite.Message;
 import com.google.cloud.pubsublite.internal.Publisher;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableListMultimap;
@@ -39,7 +38,7 @@ import org.apache.kafka.connect.sink.SinkTask;
 public class PubSubLiteSinkTask extends SinkTask {
 
   private final PublisherFactory factory;
-  private @Nullable Publisher<?> publisher;
+  private @Nullable Publisher publisher;
 
   @VisibleForTesting
   PubSubLiteSinkTask(PublisherFactory factory) {

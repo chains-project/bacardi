@@ -100,7 +100,7 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			}
 			stringEncrypter.setAlgorithm(getAlgorithm());
 
-			PBEPasswordEncoder encoder = new PBEPasswordEncoder(); // Updated to new class
+			PBEPasswordEncoder encoder = new PBEPasswordEncoder(); // Updated usage
 			encoder.setPbeStringEncryptor(stringEncrypter);
 
 			return encoder;

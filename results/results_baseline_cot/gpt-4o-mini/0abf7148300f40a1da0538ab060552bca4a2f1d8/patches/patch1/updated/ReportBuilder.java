@@ -8,8 +8,8 @@ package xdev.tableexport.export;
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -345,7 +345,7 @@ public class ReportBuilder
 		// Font
 		final Font f = style.getFont();
 		txtField.setFontName(f.getName());
-		txtField.setFontSize(Float.valueOf(f.getSize())); // Fix: Changed from int to float
+		txtField.setFontSize(Float.valueOf(f.getSize())); // Updated to use Float.valueOf
 		txtField.setBold(Boolean.valueOf(f.isBold()));
 		txtField.setItalic(Boolean.valueOf(f.isItalic()));
 		txtField.setHorizontalTextAlign(style.getHorizontalAlignment().getHorizontalTextAlignEnum());

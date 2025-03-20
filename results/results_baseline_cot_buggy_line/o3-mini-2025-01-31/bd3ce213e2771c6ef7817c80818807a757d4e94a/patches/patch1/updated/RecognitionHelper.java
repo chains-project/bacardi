@@ -16,7 +16,6 @@ import java.util.TreeMap;
 import org.apache.commons.io.FileUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import de.uniwue.config.ProjectConfiguration;
@@ -38,7 +37,6 @@ public class RecognitionHelper {
      * Possible values: { Binary, Gray }
      */
     private String projectImageType;
-
 
     /**
      * Object to use generic functionalities
@@ -207,52 +205,51 @@ public class RecognitionHelper {
 
         //// Estimate Skew
         if (cmdArgsWork.contains("--estimate_skew")) {
-            // Calculate the skew of all regions where none was calculated before
-            List<String> skewparams = new ArrayList<>();
+        	// Calculate the skew of all regions where none was calculated before
+        	List<String> skewparams = new ArrayList<>();
             skewparams.add("skewestimate");
-            final int maxskewIndex = cmdArgsWork.indexOf("--maxskew");
-            if(maxskewIndex > -1) {
-                skewparams.add(cmdArgsWork.remove(maxskewIndex));
-                skewparams.add(cmdArgsWork.remove(maxskewIndex));
-            }
-            final int skewstepsIndex = cmdArgsWork.indexOf("--skewsteps");
-            if(skewstepsIndex > -1) {
-                skewparams.add(cmdArgsWork.remove(skewstepsIndex));
-                skewparams.add(cmdArgsWork.remove(skewstepsIndex));
-            }
+        	final int maxskewIndex = cmdArgsWork.indexOf("--maxskew");
+        	if(maxskewIndex > -1) {
+        		skewparams.add(cmdArgsWork.remove(maxskewIndex));
+        		skewparams.add(cmdArgsWork.remove(maxskewIndex));
+        	}
+        	final int skewstepsIndex = cmdArgsWork.indexOf("--skewsteps");
+        	if(skewstepsIndex > -1) {
+        		skewparams.add(cmdArgsWork.remove(skewstepsIndex));
+        		skewparams.add(cmdArgsWork.remove(skewstepsIndex));
+        	}
 
-            // Create temp json file with all segment images (to not overload parameter list)
-            // Temp file in a temp folder named "skew-<random numbers>.json"
-            File segmentListFile = File.createTempFile("skew-", ".json");
-            skewparams.add(segmentListFile.toString());
-            segmentListFile.deleteOnExit(); // Delete if OCR4all terminates
-            ObjectMapper mapper = new ObjectMapper();
-            ArrayNode dataList = mapper.createArrayNode();
-            for (String pageId : pageIds) {
-                ArrayNode pageList = mapper.createArrayNode();
-                pageList.add(projConf.getImageDirectoryByType(projectImageType) + pageId +
-                        projConf.getImageExtensionByType(projectImageType));
-                final String pageXML = projConf.OCR_DIR + pageId + projConf.CONF_EXT;
-                pageList.add(pageXML);
+			// Create temp json file with all segment images (to not overload parameter list)
+			// Temp file in a temp folder named "skew-<random numbers>.json"
+			File segmentListFile = File.createTempFile("skew-",".json");
+			skewparams.add(segmentListFile.toString());
+			segmentListFile.deleteOnExit(); // Delete if OCR4all terminates
+			ObjectMapper mapper = new ObjectMapper();
+			ArrayNode dataList = mapper.createArrayNode();
+			for (String pageId : pageIds) {
+				ArrayNode pageList = mapper.createArrayNode();
+				pageList.add(projConf.getImageDirectoryByType(projectImageType) + pageId +
+						projConf.getImageExtensionByType(projectImageType));
+				final String pageXML = projConf.OCR_DIR + pageId + projConf.CONF_EXT;
+				pageList.add(pageXML);
 
-                // Add affected line segment images with their absolute path to the json file
-                dataList.add(pageList);
-            }
-            // Fix: replaced usage of ObjectWriter with direct call to ObjectMapper.writeValue 
-            mapper.writeValue(segmentListFile, dataList);
+				// Add affected line segment images with their absolute path to the json file
+				dataList.add(pageList);
+			}
+			mapper.writeValue(segmentListFile, dataList);
 
             processHandler = new ProcessHandler();
             processHandler.setFetchProcessConsole(true);
             processHandler.startProcess("ocr4all-helper-scripts", skewparams, false);
 
-            cmdArgsWork.remove("--estimate_skew");
+        	cmdArgsWork.remove("--estimate_skew");
         }
 
 
         //// Recognize
-        // Reset recognition data
-        deleteOldFiles(pageIds);
-        initialize(pageIds);
+		// Reset recognition data
+		deleteOldFiles(pageIds);
+		initialize(pageIds);
 
         int index;
         if (cmdArgsWork.contains("--checkpoint")) {
@@ -278,8 +275,8 @@ public class RecognitionHelper {
 
         command.add("--data.images");
         // Create temp json file with all segment images (to not overload parameter list)
-        // Temp file in a temp folder named "calamari-<random numbers>.json"
-        File segmentListFile = File.createTempFile("calamari-", ".files");
+		// Temp file in a temp folder named "calamari-<random numbers>.json"
+        File segmentListFile = File.createTempFile("calamari-",".files");
         segmentListFile.deleteOnExit();
 
         List<String> content = new ArrayList<>();
@@ -393,7 +390,7 @@ public class RecognitionHelper {
                 fileWriter.flush();
                 fileWriter.close();
             }
-        }
+    	}
     }
 
     /**
@@ -407,7 +404,6 @@ public class RecognitionHelper {
                 for (String lineSegmentId : processState.get(pageId).get(segmentId).keySet()) {
                     if (processState.get(pageId).get(segmentId).get(lineSegmentId))
                         continue;
-
                     FileUtils.writeStringToFile(new File(projConf.PAGE_DIR + pageId + File.separator +
                         segmentId + File.separator + lineSegmentId + projConf.REC_EXT), "", "UTF8");
                 }

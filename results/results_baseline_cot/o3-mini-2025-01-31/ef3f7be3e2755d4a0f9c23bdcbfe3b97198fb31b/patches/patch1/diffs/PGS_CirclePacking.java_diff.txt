@@ -1,46 +1,135 @@
 26,27d25
 < import org.tinspin.index.PointDistanceFunction;
 < import org.tinspin.index.PointEntryDist;
-127c125,127
-<                 return StreamSupport.stream(tin.triangles().spliterator(), false).filter(filterBorderTriangles).map(t -> inCircle(t))
----
->                 return StreamSupport.stream(tin.triangles().spliterator(), false)
->                                 .filter(filterBorderTriangles)
->                                 .map(t -> inCircle(t))
-165d164
-<          * 
-209,210c208,211
-<                         steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false).filter(filterBorderTriangles)
-<                                         .map(PGS_CirclePacking::centroid).collect(Collectors.toList());
----
->                         steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false)
->                                         .filter(filterBorderTriangles)
->                                         .map(PGS_CirclePacking::centroid)
->                                         .collect(Collectors.toList());
-226c227
-<                         final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
----
->                         final CoverTree.Entry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
-229c230
-<                          * nn.dist() does not return the radius (since it's a distance metric used to
----
->                          * nn.getDistance() does not return the radius (since it's a distance metric used to
-231c232
-<                          * 2d euclidean distance between center points minus radius of nearest circle.
----
->                          * 2d Euclidean distance between center points minus radius of nearest circle.
-332c333
-<          * value to control the accuracy of the LEC algorithm.
----
->          * value to control the LEC algorithm's accuracy.
-645,646c646
-<         private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {
-<                 // from https://stackoverflow.com/a/21975136/
----
->         private static final CoverTree.Distance<double[]> circleDistanceMetric = (p1, p2) -> {
-650d649
+57,61d54
+<         /*-
+<          * Roadmap (see/implement): 'A LINEARIZED CIRCLE PACKING ALGORITHM'? 
+<          * 'A note on circle packing' Young Joon AHN.
+<          */
 < 
-653c652
+213,214d205
+<                 // Model shape vertices as circles of radius 0, to constrain packed circles
+<                 // within shape edge
+216c207
+<                 Collections.shuffle(vertices); // shuffle vertices to reduce tree imbalance during insertion
+---
+>                 Collections.shuffle(vertices);
+219,223c210
+<                 /*
+<                  * "To find the circle nearest to a center (x, y), do a proximity search at (x,
+<                  * y, R), where R is greater than or equal to the maximum radius of a circle."
+<                  */
+<                 float largestR = 0; // the radius of the largest circle in the tree
+---
+>                 float largestR = 0;
+226,232c213,214
+<                         final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+< 
+<                         /*
+<                          * nn.dist() does not return the radius (since it's a distance metric used to
+<                          * find nearest circle), so calculate maximum radius for candidate circle using
+<                          * 2d euclidean distance between center points minus radius of nearest circle.
+<                          */
+---
+>                         List<CoverTree.Entry<PVector>> knn = tree.queryKNN(new double[] { p.x, p.y, largestR }, 1);
+>                         final PointEntryDist<PVector> nn = new PointEntryDist<>(knn.get(0).getValue(), knn.get(0).getDistance());
+239c221
+<                                 tree.insert(new double[] { p.x, p.y, radius }, p); // insert circle into tree
+---
+>                                 tree.insert(new double[] { p.x, p.y, radius }, p);
+247c229
+<          * Generates a random circle packing of tangential circles with varying radii
+---
+>          * Generates a circle packing of tangential circles with varying radii
+262,263c244,245
+<                 radiusMin = Math.max(1f, Math.min(radiusMin, radiusMax)); // choose min and constrain
+<                 radiusMax = Math.max(1f, Math.max(radiusMin, radiusMax)); // choose max and constrain
+---
+>                 radiusMin = Math.max(1f, Math.min(radiusMin, radiusMax));
+>                 radiusMax = Math.max(1f, Math.max(radiusMin, radiusMax));
+272d253
+<                         // if every circle same radius, use faster contains check
+279c260
+<                         circleFactory.setNumPoints(8); // approximate circles using octagon for intersects check
+---
+>                         circleFactory.setNumPoints(8);
+281d261
+<                                 // first test whether shape contains circle center point (somewhat faster)
+285,287d264
+< 
+<                                 // if center point not in circle, check whether circle overlaps with shape using
+<                                 // intersects() (somewhat slower)
+289c266
+<                                 circleFactory.setSize(p.z * 2); // set diameter
+---
+>                                 circleFactory.setSize(p.z * 2);
+426,427c403,404
+<                 final double rMinA = Math.max(1f, Math.min(radiusMin, radiusMax)); // actual min
+<                 final double rMaxA = Math.max(1f, Math.max(radiusMin, radiusMax)); // actual max
+---
+>                 final double rMinA = Math.max(1f, Math.min(radiusMin, radiusMax));
+>                 final double rMaxA = Math.max(1f, Math.max(radiusMin, radiusMax));
+431,435d407
+<                 /*
+<                  * We want spawn N circles, such that there are enough to (theoretically) cover
+<                  * the envelope exactly without any overlap, assuming a packing efficiency of
+<                  * ~85% (close to optimum).
+<                  */
+437,441d408
+<                 /*
+<                  * Average area is not a simple mean since circle area is quadratic with regards
+<                  * to radius. The actual average area of circles with radii a...b is an integral
+<                  * of: pi*r^2 dr from r=a to b.
+<                  */
+491c458
+<                 final List<PVector> packing = packer.getPacking(); // packing result
+---
+>                 final List<PVector> packing = packer.getPacking();
+495d461
+<                         // if every circle same radius, use faster contains check
+502d467
+<                                 // first test whether shape contains circle center point (somewhat faster)
+531,532d495
+<                 // buffer the geometry to use InAreaLocator to test circles for overlap (this
+<                 // works because all circles have the same diameter)
+567,570d529
+<                 /*
+<                  * Buffer the geometry to use InAreaLocator to test circles for overlap (this
+<                  * works because all circles have the same diameter).
+<                  */
+577c536
+<                 final double z = radius * Math.sqrt(3); // hex distance between successive columns
+---
+>                 final double z = radius * Math.sqrt(3);
+608c567
+<                 final double s = (a + b + c) / 2; // semiPerimeter
+---
+>                 final double s = (a + b + c) / 2;
+646d604
+<                 // from https://stackoverflow.com/a/21975136/
+653c611
 <                 return euclideanDistance + absZDifference; // negative if inside
 ---
 >                 return euclideanDistance + absZDifference;
+663a622,642
+>         public static interface PointDistanceFunction {
+>                 double distance(double[] p1, double[] p2);
+>         }
+> 
+>         public static class PointEntryDist<T> {
+>                 private final T value;
+>                 private final double distance;
+> 
+>                 public PointEntryDist(T value, double distance) {
+>                         this.value = value;
+>                         this.distance = distance;
+>                 }
+> 
+>                 public T value() {
+>                         return value;
+>                 }
+> 
+>                 public double dist() {
+>                         return distance;
+>                 }
+>         }

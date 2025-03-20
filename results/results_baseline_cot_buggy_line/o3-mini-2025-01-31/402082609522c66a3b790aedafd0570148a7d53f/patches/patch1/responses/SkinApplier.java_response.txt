@@ -25,7 +25,6 @@ public class SkinApplier extends SharedApplier {
 
     public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin, boolean keepSkin) {
         super(plugin.getCore(), targetSkin, keepSkin);
-
         this.plugin = plugin;
         this.invoker = invoker;
         this.receiver = receiver;
@@ -37,7 +36,6 @@ public class SkinApplier extends SharedApplier {
             return;
         }
 
-        // uuid was successfully resolved, we could now make a cooldown check
         if (invoker instanceof Player) {
             UUID uniqueId = ((Player) invoker).getUniqueId();
             core.getCooldownService().trackPlayer(uniqueId);
@@ -59,7 +57,6 @@ public class SkinApplier extends SharedApplier {
     @Override
     protected void applyInstantUpdate() {
         plugin.getApi().applySkin(receiver, targetSkin);
-
         sendUpdate();
         plugin.sendMessage(invoker, "skin-changed");
     }
@@ -78,8 +75,6 @@ public class SkinApplier extends SharedApplier {
 
     private void sendUpdate() {
         sendUpdateSelf();
-
-        // triggers an update for others to see the new skin
         receiver.offer(Keys.VANISH, true);
         receiver.offer(Keys.VANISH, false);
     }

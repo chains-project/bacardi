@@ -1,14 +1,3 @@
-<code_analysis>
-1. The error message indicates that the call 
-   new Yaml(new Constructor(YamlNode.class)).load(in);
-   is causing a type mismatch because the newer version of SnakeYAML no longer supports a constructor that takes a Constructor instance. Instead, the API has changed so that the Yaml instance is created with default settings, and the method loadAs(InputStream, Class<T>) should be used to load and convert the YAML data directly into a YamlNode.
-2. In the provided client code, the problem is isolated in the byteSourceToYamlNode Function where load(in) is called on a Yaml instance constructed with a Constructor argument. This was valid in earlier SnakeYAML versions but not in the updated dependency.
-3. To fix the issue:
-   - We replace the call new Yaml(new Constructor(YamlNode.class)).load(in) with new Yaml().loadAs(in, YamlNode.class).
-   - This change adheres to the new API of SnakeYAML and avoids any incompatible type errors.
-4. The change is local to the byteSourceToYamlNode Function and does not affect other parts of the code. All function signatures remain unchanged.
-</code_analysis>
-
 ```java
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -39,6 +28,7 @@ import org.jclouds.util.Closeables2;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.LoaderOptions;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
@@ -123,8 +113,8 @@ public class YamlNode {
          InputStream in = null;
          try {
             in = byteSource.openStream();
-            // Updated usage to match the new SnakeYAML API: use loadAs with the target class.
-            return new Yaml().loadAs(in, YamlNode.class);
+            LoaderOptions loaderOptions = new LoaderOptions();
+            return (YamlNode) new Yaml(new Constructor(YamlNode.class, loaderOptions)).load(in);
          } catch (IOException ioe) {
             throw Throwables.propagate(ioe);
          } finally {

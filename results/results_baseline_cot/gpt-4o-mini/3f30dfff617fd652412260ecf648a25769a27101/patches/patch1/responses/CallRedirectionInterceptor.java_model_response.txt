@@ -15,11 +15,6 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-// Ensure the correct import for the Interceptor and InvocationContext
-import jakarta.interceptor.AroundInvoke; // Updated import
-import jakarta.interceptor.Interceptor; // Updated import
-import jakarta.interceptor.InvocationContext; // Updated import
-
 @Replaceable
 @Interceptor
 @Dependent
@@ -66,6 +61,4 @@ public class CallRedirectionInterceptor implements Serializable {
         }
     }
 }
-``` 
-
-In this patch, I updated the imports for `AroundInvoke`, `Interceptor`, and `InvocationContext` to use the `jakarta` namespace, which is the new package structure introduced in the Jakarta EE 9 update. This resolves the compilation errors related to missing symbols due to the breaking changes in the dependency update. The rest of the code remains unchanged, adhering to the provided guidelines.
+```

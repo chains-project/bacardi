@@ -1,47 +1,4 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error messages indicate that several classes (Cluster, Member, MembershipEvent, MembershipListener, and MemberAttributeEvent) cannot be found in the package "com.hazelcast.core". This is due to a breaking dependency update in Hazelcast where these classes have been relocated.
-   - The errors occur in multiple places wherever these classes are used (such as in method signatures and within method bodies, e.g. getMembers(), getLocalMember(), and in the overridden methods memberAdded, memberRemoved, and memberAttributeChanged).
-   - The root cause is that the updated Hazelcast version has moved these classes into a different package.
-
-2. Client Code Review:
-   - The original import statements bring in the affected classes from "com.hazelcast.core". For example, "import com.hazelcast.core.Cluster;" and similar for Member, MembershipEvent, MembershipListener, and MemberAttributeEvent.
-   - The rest of the code uses these classes (e.g., cluster.getMembers(), and the implementations of the MembershipListener methods) in a way that expects them to be available.
-  
-3. Proposed Fix:
-   - Update the import statements to reflect the new package locations in the updated Hazelcast dependency. In the current Hazelcast version, these classes are now located in "com.hazelcast.cluster".
-   - Specifically, modify the import statements as follows:
-       • Replace import com.hazelcast.core.Cluster; with import com.hazelcast.cluster.Cluster;
-       • Replace import com.hazelcast.core.Member; with import com.hazelcast.cluster.Member;
-       • Replace import com.hazelcast.core.MembershipEvent; with import com.hazelcast.cluster.MembershipEvent;
-       • Replace import com.hazelcast.core.MembershipListener; with import com.hazelcast.cluster.MembershipListener;
-       • Replace import com.hazelcast.core.MemberAttributeEvent; with import com.hazelcast.cluster.MemberAttributeEvent;
-   - All other code remains unchanged, and function signatures are preserved.
-  
-4. Considerations:
-   - No function signatures are changed.
-   - All @Override annotations remain intact because the updated dependency still supports these methods.
-   - Only the affected import statements are updated to the correct packages.
-</code_analysis>
-
-Below is the complete, fixed Java class:
-
 ```java
-/*
- * Copyright (C) 1999-2009 Jive Software. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.cluster.Cluster;
@@ -282,6 +239,20 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         clusterNodesInfo.remove(nodeID);
     }
     
+    @SuppressWarnings("WeakerAccess")
+    public List<ClusterNodeInfo> getClusterNodesInfo() {
+        return new ArrayList<>(clusterNodesInfo.values());
+    }
+
+    @Override
+    public void stateChanged(final LifecycleEvent event) {
+        if (event.getState().equals(LifecycleState.SHUTDOWN)) {
+            leaveCluster();
+        } else if (event.getState().equals(LifecycleState.STARTED)) {
+            joinCluster();
+        }
+    }
+
     @Override
     public void memberAttributeChanged(final MemberAttributeEvent event) {
         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
@@ -294,16 +265,5 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
     boolean isClusterMember() {
         return clusterMember;
     }
-
-    @Override
-    public void stateChanged(final LifecycleEvent event) {
-        if (event.getState().equals(LifecycleState.SHUTDOWN)) {
-            leaveCluster();
-        } else if (event.getState().equals(LifecycleState.STARTED)) {
-            joinCluster();
-        }
-    }
 }
 ```
-
-This patch updates the import statements for the affected Hazelcast classes to point to the new package location (com.hazelcast.cluster), which resolves the compilation errors caused by the dependency update.

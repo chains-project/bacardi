@@ -6,8 +6,8 @@ import java.util.logging.Logger;
 import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import jakarta.mvc.locale.LocaleResolver; // Updated import
-import jakarta.mvc.locale.LocaleResolverContext; // Updated import
+import javax.mvc.locale.LocaleResolver;
+import javax.mvc.locale.LocaleResolverContext;
 import javax.ws.rs.core.UriInfo;
 
 /**
@@ -42,6 +42,6 @@ public class QueryParamLocaleResolver implements LocaleResolver {
                 .getQueryParameters()
                 .getFirst("lang");
         log.log(Level.INFO, "QueryParamLocaleResolver::resolveLocale:lang:{0}", queryLang);
-        return queryLang != null ? Locale.forLanguageTag(queryLang) : null;
+        return queryLang != null ? Locale.forLanguageTag(queryLang) : Locale.getDefault();
     }
 }

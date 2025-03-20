@@ -193,7 +193,7 @@ public class IoSessionInitiator {
                 throws GeneralSecurityException {
             final SSLContext sslContext = SSLContextFactory.getInstance(sslConfig);
             final SSLFilter sslFilter = new SSLFilter(sslContext, autoStart);
-            // sslFilter.setUseClientMode(true); // The method setUseClientMode does not exist in quickfix.mina.ssl.SSLFilter
+            sslFilter.setNeedClientAuth(true);
             sslFilter.setCipherSuites(sslConfig.getEnabledCipherSuites() != null ? sslConfig.getEnabledCipherSuites()
                     : SSLSupport.getDefaultCipherSuites(sslContext));
             sslFilter.setEnabledProtocols(sslConfig.getEnabledProtocols() != null ? sslConfig.getEnabledProtocols()

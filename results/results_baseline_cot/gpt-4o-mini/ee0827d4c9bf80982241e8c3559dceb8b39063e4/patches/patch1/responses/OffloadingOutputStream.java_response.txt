@@ -17,7 +17,7 @@
  */
 package org.codehaus.plexus.archiver.zip;
 
-import java.io.ByteArrayOutputStream; // Added import for ByteArrayOutputStream
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,7 +25,7 @@ import java.io.OutputStream;
 import java.io.SequenceInputStream;
 import java.nio.file.Files;
 
-import org.apache.commons.io.output.ThresholdingOutputStream; // Ensure this class exists in the updated dependency
+import org.apache.commons.io.output.ThresholdingOutputStream;
 
 /**
  * Offloads to disk when a given memory consumption has been reached
@@ -86,12 +86,12 @@ class OffloadingOutputStream extends ThresholdingOutputStream
      *
      * @since 1.4
      */
-    public OffloadingOutputStream(int threshold, String prefix, String suffix, File directory)
+    public OffloadingOutputStream( int threshold, String prefix, String suffix, File directory )
     {
-        this(threshold, null, prefix, suffix, directory);
-        if (prefix == null)
+        this( threshold, null, prefix, suffix, directory );
+        if ( prefix == null )
         {
-            throw new IllegalArgumentException("Temporary file prefix is missing");
+            throw new IllegalArgumentException( "Temporary file prefix is missing" );
         }
     }
 
@@ -105,12 +105,12 @@ class OffloadingOutputStream extends ThresholdingOutputStream
      * @param suffix Suffix to use for the temporary file.
      * @param directory Temporary file directory.
      */
-    private OffloadingOutputStream(int threshold, File outputFile, String prefix, String suffix, File directory)
+    private OffloadingOutputStream( int threshold, File outputFile, String prefix, String suffix, File directory )
     {
-        super(threshold);
+        super( threshold );
         this.outputFile = outputFile;
 
-        memoryOutputStream = new ByteArrayOutputStream(threshold / 10);
+        memoryOutputStream = new ByteArrayOutputStream( threshold / 10 );
         currentOutputStream = memoryOutputStream;
         this.prefix = prefix;
         this.suffix = suffix;
@@ -127,7 +127,6 @@ class OffloadingOutputStream extends ThresholdingOutputStream
      *
      * @exception java.io.IOException if an error occurs.
      */
-    @Override
     protected OutputStream getStream() throws IOException
     {
         return currentOutputStream;
@@ -141,24 +140,24 @@ class OffloadingOutputStream extends ThresholdingOutputStream
      *
      * @exception java.io.IOException if an error occurs.
      */
-    @Override
     protected void thresholdReached() throws IOException
     {
-        if (prefix != null)
+        if ( prefix != null )
         {
-            outputFile = File.createTempFile(prefix, suffix, directory);
+            outputFile = File.createTempFile( prefix, suffix, directory );
         }
-        currentOutputStream = Files.newOutputStream(outputFile.toPath());
+        currentOutputStream = Files.newOutputStream( outputFile.toPath() );
     }
 
     public InputStream getInputStream() throws IOException
     {
+
         InputStream memoryAsInput = memoryOutputStream.toInputStream();
-        if (outputFile == null)
+        if ( outputFile == null )
         {
             return memoryAsInput;
         }
-        return new SequenceInputStream(memoryAsInput, Files.newInputStream(outputFile.toPath()));
+        return new SequenceInputStream( memoryAsInput, Files.newInputStream( outputFile.toPath() ) );
     }
 
     // --------------------------------------------------------- Public methods
@@ -173,7 +172,7 @@ class OffloadingOutputStream extends ThresholdingOutputStream
      */
     public byte[] getData()
     {
-        if (memoryOutputStream != null)
+        if ( memoryOutputStream != null )
         {
             return memoryOutputStream.toByteArray();
         }
@@ -204,7 +203,6 @@ class OffloadingOutputStream extends ThresholdingOutputStream
      *
      * @exception java.io.IOException if an error occurs.
      */
-    @Override
     public void close() throws IOException
     {
         super.close();

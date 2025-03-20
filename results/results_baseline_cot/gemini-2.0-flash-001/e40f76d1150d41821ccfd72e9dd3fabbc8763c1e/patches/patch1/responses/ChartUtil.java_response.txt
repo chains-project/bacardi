@@ -4,8 +4,9 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 
+import net.sourceforge.htmlunit.corejs.javascript.ScriptableObject;
+
 import org.jenkinsci.test.acceptance.po.PageObject;
-import org.openqa.selenium.JavascriptExecutor;
 
 /**
  * Charts are displayed one multiple PageObjects. This util provides some helper methods to deal with charts.
@@ -27,11 +28,12 @@ public class ChartUtil {
      */
     public static String getChartDataById(final PageObject pageObject, final String elementId) {
         if (isChartDisplayedByElementId(pageObject, elementId)) {
-            Object result = ((JavascriptExecutor) pageObject.driver).executeScript(String.format(
+            Object result = pageObject.executeScript(String.format(
                     "delete(window.Array.prototype.toJSON) %n"
                             + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
                     elementId));
-            return result.toString();
+            String scriptResult = ScriptableObject.getProperty(pageObject.getCurrentWindow().getScope(), "JSON").callMethod(pageObject.getCurrentWindow().getScope(), "stringify", new Object[]{result}, 0).toString();
+            return scriptResult;
         }
         return null;
     }
@@ -50,13 +52,14 @@ public class ChartUtil {
             final String toolAttribute) {
         if (isChartDisplayedByDivToolAttribute(pageObject, toolAttribute)) {
             for (int i = 0; i < MAX_ATTEMPTS; i++) {
-                Object result = ((JavascriptExecutor) pageObject.driver).executeScript(String.format(
+                Object result = pageObject.executeScript(String.format(
                         "delete(window.Array.prototype.toJSON) %n"
                                 + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
                         toolAttribute));
 
-                if (result != null) {
-                    return result.toString();
+                Object scriptResult = ScriptableObject.getProperty(pageObject.getCurrentWindow().getScope(), "JSON").callMethod(pageObject.getCurrentWindow().getScope(), "stringify", new Object[]{result}, 0);
+                if (scriptResult != null) {
+                    return scriptResult.toString();
                 }
                 pageObject.elasticSleep(1000);
             }

@@ -164,6 +164,10 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
     getLog().info(String.format("%s: %d", INFO_DEPS_DISCOVERED, dependencies.size()));
 
     return artifacts;
+
+    // tempting, but does not resolve dependencies after the scope in which this
+    // plugin is invoked
+    // return project.getArtifacts();
   }
 
   protected Set<MavenProject> getProjects() {
@@ -179,7 +183,6 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
   }
 
   private void setGraph(DependencyGraphBuilder graph) {
-    // Replace the missing Maven31DependencyGraphBuilder with DefaultDependencyGraphBuilder.
     this.graph = Optional.ofNullable(graph).orElse(new DefaultDependencyGraphBuilder());
   }
 

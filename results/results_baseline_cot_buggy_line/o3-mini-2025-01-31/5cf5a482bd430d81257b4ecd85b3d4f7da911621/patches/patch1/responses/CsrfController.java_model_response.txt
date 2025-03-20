@@ -1,17 +1,3 @@
-<code_analysis>
-1. The error message indicates that the classes in the javax.mvc packages (MvcBinding, BindingResult, ParamError, CsrfProtected, Controller, Models, etc.) cannot be found. This is caused by a breaking dependency update where the Java EE (javax) MVC API has been replaced by the Jakarta EE (jakarta) MVC API.
-2. In the client code, all imports and annotations relying on javax.mvc.* and javax.mvc.binding.* need to be updated to the corresponding jakarta.mvc.* packages.
-3. The planned modifications are:
-   - Change the import for the Controller annotation from javax.mvc.Controller to jakarta.mvc.Controller.
-   - Change the import for Models from javax.mvc.Models to jakarta.mvc.Models.
-   - Change the import for BindingResult from javax.mvc.binding.BindingResult to jakarta.mvc.binding.BindingResult.
-   - Change the import for MvcBinding from javax.mvc.binding.MvcBinding to jakarta.mvc.binding.MvcBinding.
-   - Change the import for ParamError from javax.mvc.binding.ParamError to jakarta.mvc.binding.ParamError.
-   - Change the import for CsrfProtected from javax.mvc.security.CsrfProtected to jakarta.mvc.security.CsrfProtected.
-   - Optionally update the import for UriRef if used.
-4. These modifications ensure that the client code uses the correct packages as defined by the updated dependency, while keeping the rest of the code intact.
-</code_analysis>
-
 ```java
 package com.example.web;
 
@@ -31,10 +17,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
-/**
- *
- * CSRF Controller to demonstrate MVC binding and CSRF protection.
- */
 @Path("csrf")
 @Controller
 @RequestScoped
@@ -66,10 +48,10 @@ public class CsrfController {
         if (bindingResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
             bindingResult.getAllErrors()
-                .stream()
-                .forEach((ParamError t) -> {
-                    alert.addError(t.getParamName(), "", t.getMessage());
-                });
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
             models.put("errors", alert);
             log.info("mvc binding failed.");
             return "csrf.xhtml";

@@ -8,12 +8,11 @@
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.parameter.Parameter;
-14a14
-> import org.spongepowered.api.command.CommandCause;
-16c16,18
+16c15,18
 < public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
 ---
-> import java.util.Collections;
+> import java.util.List;
+> import java.util.Optional;
 > 
 > public class InvalidateCommand implements ChangeSkinCommand {
 25,28c27,29
@@ -22,13 +21,13 @@
 <         if (!(src instanceof Player)) {
 <             plugin.sendMessage(src, "no-console");
 ---
->     public CommandResult execute(CommandCause cause, CommandContext args) {
->         if (!(cause.root() instanceof Player)) {
+>     public CommandResult execute(org.spongepowered.api.command.CommandCause cause, CommandContext args) {
+>         if (!(cause.cause().root() instanceof Player)) {
 >             plugin.sendMessage(cause, "no-console");
 32c33
 <         Player receiver = (Player) src;
 ---
->         Player receiver = (Player) cause.root();
+>         Player receiver = (Player) cause.cause().root();
 38,42c39,42
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()

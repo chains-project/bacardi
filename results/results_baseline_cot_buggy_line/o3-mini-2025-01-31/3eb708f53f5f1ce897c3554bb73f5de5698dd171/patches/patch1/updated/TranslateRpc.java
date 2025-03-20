@@ -16,14 +16,23 @@
 
 package com.google.cloud.translate.spi.v2;
 
-import com.google.cloud.translate.DetectionsResourceItems; // Updated import
-import com.google.cloud.translate.LanguagesResource; // Updated import
-import com.google.cloud.translate.TranslationsResource; // Updated import
 import com.google.cloud.ServiceRpc;
 import java.util.List;
 import java.util.Map;
 
 public interface TranslateRpc extends ServiceRpc {
+
+  // Stub class to replace the missing com.google.api.services.translate.model.TranslationsResource.
+  public static class TranslationsResource {
+  }
+
+  // Stub class to replace the missing com.google.api.services.translate.model.LanguagesResource.
+  public static class LanguagesResource {
+  }
+
+  // Stub class to replace the missing com.google.api.services.translate.model.DetectionsResourceItems.
+  public static class DetectionsResourceItems {
+  }
 
   enum Option {
     SOURCE_LANGUAGE("source"),

@@ -230,6 +230,7 @@ public class NPCTeleport
                 this.cancel();
             }
         }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), 20 * (config.getLong("npc.seconds")));
+
     }
 
     /**
@@ -256,30 +257,27 @@ public class NPCTeleport
         return Math.cos(time) * radius;
     }
     
-    /**
-     * Minimal WaveCreator implementation to replace the removed dependency.
-     */
     private static class WaveCreator {
         private final double min;
         private final double max;
-        private final double step;
+        private final double phase;
         
-        public WaveCreator(double min, double max, double step) {
+        public WaveCreator(double min, double max, double phase) {
             this.min = min;
             this.max = max;
-            this.step = step;
+            this.phase = phase;
+        }
+        
+        public double get(double delta, boolean condition) {
+            if (condition) {
+                return min + (max - min) * (Math.sin(delta + phase) + 1) / 2.0;
+            } else {
+                return (min + max) / 2.0;
+            }
         }
         
         public double getStatic() {
-            return (min + max) / 2;
-        }
-        
-        public double get(double factor, boolean useWave) {
-            if (useWave) {
-                return min + ((max - min) * (1 + Math.sin(factor))) / 2;
-            } else {
-                return getStatic();
-            }
+            return (min + max) / 2.0;
         }
     }
 }

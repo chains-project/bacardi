@@ -1,28 +1,3 @@
-<code_analysis>
-1. Issue Identification:
-   - The error message indicates that the return type of getProjectBuilder().build(artifact, getBuildingRequest())
-     no longer supports the .getProject() method call. This implies that in the updated dependency version, the
-     build() method now returns a MavenProject directly instead of a ProjectBuildingResult.
-   - The error is triggered in the getLicensesFromArtifact() method where the code attempts to call .getProject() on
-     the result of the build() call (line around 160).
-
-2. Problematic Code:
-   - The line:
-     MavenProject project = getProjectBuilder().build(artifact, getBuildingRequest()).getProject();
-     is no longer valid because getProjectBuilder().build() now directly returns a MavenProject.
-   
-3. Proposed Fix:
-   - Remove the .getProject() call from the build() method invocation so that the returned MavenProject is directly assigned.
-   - This change adheres to the constraints by only modifying the problematic line without affecting any function signatures
-     or removing unnecessary code.
-     
-4. Side Effects:
-   - Since the updated dependency returns MavenProject as expected, removing the extra call to .getProject() has no adverse effects.
-   - All existing functionality remains intact.
-</code_analysis>
-
-Below is the complete, fixed Java class:
-
 ```java
 /*
  * Copyright (C) 2008-2021 Mycila (mathieu.carbou@gmail.com)
@@ -67,6 +42,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * Helper class for building Artifact/License mappings from a maven project
+ * (multi module or single).
+ *
+ * @author Royce Remer
+ */
 public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
 
   private Set<MavenProject> projects;
@@ -128,7 +109,6 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
   protected Set<License> getLicensesFromArtifact(final Artifact artifact) {
     Set<License> licenses = new HashSet<License>();
     try {
-      // The build method now returns a MavenProject directly, so we remove the .getProject() call.
       MavenProject project = getProjectBuilder().build(artifact, getBuildingRequest());
       licenses.addAll(project.getLicenses());
     } catch (ProjectBuildingException ex) {
@@ -142,7 +122,8 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
    * Get mapping of Licenses to a set of artifacts presenting that license.
    *
    * @param dependencies Set<Artifact> to collate License entries from
-   * @return Map<License, Set < Artifact>> the same artifacts passed in, keyed by License.
+   * @return Map<License, Set < Artifact>> the same artifacts passed in, keyed by
+   * License.
    */
   protected Map<License, Set<Artifact>> getLicenseMapFromArtifacts(final Set<Artifact> dependencies) {
     final ConcurrentMap<License, Set<Artifact>> map = new ConcurrentHashMap<License, Set<Artifact>>();
@@ -191,10 +172,6 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
     getLog().info(String.format("%s: %d", INFO_DEPS_DISCOVERED, dependencies.size()));
 
     return artifacts;
-
-    // tempting, but does not resolve dependencies after the scope in which this
-    // plugin is invoked
-    // return project.getArtifacts();
   }
 
   private MavenSession getSession() {

@@ -1,16 +1,3 @@
-<code_analysis>
-1. The error messages all complain about missing classes – ChannelBuf, ChannelRegistrar, RawDataListener, and RawDataChannel – from the package org.spongepowered.api.network. In the latest Sponge API these classes have been moved into a new package (org.spongepowered.api.network.channel) or removed altogether.
-2. In the client code the CheckPermissionListener class implements RawDataListener and uses ChannelBuf and ChannelRegistrar to register a raw messaging channel. Since RawDataListener no longer exists and the other classes have been moved, the code fails to compile.
-3. One acceptable fix is to update the imports to use the new packages. In addition, if the RawDataListener interface is no longer part of the API, then we must remove the “implements RawDataListener” clause (and remove the @Override annotation from the handlePayload method if it is no longer overriding anything).
-4. The patch below makes the following modifications:
-   • Remove “implements RawDataListener” from the class declaration.
-   • Change the import statements so that ChannelBuf, ChannelRegistrar and RawDataChannel are imported from org.spongepowered.api.network.channel rather than org.spongepowered.api.network.
-   • Leave the rest of the code unchanged so that its functionality is preserved.
-   (Note: We assume that RemoteConnection remains available as before.)
-</code_analysis>
-
-Below is the complete fixed class:
-
 ```java
 package com.github.games647.changeskin.sponge.bungee;
 
@@ -23,20 +10,20 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
-
-import java.util.UUID;
-
+import io.netty.buffer.ByteBuf;
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.network.RemoteConnection;
-import org.spongepowered.api.network.channel.ChannelBuf;
 import org.spongepowered.api.network.channel.ChannelRegistrar;
-import org.spongepowered.api.network.channel.ChannelBinding.RawDataChannel;
+import org.spongepowered.api.network.channel.raw.RawDataChannel;
+import org.spongepowered.api.network.channel.raw.RawDataChannel.RawDataHandler;
+
+import java.util.UUID;
 
 import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
 import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 
-public class CheckPermissionListener {
+public class CheckPermissionListener implements RawDataHandler {
 
     private final ChangeSkinSponge plugin;
     private final RawDataChannel permissionsResultChannel;
@@ -49,10 +36,11 @@ public class CheckPermissionListener {
         permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
     }
 
-    // Removed the @Override annotation since RawDataListener no longer exists.
-    public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
-
-        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+    @Override
+    public void handlePayload(ByteBuf data, RemoteConnection connection, Type side) {
+        byte[] bytes = new byte[data.readableBytes()];
+        data.getBytes(data.readerIndex(), bytes);
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(bytes);
         CheckPermMessage checkMessage = new CheckPermMessage();
         checkMessage.readFrom(dataInput);
 
@@ -93,9 +81,7 @@ public class CheckPermissionListener {
     private void sendResultMessage(Player receiver, PermResultMessage resultMessage) {
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
         resultMessage.writeTo(dataOutput);
-        permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+        permissionsResultChannel.sendTo(receiver, buf -> buf.writeBytes(dataOutput.toByteArray()));
     }
 }
 ```
-
-This patch updates the import statements to match the new Sponge API package structure and removes the now-nonexistent RawDataListener interface from the class declaration, which resolves the compilation errors caused by the dependency update.

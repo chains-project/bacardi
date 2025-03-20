@@ -1,18 +1,20 @@
-3d2
+3c3
 < import develop.p2p.lib.*;
-19a19
-> import tokyo.peya.lib.WaveCreator;
-179,180c179,182
-<                         rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
-<                             .get(0.01, true);
 ---
->                     {
->                         WaveCreator waveCreator = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"));
->                         rangeTmp = waveCreator.get(0.01, true);
->                     }
-182a185
->                     WaveCreator waveCreator1 = new WaveCreator(1.0, 2.0, 0.0);
-186c189
+> import tokyo.peya.lib.*;
+161c161
+<         WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
+---
+>         tokyo.peya.lib.WaveCreator ypp = new tokyo.peya.lib.WaveCreator(10.0, 100.0, 10.0);
+179c179
+<                         rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
+---
+>                         rangeTmp = new tokyo.peya.lib.WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
+186c186
 <                         center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
 ---
->                         center.getY() + waveCreator1.get(0.01, count[0] < 20),
+>                         center.getY() + new tokyo.peya.lib.WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
+220c220
+<                     ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
+---
+>                     ? new tokyo.peya.lib.WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)

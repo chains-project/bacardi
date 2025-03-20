@@ -22,7 +22,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
-import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy; // Ensure correct import
+
 
 /**
  * <p>Java class for anonymous complex type.
@@ -220,15 +220,31 @@ public class GeneralLedgerEntries implements ToString2
         return this.journal;
     }
 
-    @Override
     public String toString() {
-        final ToStringStrategy2 strategy = JAXBToStringStrategy.DEFAULT; // Updated to use DEFAULT
+        final ToStringStrategy2 strategy = new ToStringStrategy2() {
+            @Override
+            public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+                return buffer.append(object.getClass().getSimpleName()).append(" [");
+            }
+
+            @Override
+            public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+                return buffer.append("]");
+            }
+
+            @Override
+            public StringBuilder appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean isSet) {
+                if (isSet) {
+                    buffer.append(fieldName).append("=").append(value).append(", ");
+                }
+                return buffer;
+            }
+        };
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
     }
 
-    @Override
     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         strategy.appendStart(locator, this, buffer);
         appendFields(locator, buffer, strategy);
@@ -236,7 +252,6 @@ public class GeneralLedgerEntries implements ToString2
         return buffer;
     }
 
-    @Override
     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         {
             BigInteger theNumberOfEntries;
@@ -416,15 +431,31 @@ public class GeneralLedgerEntries implements ToString2
             return this.transaction;
         }
 
-        @Override
         public String toString() {
-            final ToStringStrategy2 strategy = JAXBToStringStrategy.DEFAULT; // Updated to use DEFAULT
+            final ToStringStrategy2 strategy = new ToStringStrategy2() {
+                @Override
+                public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+                    return buffer.append(object.getClass().getSimpleName()).append(" [");
+                }
+
+                @Override
+                public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+                    return buffer.append("]");
+                }
+
+                @Override
+                public StringBuilder appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean isSet) {
+                    if (isSet) {
+                        buffer.append(fieldName).append("=").append(value).append(", ");
+                    }
+                    return buffer;
+                }
+            };
             final StringBuilder buffer = new StringBuilder();
             append(null, buffer, strategy);
             return buffer.toString();
         }
 
-        @Override
         public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
             strategy.appendStart(locator, this, buffer);
             appendFields(locator, buffer, strategy);
@@ -432,7 +463,6 @@ public class GeneralLedgerEntries implements ToString2
             return buffer;
         }
 
-        @Override
         public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
             {
                 String theJournalID;
@@ -806,15 +836,31 @@ public class GeneralLedgerEntries implements ToString2
                 return this.line;
             }
 
-            @Override
             public String toString() {
-                final ToStringStrategy2 strategy = JAXBToStringStrategy.DEFAULT; // Updated to use DEFAULT
+                final ToStringStrategy2 strategy = new ToStringStrategy2() {
+                    @Override
+                    public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+                        return buffer.append(object.getClass().getSimpleName()).append(" [");
+                    }
+
+                    @Override
+                    public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+                        return buffer.append("]");
+                    }
+
+                    @Override
+                    public StringBuilder appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean isSet) {
+                        if (isSet) {
+                            buffer.append(fieldName).append("=").append(value).append(", ");
+                        }
+                        return buffer;
+                    }
+                };
                 final StringBuilder buffer = new StringBuilder();
                 append(null, buffer, strategy);
                 return buffer.toString();
             }
 
-            @Override
             public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                 strategy.appendStart(locator, this, buffer);
                 appendFields(locator, buffer, strategy);
@@ -822,7 +868,6 @@ public class GeneralLedgerEntries implements ToString2
                 return buffer;
             }
 
-            @Override
             public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                 {
                     String theTransactionID;
@@ -1107,15 +1152,31 @@ public class GeneralLedgerEntries implements ToString2
                     this.creditAmount = value;
                 }
 
-                @Override
                 public String toString() {
-                    final ToStringStrategy2 strategy = JAXBToStringStrategy.DEFAULT; // Updated to use DEFAULT
+                    final ToStringStrategy2 strategy = new ToStringStrategy2() {
+                        @Override
+                        public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+                            return buffer.append(object.getClass().getSimpleName()).append(" [");
+                        }
+
+                        @Override
+                        public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+                            return buffer.append("]");
+                        }
+
+                        @Override
+                        public StringBuilder appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean isSet) {
+                            if (isSet) {
+                                buffer.append(fieldName).append("=").append(value).append(", ");
+                            }
+                            return buffer;
+                        }
+                    };
                     final StringBuilder buffer = new StringBuilder();
                     append(null, buffer, strategy);
                     return buffer.toString();
                 }
 
-                @Override
                 public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                     strategy.appendStart(locator, this, buffer);
                     appendFields(locator, buffer, strategy);
@@ -1123,7 +1184,6 @@ public class GeneralLedgerEntries implements ToString2
                     return buffer;
                 }
 
-                @Override
                 public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                     {
                         String theRecordID;

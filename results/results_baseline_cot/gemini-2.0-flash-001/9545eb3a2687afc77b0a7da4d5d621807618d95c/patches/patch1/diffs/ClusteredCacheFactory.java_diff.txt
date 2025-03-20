@@ -1,27 +1,24 @@
-23c23
+22,23d21
+< import com.hazelcast.config.MaxSizeConfig;
 < import com.hazelcast.config.MemberAttributeConfig;
----
-> import com.hazelcast.config.MemberConfig;
-27d26
+27d24
 < import com.hazelcast.core.Cluster;
-30c29,30
-< import com.hazelcast.core.Member;
----
+30a28,29
 > import com.hazelcast.cluster.Cluster;
-> import com.hazelcast.cluster.Member;
-193,195c193,195
+> import com.hazelcast.config.MaxSizeConfig;
+193c192
 <                 final MemberAttributeConfig memberAttributeConfig = config.getMemberAttributeConfig();
-<                 memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
-<                 memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
 ---
->                 final MemberConfig memberConfig = config.getMemberConfig();
->                 memberConfig.setAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
->                 memberConfig.setAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
-656c656
-<         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
+>                 final com.hazelcast.config.MemberAttributeConfig memberAttributeConfig = config.getMemberAttributeConfig();
+356c355
+<         return cluster == null ? System.currentTimeMillis() : cluster.getClusterTime();
 ---
->         return NodeID.getInstance(member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).toString().getBytes(StandardCharsets.UTF_8));
-701,703d700
+>         return cluster == null ? System.currentTimeMillis() : hazelcast.getCluster().getClusterTime();
+496c495
+<             result = new HazelcastClusterNodeInfo(member, cluster.getClusterTime());
+---
+>             result = new HazelcastClusterNodeInfo(member, hazelcast.getCluster().getClusterTime());
+701,703d699
 < 
 < 
 < 

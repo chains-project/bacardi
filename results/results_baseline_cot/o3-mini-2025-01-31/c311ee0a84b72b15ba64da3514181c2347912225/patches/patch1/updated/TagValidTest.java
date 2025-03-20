@@ -1,3 +1,7 @@
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
 package com.artipie.docker;
 
 import com.artipie.docker.error.InvalidTagNameException;
@@ -5,11 +9,11 @@ import java.util.Arrays;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.AllOf;
 import org.hamcrest.core.IsEqual;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.not;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.not;
 
 /**
  * Tests for {@link Tag.Valid}.
@@ -26,7 +30,7 @@ class TagValidTest {
         "MY_TAG",
         "My.Tag.1",
         "_some_tag",
-        // @checkstyle LineLengthCheck (1 line)
+        //@checkstyle LineLengthCheck (1 line)
         "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567"
     })
     void shouldGetValueWhenValid(final String original) {
@@ -42,7 +46,7 @@ class TagValidTest {
         "*",
         "\u00ea",
         "-my-tag",
-        // @checkstyle LineLengthCheck (1 line)
+        //@checkstyle LineLengthCheck (1 line)
         "012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678"
     })
     void shouldFailToGetValueWhenInvalid(final String original) {
@@ -54,9 +58,11 @@ class TagValidTest {
         );
         MatcherAssert.assertThat(
             throwable.getMessage(),
-            AllOf.allOf(
-                containsString("Invalid tag"),
-                not(containsString(original))
+            new AllOf<>(
+                Arrays.asList(
+                    containsString("Invalid tag"),
+                    not(containsString(original))
+                )
             )
         );
     }

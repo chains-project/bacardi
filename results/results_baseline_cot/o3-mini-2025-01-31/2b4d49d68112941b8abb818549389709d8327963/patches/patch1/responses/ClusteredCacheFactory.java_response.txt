@@ -18,16 +18,17 @@ package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
+import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.EvictionConfig;
-import com.hazelcast.config.MaxSizePolicy;
+import com.hazelcast.config.EvictionConfig.MaximumSizePolicy;
 import com.hazelcast.config.MemberAttributeConfig;
 import com.hazelcast.config.MemcacheProtocolConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.config.RestApiConfig;
 import com.hazelcast.cluster.Cluster;
-import com.hazelcast.cluster.Member;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.cluster.Member;
 import org.jivesoftware.openfire.JMXManager;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterEventListener;
@@ -281,14 +282,13 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         final long openfireMaxCacheSizeInBytes = CacheFactory.getMaxCacheSize(name);
         final int hazelcastMaxCacheSizeInMegaBytes = openfireMaxCacheSizeInBytes < 0 ? Integer.MAX_VALUE : Math.max((int) openfireMaxCacheSizeInBytes / 1024 / 1024, 1);
         // It's only possible to create a dynamic config if a static one doesn't already exist
-        final com.hazelcast.config.MapConfig staticConfig = hazelcast.getConfig().getMapConfigOrNull(name);
+        final MapConfig staticConfig = hazelcast.getConfig().getMapConfigOrNull(name);
         if (staticConfig == null) {
-            final com.hazelcast.config.MapConfig dynamicConfig = new com.hazelcast.config.MapConfig(name);
+            final MapConfig dynamicConfig = new MapConfig(name);
             dynamicConfig.setTimeToLiveSeconds(hazelcastLifetimeInSeconds);
-            // Use EvictionConfig in place of the removed MaxSizeConfig.
             EvictionConfig evictionConfig = new EvictionConfig();
+            evictionConfig.setMaximumSizePolicy(MaximumSizePolicy.USED_HEAP_SIZE);
             evictionConfig.setSize(hazelcastMaxCacheSizeInMegaBytes);
-            evictionConfig.setMaximumSizePolicy(MaxSizePolicy.USED_HEAP_SIZE);
             dynamicConfig.setEvictionConfig(evictionConfig);
             logger.debug("Creating dynamic map config for cache={}, dynamicConfig={}", name, dynamicConfig);
             hazelcast.getConfig().addMapConfig(dynamicConfig);
@@ -378,7 +378,6 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
                 members.add(member);
             }
         }
-
 
         if (!members.isEmpty()) {
             // Asynchronously execute the task on the other cluster members
@@ -657,9 +656,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
     }
 
     public static NodeID getNodeID(final Member member) {
-        Object attr = member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
-        String nodeIdStr = (attr != null) ? attr.toString() : "";
-        return NodeID.getInstance(nodeIdStr.getBytes(StandardCharsets.UTF_8));
+        return NodeID.getInstance(member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
     }
 
     static void fireLeftClusterAndWaitToComplete(final Duration timeout) {

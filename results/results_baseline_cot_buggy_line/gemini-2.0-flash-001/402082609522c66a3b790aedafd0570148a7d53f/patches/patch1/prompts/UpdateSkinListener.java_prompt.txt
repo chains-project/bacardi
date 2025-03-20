@@ -48,10 +48,7 @@ public class UpdateSkinListener implements RawDataListener {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-import org.spongepowered.api.command.CommandSource;
-```
-```java
-public class UpdateSkinListener implements RawDataListener {
+import org.spongepowered.api.network.RawDataListener;
 ```
 ```java
 public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
@@ -60,17 +57,17 @@ public void handlePayload(ChannelBuf data, RemoteConnection connection, Type sid
 import org.spongepowered.api.network.ChannelBuf;
 ```
 ```java
-import org.spongepowered.api.network.RawDataListener;
+import org.spongepowered.api.command.CommandSource;
+```
+```java
+public class UpdateSkinListener implements RawDataListener {
 ```
 
 
  And here is the error message:
-[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/UpdateSkinListener.java:[14,37] cannot find symbol
-  symbol:   class CommandSource
-  location: package org.spongepowered.api.command
-
-[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/UpdateSkinListener.java:[21,44] cannot find symbol
-  symbol: class RawDataListener
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/UpdateSkinListener.java:[17,37] cannot find symbol
+  symbol:   class RawDataListener
+  location: package org.spongepowered.api.network
 
 [ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/UpdateSkinListener.java:[27,31] cannot find symbol
   symbol:   class ChannelBuf
@@ -80,9 +77,12 @@ import org.spongepowered.api.network.RawDataListener;
   symbol:   class ChannelBuf
   location: package org.spongepowered.api.network
 
-[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/UpdateSkinListener.java:[17,37] cannot find symbol
-  symbol:   class RawDataListener
-  location: package org.spongepowered.api.network
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/UpdateSkinListener.java:[14,37] cannot find symbol
+  symbol:   class CommandSource
+  location: package org.spongepowered.api.command
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/UpdateSkinListener.java:[21,44] cannot find symbol
+  symbol: class RawDataListener
 
 
 

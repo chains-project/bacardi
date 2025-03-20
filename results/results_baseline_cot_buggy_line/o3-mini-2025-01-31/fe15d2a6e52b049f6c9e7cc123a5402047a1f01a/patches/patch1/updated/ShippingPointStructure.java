@@ -30,7 +30,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "warehouseIDAndLocationID",
     "address"
 })
-public class ShippingPointStructure implements ToString2 {
+public class ShippingPointStructure implements ToString2
+{
 
     @XmlElement(name = "DeliveryID")
     protected List<String> deliveryID;
@@ -47,23 +48,25 @@ public class ShippingPointStructure implements ToString2 {
 
     /**
      * Gets the value of the deliveryID property.
-     *
+     * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the deliveryID property.
-     *
+     * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getDeliveryID().add(newItem);
      * </pre>
-     *
+     * 
+     * 
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link String }
-     *
+     * 
+     * 
      */
     public List<String> getDeliveryID() {
         if (deliveryID == null) {
@@ -74,11 +77,11 @@ public class ShippingPointStructure implements ToString2 {
 
     /**
      * Gets the value of the deliveryDate property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link XMLGregorianCalendar }
-     *
+     *     
      */
     public XMLGregorianCalendar getDeliveryDate() {
         return deliveryDate;
@@ -86,11 +89,11 @@ public class ShippingPointStructure implements ToString2 {
 
     /**
      * Sets the value of the deliveryDate property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link XMLGregorianCalendar }
-     *
+     *     
      */
     public void setDeliveryDate(XMLGregorianCalendar value) {
         this.deliveryDate = value;
@@ -98,24 +101,26 @@ public class ShippingPointStructure implements ToString2 {
 
     /**
      * Gets the value of the warehouseIDAndLocationID property.
-     *
+     * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the warehouseIDAndLocationID property.
-     *
+     * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getWarehouseIDAndLocationID().add(newItem);
      * </pre>
-     *
+     * 
+     * 
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link JAXBElement }{@code <}{@link String }{@code >}
      * {@link JAXBElement }{@code <}{@link String }{@code >}
-     *
+     * 
+     * 
      */
     public List<JAXBElement<String>> getWarehouseIDAndLocationID() {
         if (warehouseIDAndLocationID == null) {
@@ -126,11 +131,11 @@ public class ShippingPointStructure implements ToString2 {
 
     /**
      * Gets the value of the address property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link AddressStructure }
-     *
+     *     
      */
     public AddressStructure getAddress() {
         return address;
@@ -138,11 +143,11 @@ public class ShippingPointStructure implements ToString2 {
 
     /**
      * Sets the value of the address property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link AddressStructure }
-     *
+     *     
      */
     public void setAddress(AddressStructure value) {
         this.address = value;
@@ -188,4 +193,5 @@ public class ShippingPointStructure implements ToString2 {
         }
         return buffer;
     }
+
 }

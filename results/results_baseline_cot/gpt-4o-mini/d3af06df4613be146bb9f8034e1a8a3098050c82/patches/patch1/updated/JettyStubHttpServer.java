@@ -7,10 +7,11 @@ package net.jadler.stubbing.server.jetty;
 import net.jadler.RequestManager;
 import net.jadler.stubbing.server.StubHttpServer;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector; // Updated import
+import org.eclipse.jetty.server.ServerConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.Validate;
+
 
 /**
  * Default stub http server implementation using Jetty as an http server.
@@ -19,22 +20,24 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
     private final Server server;
-    private final ServerConnector httpConnector; // Updated type
+    private final ServerConnector httpConnector;
 
     public JettyStubHttpServer() {
         this(0);
     }
     
+
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
         this.server.setSendServerVersion(false);
-        this.server.setSendDateHeader(true); // This method has been removed in newer versions
-
-        this.httpConnector = new ServerConnector(server); // Updated to use ServerConnector
+        this.server.setSendDateHeader(true);
+        
+        this.httpConnector = new ServerConnector(server);
         this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);
     }
     
+
     /**
      * {@inheritDoc}
      */
@@ -45,6 +48,7 @@ public class JettyStubHttpServer implements StubHttpServer {
         server.setHandler(new JadlerHandler(ruleProvider));
     }
     
+
     /**
      * {@inheritDoc}
      */
@@ -54,6 +58,7 @@ public class JettyStubHttpServer implements StubHttpServer {
         server.start();
         logger.debug("jetty started");
     }
+
 
     /**
      * {@inheritDoc}
@@ -65,11 +70,12 @@ public class JettyStubHttpServer implements StubHttpServer {
         logger.debug("jetty stopped");
     }
     
+
     /**
      * {@inheritDoc}
      */
     @Override
     public int getPort() {
-        return httpConnector.getLocalPort(); // This method is now available in ServerConnector
+        return httpConnector.getLocalPort();
     }
 }

@@ -1,10 +1,6 @@
 13a14
 > import java.util.function.Consumer;
-15c16
-< import org.spongepowered.api.Platform.Type;
----
-> import org.spongepowered.api.Platform;
-17,21c18,23
+17,21c18,22
 < import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
 < import org.spongepowered.api.network.ChannelBuf;
 < import org.spongepowered.api.network.ChannelRegistrar;
@@ -12,24 +8,52 @@
 < import org.spongepowered.api.network.RemoteConnection;
 ---
 > import org.spongepowered.api.network.channel.raw.RawDataChannel;
-> import org.spongepowered.api.network.channel.raw.RawDataListener;
-> import org.spongepowered.api.network.channel.ChannelRegistrar;
-> import org.spongepowered.api.network.EngineConnection;
+> import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
 > import org.spongepowered.api.network.channel.ChannelBuf;
-> import org.spongepowered.api.entity.living.player.server.ServerPlayer;
-40c42
-<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+> import org.spongepowered.api.Sponge;
+> import org.spongepowered.api.network.EngineConnection;
+26c27
+< public class CheckPermissionListener implements RawDataListener {
 ---
->     public void handlePayload(ChannelBuf data, EngineConnection connection, Platform.Type side) {
-42c44
+> public class CheckPermissionListener  {
+29c30
+<     private final RawDataChannel permissionsResultChannel;
+---
+>     private final RawPlayDataChannel permissionsResultChannel;
+32c33
+<     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+---
+>     CheckPermissionListener(ChangeSkinSponge plugin) {
+36c37,39
+<         permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
+---
+>         permissionsResultChannel = (RawPlayDataChannel) Sponge.getChannelRegistry().getChannel(plugin, combinedName).orElseGet(() -> {
+>             return Sponge.getChannelRegistry().registerChannel(plugin, combinedName, RawPlayDataChannel.class);
+>         });
+39,42c42,44
+<     @Override
+<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+< 
 <         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
 ---
->         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.readByteArray());
+>     public void handlePayload(EngineConnection connection, RawDataChannel.Message message, Type side) {
+>         byte[] rawData = message.getRawData();
+>         ByteArrayDataInput dataInput = ByteStreams.newDataInput(rawData);
+46,47c48,49
+<         CheckPermMessage message = new CheckPermMessage();
+<         message.readFrom(dataInput);
+---
+>         CheckPermMessage message2 = new CheckPermMessage();
+>         message2.readFrom(dataInput);
+49c51
+<         checkPermissions((Player) connection, message);
+---
+>         checkPermissions((Player) connection, message2);
 83c85,89
 <         permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
 ---
-> 
 >         byte[] bytes = dataOutput.toByteArray();
->         Consumer<ChannelBuf> consumer = buf -> buf.writeByteArray(bytes);
 > 
->         permissionsResultChannel.sendTo((ServerPlayer) receiver, consumer);
+>         permissionsResultChannel.sendTo(receiver, (Consumer<ChannelBuf>) buf -> {
+>             buf.writeByteArray(bytes);
+>         });

@@ -1,20 +1,3 @@
-<code_analysis>
-1. The error message indicates that the constructor for org.hamcrest.core.StringContains now only accepts a single String argument. Previously, the code used a two-argument constructor (a boolean and a String) that is no longer available in the updated version of Hamcrest. The error is thrown on lines 57 and 58 in the method failsToResolveInvalid.
-2. In the client code, the problematic section is where two StringContains objects are created with boolean flags. The intent seems to be to check that the error message contains the substring "Unsupported reference" (likely ignoring case) and does not contain the provided invalid string.
-3. To fix this, we can replace the two-argument constructors with the standard one-argument matcher provided by Hamcrest. In addition, we can use the not() matcher to ensure that the error message does not contain the invalid input.
-4. Specifically, we will change the matcher construction from:
-     new AllOf<>(Arrays.asList(
-         new StringContains(true, "Unsupported reference"),
-         new StringContains(false, string)
-     ))
-   to the more standard form:
-     Matchers.allOf(
-         Matchers.containsString("Unsupported reference"),
-         Matchers.not(Matchers.containsString(string))
-     )
-   This change addresses the breaking dependency update while preserving the test’s intent.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com

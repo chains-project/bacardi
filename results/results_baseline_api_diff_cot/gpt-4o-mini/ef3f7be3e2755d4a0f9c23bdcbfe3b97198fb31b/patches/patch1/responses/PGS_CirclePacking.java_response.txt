@@ -23,10 +23,7 @@ import org.locationtech.jts.util.GeometricShapeFactory;
 import org.tinfour.common.IIncrementalTin;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
-import org.tinspin.index.PointEntry; // Updated import
-import org.tinspin.index.PointIndex; // Updated import
-import org.tinspin.index.PointIndexWrapper; // Updated import
-import org.tinspin.index.covertree.CoverTree; // Removed as per API changes
+import org.tinspin.index.covertree.CoverTree;
 
 import micycle.pgs.commons.FrontChainPacker;
 import micycle.pgs.commons.LargestEmptyCircles;
@@ -201,7 +198,15 @@ public final class PGS_CirclePacking {
 	public static List<PVector> stochasticPack(final PShape shape, final int points, final double minRadius, boolean triangulatePoints,
 			long seed) {
 
-		final PointIndex<PVector> tree = PointIndex.create(3, 2, circleDistanceMetric); // Updated to use PointIndex
+		final CoverTree<PVector> tree = CoverTree.create(3, 2, (p1, p2) -> {
+			final double dx = p1[0] - p2[0];
+			final double dy = p1[1] - p2[1];
+			final double dz = p1[2] - p2[2];
+
+			double euclideanDistance = Math.sqrt(dx * dx + dy * dy);
+			double absZDifference = Math.abs(dz);
+			return euclideanDistance + absZDifference; // negative if inside
+		});
 		final List<PVector> out = new ArrayList<>();
 
 		List<PVector> steinerPoints = PGS_Processing.generateRandomPoints(shape, points, seed);
@@ -224,16 +229,16 @@ public final class PGS_CirclePacking {
 		float largestR = 0; // the radius of the largest circle in the tree
 
 		for (PVector p : steinerPoints) {
-			final PointEntry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // Updated to use PointEntry
+			final double[] nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
 
 			/*
 			 * nn.dist() does not return the radius (since it's a distance metric used to
 			 * find nearest circle), so calculate maximum radius for candidate circle using
 			 * 2d euclidean distance between center points minus radius of nearest circle.
 			 */
-			final float dx = p.x - nn.value().x;
-			final float dy = p.y - nn.value().y;
-			final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
+			final float dx = p.x - nn[0];
+			final float dy = p.y - nn[1];
+			final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn[2]);
 			if (radius > minRadius) {
 				largestR = (radius >= largestR) ? radius : largestR;
 				p.z = radius;
@@ -623,36 +628,6 @@ public final class PGS_CirclePacking {
 		y /= 3;
 		return new PVector((float) x, (float) y);
 	}
-
-	/**
-	 * Calculate the distance between two points in 3D space, where each point
-	 * represents a circle with (x, y, r) coordinates. This custom metric considers
-	 * both the Euclidean distance between the centers of the circles and the
-	 * absolute difference of their radii.
-	 * <p>
-	 * The metric is defined as follows: Given two points A and B, representing
-	 * circles centered at (x1, y1) and (x2, y2) with radii r1 and r2 respectively,
-	 * the distance is calculated as sqrt((x1 - x2)^2 + (y1 - y2)^2) + |r1 - r2|.
-	 * <p>
-	 * This metric can be used to find the nearest circle to a given center (x, y)
-	 * in a proximity search. To perform the search, use a point (x, y, R) where R
-	 * is greater than or equal to the maximum radius of a circle in the proximity
-	 * structure.
-	 *
-	 * @param p1 3D point representing the first circle (x1, y1, r1)
-	 * @param p2 3D point representing the second circle (x2, y2, r2)
-	 * @return the distance between the two points based on the custom metric
-	 */
-	private static final org.tinspin.index.PointDistanceFunction circleDistanceMetric = (p1, p2) -> {
-		// from https://stackoverflow.com/a/21975136/
-		final double dx = p1[0] - p2[0];
-		final double dy = p1[1] - p2[1];
-		final double dz = p1[2] - p2[2];
-
-		double euclideanDistance = Math.sqrt(dx * dx + dy * dy);
-		double absZDifference = Math.abs(dz);
-		return euclideanDistance + absZDifference; // negative if inside
-	};
 
 	/**
 	 * A streams filter to remove triangulation triangles that share at least one

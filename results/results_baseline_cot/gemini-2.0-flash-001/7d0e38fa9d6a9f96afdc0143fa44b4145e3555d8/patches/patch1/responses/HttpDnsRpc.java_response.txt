@@ -207,8 +207,9 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.ManagedZones.Create createZoneCall(ManagedZone zone, Map<Option, ?> options)
       throws IOException {
+    String projectId = this.options.getProjectId();
     return dns.managedZones()
-        .create(this.options.getProjectId(), this.options.getProjectId(), zone)
+        .create(projectId, zone)
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -228,8 +229,9 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.ManagedZones.Get getZoneCall(String zoneName, Map<Option, ?> options)
       throws IOException {
+    String projectId = this.options.getProjectId();
     return dns.managedZones()
-        .get(this.options.getProjectId(), this.options.getProjectId(), zoneName)
+        .get(projectId, zoneName)
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -245,8 +247,9 @@ public class HttpDnsRpc implements DnsRpc {
   }
 
   private Dns.ManagedZones.List listZonesCall(Map<DnsRpc.Option, ?> options) throws IOException {
+    String projectId = this.options.getProjectId();
     return dns.managedZones()
-        .list(this.options.getProjectId(), this.options.getProjectId())
+        .list(projectId)
         .setFields(Option.FIELDS.getString(options))
         .setMaxResults(Option.PAGE_SIZE.getInt(options))
         .setDnsName(Option.DNS_NAME.getString(options))
@@ -268,7 +271,8 @@ public class HttpDnsRpc implements DnsRpc {
   }
 
   private Dns.ManagedZones.Delete deleteZoneCall(String zoneName) throws IOException {
-    return dns.managedZones().delete(this.options.getProjectId(), this.options.getProjectId(), zoneName);
+    String projectId = this.options.getProjectId();
+    return dns.managedZones().delete(projectId, zoneName);
   }
 
   @Override
@@ -285,8 +289,9 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.ResourceRecordSets.List listRecordSetsCall(String zoneName, Map<Option, ?> options)
       throws IOException {
     // options are fields, page token, dns name, type
+    String projectId = this.options.getProjectId();
     return dns.resourceRecordSets()
-        .list(this.options.getProjectId(), zoneName, this.options.getProjectId())
+        .list(projectId, zoneName)
         .setFields(Option.FIELDS.getString(options))
         .setPageToken(Option.PAGE_TOKEN.getString(options))
         .setMaxResults(Option.PAGE_SIZE.getInt(options))
@@ -304,8 +309,9 @@ public class HttpDnsRpc implements DnsRpc {
   }
 
   private Dns.Projects.Get getProjectCall(Map<Option, ?> options) throws IOException {
+    String projectId = this.options.getProjectId();
     return dns.projects()
-        .get(this.options.getProjectId(), this.options.getProjectId())
+        .get(projectId)
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -321,8 +327,9 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.Changes.Create applyChangeRequestCall(
       String zoneName, Change changeRequest, Map<Option, ?> options) throws IOException {
+    String projectId = this.options.getProjectId();
     return dns.changes()
-        .create(this.options.getProjectId(), zoneName, this.options.getProjectId(), changeRequest)
+        .create(projectId, zoneName, changeRequest)
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -348,8 +355,9 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.Changes.Get getChangeRequestCall(
       String zoneName, String changeRequestId, Map<Option, ?> options) throws IOException {
+    String projectId = this.options.getProjectId();
     return dns.changes()
-        .get(this.options.getProjectId(), zoneName, changeRequestId, this.options.getProjectId())
+        .get(projectId, zoneName, changeRequestId)
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -367,9 +375,10 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.Changes.List listChangeRequestsCall(String zoneName, Map<Option, ?> options)
       throws IOException {
     // options are fields, page token, page size, sort order
+    String projectId = this.options.getProjectId();
     Dns.Changes.List request =
         dns.changes()
-            .list(this.options.getProjectId(), zoneName, this.options.getProjectId())
+            .list(projectId, zoneName)
             .setFields(Option.FIELDS.getString(options))
             .setMaxResults(Option.PAGE_SIZE.getInt(options))
             .setPageToken(Option.PAGE_TOKEN.getString(options));

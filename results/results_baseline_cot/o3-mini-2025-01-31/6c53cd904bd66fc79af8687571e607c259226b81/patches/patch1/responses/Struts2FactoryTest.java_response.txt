@@ -16,7 +16,7 @@
 
 package com.google.inject.struts2;
 
-import org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter; // Updated import to new package
+import org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -25,13 +25,9 @@ import com.google.inject.Provides;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
 import java.util.Date;
+import javax.inject.Singleton;
 import junit.framework.TestCase;
 
-/**
- * Test for Struts2Factory
- *
- * @author benmccann.com
- */
 public class Struts2FactoryTest extends TestCase {
 
   private static final Date TODAY = new Date();
@@ -51,9 +47,8 @@ public class Struts2FactoryTest extends TestCase {
           new ServletModule() {
             @Override
             protected void configureServlets() {
-              // Struts 2 setup
               bind(StrutsPrepareAndExecuteFilter.class)
-                  .in(com.google.inject.Singleton.class);
+                  .in(Singleton.class);
               filter("/*").through(StrutsPrepareAndExecuteFilter.class);
             }
           },
@@ -74,6 +69,6 @@ public class Struts2FactoryTest extends TestCase {
               }
             });
     assertEquals(TODAY, testListener.getInjector().getInstance(Date.class));
-    assertEquals(TODAY, s2Factory.buildBean(Date.class, null));
+    assertEquals(TODAY, s2Factory.createBean(Date.class, null));
   }
 }

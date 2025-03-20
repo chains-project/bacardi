@@ -1,23 +1,37 @@
-9d8
-< 
-11d9
-< 
-13,16c11,15
+11a12
+> import org.spongepowered.api.command.Command;
+13,16c14,16
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
-> import org.spongepowered.api.command.source.CommandSource;
-> import org.spongepowered.api.command.CommandContext;
-> import org.spongepowered.api.command.executor.CommandExecutor;
-> import org.spongepowered.api.command.CommandSpec;
+> import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.parameter.Parameter;
-19,21d17
+> import org.spongepowered.api.command.source.CommandSource;
+19,20c19
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 < import static org.spongepowered.api.text.Text.of;
-< 
-56c52
+---
+> import net.kyori.adventure.text.Component;
+22c21
+< public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class UploadCommand implements ChangeSkinCommand {
+33d31
+<     @Override
+52,56c50,57
+<     @Override
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+<                 .executor(this)
 <                 .arguments(string(of("url")))
 ---
->                 .arguments(Parameter.string().key("url").build())
+>     public Command buildSpec() {
+>         return Command.builder()
+>                 .executor(context -> {
+>                     CommandSource src = context.cause().first(CommandSource.class)
+>                             .orElseThrow(() -> new IllegalStateException("No CommandSource found."));
+>                     return this.execute(src, context);
+>                 })
+>                 .addParameter(Parameter.string().key("url").build())

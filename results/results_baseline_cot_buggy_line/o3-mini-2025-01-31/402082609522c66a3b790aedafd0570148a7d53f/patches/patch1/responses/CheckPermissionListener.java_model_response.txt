@@ -10,35 +10,36 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
+import io.netty.buffer.ByteBuf;
+
 import java.util.UUID;
+
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.network.RemoteConnection;
-// Updated imports: the network API classes have been moved in the new dependency version
 import org.spongepowered.api.network.channel.ChannelRegistrar;
-import org.spongepowered.api.network.channel.PacketByteBuf;
 import org.spongepowered.api.network.channel.raw.RawDataChannel;
-
 import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
 import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 
-public class CheckPermissionListener {
+public class CheckPermissionListener implements RawDataChannel.RawDataHandler {
 
     private final ChangeSkinSponge plugin;
     private final RawDataChannel permissionsResultChannel;
 
     @Inject
-    public CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+    CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
         this.plugin = plugin;
 
         String combinedName = new NamespaceKey(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL).getCombinedName();
         permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
-        // Register the payload handler using the new listener API
-        permissionsResultChannel.setListener(this::handlePayload);
     }
 
-    public void handlePayload(PacketByteBuf data, RemoteConnection connection, Type side) {
-        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+    public void handlePayload(ByteBuf data, RemoteConnection connection, Type side) {
+        int length = data.readableBytes();
+        byte[] bytes = new byte[length];
+        data.getBytes(data.readerIndex(), bytes);
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(bytes);
         CheckPermMessage checkMessage = new CheckPermMessage();
         checkMessage.readFrom(dataInput);
 
@@ -79,29 +80,7 @@ public class CheckPermissionListener {
     private void sendResultMessage(Player receiver, PermResultMessage resultMessage) {
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
         resultMessage.writeTo(dataOutput);
-        permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+        permissionsResultChannel.sendTo(receiver, buf -> buf.writeBytes(dataOutput.toByteArray()));
     }
 }
-``` 
-
-<code_analysis>
-1. Analysis of the error:
-   - The errors indicate that the classes RawDataListener, ChannelRegistrar, ChannelBuf, and ChannelBinding.RawDataChannel are no longer found in the updated Sponge dependency.
-   - The failing lines are those importing and implementing the old network messaging API.
-
-2. Review of client code:
-   - The class CheckPermissionListener previously implemented RawDataListener and used ChannelRegistrar to create a RawDataChannel.
-   - The method handlePayload was annotated with @Override from the now-removed interface and accepted a ChannelBuf.
-   - These classes have been moved or renamed in the updated dependency version.
-
-3. Proposed changes:
-   - Remove the "implements RawDataListener" from the class declaration (and remove the corresponding @Override annotation) since the new API employs a different listener registration.
-   - Update the imports to use the new packages:
-       • Change ChannelRegistrar import to "org.spongepowered.api.network.channel.ChannelRegistrar".
-       • Change ChannelBuf to PacketByteBuf from "org.spongepowered.api.network.channel.PacketByteBuf".
-       • Change RawDataChannel to use "org.spongepowered.api.network.channel.raw.RawDataChannel".
-   - In the constructor, after obtaining the RawDataChannel via getOrCreateRaw, register the payload handler with setListener.
-   - Update the handlePayload method parameter type from ChannelBuf to PacketByteBuf.
-4. Outcome:
-   - The patch addresses the dependency update by using the new Sponge API classes and registering the listener with the new method.
-</code_analysis>
+```

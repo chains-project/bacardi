@@ -67,7 +67,8 @@ public final class PGS_PointSet {
 		final List<PVector> newPoints = new ArrayList<>();
 		for (PVector p : points) {
 			final double[] coords = new double[] { p.x, p.y };
-			if (tree.size() == 0 || tree.queryKNN(coords, 1).get(0).getDistance() > distanceTolerance) {
+			// Use queryKNN in place of the removed query1NN API.
+			if (tree.size() == 0 || tree.queryKNN(coords, 1).get(0).d > distanceTolerance) {
 				tree.insert(coords, p);
 				newPoints.add(p);
 			}
@@ -602,7 +603,6 @@ public final class PGS_PointSet {
 	 * @return
 	 */
 	public static List<PVector> plasticLDS(double xMin, double yMin, double xMax, double yMax, int n) {
-		// https://github.com/Atrix256/SampleZoo/blob/master/src/families/_2d/samples/irrational_numbers/irrational_numbers.cpp
 		final double w = xMax - xMin;
 		final double h = yMax - yMin;
 		final double p = 1.32471795724474602596; // plastic constant

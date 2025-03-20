@@ -2,15 +2,17 @@
 package com.example;
 
 import java.util.logging.Logger;
-import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Observes;
-import jakarta.inject.Inject;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
 import jakarta.mvc.event.AfterControllerEvent;
 import jakarta.mvc.event.AfterProcessViewEvent;
 import jakarta.mvc.event.BeforeControllerEvent;
 import jakarta.mvc.event.BeforeProcessViewEvent;
 import jakarta.mvc.event.ControllerRedirectEvent;
+import jakarta.mvc.UriInfo;
+import jakarta.mvc.Viewable;
 
 @ApplicationScoped
 public class MvcEventListener {
@@ -19,19 +21,26 @@ public class MvcEventListener {
     Logger LOGGER;
 
     private void onControllerMatched(@Observes BeforeControllerEvent event) {
-        LOGGER.info(() -> "Controller matched for " + event.getUriInfo().getRequestUri());
+        UriInfo uriInfo = event.getUriInfo();
+        if (uriInfo != null) {
+            LOGGER.info(() -> "Controller matched for " + uriInfo.getRequestUri());
+        } else {
+            LOGGER.warning("UriInfo is null in BeforeControllerEvent");
+        }
     }
 
     private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
-        LOGGER.info(() -> "View engine: " + event.getEngine());
+        LOGGER.info(() -> "View engine: " + event.getViewEngine());
     }
 
     private void onAfterControllerEvent(@Observes AfterControllerEvent event) {
-        LOGGER.info(() -> "AfterControllerEvent:: " + event.getResourceInfo());
+        Object resourceInfo = event.getResourceInfo();
+        LOGGER.info(() -> "AfterControllerEvent:: " + resourceInfo);
     }
 
     private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
-        LOGGER.info(() -> "AfterProcessViewEvent:: " + event);
+        Viewable viewable = event.getViewable();
+        LOGGER.info(() -> "AfterProcessViewEvent:: " + viewable);
     }
     
      private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {

@@ -1,19 +1,12 @@
-21c21
+21d20
 < import static org.apache.commons.lang3.StringUtils.isAllBlank;
----
-> // Removed static import for isAllBlank as the updated dependency no longer provides it.
-140,141c140,146
-<             if (isAllBlank(server.getUrl(), server.getArtifactory().getUrl(), server.getDistribution().getUrl(),
-<                     step.url, step.artifactoryUrl, step.distributionUrl)) {
----
->             // Replace isAllBlank with individual isBlank checks as the updated dependency no longer provides isAllBlank.
->             if (StringUtils.isBlank(server.getUrl()) &&
->                 StringUtils.isBlank(server.getArtifactory().getUrl()) &&
->                 StringUtils.isBlank(server.getDistribution().getUrl()) &&
->                 StringUtils.isBlank(step.url) &&
->                 StringUtils.isBlank(step.artifactoryUrl) &&
->                 StringUtils.isBlank(step.distributionUrl)) {
-186c191
-<             // The following fields does not exist in the Distribution server:
----
->             // The following fields do not exist in the Distribution server:
+224a224,232
+>     
+>     private static boolean isAllBlank(String... strings) {
+>         for (String s : strings) {
+>             if (isNotBlank(s)) {
+>                 return false;
+>             }
+>         }
+>         return true;
+>     }

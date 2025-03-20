@@ -291,83 +291,83 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-import com.hazelcast.core.MembershipListener;
-```
-```java
-ClusterListener(final Cluster cluster) {
-```
-```java
-import com.hazelcast.core.Member;
-```
-```java
-public void memberRemoved(final MembershipEvent event) {
-```
-```java
-public void memberAttributeChanged(final MemberAttributeEvent event) {
-```
-```java
-import com.hazelcast.core.Cluster;
+import com.hazelcast.core.MembershipEvent;
 ```
 ```java
 private final Cluster cluster;
 ```
 ```java
-import com.hazelcast.core.MembershipEvent;
-```
-```java
-public class ClusterListener implements MembershipListener, LifecycleListener {
+ClusterListener(final Cluster cluster) {
 ```
 ```java
 public void memberAdded(final MembershipEvent event) {
 ```
 ```java
+import com.hazelcast.core.MembershipListener;
+```
+```java
 import com.hazelcast.core.MemberAttributeEvent;
+```
+```java
+import com.hazelcast.core.Member;
+```
+```java
+public class ClusterListener implements MembershipListener, LifecycleListener {
+```
+```java
+import com.hazelcast.core.Cluster;
+```
+```java
+public void memberAttributeChanged(final MemberAttributeEvent event) {
+```
+```java
+public void memberRemoved(final MembershipEvent event) {
 ```
 
 
  And here is the error message:
-[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusterListener.java:[26,26] cannot find symbol
-  symbol:   class MembershipListener
-  location: package com.hazelcast.core
-
-[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusterListener.java:[75,27] cannot find symbol
-  symbol:   class Cluster
-  location: class org.jivesoftware.openfire.plugin.util.cache.ClusterListener
-
-[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusterListener.java:[23,26] cannot find symbol
-  symbol:   class Member
-  location: package com.hazelcast.core
-
-[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusterListener.java:[228,37] cannot find symbol
+[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusterListener.java:[25,26] cannot find symbol
   symbol:   class MembershipEvent
-  location: class org.jivesoftware.openfire.plugin.util.cache.ClusterListener
-
-[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusterListener.java:[271,46] cannot find symbol
-  symbol:   class MemberAttributeEvent
-  location: class org.jivesoftware.openfire.plugin.util.cache.ClusterListener
-
-[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusterListener.java:[18,26] cannot find symbol
-  symbol:   class Cluster
   location: package com.hazelcast.core
 
 [ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusterListener.java:[60,19] cannot find symbol
   symbol:   class Cluster
   location: class org.jivesoftware.openfire.plugin.util.cache.ClusterListener
 
-[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusterListener.java:[25,26] cannot find symbol
-  symbol:   class MembershipEvent
-  location: package com.hazelcast.core
-
-[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusterListener.java:[52,41] cannot find symbol
-  symbol: class MembershipListener
+[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusterListener.java:[75,27] cannot find symbol
+  symbol:   class Cluster
+  location: class org.jivesoftware.openfire.plugin.util.cache.ClusterListener
 
 [ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusterListener.java:[155,35] cannot find symbol
   symbol:   class MembershipEvent
   location: class org.jivesoftware.openfire.plugin.util.cache.ClusterListener
 
+[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusterListener.java:[26,26] cannot find symbol
+  symbol:   class MembershipListener
+  location: package com.hazelcast.core
+
 [ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusterListener.java:[24,26] cannot find symbol
   symbol:   class MemberAttributeEvent
   location: package com.hazelcast.core
+
+[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusterListener.java:[23,26] cannot find symbol
+  symbol:   class Member
+  location: package com.hazelcast.core
+
+[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusterListener.java:[52,41] cannot find symbol
+  symbol: class MembershipListener
+
+[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusterListener.java:[18,26] cannot find symbol
+  symbol:   class Cluster
+  location: package com.hazelcast.core
+
+[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusterListener.java:[271,46] cannot find symbol
+  symbol:   class MemberAttributeEvent
+  location: class org.jivesoftware.openfire.plugin.util.cache.ClusterListener
+
+[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusterListener.java:[228,37] cannot find symbol
+  symbol:   class MembershipEvent
+  location: class org.jivesoftware.openfire.plugin.util.cache.ClusterListener
 
 
 

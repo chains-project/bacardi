@@ -22,13 +22,11 @@ import static java.net.HttpURLConnection.HTTP_OK;
 
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.cloudresourcemanager.v1.model.Binding; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.Operation; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.Policy; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.Project; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.SetIamPolicyRequest; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.TestIamPermissionsRequest; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.TestIamPermissionsResponse; // Updated import
+import com.google.cloud.resourcemanager.ProjectInfo;
+import com.google.cloud.resourcemanager.Policy;
+import com.google.cloud.resourcemanager.SetIamPolicyRequest;
+import com.google.cloud.resourcemanager.TestIamPermissionsRequest;
+import com.google.cloud.resourcemanager.TestIamPermissionsResponse;
 import com.google.cloud.NoCredentials;
 import com.google.cloud.resourcemanager.ResourceManagerOptions;
 import com.google.common.base.Joiner;
@@ -123,7 +121,7 @@ public class LocalResourceManagerHelper {
       ImmutableSet.of('-', '\'', '"', ' ', '!');
 
   private final HttpServer server;
-  private final ConcurrentSkipListMap<String, Project> projects = new ConcurrentSkipListMap<>();
+  private final ConcurrentSkipListMap<String, ProjectInfo> projects = new ConcurrentSkipListMap<>();
   private final Map<String, Policy> policies = new HashMap<>();
   private final int port;
 
@@ -215,7 +213,7 @@ public class LocalResourceManagerHelper {
             String requestBody =
                 decodeContent(exchange.getRequestHeaders(), exchange.getRequestBody());
             response =
-                replace(projectIdFromUri(path), jsonFactory.fromString(requestBody, Project.class));
+                replace(projectIdFromUri(path), jsonFactory.fromString(requestBody, ProjectInfo.class));
             break;
           default:
             response =
@@ -235,7 +233,7 @@ public class LocalResourceManagerHelper {
   private Response handlePost(HttpExchange exchange, String path) throws IOException {
     String requestBody = decodeContent(exchange.getRequestHeaders(), exchange.getRequestBody());
     if (!path.contains(":")) {
-      return create(jsonFactory.fromString(requestBody, Project.class));
+      return create(jsonFactory.fromString(requestBody, ProjectInfo.class));
     } else {
       switch (path.split(":", 2)[1]) {
         case "undelete":
@@ -273,7 +271,7 @@ public class LocalResourceManagerHelper {
       String requestMethod = exchange.getRequestMethod();
       switch (requestMethod) {
         case "GET":
-          Project project = projects.get(projectId);
+          ProjectInfo project = projects.get(projectId);
           if (project == null) {
             response = Error.PERMISSION_DENIED.response("Project " + projectId + " not found.");
             break;
@@ -385,7 +383,7 @@ public class LocalResourceManagerHelper {
     return options;
   }
 
-  private static String checkForProjectErrors(Project project) {
+  private static String checkForProjectErrors(ProjectInfo project) {
     if (project.getProjectId() == null) {
       return "Project ID cannot be empty.";
     }
@@ -441,7 +439,7 @@ public class LocalResourceManagerHelper {
     return value.length() >= minLength && value.length() <= maxLength;
   }
 
-  synchronized Response create(Project project) {
+  synchronized Response create(ProjectInfo project) {
     String customErrorMessage = checkForProjectErrors(project);
     if (customErrorMessage != null) {
       return Error.INVALID_ARGUMENT.response(customErrorMessage);
@@ -475,7 +473,7 @@ public class LocalResourceManagerHelper {
   }
 
   synchronized Response delete(String projectId) {
-    Project project = projects.get(projectId);
+    ProjectInfo project = projects.get(projectId);
     if (project == null) {
       return Error.PERMISSION_DENIED.response(
           "Error when deleting " + projectId + " because the project was not found.");
@@ -490,7 +488,7 @@ public class LocalResourceManagerHelper {
   }
 
   Response get(String projectId, String[] fields) {
-    Project project = projects.get(projectId);
+    ProjectInfo project = projects.get(projectId);
     if (project != null) {
       try {
         return new Response(HTTP_OK, jsonFactory.toString(extractFields(project, fields)));
@@ -514,11 +512,11 @@ public class LocalResourceManagerHelper {
     String pageToken = (String) options.get("pageToken");
     Integer pageSize = (Integer) options.get("pageSize");
     String nextPageToken = null;
-    Map<String, Project> projectsToScan = projects;
+    Map<String, ProjectInfo> projectsToScan = projects;
     if (pageToken != null) {
       projectsToScan = projects.tailMap(pageToken);
     }
-    for (Project p : projectsToScan.values()) {
+    for (ProjectInfo p : projectsToScan.values()) {
       if (pageSize != null && count >= pageSize) {
         nextPageToken = p.getProjectId();
         break;
@@ -566,7 +564,7 @@ public class LocalResourceManagerHelper {
     return true;
   }
 
-  private static boolean includeProject(Project project, String[] filters) {
+  private static boolean includeProject(ProjectInfo project, String[] filters) {
     if (filters == null) {
       return true;
     }
@@ -601,11 +599,11 @@ public class LocalResourceManagerHelper {
     return "*".equals(filterValue) || filterValue.equals(projectValue.toLowerCase());
   }
 
-  private static Project extractFields(Project fullProject, String[] fields) {
+  private static ProjectInfo extractFields(ProjectInfo fullProject, String[] fields) {
     if (fields == null) {
       return fullProject;
     }
-    Project project = new Project();
+    ProjectInfo project = ProjectInfo.newBuilder(fullProject.getProjectId()).build();
     for (String field : fields) {
       switch (field) {
         case "createTime":
@@ -634,8 +632,8 @@ public class LocalResourceManagerHelper {
     return project;
   }
 
-  synchronized Response replace(String projectId, Project project) {
-    Project originalProject = projects.get(projectId);
+  synchronized Response replace(String projectId, ProjectInfo project) {
+    ProjectInfo originalProject = projects.get(projectId);
     if (originalProject == null) {
       return Error.PERMISSION_DENIED.response(
           "Error when replacing " + projectId + " because the project was not found.");
@@ -661,7 +659,7 @@ public class LocalResourceManagerHelper {
   }
 
   synchronized Response undelete(String projectId) {
-    Project project = projects.get(projectId);
+    ProjectInfo project = projects.get(projectId);
     Response response;
     if (project == null) {
       response =
@@ -782,7 +780,7 @@ public class LocalResourceManagerHelper {
             || "DELETE_REQUESTED".equals(lifecycleState)
             || "DELETE_IN_PROGRESS".equals(lifecycleState),
         "Lifecycle state must be ACTIVE, DELETE_REQUESTED, or DELETE_IN_PROGRESS");
-    Project project = projects.get(checkNotNull(projectId));
+    ProjectInfo project = projects.get(checkNotNull(projectId));
     if (project != null) {
       project.setLifecycleState(lifecycleState);
       return true;

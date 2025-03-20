@@ -19,10 +19,8 @@ import org.apache.thrift.transport.TTransport;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 
-/**
- * Utils to create logback appenders
- */
 public class AppenderUtils {
 
   public static final String PATH_SEP = "/";
@@ -30,52 +28,44 @@ public class AppenderUtils {
   private AppenderUtils() {
   }
 
-  /**
-   * Encoder for LogMessage objects.
-   */
   public static class LogMessageEncoder extends EncoderBase<LogMessage> {
 
     @Override
-    public byte[] headerBytes() {
-      // No header required.
-      return new byte[0];
+    public void init(OutputStream os) throws IOException {
+      // No initialization needed for this stateless encoder.
     }
 
     @Override
     public byte[] encode(LogMessage logMessage) throws IOException {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       final int bufferCapacity = 10;
-      TTransport framedTransport = new TFastFramedTransport(new TIOStreamTransport(baos), bufferCapacity);
-      TProtocol protocol = new TBinaryProtocol(framedTransport);
+      TTransport transport = new TFastFramedTransport(new TIOStreamTransport(baos), bufferCapacity);
+      TProtocol protocol = new TBinaryProtocol(transport);
       try {
-        // Serialize the log message using the Thrift binary protocol.
         logMessage.write(protocol);
-        framedTransport.flush();
+        transport.flush();
       } catch (TException e) {
         throw new IOException(e);
-      } finally {
-        framedTransport.close();
       }
       return baos.toByteArray();
     }
 
     @Override
+    public void close() throws IOException {
+      // No resources to clean up.
+    }
+    
+    @Override
+    public byte[] headerBytes() {
+      return null;
+    }
+
+    @Override
     public byte[] footerBytes() {
-      // No footer required.
-      return new byte[0];
+      return null;
     }
   }
 
-  /**
-   * Create the basic thrift appender which logs to a file
-   * and rolls the file when it exceeds a certain size.
-   *
-   * @param basePath base directory the files are under.
-   * @param topic the topic name for the current appender.
-   * @param rotateThresholdKBytes threshold in kilobytes to rotate after.
-   * @param context the logback context.
-   * @param maxRetentionHours maximum number of hours to retain logs.
-   */
   public static Appender<LogMessage> createFileRollingThriftAppender(
       File basePath,
       String topic,
@@ -98,7 +88,6 @@ public class AppenderUtils {
     policy.setContext(context);
     policy.setParent(appender);
 
-    // Also impose a max size per file policy.
     SizeAndTimeBasedFNATP fnatp = new SizeAndTimeBasedFNATP();
     fnatp.setContext(context);
     fnatp.setTimeBasedRollingPolicy(policy);

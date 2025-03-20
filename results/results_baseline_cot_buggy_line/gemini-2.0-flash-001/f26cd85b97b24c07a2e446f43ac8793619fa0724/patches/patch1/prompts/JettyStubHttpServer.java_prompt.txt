@@ -90,15 +90,6 @@ public class JettyStubHttpServer implements StubHttpServer {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-this.httpConnector = new SelectChannelConnector();
-```
-```java
-return httpConnector.getLocalPort();
-```
-```java
-this.httpConnector.setPort(port);
-```
-```java
 this.server.setSendDateHeader(true);
 ```
 ```java
@@ -107,9 +98,28 @@ this.server.setSendServerVersion(false);
 ```java
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 ```
+```java
+this.httpConnector = new SelectChannelConnector();
+```
+```java
+return httpConnector.getLocalPort();
+```
+```java
+this.httpConnector.setPort(port);
+```
 
 
  And here is the error message:
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[34,19] error: cannot find symbol
+  symbol:   method setSendDateHeader(boolean)
+  location: variable server of type Server
+
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[33,19] error: cannot find symbol
+  symbol:   method setSendServerVersion(boolean)
+  location: variable server of type Server
+
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[12,35] error: package org.eclipse.jetty.server.nio does not exist
+
 [ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[36,33] error: cannot find symbol
   symbol:   class SelectChannelConnector
   location: class JettyStubHttpServer
@@ -121,16 +131,6 @@ import org.eclipse.jetty.server.nio.SelectChannelConnector;
 [ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[37,26] error: cannot find symbol
   symbol:   method setPort(int)
   location: variable httpConnector of type Connector
-
-[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[34,19] error: cannot find symbol
-  symbol:   method setSendDateHeader(boolean)
-  location: variable server of type Server
-
-[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[33,19] error: cannot find symbol
-  symbol:   method setSendServerVersion(boolean)
-  location: variable server of type Server
-
-[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[12,35] error: package org.eclipse.jetty.server.nio does not exist
 
 
 

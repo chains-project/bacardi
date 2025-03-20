@@ -1,0 +1,35 @@
+18a19,20
+> import com.hazelcast.cluster.Cluster;
+> import com.hazelcast.cluster.Member;
+22,23d23
+< import com.hazelcast.config.MaxSizeConfig;
+< import com.hazelcast.config.MemberAttributeConfig;
+27d26
+< import com.hazelcast.core.Cluster;
+30d28
+< import com.hazelcast.core.Member;
+73a72
+> import com.hazelcast.config.MaxSizeConfig;
+193c192
+<                 final MemberAttributeConfig memberAttributeConfig = config.getMemberAttributeConfig();
+---
+>                 final com.hazelcast.config.MemberAttributeConfig memberAttributeConfig = config.getMemberAttributeConfig();
+288c287,290
+<             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+---
+>                         MaxSizeConfig maxSizeConfig = new MaxSizeConfig();
+>                         maxSizeConfig.setSize(hazelcastMaxCacheSizeInMegaBytes);
+>                         maxSizeConfig.setMaxSizePolicy(MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE);
+>             dynamicConfig.setMaxSizeConfig(maxSizeConfig);
+356c358
+<         return cluster == null ? System.currentTimeMillis() : cluster.getClusterTime();
+---
+>         return cluster == null ? System.currentTimeMillis() : hazelcast.getCluster().getClusterTime();
+496c498
+<             result = new HazelcastClusterNodeInfo(member, cluster.getClusterTime());
+---
+>             result = new HazelcastClusterNodeInfo(member, hazelcast.getCluster().getClusterTime());
+701,703d702
+< 
+< 
+< 

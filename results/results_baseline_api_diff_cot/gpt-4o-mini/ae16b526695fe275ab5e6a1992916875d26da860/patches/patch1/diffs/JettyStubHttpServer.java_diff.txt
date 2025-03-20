@@ -1,6 +1,6 @@
 9a10,11
 > import org.eclipse.jetty.server.ServerConnector;
-> import org.eclipse.jetty.util.thread.ThreadPool;
+> import org.eclipse.jetty.server.HttpConfiguration;
 13,14d14
 < import org.eclipse.jetty.server.Connector;
 < import org.eclipse.jetty.server.nio.SelectChannelConnector;
@@ -8,17 +8,14 @@
 <     private final Connector httpConnector;
 ---
 >     private final ServerConnector httpConnector;
-32,36c32,34
-<         this.server = new Server();
+33,34c33,35
 <         this.server.setSendServerVersion(false);
 <         this.server.setSendDateHeader(true);
-<         
+---
+>         HttpConfiguration httpConfig = new HttpConfiguration();
+>         httpConfig.setSendServerVersion(false);
+>         httpConfig.setSendDateHeader(true);
+36c37
 <         this.httpConnector = new SelectChannelConnector();
 ---
->         this.server = new Server(); // Updated to use the new constructor with ThreadPool
->         this.server.setHandler(new JadlerHandler(new RequestManager())); // Assuming a default RequestManager for initialization
->         this.httpConnector = new ServerConnector(server); // Updated to use ServerConnector
-80c78
-<         return httpConnector.getLocalPort();
----
->         return httpConnector.getLocalPort(); // Updated to use the new method
+>         this.httpConnector = new ServerConnector(server, httpConfig);

@@ -30,7 +30,6 @@ import org.junit.jupiter.api.Test;
  * @checkstyle ClassDataAbstractionCouplingCheck (500 lines)
  */
 final class AstoBlobsITCase {
-
     @Test
     void saveBlobDataAtCorrectPath() throws Exception {
         final InMemoryStorage storage = new InMemoryStorage();

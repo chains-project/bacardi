@@ -10,11 +10,11 @@ import com.pubnub.api.callbacks.SubscribeCallback;
 import com.pubnub.api.enums.PNStatusCategory;
 import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
-import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult; // This import is retained as it is still valid
-import com.pubnub.api.models.consumer.pubsub.PNSignalResult; // This import is retained as it is still valid
-import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult; // This import is retained as it is still valid
-import com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult; // Updated import for the new membership result
-import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult; // This import is retained as it is still valid
+import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
+import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
+import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
+import com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult;
+import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -35,11 +35,11 @@ public class PubnubStreamingService {
   private final ObjectMapper mapper;
 
   public PubnubStreamingService(String publicKey) {
-    PNConfiguration pnConfiguration = new PNConfiguration(publicKey); // Updated constructor
-    pubnub = new PubNub(pnConfiguration);
-    pnStatusCategory = PNStatusCategory.PNDisconnectedCategory;
     mapper = new ObjectMapper();
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    PNConfiguration pnConfiguration = new PNConfiguration(publicKey);
+    pubnub = new PubNub(pnConfiguration);
+    pnStatusCategory = PNStatusCategory.PNDisconnectedCategory;
   }
 
   public Completable connect() {
@@ -89,22 +89,20 @@ public class PubnubStreamingService {
                   LOG.debug("PubNub signal: {}", pnSignalResult.toString());
                 }
 
-                // Removed user and space methods as they are no longer valid
-                // @Override
-                // public void user(PubNub pubnub, PNUserResult pnUserResult) {
-                //   LOG.debug("PubNub user: {}", pnUserResult.toString());
-                // }
+                @Override
+                public void user(PubNub pubnub, PNStatus pnStatus) {
+                  LOG.debug("PubNub user: {}", pnStatus.toString());
+                }
 
-                // @Override
-                // public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
-                //   LOG.debug("PubNub space: {}", pnSpaceResult.toString());
-                // }
+                @Override
+                public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
+                  LOG.debug("PubNub space: {}", pnSpaceResult.toString());
+                }
 
-                // Removed membership method as it is no longer valid
-                // @Override
-                // public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
-                //   LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
-                // }
+                @Override
+                public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
+                  LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
+                }
 
                 @Override
                 public void messageAction(

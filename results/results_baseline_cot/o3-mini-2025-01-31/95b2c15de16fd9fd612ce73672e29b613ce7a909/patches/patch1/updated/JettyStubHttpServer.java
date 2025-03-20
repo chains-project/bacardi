@@ -3,9 +3,6 @@ package net.jadler.stubbing.server.jetty;
 import net.jadler.RequestManager;
 import net.jadler.stubbing.server.StubHttpServer;
 import org.apache.commons.lang.Validate;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.slf4j.Logger;
@@ -26,12 +23,9 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
+        // Removed unsupported API calls setSendServerVersion and setSendDateHeader
 
-        HttpConfiguration httpConfig = new HttpConfiguration();
-        httpConfig.setSendServerVersion(false);
-        httpConfig.setSendDateHeader(true);
-
-        this.httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+        this.httpConnector = new ServerConnector(this.server);
         this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);
     }

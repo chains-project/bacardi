@@ -99,7 +99,6 @@ public class References implements ToString2
 
     @Override
     public String toString() {
-        // Use the updated API which provides an instance via the INSTANCE constant.
         final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);

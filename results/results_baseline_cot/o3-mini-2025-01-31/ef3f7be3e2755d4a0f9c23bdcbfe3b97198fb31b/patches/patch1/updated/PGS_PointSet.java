@@ -67,9 +67,7 @@ public final class PGS_PointSet {
 		final List<PVector> newPoints = new ArrayList<>();
 		for (PVector p : points) {
 			final double[] coords = new double[] { p.x, p.y };
-			// In the updated tinspin KDTree API, use the "nearest" method.
-			KDTree.Entry<PVector> nearest = tree.nearest(coords);
-			if (nearest == null || nearest.distance > distanceTolerance) {
+			if (tree.size() == 0 || tree.queryKNN(coords, 1).get(0).getDistance() > distanceTolerance) {
 				tree.insert(coords, p);
 				newPoints.add(p);
 			}
@@ -351,7 +349,8 @@ public final class PGS_PointSet {
 	}
 
 	/**
-	 * Generates a hexagon grid of points that lie within a bounding rectangle.
+	 * Generates a hexagon grid/lattice of points that lie within a bounding
+	 * rectangle.
 	 * 
 	 * @param xMin          x-coordinate of boundary minimum
 	 * @param yMin          y-coordinate of boundary minimum
@@ -980,7 +979,6 @@ public final class PGS_PointSet {
 			point = new double[] { p.x, p.y };
 		}
 
-		@Override
 		public double[] getPoint() {
 			return point;
 		}

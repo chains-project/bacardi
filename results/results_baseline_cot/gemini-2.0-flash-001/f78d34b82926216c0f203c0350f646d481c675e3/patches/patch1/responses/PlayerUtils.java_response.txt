@@ -108,6 +108,12 @@ public class PlayerUtils
             ? RandomStringUtils.randomAlphanumeric(new Random().nextInt(13) + 1)
             : RandomWordUtils.getRandomWord();
 
+        if (random.nextBoolean())
+        {
+            first = convertLeet(first);
+            last = convertLeet(last);
+        }
+
         String name = first + (random.nextBoolean() ? "_": "") + last + (random.nextBoolean() ? "19" + random.nextInt(120): "");
         if (name.length() > 16)
             name = random.nextBoolean() ? first: last;
@@ -129,6 +135,22 @@ public class PlayerUtils
             profile,
             new PlayerInteractManager(worldServer)
         );
+    }
+
+    private static String convertLeet(String input) {
+        StringBuilder result = new StringBuilder();
+        for (char c : input.toCharArray()) {
+            switch (Character.toLowerCase(c)) {
+                case 'a': result.append('4'); break;
+                case 'e': result.append('3'); break;
+                case 'i': result.append('1'); break;
+                case 'o': result.append('0'); break;
+                case 's': result.append('5'); break;
+                case 't': result.append('7'); break;
+                default:  result.append(c); break;
+            }
+        }
+        return result.toString();
     }
 
     /**

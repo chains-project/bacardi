@@ -21,7 +21,7 @@ import java.util.logging.Logger;
  * Interacts with Perforce various release operations.
  * Using the updated perforce plugin - P4.
  *
- * @author
+ * @author Aviad Shikloshi
  */
 public class P4Manager extends AbstractPerforceManager<PerforceScm> {
 
@@ -42,8 +42,7 @@ public class P4Manager extends AbstractPerforceManager<PerforceScm> {
         try {
             String clientString = getClientString();
             if (connection.isClient(clientString)) {
-                Workspace workspace = new Workspace(clientString, StandardCharsets.UTF_8.toString());
-                ClientHelper perforceClient = new ClientHelper(build.getProject(), credentials, buildListener, workspace);
+                ClientHelper perforceClient = new ClientHelper(build.getProject(), credentials, buildListener, new Workspace(clientString, StandardCharsets.UTF_8.toString()));
                 IClient client = perforceClient.getClient();
                 try {
                     this.perforce = new PerforceClient(server, client);
@@ -57,6 +56,7 @@ public class P4Manager extends AbstractPerforceManager<PerforceScm> {
         } catch (Exception e) {
             logger.log(Level.FINE, "Error occurred: ", e);
         }
+
     }
 
     @Override

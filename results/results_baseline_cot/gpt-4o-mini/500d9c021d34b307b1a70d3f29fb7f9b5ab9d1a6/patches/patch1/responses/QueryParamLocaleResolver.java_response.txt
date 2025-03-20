@@ -7,7 +7,7 @@ import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.mvc.locale.LocaleResolver;
-import javax.mvc.locale.LocaleResolverContext; // Ensure this import is correct based on the new dependency
+import javax.mvc.locale.LocaleResolverContext;
 import javax.ws.rs.core.UriInfo;
 
 /**
@@ -42,6 +42,6 @@ public class QueryParamLocaleResolver implements LocaleResolver {
                 .getQueryParameters()
                 .getFirst("lang");
         log.log(Level.INFO, "QueryParamLocaleResolver::resolveLocale:lang:{0}", queryLang);
-        return queryLang != null ? Locale.forLanguageTag(queryLang) : null;
+        return queryLang != null ? Locale.forLanguageTag(queryLang) : Locale.getDefault();
     }
 }

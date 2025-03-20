@@ -1,48 +1,45 @@
 19d18
 < import com.google.api.services.cloudresourcemanager.model.Binding;
-22d20
-< import com.google.cloud.Policy.Marshaller;
-37c35
+37c36
 <     extends Marshaller<com.google.api.services.cloudresourcemanager.model.Policy> {
 ---
->     extends Policy.Marshaller {
-55c53
+>     extends Marshaller<Policy> {
+55c54
 <   protected Policy fromPb(com.google.api.services.cloudresourcemanager.model.Policy policyPb) {
 ---
->   protected Policy fromPb(com.google.api.core.BetaApi comPolicyPb) {
-57,58c55,56
-<     if (policyPb.getBindings() != null) {
+>   protected Policy fromPb(Policy policyPb) {
+58c57
 <       for (Binding bindingPb : policyPb.getBindings()) {
 ---
->     if (comPolicyPb.getBindings() != null) {
->       for (com.google.iam.v1.Binding bindingPb : comPolicyPb.getBindings()) {
-72c70
-<     return new Builder(bindings, policyPb.getEtag(), policyPb.getVersion()).build();
----
->     return new Builder(bindings, comPolicyPb.getEtag(), comPolicyPb.getVersion()).build();
-76,79c74,77
+>       for (com.google.cloud.Binding bindingPb : policyPb.getBindings()) {
+76,79c75,78
 <   protected com.google.api.services.cloudresourcemanager.model.Policy toPb(Policy policy) {
 <     com.google.api.services.cloudresourcemanager.model.Policy policyPb =
 <         new com.google.api.services.cloudresourcemanager.model.Policy();
 <     List<Binding> bindingPbList = new LinkedList<>();
 ---
->   protected com.google.api.core.BetaApi toPb(Policy policy) {
->     com.google.api.core.BetaApi policyPb =
->         com.google.api.core.BetaApi.newBuilder().setEtag(policy.getEtag()).setVersion(policy.getVersion()).build();
->     List<com.google.iam.v1.Binding> bindingPbList = new LinkedList<>();
-81,84c79,80
+>   protected Policy toPb(Policy policy) {
+>     com.google.cloud.Policy policyPb =
+>         com.google.cloud.Policy.newBuilder().setVersion(policy.getVersion()).setEtag(policy.getEtag()).build();
+>     List<com.google.cloud.Binding> bindingPbList = new LinkedList<>();
+81,91c80
 <       Binding bindingPb = new Binding();
 <       bindingPb.setRole(binding.getKey().getValue());
 <       bindingPb.setMembers(
 <           Lists.transform(
----
->       com.google.iam.v1.Binding bindingPb = com.google.iam.v1.Binding.newBuilder().setRole(binding.getKey().getValue()).build();
->       List<String> members = Lists.transform(
-91c87
+<               new ArrayList<>(binding.getValue()),
+<               new Function<Identity, String>() {
+<                 @Override
+<                 public String apply(Identity identity) {
+<                   return IDENTITY_STR_VALUE_FUNCTION.apply(identity);
+<                 }
 <               }));
 ---
->               });
-94,96d89
+>       com.google.cloud.Binding bindingPb = com.google.cloud.Binding.newBuilder().setRole(binding.getKey().getValue()).setMembers(new ArrayList<>(binding.getValue())).build();
+94,96c83,84
 <     policyPb.setBindings(bindingPbList);
 <     policyPb.setEtag(policy.getEtag());
 <     policyPb.setVersion(policy.getVersion());
+---
+>     policyPb.getBindings().clear();
+>     policyPb.getBindings().addAll(bindingPbList);

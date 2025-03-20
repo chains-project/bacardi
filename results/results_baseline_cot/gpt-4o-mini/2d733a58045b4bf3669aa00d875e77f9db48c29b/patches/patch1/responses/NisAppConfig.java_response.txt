@@ -101,7 +101,7 @@ public class NisAppConfig {
 		return dataSource;
 	}
 
-	@Bean
+	@Bean(initMethod = "migrate")
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
@@ -110,7 +110,7 @@ public class NisAppConfig {
 				.dataSource(this.dataSource())
 				.locations(prop.getProperty("flyway.locations"))
 				.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-
+		
 		return new Flyway(configuration);
 	}
 

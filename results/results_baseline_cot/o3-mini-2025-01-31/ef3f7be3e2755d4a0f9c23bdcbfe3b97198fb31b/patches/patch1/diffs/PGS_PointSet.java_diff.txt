@@ -1,6 +1,11 @@
-70c70,72
+70c70
 <                         if (tree.size() == 0 || tree.query1NN(coords).dist() > distanceTolerance) {
 ---
->                         // In the updated tinspin KDTree API, use the "nearest" method.
->                         KDTree.Entry<PVector> nearest = tree.nearest(coords);
->                         if (nearest == null || nearest.distance > distanceTolerance) {
+>                         if (tree.size() == 0 || tree.queryKNN(coords, 1).get(0).getDistance() > distanceTolerance) {
+352c352,353
+<          * Generates a hexagon grid of points that lie within a bounding rectangle.
+---
+>          * Generates a hexagon grid/lattice of points that lie within a bounding
+>          * rectangle.
+981d981
+<                 @Override

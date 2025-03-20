@@ -18,8 +18,15 @@ package org.simplify4u.plugins.utils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.repository.RepositorySystem;
-import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.xml.sax.InputSource;
+
+import java.io.StringReader;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -67,8 +74,9 @@ public final class MavenCompilerUtils {
         if (config == null) {
             return emptySet();
         }
-        if (config instanceof Xpp3Dom) {
-            return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
+        if (config instanceof org.codehaus.plexus.util.xml.Xpp3Dom) {
+            org.codehaus.plexus.util.xml.Xpp3Dom xpp3DomConfig = (org.codehaus.plexus.util.xml.Xpp3Dom) config;
+            return stream(xpp3DomConfig.getChildren("annotationProcessorPaths"))
                     .flatMap(aggregate -> stream(aggregate.getChildren("path")))
                     .map(processor -> system.createArtifact(
                             extractChildValue(processor, "groupId"),
@@ -81,12 +89,68 @@ public final class MavenCompilerUtils {
                     .filter(a -> !a.getArtifactId().isEmpty())
                     .filter(a -> !a.getVersion().isEmpty())
                     .collect(Collectors.toSet());
+        } else if (config instanceof String) {
+            try {
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                InputSource is = new InputSource(new StringReader((String) config));
+                org.w3c.dom.Document doc = builder.parse(is);
+                NodeList annotationProcessorPathsList = doc.getElementsByTagName("annotationProcessorPaths");
+                if (annotationProcessorPathsList == null || annotationProcessorPathsList.getLength() == 0) {
+                    return emptySet();
+                }
+
+                return stream(iterable(annotationProcessorPathsList))
+                        .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
+                        .map(node -> (Element) node)
+                        .flatMap(aggregate -> stream(iterable(aggregate.getElementsByTagName("path"))))
+                        .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
+                        .map(node -> (Element) node)
+                        .map(processor -> system.createArtifact(
+                                extractChildValue((Element) processor, "groupId"),
+                                extractChildValue((Element) processor, "artifactId"),
+                                extractChildValue((Element) processor, "version"),
+                                PACKAGING))
+                        .filter(a -> !a.getGroupId().isEmpty())
+                        .filter(a -> !a.getArtifactId().isEmpty())
+                        .filter(a -> !a.getVersion().isEmpty())
+                        .collect(Collectors.toSet());
+
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to parse configuration XML", e);
+            }
         }
         // It is expected that this will never occur due to all Configuration instances of all plugins being provided as
         // XML document. If this happens to occur on very old plugin versions, we can safely add the type support and
         // simply return an empty set.
         throw new UnsupportedOperationException("Please report that an unsupported type of configuration container" +
                 " was encountered: " + config.getClass());
+    }
+
+    private static <T> Iterable<T> iterable(NodeList nodeList) {
+        return () -> new NodeListIterator(nodeList);
+    }
+
+    private static class NodeListIterator implements java.util.Iterator<Node> {
+        private final NodeList list;
+        private int index = 0;
+
+        public NodeListIterator(NodeList list) {
+            this.list = list;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return index < list.getLength();
+        }
+
+        @Override
+        public Node next() {
+            if (!hasNext()) {
+                throw new java.util.NoSuchElementException();
+            }
+            return list.item(index++);
+        }
     }
 
     /**
@@ -96,8 +160,17 @@ public final class MavenCompilerUtils {
      * @param name the child node name
      * @return Returns child value if child node present or otherwise empty string.
      */
-    private static String extractChildValue(Xpp3Dom node, String name) {
-        final Xpp3Dom child = node.getChild(name);
+    private static String extractChildValue(org.codehaus.plexus.util.xml.Xpp3Dom node, String name) {
+        final org.codehaus.plexus.util.xml.Xpp3Dom child = node.getChild(name);
         return child == null ? "" : child.getValue();
+    }
+
+    private static String extractChildValue(Element node, String name) {
+        NodeList children = node.getElementsByTagName(name);
+        if (children == null || children.getLength() == 0) {
+            return "";
+        }
+        Node child = children.item(0);
+        return child == null ? "" : child.getTextContent();
     }
 }

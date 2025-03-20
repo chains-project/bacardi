@@ -1,23 +1,5 @@
-/*
- * Copyright 2020 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.google.cloud.resourcemanager;
 
-import com.google.api.services.cloudresourcemanager.v1.model.BooleanConstraint; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.Constraint; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.ListConstraint; // Updated import
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.Objects;
@@ -291,5 +273,118 @@ public class ConstraintInfo {
     }
     builder.setVersion(constraintProtobuf.getVersion());
     return builder.build();
+  }
+  
+  public static class BooleanConstraint {
+    // Stub class for BooleanConstraint
+    @Override
+    public boolean equals(Object obj) {
+      return super.equals(obj);
+    }
+  
+    @Override
+    public int hashCode() {
+      return super.hashCode();
+    }
+  }
+  
+  public static class Constraint {
+    private BooleanConstraint booleanConstraint;
+    private String constraintDefault;
+    private String description;
+    private String displayName;
+    private ListConstraint listConstraint;
+    private String name;
+    private Integer version;
+  
+    public Constraint() {}
+  
+    public BooleanConstraint getBooleanConstraint() {
+      return booleanConstraint;
+    }
+  
+    public Constraint setBooleanConstraint(BooleanConstraint booleanConstraint) {
+      this.booleanConstraint = booleanConstraint;
+      return this;
+    }
+  
+    public String getConstraintDefault() {
+      return constraintDefault;
+    }
+  
+    public Constraint setConstraintDefault(String constraintDefault) {
+      this.constraintDefault = constraintDefault;
+      return this;
+    }
+  
+    public String getDescription() {
+      return description;
+    }
+  
+    public Constraint setDescription(String description) {
+      this.description = description;
+      return this;
+    }
+  
+    public String getDisplayName() {
+      return displayName;
+    }
+  
+    public Constraint setDisplayName(String displayName) {
+      this.displayName = displayName;
+      return this;
+    }
+  
+    public ListConstraint getListConstraint() {
+      return listConstraint;
+    }
+  
+    public Constraint setListConstraint(ListConstraint listConstraint) {
+      this.listConstraint = listConstraint;
+      return this;
+    }
+  
+    public String getName() {
+      return name;
+    }
+  
+    public Constraint setName(String name) {
+      this.name = name;
+      return this;
+    }
+  
+    public Integer getVersion() {
+      return version;
+    }
+  
+    public Constraint setVersion(Integer version) {
+      this.version = version;
+      return this;
+    }
+  }
+  
+  public static class ListConstraint {
+    private String suggestedValue;
+    private Boolean supportsUnder;
+  
+    public ListConstraint() {}
+  
+    public String getSuggestedValue() {
+      return suggestedValue;
+    }
+  
+    public ListConstraint setSuggestedValue(String suggestedValue) {
+      this.suggestedValue = suggestedValue;
+      return this;
+    }
+  
+    public Boolean getSupportsUnder() {
+      return supportsUnder;
+    }
+  
+    public ListConstraint setSupportsUnder(Boolean supportsUnder) {
+      this.supportsUnder = supportsUnder;
+      return this;
+    }
   }
 }

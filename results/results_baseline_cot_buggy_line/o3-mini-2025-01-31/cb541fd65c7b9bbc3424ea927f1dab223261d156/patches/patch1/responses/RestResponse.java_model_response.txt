@@ -1,21 +1,3 @@
-<code_analysis>
-1. The error message indicates that the class "org.hamcrest.Matchers" cannot be found. This is likely because a dependency update to Hamcrest removed or relocated the Matchers utility class. The code currently imports "org.hamcrest.Matchers" (line 48), and then uses several static methods from it (e.g. hasItems, emptyIterableOf, notNullValue, not).
-2. In the client code the following usages of Matchers are found:
-   • In assertHeader(String, String): it calls Matchers.hasItems(value)
-   • In follow(): it calls Matchers.not(Matchers.emptyIterableOf(String.class))
-   • In cookie(String): it calls Matchers.notNullValue()
-3. To resolve the issue without changing function signatures or removing functionality, we can remove the import of the now‐missing "org.hamcrest.Matchers", replace it with "org.hamcrest.CoreMatchers" (which still provides not and notNullValue) and provide alternative local implementations for the collection matchers that are no longer available: namely, “hasItems” and “emptyIterableOf”. These two helper methods can be defined as private static methods that construct custom matchers.
-4. The patch involves:
-   • Removing the line "import org.hamcrest.Matchers;" and importing "org.hamcrest.CoreMatchers" instead.
-   • Changing references:
-       – In assertHeader(String,String): replace Matchers.hasItems(value) with RestResponse.hasItems(value).
-       – In follow(): replace Matchers.not(Matchers.emptyIterableOf(String.class)) with CoreMatchers.not(RestResponse.emptyIterableOf(String.class)).
-       – In cookie(String): replace Matchers.notNullValue() with CoreMatchers.notNullValue().
-   • Adding two private static helper methods (emptyIterableOf and hasItems) that return appropriate CustomMatcher instances.
-These changes allow the client code to compile with the updated Hamcrest dependency.</code_analysis>
-
-Below is the complete fixed Java class:
-
 ```java
 /*
  * Copyright (c) 2011-2022, jcabi.com
@@ -34,8 +16,8 @@ Below is the complete fixed Java class:
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+ * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
  * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
@@ -64,7 +46,10 @@ import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.CoreMatchers;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.collection.IsEmptyCollection.empty;
+import static org.hamcrest.collection.IsIterableContainingInAnyOrder.hasItems;
 
 /**
  * REST response.
@@ -76,8 +61,8 @@ import org.hamcrest.CoreMatchers;
  *   .fetch()
  *   .as(RestResponse.class)
  *   .assertStatus(200)
- *   .assertBody(CoreMatchers.containsString("hello, world!"))
- *   .assertHeader("Content-Type", CoreMatchers.hasItem("text/plain"))
+ *   .assertBody(Matchers.containsString("hello, world!"))
+ *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
  *   .jump(URI.create("/users"))
  *   .fetch();</pre>
  *
@@ -226,7 +211,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, RestResponse.hasItems(value));
+        return this.assertHeader(name, hasItems(value));
     }
 
     /**
@@ -262,7 +247,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            CoreMatchers.not(RestResponse.emptyIterableOf(String.class))
+            not(empty())
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -300,7 +285,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            CoreMatchers.notNullValue()
+            notNullValue()
         );
         assert cookie != null;
         return cookie;
@@ -343,51 +328,10 @@ public final class RestResponse extends AbstractResponse {
             this.status = sts;
         }
 
-        @Override
         public boolean matches(final Object resp) {
             return Response.class.cast(resp).status() == this.status;
         }
     }
 
-    /**
-     * Returns a matcher that verifies an iterable is empty.
-     * @param <T> Type parameter
-     * @param clazz the class of the items in the iterable
-     * @return Matcher for checking empty iterable
-     */
-    private static <T> Matcher<Iterable<T>> emptyIterableOf(final Class<T> clazz) {
-        return new CustomMatcher<Iterable<T>>("empty iterable of " + clazz.getName()) {
-            @Override
-            public boolean matches(final Object item) {
-                if (!(item instanceof Iterable)) {
-                    return false;
-                }
-                return !((Iterable<?>) item).iterator().hasNext();
-            }
-        };
-    }
-
-    /**
-     * Returns a matcher that verifies an iterable contains the given item.
-     * @param <T> Type parameter
-     * @param value the expected item
-     * @return Matcher for checking if iterable contains the given item
-     */
-    private static <T> Matcher<Iterable<T>> hasItems(final T value) {
-        return new CustomMatcher<Iterable<T>>("iterable containing " + value) {
-            @Override
-            public boolean matches(final Object item) {
-                if (!(item instanceof Iterable)) {
-                    return false;
-                }
-                for (final Object element : (Iterable<?>) item) {
-                    if (value.equals(element)) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        };
-    }
 }
 ```

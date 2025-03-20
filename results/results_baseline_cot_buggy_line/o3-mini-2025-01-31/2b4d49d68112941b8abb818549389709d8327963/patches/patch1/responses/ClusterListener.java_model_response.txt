@@ -1,20 +1,3 @@
-<code_analysis>
-1. The error messages indicate that several Hazelcast classes (MemberAttributeEvent, MembershipListener, MembershipEvent, Member, and Cluster) cannot be found in the package com.hazelcast.core. This is likely due to a breaking dependency update where these classes were moved to a new package.
-2. In the client code, all the references to membership-related types (Member, MembershipEvent, MembershipListener, and MemberAttributeEvent) and even Cluster (used for obtaining members, local member, etc.) are imported from com.hazelcast.core. The error messages show that the compiler can no longer locate these classes in that package.
-3. The likely solution is to update the import statements to use the new package where these classes reside. In the updated Hazelcast dependency, the membership-related classes along with Cluster now reside in the package com.hazelcast.cluster.
-4. The modifications required are:
-   - Replace the following imports from com.hazelcast.core with their counterparts in com.hazelcast.cluster:
-     • com.hazelcast.core.Cluster → com.hazelcast.cluster.Cluster
-     • com.hazelcast.core.Member → com.hazelcast.cluster.Member
-     • com.hazelcast.core.MembershipEvent → com.hazelcast.cluster.MembershipEvent
-     • com.hazelcast.core.MembershipListener → com.hazelcast.cluster.MembershipListener
-     • com.hazelcast.core.MemberAttributeEvent → com.hazelcast.cluster.MemberAttributeEvent
-   - No method signatures or function bodies need to change.
-   - All override annotations remain as-is since the methods still override the respective methods in the updated dependency.
-</code_analysis>
-
-Below is the complete, fixed Java class:
-
 ```java
 /*
  * Copyright (C) 1999-2009 Jive Software. All rights reserved.
@@ -91,6 +74,7 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
     private boolean isSenior;
 
     ClusterListener(final Cluster cluster) {
+
         this.cluster = cluster;
         for (final Member member : cluster.getMembers()) {
             clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(member),
@@ -195,7 +179,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
 
                 // The following line was intended to wait until all local handling finishes before informing other
                 // nodes. However that proved to be insufficient. Hence the 30 second default wait in the lines above.
-                // TODO Instead of the 30 second wait, we should look (and then wait) for some trigger or event that signifies that local handling has completed and caches have stabilized.
                 waitForClusterCacheToBeInstalled();
 
                 // Let the other nodes know that we joined the cluster

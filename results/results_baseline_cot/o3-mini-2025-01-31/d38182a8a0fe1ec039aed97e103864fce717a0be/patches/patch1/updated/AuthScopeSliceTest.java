@@ -9,7 +9,6 @@ import com.artipie.http.Headers;
 import com.artipie.http.Response;
 import com.artipie.http.auth.AuthScheme;
 import com.artipie.http.auth.Authentication;
-import com.artipie.http.auth.BasicUser;
 import com.artipie.http.rs.StandardRs;
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -54,9 +53,8 @@ class AuthScopeSliceTest {
             (headers, rline) -> CompletableFuture.completedFuture(
                 new AuthScheme.Result() {
                     @Override
-                    public Optional<Authentication.User> user() {
-                        // Replace the removed nested User class with BasicUser
-                        return Optional.of(new BasicUser("alice"));
+                    public Optional<?> user() {
+                        return Optional.empty();
                     }
 
                     @Override

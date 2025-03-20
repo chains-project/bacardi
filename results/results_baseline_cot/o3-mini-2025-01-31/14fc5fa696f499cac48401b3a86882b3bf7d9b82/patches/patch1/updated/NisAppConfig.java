@@ -104,13 +104,11 @@ public class NisAppConfig {
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
-
-		// Use the new Flyway configuration API instead of the deprecated setters.
 		return Flyway.configure()
 				.dataSource(this.dataSource())
 				.classLoader(NisAppConfig.class.getClassLoader())
 				.locations(prop.getProperty("flyway.locations"))
-				.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
+				.validateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate")))
 				.load();
 	}
 

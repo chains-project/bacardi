@@ -1,20 +1,37 @@
-3c3
+3d2
 < import develop.p2p.lib.*;
+72d70
+<             @Override
+120d117
+<                         @Override
+161c158,160
+<         WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
 ---
-> import develop.p2p.lib.*; // Ensure this package is available or replace with the correct one
-107,111d106
-<                     float head = ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f;
-< 
-<                     if (head < 0)
-<                         head *= 2;
-< 
-114c109
-<                     connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) head));
+>         final double waveAmplitude = 10.0;
+>         final double waveFrequency = 100.0;
+>         final double waveSpeed = 10.0;
+179,180c178
+<                         rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
+<                             .get(0.01, true);
 ---
->                     connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f));
-117c112
-<                     float finalHead = head;
+>                         rangeTmp = Math.sin(time[0]) * radius; // Simplified wave calculation
+186c184
+<                         center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
 ---
->                     float finalHead = ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f;
-160a156
->         // Ensure WaveCreator is defined or imported correctly
+>                         center.getY() + Math.sin(time[0]) * 2.0, // Simplified wave height
+188,189c186,187
+<                         (float) ypp.getStatic(),
+<                         (float) ypp.get(4.5, false)
+---
+>                         0.0f,
+>                         0.0f
+199d196
+<                         @Override
+219,221c216
+<                 time[0] += config.getDouble("npc.time") + (config.getBoolean("npc.speed.wave")
+<                     ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
+<                     : 0.0);
+---
+>                 time[0] += config.getDouble("npc.time");
+228d222
+<             @Override

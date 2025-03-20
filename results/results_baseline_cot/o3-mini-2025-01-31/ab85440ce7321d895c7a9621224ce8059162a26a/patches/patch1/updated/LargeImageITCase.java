@@ -24,7 +24,7 @@ import org.junit.jupiter.api.io.TempDir;
  * Integration test for large file pushing scenario of {@link DockerSlice}.
  *
  * @since 0.3
- */
+*/
 @DockerClientSupport
 @DisabledOnOs(OS.WINDOWS)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")

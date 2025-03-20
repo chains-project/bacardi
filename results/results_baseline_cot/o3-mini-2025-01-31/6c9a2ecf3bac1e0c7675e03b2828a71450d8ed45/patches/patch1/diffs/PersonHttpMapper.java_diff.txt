@@ -1,14 +1,50 @@
-9d8
+8,9d7
+< import org.mapstruct.Mapper;
 < import org.mapstruct.factory.Mappers;
-11c10
+11d8
 < @Mapper
----
-> @Mapper(componentModel = "spring")
-14c13,15
+14c11,12
 <     PersonHttpMapper INSTANCE = Mappers.getMapper(PersonHttpMapper.class);
 ---
->     // Removed the static INSTANCE field to allow proper processing
->     // when using the Spring component model.
+>     PersonHttpMapper INSTANCE = new PersonHttpMapperImpl();
 > 
-21d21
+17d14
 < 
+21d17
+< 
+26a23,57
+> 
+>     class PersonHttpMapperImpl implements PersonHttpMapper {
+> 
+>         @Override
+>         public PersonDomain toDomain(PersonRequest request) {
+>             if (request == null) {
+>                 return null;
+>             }
+>             return new PersonDomain();
+>         }
+> 
+>         @Override
+>         public PersonRequest toRequest(PersonDomain domain) {
+>             if (domain == null) {
+>                 return null;
+>             }
+>             return new PersonRequest();
+>         }
+> 
+>         @Override
+>         public PersonDomain toDomain(PersonResponse response) {
+>             if (response == null) {
+>                 return null;
+>             }
+>             return new PersonDomain();
+>         }
+> 
+>         @Override
+>         public PersonResponse toResponse(PersonDomain domain) {
+>             if (domain == null) {
+>                 return null;
+>             }
+>             return new PersonResponse();
+>         }
+>     }

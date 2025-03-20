@@ -1,12 +1,17 @@
-10,11c10
+9,11c9,10
+<  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 <  * copies of the Software, and to permit persons to whom the Software is
 <  * furnished to do so, subject to the following conditions:
 ---
+>  * to use, copy, modify, merge, publish, sublicense, and/or sell
 >  * copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 40a40
-> import org.kohsuke.github.GHCompare.Comparison;
-239c239,240
+> import org.kohsuke.github.GHRepository;
+239,240c239,242
 <             GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
+<             return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
 ---
->             Comparison compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
->             GHCompare.Status status = compare.getStatus();
+>             GHRepository repository = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo);
+>             GHCompare compare = repository.getCompare(branch, ghc.hash);
+>             GHCompare.Comparison comparison = compare.get();
+>             return comparison.getStatus() == GHCompare.Status.identical || comparison.getStatus() == GHCompare.Status.behind;

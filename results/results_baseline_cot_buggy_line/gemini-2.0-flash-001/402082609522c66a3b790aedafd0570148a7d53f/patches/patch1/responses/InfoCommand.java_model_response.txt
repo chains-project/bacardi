@@ -21,7 +21,7 @@ import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
-public class InfoCommand implements Command.Executor, ChangeSkinCommand {
+public class InfoCommand implements Command {
 
     @Inject
     private ChangeSkinSponge plugin;
@@ -31,8 +31,8 @@ public class InfoCommand implements Command.Executor, ChangeSkinCommand {
 
 
     @Override
-    public CommandResult execute(CommandContext args) {
-        org.spongepowered.api.command.CommandSource src = args.getCause().root();
+    public CommandResult execute(org.spongepowered.api.command.CommandCause cause, CommandContext args) {
+        org.spongepowered.api.command.CommandSource src = cause.cause().first(org.spongepowered.api.command.CommandSource.class).orElse(null);
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
             return CommandResult.empty();
@@ -49,9 +49,8 @@ public class InfoCommand implements Command.Executor, ChangeSkinCommand {
         return CommandResult.success();
     }
 
-    @Override
-    public Command.Builder buildSpec() {
-        return Command.builder()
+    public org.spongepowered.api.command.Command.Builder buildSpec() {
+        return org.spongepowered.api.command.Command.builder()
                 .executor(this)
                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base");
     }
