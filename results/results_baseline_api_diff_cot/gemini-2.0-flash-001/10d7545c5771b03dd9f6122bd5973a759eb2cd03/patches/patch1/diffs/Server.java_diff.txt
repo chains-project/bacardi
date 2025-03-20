@@ -1,0 +1,7 @@
+50a51
+> import io.dropwizard.core.setup.Environment as CoreEnvironment;
+160c161,162
+<         return new JerseyClientBuilder(env)
+---
+>         CoreEnvironment coreEnvironment = env.core();
+>         return new JerseyClientBuilder(coreEnvironment)

@@ -61,21 +61,21 @@ public final class YamlPolicyFactory implements PolicyFactory {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-new Storages().newStorage(
+import com.artipie.asto.factory.Storages;
 ```
 ```java
-import com.artipie.asto.factory.Storages;
+new Storages().newStorage(
 ```
 
 
  And here is the error message:
-[ERROR] /http/src/main/java/com/artipie/security/policy/YamlPolicyFactory.java:[43,25] cannot find symbol
-  symbol:   class Storages
-  location: class com.artipie.security.policy.YamlPolicyFactory
-
 [ERROR] /http/src/main/java/com/artipie/security/policy/YamlPolicyFactory.java:[9,32] cannot find symbol
   symbol:   class Storages
   location: package com.artipie.asto.factory
+
+[ERROR] /http/src/main/java/com/artipie/security/policy/YamlPolicyFactory.java:[43,25] cannot find symbol
+  symbol:   class Storages
+  location: class com.artipie.security.policy.YamlPolicyFactory
 
 
 

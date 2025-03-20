@@ -1,0 +1,51 @@
+10c10
+<  * copies of the Software, and to permit persons to whom the Software is
+---
+>  * copies of the code, and to permit persons to whom the code is
+14c14
+<  * in all copies or substantial portions of the Software.
+---
+>  * in all copies or substantial portions of the code.
+16c16
+<  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+---
+>  * THE code IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+21,22c21,22
+<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+<  * SOFTWARE.
+---
+>  * OUT OF OR IN CONNECTION WITH THE code OR THE USE OR OTHER DEALINGS IN THE
+>  * code.
+29a30
+> import java.util.Arrays;
+37,38c38
+< import org.cactoos.scalar.IoCheckedScalar;
+< import org.cactoos.scalar.SolidScalar;
+---
+> import org.cactoos.scalar.Unchecked;
+40d39
+< import org.cactoos.text.JoinedText;
+53c52
+<     private final IoCheckedScalar<Path> path;
+---
+>     private final Scalar<Path> path;
+103,105c102
+<         this.path = new IoCheckedScalar<>(
+<             new SolidScalar<>(pth)
+<         );
+---
+>         this.path = pth;
+118,119c115,116
+<         final Path wpth = this.path.value().resolve(
+<             new JoinedText(
+---
+>         final Path wpth = new Unchecked<>(this.path).value().resolve(
+>             String.join(
+123c120
+<             ).asString()
+---
+>             )
+156c153
+<                 new Filtered<>(this.filter, new Directory(this.path.value()))
+---
+>                 new Filtered<>(this.filter, new Directory(new Unchecked<>(this.path).value()))

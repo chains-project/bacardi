@@ -15,6 +15,8 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import java.util.stream.Collectors;
+import java.util.List;
 
 /**
  *
@@ -50,8 +52,8 @@ public class GreetingController {
             @NotBlank String greeting) {
         if (bindingResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            bindingResult.getAllErrors()
-                    .stream()
+            List<ParamError> errors = bindingResult.getAllErrors().stream().map(e -> (ParamError) e).collect(Collectors.toList());
+            errors.stream()
                     .forEach((ParamError t) -> {
                         alert.addError(t.getParamName(), "", t.getMessage());
                     });

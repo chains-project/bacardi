@@ -4,7 +4,7 @@ import java.util.EnumSet;
 
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.FilterRegistration;
-import jakarta.servlet.ServletRegistration;
+import jakarta.servlet.Filter;
 
 import org.pac4j.core.config.Config;
 import org.pac4j.dropwizard.Pac4jFactory.ServletCallbackFilterConfiguration;
@@ -16,7 +16,6 @@ import org.pac4j.jee.filter.AbstractConfigFilter;
 import org.pac4j.jee.filter.CallbackFilter;
 import org.pac4j.jee.filter.LogoutFilter;
 import org.pac4j.jee.filter.SecurityFilter;
-import jakarta.servlet.Filter;
 
 /**
  *

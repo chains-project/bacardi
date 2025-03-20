@@ -1,0 +1,11 @@
+28a29,30
+> import org.bukkit.enchantments.Enchantment;
+> 
+72c74,78
+<                                         currentEntryMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+---
+>                                         Enchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get().getEnchant();
+>                                         if (powerEnchantment != null) {
+>                                                 currentEntryMeta.addEnchant(powerEnchantment, 1, false);
+>                                         }
+>                                         

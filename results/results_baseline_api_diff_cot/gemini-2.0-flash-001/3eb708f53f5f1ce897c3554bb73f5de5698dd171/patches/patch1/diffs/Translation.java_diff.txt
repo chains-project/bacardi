@@ -1,0 +1,22 @@
+19c19
+< import com.google.api.services.translate.model.TranslationsResource;
+---
+> import com.google.api.services.translate.v3.model.Translation as TranslationPb;
+37,38c37,38
+<   static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
+<       new Function<TranslationsResource, Translation>() {
+---
+>   static final Function<TranslationPb, Translation> FROM_PB_FUNCTION =
+>       new Function<TranslationPb, Translation>() {
+40c40
+<         public Translation apply(TranslationsResource translationPb) {
+---
+>         public Translation apply(TranslationPb translationPb) {
+106c106
+<   static Translation fromPb(TranslationsResource translationPb) {
+---
+>   static Translation fromPb(TranslationPb translationPb) {
+109c109
+<         translationPb.getDetectedSourceLanguage(),
+---
+>         "", // translationPb.getDetectedSourceLanguage(), //The method getDetectedSourceLanguage() is not available in the new version of the dependency.

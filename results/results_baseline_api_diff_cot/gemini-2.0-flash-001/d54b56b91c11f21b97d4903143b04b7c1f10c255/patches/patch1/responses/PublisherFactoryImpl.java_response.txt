@@ -20,8 +20,6 @@ import com.google.cloud.pubsublite.ProjectPath;
 import com.google.cloud.pubsublite.TopicName;
 import com.google.cloud.pubsublite.TopicPath;
 import com.google.cloud.pubsublite.internal.Publisher;
-import com.google.cloud.pubsublite.internal.wire.PubsubContext;
-import com.google.cloud.pubsublite.internal.wire.PubsubContext.Framework;
 import com.google.cloud.pubsublite.internal.wire.RoutingPublisherBuilder;
 import com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder;
 import java.util.Map;
@@ -29,7 +27,7 @@ import org.apache.kafka.common.config.ConfigValue;
 
 class PublisherFactoryImpl implements PublisherFactory {
 
-  private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
+  private static final PubsubContext.Framework FRAMEWORK = PubsubContext.Framework.of("KAFKA_CONNECT");
 
   @Override
   public Publisher<?> newPublisher(Map<String, String> params) {

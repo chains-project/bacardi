@@ -2,47 +2,53 @@
 > import java.util.Optional;
 11a13
 > import org.spongepowered.api.command.Command;
-13,14c15,16
+13,16c15,17
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.parameter.Parameter;
-18,20c20
-< 
+> import org.spongepowered.api.command.source.CommandSource;
+19,20c20,21
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 < import static org.spongepowered.api.text.Text.of;
 ---
-> import org.spongepowered.api.text.Text;
-34,35c34,42
+> import net.kyori.adventure.text.TextComponent;
+> import net.kyori.adventure.text.Component;
+22c23
+< public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class UploadCommand implements Command.Executor, ChangeSkinCommand {
+34,35c35,48
 <     public CommandResult execute(CommandSource src, CommandContext args) {
 <         String url = args.<String>getOne("url").get();
 ---
->     public CommandResult execute(CommandContext args) {
->         Optional<String> urlOptional = args.one(Parameter.string().key("url").build());
+>     public CommandResult execute(CommandContext context) {
+>         CommandSource src = context.cause().first(CommandSource.class).orElse(null);
 > 
->         if (!urlOptional.isPresent()) {
->             plugin.sendMessage(args.cause().getNotifier(), "no-valid-url");
+>         if (src == null) {
 >             return CommandResult.empty();
 >         }
 > 
->         String url = urlOptional.get();
-39c46
-<                 plugin.sendMessage(src, "no-accounts");
----
->                 plugin.sendMessage(args.cause().getNotifier(), "no-accounts");
-42c49
-<                 Runnable skinUploader = new SkinUploader(plugin, src, uploadAccount, url);
----
->                 Runnable skinUploader = new SkinUploader(plugin, args.cause().getNotifier(), uploadAccount, url);
-46c53
-<             plugin.sendMessage(src, "no-valid-url");
----
->             plugin.sendMessage(args.cause().getNotifier(), "no-valid-url");
-53a61,62
->         Parameter.Value<String> urlParameter = Parameter.string().key("url").build();
+>         Parameter.Value<String> urlParameter = context.one(Parameter.string("url")).orElse(null);
+>         if (urlParameter == null) {
+>             plugin.sendMessage(src, "no-valid-url");
+>             return CommandResult.empty();
+>         }
 > 
-56c65
-<                 .arguments(string(of("url")))
+>         String url = urlParameter;
+53,54c66,67
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
 ---
->                 .addParameter(urlParameter)
+>     public Command.Builder buildSpec() {
+>         return Command.builder()
+56,58c69,70
+<                 .arguments(string(of("url")))
+<                 .permission(PomData.ARTIFACT_ID + ".command.skinupload.base")
+<                 .build();
+---
+>                 .addParameter(Parameter.string("url"))
+>                 .permission(PomData.ARTIFACT_ID + ".command.skinupload.base");

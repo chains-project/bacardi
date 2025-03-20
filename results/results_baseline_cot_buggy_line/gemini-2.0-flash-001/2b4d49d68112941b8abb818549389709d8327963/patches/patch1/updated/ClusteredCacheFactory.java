@@ -19,15 +19,13 @@ package org.jivesoftware.openfire.plugin.util.cache;
 import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.MapConfig;
-import com.hazelcast.config.MaxSizeConfig;
-import com.hazelcast.config.MemberAttributeConfig;
 import com.hazelcast.config.MemcacheProtocolConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.config.RestApiConfig;
-import com.hazelcast.cluster.Cluster;
-import com.hazelcast.cluster.Member;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.Member;
+import com.hazelcast.cluster.Cluster;
 import org.jivesoftware.openfire.JMXManager;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterEventListener;
@@ -190,9 +188,10 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
                 if (!HAZELCAST_REST_ENABLED.getValue()) {
                     networkConfig.setRestApiConfig(new RestApiConfig().setEnabled(false));
                 }
-                final MemberAttributeConfig memberAttributeConfig = config.getMemberAttributeConfig();
-                memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
-                memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
+                // MemberAttributeConfig is deprecated and removed in newer versions of Hazelcast.
+                // The functionality is now part of Config.
+                config.setAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
+                config.setAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
                 config.setInstanceName("openfire");
                 config.setClassLoader(loader);
                 if (JMXManager.isEnabled() && HAZELCAST_JMX_ENABLED.getValue()) {
@@ -245,9 +244,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         fireLeftClusterAndWaitToComplete(Duration.ofSeconds(30));
         // Stop the cluster
         hazelcast.getLifecycleService().removeLifecycleListener(lifecycleListener);
-        if (cluster != null) {
-            cluster.removeMembershipListener(membershipListener);
-        }
+        cluster.removeMembershipListener(membershipListener);
         Hazelcast.shutdownAll();
         cluster = null;
         lifecycleListener = null;
@@ -287,7 +284,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         if (staticConfig == null) {
             final MapConfig dynamicConfig = new MapConfig(name);
             dynamicConfig.setTimeToLiveSeconds(hazelcastLifetimeInSeconds);
-            dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+            dynamicConfig.setMaxSizeConfig(new com.hazelcast.config.MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, com.hazelcast.config.MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
             logger.debug("Creating dynamic map config for cache={}, dynamicConfig={}", name, dynamicConfig);
             hazelcast.getConfig().addMapConfig(dynamicConfig);
         } else {
@@ -355,7 +352,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
      */
     @Override
     public long getClusterTime() {
-        return cluster == null ? System.currentTimeMillis() : hazelcast.getCluster().getClusterTime();
+        return cluster == null ? System.currentTimeMillis() : cluster.getClusterTime();
     }
 
     /*
@@ -495,7 +492,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         ClusterNodeInfo result = null;
         final Member member = getMember(nodeID);
         if (member != null) {
-            result = new HazelcastClusterNodeInfo(member, hazelcast.getCluster().getClusterTime());
+            result = new HazelcastClusterNodeInfo(member, cluster.getClusterTime());
         }
         return result;
     }

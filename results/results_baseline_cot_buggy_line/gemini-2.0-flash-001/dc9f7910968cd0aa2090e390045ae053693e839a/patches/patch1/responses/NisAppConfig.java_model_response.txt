@@ -244,7 +244,7 @@ public class NisAppConfig {
 	@Bean
 	@SuppressWarnings("serial")
 	public ImportanceCalculator importanceCalculator() {
-		final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<ImportanceCalculator>>>() {
+		final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<ImportanceCalculator>>() {
 			{
 				this.put(BlockChainFeature.PROOF_OF_IMPORTANCE,
 						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));

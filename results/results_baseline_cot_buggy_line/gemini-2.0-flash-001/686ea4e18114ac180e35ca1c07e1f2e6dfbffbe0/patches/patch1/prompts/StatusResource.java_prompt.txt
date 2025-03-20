@@ -50,22 +50,22 @@ public class StatusResource {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-@Produces(MediaType.TEXT_PLAIN)
+import javax.ws.rs.core.Response;
 ```
 ```java
 import javax.ws.rs.core.MediaType;
 ```
 ```java
-import javax.ws.rs.core.Response;
+@Produces(MediaType.TEXT_PLAIN)
 ```
 ```java
-import javax.ws.rs.Produces;
+@Path("/status")
 ```
 ```java
 import javax.ws.rs.GET;
 ```
 ```java
-@Path("/status")
+import javax.ws.rs.Produces;
 ```
 ```java
 import javax.ws.rs.Path;
@@ -73,19 +73,19 @@ import javax.ws.rs.Path;
 
 
  And here is the error message:
-[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[32,2] cannot find symbol
-  symbol: class Produces
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[28,24] package javax.ws.rs.core does not exist
 
 [ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[27,24] package javax.ws.rs.core does not exist
 
-[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[28,24] package javax.ws.rs.core does not exist
-
-[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[26,19] package javax.ws.rs does not exist
-
-[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[24,19] package javax.ws.rs does not exist
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[32,2] cannot find symbol
+  symbol: class Produces
 
 [ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[31,2] cannot find symbol
   symbol: class Path
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[24,19] package javax.ws.rs does not exist
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[26,19] package javax.ws.rs does not exist
 
 [ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[25,19] package javax.ws.rs does not exist
 

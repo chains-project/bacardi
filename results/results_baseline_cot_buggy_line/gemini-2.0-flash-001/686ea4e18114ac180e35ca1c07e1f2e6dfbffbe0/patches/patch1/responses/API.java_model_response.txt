@@ -36,24 +36,19 @@ import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.media.multipart.BodyPart;
 import org.glassfish.jersey.media.multipart.MultiPart;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
-import java.util.logging.Level;
-
-import jakarta.annotation.Nullable;
+import javax.annotation.Nullable;
 import jakarta.ws.rs.NotSupportedException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.*;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.GenericType;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
+import java.util.logging.Level;
 
 public class API implements WireAPI {
     private final String wireHost;
@@ -221,7 +216,7 @@ public class API implements WireAPI {
         NewBotResponseModel model = new NewBotResponseModel();
         model.preKeys = preKeys;
 
-        Response res = client
+        jakarta.ws.rs.core.Response res = client
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, bearer())
                 .accept(MediaType.APPLICATION_JSON)
@@ -267,7 +262,7 @@ public class API implements WireAPI {
         os.write(asset.getEncryptedData());
         os.write("\r\n--frontier--\r\n".getBytes(StandardCharsets.UTF_8));
 
-        Response response = assets
+        jakarta.ws.rs.core.Response response = assets
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .header(HttpHeaders.AUTHORIZATION, bearer())
                 .post(Entity.entity(os.toByteArray(), "multipart/mixed; boundary=frontier"));
@@ -307,7 +302,7 @@ public class API implements WireAPI {
         if (assetToken != null && !assetToken.isBlank())
             req.header("Asset-Token", assetToken);
 
-        Response response = req.get();
+        jakarta.ws.rs.core.Response response = req.get();
 
         if (response.getStatus() >= 400) {
             throw new HttpException(response.readEntity(String.class), response.getStatus());

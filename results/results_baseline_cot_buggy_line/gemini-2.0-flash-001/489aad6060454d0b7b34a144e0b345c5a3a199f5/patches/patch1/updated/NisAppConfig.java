@@ -39,7 +39,6 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.*;
-
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 
 @Configuration

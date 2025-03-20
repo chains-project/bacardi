@@ -5,13 +5,13 @@
 <             ScriptResult scriptResult = new ScriptResult(result);
 <             return scriptResult.getJavaScriptResult().toString();
 ---
->             String scriptResult = String.valueOf(result);
->             return scriptResult;
-60c58
+>             // ScriptResult scriptResult = new ScriptResult(result);
+>             return String.valueOf(result);
+60,62c58,60
 <                 Object scriptResult = new ScriptResult(result).getJavaScriptResult();
----
->                 String scriptResult = String.valueOf(result);
-62c60
+<                 if (scriptResult != null) {
 <                     return scriptResult.toString();
 ---
->                     return scriptResult;
+>                 // Object scriptResult = new ScriptResult(result).getJavaScriptResult();
+>                 if (result != null) {
+>                     return result.toString();

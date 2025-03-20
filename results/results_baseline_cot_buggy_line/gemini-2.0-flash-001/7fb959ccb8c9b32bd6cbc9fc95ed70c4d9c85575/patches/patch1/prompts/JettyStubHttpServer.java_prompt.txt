@@ -93,10 +93,10 @@ public class JettyStubHttpServer implements StubHttpServer {
 this.httpConnector = new SelectChannelConnector();
 ```
 ```java
-this.server.setSendDateHeader(true);
+this.server.setSendServerVersion(false);
 ```
 ```java
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
+this.server.setSendDateHeader(true);
 ```
 ```java
 this.httpConnector.setPort(port);
@@ -105,7 +105,7 @@ this.httpConnector.setPort(port);
 return httpConnector.getLocalPort();
 ```
 ```java
-this.server.setSendServerVersion(false);
+import org.eclipse.jetty.server.nio.SelectChannelConnector;
 ```
 
 
@@ -114,11 +114,13 @@ this.server.setSendServerVersion(false);
   symbol:   class SelectChannelConnector
   location: class JettyStubHttpServer
 
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[33,19] error: cannot find symbol
+  symbol:   method setSendServerVersion(boolean)
+  location: variable server of type Server
+
 [ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[34,19] error: cannot find symbol
   symbol:   method setSendDateHeader(boolean)
   location: variable server of type Server
-
-[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[12,35] error: package org.eclipse.jetty.server.nio does not exist
 
 [ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[37,26] error: cannot find symbol
   symbol:   method setPort(int)
@@ -128,9 +130,7 @@ this.server.setSendServerVersion(false);
   symbol:   method getLocalPort()
   location: variable httpConnector of type Connector
 
-[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[33,19] error: cannot find symbol
-  symbol:   method setSendServerVersion(boolean)
-  location: variable server of type Server
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[12,35] error: package org.eclipse.jetty.server.nio does not exist
 
 
 

@@ -1,39 +1,49 @@
 11a12
 > import org.spongepowered.api.command.Command;
-12a14
-> import org.spongepowered.api.command.parameter.CommandContext;
-14,16c16
+13,16c14,16
+< import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
+> import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.parameter.Parameter;
-19,20c19,22
+> import org.spongepowered.api.command.source.CommandSource;
+19,20c19
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 < import static org.spongepowered.api.text.Text.of;
 ---
-> import net.kyori.adventure.text.TextComponent;
-> import net.kyori.adventure.text.Component;
-> 
-> import static org.spongepowered.api.command.parameter.CommonParameters.STRING;
-33d34
-<     @Override
-35,36c36,37
-<         String url = args.<String>getOne("url").get();
-<         if (url.startsWith("http://") || url.startsWith("https://")) {
+> import java.util.Optional;
+22c21
+< public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
 ---
->         String url = args.<String>getOne(Parameter.key("url", String.class)).orElse(null);
->         if (url != null && (url.startsWith("http://") || url.startsWith("https://"))) {
-53,54c54,58
+> public class UploadCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
+33d31
+<     @Override
+35c33,42
+<         String url = args.<String>getOne("url").get();
+---
+>         Parameter.Key<String> urlKey = Parameter.key("url", String.class);
+>         Optional<String> urlOptional = args.one(urlKey);
+> 
+>         if (!urlOptional.isPresent()) {
+>             plugin.sendMessage(src, "no-valid-url");
+>             return CommandResult.empty();
+>         }
+> 
+>         String url = urlOptional.get();
+> 
+43c50
+<                 Task.builder().async().execute(skinUploader).submit(plugin);
+---
+>                 Task.builder().plugin(plugin).async().execute(skinUploader).submit();
+53,54c60,61
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
 ---
 >     public Command buildSpec() {
->         Parameter.Key<String> urlKey = Parameter.key("url", String.class);
->         Parameter urlParameter = Parameter.builder(String.class).key(urlKey).addParser(STRING).build();
-> 
 >         return Command.builder()
-56c60
+56c63
 <                 .arguments(string(of("url")))
 ---
->                 .addParameter(urlParameter)
+>                 .addParameter(Parameter.string().key("url").build())

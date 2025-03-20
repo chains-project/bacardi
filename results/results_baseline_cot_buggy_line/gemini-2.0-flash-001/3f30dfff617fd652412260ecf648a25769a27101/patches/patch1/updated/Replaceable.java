@@ -1,8 +1,9 @@
 package de.hilling.junit.cdi.scope;
 
+import jakarta.interceptor.InterceptorBinding;
+
 import org.immutables.value.Value;
 
-import jakarta.interceptor.InterceptorBinding;
 import java.lang.annotation.*;
 
 /**

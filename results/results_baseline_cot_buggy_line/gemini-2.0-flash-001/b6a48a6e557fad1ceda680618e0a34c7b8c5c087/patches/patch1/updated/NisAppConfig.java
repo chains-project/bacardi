@@ -1,7 +1,6 @@
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -40,6 +39,8 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.*;
+
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 
 @Configuration
 @ComponentScan(basePackages = {

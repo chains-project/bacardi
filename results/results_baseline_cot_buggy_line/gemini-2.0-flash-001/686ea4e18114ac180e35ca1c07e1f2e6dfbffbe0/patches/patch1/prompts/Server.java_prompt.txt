@@ -312,86 +312,64 @@ public abstract class Server<Config extends Configuration> extends Application<C
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-protected void onRun(Config config, Environment env) throws Exception {
-```
-```java
-protected abstract MessageHandlerBase createHandler(Config config, Environment env) throws Exception;
-```
-```java
-import io.dropwizard.setup.Bootstrap;
-```
-```java
-public void run(final Config config, Environment env) throws Exception {
-```
-```java
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-```
-```java
-protected Client client;
-```
-```java
-import io.dropwizard.setup.Environment;
-```
-```java
-public Client getClient() {
-```
-```java
 private Client createHttpClient(Config config, Environment env) {
-```
-```java
-public void initialize(Bootstrap<Config> bootstrap) {
 ```
 ```java
 protected void initialize(Config config, Environment env) throws Exception {
 ```
 ```java
-protected Jdbi buildJdbi(Configuration.Database database, Environment env) {
+public void initialize(Bootstrap<Config> bootstrap) {
+```
+```java
+protected void onRun(Config config, Environment env) throws Exception {
+```
+```java
+public Client getClient() {
+```
+```java
+protected Client client;
 ```
 ```java
 protected Environment environment;
 ```
 ```java
-import javax.ws.rs.client.Client;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 ```
 ```java
-public Environment getEnvironment() {
+import io.dropwizard.setup.Environment;
+```
+```java
+public abstract class Server<Config extends Configuration> extends Application<Config> {
 ```
 ```java
 import io.dropwizard.Application;
 ```
 ```java
-public abstract class Server<Config extends Configuration> extends Application<Config> {
+import io.dropwizard.setup.Bootstrap;
+```
+```java
+protected Jdbi buildJdbi(Configuration.Database database, Environment env) {
+```
+```java
+protected abstract MessageHandlerBase createHandler(Config config, Environment env) throws Exception;
+```
+```java
+public Environment getEnvironment() {
+```
+```java
+public void run(final Config config, Environment env) throws Exception {
+```
+```java
+import javax.ws.rs.client.Client;
 ```
 
 
  And here is the error message:
-[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[112,41] cannot find symbol
-  symbol:   class Environment
-  location: class com.wire.lithium.Server<Config>
-
-[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[87,72] cannot find symbol
-  symbol:   class Environment
-  location: class com.wire.lithium.Server<Config>
-
-[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[52,27] package io.dropwizard.setup does not exist
-
-[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[129,42] cannot find symbol
-  symbol:   class Environment
-  location: class com.wire.lithium.Server<Config>
-
-[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[24,40] package com.fasterxml.jackson.jaxrs.json does not exist
-
-[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[75,15] cannot find symbol
-  symbol:   class Client
-  location: class com.wire.lithium.Server<Config>
-
-[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[53,27] package io.dropwizard.setup does not exist
-
-[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[296,12] cannot find symbol
-  symbol:   class Client
-  location: class com.wire.lithium.Server<Config>
-
 [ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[159,52] cannot find symbol
+  symbol:   class Environment
+  location: class com.wire.lithium.Server<Config>
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[98,46] cannot find symbol
   symbol:   class Environment
   location: class com.wire.lithium.Server<Config>
 
@@ -399,28 +377,50 @@ public abstract class Server<Config extends Configuration> extends Application<C
   symbol:   class Bootstrap
   location: class com.wire.lithium.Server<Config>
 
-[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[98,46] cannot find symbol
+[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[112,41] cannot find symbol
   symbol:   class Environment
   location: class com.wire.lithium.Server<Config>
 
-[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[174,63] cannot find symbol
-  symbol:   class Environment
+[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[296,12] cannot find symbol
+  symbol:   class Client
+  location: class com.wire.lithium.Server<Config>
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[75,15] cannot find symbol
+  symbol:   class Client
   location: class com.wire.lithium.Server<Config>
 
 [ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[74,15] cannot find symbol
   symbol:   class Environment
   location: class com.wire.lithium.Server<Config>
 
-[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[62,26] package javax.ws.rs.client does not exist
+[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[24,40] package com.fasterxml.jackson.jaxrs.json does not exist
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[53,27] package io.dropwizard.setup does not exist
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[71,68] cannot find symbol
+  symbol: class Application
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[47,21] package io.dropwizard does not exist
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[52,27] package io.dropwizard.setup does not exist
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[174,63] cannot find symbol
+  symbol:   class Environment
+  location: class com.wire.lithium.Server<Config>
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[87,72] cannot find symbol
+  symbol:   class Environment
+  location: class com.wire.lithium.Server<Config>
 
 [ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[292,12] cannot find symbol
   symbol:   class Environment
   location: class com.wire.lithium.Server<Config>
 
-[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[47,21] package io.dropwizard does not exist
+[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[129,42] cannot find symbol
+  symbol:   class Environment
+  location: class com.wire.lithium.Server<Config>
 
-[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[71,68] cannot find symbol
-  symbol: class Application
+[ERROR] /lithium/src/main/java/com/wire/lithium/Server.java:[62,26] package javax.ws.rs.client does not exist
 
 
 

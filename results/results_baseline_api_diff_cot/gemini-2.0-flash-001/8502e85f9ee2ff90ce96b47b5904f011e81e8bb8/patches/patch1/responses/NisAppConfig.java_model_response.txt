@@ -35,15 +35,13 @@ import org.springframework.context.annotation.*;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.flywaydb.core.api.configuration.ClassicConfiguration;
-import org.flywaydb.core.api.Location;
 
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
+import org.flywaydb.core.api.Location;
 
 @Configuration
 @ComponentScan(basePackages = {
@@ -113,15 +111,10 @@ public class NisAppConfig {
 		ClassicConfiguration configuration = new ClassicConfiguration();
 		configuration.setDataSource(this.dataSource());
 		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
-		String locationsString = prop.getProperty("flyway.locations");
-		List<Location> locations = Stream.of(locationsString.split(","))
-				.map(String::trim)
-				.map(Location::new)
-				.collect(Collectors.toList());
-		configuration.setLocations(locations.toArray(new Location[0]));
+		configuration.setLocations(new Location(prop.getProperty("flyway.locations")));
 		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 
-		final Flyway flyway = new Flyway(configuration);
+		final org.flywaydb.core.Flyway flyway = new Flyway(configuration);
 		return flyway;
 	}
 

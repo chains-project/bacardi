@@ -110,20 +110,20 @@ public final class LargeImageITCase {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-MatcherAssert.assertThat(output, new StringContains(false, "Pushed"));
+new StringContains(
 ```
 ```java
-new StringContains(
+MatcherAssert.assertThat(output, new StringContains(false, "Pushed"));
 ```
 
 
  And here is the error message:
-[ERROR] /docker-adapter/src/test/java/com/artipie/docker/http/LargeImageITCase.java:[84,46] constructor StringContains in class org.hamcrest.core.StringContains cannot be applied to given types;
+[ERROR] /docker-adapter/src/test/java/com/artipie/docker/http/LargeImageITCase.java:[69,17] constructor StringContains in class org.hamcrest.core.StringContains cannot be applied to given types;
   required: java.lang.String
   found: boolean,java.lang.String
   reason: actual and formal argument lists differ in length
 
-[ERROR] /docker-adapter/src/test/java/com/artipie/docker/http/LargeImageITCase.java:[69,17] constructor StringContains in class org.hamcrest.core.StringContains cannot be applied to given types;
+[ERROR] /docker-adapter/src/test/java/com/artipie/docker/http/LargeImageITCase.java:[84,46] constructor StringContains in class org.hamcrest.core.StringContains cannot be applied to given types;
   required: java.lang.String
   found: boolean,java.lang.String
   reason: actual and formal argument lists differ in length

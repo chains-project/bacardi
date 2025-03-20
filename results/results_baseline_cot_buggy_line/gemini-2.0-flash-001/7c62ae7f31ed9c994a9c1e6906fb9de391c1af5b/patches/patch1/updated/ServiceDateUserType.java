@@ -11,8 +11,6 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 package org.onebusaway.gtfs.impl;
 
@@ -114,12 +112,12 @@ public class ServiceDateUserType implements UserType {
   }
 
   @Override
-  public void nullSafeSet(PreparedStatement preparedStatement, Object o, int i, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
-    if (o == null) {
-      preparedStatement.setNull(i, SQL_TYPES[0]);
-    } else {
-      ServiceDate serviceDate = (ServiceDate) o;
-      preparedStatement.setString(i, serviceDate.getAsString());
-    }
+  public Object nullSafeGet(ResultSet rs, String[] names, Object owner) throws HibernateException, SQLException {
+    return UserType.super.nullSafeGet(rs, names, owner);
+  }
+
+  @Override
+  public void nullSafeSet(PreparedStatement st, Object value, int index) throws HibernateException, SQLException {
+    UserType.super.nullSafeSet(st, value, index);
   }
 }

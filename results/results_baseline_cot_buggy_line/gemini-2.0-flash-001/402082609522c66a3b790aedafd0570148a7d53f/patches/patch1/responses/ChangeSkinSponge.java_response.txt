@@ -21,14 +21,13 @@ import org.slf4j.Logger;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
-import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
-import org.spongepowered.api.event.lifecycle.StoppingServerEvent;
+import org.spongepowered.api.event.lifecycle.GameInitializationEvent;
+import org.spongepowered.api.event.lifecycle.GamePreInitializationEvent;
+import org.spongepowered.api.event.lifecycle.GameStoppingServerEvent;
+import org.spongepowered.api.network.channel.ChannelRegistry;
 import org.spongepowered.api.network.channel.raw.RawDataChannel;
-import org.spongepowered.api.network.channel.raw.RawDataChannel.Listener;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
@@ -59,7 +58,7 @@ public class ChangeSkinSponge implements PlatformPlugin<org.spongepowered.api.co
     }
 
     @Listener
-    public void onPreInit(ConstructPluginEvent preInitEvent) {
+    public void onPreInit(GamePreInitializationEvent preInitEvent) {
         //load config and database
         try {
             core.load(true);
@@ -70,7 +69,7 @@ public class ChangeSkinSponge implements PlatformPlugin<org.spongepowered.api.co
     }
 
     @Listener
-    public void onInit(org.spongepowered.api.event.lifecycle.StartedEngineEvent<org.spongepowered.api.Server> initEvent) {
+    public void onInit(GameInitializationEvent initEvent) {
         if (!initialized)
             return;
 
@@ -87,17 +86,17 @@ public class ChangeSkinSponge implements PlatformPlugin<org.spongepowered.api.co
         Sponge.getEventManager().registerListeners(this, injector.getInstance(LoginListener.class));
 
         //incoming channel
-        org.spongepowered.api.network.channel.ChannelRegistry channelReg = Sponge.getChannelRegistry();
+        ChannelRegistry channelReg = Sponge.getChannelRegistry();
         String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
         String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
-        RawDataChannel updateChannel = channelReg.findChannel(this, updateChannelName).orElseGet(() -> channelReg.createRawChannel(new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL)));
-        RawDataChannel permChannel = channelReg.findChannel(this, permissionChannelName).orElseGet(() -> channelReg.createRawChannel(new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL)));
-        updateChannel.addListener(injector.getInstance(UpdateSkinListener.class));
-        permChannel.addListener(injector.getInstance(CheckPermissionListener.class));
+        RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
+        RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
+        updateChannel.addListener(Platform.Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+        permChannel.addListener(Platform.Type.SERVER, injector.getInstance(CheckPermissionListener.class));
     }
 
     @Listener
-    public void onShutdown(StoppingServerEvent stoppingServerEvent) {
+    public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
         core.close();
     }
 
@@ -142,7 +141,7 @@ public class ChangeSkinSponge implements PlatformPlugin<org.spongepowered.api.co
     public void sendMessage(org.spongepowered.api.command.CommandSource receiver, String key) {
         String message = core.getMessage(key);
         if (message != null && receiver != null) {
-            receiver.sendMessage(TextSerializers.FORMATTING_CODE.deserialize(message));
+            receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
         }
     }
 }

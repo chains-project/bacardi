@@ -12,10 +12,10 @@ import com.artipie.docker.junit.DockerRepository;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
+import org.hamcrest.core.StringContains;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.hamcrest.core.StringContains;
 
 /**
  * Integration test for {@link DockerSlice}.

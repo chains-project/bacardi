@@ -96,16 +96,16 @@ return httpConnector.getLocalPort();
 this.server.setSendDateHeader(true);
 ```
 ```java
-this.httpConnector = new SelectChannelConnector();
-```
-```java
-this.server.setSendServerVersion(false);
+import org.eclipse.jetty.server.nio.SelectChannelConnector;
 ```
 ```java
 this.httpConnector.setPort(port);
 ```
 ```java
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
+this.server.setSendServerVersion(false);
+```
+```java
+this.httpConnector = new SelectChannelConnector();
 ```
 
 
@@ -118,19 +118,19 @@ import org.eclipse.jetty.server.nio.SelectChannelConnector;
   symbol:   method setSendDateHeader(boolean)
   location: variable server of type Server
 
-[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[36,33] error: cannot find symbol
-  symbol:   class SelectChannelConnector
-  location: class JettyStubHttpServer
-
-[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[33,19] error: cannot find symbol
-  symbol:   method setSendServerVersion(boolean)
-  location: variable server of type Server
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[12,35] error: package org.eclipse.jetty.server.nio does not exist
 
 [ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[37,26] error: cannot find symbol
   symbol:   method setPort(int)
   location: variable httpConnector of type Connector
 
-[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[12,35] error: package org.eclipse.jetty.server.nio does not exist
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[33,19] error: cannot find symbol
+  symbol:   method setSendServerVersion(boolean)
+  location: variable server of type Server
+
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[36,33] error: cannot find symbol
+  symbol:   class SelectChannelConnector
+  location: class JettyStubHttpServer
 
 
 

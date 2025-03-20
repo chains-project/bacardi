@@ -1,18 +1,9 @@
-11a12
-> import java.nio.charset.StandardCharsets;
-15,16d15
+15,16c15
 < import org.cactoos.io.BytesOf;
 < import org.cactoos.text.HexOf;
+---
+> import org.apache.commons.codec.binary.Hex;
 57c56
 <                 new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
 ---
->                 new Digest.Sha256(bytesToHex(sha.digest()))
-69a69,76
-> 
->     private static String bytesToHex(byte[] bytes) {
->         StringBuilder result = new StringBuilder();
->         for (byte b : bytes) {
->             result.append(String.format("%02x", b));
->         }
->         return result.toString();
->     }
+>                 new Digest.Sha256(new String(Hex.encodeHex(sha.digest())))

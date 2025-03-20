@@ -249,16 +249,16 @@ final class FileProxySliceTest {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-new MapEntry<>("Content-Length", "4"),
+import org.cactoos.map.MapEntry;
 ```
 ```java
 new MapEntry<>("Content-Length", "4")
 ```
 ```java
-new MapEntry<>("Content-Length", String.valueOf(body.length))
+new MapEntry<>("Content-Length", "4"),
 ```
 ```java
-import org.cactoos.map.MapEntry;
+new MapEntry<>("Content-Length", String.valueOf(body.length))
 ```
 ```java
 new MapEntry<>("header", "value"),
@@ -266,19 +266,19 @@ new MapEntry<>("header", "value"),
 
 
  And here is the error message:
-[ERROR] /files-adapter/src/test/java/com/artipie/files/FileProxySliceTest.java:[137,29] cannot find symbol
+[ERROR] /files-adapter/src/test/java/com/artipie/files/FileProxySliceTest.java:[52,23] package org.cactoos.map does not exist
+
+[ERROR] /files-adapter/src/test/java/com/artipie/files/FileProxySliceTest.java:[138,29] cannot find symbol
   symbol:   class MapEntry
   location: class com.artipie.files.FileProxySliceTest
 
-[ERROR] /files-adapter/src/test/java/com/artipie/files/FileProxySliceTest.java:[138,29] cannot find symbol
+[ERROR] /files-adapter/src/test/java/com/artipie/files/FileProxySliceTest.java:[137,29] cannot find symbol
   symbol:   class MapEntry
   location: class com.artipie.files.FileProxySliceTest
 
 [ERROR] /files-adapter/src/test/java/com/artipie/files/FileProxySliceTest.java:[166,29] cannot find symbol
   symbol:   class MapEntry
   location: class com.artipie.files.FileProxySliceTest
-
-[ERROR] /files-adapter/src/test/java/com/artipie/files/FileProxySliceTest.java:[52,23] package org.cactoos.map does not exist
 
 [ERROR] /files-adapter/src/test/java/com/artipie/files/FileProxySliceTest.java:[136,29] cannot find symbol
   symbol:   class MapEntry

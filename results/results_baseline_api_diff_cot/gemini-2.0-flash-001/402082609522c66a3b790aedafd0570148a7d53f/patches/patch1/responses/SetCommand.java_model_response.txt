@@ -10,18 +10,19 @@ import com.google.inject.Inject;
 
 import java.util.UUID;
 
+import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.command.CommandExecutor;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.parameter.Parameter;
-import org.spongepowered.api.command.spec.CommandSpec;
 
+import static org.spongepowered.api.command.CommandResult.success;
 import static org.spongepowered.api.command.parameter.CommonParameters.string;
-import static org.spongepowered.api.command.parameter.CommonParameters.flags;
-import static org.spongepowered.api.text.Text.of;
+import static org.spongepowered.api.command.parameter.Flag.of;
+import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.command.exception.CommandException;
+import org.spongepowered.api.command.CommandExecutor;
 
 public class SetCommand implements CommandExecutor, ChangeSkinCommand {
 
@@ -35,20 +36,21 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
     }
 
     @Override
-    public CommandResult execute(CommandSource src, CommandContext args) {
-        if (!(src instanceof Player)) {
-            plugin.sendMessage(src, "no-console");
+    public CommandResult execute(CommandContext args) throws CommandException {
+        CommandCause cause = args.cause();
+        if (!(cause.root() instanceof Player)) {
+            plugin.sendMessage(cause, "no-console");
             return CommandResult.empty();
         }
 
-        UUID uniqueId = ((Player) src).getUniqueId();
+        UUID uniqueId = ((Player) cause.root()).getUniqueId();
         if (core.getCooldownService().isTracked(uniqueId)) {
-            plugin.sendMessage(src, "cooldown");
+            plugin.sendMessage(cause, "cooldown");
             return CommandResult.empty();
         }
 
-        Player receiver = (Player) src;
-        String targetSkin = args.one(Parameter.key("skin", String.class)).orElse("");
+        Player receiver = (Player) cause.root();
+        String targetSkin = args.<String>one(Parameter.key("skin", String.class)).get();
         boolean keepSkin = args.hasFlag("keep");
 
         if ("reset".equals(targetSkin)) {
@@ -58,29 +60,30 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
         if (targetSkin.length() > 16) {
             UUID targetUUID = UUID.fromString(targetSkin);
 
-            if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(src, targetUUID, true)) {
+            if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(cause, targetUUID, true)) {
                 return CommandResult.empty();
             }
 
-            plugin.sendMessage(src, "skin-change-queue");
-            Runnable skinDownloader = new SkinDownloader(plugin, src, receiver, targetUUID, keepSkin);
+            plugin.sendMessage(cause, "skin-change-queue");
+            Runnable skinDownloader = new SkinDownloader(plugin, cause, receiver, targetUUID, keepSkin);
             Task.builder().async().execute(skinDownloader).submit(plugin);
-            return CommandResult.success();
+            return success();
         }
 
-        Runnable nameResolver = new NameResolver(plugin, src, targetSkin, receiver, keepSkin);
+        Runnable nameResolver = new NameResolver(plugin, cause, targetSkin, receiver, keepSkin);
         Task.builder().async().execute(nameResolver).submit(plugin);
-        return CommandResult.success();
+        return success();
     }
 
     @Override
-    public CommandSpec buildSpec() {
-         return CommandSpec.builder()
+    public Command.Builder buildSpec() {
+        Parameter skinParameter = Parameter.string().key("skin").build();
+
+        return Command.builder()
                 .executor(this)
-                .addParameter(string(of("skin")))
-                .addFlag(flags().flag("keep").build())
-                .permission(PomData.ARTIFACT_ID + ".command.setskin.base")
-                .build();
+                .addParameter(skinParameter)
+                .addFlag(of("keep"))
+                .permission(PomData.ARTIFACT_ID + ".command.setskin.base");
     }
 }
 ```

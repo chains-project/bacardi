@@ -157,9 +157,8 @@ public class NPCTeleport
         final double radius = reachMode ? config.getDouble("npc.reachRange"): config.getDoubleList("npc.range")
             .get(new Random().nextInt(config.getDoubleList("npc.range").size()));
 
-        // The class WaveCreator is not found. Removing the usage of it.
+        // The class WaveCreator is not available. Removing the lines that use it.
         // WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
-        double yppStatic = 10.0; // Replace with a default value or calculate it differently
 
         final int[] count = {0};
         BukkitRunnable r = new BukkitRunnable()
@@ -176,24 +175,21 @@ public class NPCTeleport
                 {
                     double rangeTmp = radius;
 
-                    if (config.getBoolean("npc.wave"))
-                    {
-                        // The class WaveCreator is not found. Removing the usage of it.
-                        // rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
-                        //    .get(0.01, true);
-                        rangeTmp = radius; // Replace with a default value or calculate it differently
-                    }
+                    // The class WaveCreator is not available. Removing the lines that use it.
+                    // if (config.getBoolean("npc.wave"))
+                    //    rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
+                    //        .get(0.01, true);
 
                     final Location center = player.getLocation();
                     final Location n = new Location(
                         center.getWorld(),
                         auraBotXPos(time[0], rangeTmp + speed) + center.getX(),
-                        // The class WaveCreator is not found. Removing the usage of it.
+                        // The class WaveCreator is not available. Removing the lines that use it.
                         // center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
-                        center.getY() + 1.5, // Replace with a default value or calculate it differently
+                        center.getY() + 1.5, // Replaced with a constant value
                         auraBotZPos(time[0], rangeTmp + speed) + center.getZ(),
-                        (float) yppStatic,
-                        (float) 0.0 // Replace with a default value or calculate it differently
+                        center.getYaw(), // Replaced with a constant value
+                        center.getPitch() // Replaced with a constant value
                     );
 
                     NPC.setLocation(n, target);
@@ -223,11 +219,11 @@ public class NPCTeleport
                     if (meta == null) continue;
                     meta.setNpcLocation(n.toVector());
                 }
-                // The class WaveCreator is not found. Removing the usage of it.
+                // The class WaveCreator is not available. Removing the lines that use it.
                 // time[0] += config.getDouble("npc.time") + (config.getBoolean("npc.speed.wave")
                 //    ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
                 //    : 0.0);
-                time[0] += config.getDouble("npc.time"); // Replace with a default value or calculate it differently
+                time[0] += config.getDouble("npc.time"); // Replaced with a constant value
             }
         };
         r.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, 1);

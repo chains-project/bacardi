@@ -1,6 +1,5 @@
 package com.github.games647.changeskin.sponge.task;
 
-import com.flowpowered.math.vector.Vector3d;
 import com.github.games647.changeskin.core.model.UserPreference;
 import com.github.games647.changeskin.core.model.skin.SkinModel;
 import com.github.games647.changeskin.core.shared.task.SharedApplier;
@@ -9,21 +8,22 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import java.util.UUID;
 
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.source.CommandSource;
-import org.spongepowered.api.data.Keys;
+import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.tab.TabListEntry;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.server.ServerLocation;
+import org.spongepowered.api.world.server.ServerWorld;
+import org.spongepowered.api.data.Keys;
+import org.spongepowered.math.vector.Vector3d;
 
 public class SkinApplier extends SharedApplier {
 
     private final ChangeSkinSponge plugin;
-    private final CommandSource invoker;
+    private final CommandCause invoker;
     private final Player receiver;
 
-    public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
+    public SkinApplier(ChangeSkinSponge plugin, CommandCause invoker, Player receiver, SkinModel targetSkin
             , boolean keepSkin) {
         super(plugin.getCore(), targetSkin, keepSkin);
 
@@ -39,8 +39,8 @@ public class SkinApplier extends SharedApplier {
         }
 
         //uuid was successful resolved, we could now make a cooldown check
-        if (invoker instanceof Player) {
-            UUID uniqueId = ((Player) invoker).getUniqueId();
+        if (invoker.getCause().root() instanceof Player) {
+            UUID uniqueId = ((Player) invoker.getCause().root()).getUniqueId();
             core.getCooldownService().trackPlayer(uniqueId);
         }
 
@@ -88,16 +88,16 @@ public class SkinApplier extends SharedApplier {
     private void sendUpdateSelf() {
         receiver.getTabList().removeEntry(receiver.getUniqueId());
         receiver.getTabList().addEntry(TabListEntry.builder()
-                .displayName(receiver.getDisplayNameData().displayName().get())
-                .latency(receiver.getConnection().getLatency())
+                .displayName(receiver.displayName().get())
+                .latency(receiver.connection().latency())
                 .list(receiver.getTabList())
-                .gameMode(receiver.getGameModeData().type().get())
-                .profile(receiver.getProfile())
+                .gameMode(receiver.gameMode().get())
+                .profile(receiver.profile())
                 .build());
 
-        Location<World> oldLocation = receiver.getLocation();
+        ServerLocation oldLocation = receiver.getLocation();
         Vector3d rotation = receiver.getRotation();
-        World receiverWorld = receiver.getWorld();
+        ServerWorld receiverWorld = receiver.getWorld();
         Sponge.getServer().getWorlds()
                 .stream()
                 .filter(world -> !world.equals(receiverWorld))

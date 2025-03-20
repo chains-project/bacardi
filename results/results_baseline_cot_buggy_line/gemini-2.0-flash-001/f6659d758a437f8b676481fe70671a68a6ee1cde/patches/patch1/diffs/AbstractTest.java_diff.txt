@@ -1,6 +1,10 @@
 36d35
 < import org.yaml.snakeyaml.inspector.TrustedTagInspector;
-66c65
+43a43,44
+> import org.yaml.snakeyaml.inspector.TagInspector;
+> import java.util.function.Predicate;
+66c67,68
 <         loadingConfig.setTagInspector(new TrustedTagInspector());
 ---
->         // loadingConfig.setTagInspector(new TrustedTagInspector()); // TrustedTagInspector is removed
+>         Predicate<Tag> tagInspector = tag -> true;
+>         loadingConfig.setTagInspector(tagInspector::test);

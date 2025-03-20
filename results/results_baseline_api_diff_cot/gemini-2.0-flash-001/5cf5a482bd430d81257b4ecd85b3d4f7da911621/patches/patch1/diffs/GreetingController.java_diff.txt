@@ -14,3 +14,12 @@
 > import jakarta.mvc.binding.MvcBinding;
 > import jakarta.mvc.binding.ParamError;
 > import jakarta.mvc.security.CsrfProtected;
+17a18,19
+> import java.util.stream.Collectors;
+> import java.util.List;
+53,54c55,56
+<             bindingResult.getAllErrors()
+<                     .stream()
+---
+>             List<ParamError> errors = bindingResult.getAllErrors().stream().map(e -> (ParamError) e).collect(Collectors.toList());
+>             errors.stream()

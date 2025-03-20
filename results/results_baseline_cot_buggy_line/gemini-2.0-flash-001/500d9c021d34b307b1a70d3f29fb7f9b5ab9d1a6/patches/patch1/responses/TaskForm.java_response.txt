@@ -2,11 +2,10 @@ package com.example.web;
 
 import java.io.Serializable;
 import java.util.Objects;
-//import javax.mvc.binding.MvcBinding; // Removed as javax.mvc is deprecated
-import jakarta.mvc.binding.MvcBinding; // Replaced with jakarta.mvc
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
-import javax.ws.rs.FormParam;
+import jakarta.mvc.binding.MvcBinding;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import jakarta.ws.rs.FormParam;
 
 public class TaskForm implements Serializable {
 

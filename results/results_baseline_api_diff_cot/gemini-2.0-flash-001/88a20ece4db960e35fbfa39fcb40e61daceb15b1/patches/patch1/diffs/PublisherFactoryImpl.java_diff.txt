@@ -1,0 +1,44 @@
+19,20c19
+< import com.google.cloud.pubsublite.ProjectPath;
+< import com.google.cloud.pubsublite.PublishMetadata;
+---
+> import com.google.cloud.pubsublite.ProjectName;
+36c35
+<   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
+---
+>   public Publisher<?> newPublisher(Map<String, String> params) {
+38a38,43
+>     String projectValue = "projects/" + config.get(ConfigDefs.PROJECT_FLAG).value();
+> 
+>     String locationValue = config.get(ConfigDefs.LOCATION_FLAG).value().toString();
+> 
+>     String topicNameValue = config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString();
+> 
+40,46c45,48
+<         TopicPath.newBuilder()
+<             .setProject(
+<                 ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
+<                     .project())
+<             .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
+<             .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
+<             .build();
+---
+>         TopicPath.of(
+>             ProjectName.parse(projectValue),
+>             CloudZone.parse(locationValue),
+>             TopicName.of(topicNameValue));
+49,54c51,57
+<         partition ->
+<             SinglePartitionPublisherBuilder.newBuilder()
+<                 .setTopic(topic)
+<                 .setPartition(partition)
+<                 .setContext(PubsubContext.of(FRAMEWORK))
+<                 .build());
+---
+>         partition -> {
+>           SinglePartitionPublisherBuilder.Builder singlePartitionBuilder =
+>               SinglePartitionPublisherBuilder.newBuilder();
+>           singlePartitionBuilder.setTopic(topic);
+>           singlePartitionBuilder.setPartition(partition);
+>           return singlePartitionBuilder.build();
+>         });

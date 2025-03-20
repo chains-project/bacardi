@@ -112,19 +112,19 @@ public final class MavenCompilerUtils {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-private static String extractChildValue(Xpp3Dom node, String name) {
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 ```
 ```java
-import org.codehaus.plexus.util.xml.Xpp3Dom;
+private static String extractChildValue(Xpp3Dom node, String name) {
 ```
 
 
  And here is the error message:
+[ERROR] /pgpverify-maven-plugin/src/main/java/org/simplify4u/plugins/utils/MavenCompilerUtils.java:[21,36] package org.codehaus.plexus.util.xml does not exist
+
 [ERROR] /pgpverify-maven-plugin/src/main/java/org/simplify4u/plugins/utils/MavenCompilerUtils.java:[99,45] cannot find symbol
   symbol:   class Xpp3Dom
   location: class org.simplify4u.plugins.utils.MavenCompilerUtils
-
-[ERROR] /pgpverify-maven-plugin/src/main/java/org/simplify4u/plugins/utils/MavenCompilerUtils.java:[21,36] package org.codehaus.plexus.util.xml does not exist
 
 
 

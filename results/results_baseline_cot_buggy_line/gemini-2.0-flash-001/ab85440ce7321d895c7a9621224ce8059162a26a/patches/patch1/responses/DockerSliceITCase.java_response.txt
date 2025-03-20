@@ -12,10 +12,10 @@ import com.artipie.docker.junit.DockerRepository;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
+import org.hamcrest.core.StringContains;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.hamcrest.core.StringContains;
 
 /**
  * Integration test for {@link DockerSlice}.
@@ -126,6 +126,8 @@ final class DockerSliceITCase {
     }
 
     private Matcher<String> layersAlreadyExist() {
-        return Matchers.containsString(String.format("%s: Layer already exists", this.image.layer()));
+        return Matchers.containsString(
+            String.format("%s: Layer already exists", this.image.layer())
+        );
     }
 }

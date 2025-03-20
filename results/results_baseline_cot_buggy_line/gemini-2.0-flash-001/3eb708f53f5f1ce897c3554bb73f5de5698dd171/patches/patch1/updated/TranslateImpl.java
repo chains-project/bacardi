@@ -70,7 +70,7 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
               getOptions().getRetrySettings(),
               EXCEPTION_HANDLER,
               getOptions().getClock()),
-          Language::fromPb);
+          Language.FROM_PB_FUNCTION);
     } catch (RetryHelperException e) {
       throw TranslateException.translateAndThrow(e);
     }
@@ -79,21 +79,21 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   @Override
   public List<Detection> detect(final List<String> texts) {
     try {
-      List<List<Detection>> detectionsPb =
+      List<List<com.google.cloud.translate.Detection>> detectionsPb =
           runWithRetries(
-              new Callable<List<List<Detection>>>() {
+              new Callable<List<List<com.google.cloud.translate.Detection>>>() {
                 @Override
-                public List<List<Detection>> call() {
+                public List<List<com.google.cloud.translate.Detection>> call() {
                   return translateRpc.detect(texts);
                 }
               },
               getOptions().getRetrySettings(),
               EXCEPTION_HANDLER,
               getOptions().getClock());
-      Iterator<List<Detection>> detectionIterator = detectionsPb.iterator();
+      Iterator<List<com.google.cloud.translate.Detection>> detectionIterator = detectionsPb.iterator();
       Iterator<String> textIterator = texts.iterator();
       while (detectionIterator.hasNext() && textIterator.hasNext()) {
-        List<Detection> detectionPb = detectionIterator.next();
+        List<com.google.cloud.translate.Detection> detectionPb = detectionIterator.next();
         String text = textIterator.next();
         checkState(
             detectionPb != null && !detectionPb.isEmpty(), "No detection found for text: %s", text);
@@ -129,7 +129,7 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
               getOptions().getRetrySettings(),
               EXCEPTION_HANDLER,
               getOptions().getClock()),
-          Translation::fromPb);
+          Translation.FROM_PB_FUNCTION);
     } catch (RetryHelperException e) {
       throw TranslateException.translateAndThrow(e);
     }

@@ -10,7 +10,6 @@ import hu.akarnokd.rxjava2.interop.SingleInterop;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.CompletionStage;
@@ -59,9 +58,9 @@ public final class DigestFromContent {
             .<Digest>andThen(
                 Single.fromCallable(
                     () -> {
-                        final byte[] digest = sha.digest();
-                        final char[] encodeHex = Hex.encodeHex(digest);
-                        return new Digest.Sha256(new String(encodeHex));
+                        byte[] digest = sha.digest();
+                        char[] encoded = Hex.encodeHex(digest);
+                        return new Digest.Sha256(new String(encoded));
                     }
                 )
             )

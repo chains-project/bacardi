@@ -1,10 +1,10 @@
 package micycle.pgs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Assumptions;
 
 import processing.core.PConstants;
 import processing.core.PShape;
@@ -49,21 +49,21 @@ class PGS_ProcessingGroupShapeTests {
 
 	@Test
 	void test_PGS_Processing_densify() {
-		Assumptions.assumeTrue(GROUP_SHAPE.getChildCount() == 2);
+		assumeTrue(GROUP_SHAPE.getChildCount() == 2);
 		PShape out = PGS_Processing.densify(GROUP_SHAPE, 1);
 		assertEquals(2, out.getChildCount());
 	}
 	
 	@Test
 	void test_PGS_Processing_removeSmallHoles() {
-		Assumptions.assumeTrue(GROUP_SHAPE.getChildCount() == 2);
+		assumeTrue(GROUP_SHAPE.getChildCount() == 2);
 		PShape out = PGS_Processing.removeSmallHoles(GROUP_SHAPE, 10);
 		assertEquals(2, out.getChildCount());
 	}
 	
 	@Test
 	void test_PGS_Processing_convexPartition() {
-		Assumptions.assumeTrue(GROUP_SHAPE.getChildCount() == 2);
+		assumeTrue(GROUP_SHAPE.getChildCount() == 2);
 		PShape out = PGS_Processing.convexPartition(GROUP_SHAPE);
 		assertEquals(2, out.getChildCount());
 	}

@@ -1,4 +1,17 @@
-9c9
+9,10c9
 < import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.scheduler.Task;
 ---
-> import org.spongepowered.api.command.source.CommandSource;
+> import org.spongepowered.api.entity.living.player.Player;
+15c14
+<     private final CommandSource invoker;
+---
+>     private final Player invoker;
+17c16
+<     public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {
+---
+>     public SkinUploader(ChangeSkinSponge plugin, Player invoker, Account owner, String url) {
+32c31
+<         Task.builder().delay(1, TimeUnit.MINUTES).execute(task).async().submit(plugin);
+---
+>         org.spongepowered.api.scheduler.Task.builder().delay(1, TimeUnit.MINUTES).execute(task).async().submit(plugin);

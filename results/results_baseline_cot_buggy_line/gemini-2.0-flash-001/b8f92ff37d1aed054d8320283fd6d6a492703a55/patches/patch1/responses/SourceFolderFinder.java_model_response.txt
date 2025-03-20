@@ -24,7 +24,7 @@ public class SourceFolderFinder implements ClassFinder {
     }
 
     static List<String> getClassesLoc(File testSrcFolder) {
-        DirectoryScanner directoryScanner = new DirectoryScanner(testSrcFolder, SelectorUtils.DEFAULT_INCLUDES, null);
+        DirectoryScanner directoryScanner = new DirectoryScanner(testSrcFolder, SelectorUtils.DEFAULT_INCLUDES, SelectorUtils.DEFAULT_EXCLUDES);
         directoryScanner.scan();
         return directoryScanner.getIncludedFiles();
     }

@@ -71,56 +71,56 @@ public class CallRedirectionInterceptor implements Serializable {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-private Object callMock(InvocationContext ctx, Class<?> javaClass) throws Throwable {
+@AroundInvoke
 ```
 ```java
 @Interceptor
 ```
 ```java
-import javax.interceptor.Interceptor;
-```
-```java
 import javax.interceptor.InvocationContext;
 ```
 ```java
-import javax.interceptor.AroundInvoke;
-```
-```java
-@AroundInvoke
+private Object callMock(InvocationContext ctx, Class<?> javaClass) throws Throwable {
 ```
 ```java
 public Object invokeMockableBean(InvocationContext ctx) throws Throwable {
 ```
 ```java
+import javax.interceptor.Interceptor;
+```
+```java
 private Object callAlternative(InvocationContext ctx, Class<?> javaClass) throws Throwable {
+```
+```java
+import javax.interceptor.AroundInvoke;
 ```
 
 
  And here is the error message:
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[55,29] cannot find symbol
-  symbol:   class InvocationContext
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[27,6] cannot find symbol
+  symbol:   class AroundInvoke
   location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
 
 [ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[18,2] cannot find symbol
   symbol: class Interceptor
 
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[11,25] package javax.interceptor does not exist
-
 [ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[12,25] package javax.interceptor does not exist
 
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[10,25] package javax.interceptor does not exist
-
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[27,6] cannot find symbol
-  symbol:   class AroundInvoke
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[55,29] cannot find symbol
+  symbol:   class InvocationContext
   location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
 
 [ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[28,38] cannot find symbol
   symbol:   class InvocationContext
   location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
 
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[11,25] package javax.interceptor does not exist
+
 [ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[40,36] cannot find symbol
   symbol:   class InvocationContext
   location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[10,25] package javax.interceptor does not exist
 
 
 

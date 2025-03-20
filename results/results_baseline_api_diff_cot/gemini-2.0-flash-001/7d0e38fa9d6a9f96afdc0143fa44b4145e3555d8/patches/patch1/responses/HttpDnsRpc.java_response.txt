@@ -229,7 +229,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.ManagedZones.Get getZoneCall(String zoneName, Map<Option, ?> options)
       throws IOException {
     return dns.managedZones()
-        .get(this.options.getProjectId(), this.options.getProjectId(), zoneName)
+        .get(this.options.getProjectId(), zoneName, this.options.getProjectId())
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -268,7 +268,7 @@ public class HttpDnsRpc implements DnsRpc {
   }
 
   private Dns.ManagedZones.Delete deleteZoneCall(String zoneName) throws IOException {
-    return dns.managedZones().delete(this.options.getProjectId(), this.options.getProjectId(), zoneName);
+    return dns.managedZones().delete(this.options.getProjectId(), zoneName, this.options.getProjectId());
   }
 
   @Override
@@ -349,7 +349,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.Changes.Get getChangeRequestCall(
       String zoneName, String changeRequestId, Map<Option, ?> options) throws IOException {
     return dns.changes()
-        .get(this.options.getProjectId(), zoneName, this.options.getProjectId(), changeRequestId)
+        .get(this.options.getProjectId(), zoneName, changeRequestId, this.options.getProjectId())
         .setFields(Option.FIELDS.getString(options));
   }
 

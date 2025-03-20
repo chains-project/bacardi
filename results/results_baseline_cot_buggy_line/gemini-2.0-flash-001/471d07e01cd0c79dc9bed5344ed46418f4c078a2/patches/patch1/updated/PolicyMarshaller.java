@@ -18,6 +18,7 @@ package com.google.cloud.resourcemanager;
 
 import com.google.cloud.Identity;
 import com.google.cloud.Policy;
+import com.google.cloud.Policy.Marshaller;
 import com.google.cloud.Role;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
@@ -32,7 +33,7 @@ import java.util.Set;
 /** @deprecated v3 GAPIC client of ResourceManager is now available */
 @Deprecated
 final class PolicyMarshaller
-    extends Policy.Marshaller {
+    extends Marshaller<Policy> {
 
   static final PolicyMarshaller INSTANCE = new PolicyMarshaller();
 
@@ -50,10 +51,10 @@ final class PolicyMarshaller
   }
 
   @Override
-  protected Policy fromPb(com.google.api.core.BetaApi comPolicyPb) {
+  protected Policy fromPb(Policy policyPb) {
     Map<Role, Set<Identity>> bindings = new HashMap<>();
-    if (comPolicyPb.getBindings() != null) {
-      for (com.google.iam.v1.Binding bindingPb : comPolicyPb.getBindings()) {
+    if (policyPb.getBindings() != null) {
+      for (com.google.cloud.Binding bindingPb : policyPb.getBindings()) {
         bindings.put(
             Role.of(bindingPb.getRole()),
             ImmutableSet.copyOf(
@@ -67,26 +68,20 @@ final class PolicyMarshaller
                     })));
       }
     }
-    return new Builder(bindings, comPolicyPb.getEtag(), comPolicyPb.getVersion()).build();
+    return new Builder(bindings, policyPb.getEtag(), policyPb.getVersion()).build();
   }
 
   @Override
-  protected com.google.api.core.BetaApi toPb(Policy policy) {
-    com.google.api.core.BetaApi policyPb =
-        com.google.api.core.BetaApi.newBuilder().setEtag(policy.getEtag()).setVersion(policy.getVersion()).build();
-    List<com.google.iam.v1.Binding> bindingPbList = new LinkedList<>();
+  protected Policy toPb(Policy policy) {
+    com.google.cloud.Policy policyPb =
+        com.google.cloud.Policy.newBuilder().setVersion(policy.getVersion()).setEtag(policy.getEtag()).build();
+    List<com.google.cloud.Binding> bindingPbList = new LinkedList<>();
     for (Map.Entry<Role, Set<Identity>> binding : policy.getBindings().entrySet()) {
-      com.google.iam.v1.Binding bindingPb = com.google.iam.v1.Binding.newBuilder().setRole(binding.getKey().getValue()).build();
-      List<String> members = Lists.transform(
-              new ArrayList<>(binding.getValue()),
-              new Function<Identity, String>() {
-                @Override
-                public String apply(Identity identity) {
-                  return IDENTITY_STR_VALUE_FUNCTION.apply(identity);
-                }
-              });
+      com.google.cloud.Binding bindingPb = com.google.cloud.Binding.newBuilder().setRole(binding.getKey().getValue()).setMembers(new ArrayList<>(binding.getValue())).build();
       bindingPbList.add(bindingPb);
     }
+    policyPb.getBindings().clear();
+    policyPb.getBindings().addAll(bindingPbList);
     return policyPb;
   }
 }

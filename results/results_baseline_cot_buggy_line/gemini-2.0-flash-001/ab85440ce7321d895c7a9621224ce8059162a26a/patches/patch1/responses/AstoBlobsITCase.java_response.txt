@@ -81,12 +81,11 @@ final class AstoBlobsITCase {
                     Throwables.getRootCause(throwable),
                     new IsInstanceOf(InvalidDigestException.class)
                 );
+                final String calculated = "3a6eb0790f39ac87c94f3856b2dd2c5d110e6811602261a9a923d3bb23adc8b7";
                 MatcherAssert.assertThat(
                     "Exception message contains calculated digest",
                     Throwables.getRootCause(throwable).getMessage(),
-                    new StringContains(
-                        "3a6eb0790f39ac87c94f3856b2dd2c5d110e6811602261a9a923d3bb23adc8b7"
-                    )
+                    new StringContains(calculated)
                 );
                 MatcherAssert.assertThat(
                     "Exception message contains expected digest",

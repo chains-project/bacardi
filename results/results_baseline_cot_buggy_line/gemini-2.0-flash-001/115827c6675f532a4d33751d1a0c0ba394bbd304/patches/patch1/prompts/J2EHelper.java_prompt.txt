@@ -91,7 +91,10 @@ public final class J2EHelper {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-import javax.servlet.FilterRegistration;
+final FilterRegistration.Dynamic filterRegistration = environment
+```
+```java
+import javax.servlet.DispatcherType;
 ```
 ```java
 EnumSet.of(DispatcherType.REQUEST), true, mapping);
@@ -100,18 +103,17 @@ EnumSet.of(DispatcherType.REQUEST), true, mapping);
 .servlets().addFilter(filter.getClass().getName(), filter);
 ```
 ```java
-final FilterRegistration.Dynamic filterRegistration = environment
-```
-```java
 filter.setClients(fConf.getClients());
 ```
 ```java
-import javax.servlet.DispatcherType;
+import javax.servlet.FilterRegistration;
 ```
 
 
  And here is the error message:
-[ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[6,21] package javax.servlet does not exist
+[ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[76,33] package FilterRegistration does not exist
+
+[ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[5,21] package javax.servlet does not exist
 
 [ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[80,28] cannot find symbol
   symbol:   variable DispatcherType
@@ -125,12 +127,10 @@ import javax.servlet.DispatcherType;
     method io.dropwizard.jetty.setup.ServletEnvironment.addFilter(java.lang.String,org.eclipse.jetty.servlet.FilterHolder) is not applicable
       (argument mismatch; org.pac4j.jee.filter.AbstractConfigFilter cannot be converted to org.eclipse.jetty.servlet.FilterHolder)
 
-[ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[76,33] package FilterRegistration does not exist
-
 [ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[37,15] cannot access javax.servlet.Filter
   class file for javax.servlet.Filter not found
 
-[ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[5,21] package javax.servlet does not exist
+[ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[6,21] package javax.servlet does not exist
 
 
 

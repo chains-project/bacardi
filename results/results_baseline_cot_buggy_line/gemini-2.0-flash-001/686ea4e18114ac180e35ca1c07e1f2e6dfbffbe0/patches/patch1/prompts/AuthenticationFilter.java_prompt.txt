@@ -42,56 +42,56 @@ public class AuthenticationFilter implements ContainerRequestFilter {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-public void filter(ContainerRequestContext requestContext) {
+public class AuthenticationFilter implements ContainerRequestFilter {
 ```
 ```java
 import javax.ws.rs.core.Response;
 ```
 ```java
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.container.ContainerRequestFilter;
+```
+```java
+import javax.ws.rs.ext.Provider;
 ```
 ```java
 import javax.ws.rs.core.HttpHeaders;
 ```
 ```java
-import javax.ws.rs.container.ContainerRequestFilter;
+@Provider
+```
+```java
+import javax.ws.rs.WebApplicationException;
 ```
 ```java
 import javax.ws.rs.container.ContainerRequestContext;
 ```
 ```java
-public class AuthenticationFilter implements ContainerRequestFilter {
-```
-```java
-@Provider
-```
-```java
-import javax.ws.rs.ext.Provider;
+public void filter(ContainerRequestContext requestContext) {
 ```
 
 
  And here is the error message:
-[ERROR] /lithium/src/main/java/com/wire/lithium/server/filters/AuthenticationFilter.java:[17,24] cannot find symbol
-  symbol:   class ContainerRequestContext
-  location: class com.wire.lithium.server.filters.AuthenticationFilter
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/filters/AuthenticationFilter.java:[15,46] cannot find symbol
+  symbol: class ContainerRequestFilter
 
 [ERROR] /lithium/src/main/java/com/wire/lithium/server/filters/AuthenticationFilter.java:[11,24] package javax.ws.rs.core does not exist
 
-[ERROR] /lithium/src/main/java/com/wire/lithium/server/filters/AuthenticationFilter.java:[7,19] package javax.ws.rs does not exist
-
-[ERROR] /lithium/src/main/java/com/wire/lithium/server/filters/AuthenticationFilter.java:[10,24] package javax.ws.rs.core does not exist
-
 [ERROR] /lithium/src/main/java/com/wire/lithium/server/filters/AuthenticationFilter.java:[9,29] package javax.ws.rs.container does not exist
 
-[ERROR] /lithium/src/main/java/com/wire/lithium/server/filters/AuthenticationFilter.java:[8,29] package javax.ws.rs.container does not exist
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/filters/AuthenticationFilter.java:[12,23] package javax.ws.rs.ext does not exist
 
-[ERROR] /lithium/src/main/java/com/wire/lithium/server/filters/AuthenticationFilter.java:[15,46] cannot find symbol
-  symbol: class ContainerRequestFilter
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/filters/AuthenticationFilter.java:[10,24] package javax.ws.rs.core does not exist
 
 [ERROR] /lithium/src/main/java/com/wire/lithium/server/filters/AuthenticationFilter.java:[14,2] cannot find symbol
   symbol: class Provider
 
-[ERROR] /lithium/src/main/java/com/wire/lithium/server/filters/AuthenticationFilter.java:[12,23] package javax.ws.rs.ext does not exist
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/filters/AuthenticationFilter.java:[7,19] package javax.ws.rs does not exist
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/filters/AuthenticationFilter.java:[8,29] package javax.ws.rs.container does not exist
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/filters/AuthenticationFilter.java:[17,24] cannot find symbol
+  symbol:   class ContainerRequestContext
+  location: class com.wire.lithium.server.filters.AuthenticationFilter
 
 
 

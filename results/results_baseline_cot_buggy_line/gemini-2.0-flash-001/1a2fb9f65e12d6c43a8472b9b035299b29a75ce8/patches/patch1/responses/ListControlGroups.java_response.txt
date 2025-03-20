@@ -35,17 +35,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.premiumminds.webapp.wicket.validators.HibernateValidatorProperty;
-import com.premiumminds.wicket.crudifier.IObjectRenderer;
-import com.premiumminds.wicket.crudifier.form.CrudifierEntitySettings;
-import com.premiumminds.wicket.crudifier.form.EntityProvider;
 import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.metadata.BeanDescriptor;
 import jakarta.validation.metadata.ConstraintDescriptor;
-import jakarta.validation.metadata.PropertyDescriptor as ValidationPropertyDescriptor;
+import jakarta.validation.metadata.ElementDescriptor;
+
+import com.premiumminds.webapp.wicket.validators.HibernateValidatorProperty;
+import com.premiumminds.wicket.crudifier.IObjectRenderer;
+import com.premiumminds.wicket.crudifier.form.CrudifierEntitySettings;
+import com.premiumminds.wicket.crudifier.form.EntityProvider;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -130,7 +131,7 @@ public abstract class ListControlGroups<T> extends Panel {
 
 			boolean required = false;
 
-			ValidationPropertyDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+			ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
 			if(constraintDescriptor!=null){
 				Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
 				for(ConstraintDescriptor<?> constraint : constraintsSet){

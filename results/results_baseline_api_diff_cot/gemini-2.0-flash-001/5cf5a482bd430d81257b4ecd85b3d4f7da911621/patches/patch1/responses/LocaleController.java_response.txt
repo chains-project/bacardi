@@ -20,10 +20,10 @@ import javax.ws.rs.Path;
 public class LocaleController {
 
     @Inject
-    MvcContext mvc;
+    jakarta.mvc.MvcContext mvc;
 
     @Inject
-    Models models;
+    jakarta.mvc.Models models;
 
     @Inject
     Logger log;

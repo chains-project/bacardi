@@ -281,7 +281,7 @@ public class SauceConnectFourManager extends AbstractSauceTunnelManager implemen
         } else {
             throw new RuntimeException("Unknown operating system: " + operatingSystem.name());
         }
-        unArchiver.getLogger().enableLogging(new ConsoleLogger(Logger.LEVEL_DEBUG, "Sauce"));
+        unArchiver.setLogger(new ConsoleLogger(Logger.LEVEL_DEBUG, "Sauce"));
         unArchiver.setSourceFile(archive);
         unArchiver.setDestDirectory(destination);
         unArchiver.extract();
@@ -307,6 +307,7 @@ public class SauceConnectFourManager extends AbstractSauceTunnelManager implemen
      * @param destination the destination directory
      */
     private void extractArchive(AbstractUnArchiver unArchiver, File archive, File destination) {
+        unArchiver.setLogger(new ConsoleLogger(Logger.LEVEL_DEBUG, "Sauce"));
         unArchiver.setSourceFile(archive);
         unArchiver.setDestDirectory(destination);
         unArchiver.extract();

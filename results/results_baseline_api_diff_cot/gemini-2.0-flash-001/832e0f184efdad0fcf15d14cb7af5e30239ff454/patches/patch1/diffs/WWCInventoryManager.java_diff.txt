@@ -1,0 +1,13 @@
+25a26,27
+> import org.bukkit.enchantments.Enchantment;
+> 
+78,79c80,85
+<                         if (args[0].equals("1")) {
+<                                 pageMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+---
+>                         XEnchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get();
+>                         if (args[0].equals("1") && powerEnchantment != null) {
+>                                 Enchantment enchantment = powerEnchantment.getEnchant();
+>                                 if (enchantment != null) {
+>                                         pageMeta.addEnchant(enchantment, 1, false);
+>                                 }

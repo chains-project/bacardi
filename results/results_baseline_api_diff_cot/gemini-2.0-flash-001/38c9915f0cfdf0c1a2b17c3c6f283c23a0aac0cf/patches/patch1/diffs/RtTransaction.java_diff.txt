@@ -1,0 +1,109 @@
+10c10
+<  * copies of the Software, and to permit persons to whom the Software is
+---
+>  * copies of this software, and to permit persons to whom the Software is
+29a30
+> import java.util.Arrays;
+33d33
+< import org.cactoos.iterable.LengthOf;
+35c35
+< import org.cactoos.scalar.IoCheckedScalar;
+---
+> import org.cactoos.scalar.Unchecked;
+37,38d36
+< import org.cactoos.scalar.StickyScalar;
+< import org.cactoos.scalar.UncheckedScalar;
+40d37
+< import org.cactoos.text.SplitText;
+42d38
+< import org.cactoos.text.TrimmedText;
+44a41,42
+> import org.cactoos.scalar.LengthOf;
+> import org.cactoos.text.Trimmed;
+88c86
+<     private final IoCheckedScalar<String> transaction;
+---
+>     private final Unchecked<String> transaction;
+95,96c93
+<         this.transaction = new IoCheckedScalar<>(
+<             new StickyScalar<>(
+---
+>         this.transaction = new Unchecked<>(
+99c96
+<                         new TrimmedText(
+---
+>                     new Trimmed(
+109c106
+<                             new SplitText(trnsct, ";")
+---
+>                         Arrays.asList(trnsct.split(";")).stream().map(TextOf::new).toArray(Text[]::new)
+123d119
+<             )
+131c127
+<             new IoCheckedScalar<>(
+---
+>             new Unchecked<>(
+133c129
+<                     0, new SplitText(this.transaction.value(), ";")
+---
+>                     0, new ListOf<>(Arrays.asList(this.transaction.value().split(";")).stream().map(TextOf::new).toArray(Text[]::new))
+156c152
+<                 new IoCheckedScalar<>(
+---
+>                 new Unchecked<>(
+158c154
+<                         1, new SplitText(this.transaction.value(), ";")
+---
+>                         1, new ListOf<>(Arrays.asList(this.transaction.value().split(";")).stream().map(TextOf::new).toArray(Text[]::new))
+169c165
+<             new IoCheckedScalar<>(
+---
+>             new Unchecked<>(
+171c167
+<                     2, new SplitText(this.transaction.value(), ";")
+---
+>                     2, new ListOf<>(Arrays.asList(this.transaction.value().split(";")).stream().map(TextOf::new).toArray(Text[]::new))
+193c189
+<             new IoCheckedScalar<>(
+---
+>             new Unchecked<>(
+196c192
+<                     3, new SplitText(this.transaction.value(), ";")
+---
+>                     3, new ListOf<>(Arrays.asList(this.transaction.value().split(";")).stream().map(TextOf::new).toArray(Text[]::new))
+213c209
+<             new IoCheckedScalar<>(
+---
+>             new Unchecked<>(
+216c212
+<                     4, new SplitText(this.transaction.value(), ";")
+---
+>                     4, new ListOf<>(Arrays.asList(this.transaction.value().split(";")).stream().map(TextOf::new).toArray(Text[]::new))
+237c233
+<             new IoCheckedScalar<>(
+---
+>             new Unchecked<>(
+240c236
+<                     5, new SplitText(this.transaction.value(), ";")
+---
+>                     5, new ListOf<>(Arrays.asList(this.transaction.value().split(";")).stream().map(TextOf::new).toArray(Text[]::new))
+261c257
+<             new IoCheckedScalar<>(
+---
+>             new Unchecked<>(
+264c260
+<                     6, new SplitText(this.transaction.value(), ";")
+---
+>                     6, new ListOf<>(Arrays.asList(this.transaction.value().split(";")).stream().map(TextOf::new).toArray(Text[]::new))
+286c282
+<         return new UncheckedScalar<>(this.transaction).value();
+---
+>         return this.transaction.value();
+299c295
+<         return this.transaction.equals(that.transaction);
+---
+>         return this.transaction.value().equals(that.transaction.value());
+304c300
+<         return this.transaction.hashCode();
+---
+>         return this.transaction.value().hashCode();

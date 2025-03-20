@@ -54,8 +54,8 @@ public final class ManifestRefTest {
             throwable.getMessage(),
             new AllOf<>(
                 Arrays.asList(
-                    new StringContains("Unsupported reference"),
-                    Matchers.not(new StringContains(string))
+                    Matchers.containsString("Unsupported reference"),
+                    Matchers.not(Matchers.containsString(string))
                 )
             )
         );

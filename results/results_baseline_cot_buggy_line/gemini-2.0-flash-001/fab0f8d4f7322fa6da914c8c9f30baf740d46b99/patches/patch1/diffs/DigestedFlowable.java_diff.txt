@@ -1,9 +1,20 @@
-15,16c15
+15,16d14
 < import org.cactoos.io.BytesOf;
 < import org.cactoos.text.HexOf;
----
+18a17,18
 > import org.apache.commons.codec.binary.Hex;
-57c56
+> import java.io.IOException;
+56,58c56,64
+<             () -> this.dig.set(
 <                 new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+<             )
 ---
->                 new Digest.Sha256(new String(Hex.encodeHex(sha.digest())))
+>             () -> {
+>                 try {
+>                     this.dig.set(
+>                         new Digest.Sha256(new String(Hex.encodeHex(sha.digest())))
+>                     );
+>                 } catch (final Exception ex) {
+>                     throw new IllegalStateException(ex);
+>                 }
+>             }

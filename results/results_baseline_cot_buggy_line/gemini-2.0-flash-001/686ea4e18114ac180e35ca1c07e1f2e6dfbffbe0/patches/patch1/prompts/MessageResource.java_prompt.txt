@@ -135,47 +135,47 @@ public class MessageResource extends MessageResourceBase {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-@Consumes(MediaType.APPLICATION_JSON)
-```
-```java
-@Produces(MediaType.APPLICATION_JSON)
-```
-```java
-public Response newMessage(@ApiParam("UUID Bot instance id") @PathParam("bot") UUID botId,
-```
-```java
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 ```
 ```java
 import javax.ws.rs.*;
 ```
 ```java
-@Path("/bots/{bot}/messages")
+import javax.ws.rs.core.MediaType;
 ```
 ```java
-import javax.ws.rs.core.Response;
+@Produces(MediaType.APPLICATION_JSON)
+```
+```java
+@Consumes(MediaType.APPLICATION_JSON)
+```
+```java
+public Response newMessage(@ApiParam("UUID Bot instance id") @PathParam("bot") UUID botId,
+```
+```java
+@Path("/bots/{bot}/messages")
 ```
 
 
  And here is the error message:
-[ERROR] /lithium/src/main/java/com/wire/lithium/server/resources/MessageResource.java:[47,2] cannot find symbol
-  symbol: class Consumes
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/resources/MessageResource.java:[40,24] package javax.ws.rs.core does not exist
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/resources/MessageResource.java:[38,1] package javax.ws.rs does not exist
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/resources/MessageResource.java:[39,24] package javax.ws.rs.core does not exist
 
 [ERROR] /lithium/src/main/java/com/wire/lithium/server/resources/MessageResource.java:[46,2] cannot find symbol
   symbol: class Produces
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/resources/MessageResource.java:[47,2] cannot find symbol
+  symbol: class Consumes
 
 [ERROR] /lithium/src/main/java/com/wire/lithium/server/resources/MessageResource.java:[66,12] cannot find symbol
   symbol:   class Response
   location: class com.wire.lithium.server.resources.MessageResource
 
-[ERROR] /lithium/src/main/java/com/wire/lithium/server/resources/MessageResource.java:[39,24] package javax.ws.rs.core does not exist
-
-[ERROR] /lithium/src/main/java/com/wire/lithium/server/resources/MessageResource.java:[38,1] package javax.ws.rs does not exist
-
 [ERROR] /lithium/src/main/java/com/wire/lithium/server/resources/MessageResource.java:[48,2] cannot find symbol
   symbol: class Path
-
-[ERROR] /lithium/src/main/java/com/wire/lithium/server/resources/MessageResource.java:[40,24] package javax.ws.rs.core does not exist
 
 
 

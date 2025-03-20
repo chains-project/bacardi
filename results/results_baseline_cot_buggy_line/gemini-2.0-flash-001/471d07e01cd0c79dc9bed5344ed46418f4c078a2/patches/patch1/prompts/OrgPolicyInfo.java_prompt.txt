@@ -400,78 +400,56 @@ public class OrgPolicyInfo {
  the error is triggered in the following specific lines in the previous code:
 
 ```java
-static final Function<OrgPolicy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
-```
-```java
-private RestoreDefault restoreDefault;
-```
-```java
-BooleanPolicy toProtobuf() {
-```
-```java
-import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
-```
-```java
-static OrgPolicyInfo fromProtobuf(OrgPolicy orgPolicyProtobuf) {
-```
-```java
-static Policies fromProtobuf(ListPolicy listPolicy) {
-```
-```java
 public RestoreDefault getRestoreDefault() {
 ```
 ```java
 Builder setRestoreDefault(RestoreDefault restoreDefault) {
 ```
 ```java
-private RestoreDefault restoreDefault;
-```
-```java
-OrgPolicy toProtobuf() {
-```
-```java
 static final Function<OrgPolicyInfo, OrgPolicy> TO_PROTOBUF_FUNCTION =
-```
-```java
-import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
-```
-```java
-ListPolicy toProtobuf() {
-```
-```java
-static BoolPolicy fromProtobuf(BooleanPolicy booleanPolicy) {
 ```
 ```java
 import com.google.api.services.cloudresourcemanager.model.ListPolicy;
 ```
 ```java
+static BoolPolicy fromProtobuf(BooleanPolicy booleanPolicy) {
+```
+```java
+BooleanPolicy toProtobuf() {
+```
+```java
+static final Function<OrgPolicy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
+```
+```java
+import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+```
+```java
+static Policies fromProtobuf(ListPolicy listPolicy) {
+```
+```java
 import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+```
+```java
+import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+```
+```java
+OrgPolicy toProtobuf() {
+```
+```java
+private RestoreDefault restoreDefault;
+```
+```java
+ListPolicy toProtobuf() {
+```
+```java
+static OrgPolicyInfo fromProtobuf(OrgPolicy orgPolicyProtobuf) {
+```
+```java
+private RestoreDefault restoreDefault;
 ```
 
 
  And here is the error message:
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[38,25] cannot find symbol
-  symbol:   class OrgPolicy
-  location: class com.google.cloud.resourcemanager.OrgPolicyInfo
-
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[225,13] cannot find symbol
-  symbol:   class RestoreDefault
-  location: class com.google.cloud.resourcemanager.OrgPolicyInfo.Builder
-
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[96,5] cannot find symbol
-  symbol:   class BooleanPolicy
-  location: class com.google.cloud.resourcemanager.OrgPolicyInfo.BoolPolicy
-
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[18,58] package com.google.api.services.cloudresourcemanager.model does not exist
-
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[376,37] cannot find symbol
-  symbol:   class OrgPolicy
-  location: class com.google.cloud.resourcemanager.OrgPolicyInfo
-
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[209,34] cannot find symbol
-  symbol:   class ListPolicy
-  location: class com.google.cloud.resourcemanager.OrgPolicyInfo.Policies
-
 [ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[312,10] cannot find symbol
   symbol:   class RestoreDefault
   location: class com.google.cloud.resourcemanager.OrgPolicyInfo
@@ -480,31 +458,53 @@ import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
   symbol:   class RestoreDefault
   location: class com.google.cloud.resourcemanager.OrgPolicyInfo.Builder
 
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[57,11] cannot find symbol
-  symbol:   class RestoreDefault
-  location: class com.google.cloud.resourcemanager.OrgPolicyInfo
-
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[360,3] cannot find symbol
-  symbol:   class OrgPolicy
-  location: class com.google.cloud.resourcemanager.OrgPolicyInfo
-
 [ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[45,40] cannot find symbol
   symbol:   class OrgPolicy
   location: class com.google.cloud.resourcemanager.OrgPolicyInfo
 
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[21,58] package com.google.api.services.cloudresourcemanager.model does not exist
-
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[200,5] cannot find symbol
-  symbol:   class ListPolicy
-  location: class com.google.cloud.resourcemanager.OrgPolicyInfo.Policies
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[19,58] package com.google.api.services.cloudresourcemanager.model does not exist
 
 [ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[100,36] cannot find symbol
   symbol:   class BooleanPolicy
   location: class com.google.cloud.resourcemanager.OrgPolicyInfo.BoolPolicy
 
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[19,58] package com.google.api.services.cloudresourcemanager.model does not exist
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[96,5] cannot find symbol
+  symbol:   class BooleanPolicy
+  location: class com.google.cloud.resourcemanager.OrgPolicyInfo.BoolPolicy
+
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[38,25] cannot find symbol
+  symbol:   class OrgPolicy
+  location: class com.google.cloud.resourcemanager.OrgPolicyInfo
+
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[21,58] package com.google.api.services.cloudresourcemanager.model does not exist
+
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[209,34] cannot find symbol
+  symbol:   class ListPolicy
+  location: class com.google.cloud.resourcemanager.OrgPolicyInfo.Policies
 
 [ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[20,58] package com.google.api.services.cloudresourcemanager.model does not exist
+
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[18,58] package com.google.api.services.cloudresourcemanager.model does not exist
+
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[360,3] cannot find symbol
+  symbol:   class OrgPolicy
+  location: class com.google.cloud.resourcemanager.OrgPolicyInfo
+
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[57,11] cannot find symbol
+  symbol:   class RestoreDefault
+  location: class com.google.cloud.resourcemanager.OrgPolicyInfo
+
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[200,5] cannot find symbol
+  symbol:   class ListPolicy
+  location: class com.google.cloud.resourcemanager.OrgPolicyInfo.Policies
+
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[376,37] cannot find symbol
+  symbol:   class OrgPolicy
+  location: class com.google.cloud.resourcemanager.OrgPolicyInfo
+
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/OrgPolicyInfo.java:[225,13] cannot find symbol
+  symbol:   class RestoreDefault
+  location: class com.google.cloud.resourcemanager.OrgPolicyInfo.Builder
 
 
 
