@@ -1,0 +1,122 @@
+18c18
+<  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+---
+>  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+30,31c30,32
+< import org.cactoos.collection.Filtered;
+< import org.cactoos.iterable.IterableOf;
+---
+> import java.util.Iterator;
+> import java.util.stream.Collectors;
+> import java.util.stream.StreamSupport;
+36d36
+< import org.cactoos.scalar.CheckedScalar;
+38d37
+< import org.cactoos.scalar.UncheckedScalar;
+40d38
+< import org.cactoos.text.SplitText;
+201c199
+<             return new CheckedScalar<>(
+---
+>             return new io.zold.api.CheckedScalar<>(
+204c202
+<                         new SplitText(
+---
+>                         new io.zold.api.SplitText(
+247,262c245,258
+<             final Iterable<Transaction> candidates = new Filtered<>(
+<                 incoming -> new Filtered<>(
+<                     origin -> new UncheckedScalar<>(
+<                         new Or(
+<                             () -> incoming.equals(origin),
+<                             () -> incoming.id() == origin.id()
+<                                 && incoming.bnf().equals(origin.bnf()),
+<                             () -> incoming.id() == origin.id()
+<                                 && incoming.amount() < 0L,
+<                             () -> incoming.prefix().equals(origin.prefix())
+<                         )
+<                     ).value(),
+<                     ledger
+<                 ).isEmpty(),
+<                 other.ledger()
+<             );
+---
+>             final Iterable<Transaction> otherLedger = other.ledger();
+>             final Iterable<Transaction> candidates = StreamSupport.stream(otherLedger.spliterator(), false)
+>                 .filter(incoming -> StreamSupport.stream(ledger.spliterator(), false)
+>                     .noneMatch(origin -> {
+>                         try {
+>                             return incoming.equals(origin) ||
+>                                 incoming.id() == origin.id() && incoming.bnf().equals(origin.bnf()) ||
+>                                 incoming.id() == origin.id() && incoming.amount() < 0L ||
+>                                 incoming.prefix().equals(origin.prefix());
+>                         } catch (final IOException ex) {
+>                             throw new IllegalStateException(ex);
+>                         }
+>                     })
+>                 ).collect(Collectors.toList());
+275c271
+<                         new SplitText(
+---
+>                         new io.zold.api.SplitText(
+296a293,351
+> 
+> class CheckedScalar<T> {
+>     private final CheckedScalar.Func<Exception, IOException> func;
+>     private final CheckedScalar.Scalar<T> scalar;
+> 
+>     public CheckedScalar(final CheckedScalar.Scalar<T> scalar, final CheckedScalar.Func<Exception, IOException> func) {
+>         this.scalar = scalar;
+>         this.func = func;
+>     }
+> 
+>     public T value() throws IOException {
+>         try {
+>             return this.scalar.value();
+>         } catch (final Exception ex) {
+>             throw this.func.apply(ex);
+>         }
+>     }
+> 
+>     public interface Scalar<T> {
+>         T value() throws Exception;
+>     }
+> 
+>     public interface Func<X extends Exception, Y extends Exception> {
+>         Y apply(X input) throws Y;
+>     }
+> }
+> 
+> class SplitText implements Iterable<org.cactoos.Text> {
+> 
+>     private final String origin;
+>     private final String regex;
+> 
+>     SplitText(final org.cactoos.Text origin, final String regex) throws IOException {
+>         this(origin.asString(), regex);
+>     }
+> 
+>     SplitText(final String origin, final String regex) {
+>         this.origin = origin;
+>         this.regex = regex;
+>     }
+> 
+>     @Override
+>     public Iterator<org.cactoos.Text> iterator() {
+>         return new Iterator<org.cactoos.Text>() {
+>             private final String[] parts = origin.split(regex);
+>             private int cursor = 0;
+> 
+>             @Override
+>             public boolean hasNext() {
+>                 return cursor < parts.length;
+>             }
+> 
+>             @Override
+>             public org.cactoos.Text next() {
+>                 return new TextOf(parts[cursor++]);
+>             }
+>         };
+>     }
+> }
+\ No newline at end of file

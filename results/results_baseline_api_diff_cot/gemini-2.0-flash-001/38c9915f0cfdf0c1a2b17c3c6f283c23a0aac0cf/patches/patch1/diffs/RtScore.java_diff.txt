@@ -1,0 +1,19 @@
+10c10
+<  * copies of the Software, and to permit persons to whom the Software is
+---
+>  * copies of the code, and to permit persons to whom the code is
+14c14
+<  * in all copies or substantial portions of the Software.
+---
+>  * in all copies or substantial portions of the Code.
+27c27,28
+< import org.cactoos.iterable.LengthOf;
+---
+> import org.cactoos.scalar.LengthOf;
+> import org.cactoos.iterable.IterableOf;
+52,53c53,54
+<         return new LengthOf(other.suffixes()).intValue()
+<             - new LengthOf(this.sfxs).intValue();
+---
+>         return new LengthOf(new IterableOf<>(other.suffixes())).intValue()
+>             - new LengthOf(new IterableOf<>(this.sfxs)).intValue();

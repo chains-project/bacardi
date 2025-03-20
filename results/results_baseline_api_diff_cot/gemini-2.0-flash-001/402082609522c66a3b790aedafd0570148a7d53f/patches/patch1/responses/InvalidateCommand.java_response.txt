@@ -8,11 +8,16 @@ import com.google.inject.Inject;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
-import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.command.CommandExecutor;
+import org.spongepowered.api.command.parameter.Parameter;
+import java.util.function.Predicate;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.service.permission.Subject;
 
-public class InvalidateCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
+public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
 
@@ -22,22 +27,22 @@ public class InvalidateCommand implements org.spongepowered.api.command.CommandE
     }
 
     @Override
-    public CommandResult execute(CommandCause src, CommandContext args) {
-        if (!(src.getCause() instanceof Player)) {
-            plugin.sendMessage(src.getCause(), "no-console");
+    public CommandResult execute(CommandContext context) throws CommandException {
+        org.spongepowered.api.command.CommandSource src = context.getCause().root();
+        if (!(src instanceof Player)) {
+            plugin.sendMessage(src, "no-console");
             return CommandResult.empty();
         }
 
-        Player receiver = (Player) src.getCause();
-        org.spongepowered.api.scheduler.Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+        Player receiver = (Player) src;
+        plugin.getServer().getScheduler().createTaskBuilder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
         return CommandResult.success();
     }
 
     @Override
-    public Command buildSpec() {
+    public Command.Builder buildSpec() {
         return Command.builder()
                 .executor(this)
-                .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base")
-                .build();
+                .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base");
     }
 }

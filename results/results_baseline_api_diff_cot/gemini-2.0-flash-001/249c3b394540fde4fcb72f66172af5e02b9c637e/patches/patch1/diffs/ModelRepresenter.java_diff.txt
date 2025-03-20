@@ -1,43 +1,10 @@
-22a23
-> import org.yaml.snakeyaml.introspector.PropertyUtils;
-217,219c218,222
-<   @Override
+218,219c218,219
 <   protected Set<Property> getProperties(Class<? extends Object> type)
 <           throws IntrospectionException {
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) {
 >     try {
->       PropertyUtils propertyUtils = this.getPropertyUtils();
->       Set<Property> standard = propertyUtils.getProperties(type);
->       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(ORDER_MODEL));
-221c224
-<       return sortTypeWithOrder(type, ORDER_MODEL);
----
->         sorted = new TreeSet<Property>(new ModelPropertyComparator(ORDER_MODEL));
-223c226
-<       return sortTypeWithOrder(type, ORDER_DEVELOPER);
----
->         sorted = new TreeSet<Property>(new ModelPropertyComparator(ORDER_DEVELOPER));
-225c228
-<       return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
----
->         sorted = new TreeSet<Property>(new ModelPropertyComparator(ORDER_CONTRIBUTOR));
-227c230
-<       return sortTypeWithOrder(type, ORDER_DEPENDENCY);
----
->         sorted = new TreeSet<Property>(new ModelPropertyComparator(ORDER_DEPENDENCY));
-229c232
-<       return sortTypeWithOrder(type, ORDER_PLUGIN);
----
->         sorted = new TreeSet<Property>(new ModelPropertyComparator(ORDER_PLUGIN));
-232a236,240
->       sorted.addAll(standard);
->       return sorted;
+232a233,235
 >     } catch (IntrospectionException e) {
 >       throw new YAMLException(e);
 >     }
-237c245,246
-<       Set<Property> standard = super.getProperties(type);
----
->       PropertyUtils propertyUtils = this.getPropertyUtils();
->       Set<Property> standard = propertyUtils.getProperties(type);

@@ -1,0 +1,35 @@
+15,17c15,18
+< import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
+< import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
+< import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
+---
+> import com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult;
+> import com.pubnub.api.models.consumer.pubsub.objects.PNMembership;
+> import com.pubnub.api.models.consumer.pubsub.objects.PNSpace;
+> import com.pubnub.api.models.consumer.pubsub.objects.PNUser;
+94,95c95,96
+<                 public void user(PubNub pubnub, PNUserResult pnUserResult) {
+<                   LOG.debug("PubNub user: {}", pnUserResult.toString());
+---
+>                 public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
+>                   LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
+99,100c100,102
+<                 public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
+<                   LOG.debug("PubNub space: {}", pnSpaceResult.toString());
+---
+>                 public void messageAction(
+>                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
+>                   LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
+104,105c106,107
+<                 public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
+<                   LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
+---
+>                 public void user(PubNub pubnub, com.pubnub.api.models.consumer.objects_api.user.PNUserResult pnUserResult) {
+>                   LOG.debug("PubNub user: {}", pnUserResult.toString());
+109,111c111,112
+<                 public void messageAction(
+<                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
+<                   LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
+---
+>                 public void space(PubNub pubnub, com.pubnub.api.models.consumer.objects_api.space.PNSpaceResult pnSpaceResult) {
+>                   LOG.debug("PubNub space: {}", pnSpaceResult.toString());

@@ -1,0 +1,25 @@
+11c11
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+---
+>  * is distributed on an "AS IS" BASIS,
+18,19c18,22
+< import com.hazelcast.core.Cluster;
+< import com.hazelcast.core.EntryListener;
+---
+> import com.hazelcast.cluster.Cluster;
+> import com.hazelcast.cluster.Member;
+> import com.hazelcast.cluster.MembershipEvent;
+> import com.hazelcast.cluster.MembershipListener;
+> import com.hazelcast.cluster.MemberAttributeEvent;
+22,26d24
+< import com.hazelcast.core.LifecycleListener;
+< import com.hazelcast.core.Member;
+< import com.hazelcast.core.MemberAttributeEvent;
+< import com.hazelcast.core.MembershipEvent;
+< import com.hazelcast.core.MembershipListener;
+46a45
+> import com.hazelcast.map.listener.EntryListener;
+52c51
+< public class ClusterListener implements MembershipListener, LifecycleListener {
+---
+> public class ClusterListener implements MembershipListener, com.hazelcast.core.LifecycleListener {

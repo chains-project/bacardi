@@ -12,10 +12,8 @@ import java.util.UUID;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
-import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.command.parameter.CommandContext;
@@ -32,29 +30,28 @@ public class InfoCommand implements org.spongepowered.api.command.CommandExecuto
 
 
     @Override
-    public CommandResult execute(CommandCause src, CommandContext args) throws CommandException {
-        if (!(src instanceof Player)) {
-            plugin.sendMessage(src, "no-console");
-            return CommandResult.empty();
+    public CommandResult execute(org.spongepowered.api.command.CommandCause cause, CommandContext args) throws CommandException {
+        if (!(cause.cause().root() instanceof Player)) {
+            plugin.sendMessage(cause, "no-console");
+            return CommandResult.success();
         }
 
-        UUID uniqueId = ((Player) src).getUniqueId();
-        Sponge.asyncScheduler().submit(Task.builder().plugin(plugin)
-                .execute(() -> {
-                    UserPreference preferences = plugin.getCore().getStorage().getPreferences(uniqueId);
-                    Sponge.server().scheduler().submit(Task.builder().plugin(plugin).execute(() -> sendSkinDetails(uniqueId, preferences)).build());
-                })
-                .build());
+        Player player = (Player) cause.cause().root();
+        UUID uniqueId = player.getUniqueId();
+
+        Sponge.asyncScheduler().submit(Task.builder().plugin(plugin).execute(() -> {
+            UserPreference preferences = plugin.getCore().getStorage().getPreferences(uniqueId);
+            Sponge.server().scheduler().submit(Task.builder().plugin(plugin).execute(() -> sendSkinDetails(uniqueId, preferences)).build());
+        }).build());
 
         return CommandResult.success();
     }
 
     @Override
-    public Command buildSpec() {
+    public Command.Builder buildSpec() {
         return Command.builder()
                 .executor(this)
-                .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
-                .build();
+                .permission(PomData.ARTIFACT_ID + ".command.skininfo.base");
     }
 
     private void sendSkinDetails(UUID uuid, UserPreference preference) {

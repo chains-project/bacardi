@@ -1,0 +1,30 @@
+2a3
+> import java.util.List;
+6,12c7,11
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.UriRef;
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.MvcBinding;
+< import javax.mvc.binding.ParamError;
+< import javax.mvc.security.CsrfProtected;
+---
+> import jakarta.mvc.Controller;
+> import jakarta.mvc.Models;
+> import jakarta.mvc.UriRef;
+> import jakarta.mvc.binding.MvcBinding;
+> import jakarta.mvc.security.CsrfProtected;
+17a17,18
+> import jakarta.mvc.binding.BindingResult;
+> import jakarta.mvc.binding.ParamError;
+53,55c54,55
+<             bindingResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+---
+>             List<ParamError> allErrors = bindingResult.getAllErrors();
+>             for (ParamError t : allErrors) {
+57c57
+<                     });
+---
+>             }

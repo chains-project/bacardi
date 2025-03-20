@@ -66,6 +66,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
@@ -179,7 +180,10 @@ public class EngineGeneralTest {
 
     @BeforeClass
     public static void initStatic() {
-        ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);
+        Logger root = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+        if (root instanceof ch.qos.logback.classic.Logger) {
+            ((ch.qos.logback.classic.Logger) root).setLevel(Level.TRACE);
+        }
     }
 
     @Before
@@ -749,9 +753,4 @@ public class EngineGeneralTest {
 
         // Previously, we rolled back the transaction; now we are trying the flush an empty transaction.
         // Therefore, we shouldn't have any rows on the table.
-        assertEquals("There are no rows on table TEST", 0, query.size());
-    }
-
-    @Test
-    public void blobTest() throws DatabaseEngineException {
-        final double[] original = new double
+        assertEquals("There are no

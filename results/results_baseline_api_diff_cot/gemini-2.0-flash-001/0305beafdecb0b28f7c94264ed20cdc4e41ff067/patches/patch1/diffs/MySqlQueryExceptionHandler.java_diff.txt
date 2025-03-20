@@ -1,0 +1,19 @@
+21,22d20
+< import com.mysql.jdbc.exceptions.MySQLTimeoutException;
+< 
+40c38,50
+<         return exception instanceof MySQLTimeoutException || super.isTimeoutException(exception);
+---
+>         return isMySQLTimeoutException(exception) || super.isTimeoutException(exception);
+>     }
+> 
+>     private boolean isMySQLTimeoutException(final SQLException exception) {
+>         // Check if the exception is an instance of the MySQL timeout exception class.
+>         try {
+>             Class<?> mysqlTimeoutExceptionClass = Class.forName("com.mysql.cj.jdbc.exceptions.MySQLTimeoutException");
+>             return mysqlTimeoutExceptionClass.isInstance(exception);
+>         } catch (ClassNotFoundException e) {
+>             // If the class is not found, it might be a different MySQL driver version.
+>             // In this case, return false.
+>             return false;
+>         }

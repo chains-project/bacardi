@@ -54,7 +54,6 @@ public class AppenderUtils {
     private TProtocol protocol;
     private OutputStream os;
 
-    @Override
     public void init(OutputStream os) {
       this.os = os;
       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
@@ -65,7 +64,6 @@ public class AppenderUtils {
       protocol = new TBinaryProtocol(framedTransport);
     }
 
-    @Override
     public void doEncode(LogMessage logMessage) throws IOException {
       try {
         logMessage.write(protocol);
@@ -75,19 +73,19 @@ public class AppenderUtils {
       }
     }
 
-    @Override
     public void close() throws IOException {
       framedTransport.close();
     }
 
     @Override
-    public byte[] headerBytes() {
-      return null;
-    }
-
-    @Override
-    public byte[] footerBytes() {
-      return null;
+    public byte[] encode(LogMessage logMessage) throws IOException {
+      try {
+        logMessage.write(protocol);
+        framedTransport.flush();
+        return new byte[0]; // Return an empty byte array as the message is already written to the output stream
+      } catch (TException e) {
+        throw new IOException(e);
+      }
     }
   }
 
@@ -130,7 +128,7 @@ public class AppenderUtils {
 
     policy.setTimeBasedFileNamingAndTriggeringPolicy(fnatp);
     appender.setRollingPolicy(policy);
-    appender.setTriggeringPolicy(fnatp);
+    appender.setTriggeringPolicy(policy);
 
     policy.start();
     appender.start();

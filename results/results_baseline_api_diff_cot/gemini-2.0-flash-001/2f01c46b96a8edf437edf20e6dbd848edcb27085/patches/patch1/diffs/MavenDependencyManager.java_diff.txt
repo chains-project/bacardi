@@ -1,0 +1,9 @@
+162,164c162,165
+<         .map(exec -> (Xpp3Dom) exec.getConfiguration())
+<         .map(config -> config.getChild("processors"))
+<         .map(Xpp3Dom::getChildren)
+---
+>         .map(exec -> (Object) exec.getConfiguration())
+>         .map(config -> (config instanceof Xpp3Dom) ? (Xpp3Dom) config : null)
+>         .map(config -> (config != null) ? config.getChild("processors") : null)
+>         .map(processors -> (processors != null) ? processors.getChildren() : null)
