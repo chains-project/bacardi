@@ -37,11 +37,14 @@ import org.sonarsource.sonarlint.core.commons.Language;
 import org.sonarsource.sonarlint.core.commons.RuleKey;
 import org.sonarsource.sonarlint.core.commons.log.ClientLogOutput;
 import org.sonarsource.sonarlint.core.commons.progress.ClientProgressMonitor;
+import org.sonarsource.sonarlint.core.commons.progress.ProgressMonitor;
 import org.sonarsource.sonarlint.core.plugin.commons.LoadedPlugins;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoadResult;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader;
+import org.sonarsource.sonarlint.core.plugin.commons.Configuration;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInfo;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInstancesLoader;
+import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginRequirementsCheckResult;
 import org.sonarsource.sonarlint.core.rule.extractor.SonarLintRuleDefinition;
 import sorald.FileUtils;
 import sorald.util.ConfigLoader;
@@ -139,7 +142,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                 instancesLoader.instantiatePluginClasses(allPlugins);
 
         return new LoadedPluginsThatDoesNotCloseLoader(
-                pluginInstancesByKeys, pluginInstancesLoader);
+                (pluginInstancesByKeys, pluginInstancesLoader);
     }
 
     private static Collection<PluginInfo> getAllPlugins(
@@ -270,7 +273,6 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
      */
     public static class LoadedPluginsThatDoesNotCloseLoader extends LoadedPlugins {
 
-    {
         public LoadedPluginsThatDoesNotCloseLoader(
                 Map<String, Plugin> pluginInstancesByKeys,
                 PluginInstancesLoader pluginInstancesLoader) {

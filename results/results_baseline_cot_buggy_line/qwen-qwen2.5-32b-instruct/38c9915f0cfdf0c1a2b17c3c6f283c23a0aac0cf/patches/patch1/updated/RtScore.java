@@ -1,9 +1,7 @@
 package io.zold.api;
 
 import org.cactoos.Text;
-import org.cactoos.iterable.IterableOf;
-
-import java.util.stream.Stream;
+import org.cactoos.iterable.SizeOf;
 
 /**
  * Default implementation for {@link Score}.
@@ -28,9 +26,8 @@ public final class RtScore implements Score {
 
     @Override
     public int compareTo(final Score other) {
-        final long thisLength = StreamSupport.stream(this.sfxs.spliterator(), false).count();
-        final long otherLength = StreamSupport.stream(other.suffixes().spliterator(), false).count();
-        return Long.compare(otherLength, thisLength);
+        return new SizeOf(other.suffixes()).intValue()
+            - new SizeOf(this.sfxs).intValue();
     }
 
     @Override

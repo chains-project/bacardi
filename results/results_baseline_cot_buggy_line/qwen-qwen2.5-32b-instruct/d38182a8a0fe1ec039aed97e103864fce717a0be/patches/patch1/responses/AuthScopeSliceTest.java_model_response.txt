@@ -1,23 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the `User` class cannot be found within the `Authentication` interface.
-   - This suggests that the `User` class has been removed or moved in the updated dependency version.
-
-2. Review the client code:
-   - The problematic areas are where `User` is referenced within the `AuthScopeSliceTest` class.
-   - The `User` class is used to create an `Authentication.User` object, which is then wrapped in an `Optional`.
-
-3. Consider potential fixes:
-   - The `User` class is no longer available in the `Authentication` interface.
-   - The fix should involve replacing the usage of `User` with an alternative that is compatible with the updated dependency version.
-   - If the `User` class has been replaced by another class or method, that should be used instead.
-
-4. Plan the necessary changes:
-   - Replace the `User` class with a compatible alternative.
-   - Ensure that the replacement maintains the same functionality.
-   - Update the imports if necessary to reflect the changes in the dependency.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
@@ -39,6 +19,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.IsEqual;
 import org.junit.jupiter.api.Test;
+import org.reactivestreams.Publisher;
 
 /**
  * Tests for {@link AuthScopeSlice}.
@@ -74,8 +55,12 @@ class AuthScopeSliceTest {
                 new AuthScheme.Result() {
                     @Override
                     public Optional<Authentication> user() {
-                        // Assuming the new version of the dependency uses Authentication directly
-                        return Optional.of(Authentication.of("alice"));
+                        return Optional.of(new Authentication() {
+                            @Override
+                            public String id() {
+                                return "alice";
+                            }
+                        });
                     }
 
                     @Override
@@ -104,5 +89,3 @@ class AuthScopeSliceTest {
     }
 }
 ```
-
-In the proposed fix, the `User` class is replaced with a direct `Authentication` object creation, assuming that the new version of the dependency allows for this. If the actual replacement is different, the code should be adjusted accordingly.

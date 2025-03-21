@@ -54,7 +54,6 @@ import java.util.function.*;
 @EnableTransactionManagement
 public class NisAppConfig {
 
-{
 	@Autowired
 	private AccountDao accountDao;
 
@@ -103,7 +102,7 @@ public class NisAppConfig {
 		return dataSource;
 	}
 
-	@Bean
+	@Bean(initMethod = "migrate")
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
@@ -118,7 +117,6 @@ public class NisAppConfig {
 	}
 
 	@Bean
-	@DependsOn("flyway")
 	public SessionFactory sessionFactory() throws IOException {
 		return SessionFactoryLoader.load(this.dataSource());
 	}
@@ -130,8 +128,8 @@ public class NisAppConfig {
 
 	@Bean
 	public BlockChainServices blockChainServices() {
-		return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
-				this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+		return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
+				this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
 	}
 
 	@Bean
@@ -198,8 +196,6 @@ public class NisAppConfig {
 	}
 
 	// endregion
-
-	// region harvester
 
 	@Bean
 	public Harvester harvester() {
@@ -423,6 +419,11 @@ public class NisAppConfig {
 	}
 
 	@Bean
+	public NodeCompatibilityChecker nodeCompatibilityChecker() {
+		return new DefaultNodeCompatibilityChecker();
+	}
+
+	@Bean
 	public EnumSet<ObserverOption> observerOptions() {
 		final EnumSet<ObserverOption> observerOptions = EnumSet.noneOf(ObserverOption.class);
 		if (this.nisConfiguration().isFeatureSupported(NodeFeature.HISTORICAL_ACCOUNT_DATA)) {
@@ -448,5 +449,3 @@ public class NisAppConfig {
 	}
 }
 ```
-
-The provided solution addresses the API changes in the `Flyway` class by using the `ClassicConfiguration` class to configure the `Flyway` instance. The `ClassicConfiguration` class is used to set the `DataSource`, `locations`, and `validateOnMigrate` properties, which were previously set directly on the `Flyway` instance. The `ClassicConfiguration` is then passed to the `Flyway` constructor, which now requires a `Configuration` object. This approach ensures that the client code is compatible with the new version of the `Flyway` dependency.

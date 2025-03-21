@@ -1,12 +1,6 @@
 3a4
 > import org.flywaydb.core.api.configuration.ClassicConfiguration;
-54a56
-> {
-103c105
-<         @Bean(initMethod = "migrate")
----
->         @Bean
-108,113c110,115
+108,113c109,115
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
@@ -14,26 +8,14 @@
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 <                 return flyway;
 ---
->                 final ClassicConfiguration flywayConfig = new ClassicConfiguration();
->                 flywayConfig.setDataSource(this.dataSource());
->                 flywayConfig.setLocations(prop.getProperty("flyway.locations").split(","));
->                 flywayConfig.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 final ClassicConfiguration configuration = new ClassicConfiguration();
+>                 configuration.setDataSource(this.dataSource());
+>                 configuration.setLocations(prop.getProperty("flyway.locations").split(","));
+>                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
 > 
->                 return new Flyway(flywayConfig);
-129,130c131,132
-<                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
-<                                 this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
----
->                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
->                                 this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
-169c171
-<         // region observers + validators
----
->         // region mappers
-197a200,201
->         // region mappers
-> 
-334,335c338,339
+>                 return new Flyway(configuration);
+334,335c336,337
 <                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
 <                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
 ---

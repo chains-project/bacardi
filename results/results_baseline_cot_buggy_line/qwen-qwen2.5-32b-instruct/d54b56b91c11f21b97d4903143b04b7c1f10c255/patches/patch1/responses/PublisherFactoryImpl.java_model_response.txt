@@ -1,16 +1,11 @@
-<code_analysis>
-1. The error message indicates that the `setContext` method is not found in the `SinglePartitionPublisherBuilder.Builder` class, and the `PublishMetadata` class cannot be found in the `com.google.cloud.pubsublite` package. This suggests that the dependency update has removed or changed the `setContext` method and the `PublishMetadata` class.
-
-2. Reviewing the client code, the `setContext` method is used to set the context for the `SinglePartitionPublisherBuilder`. The `PublishMetadata` class is used as the generic type for the `Publisher` interface.
-
-3. To fix the issue, we need to:
-   - Remove the `setContext` method call if it no longer exists in the updated dependency.
-   - Replace or remove the `PublishMetadata` class usage if it no longer exists in the updated dependency.
-
-4. The necessary changes include:
-   - Removing the `setContext` method call.
-   - Replacing `PublishMetadata` with a compatible type or removing it if it's not necessary.
-</code_analysis>
+```java
+<repair_strategy>
+1. The `setContext` method is no longer available in the `SinglePartitionPublisherBuilder.Builder` class.
+2. The `PublishMetadata` class is no longer available in the `com.google.cloud.pubsublite` package.
+3. Update the client code to remove the `setContext` method call and adjust the return type of `newPublisher` method.
+4. Ensure the class remains compilable and functional with the new API.
+5. Adjust imports as necessary to reflect the changes in the dependency.
+</repair_strategy>
 
 ```java
 package com.google.pubsublite.kafka.sink;
@@ -20,7 +15,6 @@ import com.google.cloud.pubsublite.ProjectPath;
 import com.google.cloud.pubsublite.TopicName;
 import com.google.cloud.pubsublite.TopicPath;
 import com.google.cloud.pubsublite.internal.Publisher;
-import com.google.cloud.pubsublite.internal.wire.PubsubContext;
 import com.google.cloud.pubsublite.internal.wire.RoutingPublisherBuilder;
 import com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder;
 import java.util.Map;
@@ -28,10 +22,10 @@ import org.apache.kafka.common.config.ConfigValue;
 
 class PublisherFactoryImpl implements PublisherFactory {
 
-  private static final PubsubContext FRAMEWORK = PubsubContext.of("KAFKA_CONNECT");
+  private static final String FRAMEWORK = "KAFKA_CONNECT";
 
   @Override
-  public Publisher<Void> newPublisher(Map<String, String> params) {
+  public Publisher newPublisher(Map<String, String> params) {
     Map<String, ConfigValue> config = ConfigDefs.config().validateAll(params);
     RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
     TopicPath topic =
@@ -53,5 +47,3 @@ class PublisherFactoryImpl implements PublisherFactory {
   }
 }
 ```
-
-In this fix, the `PublishMetadata` class has been replaced with `Void` as a placeholder, assuming that the `PublishMetadata` was used for metadata purposes and is not strictly necessary for the `Publisher` interface. If `PublishMetadata` was essential for the functionality, a more appropriate replacement should be used. The `setContext` method call has been removed as it is no longer available in the updated dependency.

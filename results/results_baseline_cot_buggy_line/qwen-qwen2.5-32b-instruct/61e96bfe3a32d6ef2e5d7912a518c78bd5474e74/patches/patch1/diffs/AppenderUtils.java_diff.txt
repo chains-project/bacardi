@@ -14,21 +14,26 @@
 <  * See the License for the specific language governing permissions and
 <  * limitations under the License.
 <  */
-57d41
-<     @Override
-60,61c44
-<       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
-<       // log.
+69c54
+<     public void doEncode(LogMessage logMessage) throws IOException {
 ---
->       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift log.
-68d50
-<     @Override
-78d59
-<     @Override
-81a63,68
+>     public byte[] encode(LogMessage logMessage) throws IOException {
+70a56,57
+>         TTransport transport = new TFastFramedTransport(new TIOStreamTransport(os));
+>         TProtocol protocol = new TBinaryProtocol(transport);
+72c59,60
+<         framedTransport.flush();
+---
+>         transport.flush();
+>         return transport.getBuffer().array();
+81a70,79
 > 
 >     @Override
->     public byte[] footerBytes() {
->       // Implement the footerBytes method as required by the updated dependency.
+>     public byte[] getHeaderBytes() {
+>       return new byte[0];
+>     }
+> 
+>     @Override
+>     public byte[] getFooterBytes() {
 >       return new byte[0];
 >     }

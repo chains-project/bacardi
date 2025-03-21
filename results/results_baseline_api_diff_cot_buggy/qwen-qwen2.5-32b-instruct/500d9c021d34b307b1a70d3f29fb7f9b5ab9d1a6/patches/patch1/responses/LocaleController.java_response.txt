@@ -6,7 +6,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
-import jakarta.mvc.MvcContext;
+import jakarta.mvc.annotation.MvcContext;
 
 /**
  *
@@ -18,7 +18,8 @@ import jakarta.mvc.MvcContext;
 public class LocaleController {
 
     @Inject
-    MvcContext mvc;
+    @MvcContext
+    jakarta.mvc.MvcContext mvc;
 
     @Inject
     Models models;

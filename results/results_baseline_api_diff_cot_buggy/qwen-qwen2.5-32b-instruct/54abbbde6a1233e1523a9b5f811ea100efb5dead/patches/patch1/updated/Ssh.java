@@ -1,32 +1,3 @@
-/*
- * Copyright (c) 2014-2022, jcabi.com
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met: 1) Redistributions of source code must retain the above
- * copyright notice, this list of conditions and the following
- * disclaimer. 2) Redistributions in binary form must reproduce the above
- * copyright notice, this list of conditions and the following
- * disclaimer in the documentation and/or other materials provided
- * with the distribution. 3) Neither the name of the jcabi.com nor
- * the names of its contributors may be used to endorse or promote
- * products derived from this software without specific prior written
- * permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
- * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
- * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
- * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- * OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 package com.jcabi.ssh;
 
 import com.jcabi.aspects.RetryOnFailure;
@@ -42,10 +13,6 @@ import java.nio.file.Files;
 import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.cactoos.io.TeeInput;
-import org.cactoos.scalar.LengthOf;
-import org.cactoos.text.TextOf;
-import org.cactoos.text.UncheckedText;
 
 /**
  * Single SSH Channel.
@@ -65,19 +32,18 @@ import org.cactoos.text.UncheckedText;
  * they will simplify operations.</p>
  *
  * <p>Instances of this class are NOT reusable. Once you do
- * {@link #exec(String, InputStream, OutputStream, OutputStream)},
+ * {@link Ssh#exec(String, InputStream, OutputStream, OutputStream)},
  * the connection is lost. You have to create a new {@link Ssh} object, if
  * you need to execute a new command.</p>
  *
  * @since 1.0
  * @see <a href="http://www.yegor256.com/2014/09/02/java-ssh-client.html">article by Yegor Bugayenko</a>
  * @todo #30:30min Refactor this class into smaller ones to avoid null
- *  checking of passphrase. There should probably be separate classes for
- *  encrypted/unencrypted priv. key.
+ *  checking of passphrase.
  */
 @ToString
 @EqualsAndHashCode(of = "key", callSuper = true)
-@SuppressWarnings("PMD.ProhibitPublicStaticMethods")
+@SuppressWarnings("PMD.TooManyMethods")
 public final class Ssh extends AbstractSshShell {
 
     /**
@@ -118,7 +84,7 @@ public final class Ssh extends AbstractSshShell {
      */
     public Ssh(final InetAddress adr, final String user, final URL priv)
         throws IOException {
-        this(adr.getCanonicalHostName(), Ssh.PORT, user, priv);
+        this(adr, Ssh.PORT, user, priv);
     }
 
     /**
@@ -139,7 +105,7 @@ public final class Ssh extends AbstractSshShell {
      * @param adr IP address
      * @param user Login
      * @param priv Private SSH key
-     * @throws UnknownHostException If fails
+     * @throws UnknownHostException when host is unknown.
      * @since 1.4
      */
     public Ssh(final InetAddress adr, final String user, final String priv)
@@ -218,6 +184,7 @@ public final class Ssh extends AbstractSshShell {
      * @param arg Argument to escape
      * @return Escaped
      */
+    @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
     public static String escape(final String arg) {
         return String.format("'%s'", arg.replace("'", "'\\''"));
     }
@@ -258,8 +225,8 @@ public final class Ssh extends AbstractSshShell {
             }
             Logger.debug(
                 this,
-                "Opening SSH session to %s@%s:%s (%d bytes in RSA key)...",
-                this.getLogin(), this.getAddr(), this.getPort(), file.length()
+                "Opening SSH session to %s@%s:%s",
+                this.getLogin(), this.getAddr(), this.getPort()
             );
             return this.session(jsch);
         } catch (final JSchException ex) {
@@ -281,9 +248,6 @@ public final class Ssh extends AbstractSshShell {
         );
         session.setConfig("StrictHostKeyChecking", "no");
         session.setTimeout((int) TimeUnit.SECONDS.toMillis(10L));
-        session.setServerAliveInterval((int) TimeUnit.SECONDS.toMillis(1L));
-        session.setServerAliveCountMax(1000000);
-        session.connect((int) TimeUnit.SECONDS.toMillis(10L));
         Logger.debug(
             this,
             "SSH session opened to %s@%s:%s",

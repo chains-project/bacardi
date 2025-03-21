@@ -13,7 +13,6 @@ import com.premiumminds.billy.gin.services.export.ParamsTree.Node;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
@@ -95,9 +94,11 @@ public abstract class FOPPDFTransformer {
         StreamSource transformSource = new StreamSource(templateStream);
 
         // create an instance of fop factory
-        FopFactoryBuilder builder = FopFactoryBuilder.newInstance();
+        FopFactoryBuilder builder = FopFactoryBuilder.newInstance(new File("."));
         FopFactory fopFactory = builder.build();
+        // a user agent is needed for transformation
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
+        // to store output
 
         Optional<Node<String, String>> qrCodeString = documentParams
             .getRoot()
@@ -120,10 +121,12 @@ public abstract class FOPPDFTransformer {
             // Construct fop with desired output format
             Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, outStream);
 
-            // Resulting SAX events (the generated FO) must be piped through to FOP
+            // Resulting SAX events (the generated FO)
+            // must be piped through to FOP
             Result res = new SAXResult(fop.getDefaultHandler());
 
             // Start XSLT transformation and FOP processing
+            // everything will happen here..
             xslfoTransformer.transform(source, res);
         } catch (FOPException e) {
             throw new ExportServiceException("Error using FOP to open the template", e);
@@ -165,7 +168,7 @@ public abstract class FOPPDFTransformer {
         BitMatrix bitMatrix = qrCodeWriter.encode(
             new String(data.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8),
             BarcodeFormat.QR_CODE,
-            350, 350, hints);
+            350, 350,hints);
 
         final Path file = Files.createTempFile(UUID.randomUUID().toString().replace("-", ""), ".png");
         MatrixToImageWriter.writeToPath(
@@ -185,4 +188,5 @@ public abstract class FOPPDFTransformer {
             }
         }
     }
+
 }

@@ -7,6 +7,8 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Random;
+
 /**
  * Integration case for {@link Region}.
  *
@@ -26,23 +28,13 @@ final class RegionITCase {
     private static final String SECRET =
         System.getProperty("failsafe.sdb.secret");
 
-    /**
-     * Constant for ten.
-     */
-    private static final int TEN = 10;
-
-    /**
-     * Constant for eight.
-     */
-    private static final int EIGHT = 8;
-
     @Test
     void putsAndRemovesIndividualItems() {
         final Domain domain = this.domain();
         try {
-            final String name = RandomStringUtils.randomAlphanumeric(TEN);
-            final String attr = RandomStringUtils.randomAlphabetic(EIGHT);
-            final String value = RandomStringUtils.randomAlphanumeric(TEN);
+            final String name = RandomStringUtils.randomAlphanumeric(10);
+            final String attr = RandomStringUtils.randomAlphabetic(8);
+            final String value = RandomStringUtils.randomAlphanumeric(10);
             for (int idx = 0; idx < 2; ++idx) {
                 domain.item(name).put(attr, value);
                 MatcherAssert.assertThat(
@@ -88,7 +80,7 @@ final class RegionITCase {
     void selectsManyItems() {
         final Domain domain = this.domain();
         try {
-            for (int idx = 0; idx < TEN; ++idx) {
+            for (int idx = 0; idx < 10; ++idx) {
                 domain.item(String.format("i-%d", idx)).put("hey", "");
             }
             MatcherAssert.assertThat(
@@ -97,7 +89,7 @@ final class RegionITCase {
                         String.format("SELECT * FROM `%s`", domain.name())
                     ).withConsistentRead(true)
                 ),
-                Matchers.iterableWithSize(TEN)
+                Matchers.iterableWithSize(10)
             );
         } finally {
             domain.drop();

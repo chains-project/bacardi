@@ -1,9 +1,9 @@
 package com.github.games647.changeskin.sponge.command;
 
-import org.spongepowered.api.command.CommandExecutor;
+import org.spongepowered.api.command.CommandSource;
 
 @FunctionalInterface
 public interface ChangeSkinCommand {
 
-    CommandExecutor buildExecutor();
+    void buildSpec(CommandSource src);
 }

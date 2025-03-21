@@ -2,6 +2,8 @@ package ml.peya.plugins.Learn;
 
 import java.util.ArrayList;
 
+import static ml.peya.lib.LearnMath.sigmoid; // Adjusted import based on the new dependency
+
 /**
  * 重みを突っ込む器。
  */
@@ -56,15 +58,5 @@ public class Neuron
     public void input(double value)
     {
         sum += value;
-    }
-
-    /**
-     * Sigmoid function implementation.
-     *
-     * @param x input value
-     * @return sigmoid of x
-     */
-    private double sigmoid(double x) {
-        return 1 / (1 + Math.exp(-x));
     }
 }

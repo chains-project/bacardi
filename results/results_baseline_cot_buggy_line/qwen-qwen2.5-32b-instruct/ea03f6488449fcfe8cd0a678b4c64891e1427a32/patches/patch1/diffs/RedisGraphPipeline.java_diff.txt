@@ -1,5 +1,5 @@
 2a3
-> import redis.clients.jedis.JedisPipeline; // Assuming a new combined interface
+> import redis.clients.jedis.Pipeline;
 4,11d4
 < import redis.clients.jedis.commands.BasicRedisPipeline;
 < import redis.clients.jedis.commands.BinaryRedisPipeline;
@@ -16,8 +16,8 @@
 <         BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
 <         BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
 ---
-> public interface RedisGraphPipeline extends JedisPipeline, Closeable { // Assuming JedisPipeline combines all functionalities
-43,60d31
+> public interface RedisGraphPipeline extends Pipeline, Closeable {
+43,78d31
 <      * Execute a Cypher query with timeout.
 <      * @param graphId a graph to perform the query on
 <      * @param query Cypher query
@@ -36,26 +36,36 @@
 <     Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout);
 < 
 <     /**
-100c71
-<      * @param graphId a graph to perform the query on
----
->      * @param graphId graph to perform the query on
-108c79
-<      * @param graphId a graph to perform the query on
----
->      * @param graphId graph to perform the query on
-117c88
-<      * @param graphId a graph to perform the query on
----
->      * @param graphId graph to perform the query on
-132d102
+<      * Executes a cypher query with parameters.
+<      * @param graphId a graph to perform the query on.
+<      * @param query Cypher query.
+<      * @param params parameters map.
+<      * @return  a response which builds the result set with the query answer.
+<      */
+<     Response<ResultSet> query(String graphId, String query, Map<String, Object> params);
+< 
+<     /**
+<      * Executes a cypher read-only query with parameters.
+<      * @param graphId a graph to perform the query on.
+<      * @param query Cypher query.
+<      * @param params parameters map.
+<      * @return  a response which builds the result set with the query answer.
+<      */
+<     Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params);
+< 
+<     /**
+132d84
 <     
-146,147c116
+143c95
+<      * get return values from pipelined commands, capture the different Response&lt;?&gt; of the
+---
+>      * get return values from pipelined commands, capture the different Response<?> of the
+146,147c98
 <     public void sync();
 <     
 ---
 >     void sync();
-159c128
+159c110
 <     public Response<Long> waitReplicas(int replicas, long timeout);
 ---
 >     Response<Long> waitReplicas(int replicas, long timeout);

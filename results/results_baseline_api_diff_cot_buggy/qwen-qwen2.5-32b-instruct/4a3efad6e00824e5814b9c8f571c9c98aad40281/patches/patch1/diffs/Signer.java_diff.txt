@@ -1,14 +1,16 @@
 7d6
 < import eu.europa.esig.dss.pades.CertificationPermission;
-46,48d44
-<         //load PDF file
-<         //PDDocument doc = PDDocument.load(pdfFile.toFile());
+49,51d47
+<         //load PDF file in DSSDocument format
+<         DSSDocument toSignDocument = new FileDocument(pdfFile.toFile());
 < 
-71c67,69
+71c67
 <         signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
 ---
->         // CertificationPermission.MINIMAL_CHANGES_PERMITTED is removed, so we need to find an alternative.
->         // Assuming the requirement is to allow minimal changes, we can set the permission to false for full document encryption.
->         signatureParameters.setDocumentTimestamp(false);
-122d119
+>         //signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
+123d118
 < 
+155c150
+<         SignatureValue signatureValue = signingToken.sign(dataToSign, digestAlgorithm, signingToken.getKey(keyAlias));
+---
+>         SignatureValue signatureValue = signingToken.sign(dataToSign, digestAlgorithm, signingToken.getKey("alias"));

@@ -9,6 +9,7 @@ import liquibase.sql.UnparsedSql;
 import liquibase.sqlgenerator.SqlGeneratorChain;
 import liquibase.sqlgenerator.core.CreateIndexGenerator;
 import liquibase.statement.core.CreateIndexStatement;
+import liquibase.util.StringUtil;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -73,9 +74,8 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
       builder.append(" WITH (FILLFACTOR = ").append(statement.getFillFactor()).append(")");
     }
     // This block simplified, since we know we have MSSQLDatabase
-    String tablespace = statement.getTablespace();
-    if (tablespace != null && !tablespace.trim().isEmpty()) {
-      builder.append(" ON ").append(tablespace);
+    if (StringUtil.trimToNull(statement.getTablespace()) != null) {
+      builder.append(" ON ").append(statement.getTablespace());
     }
 
     return new Sql[]{new UnparsedSql(builder.toString(), getAffectedIndex(statement))};

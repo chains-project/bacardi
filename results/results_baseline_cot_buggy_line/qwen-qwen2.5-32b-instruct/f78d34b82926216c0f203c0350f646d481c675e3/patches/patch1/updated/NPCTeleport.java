@@ -59,80 +59,8 @@ public class NPCTeleport
     private static void auraPanic_teleport(Player player, EntityPlayer target, ItemStack[] arm, int count, CommandSender sender, boolean reachMode)
     {
         final double[] time = {0.0};
-        final double radius = reachMode ? config.getDouble("npc.reachPanicRange"): config.getDouble("npc.panicRange");
-
-        final int[] now = {0};
-        BukkitRunnable r = new BukkitRunnable()
-        {
-            public void run()
-            {
-                now[0]++;
-
-                double yValue = generateWaveValue(1.0, 2.0, 0.0, 0.01, count[0] < 20);
-                Location center = player.getLocation();
-                Location n = new Location(
-                    center.getWorld(),
-                    center.getX(),
-                    center.getY() + yValue,
-                    center.getZ(),
-                    (float) generateWaveValue(10.0, 100.0, 10.0, 0.01, false),
-                    (float) generateWaveValue(10.0, 100.0, 10.0, 0.01, false)
-                );
-
-                NPC.setLocation(n, target);
-                ((CraftPlayer) player).getHandle().playerConnection
-                    .sendPacket(new PacketPlayOutEntityTeleport(target));
-
-                NPC.setArmor(player, target, arm);
-                new BukkitRunnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        Bukkit.getOnlinePlayers()
-                            .parallelStream()
-                            .filter(p -> p.hasPermission("psac.viewnpc"))
-                            .forEachOrdered(p ->
-                            {
-                                ((CraftPlayer) p).getHandle().playerConnection
-                                    .sendPacket(new PacketPlayOutEntityTeleport(target));
-                                NPC.setArmor(p, target, arm);
-                            });
-                        this.cancel();
-                    }
-                }.runTask(PeyangSuperbAntiCheat.getPlugin());
-                count[0]++;
-                CheatDetectNowMeta meta = cheatMeta.getMetaByPlayerUUID(player.getUniqueId());
-                if (meta == null) return;
-                meta.setNpcLocation(n.toVector());
-            }
-        };
-        r.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, 1);
-
-        new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                r.cancel();
-                this.cancel();
-            }
-        }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), 20 * (config.getLong("npc.seconds")));
-    }
-
-    /**
-     * Aurabotのテレポート。
-     *
-     * @param player    プレイヤー。
-     * @param target    ターゲット。
-     * @param arm       装備。
-     * @param reachMode リーチモードかどうか。
-     */
-    private static void auraBotTeleport(Player player, EntityPlayer target, ItemStack[] arm, boolean reachMode)
-    {
-        final double[] time = {0.0};
-        final double radius = reachMode ? config.getDouble("npc.reachRange"): config.getDoubleList("npc.range")
-            .get(new Random().nextInt(config.getDoubleList("npc.range").size()));
+        final double radius = reachMode ? config.getDouble("npc.reachPanicRange"): config.getDoubleList("npc.panicRange")
+            .get(new Random().nextInt(config.getDoubleList("npc.panicRange").size()));
 
         final int[] count = {0};
         BukkitRunnable r = new BukkitRunnable()
@@ -147,16 +75,20 @@ public class NPCTeleport
                             speed = value.asDouble() * 2.0;
                 for (double i = 0; i < Math.PI * 2; i++)
                 {
-                    double rangeTmp = radius - 0.1 + generateWaveValue(radius - 0.1, radius, config.getDouble("npc.waveMin"), 0.01, true);
+                    double rangeTmp = radius;
+
+                    if (config.getBoolean("npc.wave"))
+                        rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
+                            .get(0.01, count[0] < 20);
 
                     final Location center = player.getLocation();
                     final Location n = new Location(
                         center.getWorld(),
                         auraBotXPos(time[0], rangeTmp + speed) + center.getX(),
-                        center.getY() + generateWaveValue(1.0, 2.0, 0.0, 0.01, count[0] < 20),
+                        center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
                         auraBotZPos(time[0], rangeTmp + speed) + center.getZ(),
-                        (float) generateWaveValue(10.0, 100.0, 10.0, 0.01, false),
-                        (float) generateWaveValue(10.0, 100.0, 10.0, 0.01, false)
+                        (float) 0.0,
+                        (float) 0.0
                     );
 
                     NPC.setLocation(n, target);
@@ -183,11 +115,11 @@ public class NPCTeleport
                     }.runTask(PeyangSuperbAntiCheat.getPlugin());
                     count[0]++;
                     CheatDetectNowMeta meta = cheatMeta.getMetaByPlayerUUID(player.getUniqueId());
-                    if (meta == null) return;
+                    if (meta == null) continue;
                     meta.setNpcLocation(n.toVector());
                 }
                 time[0] += config.getDouble("npc.time") + (config.getBoolean("npc.speed.wave")
-                    ? generateWaveValue(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange"), 0.001, true)
+                    ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
                     : 0.0);
             }
         };
@@ -202,6 +134,7 @@ public class NPCTeleport
                 this.cancel();
             }
         }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), 20 * (config.getLong("npc.seconds")));
+
     }
 
     /**
@@ -213,7 +146,7 @@ public class NPCTeleport
      */
     private static double auraBotZPos(double time, double radius)
     {
-        return Math.sin(time) * radius;
+        return Math.sin(time) * radius * Math.cos(Math.PI / 180 * 360.0);
     }
 
     /**
@@ -226,25 +159,5 @@ public class NPCTeleport
     private static double auraBotXPos(double time, double radius)
     {
         return Math.cos(time) * radius;
-    }
-
-    /**
-     * Generate a wave-like value.
-     *
-     * @param min     Minimum value.
-     * @param max     Maximum value.
-     * @param offset  Offset value.
-     * @param step    Step value.
-     * @param isWave  Whether to generate a wave.
-     * @return Wave-like value.
-     */
-    private static double generateWaveValue(double min, double max, double offset, double step, boolean isWave)
-    {
-        if (isWave)
-        {
-            double value = Math.sin(step) * (max - min) / 2 + (min + max) / 2 + offset;
-            return value;
-        }
-        return (min + max) / 2 + offset;
     }
 }

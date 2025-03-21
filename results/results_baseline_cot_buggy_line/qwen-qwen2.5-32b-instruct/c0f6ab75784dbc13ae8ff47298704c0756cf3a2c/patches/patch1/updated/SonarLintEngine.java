@@ -40,8 +40,11 @@ import org.sonarsource.sonarlint.core.commons.progress.ClientProgressMonitor;
 import org.sonarsource.sonarlint.core.commons.progress.ProgressMonitor;
 import org.sonarsource.sonarlint.core.plugin.commons.LoadedPlugins;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoadResult;
+import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader;
+import org.sonarsource.sonarlint.core.plugin.commons.Configuration;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInfo;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInstancesLoader;
+import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginRequirementsCheckResult;
 import org.sonarsource.sonarlint.core.rule.extractor.SonarLintRuleDefinition;
 import sorald.FileUtils;
 import sorald.util.ConfigLoader;
@@ -59,11 +62,10 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     private static final AnalysisEngineConfiguration analysisGlobalConfig =
             buildAnalysisEngineConfiguration();
 
-    // The only instance of this class
+    // The only instance of this singleton class
     private static SonarLintEngine theOnlyInstance;
 
-    // We need to reinitialize the analysis engine as it is stopped after each analysis executed by {@link
-    // SonarStaticAnalyzer}.
+    // We need to reinitialise it before starting analysis of any source files on any rules.
     private AnalysisEngine analysisEngine;
 
     private SonarLintEngine() {
@@ -116,6 +118,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     private static StandaloneGlobalConfiguration buildGlobalConfig() {
         return StandaloneGlobalConfiguration.builder()
                 .addPlugin(sonarJavaPlugin)
+                .addEnabledLanguage(Language.JAVA)
                 .build();
     }
 
@@ -127,7 +130,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                         Optional.ofNullable(globalConfig.getNodeJsVersion()));
 
         PluginsLoadResult loadedResult = new PluginsLoader().load(config);
-        // Default loaded result stops the loader.
+        // Default loaded result stops the loader. The following code prevents that.
 
         Map<String, PluginRequirementsCheckResult> pluginCheckResultByKeys =
                 loadedResult.getPluginCheckResultByKeys();
@@ -155,6 +158,9 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
         return AnalysisEngineConfiguration.builder()
+                .addEnabledLanguages(globalConfig.getEnabledLanguages())
+                .setClientPid(globalConfig.getClientPid())
+                .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())
                 .setModulesProvider(globalConfig.getModulesProvider())
                 .build();
@@ -211,7 +217,8 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                                                             new DefaultClientIssue(
                                                                     i,
                                                                     allRulesDefinitionsByKey.get(
-                                                                            i.getRuleKey()))),
+                                                                            i.getRuleKey())),
+                                            logOutput),
                                     new ProgressMonitor(monitor))
                             .get();
             return analysisResults == null ? new AnalysisResults() : analysisResults;
@@ -262,8 +269,8 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     }
 
     /**
-     * Overriding this class to ensure that plugin instance loader never closes throughout the
-     * lifecycle of JVM.
+     * Override this class to ensure that plugin instance loader never closes throughout the lifecycle
+     * of JVM.
      */
     public static class LoadedPluginsThatDoesNotCloseLoader extends LoadedPlugins {
 

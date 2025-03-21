@@ -82,6 +82,7 @@ public class Decorations
             0,
             0,
             0,
+            0.001
         ); //XXX: 誰だよこんな引数多く設計したやつ
     }
 
@@ -136,6 +137,26 @@ public class Decorations
      * @param center   真ん中の位置
      * @param count    カウント！
      * @param radius   はんけー
+     */
+    public static void circle(Location center, int count, double radius)
+    {
+        Location n = new Location(
+            center.getWorld(),
+            particle_x(count, radius) + center.getX(),
+            center.getY(),
+            particle_z(count, radius) + center.getZ()
+        );
+
+        particle(n, 5, Particle.CRIT);
+
+    }
+
+    /**
+     * えん
+     *
+     * @param center   真ん中の位置
+     * @param count    カウント！
+     * @param radius   はんけー
      * @param particle ぱーてぃくる
      */
     public static void circle(Location center, int count, double radius, Particle particle)
@@ -152,23 +173,53 @@ public class Decorations
     }
 
     /**
-     * えん
+     * マジック
      *
-     * @param center 真ん中の位置
-     * @param count  カウント！
-     * @param radius はんけー
+     * @param player  餌食
+     * @param seconds 秒数
      */
-    public static void circle(Location center, int count, double radius)
+    public static void magic(Player player, int seconds)
     {
-        Location n = new Location(
-            center.getWorld(),
-            particle_x(count, radius) + center.getX(),
-            center.getY(),
-            particle_z(count, radius) + center.getZ()
-        );
+        final int[] count = {0};
 
-        particle(n, 5);
+        BukkitRunnable runnable = new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                for (double i = 0; i < Math.PI * 2; i++)
+                {
+                    Location center = player.getLocation().clone();
+                    circle(center.clone().add(0, 0.9, 0), count[0], 3, Particle.CRIT);
 
+                    circle(center.add(0, 0.7, 0), count[0], 2.7, Particle.ENCHANTMENT_TABLE);
+
+                    circle(center.clone().add(0, 0.7, 0), count[0], 1.5);
+                    circle(center.clone().add(-3.2, 0.7, -3.2), count[0], 1.5);
+                    circle(center.clone().add(-3.2, 0.7, 3.2), count[0], 1.5);
+                    circle(center.clone().add(3.2, 0.7, -3.2), count[0], 1.5);
+
+                    circle(center.clone().add(0, 1.5, 0), count[0], 5, Particle.SPELL_WITCH);
+
+                    count[0]++;
+                }
+
+                Location center = player.getLocation().clone();
+                line(center.clone().add(3, 0.7, 0), center.clone().add(-1.5, 0.7, 2.3));
+                line(center.clone().add(-1.5, 0.7, 2.3), center.clone().add(-1.5, 0.7, -2.3)); //三角
+                line(center.clone().add(3, 0.7, 0), center.clone().add(1.5, 0.7, 2.3));
+            }
+        };
+
+        runnable.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0L, 1L);
+        new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                runnable.cancel();
+            }
+        }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), seconds);
     }
 
     /**
@@ -183,42 +234,7 @@ public class Decorations
         if (Variables.config.getBoolean("decoration.circle"))
             magic(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20));
         if (Variables.config.getBoolean("decoration.laser"))
-            laser(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20);
-    }
-
-    /**
-     * マジック
-     *
-     * @param player 餌食
-     * @param seconds 秒数
-     */
-    public static void magic(Player player, int seconds)
-    {
-        final int[] count = {0};
-
-        BukkitRunnable runnable = new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                Location c = player.getLocation().clone();
-                Location X = new Location(c.getWorld(), particle_x(count[0], 2.5) + c.getX(), 5.0 + c.getY(), particle_z(count[0], 2.5) + c.getZ());
-
-                for (int i = 0; i < 10; i++)
-                    line(c, X, Particle.TOWN_AURA);
-                count[0]++;
-            }
-        };
-
-        runnable.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0L, 1L);
-        new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                runnable.cancel();
-            }
-        }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), seconds);
+            laser(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20));
     }
 
     /**
@@ -246,17 +262,39 @@ public class Decorations
     }
 
     /**
-     * デコ要素すべて展開するやつ
+     * ガーディアンビーム
      *
      * @param player 被験者
+     * @param sec    秒数
      */
-    public static void decoration(Player player)
+    public static void laser(Player player, int sec)
     {
-        if (Variables.config.getBoolean("decoration.flame"))
-            flame(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20));
-        if (Variables.config.getBoolean("decoration.circle"))
-            magic(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20));
-        if (Variables.config.getBoolean("decoration.laser"))
-            laser(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20));
+
+        final double[] time = {0.0};
+        final double radius = 2.5;
+
+        BukkitRunnable runnable = new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                Location c = player.getLocation().clone();
+                Location X = new Location(c.getWorld(), particle_x(time[0], radius) + c.getX(), 5.0 + c.getY(), particle_z(time[0], radius) + c.getZ());
+
+                for (int i = 0; i < 10; i++)
+                    line(c, X, Particle.TOWN_AURA);
+                time[0] += Math.E;
+            }
+        };
+
+        runnable.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0L, 1L);
+        new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                runnable.cancel();
+            }
+        }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), sec);
     }
 }

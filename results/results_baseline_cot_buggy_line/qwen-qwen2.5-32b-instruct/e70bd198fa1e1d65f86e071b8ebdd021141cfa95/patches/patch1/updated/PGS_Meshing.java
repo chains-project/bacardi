@@ -37,8 +37,8 @@ import org.tinfour.common.Vertex;
 import org.tinfour.utils.TriangleCollector;
 import org.tinspin.index.kdtree.KDTree;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
-import micycle.pgs.PGS_Triangulation;
 import micycle.pgs.PGS_Conversion.PShapeData;
+import micycle.pgs.color.Colors;
 import micycle.pgs.commons.AreaMerge;
 import micycle.pgs.commons.IncrementalTinDual;
 import micycle.pgs.commons.PEdge;
@@ -49,14 +49,52 @@ import processing.core.PConstants;
 import processing.core.PShape;
 import processing.core.PVector;
 
+/**
+ * Mesh generation (excluding triangulation) and processing.
+ * <p>
+ * Many of the methods within this class process an existing Delaunay
+ * triangulation; you may first generate such a triangulation from a shape using
+ * the
+ * {@link PGS_Triangulation#delaunayTriangulationMesh(PShape, Collection, boolean, int, boolean)
+ * delaunayTriangulationMesh()} method.
+ * 
+ * @author Michael Carleton
+ * @since 1.2.0
+ */
 public class PGS_Meshing {
 
 {
-    // ... (rest of the class remains unchanged)
+    private PGS_Meshing() {
+    }
 
-    public static PShape edgeCollapseQuadrangulation(final IIncrementalTin triangulation, final boolean preservePerimeter)
-    {
-        final boolean unconstrained = triangulation.getConstraints().isEmpty();
+    public static PShape urquhartFaces(final IIncrementalTin triangulation, final boolean preservePerimeter) {
+        final HashSet<IQuadEdge> edges = PGS.makeHashSet(triangulation.getMaximumEdgeAllocationIndex());
+        final HashSet<IQuadEdge> uniqueLongestEdges = PGS.makeHashSet(triangulation.getMaximumEdgeAllocationIndex());
+
+        final boolean notConstrained = triangulation.getConstraints().isEmpty();
+
+        TriangleCollector.visitSimpleTriangles(triangulation, t -> {
+            final IConstraint constraint = t.getContainingRegion();
+            if (notConstrained || (constraint != null && constraint.definesConstrainedRegion())) {
+                edges.add(t.getEdgeA().getBaseReference());
+                edges.add(t.getEdgeB().getBaseReference());
+                edges.add(t.getEdgeC().getBaseReference());
+                final IQuadEdge longestEdge = findLongestEdge(t).getBaseReference();
+                if (!preservePerimeter || (preservePerimeter && !longestEdge.isConstrainedRegionBorder())) {
+                    uniqueLongestEdges.add(longestEdge);
+                }
+            }
+        });
+
+        edges.removeAll(uniqueLongestEdges);
+
+        final Collection<PEdge> meshEdges = new ArrayList<>(edges.size());
+        edges.forEach(edge -> meshEdges.add(new PEdge(edge.getA().x, edge.getA().y, edge.getB().x, edge.getB().y)));
+
+        return PGS.polygonizeEdges(meshEdges);
+    }
+
+    public static PShape gabrielFaces(final IIncrementalTin triangulation, final boolean preservePerimeter) {
         final HashSet<IQuadEdge> edges = new HashSet<>();
         final HashSet<Vertex> vertices = new HashSet<>();
 
@@ -73,7 +111,7 @@ public class PGS_Meshing {
             }
         });
 
-        final KDTree<Vertex> tree = new KDTree<>(2, (p1, p2) -> {
+        final KDTree<Vertex> tree = KDTree.create(2, (p1, p2) -> {
             final double deltaX = p1[0] - p2[0];
             final double deltaY = p1[1] - p2[1];
             return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
@@ -83,7 +121,7 @@ public class PGS_Meshing {
         final HashSet<IQuadEdge> nonGabrielEdges = new HashSet<>(); // base references to edges that should be removed
         edges.forEach(edge -> {
             final double[] midpoint = midpoint(edge);
-            final Vertex near = tree.nearestNeighbor(midpoint);
+            final Vertex near = tree.query1NN(midpoint).value();
             if (near != edge.getA() && near != edge.getB()) {
                 if (!preservePerimeter || (preservePerimeter && !edge.isConstrainedRegionBorder())) {
                     nonGabrielEdges.add(edge); // base reference
@@ -98,5 +136,281 @@ public class PGS_Meshing {
         return PGS.polygonizeEdges(meshEdges);
     }
 
-    // ... (rest of the class remains unchanged)
+    public static PShape relativeNeighborFaces(final IIncrementalTin triangulation, final boolean preservePerimeter) {
+        SimpleGraph<Vertex, IQuadEdge> graph = PGS_Triangulation.toTinfourGraph(triangulation);
+        NeighborCache<Vertex, IQuadEdge> cache = new NeighborCache<>(graph);
+
+        Set<IQuadEdge> edges = new HashSet<>(graph.edgeSet());
+
+        graph.edgeSet().forEach(e -> {
+            double l = e.getLength();
+            cache.neighborsOf(e.getA()).forEach(n -> {
+                if (Math.max(n.getDistance(e.getA()), n.getDistance(e.getB())) < l) {
+                    if (!preservePerimeter || (preservePerimeter && !e.isConstrainedRegionBorder())) {
+                        edges.remove(e);
+                    }
+                }
+            });
+            cache.neighborsOf(e.getB()).forEach(n -> {
+                if (Math.max(n.getDistance(e.getA()), n.getDistance(e.getB())) < l) {
+                    if (!preservePerimeter || (preservePerimeter && !e.isConstrainedRegionBorder())) {
+                        edges.remove(e);
+                    }
+                }
+            });
+        });
+
+        List<PEdge> edgesOut = edges.stream().map(PGS_Triangulation::toPEdge).collect(Collectors.toList());
+
+        if (preservePerimeter) {
+            return PGS.polygonizeEdgesRobust(edgesOut);
+        } else {
+            return PGS.polygonizeEdges(edgesOut);
+        }
+    }
+
+    public static PShape spannerFaces(final IIncrementalTin triangulation, int k, final boolean preservePerimeter) {
+        SimpleGraph<PVector, PEdge> graph = PGS_Triangulation.toGraph(triangulation);
+        if (graph.edgeSet().isEmpty()) {
+            return new PShape();
+        }
+
+        k = Math.max(2, k); // min(2) since k=1 returns triangulation
+        GreedyMultiplicativeSpanner<PVector, PEdge> spanner = new GreedyMultiplicativeSpanner<>(graph, k);
+        List<PEdge> spannerEdges = spanner.getSpanner().stream().collect(Collectors.toList());
+        if (preservePerimeter) {
+            if (triangulation.getConstraints().isEmpty()) { // does not have constraints
+                spannerEdges.addAll(triangulation.getPerimeter().stream().map(PGS_Triangulation::toPEdge).collect(Collectors.toList()));
+            } else { // has constraints
+                spannerEdges.addAll(triangulation.getEdges().stream().filter(IQuadEdge::isConstrainedRegionBorder)
+                        .map(PGS_Triangulation::toPEdge).collect(Collectors.toList()));
+            }
+        }
+
+        return PGS.polygonizeEdgesRobust(spannerEdges);
+    }
+
+    public static PShape dualFaces(final IIncrementalTin triangulation) {
+        final IncrementalTinDual dual = new IncrementalTinDual(triangulation);
+        final PShape dualMesh = dual.getMesh();
+        PGS_Conversion.setAllFillColor(dualMesh, Colors.WHITE);
+        PGS_Conversion.setAllStrokeColor(dualMesh, Colors.PINK, 2);
+        return dualMesh;
+    }
+
+    public static PShape splitQuadrangulation(final IIncrementalTin triangulation) {
+        final PShape quads = new PShape(PConstants.GROUP);
+
+        final boolean unconstrained = triangulation.getConstraints().isEmpty();
+
+        TriangleCollector.visitSimpleTriangles(triangulation, t -> {
+            final IConstraint constraint = t.getContainingRegion();
+            if (unconstrained || (constraint != null && constraint.definesConstrainedRegion())) {
+                final PVector p1 = PGS_Triangulation.toPVector(t.getVertexA());
+                final PVector p2 = PGS_Triangulation.toPVector(t.getVertexB());
+                final PVector p3 = PGS_Triangulation.toPVector(t.getVertexC());
+                final PVector sA = PVector.add(p1, p2).div(2); // steiner point p1-p2
+                final PVector sB = PVector.add(p2, p3).div(2; // steiner point p2-p3
+                final PVector sC = PVector.add(p3, p1).div(2; // steiner point p3-p1
+
+                final PVector cSeg = PVector.add(sA, sB).div(2);
+                final PVector sI = PVector.add(cSeg, sC).div(2; // interior steiner point
+
+                quads.addChild(PGS_Conversion.fromPVector(p1, sC, sI, sA, p1);
+                quads.addChild(PGS_Conversion.fromPVector(p2, sA, sI, sB, p2);
+                quads.addChild(PGS_Conversion.fromPVector(p3, sB, sI, sC, p3);
+            }
+        });
+
+        PGS_Conversion.setAllFillColor(quads, Colors.WHITE);
+        PGS_Conversion.setAllStrokeColor(quads, Colors.PINK, 2);
+
+        return quads;
+    }
+
+    public static PShape edgeCollapseQuadrangulation(final IIncrementalTin triangulation, final boolean preservePerimeter) {
+        final PShape quads = new PShape(PConstants.GROUP);
+
+        final boolean unconstrained = triangulation.getConstraints().isEmpty();
+
+        TriangleCollector.visitSimpleTriangles(triangulation, t -> {
+            final IConstraint constraint = t.getContainRegion();
+            if (unconstrained || (constraint != null && constraint.definesConstrainedRegion())) {
+                final PVector p1 = PGS_Triangulation.toPVector(t.getVertexA());
+                final PVector p2 = PGS_Triangulation.toPVector(t.getVertexB());
+                final PVector p3 = PGS_Triangulation.toPVector(t.getVertexC());
+                final PVector sA = PVector.add(p1, p2).div(2; // steiner point p1-p2
+                final PVector sB = PVector.add(p2, p3).div(2; // steiner point p2-p3
+                final PVector sC = PVector.add(p3, p1).div(2; // steiner point p3-p1
+
+                final PVector cSeg = PVector.add(sA, sB).div(2);
+                final PVector sI = PVector.add(cSeg, sC).div(2; // interior steiner point
+
+                quads.addChild(PGS_Conversion.fromPVector(p1, sC, sI, sA, p1);
+                quads.addChild(PGS_Conversion.fromPVector(p2, sA, sI, sB, p2);
+                quads.addChild(PGS_Conversion.fromPVector(p3, sB, sI, sC, p3);
+            }
+        });
+
+        PGS_Conversion.setAllFillColor(quads, Colors.WHITE);
+        PGS_Conversion.setAllStrokeColor(quads, Colors.PINK, 2);
+
+        return quads;
+    }
+
+    public static PShape stochasticMerge(PShape mesh, int nClasses, long seed) {
+        final RandomGenerator random = new XoRoShiRo128PlusRandomGenerator(seed);
+        SimpleGraph<PShape, DefaultEdge> graph = PGS_Conversion.toDualGraph(mesh);
+        Map<PShape, Integer> classes = new HashMap<>();
+        graph.vertexSet().forEach(v -> classes.put(v, random.nextInt(Math.max(nClasses, 1)));
+
+        List<DefaultEdge> toRemove = new ArrayList<>();
+        graph.edgeSet().forEach(e -> {
+            PShape a = graph.getEdgeSource(e);
+            PShape b = graph.getEdgeTarget(e);
+            if (!classes.get(a).equals(classes.get(b))) {
+                toRemove.add(e);
+            }
+        );
+        graph.removeAllEdges(toRemove);
+        ConnectivtyInspector<PShape, DefaultEdge> ci = new ConnectivtyInspector<>(graph);
+
+        List<PShape> blobs = ci.connectedSets().stream().map(group -> PGS_ShapeBoolean.unionMesh(PGS_Conversion.flatten(group))
+                .collect(Collectors.toList());
+
+        return applyOriginalStyling(PGS_Conversion.flatten(blobs), mesh);
+    }
+
+    public static PShape smoothMesh(PShape mesh, int iterations, boolean preservePerimeter, double taubin, double t2) {
+        PMesh m = new PMesh(mesh);
+        for (int i = 0; i < iterations; i++) {
+            m.smoothTaubin(0.25, -0.251, preservePerimeter);
+        }
+        return m.getMesh();
+    }
+
+    public static PShape smoothMesh(PShape mesh, double displacementCutoff, boolean preservePerimeter) {
+        displacementCutoff = Math.max(displacementCutoff, 1e-3);
+        PMesh m = new PMesh(mesh);
+
+        double displacement;
+        do {
+            displacement = m.smoothTaubin(0.25, -0.251, preservePerimeter);
+        } while (displacement > displacementCutoff);
+        return m.getMesh();
+    }
+
+    public static PShape simplifyMesh(PShape mesh, double tolerance, boolean preservePerimeter) {
+        Geometry[] geometries = PGS_Conversion.getChildren(mesh).stream().map(s -> PGS_Conversion.fromPShape(s)).toArray(Geometry[]::new);
+        CoverageSimplifier simplifier = new CoverageSimplifier(geometries);
+        Geometry[] output;
+        if (preservePerimeter) {
+            output = simplifier.simplifyInner(tolerance);
+        } else {
+            output = simplifier.simplify(tolerance);
+        }
+        return applyOriginalStyling(PGS_Conversion.toPShape(Arrays.asList(output)), mesh);
+    }
+
+    public static PShape subdivideMesh(PShape mesh, double edgeSplitRatio) {
+        edgeSplitRatio %= 1;
+        PShape newMesh = new PShape(PShape.GROUP);
+        for (PShape face : getChildren(mesh)) {
+            List<PVector> vertices = PGS_Conversion.toPVector(face);
+            List<PVector> midPoints = new ArrayList<>();
+            PVector centroid = new PVector();
+            for (int i = 0; i < vertices.size(); i++) {
+                PVector a = vertices.get(i);
+                PVector b = vertices.get((i + 1) % vertices.size();
+                midPoints.add(PVector.lerp(a, b, (float) edgeSplitRatio);
+                centroid.add(a);
+            }
+            centroid.div(vertices.size(); // NOTE simple centroid, assuming convex
+
+            for (int i = 0; i < vertices.size(); i++) {
+                PVector a = vertices.get(i);
+                PVector b = midPoints.get(i);
+                PVector c = centroid.copy();
+                PVector d = midPoints.get(i - 1 < 0 ? vertices.size() - 1 : i - 1);
+                newMesh.addChild(PGS_Conversion.fromPVector(a, b, c, d, a);
+            }
+        }
+        return newMesh;
+    }
+
+    public static PShape extractInnerEdges(PShape mesh) {
+        List<PEdge> edges = PGS_SegmentSet.fromPShape(mesh);
+        Map<PEdge, Integer> bag = new HashMap<>(edges.size());
+        edges.forEach(edge -> {
+            bag.merge(edge, 1, Integer::sum);
+        });
+
+        List<PEdge> innerEdges = bag.entrySet().stream().filter(e -> e.getValue() > 1).map(e -> e.getKey()).collect(Collectors.toList());
+        return PGS_SegmentSet.dissolve(innerEdges);
+    }
+
+    public static PShape areaMerge(PShape mesh, double areaThreshold) {
+        PShape merged = AreaMerge.areaMerge(mesh, areaThreshold);
+        return applyOriginalStyling(merged, mesh);
+    }
+
+    public static PShape splitEdges(PShape split, int parts) {
+        parts = Math.max(1, parts);
+        HashSet<PEdge> edges = new HashSet<>(PGS_SegmentSet.fromPShape(split);
+        List<PEdge> splitEdges = new ArrayList<>(edges.size() * parts);
+
+        for (PEdge edge : edges) {
+            double from = 0;
+            double step = 1.0 / parts;
+            for (int i = 0; i < parts; i++) {
+                double to = from + step;
+                PEdge subEdge = edge.slice(from, to);
+                splitEdges.add(subEdge);
+                from = to;
+            }
+        }
+
+        return PGS.polygonizeEdges(splitEdges);
+    }
+
+    private static PShape applyOriginalStyling(final PShape newMesh, final PShape oldMesh) {
+        final PShapeData data = new PShapeData(oldMesh.getChild(0); // use first child; assume global.
+        for (int i = 0; i < newMesh.getChildCount(); i++) {
+            data.applyTo(newMesh.getChild(i);
+        }
+        return newMesh;
+    }
+
+    private static IQuadEdge findLongestEdge(final SimpleTriangle t) {
+        if (t.getEdgeA().getLength() > t.getEdgeB().getLength()) {
+            if (t.getEdgeC().getLength() > t.getEdgeA().getLength()) {
+                return t.getEdgeC();
+            } else {
+                return t.getEdgeA();
+            }
+        } else {
+            if (t.getEdgeC().getLength() > t.getEdgeB().getLength()) {
+                return t.getEdgeC();
+            } else {
+                return t.getEdgeB();
+            }
+        }
+    }
+
+    private static double[] midpoint(final IQuadEdge edge) {
+        final Vertex a = edge.getA();
+        final Vertex b = edge.getB();
+        return new double[] { (a.x + b.x) / 2d, (a.y + b.y) / 2d;
+    }
+
+    private static Vertex centroid(final SimpleTriangle t) {
+        final Vertex a = t.getVertexA();
+        final Vertex b = t.getVertexB();
+        final Vertex c = t.getVertexC();
+        double x = a.x + b.x + c.x;
+        x /= 3;
+        double y = a.y + b.y + c.y;
+        y /= 3;
+        return new Vertex(x, y, 0);
+    }
 }

@@ -1,10 +1,13 @@
-27c27
+25a26
+> import org.cactoos.scalar.LengthOf;
+27c28
 < import org.cactoos.iterable.LengthOf;
 ---
-> import org.cactoos.scalar.LengthOf;
-52,53c52,53
+> import org.cactoos.scalar.Scalar;
+52,53c53,55
 <         return new LengthOf(other.suffixes()).intValue()
 <             - new LengthOf(this.sfxs).intValue();
 ---
->         return new LengthOf<>(other.suffixes()).intValue()
->             - new LengthOf<>(this.sfxs).intValue();
+>         final Scalar<Integer> otherLength = new LengthOf<>(other.suffixes());
+>         final Scalar<Integer> thisLength = new LengthOf<>(this.sfxs);
+>         return otherLength.value() - thisLength.value();

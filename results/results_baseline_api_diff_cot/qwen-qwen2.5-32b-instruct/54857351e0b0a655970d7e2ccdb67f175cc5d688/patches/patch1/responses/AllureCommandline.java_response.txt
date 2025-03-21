@@ -47,7 +47,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings({"ClassDataAbstractionCoupling", "MultipleStringLiterals"})
+@SuppressWarnings({"ClassDataAbstractionCoupling", "ClassFanOutComplexity",
+        "MultipleStringLiterals"})
 public class AllureCommandline {
 
     public static final String ALLURE_DEFAULT_VERSION = "2.13.9";

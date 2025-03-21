@@ -8,31 +8,22 @@
 23c19
 <     private final CommandSource invoker;
 ---
->     private final Player invoker;
+>     private final Object invoker;
 26c22
 <     public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
 ---
->     public SkinApplier(ChangeSkinSponge plugin, Player invoker, Player receiver, SkinModel targetSkin
-42,43c38,39
-<         if (invoker instanceof Player) {
-<             UUID uniqueId = ((Player) invoker).getUniqueId();
----
->         if (invoker != null) {
->             UUID uniqueId = invoker.getUniqueId();
+>     public SkinApplier(ChangeSkinSponge plugin, Object invoker, Player receiver, SkinModel targetSkin
 84,85c80,81
 <         receiver.offer(Keys.VANISH, true);
 <         receiver.offer(Keys.VANISH, false);
 ---
->         receiver.offer(Sponge.getDataManager().getRegistry().getValue("vanish", true));
->         receiver.offer(Sponge.getDataManager().getRegistry().getValue("vanish", false));
-90,91c86,87
-<         receiver.getTabList().addEntry(TabListEntry.builder()
-<                 .displayName(receiver.getDisplayNameData().displayName().get())
+>         receiver.offer(receiver.get(Keys.VANISH).orElse(false));
+>         receiver.offer(!receiver.get(Keys.VANISH).orElse(false));
+99c95
+<         Vector3d rotation = receiver.getRotation();
 ---
->         receiver.getTabList().addEntry(receiver.getTabList().builder()
->                 .displayName(receiver.getDisplayName())
-93,94c89
-<                 .list(receiver.getTabList())
-<                 .gameMode(receiver.getGameModeData().type().get())
+>         //Vector3d rotation = receiver.getRotation();
+107c103
+<                     receiver.setLocationAndRotation(oldLocation, rotation);
 ---
->                 .gameMode(receiver.getGameMode())
+>                     //receiver.setLocationAndRotation(oldLocation, rotation);

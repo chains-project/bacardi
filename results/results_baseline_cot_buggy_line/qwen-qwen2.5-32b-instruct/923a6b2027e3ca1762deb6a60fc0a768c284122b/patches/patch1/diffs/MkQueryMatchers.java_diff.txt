@@ -31,36 +31,12 @@
 34c5
 < import org.hamcrest.Matchers;
 ---
-> import org.hamcrest.core.StringContains;
-85c56,67
+> import org.hamcrest.CoreMatchers;
+85c56
 <             Matchers.<URI>hasProperty("rawPath", path)
 ---
->             new Matcher<URI>() {
->                 @Override
->                 public boolean matchesSafely(URI item) {
->                     return path.matches(item.getRawPath());
->                 }
-> 
->                 @Override
->                 public void describeTo(org.hamcrest.Description description) {
->                     description.appendText("URI with path ");
->                     path.describeTo(description);
->                 }
->             }
-97,98c79,82
+>             CoreMatchers.<URI>hasProperty("rawPath", path)
+97c68
 <             Matchers.<URI>hasProperty("rawQuery", query)
-<         );
 ---
->             new Matcher<URI>() {
->                 @Override
->                 public boolean matchesSafely(URI item) {
->                     return query.matches(item.getRawQuery());
-100a85,92
->                 @Override
->                 public void describeTo(org.hamcrest.Description description) {
->                     description.appendText("URI with query ");
->                     query.describeTo(description);
->                 }
->             }
->         );
->     }
+>             CoreMatchers.<URI>hasProperty("rawQuery", query)

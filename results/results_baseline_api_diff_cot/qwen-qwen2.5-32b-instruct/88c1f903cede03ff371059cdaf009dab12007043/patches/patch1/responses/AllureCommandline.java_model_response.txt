@@ -171,6 +171,7 @@ public class AllureCommandline {
                 unpack(resolved.next().getArtifact().getFile());
             } else {
                 throw new IOException("No allure commandline artifact found.");
+
             }
         } catch (DependencyResolverException e) {
             throw new IOException("Cannot resolve allure commandline dependencies.", e);
@@ -240,5 +241,3 @@ public class AllureCommandline {
     }
 }
 ```
-
-The provided solution addresses the API changes by updating the import statement for `ZipFile` to `net.lingala.zip4j.ZipFile` and adjusting the instantiation of `ZipFile` to use the new constructor that accepts a `File` object. This ensures that the client code is compatible with the updated dependency API.

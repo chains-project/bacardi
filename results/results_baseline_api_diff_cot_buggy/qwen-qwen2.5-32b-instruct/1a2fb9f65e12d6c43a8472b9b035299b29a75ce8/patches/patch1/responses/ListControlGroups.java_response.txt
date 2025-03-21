@@ -1,21 +1,3 @@
-/**
- * Copyright (C) 2014 Premium Minds.
- *
- * This file is part of wicket-crudifier.
- *
- * wicket-crudifier is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
- * later version.
- *
- * wicket-crudifier is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
- */
 package com.premiumminds.wicket.crudifier.form.elements;
 
 import java.beans.PropertyDescriptor;
@@ -34,21 +16,15 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.metadata.BeanDescriptor;
 import jakarta.validation.metadata.ConstraintDescriptor;
 import jakarta.validation.metadata.ElementDescriptor;
-
-import com.premiumminds.webapp.wicket.validators.HibernateValidatorProperty;
-import com.premiumminds.wicket.crudifier.IObjectRenderer;
-import com.premiumminds.wicket.crudifier.form.CrudifierEntitySettings;
-import com.premiumminds.wicket.crudifier.form.EntityProvider;
+import jakarta.validation.Validator;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.wicket.Component;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
@@ -84,37 +60,20 @@ public abstract class ListControlGroups<T> extends Panel {
 		typesControlGroups.put(BigInteger.class, TextFieldControlGroup.class);
 		typesControlGroups.put(Boolean.class, CheckboxControlGroup.class);
 		typesControlGroups.put(boolean.class, CheckboxControlGroup.class);
-		typesControlGroups.put(Set.class, CollectionControlGroup.class);
-
-		objectProperties = new ArrayList<ObjectProperties>();
-		this.entitySettings = entitySettings;
-		this.renderers = renderers;
 	}
 
-	private Set<String> getPropertiesByOrder(Class<?> modelClass) {
-		Set<String> properties = new LinkedHashSet<String>();
-
-		for(String property : entitySettings.getOrderOfFields()){
-			if(!entitySettings.getHiddenFields().contains(property))
-				properties.add(property);
-		}
-		for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
-			if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
-			   !properties.contains(descriptor.getName()) &&
-			   !descriptor.getName().equals("class"))
-				properties.add(descriptor.getName());
-		}
-
-		return properties;
+	@SuppressWarnings("rawtypes")
+	public Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap(){
+		return typesControlGroups;
 	}
-
-	protected abstract EntityProvider<?> getEntityProvider(String name);
 
 	@Override
 	protected void onInitialize() {
 		super.onInitialize();
 
 		Class<?> modelClass = getModel().getObject().getClass();
+
+		Set<String> properties = getPropertiesByOrder(modelClass);
 
 		Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
 		BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
@@ -149,7 +108,7 @@ public abstract class ListControlGroups<T> extends Panel {
 				AbstractControlGroup<?> controlGroup;
 				if(!controlGroupProviders.containsKey(objectProperty.type)) {
 					Constructor<?> constructor;
-					Class<? extends AbstractControlGroup> typesControlGroup = getControlGroupByType(objectProperty.type);
+					Class<? extends Panel> typesControlGroup = getControlGroupByType(objectProperty.type);
 					if(typesControlGroup==null){
 						if(objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
 						else typesControlGroup = ObjectChoiceControlGroup.class;
@@ -160,6 +119,7 @@ public abstract class ListControlGroups<T> extends Panel {
 					controlGroup = (AbstractControlGroup<?>) constructor.newInstance(view.newChildId(), new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name));
 					controlGroup.init(objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
 					controlGroup.setEnabled(objectProperty.enabled);
+
 					if(typesControlGroup==ObjectChoiceControlGroup.class){
 						IObjectRenderer<?> renderer = renderers.get(objectProperty.type);
 						if(renderer==null){
@@ -205,6 +165,10 @@ public abstract class ListControlGroups<T> extends Panel {
 	}
 
 	@SuppressWarnings("rawtypes")
+	public Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> getControlGroupProviders(){
+		return this.controlGroupProviders;
+	}
+
 	private Set<String> getPropertiesByOrder(Class<?> modelClass) {
 		Set<String> properties = new LinkedHashSet<String>();
 
@@ -222,7 +186,13 @@ public abstract class ListControlGroups<T> extends Panel {
 		return properties;
 	}
 
+	protected abstract EntityProvider<?> getEntityProvider(String name);
+
 	@SuppressWarnings("rawtypes")
+	public Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap(){
+		return typesControlGroups;
+	}
+
 	private static final class ObjectProperties implements Serializable {
 		private static final long serialVersionUID = 1747577998897955928L;
 		private String name;
@@ -236,14 +206,5 @@ public abstract class ListControlGroups<T> extends Panel {
 			this.type = descriptor.getPropertyType();
 			this.required = required;
 		}
-	}
-
-	@SuppressWarnings("rawtypes")
-	public Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap(){
-		return typesControlGroups;
-	}
-	
-	public Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> getControlGroupProviders(){
-		return this.controlGroupProviders;
 	}
 }

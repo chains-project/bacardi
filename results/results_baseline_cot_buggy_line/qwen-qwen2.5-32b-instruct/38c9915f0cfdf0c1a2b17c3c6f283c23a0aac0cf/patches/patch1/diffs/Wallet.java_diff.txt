@@ -22,7 +22,7 @@
 <  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 <  * SOFTWARE.
 <  */
-30,38c7,8
+30,38c7
 < import org.cactoos.collection.Filtered;
 < import org.cactoos.iterable.IterableOf;
 < import org.cactoos.iterable.Joined;
@@ -33,56 +33,12 @@
 < import org.cactoos.scalar.Or;
 < import org.cactoos.scalar.UncheckedScalar;
 ---
-> import java.util.stream.Collectors;
-> import java.util.stream.StreamSupport;
-40c10
-< import org.cactoos.text.SplitText;
----
-> import org.cactoos.text.Splitter;
-42d11
-< import org.cactoos.text.UncheckedText;
-55,131c24
-<     /**
-<      * This wallet's ID: an unsigned 64-bit integer.
-<      * @return This wallet's id
-<      * @throws IOException If an IO error occurs
-<      * @checkstyle ClassDataAbstractionCouplingCheck (500 lines)
-<      * @checkstyle MethodName (2 lines)
-<      */
-<     long id() throws IOException;
-< 
-<     /**
-<      * Make a payment.
-<      * @param amt Amount to pay in zents
-<      * @param bnf Wallet ID of beneficiary
-<      * @throws IOException If an IO error occurs
-<      */
-<     void pay(long amt, long bnf) throws IOException;
-< 
-<     /**
-<      * Merge both {@code this} and {@code other}. Fails if they are not the
-<      * same wallet, as identified by their {@link #id() id}.
-<      * @param other Other wallet
-<      * @return The merged wallet
-<      * @throws IOException If an IO error occurs
-<      */
-<     Wallet merge(Wallet other) throws IOException;
-< 
-<     /**
-<      * This wallet's ledger.
-<      * @return This wallet's ledger
-<      */
-<     Iterable<Transaction> ledger();
-< 
-<     /**
-<      * This wallet's RSA key.
-<      * @return This wallet's RSA key.
-<      */
-<     String key();
-< 
-<     /**
-<      * A Fake {@link Wallet}.
-<      * @since 1.0
+> import org.cactoos.Text;
+42a12,14
+> import org.cactoos.collection.Filtered;
+> import org.cactoos.scalar.CheckedScalar;
+> import org.cactoos.scalar.UncheckedScalar;
+96,102c68,70
 <      * @todo #65:30min Complete Wallet implementations with id, public RSA
 <      *  key and network id. Wallets.create(Long, String, String) must
 <      *  create a Wallet with these strings set and a constructor must be
@@ -90,175 +46,78 @@
 <      *  pubkey, final String network, final Transaction... transactions). After
 <      *  completing these implementations fix tests that uses Wallets.create()
 <      *  and all Wallet realizations.
-<      */
-<     final class Fake implements Wallet {
-< 
-<         /**
-<          * The wallet id.
-<          */
-<         private final long id;
-< 
-<         /**
-<          * Transactions.
-<          */
-<         private final Iterable<Transaction> transactions;
-< 
-<         /**
-<          * Constructor.
-<          * @param id The wallet id.
-<          */
-<         public Fake(final long id) {
-<             this(id, new IterableOf<>());
-<         }
-< 
-<         /**
-<          * Ctor.
-<          * @param id The wallet id.
-<          * @param transactions Transactions.
-<          */
-<         public Fake(final long id, final Transaction... transactions) {
-<             this(id, new IterableOf<>(transactions));
-<         }
 ---
->     // ... (rest of the interface remains unchanged)
-133,183d25
-<         /**
+>      * @todo #65:30min Implement key method. This should return the
+>      *  public RSA key of the wallet owner in Base64. Also add a unit test
+>      *  to replace WalletTest.keyIsNotYetImplemented().
+134c102
 <          * Constructor.
-<          * @param id The wallet id.
-<          * @param pubkey The public RSA key of the wallet owner.
-<          * @param network The network the walet belongs to.
-<          * @checkstyle UnusedFormalParameter (2 lines)
-<          */
-<         public Fake(final long id, final String pubkey, final String network) {
-<             this(id);
-<         }
-< 
-<         /**
-<          * Ctor.
-<          * @param id The wallet id.
-<          * @param transactions Transactions.
-<          */
-<         public Fake(final long id, final Iterable<Transaction> transactions) {
-<             this.id = id;
-<             this.transactions = transactions;
-<         }
-< 
-<         @Override
-<         public long id() throws IOException {
-<             return this.id;
-<         }
-< 
-<         @Override
-<         public void pay(final long amt, final long bnf) {
-<             // nothing
-<         }
-< 
-<         @Override
+---
+>          * Ctor.
+165,166c133,165
 <         public Wallet merge(final Wallet other) {
 <             return other;
-<         }
-< 
-<         @Override
-<         public Iterable<Transaction> ledger() {
-<             return this.transactions;
-<         }
-< 
-<         @Override
-<         public String key() {
-<             return Long.toString(this.id);
-<         }
-<     }
-< 
-<     /**
-<      * Default File implementation.
-<      * @checkstyle ClassDataAbstractionCouplingCheck (2 lines)
-<      */
-201,204c43,45
-<             return new CheckedScalar<>(
-<                 () -> Long.parseUnsignedLong(
-<                     new ListOf<>(
-<                         new SplitText(
 ---
->             return Long.parseUnsignedLong(
->                 StreamSupport.stream(
->                     new Splitter(
-207,213c48,52
-<                         )
-<                     ).get(2).asString(),
-<                     // @checkstyle MagicNumber (1 line)
-<                     16
-<                 ),
-<                 e -> new IOException(e)
-<             ).value();
----
->                     ).value().spliterator(), false
->                 ).skip(2).findFirst().orElseThrow(
->                     () -> new IOException("Failed to parse wallet ID")
->                 ), 16
+>         public Wallet merge(final Wallet other) throws IOException {
+>             if (other.id() != this.id()) {
+>                 throw new IOException(
+>                     new UncheckedText(
+>                         new FormattedText(
+>                             "Wallet ID mismatch, ours is %d, theirs is %d",
+>                             other.id(),
+>                             this.id()
+>                         )
+>                     ).asString()
+>                 );
+>             }
+>             final Iterable<Transaction> ledger = this.ledger();
+>             final Iterable<Transaction> candidates = new Filtered<>(
+>                 incoming -> new Filtered<>(
+>                     origin -> new UncheckedScalar<>(
+>                         new Or(
+>                             () -> incoming.equals(origin),
+>                             () -> incoming.id() == origin.id()
+>                                 && incoming.bnf().equals(origin.bnf()),
+>                             () -> incoming.id() == origin.id()
+>                                 && incoming.amount() < 0L,
+>                             () -> incoming.prefix().equals(origin.prefix())
+>                         )
+>                     ).value(),
+>                     ledger
+>                 ).isEmpty(),
+>                 other.ledger()
 >             );
-224,232d62
-<         // @todo #16:30min Following transactions should be ignored according
-<         //  to the whitepaper:
-<         //  a) If the transaction is negative and its signature is not valid,
-<         //  it is ignored;
-<         //  b) If the transaction makes the balance of the wallet negative,
-<         //  it is ignored;
-<         //  c) If the transaction is positive and it’s absent in the paying
-<         //  wallet (which exists at the node), it’s ignored; If the paying
-<         //  wallet doesn’t exist at the node, the transaction is ignored;
-237d66
-<                     new UncheckedText(
-242d70
-<                         )
-247,262c75,83
-<             final Iterable<Transaction> candidates = new Filtered<>(
-<                 incoming -> new Filtered<>(
-<                     origin -> new UncheckedScalar<>(
-<                         new Or(
-<                             () -> incoming.equals(origin),
-<                             () -> incoming.id() == origin.id()
-<                                 && incoming.bnf().equals(origin.bnf()),
-<                             () -> incoming.id() == origin.id()
-<                                 && incoming.amount() < 0L,
-<                             () -> incoming.prefix().equals(origin.prefix())
-<                         )
-<                     ).value(),
-<                     ledger
-<                 ).isEmpty(),
-<                 other.ledger()
-<             );
+>             return new Wallet.Fake(
+>                 this.id(),
+>                 new Joined<Transaction>(ledger, candidates)
+>             );
+171c170,182
+<             return this.transactions;
 ---
->             final Iterable<Transaction> candidates = StreamSupport.stream(
->                 other.ledger().spliterator(), false
->             ).filter(incoming -> StreamSupport.stream(
->                 ledger.spliterator(), false
->             ).noneMatch(origin -> incoming.equals(origin) ||
->                 (incoming.id() == origin.id() && incoming.bnf().equals(origin.bnf())) ||
->                 (incoming.id() == origin.id() && incoming.amount() < 0L) ||
->                 incoming.prefix().equals(origin.prefix())
->             )).collect(Collectors.toList());
-265c86,88
-<                 new Joined<Transaction>(ledger, candidates)
+>             return new Mapped<>(
+>                 txt -> new RtTransaction(txt.asString()),
+>                 new Skipped<>(
+>                     new ListOf<>(
+>                         new SplitText(
+>                             new TextOf(this.path),
+>                             "\\n"
+>                         )
+>                     ),
+>                     // @checkstyle MagicNumberCheck (1 line)
+>                     5
+>                 )
+>             );
+173a185,187
+>         // @todo #54:30min Implement key method. This should return the
+>         //  public RSA key of the wallet owner in Base64. Also add a unit test
+>         //  to replace WalletTest.keyIsNotYetImplemented().
+176c190,192
+<             return Long.toString(this.id);
 ---
->                 StreamSupport.stream(
->                     new Joined<Transaction>(ledger, candidates).spliterator(), false
->                 ).collect(Collectors.toList())
-271,275c94,95
-<             return new Mapped<>(
-<                 txt -> new RtTransaction(txt.asString()),
-<                 new Skipped<>(
-<                     new ListOf<>(
-<                         new SplitText(
+>             throw new UnsupportedOperationException(
+>                 "key() not yet supported"
+>             );
+209c225
+<                     // @checkstyle MagicNumber (1 line)
 ---
->             return StreamSupport.stream(
->                 new Splitter(
-278,283c98,99
-<                         )
-<                     ),
-<                     // @checkstyle MagicNumberCheck (1 line)
-<                     5
-<                 )
-<             );
----
->                 ).value().spliterator(), false
->             ).skip(5).map(txt -> new RtTransaction(txt)).collect(Collectors.toList());
+>                     // @checkstyle MagicNumberCheck (1 line)

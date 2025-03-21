@@ -30,6 +30,7 @@
 package com.jcabi.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.jcabi.aspects.Tv; // Assuming this is the old import, we need to replace it.
 import com.jcabi.log.Logger;
 import com.jcabi.s3.cached.CdRegion;
 import com.jcabi.s3.retry.ReRegion;
@@ -108,8 +109,7 @@ final class BucketRule implements TestRule {
         );
         final String name = String.format(
             "%s.s3.jcabi.com",
-            RandomStringUtils.randomAlphabetic(5)
-                .toLowerCase(Locale.ENGLISH)
+            RandomStringUtils.randomAlphabetic(5).toLowerCase(Locale.ENGLISH)
         );
         this.subj = region.bucket(name);
         final AmazonS3 aws = this.subj.region().aws();

@@ -44,8 +44,6 @@ import net.sf.jasperreports.engine.design.JasperDesign;
 import net.sf.jasperreports.engine.type.ModeEnum;
 import net.sf.jasperreports.engine.type.PositionTypeEnum;
 import net.sf.jasperreports.engine.type.SplitTypeEnum;
-import net.sf.jasperreports.engine.base.JRBasePen;
-import net.sf.jasperreports.engine.JRPen;
 import xdev.tableexport.config.ColumnBorder;
 import xdev.tableexport.config.ColumnPadding;
 import xdev.tableexport.config.ColumnStyle;
@@ -154,48 +152,6 @@ public class ReportBuilder
 	}
 	
 	
-	private void createTemplateFields(final JasperDesign jasperDesign) throws ExportException
-	{
-		JRDesignField field;
-		
-		for(final TemplateColumn col : this.config.getColumns())
-		{
-			field = new JRDesignField();
-			field.setName(col.getContentColumn().getFieldName());
-			this.chooseValueClass(col,field);
-			
-			try
-			{
-				jasperDesign.addField(field);
-				this.fieldSet.add(field);
-			}
-			catch(final JRException e)
-			{
-				throw new ExportException("error during add the field "
-						+ col.getContentColumn().getFieldName(),e);
-			}
-		}
-		
-	}
-	
-	
-	private JRDesignField chooseValueClass(final TemplateColumn col, final JRDesignField field)
-	{
-		final Class<?> valueClass = col.getContentColumn().getColumnValueClass();
-		
-		if(valueClass.isAssignableFrom(byte[].class) || valueClass.isAssignableFrom(XdevBlob.class) || valueClass.isAssignableFrom(XdevClob.class))
-		{
-			field.setValueClass(String.class);
-		}
-		else
-		{
-			field.setValueClass(valueClass);
-		}
-		
-		return field;
-	}
-	
-	
 	private void createHeaderAndContent(final JRDesignBand headerBand, final JRDesignBand detailBand)
 	{
 		JRDesignStaticText headerLabel;
@@ -284,9 +240,9 @@ public class ReportBuilder
 		// Font
 		final Font f = style.getFont();
 		txtField.setFontName(f.getName());
-		txtField.setFontSize(Float.valueOf(f.getSize()));
-		txtField.setBold(Boolean.valueOf(f.isBold()));
-		txtField.setItalic(Boolean.valueOf(f.isItalic()));
+		txtField.setFontSize(f.getSize());
+		txtField.setBold(f.isBold());
+		txtField.setItalic(f.isItalic());
 		txtField.setHorizontalTextAlign(style.getHorizontalAlignment().getHorizontalTextAlignEnum());
 		
 		
@@ -305,10 +261,9 @@ public class ReportBuilder
 			return;
 		}
 		
-		JRPen pen = textField.getLineBox().getPen();
-		pen.setLineWidth((float) border.getLineWidth());
-		pen.setLineColor(border.getLineColor());
-		pen.setLineStyle(border.getLineStyle().getLineStyleEnum());
+		textField.getLineBox().getPen().setLineWidth((float)border.getLineWidth());
+		textField.getLineBox().getPen().setLineColor(border.getLineColor());
+		textField.getLineBox().getPen().setLineStyle(border.getLineStyle().getLineStyleEnum());
 	}
 	
 	private void prepareTextfieldPadding(final JRDesignTextElement textField, final ColumnStyle style)
@@ -334,8 +289,8 @@ public class ReportBuilder
 	
 	/**
 	 * 
-	 * Assemble and compile a {@link JasperReport} based on the information of the
-	 * {@link TemplateConfig}.
+	 * Assemble and compile a {@link JasperReport} based on the information of
+	 * the {@link TemplateConfig}.
 	 * 
 	 * @return the compiled {@link JasperReport}
 	 * @throws ExportException

@@ -1,26 +1,8 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the class `RandomText` cannot be found in the package `org.cactoos.text`.
-   - This suggests that the `RandomText` class has been removed or moved in the updated dependency version.
-
-2. Review the client code:
-   - The import statement `import org.cactoos.text.RandomText;` is present in the code.
-   - The `RandomText` class is used in the `Fake` constructor to initialize the `RtScore` object.
-
-3. Consider potential fixes:
-   - Since the `RandomText` class is not available, we need to find an alternative way to generate random text.
-   - We can use a different method or class to generate random text, or we can remove the dependency on `RandomText` if it is not critical for the functionality.
-
-4. Plan the necessary changes:
-   - Replace the usage of `RandomText` with an alternative method or class.
-   - Ensure that the replacement method or class is available in the current dependency version.
-</code_analysis>
-
 ```java
 package io.zold.api;
 
 import org.cactoos.iterable.Repeated;
-import java.util.Random;
+import org.cactoos.text.FormattedText;
 
 /**
  * Remote node.
@@ -63,7 +45,7 @@ public interface Remote {
          */
         public Fake(final int val) {
             this(new RtScore(
-                new Repeated<>(val, new Random().nextInt(1000))
+                new Repeated<>(val, new FormattedText("%s", new RandomText()))
             ));
         }
 
@@ -92,5 +74,3 @@ public interface Remote {
     }
 }
 ```
-
-In this fix, I have replaced the usage of `RandomText` with `Random().nextInt(1000)` to generate a random integer value. This is a simple replacement to ensure the code compiles and runs without the dependency on `RandomText`. If `RandomText` was used for a specific purpose, a more appropriate replacement should be chosen based on the actual requirement.

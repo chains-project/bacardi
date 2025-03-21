@@ -1,22 +1,14 @@
-12,17d11
-< import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
-< import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
+14,17d13
 < import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
 < import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
 < import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
 < import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
-40,41c34
+40,41c36
 <     PNConfiguration pnConfiguration = new PNConfiguration();
 <     pnConfiguration.setSubscribeKey(publicKey);
 ---
 >     PNConfiguration pnConfiguration = new PNConfiguration(publicKey);
-48c41
-<         e -> {
----
->         completable -> {
-92,112d84
-< 
-<                 @Override
+94,111c89,90
 <                 public void user(PubNub pubnub, PNUserResult pnUserResult) {
 <                   LOG.debug("PubNub user: {}", pnUserResult.toString());
 <                 }
@@ -35,8 +27,6 @@
 <                 public void messageAction(
 <                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
 <                   LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
-<                 }
-114c86
-<           e.onComplete();
 ---
->           completable.onComplete();
+>                 public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
+>                   LOG.debug("PubNub file: {}", pnFileEventResult.toString());

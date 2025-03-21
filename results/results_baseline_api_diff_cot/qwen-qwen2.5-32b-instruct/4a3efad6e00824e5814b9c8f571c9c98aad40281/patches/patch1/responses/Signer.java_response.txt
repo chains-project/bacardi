@@ -42,6 +42,9 @@ public class Signer {
         boolean visibleSignature = params.getPage() != null;
         //https://github.com/apache/pdfbox/blob/trunk/examples/src/main/java/org/apache/pdfbox/examples/signature/CreateVisibleSignature2.java
         //https://ec.europa.eu/cefdigital/DSS/webapp-demo/doc/dss-documentation.html
+        //load PDF file
+        //PDDocument doc = PDDocument.load(pdfFile.toFile());
+
         //load PDF file in DSSDocument format
         DSSDocument toSignDocument = new FileDocument(pdfFile.toFile());
 
@@ -64,7 +67,6 @@ public class Signer {
         } else {
             signatureParameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_B);
         }
-        // CertificationPermission.MINIMAL_CHANGES_PERMITTED is removed, so we need to find an alternative or remove it.
         //signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
 
         // Create common certificate verifier
@@ -100,7 +102,7 @@ public class Signer {
             fieldParameters.setOriginY(params.getTop() * POINTS_PER_MM * 10f);
             fieldParameters.setWidth(params.getWidth() * POINTS_PER_MM * 10f);
 
-            // Get the SignedInfo segment that needs to be signed.
+            // Get the SignedInfo segment that need to be signed.
             // respect local timezone
             DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneId.systemDefault());
             // user-provided timezone, if any
@@ -124,7 +126,7 @@ public class Signer {
 
         //https://gist.github.com/Manouchehri/fd754e402d98430243455713efada710
         //only use TSP source, if parameter is set
-        //if it is set to an url, use this
+        //if it is set to an url, us this
         //otherwise, default
         if (params.getUseTimestamp() || params.getTSA() != null) {
             CompositeTSPSource compositeTSPSource = new CompositeTSPSource();

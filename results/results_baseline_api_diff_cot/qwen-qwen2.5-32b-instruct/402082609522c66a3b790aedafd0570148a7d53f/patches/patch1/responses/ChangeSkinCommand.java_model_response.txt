@@ -1,13 +1,11 @@
 ```java
 package com.github.games647.changeskin.sponge.command;
 
-import org.spongepowered.api.command.CommandExecutor;
+import org.spongepowered.api.command.CommandSource;
 
 @FunctionalInterface
 public interface ChangeSkinCommand {
 
-    CommandExecutor buildExecutor();
+    void buildSpec(CommandSource src);
 }
 ```
-
-In this solution, I've replaced `CommandSpec` with `CommandExecutor` as it seems to be a more appropriate replacement given the context. The method `buildSpec()` has been renamed to `buildExecutor()` to reflect the change in the return type. This change should align with the new API and resolve the compilation errors.

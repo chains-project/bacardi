@@ -23,9 +23,6 @@ import org.locationtech.jts.util.GeometricShapeFactory;
 import org.tinfour.common.IIncrementalTin;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
-import org.tinspin.index.PointDistance;
-import org.tinspin.index.PointEntry;
-import org.tinspin.index.covertree.CoverTree;
 
 import micycle.pgs.commons.FrontChainPacker;
 import micycle.pgs.commons.LargestEmptyCircles;
@@ -94,9 +91,9 @@ public final class PGS_CirclePacking {
 
 		while (circlesArea / shapeArea < areaCoverRatio) {
 			double[] currentLEC = lec.findNextLEC();
-			circles.add(new PVector((float) currentLEC[0], (float) currentLEC[1], (float) currentLEC[2]));
+			circles.add(new PVector((float) currentLEC[0], (float) currentLEC[1], (float) currentLEC[2]);
 			circlesArea += Math.PI * currentLEC[2] * currentLEC[2];
-			if (currentLEC[2] < 极.5) {
+			if (currentLEC[2] < 0.5) {
 				break;
 			}
 		}
@@ -110,7 +107,7 @@ public final class PGS_CirclePacking {
 	 * Circles in this packing do not overlap and are contained entirely within the
 	 * shape. However, not every circle is necessarily tangent to others.
 	 * 
-	 * @极 shape       the shape from which to generate a circle packing
+	 * @param shape       the shape from which to generate a circle packing
 	 * @param points      the number of random points to insert into the
 	 *                    triangulation as steiner points. Larger values lead to
 	 *                    more circles that are generally smaller.
@@ -140,7 +137,7 @@ public final class PGS_CirclePacking {
 	 * {@code points} defines the maximum number of circles the packing can have; in
 	 * practice, the packing will contain somewhat fewer circles.
 	 * <p>
-	 * Circles in this packing do not overlap and极 contained entirely within the
+	 * Circles in this packing do not overlap and are contained entirely within the
 	 * shape. However, not every circle is necessarily tangent to other circles (in
 	 * which case, such a circle will be tangent to a shape vertex).
 	 * 
@@ -200,13 +197,12 @@ public final class PGS_CirclePacking {
 	public static List<PVector> stochasticPack(final PShape shape, final int points, final double minRadius, boolean triangulatePoints,
 			long seed) {
 
-		final CoverTree<PVector> tree = CoverTree.create(3, 2, circleDistanceMetric);
 		final List<PVector> out = new ArrayList<>();
 
 		List<PVector> steinerPoints = PGS_Processing.generateRandomPoints(shape, points, seed);
 		if (triangulatePoints) {
 			final IIncrementalTin tin = PGS_Triangulation.delaunayTriangulationMesh(shape, steinerPoints, true, 1, true);
-			steinerPoints = StreamSupport.stream(tin.t极angles().spliterator(), false).filter(filterBorderTriangles)
+			steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false).filter(filterBorderTriangles)
 					.map(PGS_CirclePacking::centroid).collect(Collectors.toList());
 		}
 
@@ -214,7 +210,6 @@ public final class PGS_CirclePacking {
 		// within shape edge
 		final List<PVector> vertices = PGS_Conversion.toPVector(shape);
 		Collections.shuffle(vertices); // shuffle vertices to reduce tree imbalance during insertion
-		vertices.forEach(p -> tree.insert(new double[] { p.x, p.y, 0 }, p));
 
 		/*
 		 * "To find the circle nearest to a center (x, y), do a proximity search at (x,
@@ -223,21 +218,28 @@ public final class PGS_CirclePacking {
 		float largestR = 0; // the radius of the largest circle in the tree
 
 		for (PVector p : steinerPoints) {
-			final PointEntry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+			PVector nearest = null;
+			double minDistance = Double.MAX_VALUE;
 
-			/*
-			 * nn.dist() does not return the radius (since it's a distance metric used to
-			 * find nearest circle), so calculate maximum radius for candidate circle using
-			 * 2d euclidean distance between center points minus radius of nearest circle.
-			 */
-			final float dx = p.x - nn.value().x;
-			final float dy = p.y - nn.value().y;
-			final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
-			if (radius > minRadius) {
-				largestR = (radius >= largestR) ? radius : largestR;
-				p.z = radius;
-				tree.insert(new double[] { p.x, p.y, radius }, p); // insert circle into tree
-				out.add(p);
+			for (PVector circle : out) {
+				final float dx = p.x - circle.x;
+				final float dy = p.y - circle.y;
+				final double distance = Math.sqrt(dx * dx + dy * dy) - circle.z;
+				if (distance < minDistance) {
+					minDistance = distance;
+					nearest = circle;
+				}
+			}
+
+			if (nearest != null) {
+				final float dx = p.x - nearest.x;
+				final float dy = p.y - nearest.y;
+				final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nearest.z);
+				if (radius > minRadius) {
+					largestR = (radius >= largestR) ? radius : largestR;
+					p.z = radius;
+					out.add(p);
+				}
 			}
 		}
 		return out;
@@ -335,7 +337,7 @@ public final class PGS_CirclePacking {
 	 * @param minRadius The minimum allowed radius for the inscribed circles.
 	 * @param tolerance The tolerance value to control the LEC algorithm's accuracy.
 	 *                  Higher values yield faster results but lower accuracy. A
-	极 value of a 1 is good staring point.
+	 *                  value of a 1 is good staring point.
 	 * @return A list of PVector objects representing the centers (.x, .y) and radii
 	 *         (.z) of the maximum inscribed circles.
 	 */
@@ -539,7 +541,7 @@ public final class PGS_CirclePacking {
 		for (double x = e.getMinX(); x < w; x += diameter) {
 			for (double y = e.getMinY(); y < h; y += diameter) {
 				if (pointLocator.locate(new Coordinate(x, y)) != Location.EXTERIOR) {
-					out.add(new PVector((float) x, (float) y, (float) radius);
+					out.add(new PVector((float) x, (float) y, (float) radius));
 				}
 			}
 		}
@@ -580,7 +582,7 @@ public final class PGS_CirclePacking {
 			offset = (offset == radius) ? 0 : radius;
 			for (double y = e.getMinY() - offset; y < h; y += diameter) {
 				if (pointLocator.locate(new Coordinate(x, y)) != Location.EXTERIOR) {
-					out.add(new PVector((float) x, (float) y, (float) radius);
+					out.add(new PVector((float) x, (float) y, (float) radius));
 				}
 			}
 		}
@@ -622,36 +624,6 @@ public final class PGS_CirclePacking {
 		y /= 3;
 		return new PVector((float) x, (float) y);
 	}
-
-	/**
-	 * Calculate the distance between two points in 3D space, where each point
-	 * represents a circle with (x, y, r) coordinates. This custom metric considers
-	 * both the Euclidean distance between the centers of the circles and the
-	 * absolute difference of their radii.
-	 * <p>
-	 * The metric is defined as follows: Given two points A and B, representing
-	 * circles centered at (x1, y1) and (x2, y2) with radii r1 and r2 respectively,
-	 * the distance is calculated as sqrt((x1 - x2)^2 + (y1 - y2)^2) + |r1 - r2|.
-	 * <p>
-	 * This metric can be used to find the nearest circle to a given center (x, y)
-	 * in a proximity search. To perform the search, use a point (x, y, R) where R
-	 * is greater than or equal to the maximum radius of a circle in the proximity
-	 * structure.
-	 *
-	 * @param p1 3D point representing the first circle (x1, y1, r1)
-	 * @param p2 3D point representing the second circle (x2, y2, r2)
-	 * @return the distance between the two points based on the custom metric
-	 */
-	private static final PointDistance circleDistanceMetric = (p1, p2) -> {
-		// from https://stackoverflow.com/a/21975136/
-		final double dx = p1[0] - p2[0];
-		final double dy = p1[1] - p2[1];
-		final double dz = p1[2] - p2[2];
-
-		double euclideanDistance = Math.sqrt(dx * dx + dy * dy);
-		double absZDifference = Math.abs(dz);
-		return euclideanDistance + absZDifference; // negative if inside
-	};
 
 	/**
 	 * A streams filter to remove triangulation triangles that share at least one

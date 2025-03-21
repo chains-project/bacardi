@@ -1,11 +1,9 @@
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
-import redis.clients.jedis.exceptions.JedisException;
-import redis.clients.jedis.params.ScanParams;
-import redis.clients.jedis.resps.ScanResult;
-import redis.clients.jedis.util.SafeEncoder;
-
+import redis.clients.jedis.commands.ScriptingCommandsPipeline;
+import redis.clients.jedis.pipeline.RedisPipeline;
+import redis.clients.jedis.pipeline.ClusterPipeline;
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +11,11 @@ import java.util.Map;
 /**
  * An interface which aligned to Jedis Pipeline interface
  */
-public interface RedisGraphPipeline extends Closeable {
+public interface RedisGraphPipeline extends
+        RedisPipeline,
+        ClusterPipeline,
+        ScriptingCommandsPipeline,
+        Closeable {
 
     /**
      * Execute a Cypher query.
@@ -32,43 +34,7 @@ public interface RedisGraphPipeline extends Closeable {
     Response<ResultSet> readOnlyQuery(String graphId, String query);
 
     /**
-     * Execute a Cypher query with timeout.
-     * @param graphId a graph to perform the query on
-     * @param query Cypher query
-     * @param timeout
-     * @return a response which builds the result set with the query answer.
-     */
-    Response<ResultSet> query(String graphId, String query, long timeout);
-
-    /**
-     * Executes a cypher read-only query with timeout.
-     * @param graphId a graph to perform the query on
-     * @param query Cypher query
-     * @param timeout
-     * @return a response which builds the result set with the query answer.
-     */
-    Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout);
-
-    /**
-     * Executes a cypher query with parameters.
-     * @param graphId a graph to perform the query on.
-     * @param query Cypher query.
-     * @param params parameters map.
-     * @return  a response which builds the result set with the query answer.
-     */
-    Response<ResultSet> query(String graphId, String query, Map<String, Object> params);
-
-    /**
-     * Executes a cypher read-only query with parameters.
-     * @param graphId a graph to perform the query on.
-     * @param query Cypher query.
-     * @param params parameters map.
-     * @return  a response which builds the result set with the query answer.
-     */
-    Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params);
-
-    /**
-     * Executes a cypher query with parameters and timeout.
+     * Execute a Cypher query with parameters and timeout.
      * @param graphId a graph to perform the query on.
      * @param query Cypher query.
      * @param params parameters map.
@@ -112,7 +78,7 @@ public interface RedisGraphPipeline extends Closeable {
      * @param kwargs - procedure output arguments
      * @return a response which builds result set with the procedure data
      */
-    Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args, Map<String, List<String>> kwargs);
+    Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args  , Map<String, List<String>> kwargs);
 
     /**
      * Deletes the entire graph
@@ -131,7 +97,7 @@ public interface RedisGraphPipeline extends Closeable {
 
     /**
      * Synchronize pipeline by reading all responses. This operation close the pipeline. In order to
-     * get return values from pipelined commands, capture the different Response<?> of the
+     * get return values from pipelined commands, capture the different Response&lt;?&gt; of the
      * commands you execute.
      */
     void sync();

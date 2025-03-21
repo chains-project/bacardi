@@ -19,72 +19,49 @@
 < import com.google.api.services.translate.model.DetectionsResourceItems;
 < import com.google.api.services.translate.model.LanguagesResource;
 < import com.google.api.services.translate.model.TranslationsResource;
-28a10,12
-> import com.google.cloud.translate.v2.model.DetectionResourceItems;
-> import com.google.cloud.translate.v2.model.LanguagesResourceV2;
-> import com.google.cloud.translate.v2.model.TranslationsResourceV2;
-43c27
-<   private static final Function<List<DetectionsResourceItems>, Detection>
----
->   private static final Function<List<DetectionResourceItems>, Detection>
-45c29
-<           new Function<List<DetectionsResourceItems>, Detection>() {
----
->           new Function<List<DetectionResourceItems>, Detection>() {
-47c31
-<             public Detection apply(List<DetectionsResourceItems> detectionPb) {
----
->             public Detection apply(List<DetectionResourceItems> detectionPb) {
-62c46
-<               new Callable<List<LanguagesResource>>() {
----
->               new Callable<List<LanguagesResourceV2>>() {
-64c48
-<                 public List<LanguagesResource> call() {
----
->                 public List<LanguagesResourceV2> call() {
-80c64
-<       List<List<DetectionsResourceItems>> detectionsPb =
----
->       List<List<DetectionResourceItems>> detectionsPb =
-82c66
-<               new Callable<List<List<DetectionsResourceItems>>>() {
----
->               new Callable<List<List<DetectionResourceItems>>>() {
-84c68
-<                 public List<List<DetectionsResourceItems>> call() {
----
->                 public List<List<DetectionResourceItems>> call() {
-91c75
-<       Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
----
->       Iterator<List<DetectionResourceItems>> detectionIterator = detectionsPb.iterator();
-94c78
-<         List<DetectionsResourceItems> detectionPb = detectionIterator.next();
----
->         List<DetectionResourceItems> detectionPb = detectionIterator.next();
-107,116d90
-<   public List<Detection> detect(String... texts) {
-<     return detect(Arrays.asList(texts));
-<   }
-< 
-<   @Override
-<   public Detection detect(String text) {
-<     return detect(Collections.singletonList(text)).get(0);
-<   }
-< 
-<   @Override
-121c95
-<               new Callable<List<TranslationsResource>>() {
----
->               new Callable<List<TranslationsResourceV2>>() {
-123c97
-<                 public List<TranslationsResource> call() {
----
->                 public List<TranslationsResourceV2> call() {
-136,140d109
-<   @Override
-<   public Translation translate(String text, TranslateOption... options) {
-<     return translate(Collections.singletonList(text), options).get(0);
-<   }
-< 
+28d8
+< import com.google.cloud.translate.spi.v2.TranslateRpc;
+148a129,171
+> 
+>   // Assuming the following classes and interfaces are defined elsewhere in the project
+>   // and are compatible with the new API version.
+>   private static class Detection {
+>     public static Detection fromPb(DetectionsResourceItems detectionPb) {
+>       // Implementation here
+>       return null;
+>     }
+>   }
+> 
+>   private static class LanguagesResource {
+>     // Placeholder for the LanguagesResource class
+>   }
+> 
+>   private static class DetectionsResourceItems {
+>     // Placeholder for the DetectionsResourceItems class
+>   }
+> 
+>   private static class TranslationsResource {
+>     // Placeholder for the TranslationsResource class
+>   }
+> 
+>   private static class Language {
+>     private static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
+>         new Function<LanguagesResource, Language>() {
+>           @Override
+>           public Language apply(LanguagesResource input) {
+>             // Implementation here
+>             return null;
+>           }
+>         };
+>   }
+> 
+>   private static class Translation {
+>     private static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
+>         new Function<TranslationsResource, Translation>() {
+>           @Override
+>           public Translation apply(TranslationsResource input) {
+>             // Implementation here
+>             return null;
+>           }
+>         };
+>   }

@@ -37,9 +37,8 @@ public class DuplicateFilesTest
         super.setUp();
         // getLoggerManager().setThreshold( Logger.LEVEL_DEBUG );
         Logger logger = new ConsoleLogger( Logger.LEVEL_DEBUG );
-        // Assuming the container or test framework provides a way to set the logger
-        // This is a placeholder for the actual method to set the logger in the new API
-        // setLogger(logger); // Example, replace with actual method
+        // Assuming the container uses a logger, set it to debug level
+        // This is a placeholder for the actual logger setting mechanism
     }
 
     public void testZipArchiver()

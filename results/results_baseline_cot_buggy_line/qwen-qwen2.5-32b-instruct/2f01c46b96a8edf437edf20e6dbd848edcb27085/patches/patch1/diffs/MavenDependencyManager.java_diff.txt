@@ -1,8 +1,10 @@
-24d23
-< import org.apache.maven.project.ProjectBuildingRequest;
-27d25
+21d20
+< import org.apache.maven.plugin.logging.Log;
+27c26
 < import org.codehaus.plexus.util.xml.Xpp3Dom;
-137,156d134
+---
+> import org.apache.maven.plugin.descriptor.ConfigurationElement;
+137,156d135
 <   /**
 <    * Maven processors are defined like this.
 <    * <pre>{@code
@@ -23,15 +25,16 @@
 <    *       </plugin>
 <    * }</pre>
 <    */
-160,166c138,140
-<     return Optional.ofNullable(project.getPlugin("org.bsc.maven:maven-processor-plugin"))
+161,162c140,142
 <         .map(plugin -> plugin.getExecutionsAsMap().get("process"))
 <         .map(exec -> (Xpp3Dom) exec.getConfiguration())
-<         .map(config -> config.getChild("processors"))
+---
+>         .map(plugin -> plugin.getExecutions().get(0))
+>         .map(exec -> exec.getConfiguration())
+>         .map(ConfigurationElement.class::cast)
+164,165c144,145
 <         .map(Xpp3Dom::getChildren)
 <         .map(arr -> Arrays.stream(arr).map(Xpp3Dom::getValue).collect(Collectors.toSet()))
-<         .orElse(of());
 ---
->     // Placeholder for parsing the plugin configuration without Xpp3Dom
->     // This is a simplified example and should be replaced with the actual parsing logic
->     return of();
+>         .map(ConfigurationElement::getChildren)
+>         .map(arr -> Arrays.stream(arr).map(ConfigurationElement::getValue).collect(Collectors.toSet()))

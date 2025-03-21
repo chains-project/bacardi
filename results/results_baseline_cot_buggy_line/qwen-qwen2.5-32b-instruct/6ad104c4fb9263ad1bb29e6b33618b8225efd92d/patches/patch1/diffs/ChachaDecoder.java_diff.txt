@@ -1,7 +1,13 @@
-8,9d7
+8,9c8
 < import org.bouncycastle.crypto.tls.AlertDescription;
 < import org.bouncycastle.crypto.tls.TlsFatalAlert;
-31c29
+---
+> import org.bouncycastle.crypto.macs.Poly1305;
+28c27
+<     byte[] calculatedMAC = PolyKeyCreator.create(macKey, additionalData, ciphertext);
+---
+>     byte[] calculatedMAC = Poly1305.create(macKey, additionalData, ciphertext);
+31c30
 <       throw new TlsFatalAlert(AlertDescription.bad_record_mac);
 ---
->       throw new IOException("Bad record MAC");
+>       throw new RuntimeException("Bad record MAC");

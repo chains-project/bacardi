@@ -1,5 +1,6 @@
 package io.zold.api;
 
+import io.zold.api.Copies.Copy;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

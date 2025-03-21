@@ -8,15 +8,15 @@ import com.google.inject.Inject;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.command.CommandExecutor;
-import org.spongepowered.api.command.CommandSpec;
+import org.spongepowered.api.command.CommandException;
+import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
-import static org.spongepowered.api.command.args.GenericArguments.string;
-import static org.spongepowered.api.text.Text.of;
+import java.util.Optional;
 
-public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
+public class SelectCommand implements CommandCallable, ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
 
@@ -26,13 +26,19 @@ public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
     }
 
     @Override
-    public CommandResult execute(CommandSource src, CommandContext args) {
+    public CommandResult process(CommandSource src, String arguments) throws CommandException {
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
             return CommandResult.empty();
         }
 
-        String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
+        Optional<String> skinNameOptional = args.getOne("skinName");
+        if (!skinNameOptional.isPresent()) {
+            plugin.sendMessage(src, "invalid-skin-name");
+            return CommandResult.empty();
+        }
+
+        String skinName = skinNameOptional.get().toLowerCase().replace("skin-", "");
 
         try {
             int targetId = Integer.parseInt(skinName);
@@ -45,11 +51,28 @@ public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
         return CommandResult.success();
     }
 
-    public CommandSpec buildSpec() {
-        return CommandSpec.builder()
-                .executor(this)
-                .arguments(string(of("skinName")))
-                .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
-                .build();
+    @Override
+    public List<String> getSuggestions(CommandSource src, String arguments, CommandContext context) throws CommandException {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean testPermission(CommandSource src) {
+        return src.hasPermission(PomData.ARTIFACT_ID + ".command.skinselect.base");
+    }
+
+    @Override
+    public String getHelp(CommandSource src) {
+        return "Select a skin by ID.";
+    }
+
+    @Override
+    public String getShortDescription(CommandSource src) {
+        return "Select a skin by ID.";
+    }
+
+    @Override
+    public String getUsage(CommandSource src) {
+        return "/select <skinName>";
     }
 }

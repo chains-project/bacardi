@@ -1,0 +1,34 @@
+14c14
+< import org.spongepowered.api.command.CommandException;
+---
+> import org.spongepowered.api.command.exception.CommandException;
+16,19c16,19
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.parameter.CommandContext.Builder;
+33d32
+< 
+35,38c34,37
+<     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+<             return CommandResult.empty();
+---
+>     public CommandResult execute(CommandContext src, CommandContext args) throws CommandException {
+>         if (!(src.cause().root() instanceof Player)) {
+>             plugin.sendMessage(src.cause().root(), "no-console");
+>             return CommandResult.success();
+41c40
+<         UUID uniqueId = ((Player) src).getUniqueId();
+---
+>         UUID uniqueId = ((Player) src.cause().root()).getUniqueId();
+61c60
+<         Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
+---
+>         Optional<Player> optPlayer = Sponge.server().player(uuid);

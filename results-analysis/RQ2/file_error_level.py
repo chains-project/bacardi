@@ -4,20 +4,39 @@ from tabulate import tabulate
 import matplotlib.pyplot as plt
 import numpy as np
 
+from error_level import latex_table
+
+def replace_headers(_models):
+    new_headers = []
+    for header in _models:
+        if header in llm_mapping:
+            new_headers.append(llm_mapping[header])
+        else:
+            new_headers.append(header)
+    return new_headers
+
 # Path to 104 api diff
 api_diff_path = '/Users/frank/Documents/Work/PHD/bacardi/bacardi/analysis/api_diff.txt'
 
 root_folder_path = '/Users/frank/Documents/Work/PHD/bacardi/bacardi/results'
 
 prompt_aliases = {
-    "results_baseline_buggy_line": "P2",
-    "results_baseline_api_diff_cot": "P7",
-    "results_baseline_cot": "P5",
-    "results_baseline": "P1",
-    "results_baseline_buggy_line_api_diff": "P4",
-    "results_baseline_api_diff": "P3",
-    "results_baseline_cot_buggy_line": "P6",
-    "results_baseline_api_diff_cot_buggy": "P8"
+    "results_baseline_buggy_line": "$P_2$",
+    "results_baseline_api_diff_cot": "$P_7$",
+    "results_baseline_cot": "$P_5$",
+    "results_baseline": "$P_1$",
+    "results_baseline_buggy_line_api_diff": "$P_4$",
+    "results_baseline_api_diff": "$P_3$",
+    "results_baseline_cot_buggy_line": "$P_6$",
+    "results_baseline_api_diff_cot_buggy": "$P_8$"
+}
+
+llm_mapping = {
+    "deepseek-deepseek-chat": "\\textbf{Deepseek V3}",
+    "gemini-2.0-flash-001": "\\textbf{Gemini-2.0-flash}",
+    "gpt-4o-mini": "\\textbf{Gpt-4o-mini}",
+    "o3-mini-2025-01-31": "\\textbf{o3-mini}",
+    "qwen-qwen2.5-32b-instruct": "\\textbf{Qwen2.5-32b-instruct}"
 }
 
 # Read the lines from the text file
@@ -93,7 +112,9 @@ for prompt, models in results.items():
 # Prepare data for LaTeX table
 table_data = []
 prompts = sorted(results.keys(), key=lambda x: prompt_aliases.get(x, x))
-headers = ["Prompt"] + sorted(next(iter(results.values())).keys())
+headers = ["\\textbf{Prompt}"] + sorted(next(iter(results.values())).keys())
+
+
 
 for prompt in prompts:
     row = [prompt_aliases.get(prompt, prompt)]
@@ -106,8 +127,14 @@ for prompt in prompts:
     table_data.append(row)
 
 # Generate LaTeX table without highlighted maximum values
-latex_table = "\\begin{tabular}{l" + "r" * len(headers[1:]) + "}\n"
-latex_table += " & ".join(headers) + " \\\\\n"
+latex_table = "\\newcommand{\\fileerrorleveltab}{%\n"
+latex_table += "\\centering\n"
+latex_table +="\\rowcolors{2}{gray!10}{white}\n"
+latex_table += "\\caption{Effectiveness of \\toolname in Fixing Compilation Failures at the File Level}\n"
+latex_table += "\\label{tab:file_error_level}\n"
+latex_table += "\\begin{tabular}{l" + "r" * len(headers[1:]) + "}\n"
+latex_table += "\\toprule\n"
+latex_table += " & ".join(replace_headers(headers)) + " \\\\\n"
 latex_table += "\\hline\n"
 for row in table_data:
     latex_table += " & ".join(row) + " \\\\\n"
@@ -115,61 +142,51 @@ latex_table += "\\end{tabular}"
 
 print(latex_table)
 output_json_path = 'fixed_error_rate.json'
+
 with open(output_json_path, 'w') as json_file:
     json.dump(results, json_file, indent=4)
 
-# Ordenar prompts y modelos
-prompts = sorted(results.keys(), key=lambda x: prompt_aliases.get(x, x))
-models = sorted(next(iter(results.values())).keys())
 
-# Obtener los valores en un diccionario con listas
-data = {model: [] for model in models}
-max_values_per_prompt = []
+# Create a file with all the results stored as \pgfkeys commands
+output_pgfkeys_path = 'results_pgfkeys.tex'
 
+with open(output_pgfkeys_path, 'w') as pgfkeys_file:
+    for prompt, models in results.items():
+        for model, result in models.items():
+            total_fixed_files = result['total_fixed_files']
+            total_prefix_files = result['total_prefix_files']
+            fixed_percentage = result['fixed_percentage']
+            key_base = f"{model.replace('-', '_')}_{prompt_aliases[prompt].strip('$')}_BUILD_SUCCESS"
+            pgfkeys_file.write(f"\\pgfkeyssetvalue{{{key_base}}}{{{total_fixed_files}/{total_prefix_files}}}\n")
+            pgfkeys_file.write(f"\\pgfkeyssetvalue{{{key_base}_percent}}{{{fixed_percentage:.2f}}}\n")
+
+# Generate the LaTeX table using these keys
+latex_table_pgfkeys = "\\newcommand{\\fileerrorleveltab}{%\n"
+latex_table_pgfkeys += "\\centering\n"
+latex_table_pgfkeys += "\\rowcolors{2}{gray!10}{white}\n"
+latex_table_pgfkeys += "\\caption{Effectiveness of \\toolname in Fixing Compilation Failures at the File Level}\n"
+latex_table_pgfkeys += "\\label{tab:file_error_level}\n"
+latex_table_pgfkeys += "\\begin{tabular}{l" + "r" * len(headers[1:]) + "}\n"
+latex_table_pgfkeys += "\\toprule\n"
+latex_table_pgfkeys += " & ".join(replace_headers(headers)) + " \\\\\n"
+latex_table_pgfkeys += "\\hline\n"
 for prompt in prompts:
-    values = [(model, results[prompt][model]['fixed_percentage']) for model in models]
-    values.sort(key=lambda x: x[1])  # Ordenar de menor a mayor porcentaje
+    row = [prompt_aliases.get(prompt, prompt)]
+    for model in sorted(next(iter(results.values())).keys()):
+        key_base = f"{model.replace('-', '_')}_{prompt_aliases[prompt].strip('$')}_BUILD_SUCCESS"
+        row.append(f"\\pgfkeysvalueof{{{key_base}}}(\\pgfkeysvalueof{{{key_base}_percent}}\\%)")
+    latex_table_pgfkeys += " & ".join(row) + " \\\\\n"
+latex_table_pgfkeys += "\\end{tabular}\n"
+latex_table_pgfkeys += "}"
 
-    max_value = max(val[1] for val in values)  # Máximo % en el prompt
-    max_values_per_prompt.append(max_value)
+print(latex_table_pgfkeys)
 
-    bottom = 0  # Base acumulativa
-    for model, value in values:
-        data[model].append(value - bottom)  # Porcentaje exacto del modelo en la barra
-        bottom = value  # Actualizar la base
+output_json_path = 'fixed_error_rate.json'
 
-# Configurar el gráfico
-fig, ax = plt.subplots(figsize=(10, 6))
-index = np.arange(len(prompts))
+with open(output_json_path, 'w') as json_file:
+    json.dump(results, json_file, indent=4)
 
-# Colores para los modelos
-colors = plt.cm.viridis(np.linspace(0.2, 0.8, len(models)))
 
-# Graficar las barras apiladas
-bottom = np.zeros(len(prompts))
-for i, model in enumerate(models):
-    bars = ax.barh(index, data[model], height=0.6, label=model, left=bottom, color=colors[i])
 
-    # Agregar etiquetas con el porcentaje real dentro de la barra
-    for bar, value in zip(bars, data[model]):
-        if value > 0:  # Solo mostrar si el valor es mayor a 0
-            x_position = bar.get_x() + bar.get_width() / 2  # Centro de la barra
-            y_position = bar.get_y() + bar.get_height() / 2  # Centro en Y
-            ax.text(x_position, y_position, f"{results[prompt][model]['fixed_percentage']:.1f}%", ha='center',
-                    va='center', fontsize=10, color='black')
-    bottom += np.array(data[model])  # Acumular para la siguiente capa de la barra
 
-# Configurar etiquetas y diseño
-ax.set_xlabel('Fixed Percentage')
-ax.set_title('Fixed Percentage by Model and Prompt')
 
-# Asignar los alias en el eje Y correctamente
-alias_labels = [prompt_aliases[prompt] for prompt in prompts]
-# ax.set_yticks(alias_labels)
-ax.set_yticklabels(alias_labels)
-
-ax.legend(title="Models")
-
-plt.xlim(0, max(max_values_per_prompt) * 1.1)  # Ajustar el límite del eje X
-plt.tight_layout()
-plt.show()

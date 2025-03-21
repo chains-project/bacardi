@@ -17,47 +17,25 @@
 < // along with this program. If not, see http://www.gnu.org/licenses/.
 < //
 < 
-23d4
-< import com.codahale.metrics.jmx.JmxReporter;
-51d31
+51d32
 < import io.dropwizard.servlets.tasks.Task;
-194,210c174
-<     public StorageFactory getStorageFactory() {
-<         if (config.database.getDriverClass().equalsIgnoreCase("fs")) {
-<             return botId -> new FileState(config.database.getUrl(), botId);
-<         }
-< 
+53a35
+> import io.dropwizard.setup.AdminEnvironment;
+153c135,143
+<             runHealthChecks();
+---
+>             Logger.info("Running health checks...");
+>             final SortedMap<String, HealthCheck.Result> results = env.healthChecks().runHealthChecks();
+>             for (String name : results.keySet()) {
+>                 final HealthCheck.Result result = results.get(name);
+>                 if (!result.isHealthy()) {
+>                     Logger.error("%s failed with: %s", name, result.getMessage());
+>                     throw new RuntimeException(result.getError());
+>                 }
+>             }
+169a160
+> 
+199c190
 <         return botId -> new JdbiState(botId, getJdbi());
-<     }
-< 
-<     public CryptoFactory getCryptoFactory() {
-<         if (config.database.getDriverClass().equalsIgnoreCase("fs")) {
-<             return (botId) -> new CryptoFile(config.database.getUrl(), botId);
-<         }
-< 
-<         return (botId) -> new CryptoDatabase(botId, new JdbiStorage(getJdbi()));
-<     }
-< 
-<     private void addResources() {
 ---
->     protected void addResources() {
-255,256c219,220
-<         environment.healthChecks().register("Alice2Bob", new Alice2Bob(cryptoFactory));
-<         environment.healthChecks().register("Outbound", new Outbound(getClient()));
----
->         environment.healthChecks().register("Alice2Bob", new Alice2Bob(cryptoFactory);
->         environment.healthChecks().register("Outbound", new Outbound(getClient());
-261,265c225,231
-<         JmxReporter jmxReporter = JmxReporter.forRegistry(environment.metrics())
-<                 .convertRatesTo(TimeUnit.SECONDS)
-<                 .convertDurationsTo(TimeUnit.MILLISECONDS)
-<                 .build();
-<         jmxReporter.start();
----
->         // JmxReporter is not part of the Dropwizard core and might need to be imported from a different package.
->         // Ensure the correct package is used based on the new dependency version.
->         // JmxReporter jmxReporter = JmxReporter.forRegistry(environment.metrics())
->         //        .convertRatesTo(TimeUnit.SECONDS)
->         //        .convertDurationsTo(TimeUnit.MILLISECONDS)
->         //        .build();
->         // jmxReporter.start();
+>         return botId -> new JdbiState(botId, new JdbiStorage(getJdbi()));

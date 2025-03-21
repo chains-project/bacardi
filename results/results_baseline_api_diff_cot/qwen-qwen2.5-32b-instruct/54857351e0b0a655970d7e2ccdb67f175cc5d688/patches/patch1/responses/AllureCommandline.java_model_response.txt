@@ -48,7 +48,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings({"ClassDataAbstractionCoupling", "MultipleStringLiterals"})
+@SuppressWarnings({"ClassDataAbstractionCoupling", "ClassFanOutComplexity",
+        "MultipleStringLiterals"})
 public class AllureCommandline {
 
     public static final String ALLURE_DEFAULT_VERSION = "2.13.9";
@@ -240,5 +241,3 @@ public class AllureCommandline {
     }
 }
 ```
-
-The fix involves updating the import statement for `ZipFile` to `net.lingala.zip4j.ZipFile` and adjusting the instantiation of `ZipFile` in the `unpack` method to use the new constructor that accepts a `File` object. This change aligns with the API changes in the dependency, ensuring the class compiles and functions correctly with the updated dependency.

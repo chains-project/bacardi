@@ -1,5 +1,6 @@
 package com.google.cloud.translate;
 
+import com.google.cloud.translate.v2.model.TranslationsResource;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
@@ -17,6 +18,13 @@ import java.util.Objects;
 public class Translation implements Serializable {
 
   private static final long serialVersionUID = 2556017420486245581L;
+  static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
+      new Function<TranslationsResource, Translation>() {
+        @Override
+        public Translation apply(TranslationsResource translationPb) {
+          return Translation.fromPb(translationPb);
+        }
+      };
 
   private final String translatedText;
   private final String sourceLanguage;
@@ -79,8 +87,10 @@ public class Translation implements Serializable {
         && Objects.equals(sourceLanguage, other.sourceLanguage);
   }
 
-  // Assuming the new dependency version does not provide a direct replacement for `TranslationsResource`
-  // and the `fromPb` method is no longer needed, we can remove it.
-  // If there is a replacement class or method, we should update the code accordingly.
-  // For now, we will remove the method and the function that uses it.
+  static Translation fromPb(TranslationsResource translationPb) {
+    return new Translation(
+        translationPb.getTranslatedText(),
+        translationPb.getDetectedSourceLanguage(),
+        translationPb.getModel());
+  }
 }

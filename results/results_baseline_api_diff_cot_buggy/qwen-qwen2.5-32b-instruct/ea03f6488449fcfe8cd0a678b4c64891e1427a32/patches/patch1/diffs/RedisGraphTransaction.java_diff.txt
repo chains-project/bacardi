@@ -1,4 +1,6 @@
-4,11c4,7
+2a3
+> import redis.clients.jedis.Pipeline;
+4,11c5
 < import redis.clients.jedis.commands.BasicRedisPipeline;
 < import redis.clients.jedis.commands.BinaryRedisPipeline;
 < import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
@@ -9,22 +11,23 @@
 < import redis.clients.jedis.commands.ScriptingCommandsPipeline;
 ---
 > import redis.clients.jedis.exceptions.JedisException;
-> import redis.clients.jedis.params.ScanParams;
-> import redis.clients.jedis.resps.ScanResult;
-> import redis.clients.jedis.util.SafeEncoder;
-20,24c16
+20,24c14
 < public interface RedisGraphTransaction extends
 <         MultiKeyBinaryRedisPipeline,
 <         MultiKeyCommandsPipeline, ClusterPipeline,
 <         BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
 <         BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
 ---
-> public interface RedisGraphTransaction extends Closeable {
-52c44
+> public interface RedisGraphTransaction extends Pipeline, Closeable {
+52,54c42,44
 <      * Execute a Cypher read-only query with timeout.
+<      * @param graphId a graph to perform the query on
+<      * @param query Cypher query
 ---
 >      * Executes a cypher read-only query with timeout.
-61,71d52
+>      * @param graphId a graph to perform the query on.
+>      * @param query Cypher query.
+61,71d50
 <      * Execute a Cypher query with arguments
 <      * @param graphId a graph to perform the query on
 <      * @param query Cypher query
@@ -36,5 +39,5 @@
 <     Response<ResultSet> query(String graphId, String query, Object ...args);
 < 
 <     /**
-142d122
+142d120
 < 

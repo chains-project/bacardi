@@ -6,11 +6,19 @@
 <  * which accompanies this distribution, and is available at
 <  * http://www.eclipse.org/legal/epl-v10.html
 <  */
-94d86
+29,35d21
+< /**
+<  * YAML model representer.
+<  *
+<  * @author jvanzyl
+<  * @author bentmann
+<  * @since 0.7
+<  */
+94d79
 < 
-107a100
+107a93
 > 
-214,219c207,208
+214,219c200,201
 <   /*
 <    * Change the default order. Important data goes first.
 <    */
@@ -20,7 +28,7 @@
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) {
 >     try {
-232a222,224
+232a215,217
 >     } catch (IntrospectionException e) {
->       throw new RuntimeException("Failed to get properties for type " + type.getName(), e);
+>       throw new RuntimeException(e);
 >     }

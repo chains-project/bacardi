@@ -108,12 +108,12 @@ public class PlayerUtils
             ? RandomStringUtils.randomAlphanumeric(new Random().nextInt(13) + 1)
             : RandomWordUtils.getRandomWord();
 
-        // Removed the usage of LeetConverter.convert as the package does not exist.
-        // if (random.nextBoolean())
-        // {
-        //     first = develop.p2p.lib.LeetConverter.convert(first);
-        //     last = develop.p2p.lib.LeetConverter.convert(last);
-        // }
+        // Assuming LeetConverter is no longer available, we will use a simple transformation as a placeholder
+        if (random.nextBoolean())
+        {
+            last = last.replace('e', '3').replace('a', '4');
+            first = first.replace('e', '3').replace('a', '4');
+        }
 
         String name = first + (random.nextBoolean() ? "_": "") + last + (random.nextBoolean() ? "19" + random.nextInt(120): "");
         if (name.length() > 16)

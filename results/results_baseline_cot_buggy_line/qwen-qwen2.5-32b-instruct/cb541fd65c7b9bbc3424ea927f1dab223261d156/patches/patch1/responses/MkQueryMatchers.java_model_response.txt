@@ -1,27 +1,9 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the class `Matchers` cannot be found in the package `org.hamcrest`.
-   - This suggests that the `Matchers` class has been moved or removed in the updated version of the Hamcrest library.
-
-2. Review the client code:
-   - The `Matchers` class is used in the `hasPath` and `hasQuery` methods to create matchers for the URI properties.
-   - The `Matchers` class is imported at the top of the file, but it seems that this import is no longer valid due to the dependency update.
-
-3. Consider potential fixes:
-   - The `Matchers` class might have been moved to a different package or replaced with a different class in the updated version of the Hamcrest library.
-   - The fix should involve updating the import statement to the correct package or class that now provides the required functionality.
-
-4. Plan the necessary changes:
-   - Update the import statement to the correct package or class that provides the `Matchers` functionality.
-   - Ensure that the updated import statement is compatible with the updated dependency version.
-</code_analysis>
-
 ```java
 package com.jcabi.http.mock;
 
 import java.net.URI;
 import org.hamcrest.Matcher;
-import org.hamcrest.core.IsEqual;
+import org.hamcrest.CoreMatchers;
 
 /**
  * Convenient set of matchers for {@link MkQuery}.
@@ -72,7 +54,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasPath(final Matcher<String> path) {
         return new MkQueryUriMatcher(
-            IsEqual.<URI>equalTo(path)
+            CoreMatchers.<URI>hasProperty("rawPath", path)
         );
     }
 
@@ -84,11 +66,9 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasQuery(final Matcher<String> query) {
         return new MkQueryUriMatcher(
-            IsEqual.<URI>equalTo(query)
+            CoreMatchers.<URI>hasProperty("rawQuery", query)
         );
     }
 
 }
 ```
-
-In this fix, I have replaced the `Matchers` import with `org.hamcrest.core.IsEqual` as a placeholder. However, the actual fix would depend on the specific changes made in the updated Hamcrest library. If `Matchers` was moved to a different package, the import should be updated accordingly. If `Matchers` was replaced with a different class, the replacement class should be used instead. The provided fix assumes that `IsEqual` can be used as a replacement, but this may need to be adjusted based on the actual changes in the Hamcrest library.

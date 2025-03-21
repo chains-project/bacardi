@@ -5,6 +5,7 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import com.github.games647.changeskin.sponge.PomData;
 import com.github.games647.changeskin.sponge.task.NameResolver;
 import com.github.games647.changeskin.sponge.task.SkinDownloader;
+import com.google.inject.Inject;
 
 import java.util.UUID;
 
@@ -13,7 +14,7 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.command.CommandSpec;
-import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
@@ -26,7 +27,8 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
     private final ChangeSkinSponge plugin;
     private final ChangeSkinCore core;
 
-    public SetCommand(ChangeSkinSponge plugin, ChangeSkinCore core) {
+    @Inject
+    SetCommand(ChangeSkinSponge plugin, ChangeSkinCore core) {
         this.plugin = plugin;
         this.core = core;
     }
@@ -70,6 +72,7 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
         return CommandResult.success();
     }
 
+    @Override
     public CommandSpec buildSpec() {
         return CommandSpec.builder()
                 .executor(this)

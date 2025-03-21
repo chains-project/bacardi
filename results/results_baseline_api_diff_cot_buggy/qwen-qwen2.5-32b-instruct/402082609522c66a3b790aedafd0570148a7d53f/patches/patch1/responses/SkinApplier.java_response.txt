@@ -16,10 +16,10 @@ import org.spongepowered.api.world.World;
 public class SkinApplier extends SharedApplier {
 
     private final ChangeSkinSponge plugin;
-    private final Player invoker;
+    private final Object invoker;
     private final Player receiver;
 
-    public SkinApplier(ChangeSkinSponge plugin, Player invoker, Player receiver, SkinModel targetSkin
+    public SkinApplier(ChangeSkinSponge plugin, Object invoker, Player receiver, SkinModel targetSkin
             , boolean keepSkin) {
         super(plugin.getCore(), targetSkin, keepSkin);
 
@@ -35,8 +35,8 @@ public class SkinApplier extends SharedApplier {
         }
 
         //uuid was successful resolved, we could now make a cooldown check
-        if (invoker != null) {
-            UUID uniqueId = invoker.getUniqueId();
+        if (invoker instanceof Player) {
+            UUID uniqueId = ((Player) invoker).getUniqueId();
             core.getCooldownService().trackPlayer(uniqueId);
         }
 
@@ -77,21 +77,22 @@ public class SkinApplier extends SharedApplier {
         sendUpdateSelf();
 
         //triggers an update for others player to see the new skin
-        receiver.offer(Sponge.getDataManager().getRegistry().getValue("vanish", true));
-        receiver.offer(Sponge.getDataManager().getRegistry().getValue("vanish", false));
+        receiver.offer(receiver.get(Keys.VANISH).orElse(false));
+        receiver.offer(!receiver.get(Keys.VANISH).orElse(false));
     }
 
     private void sendUpdateSelf() {
         receiver.getTabList().removeEntry(receiver.getUniqueId());
-        receiver.getTabList().addEntry(receiver.getTabList().builder()
-                .displayName(receiver.getDisplayName())
+        receiver.getTabList().addEntry(TabListEntry.builder()
+                .displayName(receiver.getDisplayNameData().displayName().get())
                 .latency(receiver.getConnection().getLatency())
-                .gameMode(receiver.getGameMode())
+                .list(receiver.getTabList())
+                .gameMode(receiver.getGameModeData().type().get())
                 .profile(receiver.getProfile())
                 .build());
 
         Location<World> oldLocation = receiver.getLocation();
-        Vector3d rotation = receiver.getRotation();
+        //Vector3d rotation = receiver.getRotation();
         World receiverWorld = receiver.getWorld();
         Sponge.getServer().getWorlds()
                 .stream()
@@ -99,7 +100,7 @@ public class SkinApplier extends SharedApplier {
                 .findFirst()
                 .ifPresent(world -> {
                     receiver.setLocation(world.getSpawnLocation());
-                    receiver.setLocationAndRotation(oldLocation, rotation);
+                    //receiver.setLocationAndRotation(oldLocation, rotation);
                 });
     }
 }

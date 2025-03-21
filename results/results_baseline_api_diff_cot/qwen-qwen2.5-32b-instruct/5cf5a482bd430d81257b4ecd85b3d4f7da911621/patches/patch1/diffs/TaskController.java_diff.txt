@@ -8,12 +8,21 @@
 ---
 > import jakarta.mvc.Controller;
 > import jakarta.mvc.Models;
-> import jakarta.mvc.View;
 > import jakarta.mvc.binding.BindingResult;
+> import jakarta.mvc.binding.ParamError;
 > import jakarta.mvc.security.CsrfProtected;
-30d28
-< import org.eclipse.krazo.engine.Viewable;
+22d20
+< import javax.ws.rs.FormParam;
+53,54c51
+<     @View("tasks.xhtml")
+<     public void allTasks() {
+---
+>     public Viewable allTasks() {
+66a64
+>         return new Viewable("tasks.xhtml");
 90d87
 <     //@ValidateOnExecution(type = ExecutableType.NONE)
-164d160
+164c161
 <     //@CsrfProtected
+---
+>     @CsrfProtected

@@ -1,0 +1,39 @@
+8d7
+< import com.google.inject.Inject;
+12d10
+< import org.spongepowered.api.Platform.Type;
+14d11
+< import org.spongepowered.api.command.CommandSource;
+16,18c13,14
+< import org.spongepowered.api.network.ChannelBuf;
+< import org.spongepowered.api.network.RawDataListener;
+< import org.spongepowered.api.network.RemoteConnection;
+---
+> import org.spongepowered.api.network.channel.ChannelBuf;
+> import org.spongepowered.api.scheduler.Scheduler;
+21c17
+< public class UpdateSkinListener implements RawDataListener {
+---
+> public class UpdateSkinListener {
+23,24c19,23
+<     @Inject
+<     private ChangeSkinSponge plugin;
+---
+>     private final ChangeSkinSponge plugin;
+> 
+>     public UpdateSkinListener(ChangeSkinSponge plugin) {
+>         this.plugin = plugin;
+>     }
+26d24
+<     @Override
+33c31
+<         Optional<Player> receiver = Sponge.getServer().getPlayer(playerName);
+---
+>         Optional<Player> receiver = Sponge.server().getPlayer(playerName);
+35,36c33,35
+<             Runnable skinUpdater = new SkinApplier(plugin, (CommandSource) connection, receiver.get(), null, false);
+<             Task.builder().execute(skinUpdater).submit(plugin);
+---
+>             Runnable skinUpdater = new SkinApplier(plugin, connection, receiver.get(), null, false);
+>             Scheduler scheduler = Sponge.server().scheduler();
+>             scheduler.submit(Task.builder().execute(skinUpdater).build(), plugin);

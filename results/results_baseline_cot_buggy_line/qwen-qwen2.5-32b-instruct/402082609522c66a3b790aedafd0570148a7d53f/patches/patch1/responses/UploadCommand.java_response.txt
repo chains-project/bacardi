@@ -5,16 +5,18 @@ import com.github.games647.changeskin.core.model.auth.Account;
 import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import com.github.games647.changeskin.sponge.PomData;
 import com.github.games647.changeskin.sponge.task.SkinUploader;
-import com.google.inject.Inject;
 
 import java.util.List;
 
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.command.CommandSpec;
+import org.spongepowered.api.command.spec.CommandExecutor;
+import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.text.Text;
+
+import static org.spongepowered.api.text.Text.of;
+import static org.spongepowered.api.command.args.GenericArguments.string;
 
 public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
 
@@ -46,10 +48,11 @@ public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
         return CommandResult.success();
     }
 
+    @Override
     public CommandSpec buildSpec() {
         return CommandSpec.builder()
                 .executor(this)
-                .arguments(org.spongepowered.api.command.args.GenericArguments.string(Text.of("url")))
+                .arguments(string(of("url")))
                 .permission(PomData.ARTIFACT_ID + ".command.skinupload.base")
                 .build();
     }

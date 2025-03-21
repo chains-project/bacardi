@@ -1,13 +1,3 @@
-<code_analysis>
-The error messages indicate that the client code is failing to compile due to missing symbols and packages, which suggests that the dependencies have been updated and the classes or packages have been moved or renamed. Specifically, the `CommandSource`, `Keys`, and `Vector3d` classes are not found, indicating that the `org.spongepowered.api.command`, `org.spongepowered.api.data.key`, and `com.flowpowered.math.vector` packages are either missing or have been updated.
-
-Given the context, it's likely that the `CommandSource` and `Keys` classes have been moved to a different package or have been renamed in the newer version of the Sponge API. Similarly, the `Vector3d` class from `com.flowpowered.math.vector` might have been moved or replaced in the newer version of the Flowpowered Math library.
-
-To fix the issue, we need to update the imports to reflect the new package structure or class names. If the classes have been moved to a different package, we need to update the import statements accordingly. If the classes have been renamed, we need to replace the old class names with the new ones.
-
-Here is the proposed fix:
-</code_analysis>
-
 ```java
 package com.github.games647.changeskin.sponge.task;
 
@@ -20,8 +10,8 @@ import java.util.UUID;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.source.CommandSource;
-import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.tab.TabListEntry;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -90,8 +80,8 @@ public class SkinApplier extends SharedApplier {
         sendUpdateSelf();
 
         //triggers an update for others player to see the new skin
-        receiver.offer(Keys.VANISH, true);
-        receiver.offer(Keys.VANISH, false);
+        receiver.offer(Sponge.getDataManager().getRegistry().getValue(Keys.VANISH).get(), true);
+        receiver.offer(Sponge.getDataManager().getRegistry().getValue(Keys.VANISH).get(), false);
     }
 
     private void sendUpdateSelf() {
@@ -105,7 +95,7 @@ public class SkinApplier extends SharedApplier {
                 .build());
 
         Location<World> oldLocation = receiver.getLocation();
-        double[] rotation = {receiver.getRotation().getX(), receiver.getRotation().getY()};
+        Vector3d rotation = receiver.getRotation();
         World receiverWorld = receiver.getWorld();
         Sponge.getServer().getWorlds()
                 .stream()
@@ -113,10 +103,8 @@ public class SkinApplier extends SharedApplier {
                 .findFirst()
                 .ifPresent(world -> {
                     receiver.setLocation(world.getSpawnLocation());
-                    receiver.setLocationAndRotation(oldLocation, rotation[0], rotation[1]);
+                    receiver.setLocationAndRotation(oldLocation, rotation);
                 });
     }
 }
 ```
-
-In this fix, I have updated the imports to reflect the new package structure for `CommandSource` and `Keys`. Additionally, I have replaced the `Vector3d` class with a double array to store the rotation values, as the `Vector3d` class is no longer available in the updated dependency. This approach ensures that the code remains compatible with the updated dependencies while maintaining the original functionality.

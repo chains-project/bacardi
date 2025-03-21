@@ -69,8 +69,7 @@ public class ConfigurationMessagesOverridePossibleListGUI implements InventoryPr
 				if (messagesConfig.getString("Overrides." + entry.getKey()) != null) {
 					lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwcConfigGUIMessagesAlreadyOverriden"));
 					currentEntryMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					// Fix the issue with the missing parseEnchantment method
-					currentEntryMeta.addEnchant(XEnchantment.POWER, 1, false);
+					currentEntryMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
 				}
 				lore.add(CommonDefinitions.getMessage("wwcConfigGUIMessagesOverrideOriginalLabel") + ": " + messagesConfig.getString("Messages." + entry.getKey()));
 				currentEntryMeta.setLore(lore);
@@ -110,6 +109,7 @@ public class ConfigurationMessagesOverridePossibleListGUI implements InventoryPr
 					overrideNewMessageSettings.open(player,
 							pagination.next().getPage());
 				}));
+				;
 			}
 		} catch (Exception e) {
 			WWCInventoryManager.inventoryError(player, e);

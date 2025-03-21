@@ -1,8 +1,18 @@
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
-import redis.clients.jedis.ClusterPipeline;
-import redis.clients.jedis.Transaction;
+import redis.clients.jedis.commands.ScriptingCommands;
+import redis.clients.jedis.pipeline.PipelineBase;
+import redis.clients.jedis.pipeline.PipelineBaseImpl;
+import redis.clients.jedis.pipeline.PipelinedCommand;
+import redis.clients.jedis.pipeline.PipelinedMultiKeyCommands;
+import redis.clients.jedis.pipeline.PipelinedMultiKeyBinaryCommands;
+import redis.clients.jedis.pipeline.PipelinedScriptingCommands;
+import redis.clients.jedis.pipeline.PipelinedClusterCommands;
+import redis.clients.jedis.pipeline.PipelinedCommands;
+import redis.clients.jedis.pipeline.PipelinedBinaryCommands;
+import redis.clients.jedis.pipeline.PipelinedBinaryScriptingCommands;
+
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +21,10 @@ import java.util.Map;
  * An interface which aligned to Jedis transactional interface
  */
 public interface RedisGraphTransaction extends
-        Closeable {
+        PipelinedMultiKeyBinaryCommands,
+        PipelinedMultiKeyCommands, PipelinedClusterCommands,
+        PipelinedBinaryScriptingCommands, PipelinedScriptingCommands,
+        PipelineBase, PipelinedBinaryCommands, PipelinedCommands, Closeable {
 
     /**
      * Execute a Cypher query.
@@ -31,30 +44,12 @@ public interface RedisGraphTransaction extends
 
     /**
      * Execute a Cypher query with timeout.
-     * @param graphId a graph to perform the query on.
-     * @param query Cypher query.
+     * @param graphId a graph to perform the query on
+     * @param query Cypher query
      * @param timeout
-     * @return  a response which builds the result set with the query answer.
+     * @return a response which builds the result set with the query answer.
      */
     Response<ResultSet> query(String graphId, String query, long timeout);
-
-    /**
-     * Executes a cypher read-only query with timeout.
-     * @param graphId a graph to perform the query on.
-     * @param query Cypher query.
-     * @param timeout
-     * @return  a response which builds the result set with the query answer.
-     */
-    Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout);
-
-    /**
-     * Executes a cypher query with parameters.
-     * @param graphId a graph to perform the query on.
-     * @param query Cypher query.
-     * @param params parameters map.
-     * @return  a response which builds the result set with the query answer.
-     */
-    Response<ResultSet> query(String graphId, String query, Map<String, Object> params);
 
     /**
      * Executes a cypher read-only query with parameters.
@@ -63,17 +58,7 @@ public interface RedisGraphTransaction extends
      * @param params parameters map.
      * @return  a response which builds the result set with the query answer.
      */
-    Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params);
-
-    /**
-     * Executes a cypher query with parameters and timeout.
-     * @param graphId a graph to perform the query on.
-     * @param query Cypher query.
-     * @param params parameters map.
-     * @param timeout
-     * @return  a response which builds the result set with the query answer.
-     */
-    Response<ResultSet> query(String graphId, String query, Map<String, Object> params, long timeout);
+    Response<ResultSet> query(String graphId, String query, Map<String, Object> params);
 
     /**
      * Executes a cypher read-only query with parameters and timeout.
@@ -87,7 +72,7 @@ public interface RedisGraphTransaction extends
 
     /**
      * Invokes stored procedures without arguments
-     * @param graphId graph to perform the query on
+     * @param graphId a graph to perform the query on
      * @param procedure procedure name to invoke
      * @return a response which builds result set with the procedure data
      */
@@ -95,7 +80,7 @@ public interface RedisGraphTransaction extends
 
     /**
      * Invokes stored procedure with arguments
-     * @param graphId graph to perform the query on
+     * @param graphId a graph to perform the query on
      * @param procedure procedure name to invoke
      * @param args procedure arguments
      * @return a response which builds result set with the procedure data
@@ -104,7 +89,7 @@ public interface RedisGraphTransaction extends
 
     /**
      * Invoke a stored procedure
-     * @param graphId graph to perform the query on
+     * @param graphId a graph to perform the query on
      * @param procedure - procedure to execute
      * @param args - procedure arguments
      * @param kwargs - procedure output arguments

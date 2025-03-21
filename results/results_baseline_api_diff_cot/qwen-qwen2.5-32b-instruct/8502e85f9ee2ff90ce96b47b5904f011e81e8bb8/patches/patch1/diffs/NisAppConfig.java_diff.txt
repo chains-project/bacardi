@@ -1,12 +1,6 @@
 3a4
 > import org.flywaydb.core.api.configuration.ClassicConfiguration;
-54a56
-> {
-103c105
-<         @Bean(initMethod = "migrate")
----
->         @Bean
-108,113c110,116
+108,113c109,115
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
@@ -21,22 +15,9 @@
 >                 flywayConfig.setClassLoader(NisAppConfig.class.getClassLoader());
 > 
 >                 return new Flyway(flywayConfig);
-129,130c132,133
-<                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
-<                                 this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
----
->                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
->                                 this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
-197a201,202
->         // region harvester
-> 
-335c340
+117d118
+<         @DependsOn("flyway")
+335c336
 <                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
 ---
 >                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, AlwaysVestedBalances::new);
-420,424d424
-<         public NodeCompatibilityChecker nodeCompatibilityChecker() {
-<                 return new DefaultNodeCompatibilityChecker();
-<         }
-< 
-<         @Bean

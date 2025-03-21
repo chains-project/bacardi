@@ -23,7 +23,6 @@ import com.google.cloud.http.HttpTransportOptions;
 import java.io.IOException;
 import java.util.Map;
 
-/** A default implementation of the DnsRpc interface. */
 public class HttpDnsRpc implements DnsRpc {
 
   private static final String SORT_BY = "changeSequence";
@@ -40,7 +39,7 @@ public class HttpDnsRpc implements DnsRpc {
 
     @Override
     public void addListZones(
-        RpcBatch.Callback<ManagedZonesListResponse> callback, Map<DnsRpc.Option, ?> options) {
+        RpcBatch.Callback<ManagedZonesListResponse> callback, Map<Option, ?> options) {
       try {
         listZonesCall(options).queue(batch, toJsonCallback(callback));
       } catch (IOException ex) {
@@ -73,7 +72,12 @@ public class HttpDnsRpc implements DnsRpc {
       try {
         deleteZoneCall(zoneName).queue(batch, toJsonCallback(callback));
       } catch (IOException ex) {
-        throw translate(ex, false);
+        DnsException serviceException = translate(ex, false);
+        if (serviceException.getCode() == HTTP_NOT_FOUND) {
+          callback.onSuccess(null);
+        } else {
+          throw serviceException;
+        }
       }
     }
 
@@ -90,7 +94,7 @@ public class HttpDnsRpc implements DnsRpc {
     public void addListRecordSets(
         String zoneName,
         RpcBatch.Callback<ResourceRecordSetsListResponse> callback,
-        Map<DnsRpc.Option, ?> options) {
+        Map<Option, ?> options) {
       try {
         listRecordSetsCall(zoneName, options).queue(batch, toJsonCallback(callback));
       } catch (IOException ex) {
@@ -102,7 +106,7 @@ public class HttpDnsRpc implements DnsRpc {
     public void addListChangeRequests(
         String zoneName,
         RpcBatch.Callback<ChangesListResponse> callback,
-        Map<DnsRpc.Option, ?> options) {
+        Map<Option, ?> options) {
       try {
         listChangeRequestsCall(zoneName, options).queue(batch, toJsonCallback(callback));
       } catch (IOException ex) {
@@ -115,11 +119,17 @@ public class HttpDnsRpc implements DnsRpc {
         String zoneName,
         String changeRequestId,
         RpcBatch.Callback<Change> callback,
-        Map<DnsRpc.Option, ?> options) {
+        Map<Option, ?> options) {
       try {
-        getChangeRequestCall(zoneName, changeRequestId, options).queue(batch, toJsonCallback(callback));
+        getChangeRequestCall(zoneName, changeRequestId, options)
+            .queue(batch, toJsonCallback(callback));
       } catch (IOException ex) {
-        throw translate(ex, false);
+        DnsException serviceException = translate(ex, false);
+        if (serviceException.getCode() == HTTP_NOT_FOUND) {
+          callback.onSuccess(null);
+        } else {
+          throw serviceException;
+        }
       }
     }
 
@@ -128,7 +138,7 @@ public class HttpDnsRpc implements DnsRpc {
         String zoneName,
         Change change,
         RpcBatch.Callback<Change> callback,
-        Map<DnsRpc.Option, ?> options) {
+        Map<Option, ?> options) {
       try {
         applyChangeRequestCall(zoneName, change, options).queue(batch, toJsonCallback(callback));
       } catch (IOException ex) {
@@ -161,11 +171,10 @@ public class HttpDnsRpc implements DnsRpc {
     };
   }
 
-  private static DnsException translate(IOException exception, boolean idempotent) {
-    return new DnsException(exception, idempotent);
+  private static DnsException translate(IOException ex, boolean idempotent) {
+    return new DnsException(ex, idempotent);
   }
 
-  /** Constructs an instance of this rpc client with provided {@link DnsOptions}. */
   public HttpDnsRpc(DnsOptions options) {
     HttpTransportOptions transportOptions = (HttpTransportOptions) options.getTransportOptions();
     HttpTransport transport = transportOptions.getHttpTransportFactory().create();
@@ -183,25 +192,23 @@ public class HttpDnsRpc implements DnsRpc {
     try {
       return createZoneCall(zone, options).execute();
     } catch (IOException ex) {
-      // todo this can cause misleading report of a failure, intended to be fixed within #924
-      throw translate(ex, true);
+      throw translate(ex, false);
     }
   }
 
   private Dns.ManagedZones.Create createZoneCall(ManagedZone zone, Map<Option, ?> options)
       throws IOException {
     return dns.managedZones()
-        .create(this.options.getProjectId(), this.options.getProjectId(), zone)
+        .create(this.options.getProjectId(), "default", zone)
         .setFields(Option.FIELDS.getString(options));
   }
 
   @Override
   public ManagedZone getZone(String zoneName, Map<Option, ?> options) throws DnsException {
-    // just fields option
     try {
       return getZoneCall(zoneName, options).execute();
     } catch (IOException ex) {
-      DnsException serviceException = translate(ex, true);
+      DnsException serviceException = translate(ex, false);
       if (serviceException.getCode() == HTTP_NOT_FOUND) {
         return null;
       }
@@ -212,13 +219,12 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.ManagedZones.Get getZoneCall(String zoneName, Map<Option, ?> options)
       throws IOException {
     return dns.managedZones()
-        .get(this.options.getProjectId(), this.options.getProjectId(), zoneName)
+        .get(this.options.getProjectId(), "default", zoneName)
         .setFields(Option.FIELDS.getString(options));
   }
 
   @Override
   public ListResult<ManagedZone> listZones(Map<Option, ?> options) throws DnsException {
-    // fields, page token, page size
     try {
       ManagedZonesListResponse zoneList = listZonesCall(options).execute();
       return ListResult.of(zoneList.getNextPageToken(), zoneList.getManagedZones());
@@ -227,12 +233,11 @@ public class HttpDnsRpc implements DnsRpc {
     }
   }
 
-  private Dns.ManagedZones.List listZonesCall(Map<DnsRpc.Option, ?> options) throws IOException {
+  private Dns.ManagedZones.List listZonesCall(Map<Option, ?> options) throws IOException {
     return dns.managedZones()
-        .list(this.options.getProjectId(), this.options.getProjectId())
+        .list(this.options.getProjectId(), "default")
         .setFields(Option.FIELDS.getString(options))
         .setMaxResults(Option.PAGE_SIZE.getInt(options))
-        .setDnsName(Option.DNS_NAME.getString(options))
         .setPageToken(Option.PAGE_TOKEN.getString(options));
   }
 
@@ -252,7 +257,7 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.ManagedZones.Delete deleteZoneCall(String zoneName) throws IOException {
     return dns.managedZones()
-        .delete(this.options.getProjectId(), this.options.getProjectId(), zoneName);
+        .delete(this.options.getProjectId(), "default", zoneName);
   }
 
   @Override
@@ -266,13 +271,14 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.Projects.Get getProjectCall(Map<Option, ?> options) throws IOException {
     return dns.projects()
-        .get(this.options.getProjectId(), this.options.getProjectId())
+        .get(this.options.getProjectId(), "default")
         .setFields(Option.FIELDS.getString(options));
   }
 
   @Override
-  public ListResult<ResourceRecordSet> listRecordSets(String zoneName, Map<Option, ?> options)
-      throws DnsException {
+  public ListResult<ResourceRecordSet> listRecordSets(
+      String zoneName, RpcBatch.Callback<ResourceRecordSetsListResponse> callback,
+      Map<Option, ?> options) throws DnsException {
     try {
       ResourceRecordSetsListResponse response = listRecordSetsCall(zoneName, options).execute();
       return ListResult.of(response.getNextPageToken(), response.getRrsets());
@@ -283,13 +289,11 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.ResourceRecordSets.List listRecordSetsCall(String zoneName, Map<Option, ?> options)
       throws IOException {
-    // options are fields, page token, dns name, type
     return dns.resourceRecordSets()
-        .list(this.options.getProjectId(), this.options.getProjectId(), zoneName)
+        .list(this.options.getProjectId(), "default", zoneName)
         .setFields(Option.FIELDS.getString(options))
-        .setPageToken(Option.PAGE_TOKEN.getString(options))
-        .setName(Option.NAME.getString(options))
-        .setType(Option.DNS_TYPE.getString(options));
+        .setMaxResults(Option.PAGE_SIZE.getInt(options))
+        .setPageToken(Option.PAGE_TOKEN.getString(options));
   }
 
   @Override
@@ -303,12 +307,11 @@ public class HttpDnsRpc implements DnsRpc {
     }
   }
 
-  private Dns.Changes.List listChangeRequestsCall(String zoneName, Map<DnsRpc.Option, ?> options)
+  private Dns.Changes.List listChangeRequestsCall(String zoneName, Map<Option, ?> options)
       throws IOException {
-    // options are fields, page token, page size, sort order
     Dns.Changes.List request =
         dns.changes()
-            .list(this.options.getProjectId(), this.options.getProjectId(), zoneName)
+            .list(this.options.getProjectId(), "default", zoneName)
             .setFields(Option.FIELDS.getString(options))
             .setMaxResults(Option.PAGE_SIZE.getInt(options))
             .setPageToken(Option.PAGE_TOKEN.getString(options));
@@ -326,13 +329,7 @@ public class HttpDnsRpc implements DnsRpc {
     } catch (IOException ex) {
       DnsException serviceException = translate(ex, true);
       if (serviceException.getCode() == HTTP_NOT_FOUND) {
-        if ("entity.parameters.changeId".equals(serviceException.getLocation())
-            || (serviceException.getMessage() != null
-                && serviceException.getMessage().contains("parameters.changeId"))) {
-          // the change id was not found, but the zone exists
-          return null;
-        }
-        // the zone does not exist, so throw an exception
+        return null;
       }
       throw serviceException;
     }
@@ -341,24 +338,24 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.Changes.Get getChangeRequestCall(
       String zoneName, String changeRequestId, Map<Option, ?> options) throws IOException {
     return dns.changes()
-        .get(this.options.getProjectId(), this.options.getProjectId(), zoneName, changeRequestId)
+        .get(this.options.getProjectId(), "default", zoneName, changeRequestId)
         .setFields(Option.FIELDS.getString(options));
   }
 
   @Override
   public Change applyChangeRequest(
-      String zoneName, Change changeRequest, Map<Option, ?> options) throws DnsException {
+      String zoneName, Change change, Map<Option, ?> options) throws DnsException {
     try {
-      return applyChangeRequestCall(zoneName, changeRequest, options).execute();
+      return applyChangeRequestCall(zoneName, change, options).execute();
     } catch (IOException ex) {
       throw translate(ex, false);
     }
   }
 
   private Dns.Changes.Create applyChangeRequestCall(
-      String zoneName, Change changeRequest, Map<Option, ?> options) throws IOException {
+      String zoneName, Change change, Map<Option, ?> options) throws IOException {
     return dns.changes()
-        .create(this.options.getProjectId(), this.options.getProjectId(), zoneName, changeRequest)
+        .create(this.options.getProjectId(), "default", zoneName, change)
         .setFields(Option.FIELDS.getString(options);
   }
 

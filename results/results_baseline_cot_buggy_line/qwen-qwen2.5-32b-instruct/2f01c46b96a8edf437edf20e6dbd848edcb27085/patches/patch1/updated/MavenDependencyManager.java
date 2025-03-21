@@ -18,11 +18,12 @@ import lombok.SneakyThrows;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
+import org.apache.maven.plugin.descriptor.ConfigurationElement;
 import se.kth.depclean.core.AbstractDebloater;
 import se.kth.depclean.core.analysis.graph.DependencyGraph;
 import se.kth.depclean.core.analysis.model.ProjectDependencyAnalysis;
@@ -135,9 +136,14 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
   @Override
   public Set<String> collectUsedClassesFromProcessors() {
     getLog().debug("# collectUsedClassesFromProcessors()");
-    // Placeholder for parsing the plugin configuration without Xpp3Dom
-    // This is a simplified example and should be replaced with the actual parsing logic
-    return of();
+    return Optional.ofNullable(project.getPlugin("org.bsc.maven:maven-processor-plugin"))
+        .map(plugin -> plugin.getExecutions().get(0))
+        .map(exec -> exec.getConfiguration())
+        .map(ConfigurationElement.class::cast)
+        .map(config -> config.getChild("processors"))
+        .map(ConfigurationElement::getChildren)
+        .map(arr -> Arrays.stream(arr).map(ConfigurationElement::getValue).collect(Collectors.toSet()))
+        .orElse(of());
   }
 
   @Override

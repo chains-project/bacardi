@@ -5,13 +5,19 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
-import java.util.Random;
-import org.cactoos.Scalar;
 import org.cactoos.Func;
-import org.cactoos.IterableOf;
+import org.cactoos.FuncOf;
+import org.cactoos.IoChecked;
+import org.cactoos.Scalar;
+import org.cactoos.Text;
+import org.cactoos.TextOf;
+import org.cactoos.io.Directory;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.Mapped;
+import org.cactoos.scalar.IoCheckedScalar;
+import org.cactoos.scalar.SolidScalar;
 import org.cactoos.text.FormattedText;
+import org.cactoos.text.JoinedText;
 import org.cactoos.text.UncheckedText;
 
 /**
@@ -24,12 +30,12 @@ public final class WalletsIn implements Wallets {
     /**
      * Path containing wallets.
      */
-    private final Scalar<Path> path;
+    private final IoCheckedScalar<Path> path;
 
     /**
      * Filter for matching file extensions.
      */
-    private final Func<Path, Boolean> filter;
+    private final IoChecked<Func<Path, Boolean>> filter;
 
     /**
      * Wallets file extension.
@@ -74,11 +80,15 @@ public final class WalletsIn implements Wallets {
      */
     public WalletsIn(final Scalar<Path> pth, final String ext,
         final Random random) {
-        this.path = pth;
-        this.filter = (file) -> file.toFile().isFile()
+        this.path = new IoCheckedScalar<>(
+            new SolidScalar<>(pth)
+        );
+        this.filter = new IoChecked<>(
+            (Func<Path, Boolean>) file -> file.toFile().isFile()
                 && FileSystems.getDefault()
                 .getPathMatcher(String.format("glob:**.%s", ext))
-                .matches(file);
+                .matches(file)
+        );
         this.ext = ext;
         this.random = random;
     }
@@ -86,7 +96,11 @@ public final class WalletsIn implements Wallets {
     @Override
     public Wallet create() throws IOException {
         final Path wpth = this.path.value().resolve(
-            String.format("%s.%s", Long.toHexString(this.random.nextLong()), this.ext)
+            new JoinedText(
+                ".",
+                Long.toHexString(this.random.nextLong()),
+                this.ext
+            ).asString()
         );
         if (wpth.toFile().exists()) {
             throw new IOException(
@@ -119,7 +133,7 @@ public final class WalletsIn implements Wallets {
         try {
             return new Mapped<Path, Wallet>(
                 (pth) -> new Wallet.File(pth),
-                new Filtered<>(this.filter, new IterableOf<>(Files.list(this.path.value()).iterator()))
+                new Filtered<>(this.filter, new Directory(this.path.value()))
             ).iterator();
         } catch (final IOException ex) {
             throw new IllegalStateException(ex);

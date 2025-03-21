@@ -1,8 +1,6 @@
 3a4
 > import org.flywaydb.core.api.configuration.ClassicConfiguration;
-54a56
-> {
-108,113c110,116
+108,113c109,115
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
@@ -10,18 +8,18 @@
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 <                 return flyway;
 ---
->                 final ClassicConfiguration flywayConfig = new ClassicConfiguration();
->                 flywayConfig.setDataSource(this.dataSource());
->                 flywayConfig.setLocations(prop.getProperty("flyway.locations").split(","));
->                 flywayConfig.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
->                 flywayConfig.setClassLoader(NisAppConfig.class.getClassLoader());
+>                 final ClassicConfiguration configuration = new ClassicConfiguration();
+>                 configuration.setDataSource(this.dataSource());
+>                 configuration.setLocations(new Location[]{new Location(prop.getProperty("flyway.locations"))});
+>                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
 > 
->                 return new Flyway(flywayConfig);
-117d119
-<         @DependsOn("flyway")
-334,335c336,337
-<                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
+>                 return new Flyway(configuration);
+335c337
 <                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
 ---
->                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
->                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTINGING, () -> AlwaysVestedBalances::new);
+>                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, AlwaysVestedBalances::new);
+340c342
+<                                 "weighted balance scheme", featureSupplierMap);
+---
+>                                 "weighted balence scheme", featureSupplierMap);

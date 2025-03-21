@@ -19,8 +19,8 @@ package org.simplify4u.plugins.utils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.repository.RepositorySystem;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import org.apache.maven.shared.utils.xml.Xpp3Dom;
+import org.apache.maven.shared.utils.xml.Xpp3DomBuilder;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -69,16 +69,13 @@ public final class MavenCompilerUtils {
         if (config == null) {
             return emptySet();
         }
-        if (config instanceof Element) {
-            Element configElement = (Element) config;
-            NodeList annotationProcessorPaths = configElement.getElementsByTagName("annotationProcessorPaths");
-            return stream(range(0, annotationProcessorPaths.getLength()))
-                    .mapToObj(annotationProcessorPaths::item)
-                    .flatMap(path -> ((Element) path).getElementsByTagName("path").stream())
+        if (config instanceof Xpp3Dom) {
+            return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
+                    .flatMap(aggregate -> stream(aggregate.getChildren("path")))
                     .map(processor -> system.createArtifact(
-                            extractChildValue((Element) processor, "groupId"),
-                            extractChildValue((Element) processor, "artifactId"),
-                            extractChildValue((Element) processor, "version"),
+                            extractChildValue(processor, "groupId"),
+                            extractChildValue(processor, "artifactId"),
+                            extractChildValue(processor, "version"),
                             PACKAGING))
                     // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
                     // therefore there is little use in logging incomplete paths that are filtered out.
@@ -101,24 +98,9 @@ public final class MavenCompilerUtils {
      * @param name the child node name
      * @return Returns child value if child node present or otherwise empty string.
      */
-    private static String extractChildValue(Element node, String name) {
-        NodeList children = node.getElementsByTagName(name);
-        if (children.getLength() > 0) {
-            return children.item(0).getTextContent();
-        }
-        return "";
+    private static String extractChildValue(Xpp3Dom node, String name) {
+        final Xpp3Dom child = node.getChild(name);
+        return child == null ? "" : child.getValue();
     }
 }
-```
-
-<repair_strategy>
-1. The error indicates that the `Xpp3Dom` class and its methods are no longer available in the new version of the dependency. The `Xpp3Dom` class has been removed entirely.
-2. The new API does not provide `Xpp3Dom` class, so we need to replace it with an alternative approach to handle XML configuration.
-3. The `extractAnnotationProcessors` method and `extractChildValue` method need to be updated to use `org.w3c.dom.Element` and `org.w3c.dom.NodeList` for XML handling.
-4. The `extractChildValue` method needs to be updated to use `org.w3c.dom.Element` and `org.w3c.dom.NodeList` to extract values from XML elements.
-5. The `extractAnnotationProcessors` method needs to be updated to handle the XML configuration using `org.w3c.dom.Element` and `org.w3c.dom.NodeList`.
-6. The changes should not affect the functionality of the class and should ensure that the class compiles and functions as expected.
-7. The `org.w3c.dom.Element` and `org.w3c.dom.NodeList` classes are used to replace the `Xpp3Dom` class and its methods.
-8. The `org.w3c.dom.Element` and `org.w3c.dom.NodeList` classes are imported to handle XML configuration.
-</repair_strategy>
 ```

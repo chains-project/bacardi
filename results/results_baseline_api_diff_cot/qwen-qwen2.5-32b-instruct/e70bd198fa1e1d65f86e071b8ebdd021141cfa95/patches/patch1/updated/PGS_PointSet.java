@@ -20,10 +20,8 @@ import org.apache.commons.math3.util.FastMath;
 import org.apache.commons.math3.util.Pair;
 
 import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm;
-import org.jgrapht.alg.spanning.PrimMinimumSpanningTree;
+import org.jgrapht.alg.spanninging.PrimMinimumSpanningTree;
 import org.jgrapht.graph.SimpleGraph;
-import org.tinfour.common.IIncrementalTin;
-import org.tinspin.index.PointIndex;
 import org.tinspin.index.kdtree.KDTree;
 
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
@@ -65,12 +63,12 @@ public final class PGS_PointSet {
      * @return
      */
     public static List<PVector> prunePointsWithinDistance(List<PVector> points, double distanceTolerance) {
-        final PointIndex<PVector> tree = new KDTree<>(2);
+        final KdTree<PVector> tree = new KdTree<>(2);
         final List<PVector> newPoints = new ArrayList<>();
         for (PVector p : points) {
             final double[] coords = new double[] { p.x, p.y };
-            if (tree.size() == 0 || tree.nearestNeighbor(coords).getDistance() > distanceTolerance) {
-                tree.insert(coords, p);
+            if (tree.size() == 0 || tree.nearestNeighbor(coords).length, coords).clone()).getDistance() > distanceTolerance) {
+                tree.addPoint(coords, p);
                 newPoints.add(p);
             }
         }

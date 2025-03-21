@@ -1,9 +1,3 @@
-<code_analysis>
-The error messages indicate that the `javax.mvc.locale.LocaleResolver` and `javax.mvc.locale.LocaleResolverContext` classes cannot be found. This suggests that the dependency related to the `javax.mvc` package has been updated, possibly to a version where these classes have been moved or removed. The `javax.mvc` package is part of the JavaServer Faces (JSF) and Java API for RESTful Web Services (JAX-RS) specifications, and it seems that the package has been updated to `jakarta.mvc` as part of the transition from Java EE to Jakarta EE.
-
-The solution involves updating the imports to reflect the new package structure and ensuring that the class and method signatures are compatible with the new version of the dependency.
-</code_analysis>
-
 ```java
 package com.example.web;
 // https://www.mvc-spec.org/learn/cookbook/custom_localeresolver_en.html
@@ -16,7 +10,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import jakarta.mvc.locale.LocaleResolver;
 import jakarta.mvc.locale.LocaleResolverContext;
-import jakarta.ws.rs.core.UriInfo;
+import javax.ws.rs.core.UriInfo;
 
 /**
  * Resolver to get the {@link Locale} to use from the requests query param <i>lang</i>.
@@ -54,5 +48,3 @@ public class QueryParamLocaleResolver implements LocaleResolver {
     }
 }
 ```
-
-In this fix, the `javax.mvc` imports have been replaced with `jakarta.mvc` to reflect the transition from Java EE to Jakarta EE. This should resolve the compilation errors related to the missing symbols and non-existent packages.

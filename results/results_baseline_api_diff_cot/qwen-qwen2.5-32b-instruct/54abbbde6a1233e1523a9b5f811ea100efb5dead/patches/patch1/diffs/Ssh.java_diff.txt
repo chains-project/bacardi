@@ -32,93 +32,46 @@
 < import com.jcabi.aspects.Tv;
 47d16
 < import java.util.concurrent.TimeUnit;
-81,82c50
+74c43
+<  * {@link Ssh#exec(String, InputStream, OutputStream, OutputStream)},
+---
+>  * {@link #exec(String, InputStream, OutputStream, OutputStream)},
+80,82c49
+<  * @todo #30:30min Refactor this class into smaller ones to avoid null
 <  *  checking of passphrase. There should probably be separate classes for
 <  *  encrypted/unencrypted private key.
 ---
->  *  checking of passphrase.
-86c54
+>  * @checkstyle ParameterNumberCheck (6 lines)
+86c53
 < @SuppressWarnings("PMD.TooManyMethods")
 ---
 > @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
-127,152d94
+140c107
 <         this(adr, Ssh.PORT, user, priv);
-<     }
-< 
-<     /**
-<      * Constructor.
-<      * @param adr IP address
-<      * @param user Login
-<      * @param priv Private SSH key
-<      * @throws UnknownHostException If fails
-<      * @since 1.4
-<      */
-<     public Ssh(final String adr, final String user, final String priv)
-<         throws UnknownHostException {
-<         this(adr, Ssh.PORT, user, priv);
-<     }
-< 
-<     /**
-<      * Constructor.
-<      * @param adr IP address
-<      * @param user Login
-<      * @param priv Private SSH key
-<      * @throws UnknownHostException If fails
-<      * @since 1.4
-<      */
-<     public Ssh(final InetAddress adr, final String user, final String priv)
-<         throws UnknownHostException {
-162,194d103
-<      * @throws IOException If fails
-<      * @since 1.4
-<      * @checkstyle ParameterNumberCheck (6 lines)
-<      */
-<     public Ssh(final String adr, final int prt,
-<         final String user, final URL priv) throws IOException {
-<         this(adr, prt, user, new UncheckedText(new TextOf(priv)).asString());
-<     }
-< 
-<     /**
-<      * Constructor.
-<      * @param adr IP address
-<      * @param prt Port of server
-<      * @param user Login
-<      * @param priv Private SSH key
-<      * @throws IOException If fails
-<      * @since 1.4
-<      * @checkstyle ParameterNumberCheck (6 lines)
-<      */
-<     public Ssh(final InetAddress adr, final int prt,
-<         final String user, final URL priv) throws IOException {
-<         this(
-<             adr.getCanonicalHostName(), prt, user,
-<             new UncheckedText(new TextOf(priv)).asString()
-<         );
-<     }
-< 
-<     /**
-<      * Constructor.
-<      * @param adr IP address
-<      * @param prt Port of server
-<      * @param user Login
-<      * @param priv Private SSH key
-196c105
-<      * @checkstyle ParameterNumberCheck (6 lines)
 ---
->      * @since 1.4
-211d119
+>         this(adr, Ssh.PORT, user, priv, null);
+211d177
 <      * @checkstyle ParameterNumberCheck (6 lines)
-233d140
+227d192
+<     @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
+233d197
 <     @Override
-235c142
+235c199
 <         attempts = Tv.SEVEN,
 ---
 >         attempts = 7,
-292c199
+269,271c233,234
+<                 "Opening SSH session to %s@%s:%s (%d bytes in RSA key)...",
+<                 this.getLogin(), this.getAddr(), this.getPort(),
+<                 file.length()
+---
+>                 "Opening SSH session to %s@%s:%s",
+>                 this.getLogin(), this.getAddr(), this.getPort()
+292c255
 <         session.setTimeout((int) TimeUnit.MINUTES.toMillis(1L));
 ---
 >         session.setTimeout((int) TimeUnit.SECONDS.toMillis(10L));
-294c201
+294c257
 <         session.setServerAliveCountMax(Tv.MILLION);
 ---
 >         session.setServerAliveCountMax(1000000);

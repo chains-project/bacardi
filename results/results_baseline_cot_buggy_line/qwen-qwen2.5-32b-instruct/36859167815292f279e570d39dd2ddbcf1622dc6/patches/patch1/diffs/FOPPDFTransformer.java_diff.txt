@@ -17,22 +17,12 @@
 <  * You should have received a copy of the GNU Lesser General Public License
 <  * along with billy GIN. If not, see <http://www.gnu.org/licenses/>.
 <  */
-57a40
+34d15
+< import java.io.IOException;
+57a39
 > import org.apache.fop.apps.FopFactoryBuilder;
-115,116c98,99
+115c97,98
 <         FopFactory fopFactory = FopFactory.newInstance();
-<         // a user agent is needed for transformation
 ---
->         FopFactoryBuilder builder = FopFactoryBuilder.newInstance();
+>         FopFactoryBuilder builder = FopFactoryBuilder.newInstance(new File("."));
 >         FopFactory fopFactory = builder.build();
-118d100
-<         // to store output
-141,142c123
-<             // Resulting SAX events (the generated FO)
-<             // must be piped through to FOP
----
->             // Resulting SAX events (the generated FO) must be piped through to FOP
-146d126
-<             // everything will happen here..
-208d187
-< 

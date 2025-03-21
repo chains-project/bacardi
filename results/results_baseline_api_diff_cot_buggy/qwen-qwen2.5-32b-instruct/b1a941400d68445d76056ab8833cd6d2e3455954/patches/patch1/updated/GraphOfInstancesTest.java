@@ -8,10 +8,10 @@ import com.fluxtion.runtime.annotations.builder.ExcludeNode;
 import com.fluxtion.runtime.node.NamedNode;
 import lombok.Data;
 import org.junit.Test;
-import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.LoaderOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +28,11 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
 
     @Test(expected = NoSuchFieldException.class)
     public void buildWithoutYaml() {
+        LoaderOptions options = new LoaderOptions();
+        Constructor constructor = new Constructor(options);
+        constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
+        constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
+        Yaml yaml = new Yaml(constructor);
         sep(c -> {
             StringHandler stringHandlerA = new StringHandler("A");
             StringHandler stringHandlerB = new StringHandler("B");
@@ -65,6 +70,11 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
 
     @Test(expected = NoSuchFieldException.class)
     public void driveFromYaml() {
+        LoaderOptions options = new LoaderOptions();
+        Constructor constructor = new Constructor(options);
+        constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
+        constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
+        Yaml yaml = new Yaml(constructor);
         String config = "nodeList:\n" +
                 "- !doubleSum\n" +
                 "  doubleSuppliers:\n" +
@@ -75,11 +85,6 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
                 "- !stringHandler\n" +
                 "  id: C";
         sep(c -> {
-            LoaderOptions options = new LoaderOptions();
-            Constructor constructor = new Constructor(options);
-            constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
-            constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
-            Yaml yaml = new Yaml(constructor);
             c.addNode(yaml.loadAs(config, InstanceHolder.class));
         });
         DoubleSum aggregator = getField("aggregator");
@@ -100,8 +105,13 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
         getField("instanceHolder");
     }
 
-    @Test
+    @Test(expected = NoSuchFieldException.class)
     public void driveAsListFromYaml() {
+        LoaderOptions options = new LoaderOptions();
+        Constructor constructor = new Constructor(options);
+        constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
+        constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
+        Yaml yaml = new Yaml(constructor);
         String config = "" +
                 "- !doubleSum\n" +
                 "  doubleSuppliers:\n" +
@@ -112,11 +122,6 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
                 "- !stringHandler\n" +
                 "  id: C";
         sep(c -> {
-            LoaderOptions options = new LoaderOptions();
-            Constructor constructor = new Constructor(options);
-            constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
-            constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
-            Yaml yaml = new Yaml(constructor);
             yaml.loadAs("nodeList:\n" + config, InstanceHolder.class).getNodeList().forEach(c::addNode);
         });
         DoubleSum aggregator = getField("aggregator");

@@ -1,22 +1,4 @@
 ```java
-/**
- * Copyright (C) 2014 Premium Minds.
- *
- * This file is part of wicket-crudifier.
- *
- * wicket-crudifier is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
- * later version.
- *
- * wicket-crudifier is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
- */
 package com.premiumminds.wicket.crudifier.form.elements;
 
 import java.beans.PropertyDescriptor;
@@ -35,18 +17,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import jakarta.validation.Validator;
+import javax.validation.Validator;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.metadata.BeanDescriptor;
 import jakarta.validation.metadata.ConstraintDescriptor;
 import jakarta.validation.metadata.ElementDescriptor;
-
-import com.premiumminds.webapp.wicket.validators.HibernateValidatorProperty;
-import com.premiumminds.wicket.crudifier.IObjectRenderer;
-import com.premiumminds.wicket.crudifier.form.CrudifierEntitySettings;
-import com.premiumminds.wicket.crudifier.form.EntityProvider;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -59,7 +36,7 @@ public abstract class ListControlGroups<T> extends Panel {
 
 	private Map<String, AbstractControlGroup<?>> fieldComponents = new HashMap<String, AbstractControlGroup<?>>();
 
-	private Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> controlGroupProviders = new HashMap<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>>();
+	private Map<Class<?>, ControlGroupProvider<?>> controlGroupProviders = new HashMap<Class<?>, ControlGroupProvider<?>>();
 
 	@SuppressWarnings("rawtypes")
 	private Map<Class<?>, Class<? extends AbstractControlGroup>> typesControlGroups = new HashMap<Class<?>, Class<? extends AbstractControlGroup>>();
@@ -83,13 +60,12 @@ public abstract class ListControlGroups<T> extends Panel {
 		typesControlGroups.put(double.class, TextFieldControlGroup.class);
 		typesControlGroups.put(BigDecimal.class, TextFieldControlGroup.class);
 		typesControlGroups.put(BigInteger.class, TextFieldControlGroup.class);
-		typesControlGroups.put(Set.class, CollectionControlGroup.class);
-
 		objectProperties = new ArrayList<ObjectProperties>();
 		this.entitySettings = entitySettings;
 		this.renderers = renderers;
 	}
 
+	@SuppressWarnings("rawtypes")
 	private Set<String> getPropertiesByOrder(Class<?> modelClass) {
 		Set<String> properties = new LinkedHashSet<String>();
 
@@ -107,29 +83,29 @@ public abstract class ListControlGroups<T> extends Panel {
 		return properties;
 	}
 
-	protected abstract EntityProvider<?> getEntityProvider(String name);
-
 	@Override
 	protected void onInitialize() {
 		super.onInitialize();
 
 		Class<?> modelClass = getModel().getObject().getClass();
 
+		Set<String> properties = getPropertiesByOrder(modelClass);
+
 		Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
 		BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
-		for(ObjectProperties objectProperty : objectProperties){
+		for(String property : properties){
 			PropertyDescriptor descriptor;
 			try {
-				descriptor = PropertyUtils.getPropertyDescriptor(getModel().getObject(), objectProperty.name);
+				descriptor = PropertyUtils.getPropertyDescriptor(getModel().getObject(), property);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 
 			boolean required = false;
 
-			ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
-			if(constraintDescriptor!=null){
-				Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
+			ElementDescriptor elementDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+			if(elementDescriptor != null){
+				Set<ConstraintDescriptor<?>> constraintsSet = elementDescriptor.getConstraintDescriptors();
 				for(ConstraintDescriptor<?> constraint : constraintsSet){
 					if(constraint.getAnnotation() instanceof NotNull ||
 					   constraint.getAnnotation() instanceof NotEmpty ||
@@ -140,14 +116,14 @@ public abstract class ListControlGroups<T> extends Panel {
 
 			objectProperties.add(new ObjectProperties(descriptor, required));
 		}
-		
+
 		RepeatingView view = new RepeatingView("controlGroup");
 		for(ObjectProperties objectProperty : objectProperties){
 			try {
 				AbstractControlGroup<?> controlGroup;
 				if(!controlGroupProviders.containsKey(objectProperty.type)) {
 					Constructor<?> constructor;
-					Class<? extends AbstractControlGroup> typesControlGroup = getControlGroupByType(objectProperty.type);
+					Class<? extends Panel> typesControlGroup = getControlGroupByType(objectProperty.type);
 					if(typesControlGroup==null){
 						if(objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
 						else typesControlGroup = ObjectChoiceControlGroup.class;
@@ -158,23 +134,6 @@ public abstract class ListControlGroups<T> extends Panel {
 					controlGroup = (AbstractControlGroup<?>) constructor.newInstance(view.newChildId(), new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name));
 					controlGroup.init(objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
 					controlGroup.setEnabled(objectProperty.enabled);
-
-					if(typesControlGroup==ObjectChoiceControlGroup.class){
-						IObjectRenderer<?> renderer = renderers.get(objectProperty.type);
-						if(renderer==null){
-							renderer = new IObjectRenderer<Object>() {
-								private static final long serialVersionUID = -6171655578529011405L;
-
-								public String render(Object object) {
-									return object.toString();
-								}
-							};
-						}
-						((ObjectChoiceControlGroup<?>) controlGroup).setConfiguration(getEntityProvider(objectProperty.name), renderer);
-					} else if(typesControlGroup==CollectionControlGroup.class){
-						((CollectionControlGroup<?>) controlGroup).setConfiguration(getEntityProvider(objectProperty.name), renderers);
-					}
-
 				} else {
 					controlGroup = controlGroupProviders
 							.get(objectProperty.type)
@@ -248,5 +207,3 @@ public abstract class ListControlGroups<T> extends Panel {
 	}
 }
 ```
-
-The provided solution addresses the dependency update issues by replacing the old `javax.validation` package references with the new `jakarta.validation` package references. This includes updating the imports and class references to match the new API. The changes ensure that the class compiles and functions correctly with the updated dependency.

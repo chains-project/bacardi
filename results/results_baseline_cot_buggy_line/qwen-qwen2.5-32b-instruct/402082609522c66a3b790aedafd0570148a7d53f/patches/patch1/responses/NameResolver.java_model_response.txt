@@ -1,25 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `CommandSource` cannot be found, which suggests that the `CommandSource` class has been removed or moved in the updated version of the Sponge API dependency.
-   - The error occurs in the `NameResolver` class, specifically in the constructor and the import statement.
-
-2. Review the client code:
-   - The `CommandSource` class is used in the constructor of `NameResolver` and is declared as a field.
-   - The import statement for `CommandSource` is also present in the code.
-
-3. Consider potential fixes:
-   - Since the `CommandSource` class is no longer available, we need to find an alternative or remove the dependency on `CommandSource`.
-   - If the `CommandSource` class has been replaced by another class in the new version of the Sponge API, we should import and use that class instead.
-   - If the `CommandSource` class is no longer needed, we can remove the field and the constructor parameter.
-
-4. Plan the necessary changes:
-   - Check the Sponge API documentation or changelog for the updated version to find the replacement for `CommandSource`.
-   - If a replacement is found, update the import and use the new class.
-   - If no replacement is found and the `CommandSource` is not critical, remove the field and the constructor parameter.
-</code_analysis>
-
-Based on the analysis, let's assume that the `CommandSource` class has been replaced by `org.spongepowered.api.command.source.CommandSource` in the new version of the Sponge API. Here is the proposed fix:
-
 ```java
 package com.github.games647.changeskin.sponge.task;
 
@@ -28,17 +6,18 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.UUID;
 
-import org.spongepowered.api.command.source.CommandSource; // Updated import statement
+import org.spongepowered.api.text.source.TextSource;
+
 import org.spongepowered.api.entity.living.player.Player;
 
 public class NameResolver extends SharedNameResolver {
 
     private final ChangeSkinSponge plugin;
-    private final CommandSource invoker;
+    private final TextSource invoker;
     private final Player receiver;
     private final boolean keepSkin;
 
-    public NameResolver(ChangeSkinSponge plugin, CommandSource invoker, String targetName, Player receiver
+    public NameResolver(ChangeSkinSponge plugin, TextSource invoker, String targetName, Player receiver
             , boolean keepSkin) {
         super(plugin.getCore(), targetName, keepSkin);
 
@@ -66,5 +45,3 @@ public class NameResolver extends SharedNameResolver {
     }
 }
 ```
-
-In this fix, the import statement for `CommandSource` has been updated to reflect the new package structure in the updated Sponge API. If the `CommandSource` class has been removed and there is no replacement, the field and constructor parameter would need to be removed, and any references to `invoker` would need to be handled appropriately. However, without more context on the Sponge API changes, this is the most conservative approach to address the compilation error.

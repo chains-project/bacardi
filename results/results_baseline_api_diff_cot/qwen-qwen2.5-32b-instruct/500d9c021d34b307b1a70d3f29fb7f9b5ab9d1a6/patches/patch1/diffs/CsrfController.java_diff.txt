@@ -1,4 +1,4 @@
-6,12c6,9
+6,13c6,9
 < import javax.mvc.Controller;
 < import javax.mvc.Models;
 < import javax.mvc.UriRef;
@@ -6,19 +6,21 @@
 < import javax.mvc.binding.MvcBinding;
 < import javax.mvc.binding.ParamError;
 < import javax.mvc.security.CsrfProtected;
+< import javax.validation.constraints.NotBlank;
 ---
 > import jakarta.mvc.Controller;
 > import jakarta.mvc.Models;
-> import jakarta.mvc.binding.MvcBinding;
 > import jakarta.mvc.security.CsrfProtected;
-29c26
+> import jakarta.validation.constraints.NotBlank;
+29c25
 <     BindingResult bindingResult;
 ---
 >     jakarta.mvc.binding.BindingResult bindingResult;
-54,56c51,52
-<                     .stream()
-<                     .forEach((ParamError t) -> {
-<                         alert.addError(t.getParamName(), "", t.getMessage());
+49c45
+<             @MvcBinding
 ---
->                     .forEach((paramError) -> {
->                         alert.addError(paramError.getParamName(), "", paramError.getMessage());
+>             @jakarta.mvc.binding.MvcBinding
+55c51
+<                     .forEach((ParamError t) -> {
+---
+>                     .forEach((jakarta.mvc.binding.ParamError t) -> {

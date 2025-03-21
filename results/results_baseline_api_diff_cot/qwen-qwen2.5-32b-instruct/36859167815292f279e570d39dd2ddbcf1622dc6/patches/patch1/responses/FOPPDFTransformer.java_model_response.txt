@@ -1,22 +1,4 @@
 ```java
-/*
- * Copyright (C) 2017 Premium Minds.
- *
- * This file is part of billy GIN.
- *
- * billy GIN is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
- * later version.
- *
- * billy GIN is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with billy GIN. If not, see <http://www.gnu.org/licenses/>.
- */
 package com.premiumminds.billy.gin.services.impl.pdf;
 
 import com.google.zxing.BarcodeFormat;
@@ -52,12 +34,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.fop.apps.FOPException;
-import org.apache.fop.apps.FOUserAgent;
-import org.apache.fop.apps.Fop;
-import org.apache.fop.apps.FopFactory;
-import org.apache.fop.apps.FopFactoryBuilder;
-import org.apache.fop.render.pdf.PDFRendererConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,26 +87,11 @@ public abstract class FOPPDFTransformer {
             OutputStream outStream) throws ExportServiceException {
 
         // creation of transform source
-        Source source = this.mapParamsToSource(documentParams);
-
-        // Create FopFactory instance with a builder
-        FopFactory fopFactory = FopFactoryBuilder.buildFopFactory();
+        StreamSource transformSource = new StreamSource(templateStream);
 
         // a user agent is needed for transformation
-        FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
-        // the XML file from which we take the name
-        Transformer xslfoTransformer = this.getTransformer(new StreamSource(templateStream));
-
-        // Construct fop with desired output format
-        Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, outStream);
-
-        // Resulting SAX events (the generated FO)
-        // must be piped through to FOP
-        Result res = new SAXResult(fop.getDefaultHandler());
-
-        // Start XSLT transformation and FOP processing
-        // everything will happen here..
-        xslfoTransformer.transform(source, res);
+        FOUserAgent foUserAgent = FopFactory.newInstance(new File("fop.xconf")).newFOUserAgent();
+        // to store output
 
         Optional<Node<String, String>> qrCodeString = documentParams
             .getRoot()
@@ -145,7 +106,26 @@ public abstract class FOPPDFTransformer {
                 qr = createQR(qrCodeString.get().getValue());
                 documentParams.getRoot().addChild(QR_CODE_PATH, qr.toString());
             }
-        } catch (WriterException | IOException e) {
+            // the XML file from which we take the name
+            Source source = this.mapParamsToSource(documentParams);
+
+            Transformer xslfoTransformer = this.getTransformer(transformSource);
+
+            // Construct fop with desired output format
+            Fop fop = FopFactory.newInstance(new File("fop.xconf")).newFop(MimeConstants.MIME_PDF, foUserAgent, outStream);
+
+            // Resulting SAX events (the generated FO)
+            // must be piped through to FOP
+            Result res = new SAXResult(fop.getDefaultHandler());
+
+            // Start XSLT transformation and FOP processing
+            // everything will happen here..
+            xslfoTransformer.transform(source, res);
+        } catch (FOPException e) {
+            throw new ExportServiceException("Error using FOP to open the template", e);
+        } catch (TransformerException e) {
+            throw new ExportServiceException("Error generating pdf from template and data source", e);
+        } catch (IOException | WriterException e) {
             throw new ExportServiceException("Error generating qrCode", e);
         } finally {
             deleteTempFileIfExists(qr);
@@ -181,7 +161,7 @@ public abstract class FOPPDFTransformer {
         BitMatrix bitMatrix = qrCodeWriter.encode(
             new String(data.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8),
             BarcodeFormat.QR_CODE,
-            350, 350, hints);
+            350, 350,hints);
 
         final Path file = Files.createTempFile(UUID.randomUUID().toString().replace("-", ""), ".png");
         MatrixToImageWriter.writeToPath(
@@ -203,5 +183,3 @@ public abstract class FOPPDFTransformer {
     }
 }
 ```
-
-In the provided solution, the `FopFactory` instantiation has been updated to use a builder pattern, as the direct `newInstance` method is no longer available. The `FopFactoryBuilder.buildFopFactory()` method is used to create an instance of `FopFactory`. This change is necessary to align with the new API of the `org.apache.fop.apps.FopFactory` class. Additionally, the `createQR` method has been corrected to properly close the `EnumMap` initialization.

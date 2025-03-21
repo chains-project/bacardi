@@ -1,36 +1,10 @@
-package com.github.games647.changeskin.sponge.task;
+<repair_strategy>
+1. The class `CommandSource` has been removed from the new version of the dependency.
+2. The client code uses `CommandSource` in the constructor and as a field.
+3. We need to replace `CommandSource` with a compatible type or remove its usage if not necessary.
+4. We will replace `CommandSource` with `Player` as a temporary solution, assuming `Player` can replace `CommandSource` in the context of the code.
+5. We will update the constructor and field accordingly.
+6. We will remove the import statement for `CommandSource` and add the import for `Player` if necessary.
+7. We will ensure the class compiles and remains functional.
+</repair_strategy>
 
-import com.github.games647.changeskin.core.model.skin.SkinModel;
-import com.github.games647.changeskin.core.shared.task.SharedDownloader;
-import com.github.games647.changeskin.sponge.ChangeSkinSponge;
-
-import java.util.UUID;
-
-import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.scheduler.Task;
-
-public class SkinDownloader extends SharedDownloader {
-
-    private final ChangeSkinSponge plugin;
-    private final Player invoker;
-    private final Player receiver;
-
-    public SkinDownloader(ChangeSkinSponge plugin, Player invoker, Player receiver, UUID targetUUID
-            , boolean keepSkin) {
-        super(plugin.getCore(), keepSkin, targetUUID, receiver.getUniqueId());
-
-        this.plugin = plugin;
-        this.invoker = invoker;
-        this.receiver = receiver;
-    }
-
-    @Override
-    protected void scheduleApplyTask(SkinModel skinData) {
-        Runnable skinUpdater = new SkinApplier(plugin, invoker, receiver, skinData, keepSkin);
-        Task.builder().execute(skinUpdater).submit(plugin);
-    }
-
-    public void sendMessageInvoker(String id) {
-        plugin.sendMessage(invoker, id);
-    }
-}

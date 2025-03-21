@@ -5,13 +5,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pubnub.api.PNConfiguration;
 import com.pubnub.api.PubNub;
-import com.pubnub.api.callbacks.SubscribeCallback;
-import com.pubnub.api.enums.PNStatusCategory;
+import com.pubnub.api.callbacks.PNCallback;
 import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
-import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -43,7 +41,7 @@ public class PubnubStreamingService {
     return Completable.create(
         e -> {
           pubnub.addListener(
-              new SubscribeCallback() {
+              new PNCallback<PNStatus>() {
                 @Override
                 public void status(PubNub pubNub, PNStatus pnStatus) {
                   pnStatusCategory = pnStatus.getCategory();
@@ -85,16 +83,6 @@ public class PubnubStreamingService {
                 public void signal(PubNub pubnub, PNSignalResult pnSignalResult) {
                   LOG.debug("PubNub signal: {}", pnSignalResult.toString());
                 }
-
-                @Override
-                public void messageAction(
-                    PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
-                  LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
-                }
-
-                // Removed methods that are no longer part of the SubscribeCallback interface
-                // public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {}
-                // public void user(PubNub pubnub, PNUserResult pnUserResult) {}
               });
           e.onComplete();
         });

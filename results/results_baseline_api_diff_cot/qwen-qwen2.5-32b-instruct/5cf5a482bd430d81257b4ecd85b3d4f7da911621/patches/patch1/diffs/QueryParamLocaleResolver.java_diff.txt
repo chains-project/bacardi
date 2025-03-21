@@ -1,6 +1,22 @@
-10,11c10,11
+10,11c10,13
 < import javax.mvc.locale.LocaleResolver;
 < import javax.mvc.locale.LocaleResolverContext;
 ---
-> import jakarta.mvc.locale.LocaleResolver;
-> import jakarta.mvc.locale.LocaleResolverContext;
+> import jakarta.mvc.event.AfterControllerEvent;
+> import jakarta.mvc.event.BeforeControllerEvent;
+> import jakarta.mvc.event.ControllerRedirectEvent;
+> import jakarta.mvc.engine.ViewEngineContext;
+35c37
+< public class QueryParamLocaleResolver implements LocaleResolver {
+---
+> public class QueryParamLocaleResolver {
+40,44c42,44
+<     @Override
+<     public Locale resolveLocale(final LocaleResolverContext context) {
+<         final String queryLang = context.getUriInfo()
+<                 .getQueryParameters()
+<                 .getFirst("lang");
+---
+>     public Locale resolveLocale(final BeforeControllerEvent event) {
+>         final UriInfo uriInfo = event.getUriInfo();
+>         final String queryLang = uriInfo.getQueryParameters().getFirst("lang");

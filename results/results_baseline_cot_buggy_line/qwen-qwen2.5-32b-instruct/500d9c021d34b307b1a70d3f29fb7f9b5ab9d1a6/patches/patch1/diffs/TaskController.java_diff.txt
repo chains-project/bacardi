@@ -1,22 +1,29 @@
-12,17c12,17
+12,14c12,13
 < import javax.mvc.Controller;
 < import javax.mvc.Models;
 < import javax.mvc.View;
-< import javax.mvc.binding.BindingResult;
-< import javax.mvc.binding.ParamError;
-< import javax.mvc.security.CsrfProtected;
 ---
-> import jakarta.mvc.Controller;
-> import jakarta.mvc.Models;
-> import jakarta.mvc.View;
-> import jakarta.mvc.binding.BindingResult;
-> import jakarta.mvc.binding.ParamError;
-> import jakarta.mvc.security.CsrfProtected;
-30d29
-< import org.eclipse.krazo.engine.Viewable;
-32d30
-< @Path("tasks")
-90d87
+> import javax.mvc.annotation.Controller;
+> import javax.mvc.annotation.View;
+41c40
+<     private Models models;
+---
+>     private javax.mvc.annotation.Models models;
+90d88
 <     //@ValidateOnExecution(type = ExecutableType.NONE)
-164d160
+108c106
+<         task.setDescription(form.getDescription());
+---
+>         task.description(form.getDescription());
+127c125
+<         form.setDescription(task.getDescription());
+---
+>         form.description(task.getDescription());
+152,153c150,151
+<         task.setName(form.getName());
+<         task.setDescription(form.getDescription());
+---
+>         task.name(form.getName());
+>         task.description(form.getDescription());
+164d161
 <     //@CsrfProtected

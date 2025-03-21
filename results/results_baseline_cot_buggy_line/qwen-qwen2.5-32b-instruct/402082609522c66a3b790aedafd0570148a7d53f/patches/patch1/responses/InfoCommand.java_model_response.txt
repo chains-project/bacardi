@@ -1,11 +1,3 @@
-<code_analysis>
-The error messages indicate that several classes and packages from the Sponge API are missing or have been moved in the updated version of the dependency. This suggests that the new version of the Sponge API has undergone significant changes, possibly deprecating or moving certain classes and interfaces. The specific issues are related to the `Text`, `TextSerializers`, `CommandSpec`, `CommandExecutor`, `CommandSource`, and `CommandContext` classes and interfaces.
-
-To address these issues, we need to identify the new locations of these classes or find equivalent replacements in the updated API. If the classes have been deprecated, we should use the recommended alternatives. If the classes have been moved, we need to update the import statements accordingly.
-
-Given the nature of the errors, it seems likely that the `Text` and `TextSerializers` classes have been moved or replaced, and the command-related classes and interfaces have also been updated. We will need to update the imports and possibly the usage of these classes in the code.
-</code_analysis>
-
 ```java
 package com.github.games647.changeskin.sponge.command;
 
@@ -20,10 +12,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandCallable;
-import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandMapping;
+import org.spongepowered.api.command.CommandCompletion;
+import org.spongepowered.api.command.CommandCallable;
+import org.spongepowered.api.command.CommandException;
+import org.spongepowered.api.command.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
@@ -38,7 +33,7 @@ public class InfoCommand implements CommandCallable, ChangeSkinCommand {
     private SkinFormatter formatter;
 
     @Override
-    public CommandResult process(CommandSource src, CommandContext args) throws Exception {
+    public CommandResult process(CommandSource src, String arguments) throws CommandException {
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
             return CommandResult.empty();
@@ -56,13 +51,21 @@ public class InfoCommand implements CommandCallable, ChangeSkinCommand {
     }
 
     @Override
-    public String getId() {
-        return "info";
+    public List<String> getSuggestions(CommandSource src, String arguments, CommandContext context, TextChannel channel) throws CommandException {
+        return new ArrayList<>();
     }
 
     @Override
-    public String getHelp() {
-        return "Provides information about the current skin.";
+    public boolean testPermission(CommandSource src) {
+        return src.hasPermission(PomData.ARTIFACT_ID + ".command.skininfo.base");
+    }
+
+    @Override
+    public CommandSpec getSpec() {
+        return CommandSpec.builder()
+                .executor(this)
+                .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
+                .build();
     }
 
     private void sendSkinDetails(UUID uuid, UserPreference preference) {
@@ -84,5 +87,3 @@ public class InfoCommand implements CommandCallable, ChangeSkinCommand {
     }
 }
 ```
-
-In this solution, I've replaced the `CommandExecutor` interface with `CommandCallable` and updated the `execute` method to `process` to match the new API. The `CommandSpec` and related imports have been removed as they are no longer necessary with the new `CommandCallable` implementation. The `CommandException` has been replaced with a generic `Exception` in the `process` method signature, as the new API may not require a specific exception type. The `Text` and `TextSerializers` imports have been updated to reflect their current location in the new API.

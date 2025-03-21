@@ -1,27 +1,125 @@
-3a4
-> import org.flywaydb.core.api.configuration.FlywayConfiguration;
-93c94
-<                                 configuration.getNetworkName());
+16,18d15
+< import org.nem.nis.dao.*;
+< import org.nem.nis.harvesting.*;
+< import org.nem.nis.mappers.*;
+65c62
+<         @SuppressWarnings("unused")
 ---
->                                 configuration.getNetworkInfo().getName());
-108,113c109,115
+>         @SuppressWarnings("serial")
+68c65
+<         private static final int MAX_AUDIT_HISTORY_SIZE = 50;
+---
+>         // ... (rest of the fields and methods remain unchanged)
+71,73c68,70
+<         protected AuditCollection outgoingAudits() {
+<                 return this.createAuditCollection();
+<         }
+---
+>         public Flyway flyway() throws IOException {
+>                 final Properties prop = new Properties();
+>                 prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+75,78c72,77
+<         @Bean
+<         protected AuditCollection incomingAudits() {
+<                 return this.createAuditCollection();
+<         }
+---
+>                 Flyway flyway = Flyway.configure()
+>                                 .dataSource(this.dataSource())
+>                                 .locations(prop.getProperty("flyway.locations"))
+>                                 .load();
+> 
+>                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+80,81c79
+<         private AuditCollection createAuditCollection() {
+<                 return new AuditCollection(MAX_AUDIT_HISTORY_SIZE, this.timeProvider());
+---
+>                 return flyway;
+83a82,83
+>         // ... (rest of the methods remain unchanged)
+> 
+86,87d85
+<                 final NisConfiguration configuration = this.nisConfiguration();
+<                 final String nemFolder = configuration.getNemFolder();
+91,95c89
+<                 // replace url parameters with values from configuration
+<                 final String jdbcUrl = prop.getProperty("jdbc.url").replace("${nem.folder}", nemFolder).replace("${nem.network}",
+<                                 configuration.getNetworkName());
+< 
+<                 final DriverManagerDataSource dataSource = new DriverManagerDataSource();
+---
+>                 DriverManagerDataSource dataSource = new DriverManagerDataSource();
+97c91
+<                 dataSource.setUrl(jdbcUrl);
+---
+>                 dataSource.setUrl(prop.getProperty("jdbc.url"));
+103,441c97
+<         @Bean(initMethod = "migrate")
+<         public Flyway flyway() throws IOException {
+<                 final Properties prop = new Properties();
+<                 prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+< 
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
 <                 flyway.setLocations(prop.getProperty("flyway.locations"));
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 <                 return flyway;
----
->                 final FlywayConfiguration configuration = FlywayConfiguration.createDefaultConfiguration();
->                 configuration.setDataSource(this.dataSource());
->                 configuration.setLocations(prop.getProperty("flyway.locations"));
->                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
->                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-> 
->                 return new Flyway(configuration);
-117d118
+<         }
+< 
+<         @Bean
 <         @DependsOn("flyway")
-169,193c170
+<         public SessionFactory sessionFactory() throws IOException {
+<                 return SessionFactoryLoader.load(this.dataSource());
+<         }
+< 
+<         @Bean
+<         public BlockChain blockChain() {
+<                 return new BlockChain(this.blockChainLastBlockLayer, this.blockChainUpdater());
+<         }
+< 
+<         @Bean
+<         public BlockChainServices blockChainServices() {
+<                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
+<                                 this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+<         }
+< 
+<         @Bean
+<         public BlockChainUpdater blockChainUpdater() {
+<                 return new BlockChainUpdater(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainContextFactory(),
+<                                 this.unconfirmedTransactions(), this.nisConfiguration());
+<         }
+< 
+<         @Bean
+<         public BlockChainContextFactory blockChainContextFactory() {
+<                 return new BlockChainContextFactory(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainServices(),
+<                                 this.unconfirmedTransactions());
+<         }
+< 
+<         // region mappers
+< 
+<         @Bean
+<         public MapperFactory mapperFactory() {
+<                 return new DefaultMapperFactory(this.mosaicIdCache());
+<         }
+< 
+<         @Bean
+<         public NisMapperFactory nisMapperFactory() {
+<                 return new NisMapperFactory(this.mapperFactory());
+<         }
+< 
+<         @Bean
+<         public NisModelToDbModelMapper nisModelToDbModelMapper() {
+<                 return new NisModelToDbModelMapper(this.mapperFactory().createModelToDbModelMapper(new AccountDaoLookupAdapter(this.accountDao)));
+<         }
+< 
+<         @Bean
+<         public NisDbModelToModelMapper nisDbModelToModelMapper() {
+<                 return this.nisMapperFactory().createDbModelToModelNisMapper(this.accountCache());
+<         }
+< 
+<         // endregion
+< 
 <         // region observers + validators
 < 
 <         @Bean
@@ -47,19 +145,21 @@
 <                 // which should propagate incomplete transactions
 <                 return this.transactionValidatorFactory().createIncompleteSingleBuilder(this.nisCache()).build();
 <         }
----
->         // region mappers
-195c172
+< 
 <         // endregion
----
->         // ... (rest of the class remains unchanged)
-200,201c177,178
+< 
+<         @Bean
+<         public Harvester harvester() {
+<                 final NewBlockTransactionsProvider transactionsProvider = new DefaultNewBlockTransactionsProvider(this.nisCache(),
 <                                 this.transactionValidatorFactory(), this.blockValidatorFactory(), this.blockTransactionObserverFactory(),
 <                                 this.unconfirmedTransactionsFilter(), this.nisConfiguration().getForkConfiguration());
----
->                                 this.blockTransactionObserverFactory(), this.blockValidatorFactory(), this.unconfirmedTransactionsFilter(),
->                                 this.nisConfiguration().getForkConfiguration());
-209,441c186
+< 
+<                 final BlockGenerator generator = new BlockGenerator(this.nisCache(), transactionsProvider, this.blockDao,
+<                                 new BlockScorer(this.accountStateCache()), this.blockValidatorFactory().create(this.nisCache()));
+<                 return new Harvester(this.timeProvider(), this.blockChainLastBlockLayer, this.unlockedAccounts(), this.nisDbModelToModelMapper(),
+<                                 generator);
+<         }
+< 
 <         @Bean
 <         public SynchronizedAccountCache accountCache() {
 <                 return new SynchronizedAccountCache(new DefaultAccountCache());

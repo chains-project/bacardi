@@ -1,20 +1,14 @@
 ```java
-/**
- * Copyright (C) 2011 Brian Ferris <bdferris@onebusaway.org>
- * Copyright (C) 2011 Google, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+<repair_strategy>
+  1. The method signatures for `nullSafeGet` and `nullSafeSet` have changed in the new version of the dependency.
+  2. The `SessionImplementor` class has been replaced by `SharedSessionContractImplementor`.
+  3. Update the method signatures of `nullSafeGet` and `nullSafeSet` to match the new API.
+  4. Replace `SessionImplementor` with `SharedSessionContractImplementor`.
+  5. Ensure that the class remains fully compilable and functional.
+  6. No additional imports are needed as the changes are within the method signatures.
+</repair_strategy>
+
+```java
 package org.onebusaway.gtfs.impl;
 
 import java.io.Serializable;
@@ -114,5 +108,3 @@ public class ServiceDateUserType implements UserType {
   }
 }
 ```
-
-The provided solution addresses the breaking changes in the Hibernate dependency by replacing the `SessionImplementor` with `SharedSessionContractImplementor` in the method signatures of `nullSafeGet` and `nullSafeSet`. This change is necessary because the `SessionImplementor` interface has been removed in the newer version of the Hibernate dependency. The rest of the class remains unchanged to ensure that the functionality is preserved.

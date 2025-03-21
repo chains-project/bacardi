@@ -1,52 +1,10 @@
-package io.github.hapjava.server.impl.crypto;
+<repair_strategy>
+1. The error is due to the removal of the `AlertDescription` and `TlsFatalAlert` classes in the new version of the BouncyCastle library.
+2. The `TlsFatalAlert` class is used to throw an exception when a bad record MAC is detected.
+3. The `AlertDescription` class is used to provide the description of the alert.
+4. The fix should replace the usage of `TlsFatalAlert` and `AlertDescription` with a custom exception or a different approach to handle the bad record MAC scenario.
+5. The fix should ensure that the code remains functional and compilable.
+6. The fix should not change the function signatures and should maintain the overall structure of the class.
+7. The fix should remove the import statements related to `TlsFatalAlert` and `AlertDescription` and replace them with a custom exception or a different approach.
+</repair_strategy>
 
-import java.io.IOException;
-import org.bouncycastle.crypto.engines.ChaChaEngine;
-import org.bouncycastle.crypto.generators.Poly1305KeyGenerator;
-import org.bouncycastle.crypto.params.KeyParameter;
-import org.bouncycastle.crypto.params.ParametersWithIV;
-import org.bouncycastle.util.Arrays;
-
-public class ChachaDecoder {
-
-  private final ChaChaEngine decryptCipher;
-
-  public ChachaDecoder(byte[] key, byte[] nonce) throws IOException {
-
-    this.decryptCipher = new ChaChaEngine(20);
-
-    this.decryptCipher.init(false, new ParametersWithIV(new KeyParameter(key), nonce));
-  }
-
-  public byte[] decodeCiphertext(byte[] receivedMAC, byte[] additionalData, byte[] ciphertext)
-      throws IOException {
-
-    KeyParameter macKey = initRecordMAC(decryptCipher);
-
-    byte[] calculatedMAC = PolyKeyCreator.create(macKey, additionalData, ciphertext);
-
-    if (!Arrays.constantTimeAreEqual(calculatedMAC, receivedMAC)) {
-      throw new RuntimeException("Bad record MAC");
-    }
-
-    byte[] output = new byte[ciphertext.length];
-    decryptCipher.processBytes(ciphertext, 0, ciphertext.length, output, 0);
-
-    return output;
-  }
-
-  public byte[] decodeCiphertext(byte[] receivedMAC, byte[] ciphertext) throws IOException {
-    return decodeCiphertext(receivedMAC, null, ciphertext);
-  }
-
-  private KeyParameter initRecordMAC(ChaChaEngine cipher) {
-    byte[] firstBlock = new byte[64];
-    cipher.processBytes(firstBlock, 0, firstBlock.length, firstBlock, 0);
-
-    // NOTE: The BC implementation puts 'r' after 'k'
-    System.arraycopy(firstBlock, 0, firstBlock, 32, 16);
-    KeyParameter macKey = new KeyParameter(firstBlock, 16, 32);
-    Poly1305KeyGenerator.clamp(macKey.getKey());
-    return macKey;
-  }
-}

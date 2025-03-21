@@ -1,6 +1,7 @@
 package de.gwdg.metadataqa.marc;
 
 import de.gwdg.metadataqa.api.model.pathcache.JsonPathCache;
+import de.gwdg.metadataqa.api.model.pathcache.JsonPathCache.JsonBranch;
 import de.gwdg.metadataqa.api.model.XmlFieldInstance;
 import de.gwdg.metadataqa.api.schema.MarcJsonSchema;
 import de.gwdg.metadataqa.api.schema.Schema;
@@ -63,47 +64,47 @@ public class MarcFactory {
 
   public static BibliographicRecord create(JsonPathCache cache, MarcVersion version) {
     var marcRecord = new Marc21Record();
-    for (String path : schema.getPaths()) {
-      if (path != null && path.length() > 0) {
-        switch (path) {
-          case "leader":
-            marcRecord.setLeader(new Leader(extractFirst(cache, path)));
-            break;
-          case "001":
-            marcRecord.setControl001(new Control001(extractFirst(cache, path)));
-            break;
-          case "003":
-            marcRecord.setControl003(new Control003(extractFirst(cache, path)));
-            break;
-          case "005":
-            marcRecord.setControl005(new Control005(extractFirst(cache, path), marcRecord));
-            break;
-          case "006":
-            marcRecord.setControl006(
-              new Control006(extractFirst(cache, path), marcRecord));
-            break;
-          case "007":
-            marcRecord.setControl007(
-              new Control007(extractFirst(cache, path), marcRecord));
-            break;
-          case "008":
-            marcRecord.setControl008(
-              new Control008(extractFirst(cache, path), marcRecord));
-            break;
-          default:
-            JSONArray fieldInstances = (JSONArray) cache.getFragment(path);
-            for (var fieldInsanceNr = 0; fieldInsanceNr < fieldInstances.size(); fieldInsanceNr++) {
-              var fieldInstance = (Map) fieldInstances.get(fieldInsanceNr);
-              var field = MapToDatafield.parse(fieldInstance, version);
-              if (field != null) {
-                marcRecord.addDataField(field);
-                field.setMarcRecord(marcRecord);
-              } else {
-                marcRecord.addUnhandledTags(path);
-              }
+    for (JsonBranch branch : schema.getPaths()) {
+      if (branch.getParent() != null)
+        continue;
+      switch (branch.getLabel()) {
+        case "leader":
+          marcRecord.setLeader(new Leader(extractFirst(cache, branch)));
+          break;
+        case "001":
+          marcRecord.setControl001(new Control001(extractFirst(cache, branch)));
+          break;
+        case "003":
+          marcRecord.setControl003(new Control003(extractFirst(cache, branch)));
+          break;
+        case "005":
+          marcRecord.setControl005(new Control005(extractFirst(cache, branch), marcRecord));
+          break;
+        case "006":
+          marcRecord.setControl006(
+            new Control006(extractFirst(cache, branch), marcRecord));
+          break;
+        case "007":
+          marcRecord.setControl007(
+            new Control007(extractFirst(cache, branch), marcRecord));
+          break;
+        case "008":
+          marcRecord.setControl008(
+            new Control008(extractFirst(cache, branch), marcRecord);
+          break;
+        default:
+          JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());
+          for (var fieldInsanceNr = 0; fieldInsanceNr < fieldInstances.size(); fieldInsanceNr++) {
+            var fieldInstance = (Map) fieldInstances.get(fieldInsanceNr);
+            var field = MapToDatafield.parse(fieldInstance, version);
+            if (field != null) {
+              marcRecord.addDataField(field);
+              field.setMarcRecord(marcRecord);
+            } else {
+              marcRecord.addUnhandledTags(branch.getLabel());
             }
-            break;
-        }
+          }
+          break;
       }
     }
     return marcRecord;
@@ -114,18 +115,18 @@ public class MarcFactory {
   }
 
   public static BibliographicRecord createFromMarc4j(Record marc4jRecord,
-                                                   Leader.Type defaultType) {
+                                                     Leader.Type defaultType) {
     return createFromMarc4j(marc4jRecord, defaultType, MarcVersion.MARC21);
   }
 
   public static BibliographicRecord createFromMarc4j(Record marc4jRecord,
-                                                    MarcVersion marcVersion) {
+                                                     MarcVersion marcVersion) {
     return createFromMarc4j(marc4jRecord, null, marcVersion);
   }
 
   public static BibliographicRecord createFromMarc4j(Record marc4jRecord,
-                                                    Leader.Type defaultType,
-                                                    MarcVersion marcVersion) {
+                                                     Leader.Type defaultType,
+                                                     MarcVersion marcVersion) {
     return createFromMarc4j(marc4jRecord, defaultType, marcVersion, null);
   }
 
@@ -138,9 +139,9 @@ public class MarcFactory {
    * @return
    */
   public static BibliographicRecord createFromMarc4j(Record marc4jRecord,
-                                                    Leader.Type defaultType,
-                                                    MarcVersion marcVersion,
-                                                    String replecementInControlFields) {
+                                                     Leader.Type defaultType,
+                                                     MarcVersion marcVersion,
+                                                     String replecementInControlFields) {
     var marcRecord = new Marc21Record();
 
     if (marc4jRecord.getLeader() != null) {
@@ -221,8 +222,8 @@ public class MarcFactory {
   }
 
   private static void importMarc4jDataFields(Record marc4jRecord,
-                                             BibliographicRecord marcRecord,
-                                             PicaSchemaManager schema) {
+                                              BibliographicRecord marcRecord,
+                                              PicaSchemaManager schema) {
     for (org.marc4j.marc.DataField dataField : marc4jRecord.getDataFields()) {
       var definition = schema.lookup(dataField.getTag());
       if (definition == null) {
@@ -235,7 +236,7 @@ public class MarcFactory {
   }
 
   public static DataFieldDefinition getDataFieldDefinition(org.marc4j.marc.DataField dataField,
-                                                         MarcVersion marcVersion) {
+                                                          MarcVersion marcVersion) {
     return getDataFieldDefinition(dataField.getTag(), marcVersion);
   }
 
@@ -244,8 +245,8 @@ public class MarcFactory {
   }
 
   private static DataField extractDataField(org.marc4j.marc.DataField dataField,
-                                           DataFieldDefinition definition,
-                                           MarcVersion marcVersion) {
+                                            DataFieldDefinition definition,
+                                            MarcVersion marcVersion) {
     DataField field;
     if (definition == null) {
       field = new DataField(dataField.getTag(),
@@ -277,20 +278,20 @@ public class MarcFactory {
   }
 
   private static DataField extractPicaDataField(org.marc4j.marc.DataField dataField,
-                                                PicaFieldDefinition definition,
-                                                MarcVersion marcVersion) {
+                                                 PicaFieldDefinition definition,
+                                                 MarcVersion marcVersion) {
     DataField field = null;
     if (definition == null) {
       field = new DataField(dataField.getTag(),
-              Character.toString(dataField.getIndicator1()),
-              Character.toString(dataField.getIndicator2()),
-              marcVersion
+        Character.toString(dataField.getIndicator1()),
+        Character.toString(dataField.getIndicator2()),
+        marcVersion
       );
     } else {
       field = new DataField(
-              (definition,
-              Character.toString(dataField.getIndicator1()),
-              Character.toString(dataField.getIndicator2())
+        (definition,
+        Character.toString(dataField.getIndicator1()),
+        Character.toString(dataField.getIndicator2())
       );
     }
     for (Subfield subfield : dataField.getSubfields()) {
@@ -309,8 +310,8 @@ public class MarcFactory {
     return field;
   }
 
-  private static List<String> extractList(JsonPathCache cache, String path) {
-    List<XmlFieldInstance> instances = cache.get(path);
+  private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
+    List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
     List<String> values = new ArrayList<>();
     if (instances != null)
       for (XmlFieldInstance instance : instances)
@@ -318,8 +319,8 @@ public class MarcFactory {
     return values;
   }
 
-  private static String extractFirst(JsonPathCache cache, String path) {
-    List<String> list = extractList(cache, path);
+  private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
+    List<String> list = extractList(cache, branch);
     if (!list.isEmpty())
       return list.get(0);
     return null;
@@ -380,7 +381,7 @@ public class MarcFactory {
           marc4jRecord.addVariableField(new ControlFieldImpl(line.getTag(), line.getContent()));
         } else {
           var df = new DataFieldImpl(
-            line.getTag(), line.getInd1().charAt(0), line.getInd2().charAt(0)
+            (line.getTag(), line.getInd1().charAt(0), line.getInd2().charAt(0)
           );
           for (String[] pair : line.parseSubfields()) {
             if (pair.length == 2 && pair[0] != null && pair[1] != null) {

@@ -28,29 +28,50 @@
 <  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 <  * OF THE POSSIBILITY OF SUCH DAMAGE.
 <  */
-33d3
-< import com.jcabi.aspects.Tv;
-50,54d19
-< import org.cactoos.io.TeeInput;
-< import org.cactoos.scalar.LengthOf;
+47d17
+< import java.util.concurrent.TimeUnit;
+52,54c22,23
 < import org.cactoos.scalar.Unchecked;
 < import org.cactoos.text.TextOf;
 < import org.cactoos.text.UncheckedText;
-195c160
-<      * @throws UnknownHostException If fails
 ---
->      * @throws UnknownHostException when host is unknown.
-210,211c175
-<      * @throws UnknownHostException when host is unknown.
+> import org.cactoos.TextOf;
+> import org.cactoos.UncheckedText;
+80,82c49
+<  * @todo #30:30min Refactor this class into smaller ones to avoid null
+<  *  checking of passphrase. There should probably be separate classes for
+<  *  encrypted/unencrypted private key.
+---
+>  * @checkstyle ParameterNumberCheck (6 lines)
+86c53
+< @SuppressWarnings("PMD.TooManyMethods")
+---
+> @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
+211d177
 <      * @checkstyle ParameterNumberCheck (6 lines)
----
->      * @throws UnknownHostException If fails
-233d196
+233d198
 <     @Override
-235c198
+235c200
 <         attempts = Tv.SEVEN,
 ---
 >         attempts = 7,
+249c214
+<                         this.key.replaceAll("\r", "")
+---
+>                         (this.key.replaceAll("\r", "")
+251c216
+<                             .trim(),
+---
+>                             .trim()),
+254d218
+<                 )
+269,271c233,234
+<                 "Opening SSH session to %s@%s:%s (%d bytes in RSA key)...",
+<                 this.getLogin(), this.getAddr(), this.getPort(),
+<                 file.length()
+---
+>                 "Opening SSH session to %s@%s:%s",
+>                 this.getLogin(), this.getAddr(), this.getPort()
 292c255
 <         session.setTimeout((int) TimeUnit.MINUTES.toMillis(1L));
 ---

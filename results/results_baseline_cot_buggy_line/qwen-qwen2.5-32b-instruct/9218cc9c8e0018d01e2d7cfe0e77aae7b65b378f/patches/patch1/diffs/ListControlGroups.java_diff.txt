@@ -17,90 +17,43 @@
 <  * You should have received a copy of the GNU Lesser General Public License
 <  * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
 <  */
-36a19,20
+36a19
 > import javax.validation.ConstraintViolation;
-> import javax.validation.Validation;
-38,40c22
+38,40c21
 < import javax.validation.constraints.NotBlank;
 < import javax.validation.constraints.NotEmpty;
 < import javax.validation.constraints.NotNull;
 ---
 > import javax.validation.ValidatorFactory;
-87d68
-<                 typesControlGroups.put(Set.class, CollectionControlGroup.class);
-94,113c75
-<         private Set<String> getPropertiesByOrder(Class<?> modelClass) {
-<                 Set<String> properties = new LinkedHashSet<String>();
-< 
-<                 for(String property : entitySettings.getOrderOfFields()){
-<                         if(!entitySettings.getHiddenFields().contains(property))
-<                                 properties.add(property);
-<                 }
-<                 for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
-<                         if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
-<                            !properties.contains(descriptor.getName()) &&
-<                            !descriptor.getName().equals("class"))
-<                                 properties.add(descriptor.getName());
-<                 }
-< 
-<                 return properties;
-<         }
-< 
+42d22
+< import javax.validation.metadata.ConstraintDescriptor;
+43a24
+> import javax.validation.metadata.ConstraintDescriptor;
+111,112d91
 <         protected abstract EntityProvider<?> getEntityProvider(String name);
 < 
-<         @Override
----
->     @SuppressWarnings("unchecked")
-119,121c81,82
+119,121c98,99
 <                 Set<String> properties = getPropertiesByOrder(modelClass);
 < 
 <                 Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
 ---
->         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
->         Validator validator = factory.getValidator();
-123c84
+>                 ValidatorFactory factory = HibernateValidatorProperty.validatorFactory;
+>                 Validator validator = factory.getValidator();
+123c101
 <                 for(String property : properties){
 ---
->         for (String property : getPropertiesByOrder(modelClass)) {
-137,139c98,100
+>                 for(String property : getPropertiesByOrder(modelClass)){
+137,139c115,117
 <                                         if(constraint.getAnnotation() instanceof NotNull ||
 <                                            constraint.getAnnotation() instanceof NotEmpty ||
 <                                            constraint.getAnnotation() instanceof NotBlank)
 ---
->                     if (constraint.getAnnotation() instanceof javax.validation.constraints.NotNull ||
->                         constraint.getAnnotation() instanceof javax.validation.constraints.NotEmpty ||
->                         constraint.getAnnotation() instanceof javax.validation.constraints.NotBlank) {
-142a104
->             }
-153c115
-<                                         Class<? extends Panel> typesControlGroup = getControlGroupByType(objectProperty.type);
----
->                     Class<? extends AbstractControlGroup> typesControlGroup = getControlGroupByType(objectProperty.type);
-165d126
+>                                         if(constraint.getAnnotation() instanceof javax.validation.constraints.NotNull ||
+>                                            constraint.getAnnotation() instanceof javax.validation.constraints.NotEmpty ||
+>                                            constraint.getAnnotation() instanceof javax.validation.constraints.NotBlank)
+165d142
 < 
-185,187c146
-<                                                         .createControlGroup(view.newChildId()
-<                                                                         , new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name)
-<                                                                         , objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
----
->                             .createControlGroup(view.newChildId(), new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name), objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
-192,202c151
-<                         } catch (SecurityException e) {
-<                                 throw new RuntimeException(e);
-<                         } catch (NoSuchMethodException e) {
-<                                 throw new RuntimeException(e);
-<                         } catch (IllegalArgumentException e) {
-<                                 throw new RuntimeException(e);
-<                         } catch (InstantiationException e) {
-<                                 throw new RuntimeException(e);
-<                         } catch (IllegalAccessException e) {
-<                                 throw new RuntimeException(e);
-<                         } catch (InvocationTargetException e) {
----
->             } catch (SecurityException | NoSuchMethodException | IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-210c159
+210c187
 <         @SuppressWarnings("unchecked")
 ---
->     @SuppressWarnings("rawtypes")
-250a200
->     @SuppressWarnings("rawtypes")
+>         @SuppressWarnings("rawtypes")

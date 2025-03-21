@@ -1,27 +1,8 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `com.fasterxml.jackson.core.exc.StreamReadException` cannot be found.
-   - This suggests that the Jackson library version used in the project has been updated, and the class `StreamReadException` has been moved or removed.
-   - The error occurs at line 88, where `objectMapper.readValue(body, ExportResponse.class)` is called.
-
-2. Review the client code:
-   - The problematic area is the deserialization of JSON using `ObjectMapper`.
-   - The `ExportResponse` class is being deserialized from a JSON string.
-   - The `ObjectMapper` class is from the Jackson library, which has been updated.
-
-3. Consider potential fixes that adhere to the following constraints:
-   - The issue is likely due to a change in the Jackson library version, where the `StreamReadException` class has been moved or removed.
-   - The fix should ensure that the `ObjectMapper` can handle the JSON deserialization without causing a compilation error.
-
-4. Plan the necessary changes to fix the issue:
-   - Update the import statements to reflect the correct package structure of the updated Jackson library.
-   - Ensure that the `ObjectMapper` is used correctly and that any exceptions are handled appropriately.
-</code_analysis>
-
 ```java
 package io.simplelocalize.cli.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
@@ -107,14 +88,14 @@ public class SimpleLocalizeClient
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
     throwOnError(httpResponse);
     String body = httpResponse.body();
-    ExportResponse exportResponse;
     try {
-      exportResponse = objectMapper.readValue(body, ExportResponse.class);
+      JsonNode jsonNode = objectMapper.readTree(body);
+      ExportResponse exportResponse = objectMapper.treeToValue(jsonNode, ExportResponse.class);
+      return exportResponse.getFiles();
     } catch (JsonProcessingException e) {
       log.error("Failed to parse JSON response", e);
-      throw new IOException("Failed to parse JSON response", e);
+      throw new RuntimeException(e);
     }
-    return exportResponse.getFiles();
   }
 
   public void downloadFile(DownloadableFile downloadableFile, String downloadPathTemplate)
@@ -192,5 +173,3 @@ public class SimpleLocalizeClient
   }
 }
 ```
-
-In the provided solution, the `JsonProcessingException` is caught and handled when deserializing the JSON response to `ExportResponse`. This ensures that the code can handle any issues related to JSON processing without causing a compilation error due to missing classes. The import statements and exception handling have been adjusted to reflect the changes in the Jackson library.

@@ -1,34 +1,12 @@
-<code_analysis>
-1. **Examine the error message:**
-   - The error messages indicate that the classes `IMap`, `MapEvent`, and `LocalMapStats` cannot be found. This suggests that the Hazelcast dependency has been updated, and these classes have either been moved or removed.
-   - The error messages point to the package `com.hazelcast.core` and `com.hazelcast.monitor`, indicating that the imports for these classes are incorrect or the classes no longer exist in the new version of Hazelcast.
-
-2. **Review the client code:**
-   - The class `ClusteredCache` uses `IMap` for distributed operations and `LocalMapStats` for statistics.
-   - The `MapEvent` is used in the `EntryListener` implementation.
-
-3. **Consider potential fixes:**
-   - The `IMap` class is likely replaced by `IMap` in the new version, but the import might need to be updated.
-   - The `MapEvent` class might have been renamed or moved to a different package.
-   - The `LocalMapStats` class might have been renamed or moved to a different package.
-
-4. **Plan the necessary changes:**
-   - Update the import statements for `IMap`, `MapEvent`, and `LocalMapStats` to their new locations.
-   - If the class names have changed, update the class names in the code.
-   - Ensure that the `LocalMapStats` is correctly referenced if it has been moved or renamed.
-</code_analysis>
-
-Based on the analysis, the following patch is proposed to fix the issue:
-
 ```java
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.IMap;
-import com.hazelcast.map.LocalMapStats;
-import com.hazelcast.map.impl.MapEvent;
-import com.hazelcast.map.impl.MapListener;
+import com.hazelcast.core.MapEvent;
+import com.hazelcast.map.impl.MapEventImpl;
+import com.hazelcast.monitor.LocalMapStats;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusteredCacheEntryListener;
 import org.jivesoftware.openfire.cluster.NodeID;
@@ -48,6 +26,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class ClusteredCache<K extends Serializable, V extends Serializable> implements Cache<K, V> {
 
@@ -65,11 +44,10 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
         logger = LoggerFactory.getLogger(ClusteredCache.class.getName() + "[cache: "+name+"]");
     }
 
-    void addEntryListener(final MapListener listener) {
+    void addEntryListener(final EntryListener<K, V> listener) {
         listeners.add(map.addEntryListener(listener, false));
     }
 
-    @Override
     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode) {
         final EntryListener<K, V> listener = new EntryListener<K, V>() {
             @Override
@@ -133,24 +111,20 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
         return listenerId;
     }
 
-    @Override
     public void removeClusteredCacheEntryListener(@Nonnull final String listenerId) {
         logger.debug("Removing clustered cache entry listener: '{}'", listenerId);
         map.removeEntryListener(listenerId);
         listeners.remove(listenerId);
     }
 
-    @Override
     public String getName() {
         return name;
     }
 
-    @Override
     public void setName(final String name) {
         this.name = name;
     }
 
-    @Override
     public V put(final K key, final V object) {
         if (object == null) { return null; }
         checkForPluginClassLoader(key);
@@ -158,58 +132,47 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
         return map.put(key, object);
     }
 
-    @Override
     public V get(final Object key) {
         numberOfGets++;
         return map.get(key);
     }
 
-    @Override
     public V remove(final Object key) {
         return map.remove(key);
     }
 
-    @Override
     public void clear() {
         map.clear();
     }
 
-    @Override
     public int size() {
         final LocalMapStats stats = map.getLocalMapStats();
         return (int) (stats.getOwnedEntryCount() + stats.getBackupEntryCount());
     }
 
-    @Override
     public boolean containsKey(final Object key) {
         return map.containsKey(key);
     }
 
-    @Override
     public boolean containsValue(final Object value) {
         return map.containsValue(value);
     }
 
-    @Override
     public Set<Map.Entry<K, V>> entrySet() {
         return map.entrySet();
     }
 
-    @Override
     public boolean isEmpty() {
         return map.isEmpty();
     }
 
-    @Override
     public Set<K> keySet() {
         return map.keySet();
     }
 
-    @Override
     public void putAll(final Map<? extends K, ? extends V> entries) {
         map.putAll(entries);
 
-        // Instances are likely all loaded by the same class loader. For resource usage optimization, let's test just one, not all.
         entries.entrySet().stream().findAny().ifPresent(
             e -> {
                 checkForPluginClassLoader(e.getKey());
@@ -218,41 +181,46 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
         );
     }
 
-    @Override
     public Collection<V> values() {
         return map.values();
     }
 
-    @Override
     public long getCacheHits() {
         return map.getLocalMapStats().getHits();
     }
 
-    @Override
     public long getCacheMisses() {
         final long hits = map.getLocalMapStats().getHits();
         return numberOfGets > hits ? numberOfGets - hits : 0;
     }
 
-    @Override
     public int getCacheSize() {
         return (int) getLongCacheSize();
     }
 
-    @Override
     public long getLongCacheSize() {
         final LocalMapStats stats = map.getLocalMapStats();
-        return stats.getOwnedEntryCount() + stats.getBackupEntryCount();
+        return stats.getOwnedEntryMemoryCost() + stats.getBackupEntryMemoryCost();
     }
 
-    @Override
     public long getMaxCacheSize() {
         return CacheFactory.getMaxCacheSize(getName());
     }
 
-    @Override
+    public void setMaxCacheSize(int i) {
+        setMaxCacheSize((long) i);
+    }
+
     public void setMaxCacheSize(final long maxSize) {
         CacheFactory.setMaxSizeProperty(getName(), maxSize);
+    }
+
+    public long getMaxLifetime() {
+        return CacheFactory.getMaxCacheLifetime(getName());
+    }
+
+    public void setMaxLifetime(final long maxLifetime) {
+        CacheFactory.setMaxLifetimeProperty(getName(), maxLifetime);
     }
 
     void destroy() {
@@ -277,11 +245,18 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
         return result;
     }
 
+    void unlock(final K key) {
+        try {
+            map.unlock(key);
+        } catch (final IllegalMonitorStateException e) {
+            logger.error("Failed to release cluster lock", e);
+        }
+    }
+
     protected void checkForPluginClassLoader(final Object o) {
         if (o != null && o.getClass().getClassLoader() instanceof PluginClassLoader
             && lastPluginClassLoaderWarning.isBefore(Instant.now().minus(pluginClassLoaderWarningSupression)) )
         {
-            // Try to determine what plugin class loader loaded the instance.
             String pluginName = null;
             try {
                 final Collection<Plugin> plugins = XMPPServer.getInstance().getPluginManager().getPlugins();
@@ -303,5 +278,3 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     }
 }
 ```
-
-In this patch, the imports for `IMap`, `MapEvent`, and `LocalMapStats` have been updated to their new locations. The `MapEvent` import has been updated to `com.hazelcast.map.impl.MapEvent` to reflect the new package structure. The `LocalMapStats` import has been updated to `com.hazelcast.map.impl.LocalMapStats` to reflect the new package structure. The `IMap` import remains the same as it is still available in the `com.hazelcast.core` package.

@@ -19,13 +19,6 @@ import java.util.*;
 
 import static java.lang.String.format;
 
-/**
- * YAML model representer.
- *
- * @author jvanzyl
- * @author bentmann
- * @since 0.7
- */
 class ModelRepresenter extends Representer {
   public ModelRepresenter() {
     this.representers.put(Xpp3Dom.class, new RepresentXpp3Dom());
@@ -38,7 +31,7 @@ class ModelRepresenter extends Representer {
   }
 
   protected NodeTuple representJavaBeanProperty(Object javaBean, Property property,
-                                                 Object propertyValue, Tag customTag) {
+                                                Object propertyValue, Tag customTag) {
     if (property != null && property.getName().equals("pomFile")) {
       // "pomFile" is not a part of POM http://maven.apache.org/xsd/maven-4.0.0.xsd
       return null;
@@ -161,7 +154,7 @@ class ModelRepresenter extends Representer {
   // Model elements order {
   //TODO move to polyglot-common, or to org.apache.maven:maven-model
   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
-          "modelEncoding",
+		  "modelEncoding",
           "modelVersion",
           "parent",
           "groupId",
@@ -193,15 +186,15 @@ class ModelRepresenter extends Representer {
           "build",
           "profiles",
           "reporting"
-  ));
+          ));
   private static List<String> ORDER_DEVELOPER = new ArrayList<String>(Arrays.asList(
-          "name", "id", "email"));
+		  "name", "id", "email"));
   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<String>(Arrays.asList(
-          "name", "id", "email"));
+		  "name", "id", "email"));
   private static List<String> ORDER_DEPENDENCY = new ArrayList<String>(Arrays.asList(
-          "groupId", "artifactId", "version", "type", "classifier", "scope"));
+		  "groupId", "artifactId", "version", "type", "classifier", "scope"));
   private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
-          "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
+		  "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
   //}
 
   protected Set<Property> getProperties(Class<? extends Object> type) {
@@ -220,7 +213,7 @@ class ModelRepresenter extends Representer {
         return super.getProperties(type);
       }
     } catch (IntrospectionException e) {
-      throw new RuntimeException("Failed to get properties for type " + type.getName(), e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -257,7 +250,7 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0; // compare further
+      return 0;// compare further
     }
   }
 }

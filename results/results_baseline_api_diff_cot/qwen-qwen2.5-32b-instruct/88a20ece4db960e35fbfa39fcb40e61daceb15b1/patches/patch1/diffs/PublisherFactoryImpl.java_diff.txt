@@ -1,32 +1,14 @@
-1,15d0
-< /*
-<  * Copyright 2020 Google LLC
-<  *
-<  * Licensed under the Apache License, Version 2.0 (the "License");
-<  * you may not use this file except in compliance with the License.
-<  * You may obtain a copy of the License at
-<  *
-<  *       http://www.apache.org/licenses/LICENSE-2.0
-<  *
-<  * Unless required by applicable law or agreed to in writing, software
-<  * distributed under the License is distributed on an "AS IS" BASIS,
-<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-<  * See the License for the specific language governing permissions and
-<  * limitations under the License.
-<  */
-20d4
+20d19
 < import com.google.cloud.pubsublite.PublishMetadata;
-25c9
+25d23
 < import com.google.cloud.pubsublite.internal.wire.PubsubContext.Framework;
----
-> import com.google.cloud.pubsublite.internal.wire.PublisherBuilder;
-33c17
+33c31
 <   private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
 ---
 >   private static final PubsubContext FRAMEWORK = PubsubContext.of("KAFKA_CONNECT");
-36c20
+36c34
 <   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
 ---
 >   public Publisher newPublisher(Map<String, String> params) {
-53d36
+53d50
 <                 .setContext(PubsubContext.of(FRAMEWORK))

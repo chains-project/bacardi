@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2017 Premium Minds.
+ *
+ * This file is part of billy core.
+ *
+ * billy core is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * billy core is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with billy core. If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.premiumminds.billy.core.test;
 
 import com.google.inject.Guice;
@@ -8,7 +26,6 @@ import com.premiumminds.billy.core.test.fixtures.JavaLocalDateConstruct;
 import com.premiumminds.billy.core.test.fixtures.JavaZoneIdConstruct;
 import com.premiumminds.billy.core.test.fixtures.MockBaseEntity;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import org.junit.jupiter.api.BeforeAll;
 import org.mockito.Mockito;
 import org.yaml.snakeyaml.DumperOptions;
@@ -16,12 +33,13 @@ import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.introspector.BeanAccess;
 import org.yaml.snakeyaml.nodes.Tag;
-import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.time.ZoneId;
 
 public class AbstractTest {
 
@@ -44,6 +62,7 @@ public class AbstractTest {
 
     public <T extends MockBaseEntity> T createMockEntity(Class<T> clazz, String path) {
         final LoaderOptions loadingConfig = new LoaderOptions();
+        loadingConfig.setBeanAccess(BeanAccess.FIELD);
 
         final Representer representer = new Representer(new DumperOptions());
         final Tag zoneIdTag = new Tag("!ZoneId");

@@ -1,18 +1,19 @@
 14d13
 < import org.spongepowered.api.command.CommandSource;
-17c16
+17c16,17
 < import org.spongepowered.api.network.RawDataListener;
 ---
 > import org.spongepowered.api.network.message.MessageHandler;
-21c20
+> import org.spongepowered.api.network.message.MessageHandlerRegistration;
+21c21
 < public class UpdateSkinListener implements RawDataListener {
 ---
-> public class UpdateSkinListener implements MessageHandler {
-26c25
-<     @Override
+> public class UpdateSkinListener implements MessageHandler<ChannelBuf> {
+27c27
+<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
 ---
->     // Removed @Override as RawDataListener is no longer available
-35c34
+>     public void handleMessage(ChannelBuf data, RemoteConnection connection) {
+35c35
 <             Runnable skinUpdater = new SkinApplier(plugin, (CommandSource) connection, receiver.get(), null, false);
 ---
 >             Runnable skinUpdater = new SkinApplier(plugin, connection, receiver.get(), null, false);

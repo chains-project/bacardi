@@ -22,26 +22,24 @@
 <  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 <  * SOFTWARE.
 <  */
-29a7
-> import org.cactoos.Func;
-30a9,11
-> import org.cactoos.collection.Mapped;
-> import org.cactoos.collection.Skipped;
-> import org.cactoos.collection.ListOf;
-33,38c14,16
-< import org.cactoos.iterable.Mapped;
-< import org.cactoos.iterable.Skipped;
-< import org.cactoos.list.ListOf;
-< import org.cactoos.scalar.CheckedScalar;
-< import org.cactoos.scalar.Or;
-< import org.cactoos.scalar.UncheckedScalar;
+30c7,12
+< import org.cactoos.collection.Filtered;
 ---
-> import org.cactoos.iterable.FilteredIterable;
-> import org.cactoos.iterable.MappedIterable;
-> import org.cactoos.iterable.SkippedIterable;
-40d17
-< import org.cactoos.text.SplitText;
-96,102c73,75
+> import org.cactoos.Func;
+> import org.cactoos.FuncOf;
+> import org.cactoos.Text;
+> import org.cactoos.TextOf;
+> import org.cactoos.collection.Mapped;
+> import org.cactoos.iterable.Filtered;
+33d14
+< import org.cactoos.iterable.Mapped;
+35c16
+< import org.cactoos.list.ListOf;
+---
+> import org.cactoos.iterable.Transformed;
+38d18
+< import org.cactoos.scalar.UncheckedScalar;
+96,102c76,78
 <      * @todo #65:30min Complete Wallet implementations with id, public RSA
 <      *  key and network id. Wallets.create(Long, String, String) must
 <      *  create a Wallet with these strings set and a constructor must be
@@ -53,15 +51,11 @@
 >      * @todo #65:30min Implement key method. This should return the
 >      *  public RSA key of the wallet owner in Base64. Also add a unit test
 >      *  to replace WalletTest.keyIsNotYetImplemented().
-134c107
+134c110
 <          * Constructor.
 ---
 >          * Ctor.
-138c111
-<          * @checkstyle UnusedFormalParameter (2 lines)
----
->          * @checkstyle UnusedFormalParameter (1 line)
-144,153d116
+144,153d119
 <         /**
 <          * Ctor.
 <          * @param id The wallet id.
@@ -72,66 +66,72 @@
 <             this.transactions = transactions;
 <         }
 < 
-165,233d127
+165,166c131,161
 <         public Wallet merge(final Wallet other) {
 <             return other;
-<         }
-< 
-<         @Override
-<         public Iterable<Transaction> ledger() {
+---
+>         public Wallet merge(final Wallet other) throws IOException {
+>             if (other.id() != this.id()) {
+>                 throw new IOException(
+>                     new UncheckedText(
+>                         new FormattedText(
+>                             "Wallet ID mismatch, ours is %d, theirs is %d",
+>                             other.id(),
+>                             this.id()
+>                         )
+>                     ).asString()
+>                 );
+>             }
+>             final Iterable<Transaction> ledger = this.ledger();
+>             final Iterable<Transaction> candidates = new Filtered<>(
+>                 incoming -> new Filtered<>(
+>                     origin -> new Or<>(
+>                         () -> incoming.equals(origin),
+>                         () -> incoming.id() == origin.id()
+>                             && incoming.bnf().equals(origin.bnf()),
+>                         () -> incoming.id() == origin.id()
+>                             && incoming.amount() < 0L,
+>                         () -> incoming.prefix().equals(origin.prefix())
+>                     ).value(),
+>                     ledger
+>                 ).isEmpty(),
+>                 other.ledger()
+>             );
+>             return new Wallet.Fake(
+>                 this.id(),
+>                 new Joined<Transaction>(ledger, candidates)
+>             );
+171c166,178
 <             return this.transactions;
-<         }
-< 
-<         @Override
-<         public String key() {
+---
+>             return new Transformed<>(
+>                 txt -> new RtTransaction(txt.asString()),
+>                 new Skipped<>(
+>                     new ListOf<>(
+>                         new SplitText(
+>                             new TextOf(this.path),
+>                             "\\n"
+>                         )
+>                     ),
+>                     // @checkstyle MagicNumberCheck (1 line)
+>                     5
+>                 )
+>             );
+173a181,183
+>         // @todo #54:30min Implement key method. This should return the
+>         //  public RSA key of the wallet owner in Base64. Also add a unit test
+>         //  to replace WalletTest.keyIsNotYetImplemented().
+176c186,188
 <             return Long.toString(this.id);
-<         }
-<     }
-< 
-<     /**
-<      * Default File implementation.
-<      * @checkstyle ClassDataAbstractionCouplingCheck (2 lines)
-<      */
-<     final class File implements Wallet {
-< 
-<         /**
-<          * Path of this wallet.
-<          */
-<         private final Path path;
-< 
-<         /**
-<          * Ctor.
-<          * @param path Path of wallet
-<          */
-<         File(final Path path) {
-<             this.path = path;
-<         }
-< 
-<         @Override
-<         public long id() throws IOException {
-<             return new CheckedScalar<>(
-<                 () -> Long.parseUnsignedLong(
-<                     new ListOf<>(
-<                         new SplitText(
-<                             new TextOf(this.path),
-<                             "\n"
-<                         )
-<                     ).get(2).asString(),
+---
+>             throw new UnsupportedOperationException(
+>                 "key() not yet supported"
+>             );
+209c221
 <                     // @checkstyle MagicNumber (1 line)
-<                     16
-<                 ),
-<                 e -> new IOException(e)
-<             ).value();
-<         }
-< 
-<         @Override
-<         public void pay(final long amt, final long bnf) throws IOException {
-<             try (final Writer out = new FileWriter(this.path.toFile(), true)) {
-<                 out.write('\n');
-<                 out.write(new CpTransaction(amt, bnf).toString());
-<             }
-<         }
-< 
+---
+>                     // @checkstyle MagicNumberCheck (1 line)
+224,232d235
 <         // @todo #16:30min Following transactions should be ignored according
 <         //  to the whitepaper:
 <         //  a) If the transaction is negative and its signature is not valid,
@@ -141,45 +141,18 @@
 <         //  c) If the transaction is positive and it’s absent in the paying
 <         //  wallet (which exists at the node), it’s ignored; If the paying
 <         //  wallet doesn’t exist at the node, the transaction is ignored;
-<         @Override
-247,258c141,152
-<             final Iterable<Transaction> candidates = new Filtered<>(
-<                 incoming -> new Filtered<>(
+249,250c252
 <                     origin -> new UncheckedScalar<>(
 <                         new Or(
-<                             () -> incoming.equals(origin),
-<                             () -> incoming.id() == origin.id()
-<                                 && incoming.bnf().equals(origin.bnf()),
-<                             () -> incoming.id() == origin.id()
-<                                 && incoming.amount() < 0L,
-<                             () -> incoming.prefix().equals(origin.prefix())
-<                         )
-<                     ).value(),
 ---
->             final Iterable<Transaction> candidates = new FilteredIterable<>(
->                 incoming -> new FilteredIterable<>(
->                     origin -> new Func<Boolean>() {
->                         @Override
->                         public Boolean apply(final Object input) {
->                             final Transaction t = (Transaction) input;
->                             return incoming.equals(t)
->                                 || (incoming.id() == t.id() && incoming.bnf().equals(t.bnf()))
->                                 || (incoming.id() == t.id() && incoming.amount() < 0L)
->                                 || incoming.prefix().equals(t.prefix());
->                         }
->                     },
-271c165
+>                     origin -> new Or<>(
+257d258
+<                         )
+271c272
 <             return new Mapped<>(
 ---
->             return new MappedIterable<>(
-273c167
-<                 new Skipped<>(
----
->                 new SkippedIterable<>(
-275,278c169
-<                         new SplitText(
-<                             new TextOf(this.path),
-<                             "\\n"
-<                         )
----
->                         new TextOf(this.path).asString().split("\\n")
+>             return new Transformed<>(
+286,288d286
+<         // @todo #54:30min Implement key method. This should return the
+<         //  public RSA key of the wallet owner in Base64. Also add a unit test
+<         //  to replace WalletTest.keyIsNotYetImplemented().

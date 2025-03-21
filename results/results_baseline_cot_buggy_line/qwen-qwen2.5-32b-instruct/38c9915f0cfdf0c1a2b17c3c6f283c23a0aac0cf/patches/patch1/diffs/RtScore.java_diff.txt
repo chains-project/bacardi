@@ -22,16 +22,13 @@
 <  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 <  * SOFTWARE.
 <  */
-27c4,6
+27c4
 < import org.cactoos.iterable.LengthOf;
 ---
-> import org.cactoos.iterable.IterableOf;
-> 
-> import java.util.stream.Stream;
-52,53c31,33
+> import org.cactoos.iterable.SizeOf;
+52,53c29,30
 <         return new LengthOf(other.suffixes()).intValue()
 <             - new LengthOf(this.sfxs).intValue();
 ---
->         final long thisLength = StreamSupport.stream(this.sfxs.spliterator(), false).count();
->         final long otherLength = StreamSupport.stream(other.suffixes().spliterator(), false).count();
->         return Long.compare(otherLength, thisLength);
+>         return new SizeOf(other.suffixes()).intValue()
+>             - new SizeOf(this.sfxs).intValue();

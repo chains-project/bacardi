@@ -1,96 +1,10 @@
-package org.onebusaway.gtfs.impl;
-
-import java.io.Serializable;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.text.ParseException;
-
-import org.hibernate.HibernateException;
-import org.hibernate.engine.spi.SharedSessionContractImplementor;
-import org.hibernate.usertype.UserType;
-import org.onebusaway.gtfs.model.calendar.ServiceDate;
-
-public class ServiceDateUserType implements UserType {
-
-  private static final int[] SQL_TYPES = {Types.VARCHAR};
-
-  @Override
-  public Class<?> returnedClass() {
-    return ServiceDate.class;
-  }
-
-  @Override
-  public int[] sqlTypes() {
-    return SQL_TYPES;
-  }
-
-  public boolean equals(Object x, Object y) throws HibernateException {
-    return x == y;
-  }
-
-  public int hashCode(Object x) throws HibernateException {
-    return x.hashCode();
-  }
-
-  @Override
-  public boolean isMutable() {
-    return false;
-  }
-
-  @Override
-  public Object deepCopy(Object value) throws HibernateException {
-    if (value == null) {
-      return null;
-    }
-    return new ServiceDate((ServiceDate) value);
-  }
-
-  @Override
-  public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor sessionImplementor, Object owner)
-      throws HibernateException, SQLException {
-
-    String value = rs.getString(names[0]);
-
-    if (rs.wasNull())
-      return null;
-
-    try {
-      return ServiceDate.parseString(value);
-    } catch (ParseException ex) {
-      throw new SQLException("error parsing service date value: " + value, ex);
-    }
-  }
-
-  @Override
-  public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor sessionImplementor)
-      throws HibernateException, SQLException {
-
-    if (value == null) {
-      st.setNull(index, SQL_TYPES[0]);
-    } else {
-      ServiceDate serviceDate = (ServiceDate) value;
-      st.setString(index, serviceDate.getAsString());
-    }
-  }
-
-  @Override
-  public Object assemble(Serializable cached, Object owner)
-      throws HibernateException {
-    return deepCopy(cached);
-  }
-
-  @Override
-  public Serializable disassemble(Object value) throws HibernateException {
-    return (Serializable) deepCopy(value);
-  }
-
-  @Override
-  public Object replace(Object original, Object target, Object owner)
-      throws HibernateException {
-    if (original == null)
-      return null;
-    return deepCopy(original);
-  }
-}
+<repair_strategy>
+1. The error messages indicate that the methods `nullSafeGet` and `nullSafeSet` do not match the expected signatures from the `UserType` interface.
+2. The `UserType` interface has likely been updated to use `SharedSessionContractImplementor` instead of `SessionImplementor`.
+3. The `ServiceDateUserType` class needs to update the method signatures of `nullSafeGet` and `nullSafeSet` to use `SharedSessionContractImplementor`.
+4. No function signatures will be changed, only the parameter types will be updated.
+5. The changes will be minimal, only affecting the method signatures of `nullSafeGet` and `nullSafeSet`.
+6. The changes should not affect other parts of the code as they are only signature changes.
+7. The class will remain fully compilable after the changes.
+8. No additional imports are needed as the change is within the same package.
+</repair_strategy>
