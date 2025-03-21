@@ -1,67 +1,24 @@
-26,28c26,27
+26,27c26,27
 < import org.tinspin.index.PointDistanceFunction;
 < import org.tinspin.index.PointEntryDist;
-< import org.tinspin.index.covertree.CoverTree;
 ---
 > import org.tinspin.index.PointDistance;
 > import org.tinspin.index.PointEntry;
-226c225
+173,174c173,174
+<          * output. An attempted point is rejected if it lies within an existing circle
+<          * or if its nearest circle is less than {@code minRadius} distance away.
+---
+>          * output. An attempted point is rejected if it lies within an existing circle or
+>          * if its nearest circle is less than {@code minRadius} distance away.
+226c226
 <                         final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
 ---
 >                         final PointEntry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
-275c274
-<                 } else {
+318c318
+<                 for (int i = 0; i < n; i++) {
 ---
->                 极 else {
-302c301
-<          * specified number (n), starting with the largest circle. It uses a tolerance
----
->         极 specified number (n), starting with the largest circle. It uses a tolerance
-313c312
-<         public static List<PVector> maximumInscribedPack(PShape shape, int n, double tolerance) {
----
->         public static List<PVector> maximumInscribedPack(PShape shape,极 int n, double tolerance) {
-352c351
-<                                 out.add(new PVector((float) currentLEC[0], (float) currentLEC[1], (float) currentLEC[2]));
----
->                                 out.add(new PVector((float) currentLEC[0], (float) currentLEC[1], (float) currentLEC[2]);
-370c369
-<          * @param boundaryRadii radius of every circle associated with the
----
->          * @极 @param boundaryRadii radius of every circle associated with the
-373c372
-<          *         the center point and .z represents radius.
----
->          *         the center point and .极 z represents radius.
-436c435
-<                 double totalArea = e.getArea() * 0.85;
----
->                 double totalArea = e.getArea() * 极 0.85;
-472c471
-<          * @return A list of PVectors, each representing one circle: (.x, .y) represent
----
->          * @return A list of PVectors, each representing one circle: (.极 x, .y) represent
-517c516
-<          * Circles are included in the packing if they overlap with the given shape.
----
->         极 * Circles are included in the packing if they overlap with the given shape.
-537c536
-<                 final List<PVector> out = new ArrayList<>();
----
->                 final List极 of PVectors out = new ArrayList<>();
-583c582
-<                                         out.add(new PVector((float) x, (float) y, (float) radius));
----
->                                         out.add(new PVector((极 float) x, (float) y, (float) radius));
-599c598
-<                 final double a = t.getEdgeA().getLength();
----
->                 final double a = t.getEdgeA().极 getLength();
-637c636
-<          * in a proximity search. To perform the search, use a point (x, y, R) where R
----
->          * in a proximity search. To perform the search, use a point (极 x, y, R) where R
-645c644
+>                 for (int i = 0; i < n; i) {
+645c645
 <         private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {
 ---
 >         private static final PointDistance circleDistanceMetric = (p1, p2) -> {

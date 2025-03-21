@@ -171,8 +171,8 @@ public final class PGS_CirclePacking {
 	 * <p>
 	 * The {@code points} parameter defines the number of random point attempts (or
 	 * circle attempts), but not the exact number of circles in the final packing
-	 * output. An attempted point is rejected if it lies within an existing circle
-	 * or if its nearest circle is less than {@code minRadius} distance away.
+	 * output. An attempted point is rejected if it lies within an existing circle or
+	 * if its nearest circle is less than {@code minRadius} distance away.
 	 * <p>
 	 * Thus, {@code points} defines the maximum number of circles the packing can
 	 * have; in practice, the packing will contain somewhat fewer circles.
@@ -316,7 +316,7 @@ public final class PGS_CirclePacking {
 		LargestEmptyCircles mics = new LargestEmptyCircles(fromPShape(shape), null, tolerance);
 
 		final List<PVector> out = new ArrayList<>();
-		for (int i = 0; i < n; i) {
+		for (int i = 0; i < n; i++) {
 			double[] c = mics.findNextLEC();
 			out.add(new PVector((float) c[0], (float) c[1], (float) c[2]));
 		}
@@ -441,7 +441,7 @@ public final class PGS_CirclePacking {
 		 * of: pi*r^2 dr from r=a to b.
 		 */
 		double avgCircleArea = ((rMaxA * rMaxA * rMaxA) - (rMinA * rMinA * rMinA));
-		avgCircleArea *= (Math.PI / 3 * (rMaxA - rMinA));
+		avgCircleArea *= (Math.PI / (3 * (rMaxA - rMinA)));
 		int n = (int) (totalArea / avgCircleArea);
 
 		List<PVector> points = PGS_PointSet.poissonN(e.getMinX() + rMaxA, e.getMinY() + rMaxA, e.getMaxX() - rMaxA, e.getMaxY() - rMaxA, n,
@@ -467,4 +467,72 @@ public final class PGS_CirclePacking {
 	 * first computed for the envelope of the shape, and then any circles which do
 	 * not overlap with the shape are discarded.
 	 * 
-	 * @
+	 * @param shape   the shape from which to generate a circle packing
+	 * @param circles the collection of circles to pack the shape with, specified as
+	 *                PVectors, where .z is the radius (>=1) for each circle
+	 * @return A list of PVectors, each representing one circle: (.x, .y) represent
+	 *         the center point and .z represents radius.
+	 * @since 1.3.0
+	 * @see #repulsionPack(PShape, double, double, long)
+	 */
+	public static List<PVector> repulsionPack(PShape shape, List<PVector> circles) {
+		final Geometry g = fromPShape(shape);
+		final Envelope e = g.getEnvelopeInternal();
+
+		float radiusMin = Float.MAX_VALUE;
+		float radiusMax = Float.MIN_VALUE;
+		for (PVector circle : circles) {
+			radiusMax = Math.max(1f, Math.max(radiusMax, circle.z));
+			radiusMin = Math.max(1f, Math.min(radiusMin, circle.z));
+		}
+
+		final RepulsionCirclePack packer = new RepulsionCirclePack(circles, e.getMinX() + radiusMin, e.getMaxX() - radiusMin,
+				e.getMinY() + radiusMin, e.getMaxY() - radiusMin, false);
+
+		final List<PVector> packing = packer.getPacking(); // packing result
+
+		IndexedPointInAreaLocator pointLocator;
+		if (radiusMin == radiusMax) {
+			// if every circle same radius, use faster contains check
+			pointLocator = new IndexedPointInAreaLocator(g.buffer(radiusMax));
+			packing.removeIf(p -> pointLocator.locate(PGS.coordFromPVector(p)) == Location.EXTERIOR);
+		} else {
+			pointLocator = new IndexedPointInAreaLocator(g);
+			IndexedFacetDistance distIndex = new IndexedFacetDistance(g);
+			packing.removeIf(p -> {
+				// first test whether shape contains circle center point (somewhat faster)
+				if (pointLocator.locate(PGS.coordFromPVector(p)) != Location.EXTERIOR) {
+					return false;
+				}
+				return distIndex.distance(PGS.pointFromPVector(p)) > p.z * 0.5;
+			});
+		}
+
+		return packing;
+	}
+
+	/**
+	 * Generates a tiled circle packing consisting of equal-sized circles arranged
+	 * in a square lattice (or grid) bounded by the input shape.
+	 * <p>
+	 * Circles are included in the packing if they overlap with the given shape.
+	 * 
+	 * @param shape    the shape from which to generate a circle packing
+	 * @param diameter diameter of every circle in the packing
+	 * @return A list of PVectors, each representing one circle: (.x, .y) represent
+	 *         the center point and .z represents radius.
+	 * @see #hexLatticePack(PShape, double)
+	 */
+	public static List<PVector> squareLatticePack(PShape shape, double diameter) {
+		diameter = Math.max(diameter, 0.1);
+		final double radius = diameter / 2;
+
+		final Geometry g = fromPShape(shape);
+		final Envelope e = g.getEnvelopeInternal();
+		// buffer the geometry to use InAreaLocator to test circles for overlap (this
+		// works because all circles have the same diameter)
+		final IndexedPointInAreaLocator pointLocator = new IndexedPointInAreaLocator(g.buffer(radius * 0.95));
+		final double w = e.getWidth() + diameter + e.getMinX();
+		final double h = e.getHeight() + diameter + e.getMinY();
+
+		final List

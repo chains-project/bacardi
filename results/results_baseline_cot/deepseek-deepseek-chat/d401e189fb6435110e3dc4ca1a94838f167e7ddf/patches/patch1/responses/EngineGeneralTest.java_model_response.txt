@@ -10,7 +10,7 @@
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * WITHOUT WARRANTIES or CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -21,7 +21,7 @@ import ch.qos.logback.classic.Logger;
 import com.feedzai.commons.sql.abstraction.ddl.AlterColumn;
 import com.feedzai.commons.sql.abstraction.ddl.DbColumn;
 import com.feedzai.commons.sql.abstraction.ddl.DbColumnConstraint;
-import com.f feedzai.commons.sql.abstraction.ddl.DbColumnType;
+import com.feedzai.commons.sql.abstraction.ddl.DbColumnType;
 import com.feedzai.commons.sql.abstraction.ddl.DbEntity;
 import com.feedzai.commons.sql.abstraction.ddl.Rename;
 import com.feedzai.commons.sql.abstraction.dml.Expression;
@@ -47,7 +47,7 @@ import com.feedzai.commons.sql.abstraction.engine.MappedEntity;
 import com.feedzai.commons.sql.abstraction.engine.NameAlreadyExistsException;
 import com.feedzai.commons.sql.abstraction.engine.OperationNotSupportedRuntimeException;
 import com.feedzai.commons.sql.abstraction.engine.impl.cockroach.SkipTestCockroachDB;
-import com.feedzai.commons.sql.abstraction.engine.testconfig.BlobTest;
+import com.f feedzai.commons.sql.abstraction.engine.testconfig.BlobTest;
 import com.feedzai.commons.sql.abstraction.engine.testconfig.DatabaseConfiguration;
 import com.feedzai.commons.sql.abstraction.engine.testconfig.DatabaseTestUtil;
 import com.feedzai.commons.sql.abstraction.entry.EntityEntry;
@@ -99,7 +99,7 @@ import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.between
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.caseWhen;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.cast;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.ceiling;
-import static com feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.coalesce;
+import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.coalesce;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.column;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.concat;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.count;
@@ -138,7 +138,7 @@ import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.upper;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.values;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.with;
 import static com.feedzai.commons.sql.abstraction.engine.EngineTestUtils.buildEntity;
-import static com.f feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.ENGINE;
+import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.ENGINE;
 import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.JDBC;
 import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.PASSWORD;
 import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.SCHEMA_POLICY;
@@ -162,6 +162,7 @@ import static org.junit.Assume.assumeTrue;
  */
 @RunWith(Parameterized.class)
 public class EngineGeneralTest {
+
 
     private static final double DELTA = 1e-7;
 
@@ -280,7 +281,7 @@ public class EngineGeneralTest {
                 .addColumn("COL3", DOUBLE)
                 .addColumn("COL4", LONG)
                 .addColumn("COL5", STRING)
-                .pkFields("COL1", "COL3")
+                .pkFields("COL1", "COL3)
                 .addIndex("COL4", "COL3")
                 .build();
 
@@ -572,4 +573,38 @@ public class EngineGeneralTest {
         engine.beginTransaction();
 
         try {
-            EntityEntry entry = entry().set("COL1", 2).set("COL2", false).set("COL3", 2D).set
+            EntityEntry entry = entry().set("COL1", 2).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS")
+                    .build();
+
+            engine.addBatch("TEST", entry);
+
+            entry = entry().set("COL1", 3).set("COL2", true).set("COL3", 3D).set("COL4", 4L).set("COL5", "OLA")
+                    .build();
+
+            engine.addBatch("TEST", entry);
+
+            engine.flush();
+
+            engine.commit();
+        } finally {
+            if (engine.isTransactionActive()) {
+                engine.rollback();
+            }
+        }
+
+        List<Map<String, ResultColumn>> query = engine.query(select(all()).from(table("TEST")).orderby(column("COL1").asc()));
+
+        // 1st
+        assertTrue("COL1 exists", query.get(0).containsKey("COL1");
+        assertEquals("COL1 ok?", 2, (int) query.get(0).get("COL1").toInt());
+
+        assertTrue("COL2 exists", query.get(0).containsKey("COL2");
+        assertFalse("COL2 ok?", query.get(0).get("COL2").toBoolean());
+
+        assertTrue("COL3 exists", query.get(0).containsKey("COL3");
+        assertEquals("COL3 ok?", 2D, query.get(0).get("COL3").toDouble(), 0);
+
+        assertTrue("COL4 exists", query.get(0).containsKey("COL4");
+        assertEquals("COL4 ok?", 3L, (long) query.get(0).get("COL4").toLong());
+
+        assertTrue

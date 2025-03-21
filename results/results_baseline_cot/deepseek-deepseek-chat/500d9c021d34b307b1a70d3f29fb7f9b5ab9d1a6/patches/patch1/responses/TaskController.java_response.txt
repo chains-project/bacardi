@@ -9,12 +9,6 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.mvc.Controller;
-import javax.mvc.Models;
-import javax.mvc.View;
-import javax.mvc.binding.BindingResult;
-import javax.mvc.binding.ParamError;
-import javax.mvc.security.CsrfProtected;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
@@ -28,9 +22,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import org.eclipse.krazo.engine.Viewable;
+import org.eclipse.krazo.MvcContext;
+import org.eclipse.krazo.binding.BindingResult;
+import org.eclipse.krazo.security.CsrfProtected;
+import org.eclipse.krazo.core.Models;
 
 @Path("tasks")
-@Controller
+@javax.mvc.Controller
 @RequestScoped
 public class TaskController {
 
@@ -50,7 +48,7 @@ public class TaskController {
     AlertMessage flashMessage;
 
     @GET
-    @View("tasks.xhtml")
+    @javax.mvc.View("tasks.xhtml")
     public void allTasks() {
         log.log(Level.INFO, "fetching all tasks");
 

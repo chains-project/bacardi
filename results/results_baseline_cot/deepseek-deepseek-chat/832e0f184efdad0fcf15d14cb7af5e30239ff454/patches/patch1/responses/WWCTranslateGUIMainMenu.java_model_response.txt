@@ -101,7 +101,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 				contents.set(1, 4, ClickableItem.of(stopButton, e -> {
 					String[] args;
 					if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED")) {
-						args = new String[] { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName(),
+						args = new String[] { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID).getName(),
 								"stop" };
 					} else {
 						args = new String[] { "stop" };
@@ -141,7 +141,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 				/* Book Translation Button */
 				if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED") && player.hasPermission("worldwidechat.wwctb")
 						&& (player.hasPermission("worldwidechat.wwctb.otherplayers") || player.getUniqueId().toString().equals(targetPlayerUUID))) {
-					ItemStack bookButton = XMaterial.WRITABLE_BOOK.parseItem();
+					ItemStack bookButton = XMaterial.WRITABLE_BBOOK.parseItem();
 					ItemMeta bookMeta = bookButton.getItemMeta();
 					if (targetTranslator.getTranslatingBook()) {
 						bookMeta.setDisplayName(ChatColor.GREEN
@@ -194,4 +194,76 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 						itemMeta.setDisplayName(ChatColor.GREEN
 								+ CommonDefinitions.getMessage("wwctGUIItemButton"));
 						itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-						itemMeta.addEnchant(XEnchantment.matchXEnchantment("power").
+						itemMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+					} else {
+						itemMeta.setDisplayName(ChatColor.YELLOW
+								+ CommonDefinitions.getMessage("wwctGUIItemButton"));
+					}
+					itemButton.setItemMeta(itemMeta);
+					contents.set(2, 6, ClickableItem.of(itemButton, e -> {
+						String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName() };
+						WWCTranslateItem translateItem = new WWCTranslateItem((CommandSender) player, null, null, args);
+						translateItem.processCommand();
+						getTranslateMainMenu(targetPlayerUUID).open(player);
+					}));
+				}
+				
+				/* Entity Translation Button */
+				if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED") && player.hasPermission("worldwidechat.wwcte")
+						&& (player.hasPermission("worldwidechat.wwcte.otherplayers") || player.getUniqueId().toString().equals(targetPlayerUUID))) {
+					ItemStack entityButton = XMaterial.NAME_TAG.parseItem();
+					ItemMeta entityMeta = entityButton.getItemMeta();
+					if (targetTranslator.getTranslatingEntity()) {
+						entityMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+						entityMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+						entityMeta.setDisplayName(ChatColor.GREEN
+								+ CommonDefinitions.getMessage("wwctGUIEntityButton"));
+					} else {
+						entityMeta.setDisplayName(ChatColor.YELLOW
+								+ CommonDefinitions.getMessage("wwctGUIEntityButton"));
+					}
+					entityButton.setItemMeta(entityMeta);
+					contents.set(2, 2, ClickableItem.of(entityButton, e -> {
+						String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName() };
+						WWCTranslateEntity translateEntity = new WWCTranslateEntity((CommandSender) player, null, null, args);
+						translateEntity.processCommand();
+						getTranslateMainMenu(targetPlayerUUID).open(player);
+					}));
+				}
+				
+				/* Chat Translation Button */
+				if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED")
+						&& ((targetPlayerUUID.equals(player.getUniqueId().toString()) && (player.hasPermission("worldwidechat.wwctco") || player.hasPermission("worldwidechat.wwctci"))) 
+								|| (!targetPlayerUUID.equals(player.getUniqueId().toString()) && (player.hasPermission("worldwidechat.wwctco.otherplayers") || player.hasPermission("worldwidechat.wwctci.otherplayers"))))) {
+					ItemStack chatButton = XMaterial.PAINTING.parseItem();
+					ItemMeta chatMeta = chatButton.getItemMeta();
+					if (targetTranslator.getTranslatingChatOutgoing() || targetTranslator.getTranslatingChatIncoming()) {
+						chatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+						chatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+						List<String> outLoreChat = new ArrayList<>();
+						outLoreChat.add(ChatColor.LIGHT_PURPLE + CommonDefinitions.getMessage("wwctGUIExistingChatIncomingEnabled", new String[] {ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + targetTranslator.getTranslatingChatIncoming()}));
+						outLoreChat.add(ChatColor.LIGHT_PURPLE + CommonDefinitions.getMessage("wwctGUIExistingChatOutgoingEnabled", new String[] {ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + targetTranslator.getTranslatingChatOutgoing()}));
+						chatMeta.setLore(outLoreChat);
+						chatMeta.setDisplayName(ChatColor.GREEN
+								+ CommonDefinitions.getMessage("wwctGUIChatButton"));
+					} else {
+						chatMeta.setDisplayName(ChatColor.YELLOW
+								+ CommonDefinitions.getMessage("wwctGUIChatButton"));
+					}
+					chatButton.setItemMeta(chatMeta);
+					contents.set(3, 4, ClickableItem.of(chatButton, e -> {
+						WWCTranslateGUIChatMenu.getTranslateChatMenu(targetPlayerUUID).open(player);
+					}));
+				}
+			}
+		} catch (Exception e) {
+			WWCInventoryManager.inventoryError(player, e);
+		}
+	}
+
+	@Override
+	public void update(Player player, InventoryContents contents) {
+		WWCInventoryManager.checkIfPlayerIsMissing(player, targetPlayerUUID);
+	}
+}
+```
