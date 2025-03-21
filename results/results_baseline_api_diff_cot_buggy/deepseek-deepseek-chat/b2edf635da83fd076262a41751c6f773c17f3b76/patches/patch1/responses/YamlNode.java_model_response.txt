@@ -1,24 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs in the line: `return (YamlNode) new Yaml(new Constructor(YamlNode.class)).load(in);`
-   b. The API changes indicate that all Constructor class constructors have been removed in the new version of the dependency.
-   c. The affected line is: `return (YamlNode) new Yaml(new Constructor(YamlNode.class)).load(in);`
-   d. Potential fixes:
-      - Use the default Yaml constructor without specifying a custom Constructor
-      - Use the new API for loading YAML documents with the appropriate LoaderOptions
-   e. Side effects:
-      - Using the default Yaml constructor might affect how custom types are handled
-      - The fix should maintain the same functionality while adapting to the new API
-   f. Constraints check:
-      - The function signature remains unchanged
-      - No existing code is removed
-      - The fix adheres to all constraints
-   g. Final summary:
-      - The best solution is to use the default Yaml constructor since the Constructor class has been removed. This maintains functionality while adapting to the new API.
-
-2. The fix will modify the line to use the default Yaml constructor.
-</fix_planning>
-
 ```java
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -49,6 +28,7 @@ import org.jclouds.util.Closeables2;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.LoaderOptions;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
@@ -133,7 +113,8 @@ public class YamlNode {
          InputStream in = null;
          try {
             in = byteSource.openStream();
-            return (YamlNode) new Yaml().load(in);
+            LoaderOptions loaderOptions = new LoaderOptions();
+            return new Yaml(new Constructor(YamlNode.class, loaderOptions)).load(in);
          } catch (IOException ioe) {
             throw Throwables.propagate(ioe);
          } finally {
@@ -146,7 +127,7 @@ public class YamlNode {
       return byteSourceToYamlNode.apply(in);
    }
 
-   public static final Function<YamlNode, ByteSource) yamlNodeToByteSource = new Function<YamlNode, ByteSource>() {
+   public static final Function<YamlNode, ByteSource> yamlNodeToByteSource = new Function<YamlNode, ByteSource>() {
       @Override
       public ByteSource apply(YamlNode in) {
          if (in == null)

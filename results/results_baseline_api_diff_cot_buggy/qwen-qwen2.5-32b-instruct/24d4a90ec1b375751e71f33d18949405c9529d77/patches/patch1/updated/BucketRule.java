@@ -74,7 +74,7 @@ final class BucketRule implements TestRule {
                 if (BucketRule.KEY == null || BucketRule.KEY.isEmpty()) {
                     Logger.warn(
                         this,
-                        "system property failsome.s3.key is not set, skipping"
+                        "system property failsafe.s3.key is not set, skipping"
                     );
                 } else {
                     BucketRule.this.create();
@@ -108,8 +108,7 @@ final class BucketRule implements TestRule {
         );
         final String name = String.format(
             "%s.s3.jcabi.com",
-            RandomStringUtils.randomAlphabetic(5)
-                .toLowerCase(Locale.ENGLISH)
+            RandomStringUtils.randomAlphabetic(5).toLowerCase(Locale.ENGLISH)
         );
         this.subj = region.bucket(name);
         final AmazonS3 aws = this.subj.region().aws();

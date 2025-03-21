@@ -2,6 +2,7 @@ package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
 import redis.clients.jedis.ClusterPipeline;
+
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ public interface RedisGraphPipeline extends ClusterPipeline, Closeable {
     /**
      * Execute a Cypher read-only query with timeout.
      * @param graphId a graph to perform the query on
-     * @param query Cypher query.
+     * @param query Cypher query
      * @param timeout
      * @return a response which builds the result set with the query answer.
      */
@@ -130,7 +131,7 @@ public interface RedisGraphPipeline extends ClusterPipeline, Closeable {
      * get return values from pipelined commands, capture the different Response<?> of the
      * commands you execute.
      */
-    public void sync();
+    void sync();
 
     /**
      * Blocks until all the previous write commands are successfully transferred and acknowledged by
@@ -142,5 +143,5 @@ public interface RedisGraphPipeline extends ClusterPipeline, Closeable {
      * @return the number of replicas reached by all the writes performed in the context of the
      *         current connection
      */
-    public Response<Long> waitReplicas(int replicas, long timeout);
+    Response<Long> waitReplicas(int replicas, long timeout);
 }

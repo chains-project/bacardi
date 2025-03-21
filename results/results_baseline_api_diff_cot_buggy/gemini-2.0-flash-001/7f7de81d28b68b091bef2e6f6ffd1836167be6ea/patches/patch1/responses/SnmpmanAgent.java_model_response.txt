@@ -1,28 +1,3 @@
-<fix_planning>
-a. Relevant code and API changes:
-The error occurs because `ManagedObject` is now a generic type `ManagedObject<?>`. The code attempts to assign `server.getRegistry()` which returns `SortedMap<MOScope, ManagedObject<?>>` to `SortedMap<MOScope, ManagedObject>`. This is causing a type incompatibility.
-
-b. Specific API changes causing the issue:
-The change in the generic type of `ManagedObject` from non-generic to generic.
-
-c. Affected lines of code:
-```java
-final SortedMap<MOScope, ManagedObject> reg = server.getRegistry();
-```
-
-d. Proposed potential fixes:
-1. Change the type of `reg` to `SortedMap<MOScope, ManagedObject<?>>`.
-
-e. Potential side effects of the proposed changes:
-This change might require further modifications in the code that uses `reg`.
-
-f. Adherence to constraints:
-The proposed change adheres to all constraints. It does not change any function signatures, and it only modifies the type of a local variable.
-
-g. Final summary of the chosen fix:
-The best solution is to change the type of `reg` to `SortedMap<MOScope, ManagedObject<?>>`. This directly addresses the type incompatibility issue caused by the API change.
-</fix_planning>
-
 ```java
 package com.oneandone.snmpman;
 
@@ -85,7 +60,7 @@ public class SnmpmanAgent extends BaseAgent {
     /**
      * The list of managed object groups.
      */
-    private final List<ManagedObject> groups = new ArrayList<>();
+    private final List<ManagedObject<?>> groups = new ArrayList<>();
 
     /**
      * Initializes a new instance of an SNMP agent.
@@ -289,7 +264,7 @@ public class SnmpmanAgent extends BaseAgent {
                     MOGroup group = createGroup(root, variableBindings);
                     final Iterable<VariableBinding> subtree = generateSubtreeBindings(variableBindings, root);
                     DefaultMOContextScope scope = new DefaultMOContextScope(context, root, true, root.nextPeer(), false);
-                    ManagedObject mo = server.lookup(new DefaultMOQuery(scope, false));
+                    ManagedObject<?> mo = server.lookup(new DefaultMOQuery(scope, false));
                     if (mo != null) {
                         for (final VariableBinding variableBinding : subtree) {
                             group = new MOGroup(variableBinding.getOid(), variableBinding.getOid(), variableBinding.getVariable());
@@ -380,7 +355,7 @@ public class SnmpmanAgent extends BaseAgent {
         try {
             if (context == null || context.toString().equals("")) {
                 MOContextScope contextScope = new DefaultMOContextScope(new OctetString(), group.getScope());
-                ManagedObject other = server.lookup(new DefaultMOQuery(contextScope, false));
+                ManagedObject<?> other = server.lookup(new DefaultMOQuery(contextScope, false));
                 if (other != null) {
                     log.warn("group {} already existed", group);
                     return;
@@ -463,7 +438,7 @@ public class SnmpmanAgent extends BaseAgent {
     private void unregisterDefaultManagedObjects(final OctetString ctx) {
         final OID startOID = new OID(".1");
         final DefaultMOContextScope hackScope = new DefaultMOContextScope(ctx, startOID, true, startOID.nextPeer(), false);
-        ManagedObject query;
+        ManagedObject<?> query;
         while ((query = server.lookup(new DefaultMOQuery(hackScope, false))) != null) {
             server.unregister(query, ctx);
         }
@@ -512,7 +487,7 @@ public class SnmpmanAgent extends BaseAgent {
     @Override
     protected void unregisterManagedObjects() {
         log.trace("unregistered managed objects for agent \"{}\"", agent);
-        for (final ManagedObject mo : groups) {
+        for (final ManagedObject<?> mo : groups) {
             server.unregister(mo, null);
         }
     }

@@ -1,35 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error messages indicate that `ClassLoadingStrategy` and `ClassInjector` classes from `org.assertj.core.internal.bytebuddy.dynamic.loading` package are no longer available.
-   b. The API changes show that `ClassLoadingStrategy` and `ClassInjector` classes have been removed in the new version of the dependency.
-   c. Affected lines:
-      - Import statements for `ClassLoadingStrategy` and `ClassInjector`
-      - Usage of `ClassLoadingStrategy.Default.INJECTION`
-      - Usage of `ClassLoadingStrategy.UsingLookup.of()`
-      - Usage of `ClassInjector.UsingReflection.isAvailable()`
-      - Usage of `ClassInjector.UsingLookup.isAvailable()`
-   d. Potential fixes:
-      - Replace `ClassLoadingStrategy` with `net.bytebuddy.dynamic.loading.ClassLoadingStrategy`
-      - Replace `ClassInjector` with `net.bytebuddy.dynamic.loading.ClassInjector`
-      - Update the import statements accordingly
-   e. Side effects:
-      - The functionality should remain the same as we're using equivalent classes from the new package
-      - Need to ensure the new package is available in the project dependencies
-   f. Constraints check:
-      - Function signatures remain unchanged
-      - No code is removed
-      - Only necessary import changes are made
-   g. Final summary:
-      - The best solution is to update the imports and class references to use the new package location
-      - This maintains the same functionality while fixing the compilation errors
-      - The changes adhere to all constraints
-
-2. Fix implementation:
-   - Update import statements
-   - Replace class references with new package paths
-   - Keep all existing code structure intact
-</fix_planning>
-
 ```java
 /*
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with

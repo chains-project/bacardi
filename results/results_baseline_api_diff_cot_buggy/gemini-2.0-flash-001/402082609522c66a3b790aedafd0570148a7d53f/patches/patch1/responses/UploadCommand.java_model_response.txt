@@ -1,52 +1,3 @@
-<fix_planning>
-The code is failing due to breaking changes in the Sponge API. Several classes and methods have been removed or changed, causing compilation errors.
-
-Here's a breakdown of the issues and proposed solutions:
-
-1. **`org.spongepowered.api.command.CommandSource` and `org.spongepowered.api.command.CommandContext`**: These classes have been removed. `CommandSource` is replaced by `org.spongepowered.api.command.CommandCause` and `CommandContext` is replaced by `org.spongepowered.api.command.parameter.CommandContext`.
-   - Affected line: `public CommandResult execute(CommandSource src, CommandContext args)`
-   - Proposed fix: Replace `CommandSource` with `org.spongepowered.api.command.CommandCause` and `CommandContext` with `org.spongepowered.api.command.parameter.CommandContext`.
-   - Side effects: Requires updating the method body to use the new `CommandCause` and `CommandContext` APIs.
-
-2. **`org.spongepowered.api.text.Text.of`**: This method has been removed.  The replacement is `net.kyori.adventure.text.Component.text()`.
-   - Affected lines: `import static org.spongepowered.api.text.Text.of;` and `arguments(string(of("url")))`
-   - Proposed fix: Remove the import statement and replace `of("url")` with `net.kyori.adventure.text.Component.text("url")`.
-   - Side effects: Requires adding an import for `net.kyori.adventure.text.Component`.
-
-3. **`org.spongepowered.api.command.args.GenericArguments.string`**: This method has been removed. The replacement is `org.spongepowered.api.command.parameter.Parameter.string()`.
-   - Affected lines: `import static org.spongepowered.api.command.args.GenericArguments.string;` and `arguments(string(of("url")))`
-   - Proposed fix: Remove the import statement and replace `string(of("url"))` with `Parameter.string().key(net.kyori.adventure.text.Component.text("url")).build()`.
-   - Side effects: Requires adding an import for `org.spongepowered.api.command.parameter.Parameter`.
-
-4. **`org.spongepowered.api.command.spec.CommandSpec`**: This class has been removed. The replacement is `org.spongepowered.api.command.Command`.
-   - Affected lines: `public CommandSpec buildSpec()` and `import org.spongepowered.api.command.spec.CommandSpec;`
-   - Proposed fix: Replace `CommandSpec` with `Command`. Use `Command.builder()` instead of `CommandSpec.builder()`.  Also, `executor(this)` is replaced by `executor(cause -> this.execute(cause, context))`. `arguments` is removed and replaced by `parameters`. `permission` is moved to `Command.Builder`.
-   - Side effects: Requires updating the method body to use the new `Command` API.
-
-5. **`org.spongepowered.api.command.spec.CommandExecutor`**: This class has been removed. The replacement is `org.spongepowered.api.command.CommandExecutor`.
-   - Affected lines: `public class UploadCommand implements CommandExecutor, ChangeSkinCommand`
-   - Proposed fix: Replace `org.spongepowered.api.command.spec.CommandExecutor` with `org.spongepowered.api.command.CommandExecutor`.
-
-6. **`org.spongepowered.api.scheduler.Task.builder().async()`**: The `async()` method has been removed.
-   - Affected line: `Task.builder().async().execute(skinUploader).submit(plugin);`
-   - Proposed fix: Remove the `async()` call. The task will run asynchronously by default.
-   - Side effects: None.
-
-7. **`org.spongepowered.api.command.args.CommandContext.getOne(String)`**: This method has been removed. The replacement is `org.spongepowered.api.command.parameter.CommandContext.one(Parameter.Key<T>)`.
-   - Affected line: `String url = args.<String>getOne("url").get();`
-   - Proposed fix: Replace `args.<String>getOne("url").get()` with `args.one(Parameter.<String>key(net.kyori.adventure.text.Component.text("url"), String.class)).orElse(null)`. Add a null check.
-   - Side effects: Requires handling the case where the argument is not provided.
-
-8. **`org.spongepowered.api.command.CommandResult`**: This class has been removed. The replacement is `org.spongepowered.api.command.result.CommandResult`.
-   - Affected line: `public CommandResult execute(CommandSource src, CommandContext args)` and `return CommandResult.success();`
-   - Proposed fix: Replace `CommandResult` with `org.spongepowered.api.command.result.CommandResult` and `CommandResult.success()` with `org.spongepowered.api.command.result.CommandResult.success()`.
-
-Summary:
-
-The primary fix involves updating the code to use the new Sponge API for commands, text, and scheduling. This includes replacing deprecated classes and methods with their updated counterparts, adjusting method calls to match the new API signatures, and handling potential null values where necessary. These changes adhere to all given constraints, as they only modify the client code, preserve function signatures, and address compilation errors caused by the dependency update.
-
-</fix_planning>
-
 ```java
 package com.github.games647.changeskin.sponge.command;
 
@@ -58,17 +9,16 @@ import com.github.games647.changeskin.sponge.task.SkinUploader;
 import com.google.inject.Inject;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.spongepowered.api.command.Command;
-import org.spongepowered.api.command.CommandCause;
-import org.spongepowered.api.command.CommandExecutor;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.scheduler.Task;
 
-import net.kyori.adventure.text.Component;
-
-import static org.spongepowered.api.command.parameter.Parameter.key;
+import org.spongepowered.api.command.CommandCause;
 
 public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
 
@@ -81,31 +31,42 @@ public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
         this.core = core;
     }
 
-    public org.spongepowered.api.command.result.CommandResult execute(CommandCause src, CommandContext args) {
-        String url = args.one(Parameter.<String>key(Component.text("url"), String.class)).orElse(null);
-        if (url != null && (url.startsWith("http://") || url.startsWith("https://"))) {
-            List<Account> accounts = plugin.getCore().getUploadAccounts();
-            if (accounts.isEmpty()) {
-                plugin.sendMessage(src, "no-accounts");
-            } else {
-                Account uploadAccount = accounts.get(0);
-                Runnable skinUploader = new SkinUploader(plugin, src, uploadAccount, url);
-                Task.builder().execute(skinUploader).submit(plugin);
-            }
-        } else {
-            plugin.sendMessage(src, "no-valid-url");
+    @Override
+    public CommandResult execute(CommandCause cause, CommandContext args) throws CommandException {
+        Optional<String> urlOptional = args.one(Parameter.string().key("url").build());
+        if (!urlOptional.isPresent()) {
+            plugin.sendMessage(cause, "no-valid-url");
+            return CommandResult.empty();
         }
 
-        return org.spongepowered.api.command.result.CommandResult.success();
+        String url = urlOptional.get();
+        if (url.startsWith("http://") || url.startsWith("https://")) {
+            List<Account> accounts = plugin.getCore().getUploadAccounts();
+            if (accounts.isEmpty()) {
+                plugin.sendMessage(cause, "no-accounts");
+            } else {
+                Account uploadAccount = accounts.get(0);
+                Runnable skinUploader = new SkinUploader(plugin, cause, uploadAccount, url);
+                Task.builder().async().execute(skinUploader).submit(plugin);
+            }
+        } else {
+            plugin.sendMessage(cause, "no-valid-url");
+        }
+
+        return CommandResult.success();
     }
 
     @Override
-    public Command buildSpec() {
+    public Command.Builder buildSpec() {
         return Command.builder()
-                .executor(cause -> this.execute(cause, (CommandContext) cause.context()))
-                .addParameter(Parameter.string().key(Component.text("url")).build())
-                .permission(PomData.ARTIFACT_ID + ".command.skinupload.base")
-                .build();
+                .executor(this)
+                .addParameter(Parameter.string().key("url").build())
+                .permission(PomData.ARTIFACT_ID + ".command.skinupload.base");
+    }
+
+    @Override
+    public CommandResult execute(org.spongepowered.api.command.CommandSource src, org.spongepowered.api.command.args.CommandContext args) {
+        return null;
     }
 }
 ```

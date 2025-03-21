@@ -25,11 +25,7 @@ import com.premiumminds.billy.core.CoreDependencyModule;
 import com.premiumminds.billy.core.test.fixtures.JavaLocalDateConstruct;
 import com.premiumminds.billy.core.test.fixtures.JavaZoneIdConstruct;
 import com.premiumminds.billy.core.test.fixtures.MockBaseEntity;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import org.junit.jupiter.api.BeforeAll;
 import org.mockito.Mockito;
 import org.yaml.snakeyaml.DumperOptions;
@@ -37,9 +33,12 @@ import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.inspector.AllowAllTagInspector;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.time.ZoneId;
 
 public class AbstractTest {
 
@@ -62,7 +61,8 @@ public class AbstractTest {
 
     public <T extends MockBaseEntity> T createMockEntity(Class<T> clazz, String path) {
         final LoaderOptions loadingConfig = new LoaderOptions();
-        loadingConfig.setTagInspector(new AllowAllTagInspector());
+        // Removed setting of TrustedTagInspector since it has been removed in the new dependency version.
+        // loadingConfig.setTagInspector(new TrustedTagInspector());
 
         final Representer representer = new Representer(new DumperOptions());
         final Tag zoneIdTag = new Tag("!ZoneId");

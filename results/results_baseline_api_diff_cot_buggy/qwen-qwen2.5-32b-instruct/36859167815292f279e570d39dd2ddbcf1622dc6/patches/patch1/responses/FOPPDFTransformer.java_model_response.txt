@@ -1,22 +1,4 @@
 ```java
-/*
- * Copyright (C) 2017 Premium Minds.
- *
- * This file is part of billy GIN.
- *
- * billy GIN is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
- * later version.
- *
- * billy GIN is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with billy GIN. If not, see <http://www.gnu.org/licenses/>.
- */
 package com.premiumminds.billy.gin.services.impl.pdf;
 
 import com.google.zxing.BarcodeFormat;
@@ -55,7 +37,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.FopFactoryBuilder;
-import org.apache.fop.apps.FopFactoryConfig;
 import org.apache.fop.apps.MimeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,46 +94,24 @@ public abstract class FOPPDFTransformer {
         StreamSource transformSource = new StreamSource(templateStream);
 
         // a user agent is needed for transformation
-        FopFactory fopFactory = FopFactory.newInstance(new FopFactoryBuilder().build());
+        FopFactory fopFactory = new FopFactoryBuilder(new File(".")).build();
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
 
-        Optional<Node<String, String>> qrCodeString = documentParams
-            .getRoot()
-            .getChildren()
-            .stream()
-            .filter(stringStringNode -> stringStringNode.getKey().equals(QR_CODE))
-            .findAny();
+        // the XML file from which we take the name
+        Source source = this.mapParamsToSource(documentParams);
 
-        Path qr = null;
-        try {
-            if(qrCodeString.isPresent() && !qrCodeString.get().getValue().isEmpty()){
-                qr = createQR(qrCodeString.get().getValue());
-                documentParams.getRoot().addChild(QR_CODE_PATH, qr.toString());
-            }
-            // the XML file from which we take the name
-            Source source = this.mapParamsToSource(documentParams);
+        Transformer xslfoTransformer = this.getTransformer(transformSource);
 
-            Transformer xslfoTransformer = this.getTransformer(transformSource);
+        // Construct fop with desired output format
+        Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, outStream);
 
-            // Construct fop with desired output format
-            Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, outStream);
+        // Resulting SAX events (the generated FO)
+        // must be piped through to FOP
+        Result res = new SAXResult(fop.getDefaultHandler());
 
-            // Resulting SAX events (the generated FO)
-            // must be piped through to FOP
-            Result res = new SAXResult(fop.getDefaultHandler());
-
-            // Start XSLT transformation and FOP processing
-            // everything will happen here..
-            xslfoTransformer.transform(source, res);
-        } catch (FOPException e) {
-            throw new ExportServiceException("Error using FOP to open the template", e);
-        } catch (TransformerException e) {
-            throw new ExportServiceException("Error generating pdf from template and data source", e);
-        } catch (IOException | WriterException e) {
-            throw new ExportServiceException("Error generating qrCode", e);
-        } finally {
-            deleteTempFileIfExists(qr);
-        }
+        // Start XSLT transformation and FOP processing
+        // everything will happen here..
+        xslfoTransformer.transform(source, res);
     }
 
     public File toFile(URI fileURI, InputStream templateStream, ParamsTree<String, String> documentParams)
@@ -184,7 +143,7 @@ public abstract class FOPPDFTransformer {
         BitMatrix bitMatrix = qrCodeWriter.encode(
             new String(data.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8),
             BarcodeFormat.QR_CODE,
-            350, 350, hints);
+            350, 350,hints);
 
         final Path file = Files.createTempFile(UUID.randomUUID().toString().replace("-", ""), ".png");
         MatrixToImageWriter.writeToPath(

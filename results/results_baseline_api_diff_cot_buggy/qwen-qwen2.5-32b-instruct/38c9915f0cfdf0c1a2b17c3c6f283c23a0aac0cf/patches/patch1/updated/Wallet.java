@@ -1,26 +1,3 @@
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2018-2023 Yegor Bugayenko
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package io.zold.api;
 
 import java.io.FileWriter;
@@ -28,9 +5,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
 import org.cactoos.Func;
-import org.cactoos.FuncAsScalar;
-import org.cactoos.FuncOf;
-import org.cactoos.Scalar;
+import org.cactoos.Text;
 import org.cactoos.collection.Filtered;
 import org.cactoos.iterable.IterableOf;
 import org.cactoos.iterable.Joined;
@@ -38,15 +13,16 @@ import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Skipped;
 import org.cactoos.list.ListOf;
 import org.cactoos.text.FormattedText;
-import org.cactoos.text.SplitText;
 import org.cactoos.text.TextOf;
 import org.cactoos.text.UncheckedText;
 
 /**
  * Wallet.
  * @since 0.1
- * @todo #16:30min Merge method should update transactions in wallet's file and return concrete implementation not a fake one.
- * @todo #65:30min Implement key method. This should return the public RSA key of the wallet owner in Base64. Also add a unit test to replace WalletTest.keyIsNotYetImplemented().
+ * @todo #16:30min Merge method should update transactions
+ *  in wallet's file and return concrete implementation not a fake one.
+ *  After completing these implementations fix tests that uses Wallets.create()
+ *  and all Wallet realizations.
  */
 @SuppressWarnings({"PMD.ShortMethodName", "PMD.TooManyMethods",
     "PMD.UnusedFormalParameter"})
@@ -66,7 +42,7 @@ public interface Wallet {
      * @param bnf Wallet ID of beneficiary
      * @throws IOException If an IO error occurs
      */
-    void pay(long amt, final long bnf) throws IOException;
+    void pay(long amt, long bnf) throws IOException;
 
     /**
      * Merge both {@code this} and {@code other}. Fails if they are not the
@@ -92,7 +68,9 @@ public interface Wallet {
     /**
      * A Fake {@link Wallet}.
      * @since 1.0
-     * @todo #65:30min Complete Wallet implementations with id, public RSA key and network id. Also add a unit test to replace WalletTest.keyIsNotYetImplemented().
+     * @todo #65:30min Implement key method. This should return the
+     *  public RSA key of the wallet owner in Base64. Also add a unit test
+     *  to replace WalletTest.keyIsNotYetImplemented().
      */
     final class Fake implements Wallet {
 
@@ -159,7 +137,7 @@ public interface Wallet {
             if (other.id() != this.id()) {
                 throw new IOException(
                     new UncheckedText(
-                        (new FormattedText(
+                        new FormattedText(
                             "Wallet ID mismatch, ours is %d, theirs is %d",
                             other.id(),
                             this.id()
@@ -170,16 +148,17 @@ public interface Wallet {
             final Iterable<Transaction> ledger = this.ledger();
             final Iterable<Transaction> candidates = new Filtered<>(
                 incoming -> new Filtered<>(
-                    origin -> new FuncAsScalar<>(
-                        new FuncOf<>(
-                            () -> incoming.equals(origin)
+                    origin -> new Func<Boolean>() {
+                        @Override
+                        public Boolean apply() {
+                            return incoming.equals(origin)
                                 || (incoming.id() == origin.id()
-                                    && incoming.bnf().equals(origin.bnf()))
+                                && incoming.bnf().equals(origin.bnf()))
                                 || (incoming.id() == origin.id()
-                                    && incoming.amount() < 0L)
-                                || incoming.prefix().equals(origin.prefix())
-                        )
-                    ).value(),
+                                && incoming.amount() < 0L)
+                                || incoming.prefix().equals(origin.prefix());
+                        }
+                    },
                     ledger
                 ).isEmpty(),
                 other.ledger()
@@ -196,10 +175,18 @@ public interface Wallet {
                 txt -> new RtTransaction(txt.asString()),
                 new Skipped<>(
                     new ListOf<>(
-                        new SplitText(
-                            new TextOf(this.path),
-                            "\\n"
-                        )
+                        new Func<Text>() {
+                            @Override
+                            public Text apply() {
+                                return new TextOf(this.path);
+                            }
+                        },
+                        new Func<Text>() {
+                            @Override
+                            public Text apply() {
+                                return new TextOf("\n");
+                            }
+                        }
                     ),
                     // @checkstyle MagicNumberCheck (1 line)
                     5
@@ -207,7 +194,136 @@ public interface Wallet {
             );
         }
 
-        // @todo #65:30min Implement key method. This should return the public RSA key of the wallet owner in Base64. Also add a unit test to replace WalletTest.keyIsNotYetImplemented().
+        // @todo #54:30min Implement key method. This should return the
+        //  public RSA key of the wallet owner in Base64. Also add a unit test
+        //  to replace WalletTest.keyIsNotYetImplemented().
+        @Override
+        public String key() {
+            throw new UnsupportedOperationException(
+                "key() not yet supported"
+            );
+        }
+    }
+
+    /**
+     * Default File implementation.
+     * @checkstyle ClassDataAbstractionCouplingCheck (2 lines)
+     */
+    final class File implements Wallet {
+
+        /**
+         * Path of this wallet.
+         */
+        private final Path path;
+
+        /**
+         * Ctor.
+         * @param path Path of wallet
+         */
+        File(final Path path) {
+            this.path = path;
+        }
+
+        @Override
+        public long id() throws IOException {
+            return new Func<Long>() {
+                @Override
+                public Long apply() {
+                    return Long.parseUnsignedLong(
+                        new ListOf<>(
+                            new Func<Text>() {
+                                @Override
+                                public Text apply() {
+                                    return new TextOf(this.path);
+                                }
+                            },
+                            new Func<Text>() {
+                                @Override
+                                public Text apply() {
+                                    return new TextOf("\n");
+                                }
+                            }
+                        ).get(2).asString(),
+                        // @checkstyle MagicNumberCheck (1 line)
+                        16
+                    );
+                }
+            }.apply();
+        }
+
+        @Override
+        public void pay(final long amt, final long bnf) throws IOException {
+            try (final Writer out = new FileWriter(this.path.toFile(), true)) {
+                out.write('\n');
+                out.write(new CpTransaction(amt, bnf).toString());
+            }
+        }
+
+        @Override
+        public Wallet merge(final Wallet other) throws IOException {
+            if (other.id() != this.id()) {
+                throw new IOException(
+                    new UncheckedText(
+                        new FormattedText(
+                            "Wallet ID mismatch, ours is %d, theirs is %d",
+                            other.id(),
+                            this.id()
+                        )
+                    ).asString()
+                );
+            }
+            final Iterable<Transaction> ledger = this.ledger();
+            final Iterable<Transaction> candidates = new Filtered<>(
+                incoming -> new Filtered<>(
+                    origin -> new Func<Boolean>() {
+                        @Override
+                        public Boolean apply() {
+                            return incoming.equals(origin)
+                                || (incoming.id() == origin.id()
+                                && incoming.bnf().equals(origin.bnf()))
+                                || (incoming.id() == origin.id()
+                                && incoming.amount() < 0L)
+                                || incoming.prefix().equals(origin.prefix());
+                        }
+                    },
+                    ledger
+                ).isEmpty(),
+                other.ledger()
+            );
+            return new Wallet.Fake(
+                this.id(),
+                new Joined<Transaction>(ledger, candidates)
+            );
+        }
+
+        @Override
+        public Iterable<Transaction> ledger() {
+            return new Mapped<>(
+                txt -> new RtTransaction(txt.asString()),
+                new Skipped<>(
+                    new ListOf<>(
+                        new Func<Text>() {
+                            @Override
+                            public Text apply() {
+                                return new TextOf(this.path);
+                            }
+                        },
+                        new Func<Text>() {
+                            @Override
+                            public Text apply() {
+                                return new TextOf("\n");
+                            }
+                        }
+                    ),
+                    // @checkstyle MagicNumberCheck (1 line)
+                    5
+                )
+            );
+        }
+
+        // @todo #54:30min Implement key method. This should return the
+        //  public RSA key of the wallet owner in Base64. Also add a unit test
+        //  to replace WalletTest.keyIsNotYetImplemented().
         @Override
         public String key() {
             throw new UnsupportedOperationException(

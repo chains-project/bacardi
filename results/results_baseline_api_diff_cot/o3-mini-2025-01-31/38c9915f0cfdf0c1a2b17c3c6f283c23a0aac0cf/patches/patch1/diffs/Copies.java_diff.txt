@@ -1,0 +1,17 @@
+30d29
+< import org.cactoos.collection.CollectionOf;
+91,93c90,99
+<         return first.id() == second.id() && new CollectionOf<>(
+<             first.ledger()
+<         ).size() == new CollectionOf<>(second.ledger()).size();
+---
+>         return first.id() == second.id() &&
+>             count(first.ledger()) == count(second.ledger());
+>     }
+>     
+>     private static int count(final Iterable<?> iterable) {
+>         int cnt = 0;
+>         for (Object item : iterable) {
+>             cnt++;
+>         }
+>         return cnt;

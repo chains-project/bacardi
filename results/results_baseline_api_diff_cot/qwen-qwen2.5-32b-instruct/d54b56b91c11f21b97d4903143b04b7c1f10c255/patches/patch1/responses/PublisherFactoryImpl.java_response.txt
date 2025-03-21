@@ -1,39 +1,10 @@
-package com.google.pubsublite.kafka.sink;
-
-import com.google.cloud.pubsublite.CloudZone;
-import com.google.cloud.pubsublite.ProjectPath;
-import com.google.cloud.pubsublite.TopicName;
-import com.google.cloud.pubsublite.TopicPath;
-import com.google.cloud.pubsublite.internal.Publisher;
-import com.google.cloud.pubsublite.internal.wire.PubsubContext;
-import com.google.cloud.pubsublite.internal.wire.RoutingPublisherBuilder;
-import com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder;
-import java.util.Map;
-import org.apache.kafka.connect.errors.ConnectException;
-
-class PublisherFactoryImpl implements PublisherFactory {
-
-  private static final PubsubContext FRAMEWORK = PubsubContext.of("KAFKA_CONNECT");
-
-  @Override
-  public Publisher<Void> newPublisher(Map<String, String> params) {
-    Map<String, ConfigValue> config = ConfigDefs.config().validateAll(params);
-    RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
-    TopicPath topic =
-        TopicPath.newBuilder()
-            .setProject(
-                ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
-                    .project())
-            .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
-            .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
-            .build();
-    builder.setTopic(topic);
-    builder.setPublisherFactory(
-        partition ->
-            SinglePartitionPublisherBuilder.newBuilder()
-                .setTopic(topic)
-                .setPartition(partition)
-                .build());
-    return builder.build();
-  }
-}
+<repair_strategy>
+ 1. The class `PublishMetadata` and the method `setContext` have been removed in the new version of the dependency.
+ 2. The method `setContext` is no longer available in the `SinglePartitionPublisherBuilder.Builder` class.
+ 3. The client code needs to be updated to remove references to `PublishMetadata` and the `setContext` method.
+ 4. The function signatures should remain unchanged.
+ 5. The minimal set of changes needed is to remove the `PublishMetadata` type and the `setContext` method call.
+ 6. The removal of `PublishMetadata` and `setContext` should not affect other parts of the code.
+ 7. The class should compile without errors after the changes.
+ 8. No additional imports are needed.
+</repair_strategy>

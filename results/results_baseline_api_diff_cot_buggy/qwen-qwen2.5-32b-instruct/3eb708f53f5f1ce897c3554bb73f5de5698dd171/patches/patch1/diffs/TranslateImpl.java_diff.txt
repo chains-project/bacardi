@@ -1,4 +1,4 @@
-1,16d0
+1,15c1,9
 < /*
 <  * Copyright 2016 Google LLC
 <  *
@@ -14,62 +14,71 @@
 <  * See the License for the specific language governing permissions and
 <  * limitations under the License.
 <  */
-< 
-23,25d6
+---
+> <repair_strategy>
+> 1. The classes `TranslationsResource`, `DetectionsResourceItems`, and `LanguagesResource` have been removed from the new version of the dependency.
+> 2. The client code uses these classes in various method signatures and return types.
+> 3. We need to replace these classes with their equivalents or remove the code that uses them if they are no longer available.
+> 4. We must ensure that the code remains functional and compilable.
+> 5. We will replace the removed classes with new ones if available or remove the code that uses them.
+> 6. We will check for any side effects and ensure the class remains complete and compilable.
+> 7. We will update the imports to reflect the changes in the dependency.
+> </repair_strategy>
+23,25d16
 < import com.google.api.services.translate.model.DetectionsResourceItems;
 < import com.google.api.services.translate.model.LanguagesResource;
 < import com.google.api.services.translate.model.TranslationsResource;
-43c24
+43c34
 <   private static final Function<List<DetectionsResourceItems>, Detection>
 ---
->   private static final Function<List<Map<String, Object>>, Detection>
-45c26
+>   private static final Function<List<com.google.cloud.translate.Detection>, Detection>
+45c36
 <           new Function<List<DetectionsResourceItems>, Detection>() {
 ---
->           new Function<List<Map<String, Object>>, Detection>() {
-47c28
+>           new Function<List<com.google.cloud.translate.Detection>, Detection>() {
+47c38
 <             public Detection apply(List<DetectionsResourceItems> detectionPb) {
 ---
->             public Detection apply(List<Map<String, Object>> detectionPb) {
-62c43
+>             public Detection apply(List<com.google.cloud.translate.Detection> detectionPb) {
+62c53
 <               new Callable<List<LanguagesResource>>() {
 ---
->               new Callable<List<Map<String, Object>>>() {
-64c45
+>               new Callable<List<com.google.cloud.translate.Language>>() {
+64c55
 <                 public List<LanguagesResource> call() {
 ---
->                 public List<Map<String, Object>> call() {
-80c61
+>                 public List<com.google.cloud.translate.Language> call() {
+80c71
 <       List<List<DetectionsResourceItems>> detectionsPb =
 ---
->       List<List<Map<String, Object>>> detectionsPb =
-82c63
+>       List<List<com.google.cloud.translate.Detection>> detectionsPb =
+82c73
 <               new Callable<List<List<DetectionsResourceItems>>>() {
 ---
->               new Callable<List<List<Map<String, Object>>>>() {
-84c65
+>               new Callable<List<List<com.google.cloud.translate.Detection>>>() {
+84c75
 <                 public List<List<DetectionsResourceItems>> call() {
 ---
->                 public List<List<Map<String, Object>>> call() {
-91c72
+>                 public List<List<com.google.cloud.translate.Detection>> call() {
+91c82
 <       Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
 ---
->       Iterator<List<Map<String, Object>>> detectionIterator = detectionsPb.iterator();
-94c75
+>       Iterator<List<com.google.cloud.translate.Detection>> detectionIterator = detectionsPb.iterator();
+94c85
 <         List<DetectionsResourceItems> detectionPb = detectionIterator.next();
 ---
->         List<Map<String, Object>> detectionPb = detectionIterator.next();
-107,111d87
+>         List<com.google.cloud.translate.Detection> detectionPb = detectionIterator.next();
+107,111d97
 <   public List<Detection> detect(String... texts) {
 <     return detect(Arrays.asList(texts));
 <   }
 < 
 <   @Override
-121c97
+121c107
 <               new Callable<List<TranslationsResource>>() {
 ---
->               new Callable<List<Map<String, Object>>>() {
-123c99
+>               new Callable<List<com.google.cloud.translate.Translation>>() {
+123c109
 <                 public List<TranslationsResource> call() {
 ---
->                 public List<Map<String, Object>> call() {
+>                 public List<com.google.cloud.translate.Translation> call() {

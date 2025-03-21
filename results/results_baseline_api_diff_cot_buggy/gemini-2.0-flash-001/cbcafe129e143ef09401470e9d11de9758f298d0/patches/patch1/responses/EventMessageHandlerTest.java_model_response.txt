@@ -1,42 +1,3 @@
-<fix_planning>
-The error message "cannot access org.slf4j.spi.LoggingEventAware class file for org.slf4j.spi.LoggingEventAware not found" and "Interface ch.qos.logback.classic.Logger has been removed" indicate a breaking change in the logback dependency. The code attempts to cast `LoggerFactory.getLogger` to `ch.qos.logback.classic.Logger`, which is no longer a valid class.
-
-Affected line:
-```java
-Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
-```
-
-Possible fixes:
-
-1.  Remove the cast to `ch.qos.logback.classic.Logger` and use the `org.slf4j.Logger` interface instead. This is the preferred approach as it avoids relying on internal implementation details of logback.
-
-    ```java
-    org.slf4j.Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
-    ```
-
-    Then, since `setLevel` and `addAppender` are methods of `ch.qos.logback.classic.Logger`, we need to find an alternative way to configure the logger.  We can achieve the same result by configuring the logger through logback.xml or programmatically through `LoggerContext`. However, for the sake of simplicity and minimal changes, we can avoid setting the level and adding the appender altogether, since the default configuration should be sufficient for testing purposes.
-
-2.  Attempt to configure the logger using `LoggerContext`. This would involve obtaining the `LoggerContext` and then configuring the logger. This is a more complex approach and might not be necessary for the test case.
-
-Chosen fix:
-
-The simplest and most appropriate fix is to remove the cast to `ch.qos.logback.classic.Logger` and use the `org.slf4j.Logger` interface. Then, remove the lines that configure the logger level and appender. This avoids relying on internal implementation details of logback and keeps the test case simple.
-
-```java
-org.slf4j.Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
-// logger.setLevel(Level.INFO);
-// logger.addAppender(mockLogAppender);
-```
-
-This change adheres to all the given constraints:
-
-*   It does not change the function signature of any method.
-*   It creates a variable with a different type.
-*   It removes code that directly causes a compilation error.
-*   It includes all code in the final output.
-
-</fix_planning>
-
 ```java
 package uk.gov.pay.adminusers.queue.event;
 
@@ -54,6 +15,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import uk.gov.pay.adminusers.client.ledger.model.LedgerTransaction;
 import uk.gov.pay.adminusers.client.ledger.service.LedgerService;
 import uk.gov.pay.adminusers.model.MerchantDetails;
@@ -147,9 +109,9 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        org.slf4j.Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
-        // logger.setLevel(Level.INFO);
-        // logger.addAppender(mockLogAppender);
+        Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
+        ((ch.qos.logback.classic.Logger) logger).setLevel(Level.INFO);
+        ((ch.qos.logback.classic.Logger) logger).addAppender(mockLogAppender);
     }
 
     @Test

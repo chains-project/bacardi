@@ -1,9 +1,12 @@
 package com.github.games647.changeskin.sponge.command;
 
-import org.spongepowered.api.command.Command;
-
 @FunctionalInterface
 public interface ChangeSkinCommand {
 
-    Command buildSpec();
+    CommandSpec buildSpec();
+
+    public static class CommandSpec {
+        // This stub replaces the removed Sponge CommandSpec.
+        // Implement necessary methods and fields as required by the new API.
+    }
 }

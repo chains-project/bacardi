@@ -12,10 +12,6 @@ import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
 import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
-import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
-import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
-import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
-import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -90,12 +86,7 @@ public class PubnubStreamingService {
                   LOG.debug("PubNub signal: {}", pnSignalResult.toString());
                 }
 
-                @Override
-                public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
-                  LOG.debug("PubNub file event: {}", pnFileEventResult.toString());
-                }
-
-                @Override
+                /*@Override
                 public void user(PubNub pubnub, PNUserResult pnUserResult) {
                   LOG.debug("PubNub user: {}", pnUserResult.toString());
                 }
@@ -108,13 +99,18 @@ public class PubnubStreamingService {
                 @Override
                 public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
                   LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
-                }
+                }*/
 
                 @Override
                 public void messageAction(
                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
                   LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
                 }
+
+                  @Override
+                  public void uuid(PubNub pubnub, com.pubnub.api.models.consumer.objects.PNUUIDResult pnUUIDResult) {
+                      LOG.debug("PubNub uuid: {}", pnUUIDResult.toString());
+                  }
               });
           e.onComplete();
         });

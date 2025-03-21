@@ -10,11 +10,10 @@ import com.google.inject.Inject;
 import java.util.UUID;
 
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandSource; // This import is removed in the new version
-import org.spongepowered.api.command.parameter.CommandContext; // Updated import
-import org.spongepowered.api.command.spec.CommandExecutor; // This import is removed in the new version
-import org.spongepowered.api.command.spec.CommandSpec; // This import is removed in the new version
-import org.spongepowered.api.command.args.GenericArguments; // This import is removed in the new version
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.args.GenericArguments;
+import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
@@ -22,7 +21,7 @@ import static org.spongepowered.api.command.args.GenericArguments.flags;
 import static org.spongepowered.api.command.args.GenericArguments.string;
 import static org.spongepowered.api.text.Text.of;
 
-public class SetCommand implements CommandExecutor, ChangeSkinCommand {
+public class SetCommand implements ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
     private final ChangeSkinCore core;
@@ -33,7 +32,6 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
         this.core = core;
     }
 
-    @Override
     public CommandResult execute(CommandSource src, CommandContext args) {
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
@@ -72,7 +70,6 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
         return CommandResult.success();
     }
 
-    @Override
     public CommandSpec buildSpec() {
         return CommandSpec.builder()
                 .executor(this)

@@ -1,26 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs in the line `getContainer().getLoggerManager().setThreshold( Logger.LEVEL_DEBUG );`
-   b. The API change is that `getLoggerManager()` method has been removed from `PlexusContainer` interface
-   c. Affected line: Line 37 in `setUp()` method
-   d. Potential fixes:
-      - Directly set the logger level using a different approach if available
-      - Remove the logging configuration if it's not critical
-      - Use a different logging mechanism if required
-   e. Side effects:
-      - Removing logging configuration might affect debugging capabilities
-      - Using a different approach might require additional dependencies
-   f. Constraints check:
-      - Not changing method signatures
-      - Not removing existing code unless it causes errors
-      - Maintaining all other functionality
-   g. Chosen fix:
-      - Remove the logging configuration line since it's not critical for test functionality
-      - This is the simplest solution that adheres to all constraints
-
-2. The fix will be to remove the problematic line from the `setUp()` method
-</fix_planning>
-
 ```java
 package org.codehaus.plexus.archiver;
 
@@ -58,6 +35,8 @@ public class DuplicateFilesTest
         throws Exception
     {
         super.setUp();
+        Logger logger = getContainer().getLogger();
+        logger.setThreshold( Logger.LEVEL_DEBUG );
     }
 
     public void testZipArchiver()

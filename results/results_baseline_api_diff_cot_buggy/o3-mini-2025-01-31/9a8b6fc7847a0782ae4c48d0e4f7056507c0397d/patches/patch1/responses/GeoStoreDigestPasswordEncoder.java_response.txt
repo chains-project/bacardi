@@ -24,43 +24,26 @@ import org.jasypt.digest.StandardByteDigester;
 import org.jasypt.util.password.StrongPasswordEncryptor;
 import static it.geosolutions.geostore.core.security.password.SecurityUtils.toBytes;
 
-public class GeoStoreDigestPasswordEncoder extends AbstractGeoStorePasswordEncoder {
+/**
+ * This Encoder provide encription and check of password using a digest
+ * @author Lorenzo Natali (lorenzo.natali at geo-solutions.it)
+ *
+ */
+public class GeoStoreDigestPasswordEncoder extends AbstractGeoStorePasswordEncoder{
 
-    // Local interface to replace the removed jasypt spring security PasswordEncoder.
-    public static interface PasswordEncoder {
-        String encodePassword(String rawPass);
-        boolean isPasswordValid(String encPass, String rawPass);
-    }
-
-    // Local implementation of PasswordEncoder using StrongPasswordEncryptor.
-    private static class LocalPasswordEncoder implements PasswordEncoder {
-        private final StrongPasswordEncryptor encryptor;
-
-        public LocalPasswordEncoder() {
-            this.encryptor = new StrongPasswordEncryptor();
-        }
-
-        @Override
-        public String encodePassword(String rawPass) {
-            return encryptor.encryptPassword(rawPass);
-        }
-
-        @Override
-        public boolean isPasswordValid(String encPass, String rawPass) {
-            return encryptor.checkPassword(rawPass, encPass);
-        }
-    }
-
+    /**
+     * The digest is not reversible
+     */
     public GeoStoreDigestPasswordEncoder() {
         setReversible(false);
     }
 
-    @Override
     protected PasswordEncoder createStringEncoder() {
-        return new LocalPasswordEncoder();
+        PasswordEncoder encoder = new PasswordEncoder();
+        encoder.setPasswordEncryptor(new StrongPasswordEncryptor());
+        return encoder;
     }
 
-    @Override
     protected CharArrayPasswordEncoder createCharEncoder() {
         return new CharArrayPasswordEncoder() {
             StandardByteDigester digester = new StandardByteDigester();
@@ -77,7 +60,7 @@ public class GeoStoreDigestPasswordEncoder extends AbstractGeoStorePasswordEncod
             }
             @Override
             public boolean isPasswordValid(String encPass, char[] rawPass, Object salt) {
-                return digester.matches(toBytes(rawPass), Base64.decodeBase64(encPass.getBytes()));
+                return digester.matches(toBytes(rawPass), Base64.decodeBase64(encPass.getBytes())); 
             }
         };
     }
@@ -85,5 +68,24 @@ public class GeoStoreDigestPasswordEncoder extends AbstractGeoStorePasswordEncod
     @Override
     public PasswordEncodingType getEncodingType() {
         return PasswordEncodingType.DIGEST;
+    }
+	
+    public static class PasswordEncoder {
+        private org.jasypt.util.password.PasswordEncryptor passwordEncryptor;
+        
+        public PasswordEncoder() {
+        }
+        
+        public void setPasswordEncryptor(org.jasypt.util.password.PasswordEncryptor passwordEncryptor) {
+            this.passwordEncryptor = passwordEncryptor;
+        }
+        
+        public String encodePassword(String rawPass) {
+            return this.passwordEncryptor.encryptPassword(rawPass);
+        }
+        
+        public boolean isPasswordValid(String encPass, String rawPass) {
+            return this.passwordEncryptor.checkPassword(rawPass, encPass);
+        }
     }
 }

@@ -1,14 +1,35 @@
-30c30
+30c30,32
 < import org.cactoos.collection.Filtered;
 ---
-> import org.cactoos.iterable.Filtered;
-36d35
+> import java.nio.file.Files;
+> import java.util.List;
+> import java.util.ArrayList;
+33,34d34
+< import org.cactoos.iterable.Mapped;
+< import org.cactoos.iterable.Skipped;
+36,38d35
 < import org.cactoos.scalar.CheckedScalar;
-38d36
+< import org.cactoos.scalar.Or;
 < import org.cactoos.scalar.UncheckedScalar;
-40d37
+40,41d36
 < import org.cactoos.text.SplitText;
-201,213c198,204
+< import org.cactoos.text.TextOf;
+59,60d53
+<      * @checkstyle ClassDataAbstractionCouplingCheck (500 lines)
+<      * @checkstyle MethodName (2 lines)
+96,102d88
+<      * @todo #65:30min Complete Wallet implementations with id, public RSA
+<      *  key and network id. Wallets.create(Long, String, String) must
+<      *  create a Wallet with these strings set and a constructor must be
+<      *  added to all Walletl realizations (Wallet(final long id, final String
+<      *  pubkey, final String network, final Transaction... transactions). After
+<      *  completing these implementations fix tests that uses Wallets.create()
+<      *  and all Wallet realizations.
+138d123
+<          * @checkstyle UnusedFormalParameter (2 lines)
+182d166
+<      * @checkstyle ClassDataAbstractionCouplingCheck (2 lines)
+201,213c185,191
 <             return new CheckedScalar<>(
 <                 () -> Long.parseUnsignedLong(
 <                     new ListOf<>(
@@ -24,49 +45,69 @@
 <             ).value();
 ---
 >             try {
->                 String content = new TextOf(this.path).asString();
+>                 String content = new String(Files.readAllBytes(this.path));
 >                 String[] lines = content.split("\n");
 >                 return Long.parseUnsignedLong(lines[2], 16);
 >             } catch (Exception e) {
 >                 throw new IOException(e);
 >             }
-248,250c239,243
+224,232d201
+<         // @todo #16:30min Following transactions should be ignored according
+<         //  to the whitepaper:
+<         //  a) If the transaction is negative and its signature is not valid,
+<         //  it is ignored;
+<         //  b) If the transaction makes the balance of the wallet negative,
+<         //  it is ignored;
+<         //  c) If the transaction is positive and it’s absent in the paying
+<         //  wallet (which exists at the node), it’s ignored; If the paying
+<         //  wallet doesn’t exist at the node, the transaction is ignored;
+246,262c215,234
+<             final Iterable<Transaction> ledger = this.ledger();
+<             final Iterable<Transaction> candidates = new Filtered<>(
 <                 incoming -> new Filtered<>(
 <                     origin -> new UncheckedScalar<>(
 <                         new Or(
----
->                 incoming -> new ListOf<>(
->                     new Filtered<>(
->                         origin -> {
->                             try {
->                                 return new Or(
-252,255c245,246
+<                             () -> incoming.equals(origin),
 <                             () -> incoming.id() == origin.id()
 <                                 && incoming.bnf().equals(origin.bnf()),
 <                             () -> incoming.id() == origin.id()
 <                                 && incoming.amount() < 0L,
----
->                                     () -> incoming.id() == origin.id() && incoming.bnf().equals(origin.bnf()),
->                                     () -> incoming.id() == origin.id() && incoming.amount() < 0L,
-257,258c248,252
+<                             () -> incoming.prefix().equals(origin.prefix())
 <                         )
 <                     ).value(),
+<                     ledger
+<                 ).isEmpty(),
+<                 other.ledger()
+<             );
 ---
->                                 ).value();
->                             } catch (Exception ex) {
->                                 throw new RuntimeException(ex);
->                             }
->                         },
-259a254
->                     )
-270a266,267
->             String content = new TextOf(this.path).asString();
->             String[] lines = content.split("\\n");
-272c269
+>             List<Transaction> ledgerList = new ArrayList<>();
+>             for (Transaction t : this.ledger()) {
+>                 ledgerList.add(t);
+>             }
+>             List<Transaction> candidates = new ArrayList<>();
+>             for (Transaction incoming : other.ledger()) {
+>                 boolean found = false;
+>                 for (Transaction origin : ledgerList) {
+>                     if (incoming.equals(origin)
+>                         || (incoming.id() == origin.id() && incoming.bnf().equals(origin.bnf()))
+>                         || (incoming.id() == origin.id() && incoming.amount() < 0L)
+>                         || incoming.prefix().equals(origin.prefix())) {
+>                         found = true;
+>                         break;
+>                     }
+>                 }
+>                 if (!found) {
+>                     candidates.add(incoming);
+>                 }
+>             }
+265c237
+<                 new Joined<Transaction>(ledger, candidates)
+---
+>                 new Joined<Transaction>(this.ledger(), candidates)
+271,283c243,252
+<             return new Mapped<>(
 <                 txt -> new RtTransaction(txt.asString()),
----
->                 txt -> new RtTransaction(txt),
-274,280c271
+<                 new Skipped<>(
 <                     new ListOf<>(
 <                         new SplitText(
 <                             new TextOf(this.path),
@@ -74,5 +115,21 @@
 <                         )
 <                     ),
 <                     // @checkstyle MagicNumberCheck (1 line)
+<                     5
+<                 )
+<             );
 ---
->                     new ListOf<>(lines),
+>             try {
+>                 List<String> lines = Files.readAllLines(this.path);
+>                 List<Transaction> transactions = new ArrayList<>();
+>                 for (int i = 5; i < lines.size(); i++) {
+>                     transactions.add(new RtTransaction(lines.get(i)));
+>                 }
+>                 return transactions;
+>             } catch (Exception e) {
+>                 throw new RuntimeException(e);
+>             }
+286,288d254
+<         // @todo #54:30min Implement key method. This should return the
+<         //  public RSA key of the wallet owner in Base64. Also add a unit test
+<         //  to replace WalletTest.keyIsNotYetImplemented().

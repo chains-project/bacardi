@@ -1,17 +1,20 @@
-42a43,44
+3a4
 > import org.flywaydb.core.api.configuration.FluentConfiguration;
-> 
-108,112c110,116
+108,112c109,115
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
 <                 flyway.setLocations(prop.getProperty("flyway.locations"));
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 ---
->                 FluentConfiguration configuration = new FluentConfiguration();
->                 configuration.dataSource(this.dataSource());
->                 configuration.classLoader(NisAppConfig.class.getClassLoader());
->                 configuration.locations(prop.getProperty("flyway.locations"));
->                 configuration.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 FluentConfiguration configure = new FluentConfiguration();
+>                 configure.dataSource(this.dataSource());
+>                 configure.classLoader(NisAppConfig.class.getClassLoader());
+>                 configure.locations(prop.getProperty("flyway.locations"));
+>                 configure.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 > 
->                 final Flyway flyway = new Flyway(configuration);
+>                 final org.flywaydb.core.Flyway flyway = new Flyway(configure);
+247c250
+<                 final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<ImportanceCalculator>>() {
+---
+>                 final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<ImportanceCalculator>>>() {

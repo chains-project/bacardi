@@ -43,11 +43,13 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.HttpHeaders;
 import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
+import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
+import org.hamcrest.TypeSafeMatcher;
 import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.collection.IsEmptyIterable.emptyIterableOf;
-import static org.hamcrest.collection.IsIterableContainingInAnyOrder.hasItems;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.collection.IsIterableContaining.hasItem;
 
 /**
  * REST response.
@@ -209,7 +211,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, hasItems(value));
+        return this.assertHeader(name, hasItem(value));
     }
 
     /**
@@ -283,7 +285,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            org.hamcrest.CoreMatchers.notNullValue()
+            notNullValue()
         );
         assert cookie != null;
         return cookie;
@@ -326,10 +328,27 @@ public final class RestResponse extends AbstractResponse {
             this.status = sts;
         }
 
-        @Override
         public boolean matches(final Object resp) {
             return Response.class.cast(resp).status() == this.status;
         }
     }
-
+    
+    /**
+     * Creates a matcher for an empty iterable of a given type.
+     * @param <T> type of the iterable elements
+     * @param cls class of the iterable elements 
+     * @return Matcher that checks if an iterable is empty
+     */
+    private static <T> Matcher<Iterable<T>> emptyIterableOf(final Class<T> cls) {
+        return new TypeSafeMatcher<Iterable<T>>() {
+            @Override
+            public void describeTo(final Description description) {
+                description.appendText("an empty iterable");
+            }
+            @Override
+            protected boolean matchesSafely(final Iterable<T> iterable) {
+                return !iterable.iterator().hasNext();
+            }
+        };
+    }
 }

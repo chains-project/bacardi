@@ -19,7 +19,8 @@ public class SkinApplier extends SharedApplier {
     private final Player invoker;
     private final Player receiver;
 
-    public SkinApplier(ChangeSkinSponge plugin, Player invoker, Player receiver, SkinModel targetSkin, boolean keepSkin) {
+    public SkinApplier(ChangeSkinSponge plugin, Player invoker, Player receiver, SkinModel targetSkin
+            , boolean keepSkin) {
         super(plugin.getCore(), targetSkin, keepSkin);
 
         this.plugin = plugin;
@@ -76,22 +77,15 @@ public class SkinApplier extends SharedApplier {
         sendUpdateSelf();
 
         //triggers an update for others player to see the new skin
-        receiver.offer(Sponge.getDataManager().getRegistry().getValue("vanish").get(), true);
-        receiver.offer(Sponge.getDataManager().getRegistry().getValue("vanish").get(), false);
+        receiver.offer(receiver.getGameProfile().get(Keys.VANISH).orElse(false));
+        receiver.offer(receiver.getGameProfile().get(Keys.VANISH).orElse(false));
     }
 
     private void sendUpdateSelf() {
         receiver.getTabList().removeEntry(receiver.getUniqueId());
-        receiver.getTabList().addEntry(TabListEntry.builder()
-                .displayName(receiver.getDisplayNameData().displayName().get())
-                .latency(receiver.getConnection().getLatency())
-                .list(receiver.getTabList())
-                .gameMode(receiver.getGameModeData().type().get())
-                .profile(receiver.getProfile())
-                .build());
+        receiver.getTabList().addEntry(receiver.getTabList().createEntry(receiver));
 
         Location<World> oldLocation = receiver.getLocation();
-        Vector3d rotation = receiver.getRotation();
         World receiverWorld = receiver.getWorld();
         Sponge.getServer().getWorlds()
                 .stream()
@@ -99,7 +93,7 @@ public class SkinApplier extends SharedApplier {
                 .findFirst()
                 .ifPresent(world -> {
                     receiver.setLocation(world.getSpawnLocation());
-                    receiver.setLocationAndRotation(oldLocation, rotation);
+                    receiver.setLocation(oldLocation);
                 });
     }
 }

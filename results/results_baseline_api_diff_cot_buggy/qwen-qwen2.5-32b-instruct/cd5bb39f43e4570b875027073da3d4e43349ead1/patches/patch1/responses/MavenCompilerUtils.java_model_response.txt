@@ -19,8 +19,7 @@ package org.simplify4u.plugins.utils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.repository.RepositorySystem;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import org.apache.maven.shared.utils.xml.Xpp3Dom;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -69,20 +68,16 @@ public final class MavenCompilerUtils {
         if (config == null) {
             return emptySet();
         }
-        if (config instanceof Element) {
-            final Element configElement = (Element) config;
-            final NodeList annotationProcessorPaths = configElement.getElementsByTagName("annotationProcessorPaths");
-            return stream(0, annotationProcessorPaths.getLength())
-                    .flatMap(i -> stream(0, annotationProcessorPaths.item(i).getChildNodes().getLength())
-                            .mapToObj(annotationProcessorPaths.item(i).getChildNodes()::item)
-                            .filter(node -> "path".equals(node.getNodeName()))
-                            .flatMap(path -> stream(0, path.getChildNodes().getLength())
-                                    .mapToObj(path.getChildNodes()::item)
-                                    .filter(child -> child.getNodeName().equals("groupId") || child.getNodeName().equals("artifactId") || child.getNodeName().equals("version"))
-                                    .map(node -> node.getTextContent())
-                                    .collect(Collectors.toList())
-                                    .toArray(new String[0])))
-                    .map(nodes -> system.createArtifact(nodes[0], nodes[1], nodes[2], PACKAGING))
+        if (config instanceof Xpp3Dom) {
+            return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
+                    .flatMap(aggregate -> stream(aggregate.getChildren("path")))
+                    .map(processor -> system.createArtifact(
+                            extractChildValue(processor, "groupId"),
+                            extractChildValue(processor, "artifactId"),
+                            extractChildValue(processor, "version"),
+                            PACKAGING))
+                    // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
+                    // therefore there is little use in logging incomplete paths that are filtered out.
                     .filter(a -> !a.getGroupId().isEmpty())
                     .filter(a -> !a.getArtifactId().isEmpty())
                     .filter(a -> !a.getVersion().isEmpty())
@@ -93,6 +88,18 @@ public final class MavenCompilerUtils {
         // simply return an empty set.
         throw new UnsupportedOperationException("Please report that an unsupported type of configuration container" +
                 " was encountered: " + config.getClass());
+    }
+
+    /**
+     * Extract child value if child is present, or return empty string if absent.
+     *
+     * @param node the parent node
+     * @param name the child node name
+     * @return Returns child value if child node present or otherwise empty string.
+     */
+    private static String extractChildValue(Xpp3Dom node, String name) {
+        final Xpp3Dom child = node.getChild(name);
+        return child == null ? "" : child.getValue();
     }
 }
 ```

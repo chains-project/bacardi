@@ -9,20 +9,35 @@
 <     private final CommandSource invoker;
 ---
 >     private final Player invoker;
-26,27c22
+26c22
 <     public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
-<             , boolean keepSkin) {
 ---
->     public SkinApplier(ChangeSkinSponge plugin, Player invoker, Player receiver, SkinModel targetSkin, boolean keepSkin) {
-42,43c37,38
+>     public SkinApplier(ChangeSkinSponge plugin, Player invoker, Player receiver, SkinModel targetSkin
+42,43c38,39
 <         if (invoker instanceof Player) {
 <             UUID uniqueId = ((Player) invoker).getUniqueId();
 ---
 >         if (invoker != null) {
 >             UUID uniqueId = invoker.getUniqueId();
-84,85c79,80
+84,85c80,81
 <         receiver.offer(Keys.VANISH, true);
 <         receiver.offer(Keys.VANISH, false);
 ---
->         receiver.offer(Sponge.getDataManager().getRegistry().getValue("vanish").get(), true);
->         receiver.offer(Sponge.getDataManager().getRegistry().getValue("vanish").get(), false);
+>         receiver.offer(receiver.getGameProfile().get(Keys.VANISH).orElse(false));
+>         receiver.offer(receiver.getGameProfile().get(Keys.VANISH).orElse(false));
+90,96c86
+<         receiver.getTabList().addEntry(TabListEntry.builder()
+<                 .displayName(receiver.getDisplayNameData().displayName().get())
+<                 .latency(receiver.getConnection().getLatency())
+<                 .list(receiver.getTabList())
+<                 .gameMode(receiver.getGameModeData().type().get())
+<                 .profile(receiver.getProfile())
+<                 .build());
+---
+>         receiver.getTabList().addEntry(receiver.getTabList().createEntry(receiver));
+99d88
+<         Vector3d rotation = receiver.getRotation();
+107c96
+<                     receiver.setLocationAndRotation(oldLocation, rotation);
+---
+>                     receiver.setLocation(oldLocation);

@@ -1,32 +1,3 @@
-/*
- * Copyright (c) 2012-2022, jcabi.com
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met: 1) Redistributions of source code must retain the above
- * copyright notice, this list of conditions and the following
- * disclaimer. 2) Redistributions in binary form must reproduce the above
- * copyright notice, this list of conditions and the following
- * disclaimer in the documentation and/or other materials provided
- * with the distribution. 3) Neither the name of the jcabi.com nor
- * the names of its contributors may be used to endorse or promote
- * products derived from this software without specific prior written
- * permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
- * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
- * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
- * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- * OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 package com.jcabi.simpledb;
 
 import com.amazonaws.services.simpledb.model.SelectRequest;
@@ -55,13 +26,16 @@ final class RegionITCase {
     private static final String SECRET =
         System.getProperty("failsafe.sdb.secret");
 
+    private static final int TEN = 10;
+    private static final int EIGHT = 8;
+
     @Test
     void putsAndRemovesIndividualItems() {
         final Domain domain = this.domain();
         try {
-            final String name = RandomStringUtils.randomAlphanumeric(10);
-            final String attr = RandomStringUtils.randomAlphabetic(8);
-            final String value = RandomStringUtils.randomAlphanumeric(10);
+            final String name = RandomStringUtils.randomAlphanumeric(TEN);
+            final String attr = RandomStringUtils.randomAlphabetic(EIGHT);
+            final String value = RandomStringUtils.randomAlphanumeric(TEN);
             for (int idx = 0; idx < 2; ++idx) {
                 domain.item(name).put(attr, value);
                 MatcherAssert.assertThat(
@@ -107,7 +81,7 @@ final class RegionITCase {
     void selectsManyItems() {
         final Domain domain = this.domain();
         try {
-            for (int idx = 0; idx < 10; ++idx) {
+            for (int idx = 0; idx < TEN; ++idx) {
                 domain.item(String.format("i-%d", idx)).put("hey", "");
             }
             MatcherAssert.assertThat(
@@ -116,7 +90,7 @@ final class RegionITCase {
                         String.format("SELECT * FROM `%s`", domain.name())
                     ).withConsistentRead(true)
                 ),
-                Matchers.iterableWithSize(10)
+                Matchers.iterableWithSize(TEN)
             );
         } finally {
             domain.drop();

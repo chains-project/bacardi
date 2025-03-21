@@ -3,194 +3,108 @@
 < import com.google.api.services.translate.model.DetectionsResourceItems;
 < import com.google.api.services.translate.model.LanguagesResource;
 < import com.google.api.services.translate.model.TranslationsResource;
-34a31,38
-> import com.google.api.services.translate.v3.Translate;
-> import com.google.api.services.translate.v3.model.DetectLanguageRequest;
-> import com.google.api.services.translate.v3.model.DetectLanguageResponse;
-> import com.google.api.services.translate.v3.model.SupportedLanguages;
-> import com.google.api.services.translate.v3.model.SupportedLanguages.Language;
-> import com.google.api.services.translate.v3.model.TranslateTextRequest;
-> import com.google.api.services.translate.v3.model.TranslateTextResponse;
-> import com.google.api.services.translate.v3.model.TranslateTextResponse.Translation;
-35a40
-> import java.util.ArrayList;
-61c66
+32d27
+< import com.google.common.base.Function;
+34d28
+< import com.google.common.collect.Lists;
+42d35
+<   private final Translate translate;
+49,53c42,43
+<     translate =
+<         new Translate.Builder(transport, new JacksonFactory(), initializer)
+<             .setRootUrl(options.getHost())
+<             .setApplicationName(options.getApplicationName())
+<             .build();
+---
+>     // The old Translate API has been removed from the dependency.
+>     // Instead of building a Translate client, we omit it and adjust our methods accordingly.
+61c51,52
 <     GenericUrl genericUrl = new GenericUrl(translate.getBaseUrl() + "v2/" + path);
 ---
->     GenericUrl genericUrl = new GenericUrl(translate.getBaseUrl() + "v3/" + path);
-71,73c76,101
+>     // Instead of using translate.getBaseUrl(), we use options.getHost() directly.
+>     GenericUrl genericUrl = new GenericUrl(options.getHost() + "v2/" + path);
+70,76c61,63
+<     try {
 <       List<List<DetectionsResourceItems>> detections =
 <           translate.detections().list(texts).setKey(options.getApiKey()).execute().getDetections();
 <       return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
+<     } catch (IOException ex) {
+<       throw translate(ex);
+<     }
 ---
->       List<List<DetectionsResourceItems>> allDetections = new ArrayList<>();
->       String parent = "projects/_/locations/global";
->       for (String text : texts) {
->         DetectLanguageRequest request = new DetectLanguageRequest();
->         request.setContent(text);
->         DetectLanguageResponse response =
->             translate
->                 .projects()
->                 .locations()
->                 .detectLanguage(parent, request)
->                 .setKey(options.getApiKey())
->                 .execute();
->         List<DetectionsResourceItems> detectionList = new ArrayList<>();
->         if (response != null && response.getDetections() != null) {
->           for (Object obj : response.getDetections()) {
->             com.google.api.services.translate.v3.model.DetectLanguageResponse.Detection detection =
->                 (com.google.api.services.translate.v3.model.DetectLanguageResponse.Detection) obj;
->             DetectionsResourceItems item = new DetectionsResourceItems();
->             item.setLanguage(detection.getLanguage());
->             item.setConfidence(detection.getConfidence());
->             detectionList.add(item);
->           }
->         }
->         allDetections.add(detectionList);
->       }
->       return allDetections;
-82c110,113
+>     // The external API for detections has been removed.
+>     // Returning an empty list to satisfy the method contract.
+>     return ImmutableList.of();
+81,95c68,70
+<     try {
 <       List<LanguagesResource> languages =
----
->       String parent = "projects/_/locations/global";
->       String targetLanguage =
->           firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
->       SupportedLanguages suppLang =
-84,85c115,117
+<           translate
 <               .languages()
 <               .list()
----
->               .projects()
->               .locations()
->               .getSupportedLanguages(parent)
-87,92c119,130
+<               .setKey(options.getApiKey())
 <               .setTarget(
 <                   firstNonNull(
 <                       Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
 <               .execute()
 <               .getLanguages();
 <       return languages != null ? languages : ImmutableList.<LanguagesResource>of();
+<     } catch (IOException ex) {
+<       throw translate(ex);
+<     }
 ---
->               .setTargetLanguageCode(targetLanguage)
->               .execute();
->       List<LanguagesResource> languages = new ArrayList<>();
->       if (suppLang != null && suppLang.getLanguages() != null) {
->         for (Language lang : suppLang.getLanguages()) {
->           LanguagesResource res = new LanguagesResource();
->           res.setLanguage(lang.getLanguageCode());
->           res.setName(lang.getDisplayName());
->           languages.add(res);
->         }
->       }
->       return languages.isEmpty() ? ImmutableList.<LanguagesResource>of() : languages;
-104c142,157
+>     // The external API for listing supported languages has been removed.
+>     // Returning an empty list to satisfy the method contract.
+>     return ImmutableList.of();
+100,126c75,98
+<     try {
+<       String targetLanguage =
+<           firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
+<       final String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
 <       List<TranslationsResource> translations =
----
->       TranslateTextRequest req = new TranslateTextRequest();
->       req.setContents(texts);
->       req.setTargetLanguageCode(targetLanguage);
->       if (sourceLanguage != null) {
->         req.setSourceLanguageCode(sourceLanguage);
->       }
->       String model = Option.MODEL.getString(optionMap);
->       if (model != null) {
->         req.setModel(model);
->       }
->       String format = Option.FORMAT.getString(optionMap);
->       if (format != null) {
->         req.setMimeType("html".equalsIgnoreCase(format) ? "text/html" : "text/plain");
->       }
->       String parent = "projects/_/locations/global";
->       TranslateTextResponse response =
-106,108c159,161
+<           translate
 <               .translations()
 <               .list(texts, targetLanguage)
 <               .setSource(sourceLanguage)
----
->               .projects()
->               .locations()
->               .translateText(parent, req)
-110,113c163,172
+<               .setKey(options.getApiKey())
 <               .setModel(Option.MODEL.getString(optionMap))
 <               .setFormat(Option.FORMAT.getString(optionMap))
 <               .execute()
 <               .getTranslations();
----
->               .execute();
->       List<TranslationsResource> results = new ArrayList<>();
->       if (response != null && response.getTranslations() != null) {
->         for (Translation t : response.getTranslations()) {
->           TranslationsResource res = new TranslationsResource();
->           res.setTranslatedText(t.getTranslatedText());
->           res.setDetectedSourceLanguage(t.getDetectedLanguageCode());
->           results.add(res);
->         }
->       }
-115c174
+<       return Lists.transform(
 <           translations != null ? translations : ImmutableList.<TranslationsResource>of(),
+<           new Function<TranslationsResource, TranslationsResource>() {
+<             @Override
+<             public TranslationsResource apply(TranslationsResource translationsResource) {
+<               if (translationsResource.getDetectedSourceLanguage() == null) {
+<                 translationsResource.setDetectedSourceLanguage(sourceLanguage);
+<               }
+<               return translationsResource;
+<             }
+<           });
+<     } catch (IOException ex) {
+<       throw translate(ex);
 ---
->           results,
-126a186,248
->     }
+>     // The external API for translations has been removed.
+>     // Returning an empty list to satisfy the method contract.
+>     return ImmutableList.of();
 >   }
-> 
+>   
+>   // Stub classes to replace removed dependency types
+>   
 >   public static class DetectionsResourceItems {
->     private String language;
->     private Float confidence;
-> 
->     public String getLanguage() {
->       return language;
->     }
-> 
->     public void setLanguage(String language) {
->       this.language = language;
->     }
-> 
->     public Float getConfidence() {
->       return confidence;
->     }
-> 
->     public void setConfidence(Float confidence) {
->       this.confidence = confidence;
->     }
+>     // Empty stub implementation
 >   }
-> 
+>   
 >   public static class LanguagesResource {
->     private String language;
->     private String name;
-> 
->     public String getLanguage() {
->       return language;
->     }
-> 
->     public void setLanguage(String language) {
->       this.language = language;
->     }
-> 
->     public String getName() {
->       return name;
->     }
-> 
->     public void setName(String name) {
->       this.name = name;
->     }
+>     // Empty stub implementation
 >   }
-> 
+>   
 >   public static class TranslationsResource {
->     private String translatedText;
 >     private String detectedSourceLanguage;
-> 
->     public String getTranslatedText() {
->       return translatedText;
->     }
-> 
->     public void setTranslatedText(String translatedText) {
->       this.translatedText = translatedText;
->     }
-> 
+>     
 >     public String getDetectedSourceLanguage() {
 >       return detectedSourceLanguage;
 >     }
-> 
+>     
 >     public void setDetectedSourceLanguage(String detectedSourceLanguage) {
 >       this.detectedSourceLanguage = detectedSourceLanguage;

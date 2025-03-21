@@ -64,7 +64,7 @@ public class MarcFactory {
 
   public static BibliographicRecord create(JsonPathCache cache, MarcVersion version) {
     var marcRecord = new Marc21Record();
-    for (var branch : schema.getPaths()) { // Changed from JsonBranch to var
+    for (JsonBranch branch : schema.getPaths()) {
       if (branch.getParent() != null)
         continue;
       switch (branch.getLabel()) {
@@ -310,8 +310,8 @@ public class MarcFactory {
     return field;
   }
 
-  private static List<String> extractList(JsonPathCache cache, Object branch) { // Changed JsonBranch to Object
-    List<XmlFieldInstance> instances = cache.get(branch.getJsonPath()); // Adjusted to use Object
+  private static List<String> extractList(JsonPathCache cache, String jsonPath) {
+    List<XmlFieldInstance> instances = cache.get(jsonPath);
     List<String> values = new ArrayList<>();
     if (instances != null)
       for (XmlFieldInstance instance : instances)
@@ -319,8 +319,8 @@ public class MarcFactory {
     return values;
   }
 
-  private static String extractFirst(JsonPathCache cache, Object branch) { // Changed JsonBranch to Object
-    List<String> list = extractList(cache, branch); // Adjusted to use Object
+  private static String extractFirst(JsonPathCache cache, String jsonPath) {
+    List<String> list = extractList(cache, jsonPath);
     if (!list.isEmpty())
       return list.get(0);
     return null;

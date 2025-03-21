@@ -1,24 +1,8 @@
-20c20,21
+20d19
 < import com.google.cloud.pubsublite.PublishMetadata;
----
-> // Removed deprecated PublishMetadata import since the class has been removed.
-> // import com.google.cloud.pubsublite.PublishMetadata;
-32a34,35
->   // Retaining the framework constant; note that although it is no longer used in the builder
->   // (since setContext() has been removed), we keep it to minimize changes in case it is needed elsewhere.
-35,36c38,40
-<   @Override
+36c35
 <   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
 ---
->   // Updated the return type from Publisher<PublishMetadata> to Publisher<Void>
->   // since the PublishMetadata class has been removed from the dependency.
 >   public Publisher<Void> newPublisher(Map<String, String> params) {
-44c48,49
-<             .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
----
->             .setLocation(
->                 CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
-53c58
+53d51
 <                 .setContext(PubsubContext.of(FRAMEWORK))
----
->                 // Removed the call to setContext(PubsubContext) which has been removed in the new API.

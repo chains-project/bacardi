@@ -1,31 +1,14 @@
-<fix_planning>
-a. Relevant parts of the code and API changes:
-   - The code uses `javax.mvc.Models` which has been removed in the new version.
-   - The new version introduces `jakarta.mvc.Models` as a replacement.
-
-b. Specific API changes causing the issue:
-   - The removal of `javax.mvc.Models` and the introduction of `jakarta.mvc.Models` in the new version of the dependency.
-
-c. Affected lines of code:
-   - Line 29: `Models models;`
-
-d. Potential fixes for each affected line:
-   - Replace `javax.mvc.Models` with `jakarta.mvc.Models`.
-
-e. Potential side effects of the proposed changes:
-   - No side effects are expected as the replacement is a direct update to the new API.
-
-f. Adherence to constraints:
-   - The fix does not change the function signature.
-   - No new variables are created.
-   - The `@Override` annotation remains as the method signature has not changed.
-   - The import statement is updated to reflect the new package name.
-   - No existing code is removed.
-   - The entire class is included in the final output.
-
-g. Summary of the chosen fix:
-   - The best solution is to update the import statement and the type of the `models` variable to use `jakarta.mvc.Models` instead of `javax.mvc.Models`.
-</fix_planning>
+```java
+<repair_strategy>
+1. The error is caused by the removal of the class `javax.mvc.Models` and the introduction of `jakarta.mvc.Models`.
+2. The method signatures and usage of `Models` should remain the same.
+3. The client code needs to update the import statement for `Models`.
+4. The import statement for `Models` must be updated to `jakarta.mvc.Models`.
+5. No other changes are necessary.
+6. The change should not affect other parts of the code.
+7. The class should compile successfully after the import statement is updated.
+8. The import statement for `Models` needs to be updated.
+</repair_strategy>
 
 ```java
 /*
@@ -56,7 +39,7 @@ public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFound
     //private static Logger log = Logger.getLogger(PostNotFoundExceptionMapper.class.getName());
 
     @Inject
-    Models models; // Updated type
+    Models models;
 
     @Override
     public Response toResponse(TaskNotFoundException exception) {

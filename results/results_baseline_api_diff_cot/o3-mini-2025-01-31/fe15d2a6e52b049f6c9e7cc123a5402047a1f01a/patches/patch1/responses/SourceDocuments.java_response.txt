@@ -14,142 +14,75 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.datatype.XMLGregorianCalendar;
+import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
-import org.jvnet.jaxb2_commons.lang.ObjectLocator;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "movementOfGoods",
-    "payments",
     "salesInvoices",
-    "workingDocuments"
+    "movementOfGoods",
+    "workingDocuments",
+    "payments"
 })
 @XmlRootElement(name = "SourceDocuments")
-public class SourceDocuments
-    implements ToString2
-{
+public class SourceDocuments implements ToString2 {
 
-    @XmlElement(name = "MovementOfGoods")
-    protected SourceDocuments.MovementOfGoods movementOfGoods;
-    @XmlElement(name = "Payments")
-    protected SourceDocuments.Payments payments;
     @XmlElement(name = "SalesInvoices")
     protected SourceDocuments.SalesInvoices salesInvoices;
+    @XmlElement(name = "MovementOfGoods")
+    protected SourceDocuments.MovementOfGoods movementOfGoods;
     @XmlElement(name = "WorkingDocuments")
     protected SourceDocuments.WorkingDocuments workingDocuments;
+    @XmlElement(name = "Payments")
+    protected SourceDocuments.Payments payments;
 
-    /**
-     * Gets the value of the movementOfGoods property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link SourceDocuments.MovementOfGoods }
-     *     
-     */
-    public SourceDocuments.MovementOfGoods getMovementOfGoods() {
-        return movementOfGoods;
-    }
-
-    /**
-     * Sets the value of the movementOfGoods property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link SourceDocuments.MovementOfGoods }
-     *     
-     */
-    public void setMovementOfGoods(SourceDocuments.MovementOfGoods value) {
-        this.movementOfGoods = value;
-    }
-
-    /**
-     * Gets the value of the payments property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link SourceDocuments.Payments }
-     *     
-     */
-    public SourceDocuments.Payments getPayments() {
-        return payments;
-    }
-
-    /**
-     * Sets the value of the payments property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link SourceDocuments.Payments }
-     *     
-     */
-    public void setPayments(SourceDocuments.Payments value) {
-        this.payments = value;
-    }
-
-    /**
-     * Gets the value of the salesInvoices property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link SourceDocuments.SalesInvoices }
-     *     
-     */
     public SourceDocuments.SalesInvoices getSalesInvoices() {
         return salesInvoices;
     }
 
-    /**
-     * Sets the value of the salesInvoices property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link SourceDocuments.SalesInvoices }
-     *     
-     */
     public void setSalesInvoices(SourceDocuments.SalesInvoices value) {
         this.salesInvoices = value;
     }
 
-    /**
-     * Gets the value of the workingDocuments property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link SourceDocuments.WorkingDocuments }
-     *     
-     */
+    public SourceDocuments.MovementOfGoods getMovementOfGoods() {
+        return movementOfGoods;
+    }
+
+    public void setMovementOfGoods(SourceDocuments.MovementOfGoods value) {
+        this.movementOfGoods = value;
+    }
+
     public SourceDocuments.WorkingDocuments getWorkingDocuments() {
         return workingDocuments;
     }
 
-    /**
-     * Sets the value of the workingDocuments property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link SourceDocuments.WorkingDocuments }
-     *     
-     */
     public void setWorkingDocuments(SourceDocuments.WorkingDocuments value) {
         this.workingDocuments = value;
     }
 
+    public SourceDocuments.Payments getPayments() {
+        return payments;
+    }
+
+    public void setPayments(SourceDocuments.Payments value) {
+        this.payments = value;
+    }
+
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+        final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
     }
 
     @Override
-    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+    public StringBuilder append(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         strategy.appendStart(locator, this, buffer);
         appendFields(locator, buffer, strategy);
         strategy.appendEnd(locator, this, buffer);
@@ -157,26 +90,26 @@ public class SourceDocuments
     }
 
     @Override
-    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-        {
-            SourceDocuments.MovementOfGoods theMovementOfGoods;
-            theMovementOfGoods = this.getMovementOfGoods();
-            strategy.appendField(locator, this, "movementOfGoods", buffer, theMovementOfGoods, (this.movementOfGoods!= null));
-        }
-        {
-            SourceDocuments.Payments thePayments;
-            thePayments = this.getPayments();
-            strategy.appendField(locator, this, "payments", buffer, thePayments, (this.payments!= null));
-        }
+    public StringBuilder appendFields(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         {
             SourceDocuments.SalesInvoices theSalesInvoices;
             theSalesInvoices = this.getSalesInvoices();
             strategy.appendField(locator, this, "salesInvoices", buffer, theSalesInvoices, (this.salesInvoices!= null));
         }
         {
+            SourceDocuments.MovementOfGoods theMovementOfGoods;
+            theMovementOfGoods = this.getMovementOfGoods();
+            strategy.appendField(locator, this, "movementOfGoods", buffer, theMovementOfGoods, (this.movementOfGoods!= null));
+        }
+        {
             SourceDocuments.WorkingDocuments theWorkingDocuments;
             theWorkingDocuments = this.getWorkingDocuments();
             strategy.appendField(locator, this, "workingDocuments", buffer, theWorkingDocuments, (this.workingDocuments!= null));
+        }
+        {
+            SourceDocuments.Payments thePayments;
+            thePayments = this.getPayments();
+            strategy.appendField(locator, this, "payments", buffer, thePayments, (this.payments!= null));
         }
         return buffer;
     }
@@ -187,9 +120,7 @@ public class SourceDocuments
         "totalQuantityIssued",
         "stockMovement"
     })
-    public static class MovementOfGoods
-        implements ToString2
-    {
+    public static class MovementOfGoods implements ToString2 {
 
         @XmlElement(name = "NumberOfMovementLines", required = true)
         @XmlSchemaType(name = "nonNegativeInteger")
@@ -199,75 +130,22 @@ public class SourceDocuments
         @XmlElement(name = "StockMovement")
         protected List<SourceDocuments.MovementOfGoods.StockMovement> stockMovement;
 
-        /**
-         * Gets the value of the numberOfMovementLines property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link BigInteger }
-         *     
-         */
         public BigInteger getNumberOfMovementLines() {
             return numberOfMovementLines;
         }
 
-        /**
-         * Sets the value of the numberOfMovementLines property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link BigInteger }
-         *     
-         */
         public void setNumberOfMovementLines(BigInteger value) {
             this.numberOfMovementLines = value;
         }
 
-        /**
-         * Gets the value of the totalQuantityIssued property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link BigDecimal }
-         *     
-         */
         public BigDecimal getTotalQuantityIssued() {
             return totalQuantityIssued;
         }
 
-        /**
-         * Sets the value of the totalQuantityIssued property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link BigDecimal }
-         *     
-         */
         public void setTotalQuantityIssued(BigDecimal value) {
             this.totalQuantityIssued = value;
         }
 
-        /**
-         * Gets the value of the stockMovement property.
-         * 
-         * <p>
-         * This accessor method returns a reference to the live list,
-         * not a snapshot. Therefore any modification you make to the
-         * returned list will be present inside the JAXB object.
-         * 
-         * <p>
-         * For example, to add a new item, do as follows:
-         * <pre>
-         *    getStockMovement().add(newItem);
-         * </pre>
-         * 
-         * 
-         * <p>
-         * Objects of the following type(s) are allowed in the list
-         * {@link SourceDocuments.MovementOfGoods.StockMovement }
-         * 
-         * 
-         */
         public List<SourceDocuments.MovementOfGoods.StockMovement> getStockMovement() {
             if (stockMovement == null) {
                 stockMovement = new ArrayList<SourceDocuments.MovementOfGoods.StockMovement>();
@@ -277,14 +155,14 @@ public class SourceDocuments
 
         @Override
         public String toString() {
-            final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+            final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
             final StringBuilder buffer = new StringBuilder();
             append(null, buffer, strategy);
             return buffer.toString();
         }
 
         @Override
-        public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+        public StringBuilder append(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
             strategy.appendStart(locator, this, buffer);
             appendFields(locator, buffer, strategy);
             strategy.appendEnd(locator, this, buffer);
@@ -292,7 +170,7 @@ public class SourceDocuments
         }
 
         @Override
-        public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+        public StringBuilder appendFields(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
             {
                 BigInteger theNumberOfMovementLines;
                 theNumberOfMovementLines = this.getNumberOfMovementLines();
@@ -336,9 +214,7 @@ public class SourceDocuments
             "line",
             "documentTotals"
         })
-        public static class StockMovement
-            implements ToString2
-        {
+        public static class StockMovement implements ToString2 {
 
             @XmlElement(name = "DocumentNumber", required = true)
             protected String documentNumber;
@@ -389,508 +265,166 @@ public class SourceDocuments
             @XmlElement(name = "DocumentTotals", required = true)
             protected SourceDocuments.MovementOfGoods.StockMovement.DocumentTotals documentTotals;
 
-            /**
-             * Gets the value of the documentNumber property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getDocumentNumber() {
                 return documentNumber;
             }
 
-            /**
-             * Sets the value of the documentNumber property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setDocumentNumber(String value) {
                 this.documentNumber = value;
             }
 
-            /**
-             * Gets the value of the atcud property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getATCUD() {
                 return atcud;
             }
 
-            /**
-             * Sets the value of the atcud property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setATCUD(String value) {
                 this.atcud = value;
             }
 
-            /**
-             * Gets the value of the documentStatus property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus }
-             *     
-             */
             public SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus getDocumentStatus() {
                 return documentStatus;
             }
 
-            /**
-             * Sets the value of the documentStatus property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus }
-             *     
-             */
             public void setDocumentStatus(SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus value) {
                 this.documentStatus = value;
             }
 
-            /**
-             * Gets the value of the hash property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getHash() {
                 return hash;
             }
 
-            /**
-             * Sets the value of the hash property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setHash(String value) {
                 this.hash = value;
             }
 
-            /**
-             * Gets the value of the hashControl property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getHashControl() {
                 return hashControl;
             }
 
-            /**
-             * Sets the value of the hashControl property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setHashControl(String value) {
                 this.hashControl = value;
             }
 
-            /**
-             * Gets the value of the period property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link Integer }
-             *     
-             */
             public Integer getPeriod() {
                 return period;
             }
 
-            /**
-             * Sets the value of the period property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link Integer }
-             *     
-             */
             public void setPeriod(Integer value) {
                 this.period = value;
             }
 
-            /**
-             * Gets the value of the movementDate property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public XMLGregorianCalendar getMovementDate() {
                 return movementDate;
             }
 
-            /**
-             * Sets the value of the movementDate property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public void setMovementDate(XMLGregorianCalendar value) {
                 this.movementDate = value;
             }
 
-            /**
-             * Gets the value of the movementType property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getMovementType() {
                 return movementType;
             }
 
-            /**
-             * Sets the value of the movementType property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setMovementType(String value) {
                 this.movementType = value;
             }
 
-            /**
-             * Gets the value of the systemEntryDate property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public XMLGregorianCalendar getSystemEntryDate() {
                 return systemEntryDate;
             }
 
-            /**
-             * Sets the value of the systemEntryDate property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public void setSystemEntryDate(XMLGregorianCalendar value) {
                 this.systemEntryDate = value;
             }
 
-            /**
-             * Gets the value of the transactionID property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getTransactionID() {
                 return transactionID;
             }
 
-            /**
-             * Sets the value of the transactionID property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setTransactionID(String value) {
                 this.transactionID = value;
             }
 
-            /**
-             * Gets the value of the customerID property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getCustomerID() {
                 return customerID;
             }
 
-            /**
-             * Sets the value of the customerID property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setCustomerID(String value) {
                 this.customerID = value;
             }
 
-            /**
-             * Gets the value of the supplierID property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getSupplierID() {
                 return supplierID;
             }
 
-            /**
-             * Sets the value of the supplierID property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setSupplierID(String value) {
                 this.supplierID = value;
             }
 
-            /**
-             * Gets the value of the sourceID property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getSourceID() {
                 return sourceID;
             }
 
-            /**
-             * Sets the value of the sourceID property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setSourceID(String value) {
                 this.sourceID = value;
             }
 
-            /**
-             * Gets the value of the eacCode property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getEACCode() {
                 return eacCode;
             }
 
-            /**
-             * Sets the value of the eacCode property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setEACCode(String value) {
                 this.eacCode = value;
             }
 
-            /**
-             * Gets the value of the movementComments property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getMovementComments() {
                 return movementComments;
             }
 
-            /**
-             * Sets the value of the movementComments property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setMovementComments(String value) {
                 this.movementComments = value;
             }
 
-            /**
-             * Gets the value of the shipTo property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link ShippingPointStructure }
-             *     
-             */
             public ShippingPointStructure getShipTo() {
                 return shipTo;
             }
 
-            /**
-             * Sets the value of the shipTo property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link ShippingPointStructure }
-             *     
-             */
             public void setShipTo(ShippingPointStructure value) {
                 this.shipTo = value;
             }
 
-            /**
-             * Gets the value of the shipFrom property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link ShippingPointStructure }
-             *     
-             */
             public ShippingPointStructure getShipFrom() {
                 return shipFrom;
             }
 
-            /**
-             * Sets the value of the shipFrom property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link ShippingPointStructure }
-             *     
-             */
             public void setShipFrom(ShippingPointStructure value) {
                 this.shipFrom = value;
             }
 
-            /**
-             * Gets the value of the movementEndTime property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public XMLGregorianCalendar getMovementEndTime() {
                 return movementEndTime;
             }
 
-            /**
-             * Sets the value of the movementEndTime property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public void setMovementEndTime(XMLGregorianCalendar value) {
                 this.movementEndTime = value;
             }
 
-            /**
-             * Gets the value of the movementStartTime property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public XMLGregorianCalendar getMovementStartTime() {
                 return movementStartTime;
             }
 
-            /**
-             * Sets the value of the movementStartTime property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public void setMovementStartTime(XMLGregorianCalendar value) {
                 this.movementStartTime = value;
             }
 
-            /**
-             * Gets the value of the atDocCodeID property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getATDocCodeID() {
                 return atDocCodeID;
             }
 
-            /**
-             * Sets the value of the atDocCodeID property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setATDocCodeID(String value) {
                 this.atDocCodeID = value;
             }
 
-            /**
-             * Gets the value of the line property.
-             * 
-             * <p>
-             * This accessor method returns a reference to the live list,
-             * not a snapshot. Therefore any modification you make to the
-             * returned list will be present inside the JAXB object.
-             * This is why there is not a <CODE>set</CODE> method for the line property.
-             * 
-             * <p>
-             * For example, to add a new item, do as follows:
-             * <pre>
-             *    getLine().add(newItem);
-             * </pre>
-             * 
-             * 
-             * <p>
-             * Objects of the following type(s) are allowed in the list
-             * {@link SourceDocuments.MovementOfGoods.StockMovement.Line }
-             * 
-             * 
-             */
             public List<SourceDocuments.MovementOfGoods.StockMovement.Line> getLine() {
                 if (line == null) {
                     line = new ArrayList<SourceDocuments.MovementOfGoods.StockMovement.Line>();
@@ -898,40 +432,24 @@ public class SourceDocuments
                 return this.line;
             }
 
-            /**
-             * Gets the value of the documentTotals property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link SourceDocuments.MovementOfGoods.StockMovement.DocumentTotals }
-             *     
-             */
             public SourceDocuments.MovementOfGoods.StockMovement.DocumentTotals getDocumentTotals() {
                 return documentTotals;
             }
 
-            /**
-             * Sets the value of the documentTotals property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link SourceDocuments.MovementOfGoods.StockMovement.DocumentTotals }
-             *     
-             */
             public void setDocumentTotals(SourceDocuments.MovementOfGoods.StockMovement.DocumentTotals value) {
                 this.documentTotals = value;
             }
 
             @Override
             public String toString() {
-                final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+                final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
                 final StringBuilder buffer = new StringBuilder();
                 append(null, buffer, strategy);
                 return buffer.toString();
             }
 
             @Override
-            public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+            public StringBuilder append(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                 strategy.appendStart(locator, this, buffer);
                 appendFields(locator, buffer, strategy);
                 strategy.appendEnd(locator, this, buffer);
@@ -939,7 +457,7 @@ public class SourceDocuments
             }
 
             @Override
-            public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+            public StringBuilder appendFields(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                 {
                     String theDocumentNumber;
                     theDocumentNumber = this.getDocumentNumber();
@@ -1061,9 +579,7 @@ public class SourceDocuments
                 "sourceID",
                 "sourceBilling"
             })
-            public static class DocumentStatus
-                implements ToString2
-            {
+            public static class DocumentStatus implements ToString2 {
 
                 @XmlElement(name = "MovementStatus", required = true)
                 protected String movementStatus;
@@ -1078,136 +594,56 @@ public class SourceDocuments
                 @XmlSchemaType(name = "string")
                 protected SAFTPTSourceBilling sourceBilling;
 
-                /**
-                 * Gets the value of the movementStatus property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link String }
-                 *     
-                 */
                 public String getMovementStatus() {
                     return movementStatus;
                 }
 
-                /**
-                 * Sets the value of the movementStatus property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link String }
-                 *     
-                 */
                 public void setMovementStatus(String value) {
                     this.movementStatus = value;
                 }
 
-                /**
-                 * Gets the value of the movementStatusDate property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link XMLGregorianCalendar }
-                 *     
-                 */
                 public XMLGregorianCalendar getMovementStatusDate() {
                     return movementStatusDate;
                 }
 
-                /**
-                 * Sets the value of the movementStatusDate property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link XMLGregorianCalendar }
-                 *     
-                 */
                 public void setMovementStatusDate(XMLGregorianCalendar value) {
                     this.movementStatusDate = value;
                 }
 
-                /**
-                 * Gets the value of the reason property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link String }
-                 *     
-                 */
                 public String getReason() {
                     return reason;
                 }
 
-                /**
-                 * Sets the value of the reason property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link String }
-                 *     
-                 */
                 public void setReason(String value) {
                     this.reason = value;
                 }
 
-                /**
-                 * Gets the value of the sourceID property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link String }
-                 *     
-                 */
                 public String getSourceID() {
                     return sourceID;
                 }
 
-                /**
-                 * Sets the value of the sourceID property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link String }
-                 *     
-                 */
                 public void setSourceID(String value) {
                     this.sourceID = value;
                 }
 
-                /**
-                 * Gets the value of the sourceBilling property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link SAFTPTSourceBilling }
-                 *     
-                 */
                 public SAFTPTSourceBilling getSourceBilling() {
                     return sourceBilling;
                 }
 
-                /**
-                 * Sets the value of the sourceBilling property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link SAFTPTSourceBilling }
-                 *     
-                 */
                 public void setSourceBilling(SAFTPTSourceBilling value) {
                     this.sourceBilling = value;
                 }
 
                 @Override
                 public String toString() {
-                    final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+                    final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
                     final StringBuilder buffer = new StringBuilder();
                     append(null, buffer, strategy);
                     return buffer.toString();
                 }
 
                 @Override
-                public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                public StringBuilder append(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                     strategy.appendStart(locator, this, buffer);
                     appendFields(locator, buffer, strategy);
                     strategy.appendEnd(locator, this, buffer);
@@ -1215,7 +651,7 @@ public class SourceDocuments
                 }
 
                 @Override
-                public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                public StringBuilder appendFields(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                     {
                         String theMovementStatus;
                         theMovementStatus = this.getMovementStatus();
@@ -1243,7 +679,6 @@ public class SourceDocuments
                     }
                     return buffer;
                 }
-
             }
 
             @XmlAccessorType(XmlAccessType.FIELD)
@@ -1253,9 +688,7 @@ public class SourceDocuments
                 "grossTotal",
                 "currency"
             })
-            public static class DocumentTotals
-                implements ToString2
-            {
+            public static class DocumentTotals implements ToString2 {
 
                 @XmlElement(name = "TaxPayable", required = true)
                 protected BigDecimal taxPayable;
@@ -1266,112 +699,48 @@ public class SourceDocuments
                 @XmlElement(name = "Currency")
                 protected Currency currency;
 
-                /**
-                 * Gets the value of the taxPayable property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public BigDecimal getTaxPayable() {
                     return taxPayable;
                 }
 
-                /**
-                 * Sets the value of the taxPayable property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public void setTaxPayable(BigDecimal value) {
                     this.taxPayable = value;
                 }
 
-                /**
-                 * Gets the value of the netTotal property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public BigDecimal getNetTotal() {
                     return netTotal;
                 }
 
-                /**
-                 * Sets the value of the netTotal property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public void setNetTotal(BigDecimal value) {
                     this.netTotal = value;
                 }
 
-                /**
-                 * Gets the value of the grossTotal property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public BigDecimal getGrossTotal() {
                     return grossTotal;
                 }
 
-                /**
-                 * Sets the value of the grossTotal property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public void setGrossTotal(BigDecimal value) {
                     this.grossTotal = value;
                 }
 
-                /**
-                 * Gets the value of the currency property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link Currency }
-                 *     
-                 */
                 public Currency getCurrency() {
                     return currency;
                 }
 
-                /**
-                 * Sets the value of the currency property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link Currency }
-                 *     
-                 */
                 public void setCurrency(Currency value) {
                     this.currency = value;
                 }
 
                 @Override
                 public String toString() {
-                    final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+                    final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
                     final StringBuilder buffer = new StringBuilder();
                     append(null, buffer, strategy);
                     return buffer.toString();
                 }
 
                 @Override
-                public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                public StringBuilder append(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                     strategy.appendStart(locator, this, buffer);
                     appendFields(locator, buffer, strategy);
                     strategy.appendEnd(locator, this, buffer);
@@ -1379,7 +748,7 @@ public class SourceDocuments
                 }
 
                 @Override
-                public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                public StringBuilder appendFields(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                     {
                         BigDecimal theTaxPayable;
                         theTaxPayable = this.getTaxPayable();
@@ -1402,7 +771,6 @@ public class SourceDocuments
                     }
                     return buffer;
                 }
-
             }
 
             @XmlAccessorType(XmlAccessType.FIELD)
@@ -1424,9 +792,7 @@ public class SourceDocuments
                 "settlementAmount",
                 "customsInformation"
             })
-            public static class Line
-                implements ToString2
-            {
+            public static class Line implements ToString2 {
 
                 @XmlElement(name = "LineNumber", required = true)
                 @XmlSchemaType(name = "nonNegativeInteger")
@@ -1462,52 +828,14 @@ public class SourceDocuments
                 @XmlElement(name = "CustomsInformation")
                 protected CustomsInformation customsInformation;
 
-                /**
-                 * Gets the value of the lineNumber property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link BigInteger }
-                 *     
-                 */
                 public BigInteger getLineNumber() {
                     return lineNumber;
                 }
 
-                /**
-                 * Sets the value of the lineNumber property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link BigInteger }
-                 *     
-                 */
                 public void setLineNumber(BigInteger value) {
                     this.lineNumber = value;
                 }
 
-                /**
-                 * Gets the value of the orderReferences property.
-                 * 
-                 * <p>
-                 * This accessor method returns a reference to the live list,
-                 * not a snapshot. Therefore any modification you make to the
-                 * returned list will be present inside the JAXB object.
-                 * This is why there is not a <CODE>set</CODE> method for the orderReferences property.
-                 * 
-                 * <p>
-                 * For example, to add a new item, do as follows:
-                 * <pre>
-                 *    getOrderReferences().add(newItem);
-                 * </pre>
-                 * 
-                 * 
-                 * <p>
-                 * Objects of the following type(s) are allowed in the list
-                 * {@link OrderReferences }
-                 * 
-                 * 
-                 */
                 public List<OrderReferences> getOrderReferences() {
                     if (orderReferences == null) {
                         orderReferences = new ArrayList<OrderReferences>();
@@ -1515,352 +843,128 @@ public class SourceDocuments
                     return this.orderReferences;
                 }
 
-                /**
-                 * Gets the value of the productCode property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link String }
-                 *     
-                 */
                 public String getProductCode() {
                     return productCode;
                 }
 
-                /**
-                 * Sets the value of the productCode property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link String }
-                 *     
-                 */
                 public void setProductCode(String value) {
                     this.productCode = value;
                 }
 
-                /**
-                 * Gets the value of the productDescription property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link String }
-                 *     
-                 */
                 public String getProductDescription() {
                     return productDescription;
                 }
 
-                /**
-                 * Sets the value of the productDescription property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link String }
-                 *     
-                 */
                 public void setProductDescription(String value) {
                     this.productDescription = value;
                 }
 
-                /**
-                 * Gets the value of the quantity property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public BigDecimal getQuantity() {
                     return quantity;
                 }
 
-                /**
-                 * Sets the value of the quantity property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public void setQuantity(BigDecimal value) {
                     this.quantity = value;
                 }
 
-                /**
-                 * Gets the value of the unitOfMeasure property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link String }
-                 *     
-                 */
                 public String getUnitOfMeasure() {
                     return unitOfMeasure;
                 }
 
-                /**
-                 * Sets the value of the unitOfMeasure property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link String }
-                 *     
-                 */
                 public void setUnitOfMeasure(String value) {
                     this.unitOfMeasure = value;
                 }
 
-                /**
-                 * Gets the value of the unitPrice property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public BigDecimal getUnitPrice() {
                     return unitPrice;
                 }
 
-                /**
-                 * Sets the value of the unitPrice property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public void setUnitPrice(BigDecimal value) {
                     this.unitPrice = value;
                 }
 
-                /**
-                 * Gets the value of the description property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link String }
-                 *     
-                 */
                 public String getDescription() {
                     return description;
                 }
 
-                /**
-                 * Sets the value of the description property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link String }
-                 *     
-                 */
                 public void setDescription(String value) {
                     this.description = value;
                 }
 
-                /**
-                 * Gets the value of the productSerialNumber property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link ProductSerialNumber }
-                 *     
-                 */
                 public ProductSerialNumber getProductSerialNumber() {
                     return productSerialNumber;
                 }
 
-                /**
-                 * Sets the value of the productSerialNumber property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link ProductSerialNumber }
-                 *     
-                 */
                 public void setProductSerialNumber(ProductSerialNumber value) {
                     this.productSerialNumber = value;
                 }
 
-                /**
-                 * Gets the value of the debitAmount property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public BigDecimal getDebitAmount() {
                     return debitAmount;
                 }
 
-                /**
-                 * Sets the value of the debitAmount property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public void setDebitAmount(BigDecimal value) {
                     this.debitAmount = value;
                 }
 
-                /**
-                 * Gets the value of the creditAmount property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public BigDecimal getCreditAmount() {
                     return creditAmount;
                 }
 
-                /**
-                 * Sets the value of the creditAmount property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public void setCreditAmount(BigDecimal value) {
                     this.creditAmount = value;
                 }
 
-                /**
-                 * Gets the value of the tax property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link MovementTax }
-                 *     
-                 */
                 public MovementTax getTax() {
                     return tax;
                 }
 
-                /**
-                 * Sets the value of the tax property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link MovementTax }
-                 *     
-                 */
                 public void setTax(MovementTax value) {
                     this.tax = value;
                 }
 
-                /**
-                 * Gets the value of the taxExemptionReason property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link String }
-                 *     
-                 */
                 public String getTaxExemptionReason() {
                     return taxExemptionReason;
                 }
 
-                /**
-                 * Sets the value of the taxExemptionReason property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link String }
-                 *     
-                 */
                 public void setTaxExemptionReason(String value) {
                     this.taxExemptionReason = value;
                 }
 
-                /**
-                 * Gets the value of the taxExemptionCode property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link String }
-                 *     
-                 */
                 public String getTaxExemptionCode() {
                     return taxExemptionCode;
                 }
 
-                /**
-                 * Sets the value of the taxExemptionCode property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link String }
-                 *     
-                 */
                 public void setTaxExemptionCode(String value) {
                     this.taxExemptionCode = value;
                 }
 
-                /**
-                 * Gets the value of the settlementAmount property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public BigDecimal getSettlementAmount() {
                     return settlementAmount;
                 }
 
-                /**
-                 * Sets the value of the settlementAmount property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public void setSettlementAmount(BigDecimal value) {
                     this.settlementAmount = value;
                 }
 
-                /**
-                 * Gets the value of the customsInformation property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link CustomsInformation }
-                 *     
-                 */
                 public CustomsInformation getCustomsInformation() {
                     return customsInformation;
                 }
 
-                /**
-                 * Sets the value of the customsInformation property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link CustomsInformation }
-                 *     
-                 */
                 public void setCustomsInformation(CustomsInformation value) {
                     this.customsInformation = value;
                 }
 
                 @Override
                 public String toString() {
-                    final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+                    final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
                     final StringBuilder buffer = new StringBuilder();
                     append(null, buffer, strategy);
                     return buffer.toString();
                 }
 
                 @Override
-                public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                public StringBuilder append(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                     strategy.appendStart(locator, this, buffer);
                     appendFields(locator, buffer, strategy);
                     strategy.appendEnd(locator, this, buffer);
@@ -1868,27 +972,91 @@ public class SourceDocuments
                 }
 
                 @Override
-                public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                public StringBuilder appendFields(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                     {
                         BigInteger theLineNumber;
                         theLineNumber = this.getLineNumber();
-                        // This inner class does not have lineNumber; this is a placeholder if needed.
+                        strategy.appendField(locator, this, "lineNumber", buffer, theLineNumber, (this.lineNumber!= null));
+                    }
+                    {
+                        List<OrderReferences> theOrderReferences;
+                        theOrderReferences = (((this.orderReferences!= null)&&(!this.orderReferences.isEmpty()))?this.getOrderReferences():null);
+                        strategy.appendField(locator, this, "orderReferences", buffer, theOrderReferences, ((this.orderReferences!= null)&&(!this.orderReferences.isEmpty())));
+                    }
+                    {
+                        String theProductCode;
+                        theProductCode = this.getProductCode();
+                        strategy.appendField(locator, this, "productCode", buffer, theProductCode, (this.productCode!= null));
+                    }
+                    {
+                        String theProductDescription;
+                        theProductDescription = this.getProductDescription();
+                        strategy.appendField(locator, this, "productDescription", buffer, theProductDescription, (this.productDescription!= null));
+                    }
+                    {
+                        BigDecimal theQuantity;
+                        theQuantity = this.getQuantity();
+                        strategy.appendField(locator, this, "quantity", buffer, theQuantity, (this.quantity!= null));
+                    }
+                    {
+                        String theUnitOfMeasure;
+                        theUnitOfMeasure = this.getUnitOfMeasure();
+                        strategy.appendField(locator, this, "unitOfMeasure", buffer, theUnitOfMeasure, (this.unitOfMeasure!= null));
+                    }
+                    {
+                        BigDecimal theUnitPrice;
+                        theUnitPrice = this.getUnitPrice();
+                        strategy.appendField(locator, this, "unitPrice", buffer, theUnitPrice, (this.unitPrice!= null));
+                    }
+                    {
+                        String theDescription;
+                        theDescription = this.getDescription();
+                        strategy.appendField(locator, this, "description", buffer, theDescription, (this.description!= null));
+                    }
+                    {
+                        ProductSerialNumber theProductSerialNumber;
+                        theProductSerialNumber = this.getProductSerialNumber();
+                        strategy.appendField(locator, this, "productSerialNumber", buffer, theProductSerialNumber, (this.productSerialNumber!= null));
+                    }
+                    {
+                        BigDecimal theDebitAmount;
+                        theDebitAmount = this.getDebitAmount();
+                        strategy.appendField(locator, this, "debitAmount", buffer, theDebitAmount, (this.debitAmount!= null));
+                    }
+                    {
+                        BigDecimal theCreditAmount;
+                        theCreditAmount = this.getCreditAmount();
+                        strategy.appendField(locator, this, "creditAmount", buffer, theCreditAmount, (this.creditAmount!= null));
+                    }
+                    {
+                        MovementTax theTax;
+                        theTax = this.getTax();
+                        strategy.appendField(locator, this, "tax", buffer, theTax, (this.tax!= null));
+                    }
+                    {
+                        String theTaxExemptionReason;
+                        theTaxExemptionReason = this.getTaxExemptionReason();
+                        strategy.appendField(locator, this, "taxExemptionReason", buffer, theTaxExemptionReason, (this.taxExemptionReason!= null));
+                    }
+                    {
+                        String theTaxExemptionCode;
+                        theTaxExemptionCode = this.getTaxExemptionCode();
+                        strategy.appendField(locator, this, "taxExemptionCode", buffer, theTaxExemptionCode, (this.taxExemptionCode!= null));
+                    }
+                    {
+                        BigDecimal theSettlementAmount;
+                        theSettlementAmount = this.getSettlementAmount();
+                        strategy.appendField(locator, this, "settlementAmount", buffer, theSettlementAmount, (this.settlementAmount!= null));
+                    }
+                    {
+                        CustomsInformation theCustomsInformation;
+                        theCustomsInformation = this.getCustomsInformation();
+                        strategy.appendField(locator, this, "customsInformation", buffer, theCustomsInformation, (this.customsInformation!= null));
                     }
                     return buffer;
                 }
             }
-
-            @Override
-            public String toString() {
-                final ToStringStrategy2 strategy = new DefaultToStringStrategy();
-                final StringBuilder buffer = new StringBuilder();
-                append(null, buffer, strategy);
-                return buffer.toString();
-            }
-
-            // End of StockMovement.Line class
         }
-
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)
@@ -1898,9 +1066,7 @@ public class SourceDocuments
         "totalCredit",
         "payment"
     })
-    public static class Payments
-        implements ToString2
-    {
+    public static class Payments implements ToString2 {
 
         @XmlElement(name = "NumberOfEntries", required = true)
         @XmlSchemaType(name = "nonNegativeInteger")
@@ -1912,100 +1078,30 @@ public class SourceDocuments
         @XmlElement(name = "Payment")
         protected List<SourceDocuments.Payments.Payment> payment;
 
-        /**
-         * Gets the value of the numberOfEntries property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link BigInteger }
-         *     
-         */
         public BigInteger getNumberOfEntries() {
             return numberOfEntries;
         }
 
-        /**
-         * Sets the value of the numberOfEntries property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link BigInteger }
-         *     
-         */
         public void setNumberOfEntries(BigInteger value) {
             this.numberOfEntries = value;
         }
 
-        /**
-         * Gets the value of the totalDebit property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link BigDecimal }
-         *     
-         */
         public BigDecimal getTotalDebit() {
             return totalDebit;
         }
 
-        /**
-         * Sets the value of the totalDebit property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link BigDecimal }
-         *     
-         */
         public void setTotalDebit(BigDecimal value) {
             this.totalDebit = value;
         }
 
-        /**
-         * Gets the value of the totalCredit property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link BigDecimal }
-         *     
-         */
         public BigDecimal getTotalCredit() {
             return totalCredit;
         }
 
-        /**
-         * Sets the value of the totalCredit property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link BigDecimal }
-         *     
-         */
         public void setTotalCredit(BigDecimal value) {
             this.totalCredit = value;
         }
 
-        /**
-         * Gets the value of the payment property.
-         * 
-         * <p>
-         * This accessor method returns a reference to the live list,
-         * not a snapshot. Therefore any modification you make to the
-         * returned list will be present inside the JAXB object.
-         * This is why there is not a <CODE>set</CODE> method for the payment property.
-         * 
-         * <p>
-         * For example, to add a new item, do as follows:
-         * <pre>
-         *    getPayment().add(newItem);
-         * </pre>
-         * 
-         * 
-         * <p>
-         * Objects of the following type(s) are allowed in the list
-         * {@link SourceDocuments.Payments.Payment }
-         * 
-         * 
-         */
         public List<SourceDocuments.Payments.Payment> getPayment() {
             if (payment == null) {
                 payment = new ArrayList<SourceDocuments.Payments.Payment>();
@@ -2015,14 +1111,14 @@ public class SourceDocuments
 
         @Override
         public String toString() {
-            final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+            final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
             final StringBuilder buffer = new StringBuilder();
             append(null, buffer, strategy);
             return buffer.toString();
         }
 
         @Override
-        public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+        public StringBuilder append(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
             strategy.appendStart(locator, this, buffer);
             appendFields(locator, buffer, strategy);
             strategy.appendEnd(locator, this, buffer);
@@ -2030,7 +1126,7 @@ public class SourceDocuments
         }
 
         @Override
-        public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+        public StringBuilder appendFields(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
             {
                 BigInteger theNumberOfEntries;
                 theNumberOfEntries = this.getNumberOfEntries();
@@ -2073,9 +1169,7 @@ public class SourceDocuments
             "documentTotals",
             "withholdingTax"
         })
-        public static class Payment
-            implements ToString2
-        {
+        public static class Payment implements ToString2 {
 
             @XmlElement(name = "PaymentRefNo", required = true)
             protected String paymentRefNo;
@@ -2113,244 +1207,78 @@ public class SourceDocuments
             @XmlElement(name = "WithholdingTax")
             protected List<WithholdingTax> withholdingTax;
 
-            /**
-             * Gets the value of the paymentRefNo property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getPaymentRefNo() {
                 return paymentRefNo;
             }
 
-            /**
-             * Sets the value of the paymentRefNo property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setPaymentRefNo(String value) {
                 this.paymentRefNo = value;
             }
 
-            /**
-             * Gets the value of the atcud property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getATCUD() {
                 return atcud;
             }
 
-            /**
-             * Sets the value of the atcud property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setATCUD(String value) {
                 this.atcud = value;
             }
 
-            /**
-             * Gets the value of the period property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link Integer }
-             *     
-             */
             public Integer getPeriod() {
                 return period;
             }
 
-            /**
-             * Sets the value of the period property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link Integer }
-             *     
-             */
             public void setPeriod(Integer value) {
                 this.period = value;
             }
 
-            /**
-             * Gets the value of the transactionID property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getTransactionID() {
                 return transactionID;
             }
 
-            /**
-             * Sets the value of the transactionID property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setTransactionID(String value) {
                 this.transactionID = value;
             }
 
-            /**
-             * Gets the value of the transactionDate property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public XMLGregorianCalendar getTransactionDate() {
                 return transactionDate;
             }
 
-            /**
-             * Sets the value of the transactionDate property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public void setTransactionDate(XMLGregorianCalendar value) {
                 this.transactionDate = value;
             }
 
-            /**
-             * Gets the value of the paymentType property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link SAFTPTPaymentType }
-             *     
-             */
             public SAFTPTPaymentType getPaymentType() {
                 return paymentType;
             }
 
-            /**
-             * Sets the value of the paymentType property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link SAFTPTPaymentType }
-             *     
-             */
             public void setPaymentType(SAFTPTPaymentType value) {
                 this.paymentType = value;
             }
 
-            /**
-             * Gets the value of the description property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getDescription() {
                 return description;
             }
 
-            /**
-             * Sets the value of the description property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setDescription(String value) {
                 this.description = value;
             }
 
-            /**
-             * Gets the value of the systemID property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getSystemID() {
                 return systemID;
             }
 
-            /**
-             * Sets the value of the systemID property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setSystemID(String value) {
                 this.systemID = value;
             }
 
-            /**
-             * Gets the value of the documentStatus property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link SourceDocuments.Payments.Payment.DocumentStatus }
-             *     
-             */
             public SourceDocuments.Payments.Payment.DocumentStatus getDocumentStatus() {
                 return documentStatus;
             }
 
-            /**
-             * Sets the value of the documentStatus property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link SourceDocuments.Payments.Payment.DocumentStatus }
-             *     
-             */
             public void setDocumentStatus(SourceDocuments.Payments.Payment.DocumentStatus value) {
                 this.documentStatus = value;
             }
 
-            /**
-             * Gets the value of the paymentMethod property.
-             * 
-             * <p>
-             * This accessor method returns a reference to the live list,
-             * not a snapshot. Therefore any modification you make to the
-             * returned list will be present inside the JAXB object.
-             * This is why there is not a <CODE>set</CODE> method for the paymentMethod property.
-             * 
-             * <p>
-             * For example, to add a new item, do as follows:
-             * <pre>
-             *    getPaymentMethod().add(newItem);
-             * </pre>
-             * 
-             * 
-             * <p>
-             * Objects of the following type(s) are allowed in the list
-             * {@link PaymentMethod }
-             * 
-             * 
-             */
             public List<PaymentMethod> getPaymentMethod() {
                 if (paymentMethod == null) {
                     paymentMethod = new ArrayList<PaymentMethod>();
@@ -2358,100 +1286,30 @@ public class SourceDocuments
                 return this.paymentMethod;
             }
 
-            /**
-             * Gets the value of the sourceID property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getSourceID() {
                 return sourceID;
             }
 
-            /**
-             * Sets the value of the sourceID property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setSourceID(String value) {
                 this.sourceID = value;
             }
 
-            /**
-             * Gets the value of the systemEntryDate property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public XMLGregorianCalendar getSystemEntryDate() {
                 return systemEntryDate;
             }
 
-            /**
-             * Sets the value of the systemEntryDate property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public void setSystemEntryDate(XMLGregorianCalendar value) {
                 this.systemEntryDate = value;
             }
 
-            /**
-             * Gets the value of the customerID property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getCustomerID() {
                 return customerID;
             }
 
-            /**
-             * Sets the value of the customerID property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setCustomerID(String value) {
                 this.customerID = value;
             }
 
-            /**
-             * Gets the value of the line property.
-             * 
-             * <p>
-             * This accessor method returns a reference to the live list,
-             * not a snapshot. Therefore any modification you make to the
-             * returned list will be present inside the JAXB object.
-             * This is why there is not a <CODE>set</CODE> method for the line property.
-             * 
-             * <p>
-             * For example, to add a new item, do as follows:
-             * <pre>
-             *    getLine().add(newItem);
-             * </pre>
-             * 
-             * 
-             * <p>
-             * Objects of the following type(s) are allowed in the list
-             * {@link SourceDocuments.Payments.Payment.Line }
-             * 
-             * 
-             */
             public List<SourceDocuments.Payments.Payment.Line> getLine() {
                 if (line == null) {
                     line = new ArrayList<SourceDocuments.Payments.Payment.Line>();
@@ -2459,52 +1317,14 @@ public class SourceDocuments
                 return this.line;
             }
 
-            /**
-             * Gets the value of the documentTotals property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link SourceDocuments.Payments.Payment.DocumentTotals }
-             *     
-             */
             public SourceDocuments.Payments.Payment.DocumentTotals getDocumentTotals() {
                 return documentTotals;
             }
 
-            /**
-             * Sets the value of the documentTotals property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link SourceDocuments.Payments.Payment.DocumentTotals }
-             *     
-             */
             public void setDocumentTotals(SourceDocuments.Payments.Payment.DocumentTotals value) {
                 this.documentTotals = value;
             }
 
-            /**
-             * Gets the value of the withholdingTax property.
-             * 
-             * <p>
-             * This accessor method returns a reference to the live list,
-             * not a snapshot. Therefore any modification you make to the
-             * returned list will be present inside the JAXB object.
-             * This is why there is not a <CODE>set</CODE> method for the withholdingTax property.
-             * 
-             * <p>
-             * For example, to add a new item, do as follows:
-             * <pre>
-             *    getWithholdingTax().add(newItem);
-             * </pre>
-             * 
-             * 
-             * <p>
-             * Objects of the following type(s) are allowed in the list
-             * {@link WithholdingTax }
-             * 
-             * 
-             */
             public List<WithholdingTax> getWithholdingTax() {
                 if (withholdingTax == null) {
                     withholdingTax = new ArrayList<WithholdingTax>();
@@ -2514,14 +1334,14 @@ public class SourceDocuments
 
             @Override
             public String toString() {
-                final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+                final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
                 final StringBuilder buffer = new StringBuilder();
                 append(null, buffer, strategy);
                 return buffer.toString();
             }
 
             @Override
-            public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+            public StringBuilder append(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                 strategy.appendStart(locator, this, buffer);
                 appendFields(locator, buffer, strategy);
                 strategy.appendEnd(locator, this, buffer);
@@ -2529,7 +1349,7 @@ public class SourceDocuments
             }
 
             @Override
-            public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+            public StringBuilder appendFields(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                 {
                     String thePaymentRefNo;
                     thePaymentRefNo = this.getPaymentRefNo();
@@ -2621,9 +1441,7 @@ public class SourceDocuments
                 "sourceID",
                 "sourcePayment"
             })
-            public static class DocumentStatus
-                implements ToString2
-            {
+            public static class DocumentStatus implements ToString2 {
 
                 @XmlElement(name = "PaymentStatus", required = true)
                 protected String paymentStatus;
@@ -2638,136 +1456,56 @@ public class SourceDocuments
                 @XmlSchemaType(name = "string")
                 protected SAFTPTSourcePayment sourcePayment;
 
-                /**
-                 * Gets the value of the paymentStatus property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link String }
-                 *     
-                 */
                 public String getPaymentStatus() {
                     return paymentStatus;
                 }
 
-                /**
-                 * Sets the value of the paymentStatus property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link String }
-                 *     
-                 */
                 public void setPaymentStatus(String value) {
                     this.paymentStatus = value;
                 }
 
-                /**
-                 * Gets the value of the paymentStatusDate property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link XMLGregorianCalendar }
-                 *     
-                 */
                 public XMLGregorianCalendar getPaymentStatusDate() {
                     return paymentStatusDate;
                 }
 
-                /**
-                 * Sets the value of the paymentStatusDate property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link XMLGregorianCalendar }
-                 *     
-                 */
                 public void setPaymentStatusDate(XMLGregorianCalendar value) {
                     this.paymentStatusDate = value;
                 }
 
-                /**
-                 * Gets the value of the reason property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link String }
-                 *     
-                 */
                 public String getReason() {
                     return reason;
                 }
 
-                /**
-                 * Sets the value of the reason property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link String }
-                 *     
-                 */
                 public void setReason(String value) {
                     this.reason = value;
                 }
 
-                /**
-                 * Gets the value of the sourceID property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link String }
-                 *     
-                 */
                 public String getSourceID() {
                     return sourceID;
                 }
 
-                /**
-                 * Sets the value of the sourceID property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link String }
-                 *     
-                 */
                 public void setSourceID(String value) {
                     this.sourceID = value;
                 }
 
-                /**
-                 * Gets the value of the sourcePayment property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link SAFTPTSourcePayment }
-                 *     
-                 */
                 public SAFTPTSourcePayment getSourcePayment() {
                     return sourcePayment;
                 }
 
-                /**
-                 * Sets the value of the sourcePayment property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link SAFTPTSourcePayment }
-                 *     
-                 */
                 public void setSourcePayment(SAFTPTSourcePayment value) {
                     this.sourcePayment = value;
                 }
 
                 @Override
                 public String toString() {
-                    final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+                    final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
                     final StringBuilder buffer = new StringBuilder();
                     append(null, buffer, strategy);
                     return buffer.toString();
                 }
 
                 @Override
-                public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                public StringBuilder append(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                     strategy.appendStart(locator, this, buffer);
                     appendFields(locator, buffer, strategy);
                     strategy.appendEnd(locator, this, buffer);
@@ -2775,7 +1513,7 @@ public class SourceDocuments
                 }
 
                 @Override
-                public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                public StringBuilder appendFields(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                     {
                         String thePaymentStatus;
                         thePaymentStatus = this.getPaymentStatus();
@@ -2803,7 +1541,6 @@ public class SourceDocuments
                     }
                     return buffer;
                 }
-
             }
 
             @XmlAccessorType(XmlAccessType.FIELD)
@@ -2814,9 +1551,7 @@ public class SourceDocuments
                 "settlement",
                 "currency"
             })
-            public static class DocumentTotals
-                implements ToString2
-            {
+            public static class DocumentTotals implements ToString2 {
 
                 @XmlElement(name = "TaxPayable", required = true)
                 protected BigDecimal taxPayable;
@@ -2829,141 +1564,48 @@ public class SourceDocuments
                 @XmlElement(name = "Currency")
                 protected Currency currency;
 
-                /**
-                 * Gets the value of the taxPayable property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public BigDecimal getTaxPayable() {
                     return taxPayable;
                 }
 
-                /**
-                 * Sets the value of the taxPayable property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public void setTaxPayable(BigDecimal value) {
                     this.taxPayable = value;
                 }
 
-                /**
-                 * Gets the value of the netTotal property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public BigDecimal getNetTotal() {
                     return netTotal;
                 }
 
-                /**
-                 * Sets the value of the netTotal property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public void setNetTotal(BigDecimal value) {
                     this.netTotal = value;
                 }
 
-                /**
-                 * Gets the value of the grossTotal property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public BigDecimal getGrossTotal() {
                     return grossTotal;
                 }
 
-                /**
-                 * Sets the value of the grossTotal property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public void setGrossTotal(BigDecimal value) {
                     this.grossTotal = value;
                 }
 
-                /**
-                 * Gets the value of the settlement property.
-                 * 
-                 * <p>
-                 * This accessor method returns a reference to the live list,
-                 * not a snapshot. Therefore any modification you make to the
-                 * returned list will be present inside the JAXB object.
-                 * This is why there is not a <CODE>set</CODE> method for the settlement property.
-                 * 
-                 * <p>
-                 * For example, to add a new item, do as follows:
-                 * <pre>
-                 *    getSettlement().add(newItem);
-                 * </pre>
-                 * 
-                 * 
-                 * <p>
-                 * Objects of the following type(s) are allowed in the list
-                 * {@link com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema.Settlement }
-                 * 
-                 * 
-                 */
-                public List<com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema.Settlement> getSettlement() {
-                    if (settlement == null) {
-                        settlement = new ArrayList<com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema.Settlement>();
-                    }
-                    return this.settlement;
-                }
-
-                /**
-                 * Gets the value of the currency property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link Currency }
-                 *     
-                 */
                 public Currency getCurrency() {
                     return currency;
                 }
 
-                /**
-                 * Sets the value of the currency property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link Currency }
-                 *     
-                 */
                 public void setCurrency(Currency value) {
                     this.currency = value;
                 }
 
                 @Override
                 public String toString() {
-                    final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+                    final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
                     final StringBuilder buffer = new StringBuilder();
                     append(null, buffer, strategy);
                     return buffer.toString();
                 }
 
                 @Override
-                public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                public StringBuilder append(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                     strategy.appendStart(locator, this, buffer);
                     appendFields(locator, buffer, strategy);
                     strategy.appendEnd(locator, this, buffer);
@@ -2971,7 +1613,7 @@ public class SourceDocuments
                 }
 
                 @Override
-                public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                public StringBuilder appendFields(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                     {
                         BigDecimal theTaxPayable;
                         theTaxPayable = this.getTaxPayable();
@@ -2988,13 +1630,17 @@ public class SourceDocuments
                         strategy.appendField(locator, this, "grossTotal", buffer, theGrossTotal, (this.grossTotal!= null));
                     }
                     {
+                        List<com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema.Settlement> theSettlement;
+                        theSettlement = (((this.settlement!= null)&&(!this.settlement.isEmpty()))?this.getSettlement():null);
+                        strategy.appendField(locator, this, "settlement", buffer, theSettlement, ((this.settlement!= null)&&(!this.settlement.isEmpty())));
+                    }
+                    {
                         Currency theCurrency;
                         theCurrency = this.getCurrency();
                         strategy.appendField(locator, this, "currency", buffer, theCurrency, (this.currency!= null));
                     }
                     return buffer;
                 }
-
             }
 
             @XmlAccessorType(XmlAccessType.FIELD)
@@ -3008,9 +1654,7 @@ public class SourceDocuments
                 "taxExemptionReason",
                 "taxExemptionCode"
             })
-            public static class Line
-                implements ToString2
-            {
+            public static class Line implements ToString2 {
 
                 @XmlElement(name = "LineNumber", required = true)
                 @XmlSchemaType(name = "nonNegativeInteger")
@@ -3030,52 +1674,14 @@ public class SourceDocuments
                 @XmlElement(name = "TaxExemptionCode")
                 protected String taxExemptionCode;
 
-                /**
-                 * Gets the value of the lineNumber property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link BigInteger }
-                 *     
-                 */
                 public BigInteger getLineNumber() {
                     return lineNumber;
                 }
 
-                /**
-                 * Sets the value of the lineNumber property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link BigInteger }
-                 *     
-                 */
                 public void setLineNumber(BigInteger value) {
                     this.lineNumber = value;
                 }
 
-                /**
-                 * Gets the value of the sourceDocumentID property.
-                 * 
-                 * <p>
-                 * This accessor method returns a reference to the live list,
-                 * not a snapshot. Therefore any modification you make to the
-                 * returned list will be present inside the JAXB object.
-                 * This is why there is not a <CODE>set</CODE> method for the sourceDocumentID property.
-                 * 
-                 * <p>
-                 * For example, to add a new item, do as follows:
-                 * <pre>
-                 *    getSourceDocumentID().add(newItem);
-                 * </pre>
-                 * 
-                 * 
-                 * <p>
-                 * Objects of the following type(s) are allowed in the list
-                 * {@link SourceDocuments.Payments.Payment.Line.SourceDocumentID }
-                 * 
-                 * 
-                 */
                 public List<SourceDocuments.Payments.Payment.Line.SourceDocumentID> getSourceDocumentID() {
                     if (sourceDocumentID == null) {
                         sourceDocumentID = new ArrayList<SourceDocuments.Payments.Payment.Line.SourceDocumentID>();
@@ -3083,160 +1689,64 @@ public class SourceDocuments
                     return this.sourceDocumentID;
                 }
 
-                /**
-                 * Gets the value of the settlementAmount property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public BigDecimal getSettlementAmount() {
                     return settlementAmount;
                 }
 
-                /**
-                 * Sets the value of the settlementAmount property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public void setSettlementAmount(BigDecimal value) {
                     this.settlementAmount = value;
                 }
 
-                /**
-                 * Gets the value of the debitAmount property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public BigDecimal getDebitAmount() {
                     return debitAmount;
                 }
 
-                /**
-                 * Sets the value of the debitAmount property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public void setDebitAmount(BigDecimal value) {
                     this.debitAmount = value;
                 }
 
-                /**
-                 * Gets the value of the creditAmount property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public BigDecimal getCreditAmount() {
                     return creditAmount;
                 }
 
-                /**
-                 * Sets the value of the creditAmount property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
                 public void setCreditAmount(BigDecimal value) {
                     this.creditAmount = value;
                 }
 
-                /**
-                 * Gets the value of the tax property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link PaymentTax }
-                 *     
-                 */
                 public PaymentTax getTax() {
                     return tax;
                 }
 
-                /**
-                 * Sets the value of the tax property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link PaymentTax }
-                 *     
-                 */
                 public void setTax(PaymentTax value) {
                     this.tax = value;
                 }
 
-                /**
-                 * Gets the value of the taxExemptionReason property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link String }
-                 *     
-                 */
                 public String getTaxExemptionReason() {
                     return taxExemptionReason;
                 }
 
-                /**
-                 * Sets the value of the taxExemptionReason property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link String }
-                 *     
-                 */
                 public void setTaxExemptionReason(String value) {
                     this.taxExemptionReason = value;
                 }
 
-                /**
-                 * Gets the value of the taxExemptionCode property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link String }
-                 *     
-                 */
                 public String getTaxExemptionCode() {
                     return taxExemptionCode;
                 }
 
-                /**
-                 * Sets the value of the taxExemptionCode property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link String }
-                 *     
-                 */
                 public void setTaxExemptionCode(String value) {
                     this.taxExemptionCode = value;
                 }
 
                 @Override
                 public String toString() {
-                    final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+                    final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
                     final StringBuilder buffer = new StringBuilder();
                     append(null, buffer, strategy);
                     return buffer.toString();
                 }
 
                 @Override
-                public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                public StringBuilder append(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                     strategy.appendStart(locator, this, buffer);
                     appendFields(locator, buffer, strategy);
                     strategy.appendEnd(locator, this, buffer);
@@ -3244,11 +1754,46 @@ public class SourceDocuments
                 }
 
                 @Override
-                public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                public StringBuilder appendFields(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                     {
                         BigInteger theLineNumber;
                         theLineNumber = this.getLineNumber();
-                        // No lineNumber defined for Payment.Line inner class SourceDocumentID
+                        strategy.appendField(locator, this, "lineNumber", buffer, theLineNumber, (this.lineNumber!= null));
+                    }
+                    {
+                        List<SourceDocuments.Payments.Payment.Line.SourceDocumentID> theSourceDocumentID;
+                        theSourceDocumentID = (((this.sourceDocumentID!= null)&&(!this.sourceDocumentID.isEmpty()))?this.getSourceDocumentID():null);
+                        strategy.appendField(locator, this, "sourceDocumentID", buffer, theSourceDocumentID, ((this.sourceDocumentID!= null)&&(!this.sourceDocumentID.isEmpty())));
+                    }
+                    {
+                        BigDecimal theSettlementAmount;
+                        theSettlementAmount = this.getSettlementAmount();
+                        strategy.appendField(locator, this, "settlementAmount", buffer, theSettlementAmount, (this.settlementAmount!= null));
+                    }
+                    {
+                        BigDecimal theDebitAmount;
+                        theDebitAmount = this.getDebitAmount();
+                        strategy.appendField(locator, this, "debitAmount", buffer, theDebitAmount, (this.debitAmount!= null));
+                    }
+                    {
+                        BigDecimal theCreditAmount;
+                        theCreditAmount = this.getCreditAmount();
+                        strategy.appendField(locator, this, "creditAmount", buffer, theCreditAmount, (this.creditAmount!= null));
+                    }
+                    {
+                        PaymentTax theTax;
+                        theTax = this.getTax();
+                        strategy.appendField(locator, this, "tax", buffer, theTax, (this.tax!= null));
+                    }
+                    {
+                        String theTaxExemptionReason;
+                        theTaxExemptionReason = this.getTaxExemptionReason();
+                        strategy.appendField(locator, this, "taxExemptionReason", buffer, theTaxExemptionReason, (this.taxExemptionReason!= null));
+                    }
+                    {
+                        String theTaxExemptionCode;
+                        theTaxExemptionCode = this.getTaxExemptionCode();
+                        strategy.appendField(locator, this, "taxExemptionCode", buffer, theTaxExemptionCode, (this.taxExemptionCode!= null));
                     }
                     return buffer;
                 }
@@ -3259,9 +1804,7 @@ public class SourceDocuments
                     "invoiceDate",
                     "description"
                 })
-                public static class SourceDocumentID
-                    implements ToString2
-                {
+                public static class SourceDocumentID implements ToString2 {
 
                     @XmlElement(name = "OriginatingON", required = true)
                     protected String originatingON;
@@ -3271,88 +1814,40 @@ public class SourceDocuments
                     @XmlElement(name = "Description")
                     protected String description;
 
-                    /**
-                     * Gets the value of the originatingON property.
-                     * 
-                     * @return
-                     *     possible object is
-                     *     {@link String }
-                     *     
-                     */
                     public String getOriginatingON() {
                         return originatingON;
                     }
 
-                    /**
-                     * Sets the value of the originatingON property.
-                     * 
-                     * @param value
-                     *     allowed object is
-                     *     {@link String }
-                     *     
-                     */
                     public void setOriginatingON(String value) {
                         this.originatingON = value;
                     }
 
-                    /**
-                     * Gets the value of the invoiceDate property.
-                     * 
-                     * @return
-                     *     possible object is
-                     *     {@link XMLGregorianCalendar }
-                     *     
-                     */
                     public XMLGregorianCalendar getInvoiceDate() {
                         return invoiceDate;
                     }
 
-                    /**
-                     * Sets the value of the invoiceDate property.
-                     * 
-                     * @param value
-                     *     allowed object is
-                     *     {@link XMLGregorianCalendar }
-                     *     
-                     */
                     public void setInvoiceDate(XMLGregorianCalendar value) {
                         this.invoiceDate = value;
                     }
 
-                    /**
-                     * Gets the value of the description property.
-                     * 
-                     * @return
-                     *     possible object is
-                     *     {@link String }
-                     *     
-                     */
                     public String getDescription() {
                         return description;
                     }
 
-                    /**
-                     * Sets the value of the description property.
-                     * 
-                     * @param value
-                     *     allowed object is
-                     *     {@link String }
-                     *     
-                     */
                     public void setDescription(String value) {
                         this.description = value;
                     }
 
                     @Override
                     public String toString() {
-                        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+                        final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
                         final StringBuilder buffer = new StringBuilder();
                         append(null, buffer, strategy);
                         return buffer.toString();
                     }
 
                     @Override
-                    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                    public StringBuilder append(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                         strategy.appendStart(locator, this, buffer);
                         appendFields(locator, buffer, strategy);
                         strategy.appendEnd(locator, this, buffer);
@@ -3360,7 +1855,7 @@ public class SourceDocuments
                     }
 
                     @Override
-                    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                    public StringBuilder appendFields(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                         {
                             String theOriginatingON;
                             theOriginatingON = this.getOriginatingON();
@@ -3378,1001 +1873,9 @@ public class SourceDocuments
                         }
                         return buffer;
                     }
-
                 }
-
-                @Override
-                public String toString() {
-                    final ToStringStrategy2 strategy = new DefaultToStringStrategy();
-                    final StringBuilder buffer = new StringBuilder();
-                    append(null, buffer, strategy);
-                    return buffer.toString();
-                }
-                // End of Payment.Line.SourceDocumentID class
             }
-
-            @Override
-            public String toString() {
-                final ToStringStrategy2 strategy = new DefaultToStringStrategy();
-                final StringBuilder buffer = new StringBuilder();
-                append(null, buffer, strategy);
-                return buffer.toString();
-            }
-            // End of Payment.Line class
         }
-
-        @XmlAccessorType(XmlAccessType.FIELD)
-        @XmlType(name = "", propOrder = {
-            "paymentStatus",
-            "paymentStatusDate",
-            "reason",
-            "sourceID",
-            "sourcePayment"
-        })
-        public static class DocumentStatus
-            implements ToString2
-        {
-
-            @XmlElement(name = "PaymentStatus", required = true)
-            protected String paymentStatus;
-            @XmlElement(name = "PaymentStatusDate", required = true)
-            @XmlSchemaType(name = "dateTime")
-            protected XMLGregorianCalendar paymentStatusDate;
-            @XmlElement(name = "Reason")
-            protected String reason;
-            @XmlElement(name = "SourceID", required = true)
-            protected String sourceID;
-            @XmlElement(name = "SourcePayment", required = true)
-            @XmlSchemaType(name = "string")
-            protected SAFTPTSourcePayment sourcePayment;
-
-            /**
-             * Gets the value of the paymentStatus property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
-            public String getPaymentStatus() {
-                return paymentStatus;
-            }
-
-            /**
-             * Sets the value of the paymentStatus property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
-            public void setPaymentStatus(String value) {
-                this.paymentStatus = value;
-            }
-
-            /**
-             * Gets the value of the paymentStatusDate property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
-            public XMLGregorianCalendar getPaymentStatusDate() {
-                return paymentStatusDate;
-            }
-
-            /**
-             * Sets the value of the paymentStatusDate property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
-            public void setPaymentStatusDate(XMLGregorianCalendar value) {
-                this.paymentStatusDate = value;
-            }
-
-            /**
-             * Gets the value of the reason property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
-            public String getReason() {
-                return reason;
-            }
-
-            /**
-             * Sets the value of the reason property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
-            public void setReason(String value) {
-                this.reason = value;
-            }
-
-            /**
-             * Gets the value of the sourceID property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
-            public String getSourceID() {
-                return sourceID;
-            }
-
-            /**
-             * Sets the value of the sourceID property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
-            public void setSourceID(String value) {
-                this.sourceID = value;
-            }
-
-            /**
-             * Gets the value of the sourcePayment property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link SAFTPTSourcePayment }
-             *     
-             */
-            public SAFTPTSourcePayment getSourcePayment() {
-                return sourcePayment;
-            }
-
-            /**
-             * Sets the value of the sourcePayment property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link SAFTPTSourcePayment }
-             *     
-             */
-            public void setSourcePayment(SAFTPTSourcePayment value) {
-                this.sourcePayment = value;
-            }
-
-            @Override
-            public String toString() {
-                final ToStringStrategy2 strategy = new DefaultToStringStrategy();
-                final StringBuilder buffer = new StringBuilder();
-                append(null, buffer, strategy);
-                return buffer.toString();
-            }
-
-            @Override
-            public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                strategy.appendStart(locator, this, buffer);
-                appendFields(locator, buffer, strategy);
-                strategy.appendEnd(locator, this, buffer);
-                return buffer;
-            }
-
-            @Override
-            public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                {
-                    String thePaymentStatus;
-                    thePaymentStatus = this.getPaymentStatus();
-                    strategy.appendField(locator, this, "paymentStatus", buffer, thePaymentStatus, (this.paymentStatus!= null));
-                }
-                {
-                    XMLGregorianCalendar thePaymentStatusDate;
-                    thePaymentStatusDate = this.getPaymentStatusDate();
-                    strategy.appendField(locator, this, "paymentStatusDate", buffer, thePaymentStatusDate, (this.paymentStatusDate!= null));
-                }
-                {
-                    String theReason;
-                    theReason = this.getReason();
-                    strategy.appendField(locator, this, "reason", buffer, theReason, (this.reason!= null));
-                }
-                {
-                    String theSourceID;
-                    theSourceID = this.getSourceID();
-                    strategy.appendField(locator, this, "sourceID", buffer, theSourceID, (this.sourceID!= null));
-                }
-                {
-                    SAFTPTSourcePayment theSourcePayment;
-                    theSourcePayment = this.getSourcePayment();
-                    strategy.appendField(locator, this, "sourcePayment", buffer, theSourcePayment, (this.sourcePayment!= null));
-                }
-                return buffer;
-            }
-
-            @Override
-            public String toString() {
-                final ToStringStrategy2 strategy = new DefaultToStringStrategy();
-                final StringBuilder buffer = new StringBuilder();
-                append(null, buffer, strategy);
-                return buffer.toString();
-            }
-            // End of DocumentStatus in Payment
-        }
-
-        @XmlAccessorType(XmlAccessType.FIELD)
-        @XmlType(name = "", propOrder = {
-            "taxPayable",
-            "netTotal",
-            "grossTotal",
-            "currency"
-        })
-        public static class DocumentTotals
-            implements ToString2
-        {
-
-            @XmlElement(name = "TaxPayable", required = true)
-            protected BigDecimal taxPayable;
-            @XmlElement(name = "NetTotal", required = true)
-            protected BigDecimal netTotal;
-            @XmlElement(name = "GrossTotal", required = true)
-            protected BigDecimal grossTotal;
-            @XmlElement(name = "Currency")
-            protected Currency currency;
-
-            /**
-             * Gets the value of the taxPayable property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link BigDecimal }
-             *     
-             */
-            public BigDecimal getTaxPayable() {
-                return taxPayable;
-            }
-
-            /**
-             * Sets the value of the taxPayable property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link BigDecimal }
-             *     
-             */
-            public void setTaxPayable(BigDecimal value) {
-                this.taxPayable = value;
-            }
-
-            /**
-             * Gets the value of the netTotal property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link BigDecimal }
-             *     
-             */
-            public BigDecimal getNetTotal() {
-                return netTotal;
-            }
-
-            /**
-             * Sets the value of the netTotal property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link BigDecimal }
-             *     
-             */
-            public void setNetTotal(BigDecimal value) {
-                this.netTotal = value;
-            }
-
-            /**
-             * Gets the value of the grossTotal property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link BigDecimal }
-             *     
-             */
-            public BigDecimal getGrossTotal() {
-                return grossTotal;
-            }
-
-            /**
-             * Sets the value of the grossTotal property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link BigDecimal }
-             *     
-             */
-            public void setGrossTotal(BigDecimal value) {
-                this.grossTotal = value;
-            }
-
-            /**
-             * Gets the value of the currency property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link Currency }
-             *     
-             */
-            public Currency getCurrency() {
-                return currency;
-            }
-
-            /**
-             * Sets the value of the currency property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link Currency }
-             *     
-             */
-            public void setCurrency(Currency value) {
-                this.currency = value;
-            }
-
-            @Override
-            public String toString() {
-                final ToStringStrategy2 strategy = new DefaultToStringStrategy();
-                final StringBuilder buffer = new StringBuilder();
-                append(null, buffer, strategy);
-                return buffer.toString();
-            }
-
-            @Override
-            public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                strategy.appendStart(locator, this, buffer);
-                appendFields(locator, buffer, strategy);
-                strategy.appendEnd(locator, this, buffer);
-                return buffer;
-            }
-
-            @Override
-            public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                {
-                    BigDecimal theTaxPayable;
-                    theTaxPayable = this.getTaxPayable();
-                    strategy.appendField(locator, this, "taxPayable", buffer, theTaxPayable, (this.taxPayable!= null));
-                }
-                {
-                    BigDecimal theNetTotal;
-                    theNetTotal = this.getNetTotal();
-                    strategy.appendField(locator, this, "netTotal", buffer, theNetTotal, (this.netTotal!= null));
-                }
-                {
-                    BigDecimal theGrossTotal;
-                    theGrossTotal = this.getGrossTotal();
-                    strategy.appendField(locator, this, "grossTotal", buffer, theGrossTotal, (this.grossTotal!= null));
-                }
-                {
-                    Currency theCurrency;
-                    theCurrency = this.getCurrency();
-                    strategy.appendField(locator, this, "currency", buffer, theCurrency, (this.currency!= null));
-                }
-                return buffer;
-            }
-
-        }
-
-        @XmlAccessorType(XmlAccessType.FIELD)
-        @XmlType(name = "", propOrder = {
-            "lineNumber",
-            "orderReferences",
-            "productCode",
-            "productDescription",
-            "quantity",
-            "unitOfMeasure",
-            "unitPrice",
-            "taxBase",
-            "taxPointDate",
-            "references",
-            "description",
-            "productSerialNumber",
-            "debitAmount",
-            "creditAmount",
-            "tax",
-            "taxExemptionReason",
-            "taxExemptionCode"
-        })
-        public static class Line
-            implements ToString2
-        {
-
-            @XmlElement(name = "LineNumber", required = true)
-            @XmlSchemaType(name = "nonNegativeInteger")
-            protected BigInteger lineNumber;
-            @XmlElement(name = "OrderReferences")
-            protected List<OrderReferences> orderReferences;
-            @XmlElement(name = "ProductCode", required = true)
-            protected String productCode;
-            @XmlElement(name = "ProductDescription", required = true)
-            protected String productDescription;
-            @XmlElement(name = "Quantity", required = true)
-            protected BigDecimal quantity;
-            @XmlElement(name = "UnitOfMeasure", required = true)
-            protected String unitOfMeasure;
-            @XmlElement(name = "UnitPrice", required = true)
-            protected BigDecimal unitPrice;
-            @XmlElement(name = "TaxBase")
-            protected BigDecimal taxBase;
-            @XmlElement(name = "TaxPointDate", required = true)
-            @XmlSchemaType(name = "date")
-            protected XMLGregorianCalendar taxPointDate;
-            @XmlElement(name = "References")
-            protected List<References> references;
-            @XmlElement(name = "Description", required = true)
-            protected String description;
-            @XmlElement(name = "ProductSerialNumber")
-            protected ProductSerialNumber productSerialNumber;
-            @XmlElement(name = "DebitAmount")
-            protected BigDecimal debitAmount;
-            @XmlElement(name = "CreditAmount")
-            protected BigDecimal creditAmount;
-            @XmlElement(name = "Tax")
-            protected Tax tax;
-            @XmlElement(name = "TaxExemptionReason")
-            protected String taxExemptionReason;
-            @XmlElement(name = "TaxExemptionCode")
-            protected String taxExemptionCode;
-
-            /**
-             * Gets the value of the lineNumber property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link BigInteger }
-             *     
-             */
-            public BigInteger getLineNumber() {
-                return lineNumber;
-            }
-
-            /**
-             * Sets the value of the lineNumber property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link BigInteger }
-             *     
-             */
-            public void setLineNumber(BigInteger value) {
-                this.lineNumber = value;
-            }
-
-            /**
-             * Gets the value of the orderReferences property.
-             * 
-             * <p>
-             * This accessor method returns a reference to the live list,
-             * not a snapshot. Therefore any modification you make to the
-             * returned list will be present inside the JAXB object.
-             * This is why there is not a <CODE>set</CODE> method for the orderReferences property.
-             * 
-             * <p>
-             * For example, to add a new item, do as follows:
-             * <pre>
-             *    getOrderReferences().add(newItem);
-             * </pre>
-             * 
-             * 
-             * <p>
-             * Objects of the following type(s) are allowed in the list
-             * {@link OrderReferences }
-             * 
-             * 
-             */
-            public List<References> getOrderReferences() {
-                if (orderReferences == null) {
-                    orderReferences = new ArrayList<References>();
-                }
-                return this.orderReferences;
-            }
-
-            /**
-             * Gets the value of the productCode property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
-            public String getProductCode() {
-                return productCode;
-            }
-
-            /**
-             * Sets the value of the productCode property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
-            public void setProductCode(String value) {
-                this.productCode = value;
-            }
-
-            /**
-             * Gets the value of the productDescription property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
-            public String getProductDescription() {
-                return productDescription;
-            }
-
-            /**
-             * Sets the value of the productDescription property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
-            public void setProductDescription(String value) {
-                this.productDescription = value;
-            }
-
-            /**
-             * Gets the value of the quantity property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link BigDecimal }
-             *     
-             */
-            public BigDecimal getQuantity() {
-                return quantity;
-            }
-
-            /**
-             * Sets the value of the quantity property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link BigDecimal }
-             *     
-             */
-            public void setQuantity(BigDecimal value) {
-                this.quantity = value;
-            }
-
-            /**
-             * Gets the value of the unitOfMeasure property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
-            public String getUnitOfMeasure() {
-                return unitOfMeasure;
-            }
-
-            /**
-             * Sets the value of the unitOfMeasure property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
-            public void setUnitOfMeasure(String value) {
-                this.unitOfMeasure = value;
-            }
-
-            /**
-             * Gets the value of the unitPrice property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link BigDecimal }
-             *     
-             */
-            public BigDecimal getUnitPrice() {
-                return unitPrice;
-            }
-
-            /**
-             * Sets the value of the unitPrice property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link BigDecimal }
-             *     
-             */
-            public void setUnitPrice(BigDecimal value) {
-                this.unitPrice = value;
-            }
-
-            /**
-             * Gets the value of the taxBase property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link BigDecimal }
-             *     
-             */
-            public BigDecimal getTaxBase() {
-                return taxBase;
-            }
-
-            /**
-             * Sets the value of the taxBase property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link BigDecimal }
-             *     
-             */
-            public void setTaxBase(BigDecimal value) {
-                this.taxBase = value;
-            }
-
-            /**
-             * Gets the value of the taxPointDate property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
-            public XMLGregorianCalendar getTaxPointDate() {
-                return taxPointDate;
-            }
-
-            /**
-             * Sets the value of the taxPointDate property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
-            public void setTaxPointDate(XMLGregorianCalendar value) {
-                this.taxPointDate = value;
-            }
-
-            /**
-             * Gets the value of the references property.
-             * 
-             * <p>
-             * This accessor method returns a reference to the live list,
-             * not a snapshot. Therefore any modification you make to the
-             * returned list will be present inside the JAXB object.
-             * This is why there is not a <CODE>set</CODE> method for the references property.
-             * 
-             * <p>
-             * For example, to add a new item, do as follows:
-             * <pre>
-             *    getReferences().add(newItem);
-             * </pre>
-             * 
-             * 
-             * <p>
-             * Objects of the following type(s) are allowed in the list
-             * {@link References }
-             * 
-             * 
-             */
-            public List<References> getReferences() {
-                if (references == null) {
-                    references = new ArrayList<References>();
-                }
-                return this.references;
-            }
-
-            /**
-             * Gets the value of the description property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
-            public String getDescription() {
-                return description;
-            }
-
-            /**
-             * Sets the value of the description property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
-            public void setDescription(String value) {
-                this.description = value;
-            }
-
-            /**
-             * Gets the value of the productSerialNumber property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link ProductSerialNumber }
-             *     
-             */
-            public ProductSerialNumber getProductSerialNumber() {
-                return productSerialNumber;
-            }
-
-            /**
-             * Sets the value of the productSerialNumber property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link ProductSerialNumber }
-             *     
-             */
-            public void setProductSerialNumber(ProductSerialNumber value) {
-                this.productSerialNumber = value;
-            }
-
-            /**
-             * Gets the value of the debitAmount property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link BigDecimal }
-             *     
-             */
-            public BigDecimal getDebitAmount() {
-                return debitAmount;
-            }
-
-            /**
-             * Sets the value of the debitAmount property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link BigDecimal }
-             *     
-             */
-            public void setDebitAmount(BigDecimal value) {
-                this.debitAmount = value;
-            }
-
-            /**
-             * Gets the value of the creditAmount property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link BigDecimal }
-             *     
-             */
-            public BigDecimal getCreditAmount() {
-                return creditAmount;
-            }
-
-            /**
-             * Sets the value of the creditAmount property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link BigDecimal }
-             *     
-             */
-            public void setCreditAmount(BigDecimal value) {
-                this.creditAmount = value;
-            }
-
-            /**
-             * Gets the value of the tax property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link Tax }
-             *     
-             */
-            public Tax getTax() {
-                return tax;
-            }
-
-            /**
-             * Sets the value of the tax property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link Tax }
-             *     
-             */
-            public void setTax(Tax value) {
-                this.tax = value;
-            }
-
-            /**
-             * Gets the value of the taxExemptionReason property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
-            public String getTaxExemptionReason() {
-                return taxExemptionReason;
-            }
-
-            /**
-             * Sets the value of the taxExemptionReason property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
-            public void setTaxExemptionReason(String value) {
-                this.taxExemptionReason = value;
-            }
-
-            /**
-             * Gets the value of the taxExemptionCode property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
-            public String getTaxExemptionCode() {
-                return taxExemptionCode;
-            }
-
-            /**
-             * Sets the value of the taxExemptionCode property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
-            public void setTaxExemptionCode(String value) {
-                this.taxExemptionCode = value;
-            }
-
-            @Override
-            public String toString() {
-                final ToStringStrategy2 strategy = new DefaultToStringStrategy();
-                final StringBuilder buffer = new StringBuilder();
-                append(null, buffer, strategy);
-                return buffer.toString();
-            }
-
-            @Override
-            public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                strategy.appendStart(locator, this, buffer);
-                appendFields(locator, buffer, strategy);
-                strategy.appendEnd(locator, this, buffer);
-                return buffer;
-            }
-
-            @Override
-            public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                {
-                    BigInteger theLineNumber;
-                    theLineNumber = this.getLineNumber();
-                    strategy.appendField(locator, this, "lineNumber", buffer, theLineNumber, (this.lineNumber!= null));
-                }
-                {
-                    List<References> theOrderReferences;
-                    theOrderReferences = (((this.orderReferences!= null)&&(!this.orderReferences.isEmpty()))?this.getOrderReferences():null);
-                    strategy.appendField(locator, this, "orderReferences", buffer, theOrderReferences, ((this.orderReferences!= null)&&(!this.orderReferences.isEmpty())));
-                }
-                {
-                    String theProductCode;
-                    theProductCode = this.getProductCode();
-                    strategy.appendField(locator, this, "productCode", buffer, theProductCode, (this.productCode!= null));
-                }
-                {
-                    String theProductDescription;
-                    theProductDescription = this.getProductDescription();
-                    strategy.appendField(locator, this, "productDescription", buffer, theProductDescription, (this.productDescription!= null));
-                }
-                {
-                    BigDecimal theQuantity;
-                    theQuantity = this.getQuantity();
-                    strategy.appendField(locator, this, "quantity", buffer, theQuantity, (this.quantity!= null));
-                }
-                {
-                    String theUnitOfMeasure;
-                    theUnitOfMeasure = this.getUnitOfMeasure();
-                    strategy.appendField(locator, this, "unitOfMeasure", buffer, theUnitOfMeasure, (this.unitOfMeasure!= null));
-                }
-                {
-                    BigDecimal theUnitPrice;
-                    theUnitPrice = this.getUnitPrice();
-                    strategy.appendField(locator, this, "unitPrice", buffer, theUnitPrice, (this.unitPrice!= null));
-                }
-                {
-                    BigDecimal theTaxBase;
-                    theTaxBase = this.getTaxBase();
-                    strategy.appendField(locator, this, "taxBase", buffer, theTaxBase, (this.taxBase!= null));
-                }
-                {
-                    XMLGregorianCalendar theTaxPointDate;
-                    theTaxPointDate = this.getTaxPointDate();
-                    strategy.appendField(locator, this, "taxPointDate", buffer, theTaxPointDate, (this.taxPointDate!= null));
-                }
-                {
-                    List<References> theReferences;
-                    theReferences = (((this.references!= null)&&(!this.references.isEmpty()))?this.getReferences():null);
-                    strategy.appendField(locator, this, "references", buffer, theReferences, ((this.references!= null)&&(!this.references.isEmpty())));
-                }
-                {
-                    String theDescription;
-                    theDescription = this.getDescription();
-                    strategy.appendField(locator, this, "description", buffer, theDescription, (this.description!= null));
-                }
-                {
-                    ProductSerialNumber theProductSerialNumber;
-                    theProductSerialNumber = this.getProductSerialNumber();
-                    strategy.appendField(locator, this, "productSerialNumber", buffer, theProductSerialNumber, (this.productSerialNumber!= null));
-                }
-                {
-                    BigDecimal theDebitAmount;
-                    theDebitAmount = this.getDebitAmount();
-                    strategy.appendField(locator, this, "debitAmount", buffer, theDebitAmount, (this.debitAmount!= null));
-                }
-                {
-                    BigDecimal theCreditAmount;
-                    theCreditAmount = this.getCreditAmount();
-                    strategy.appendField(locator, this, "creditAmount", buffer, theCreditAmount, (this.creditAmount!= null));
-                }
-                {
-                    Tax theTax;
-                    theTax = this.getTax();
-                    strategy.appendField(locator, this, "tax", buffer, theTax, (this.tax!= null));
-                }
-                {
-                    String theTaxExemptionReason;
-                    theTaxExemptionReason = this.getTaxExemptionReason();
-                    strategy.appendField(locator, this, "taxExemptionReason", buffer, theTaxExemptionReason, (this.taxExemptionReason!= null));
-                }
-                {
-                    String theTaxExemptionCode;
-                    theTaxExemptionCode = this.getTaxExemptionCode();
-                    strategy.appendField(locator, this, "taxExemptionCode", buffer, theTaxExemptionCode, (this.taxExemptionCode!= null));
-                }
-                return buffer;
-            }
-
-        }
-
-        @Override
-        public String toString() {
-            final ToStringStrategy2 strategy = new DefaultToStringStrategy();
-            final StringBuilder buffer = new StringBuilder();
-            append(null, buffer, strategy);
-            return buffer.toString();
-        }
-
-        @Override
-        public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-            strategy.appendStart(locator, this, buffer);
-            appendFields(locator, buffer, strategy);
-            strategy.appendEnd(locator, this, buffer);
-            return buffer;
-        }
-
-        @Override
-        public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-            {
-                BigInteger theNumberOfEntries;
-                // No fields here, already handled at MovementOfGoods level.
-            }
-            return buffer;
-        }
-
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)
@@ -4382,9 +1885,7 @@ public class SourceDocuments
         "totalCredit",
         "invoice"
     })
-    public static class SalesInvoices
-        implements ToString2
-    {
+    public static class SalesInvoices implements ToString2 {
 
         @XmlElement(name = "NumberOfEntries", required = true)
         @XmlSchemaType(name = "nonNegativeInteger")
@@ -4396,100 +1897,30 @@ public class SourceDocuments
         @XmlElement(name = "Invoice")
         protected List<SourceDocuments.SalesInvoices.Invoice> invoice;
 
-        /**
-         * Gets the value of the numberOfEntries property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link BigInteger }
-         *     
-         */
         public BigInteger getNumberOfEntries() {
             return numberOfEntries;
         }
 
-        /**
-         * Sets the value of the numberOfEntries property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link BigInteger }
-         *     
-         */
         public void setNumberOfEntries(BigInteger value) {
             this.numberOfEntries = value;
         }
 
-        /**
-         * Gets the value of the totalDebit property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link BigDecimal }
-         *     
-         */
         public BigDecimal getTotalDebit() {
             return totalDebit;
         }
 
-        /**
-         * Sets the value of the totalDebit property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link BigDecimal }
-         *     
-         */
         public void setTotalDebit(BigDecimal value) {
             this.totalDebit = value;
         }
 
-        /**
-         * Gets the value of the totalCredit property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link BigDecimal }
-         *     
-         */
         public BigDecimal getTotalCredit() {
             return totalCredit;
         }
 
-        /**
-         * Sets the value of the totalCredit property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link BigDecimal }
-         *     
-         */
         public void setTotalCredit(BigDecimal value) {
             this.totalCredit = value;
         }
 
-        /**
-         * Gets the value of the invoice property.
-         * 
-         * <p>
-         * This accessor method returns a reference to the live list,
-         * not a snapshot. Therefore any modification you make to the
-         * returned list will be present inside the JAXB object.
-         * This is why there is not a <CODE>set</CODE> method for the invoice property.
-         * 
-         * <p>
-         * For example, to add a new item, do as follows:
-         * <pre>
-         *    getInvoice().add(newItem);
-         * </pre>
-         * 
-         * 
-         * <p>
-         * Objects of the following type(s) are allowed in the list
-         * {@link SourceDocuments.SalesInvoices.Invoice }
-         * 
-         * 
-         */
         public List<SourceDocuments.SalesInvoices.Invoice> getInvoice() {
             if (invoice == null) {
                 invoice = new ArrayList<SourceDocuments.SalesInvoices.Invoice>();
@@ -4499,14 +1930,14 @@ public class SourceDocuments
 
         @Override
         public String toString() {
-            final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+            final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
             final StringBuilder buffer = new StringBuilder();
             append(null, buffer, strategy);
             return buffer.toString();
         }
 
         @Override
-        public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+        public StringBuilder append(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
             strategy.appendStart(locator, this, buffer);
             appendFields(locator, buffer, strategy);
             strategy.appendEnd(locator, this, buffer);
@@ -4514,7 +1945,7 @@ public class SourceDocuments
         }
 
         @Override
-        public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+        public StringBuilder appendFields(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
             {
                 BigInteger theNumberOfEntries;
                 theNumberOfEntries = this.getNumberOfEntries();
@@ -4562,9 +1993,7 @@ public class SourceDocuments
             "documentTotals",
             "withholdingTax"
         })
-        public static class Invoice
-            implements ToString2
-        {
+        public static class Invoice implements ToString2 {
 
             @XmlElement(name = "InvoiceNo", required = true)
             protected String invoiceNo;
@@ -4613,448 +2042,182 @@ public class SourceDocuments
             @XmlElement(name = "WithholdingTax")
             protected List<WithholdingTax> withholdingTax;
 
-            /**
-             * Gets the value of the invoiceNo property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getInvoiceNo() {
                 return invoiceNo;
             }
 
-            /**
-             * Sets the value of the invoiceNo property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setInvoiceNo(String value) {
                 this.invoiceNo = value;
             }
 
-            /**
-             * Gets the value of the atcud property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getATCUD() {
                 return atcud;
             }
 
-            /**
-             * Sets the value of the atcud property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setATCUD(String value) {
                 this.atcud = value;
             }
 
-            /**
-             * Gets the value of the documentStatus property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link SourceDocuments.SalesInvoices.Invoice.DocumentStatus }
-             *     
-             */
             public SourceDocuments.SalesInvoices.Invoice.DocumentStatus getDocumentStatus() {
                 return documentStatus;
             }
 
-            /**
-             * Sets the value of the documentStatus property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link SourceDocuments.SalesInvoices.Invoice.DocumentStatus }
-             *     
-             */
             public void setDocumentStatus(SourceDocuments.SalesInvoices.Invoice.DocumentStatus value) {
                 this.documentStatus = value;
             }
 
-            /**
-             * Gets the value of the hash property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getHash() {
                 return hash;
             }
 
-            /**
-             * Sets the value of the hash property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setHash(String value) {
                 this.hash = value;
             }
 
-            /**
-             * Gets the value of the hashControl property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getHashControl() {
                 return hashControl;
             }
 
-            /**
-             * Sets the value of the hashControl property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setHashControl(String value) {
                 this.hashControl = value;
             }
 
-            /**
-             * Gets the value of the period property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link Integer }
-             *     
-             */
             public Integer getPeriod() {
                 return period;
             }
 
-            /**
-             * Sets the value of the period property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link Integer }
-             *     
-             */
             public void setPeriod(Integer value) {
                 this.period = value;
             }
 
-            /**
-             * Gets the value of the invoiceDate property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public XMLGregorianCalendar getInvoiceDate() {
                 return invoiceDate;
             }
 
-            /**
-             * Sets the value of the invoiceDate property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public void setInvoiceDate(XMLGregorianCalendar value) {
                 this.invoiceDate = value;
             }
 
-            /**
-             * Gets the value of the invoiceType property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getInvoiceType() {
                 return invoiceType;
             }
 
-            /**
-             * Sets the value of the invoiceType property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setInvoiceType(String value) {
                 this.invoiceType = value;
             }
 
-            /**
-             * Gets the value of the specialRegimes property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link SpecialRegimes }
-             *     
-             */
             public SpecialRegimes getSpecialRegimes() {
                 return specialRegimes;
             }
 
-            /**
-             * Sets the value of the specialRegimes property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link SpecialRegimes }
-             *     
-             */
             public void setSpecialRegimes(SpecialRegimes value) {
                 this.specialRegimes = value;
             }
 
-            /**
-             * Gets the value of the sourceID property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getSourceID() {
                 return sourceID;
             }
 
-            /**
-             * Sets the value of the sourceID property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setSourceID(String value) {
                 this.sourceID = value;
             }
 
-            /**
-             * Gets the value of the eacCode property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getEACCode() {
                 return eacCode;
             }
 
-            /**
-             * Sets the value of the eacCode property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setEACCode(String value) {
                 this.eacCode = value;
             }
 
-            /**
-             * Gets the value of the systemEntryDate property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public XMLGregorianCalendar getSystemEntryDate() {
                 return systemEntryDate;
             }
 
-            /**
-             * Sets the value of the systemEntryDate property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public void setSystemEntryDate(XMLGregorianCalendar value) {
                 this.systemEntryDate = value;
             }
 
-            /**
-             * Gets the value of the transactionID property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getTransactionID() {
                 return transactionID;
             }
 
-            /**
-             * Sets the value of the transactionID property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setTransactionID(String value) {
                 this.transactionID = value;
             }
 
-            /**
-             * Gets the value of the customerID property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getCustomerID() {
                 return customerID;
             }
 
-            /**
-             * Sets the value of the customerID property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setCustomerID(String value) {
                 this.customerID = value;
             }
 
-            /**
-             * Gets the value of the shipTo property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link ShippingPointStructure }
-             *     
-             */
             public ShippingPointStructure getShipTo() {
                 return shipTo;
             }
 
-            /**
-             * Sets the value of the shipTo property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link ShippingPointStructure }
-             *     
-             */
             public void setShipTo(ShippingPointStructure value) {
                 this.shipTo = value;
             }
 
-            /**
-             * Gets the value of the shipFrom property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link ShippingPointStructure }
-             *     
-             */
             public ShippingPointStructure getShipFrom() {
                 return shipFrom;
             }
 
-            /**
-             * Sets the value of the shipFrom property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link ShippingPointStructure }
-             *     
-             */
             public void setShipFrom(ShippingPointStructure value) {
                 this.shipFrom = value;
             }
 
-            /**
-             * Gets the value of the movementEndTime property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public XMLGregorianCalendar getMovementEndTime() {
                 return movementEndTime;
             }
 
-            /**
-             * Sets the value of the movementEndTime property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public void setMovementEndTime(XMLGregorianCalendar value) {
                 this.movementEndTime = value;
             }
 
-            /**
-             * Gets the value of the movementStartTime property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public XMLGregorianCalendar getMovementStartTime() {
                 return movementStartTime;
             }
 
-            /**
-             * Sets the value of the movementStartTime property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public void setMovementStartTime(XMLGregorianCalendar value) {
                 this.movementStartTime = value;
             }
 
+            public List<SourceDocuments.SalesInvoices.Invoice.Line> getLine() {
+                if (line == null) {
+                    line = new ArrayList<SourceDocuments.SalesInvoices.Invoice.Line>();
+                }
+                return this.line;
+            }
+
+            public SourceDocuments.SalesInvoices.Invoice.DocumentTotals getDocumentTotals() {
+                return documentTotals;
+            }
+
+            public void setDocumentTotals(SourceDocuments.SalesInvoices.Invoice.DocumentTotals value) {
+                this.documentTotals = value;
+            }
+
+            public List<WithholdingTax> getWithholdingTax() {
+                if (withholdingTax == null) {
+                    withholdingTax = new ArrayList<WithholdingTax>();
+                }
+                return this.withholdingTax;
+            }
+
             @Override
             public String toString() {
-                final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+                final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
                 final StringBuilder buffer = new StringBuilder();
                 append(null, buffer, strategy);
                 return buffer.toString();
             }
 
             @Override
-            public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+            public StringBuilder append(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                 strategy.appendStart(locator, this, buffer);
                 appendFields(locator, buffer, strategy);
                 strategy.appendEnd(locator, this, buffer);
@@ -5062,7 +2225,7 @@ public class SourceDocuments
             }
 
             @Override
-            public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+            public StringBuilder appendFields(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                 {
                     String theInvoiceNo;
                     theInvoiceNo = this.getInvoiceNo();
@@ -5153,11 +2316,226 @@ public class SourceDocuments
                     theMovementStartTime = this.getMovementStartTime();
                     strategy.appendField(locator, this, "movementStartTime", buffer, theMovementStartTime, (this.movementStartTime!= null));
                 }
+                {
+                    List<SourceDocuments.SalesInvoices.Invoice.Line> theLine;
+                    theLine = (((this.line!= null)&&(!this.line.isEmpty()))?this.getLine():null);
+                    strategy.appendField(locator, this, "line", buffer, theLine, ((this.line!= null)&&(!this.line.isEmpty())));
+                }
+                {
+                    SourceDocuments.SalesInvoices.Invoice.DocumentTotals theDocumentTotals;
+                    theDocumentTotals = this.getDocumentTotals();
+                    strategy.appendField(locator, this, "documentTotals", buffer, theDocumentTotals, (this.documentTotals!= null));
+                }
+                {
+                    List<WithholdingTax> theWithholdingTax;
+                    theWithholdingTax = (((this.withholdingTax!= null)&&(!this.withholdingTax.isEmpty()))?this.getWithholdingTax():null);
+                    strategy.appendField(locator, this, "withholdingTax", buffer, theWithholdingTax, ((this.withholdingTax!= null)&&(!this.withholdingTax.isEmpty())));
+                }
                 return buffer;
             }
 
-        }
+            @XmlAccessorType(XmlAccessType.FIELD)
+            @XmlType(name = "", propOrder = {
+                "invoiceStatus",
+                "invoiceStatusDate",
+                "reason",
+                "sourceID",
+                "sourceBilling"
+            })
+            public static class DocumentStatus implements ToString2 {
 
+                @XmlElement(name = "InvoiceStatus", required = true)
+                protected String invoiceStatus;
+                @XmlElement(name = "InvoiceStatusDate", required = true)
+                @XmlSchemaType(name = "dateTime")
+                protected XMLGregorianCalendar invoiceStatusDate;
+                @XmlElement(name = "Reason")
+                protected String reason;
+                @XmlElement(name = "SourceID", required = true)
+                protected String sourceID;
+                @XmlElement(name = "SourceBilling", required = true)
+                @XmlSchemaType(name = "string")
+                protected SAFTPTSourceBilling sourceBilling;
+
+                public String getInvoiceStatus() {
+                    return invoiceStatus;
+                }
+
+                public void setInvoiceStatus(String value) {
+                    this.invoiceStatus = value;
+                }
+
+                public XMLGregorianCalendar getInvoiceStatusDate() {
+                    return invoiceStatusDate;
+                }
+
+                public void setInvoiceStatusDate(XMLGregorianCalendar value) {
+                    this.invoiceStatusDate = value;
+                }
+
+                public String getReason() {
+                    return reason;
+                }
+
+                public void setReason(String value) {
+                    this.reason = value;
+                }
+
+                public String getSourceID() {
+                    return sourceID;
+                }
+
+                public void setSourceID(String value) {
+                    this.sourceID = value;
+                }
+
+                public SAFTPTSourceBilling getSourceBilling() {
+                    return sourceBilling;
+                }
+
+                public void setSourceBilling(SAFTPTSourceBilling value) {
+                    this.sourceBilling = value;
+                }
+
+                @Override
+                public String toString() {
+                    final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
+                    final StringBuilder buffer = new StringBuilder();
+                    append(null, buffer, strategy);
+                    return buffer.toString();
+                }
+
+                @Override
+                public StringBuilder append(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                    strategy.appendStart(locator, this, buffer);
+                    appendFields(locator, buffer, strategy);
+                    strategy.appendEnd(locator, this, buffer);
+                    return buffer;
+                }
+
+                @Override
+                public StringBuilder appendFields(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                    {
+                        String theInvoiceStatus;
+                        theInvoiceStatus = this.getInvoiceStatus();
+                        strategy.appendField(locator, this, "invoiceStatus", buffer, theInvoiceStatus, (this.invoiceStatus!= null));
+                    }
+                    {
+                        XMLGregorianCalendar theInvoiceStatusDate;
+                        theInvoiceStatusDate = this.getInvoiceStatusDate();
+                        strategy.appendField(locator, this, "invoiceStatusDate", buffer, theInvoiceStatusDate, (this.invoiceStatusDate!= null));
+                    }
+                    {
+                        String theReason;
+                        theReason = this.getReason();
+                        strategy.appendField(locator, this, "reason", buffer, theReason, (this.reason!= null));
+                    }
+                    {
+                        String theSourceID;
+                        theSourceID = this.getSourceID();
+                        strategy.appendField(locator, this, "sourceID", buffer, theSourceID, (this.sourceID!= null));
+                    }
+                    {
+                        SAFTPTSourceBilling theSourceBilling;
+                        theSourceBilling = this.getSourceBilling();
+                        strategy.appendField(locator, this, "sourceBilling", buffer, theSourceBilling, (this.sourceBilling!= null));
+                    }
+                    return buffer;
+                }
+            }
+
+            @XmlAccessorType(XmlAccessType.FIELD)
+            @XmlType(name = "", propOrder = {
+                "taxPayable",
+                "netTotal",
+                "grossTotal",
+                "currency"
+            })
+            public static class DocumentTotals implements ToString2 {
+
+                @XmlElement(name = "TaxPayable", required = true)
+                protected BigDecimal taxPayable;
+                @XmlElement(name = "NetTotal", required = true)
+                protected BigDecimal netTotal;
+                @XmlElement(name = "GrossTotal", required = true)
+                protected BigDecimal grossTotal;
+                @XmlElement(name = "Currency")
+                protected Currency currency;
+
+                public BigDecimal getTaxPayable() {
+                    return taxPayable;
+                }
+
+                public void setTaxPayable(BigDecimal value) {
+                    this.taxPayable = value;
+                }
+
+                public BigDecimal getNetTotal() {
+                    return netTotal;
+                }
+
+                public void setNetTotal(BigDecimal value) {
+                    this.netTotal = value;
+                }
+
+                public BigDecimal getGrossTotal() {
+                    return grossTotal;
+                }
+
+                public void setGrossTotal(BigDecimal value) {
+                    this.grossTotal = value;
+                }
+
+                public Currency getCurrency() {
+                    return currency;
+                }
+
+                public void setCurrency(Currency value) {
+                    this.currency = value;
+                }
+
+                @Override
+                public String toString() {
+                    final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
+                    final StringBuilder buffer = new StringBuilder();
+                    append(null, buffer, strategy);
+                    return buffer.toString();
+                }
+
+                @Override
+                public StringBuilder append(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                    strategy.appendStart(locator, this, buffer);
+                    appendFields(locator, buffer, strategy);
+                    strategy.appendEnd(locator, this, buffer);
+                    return buffer;
+                }
+
+                @Override
+                public StringBuilder appendFields(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                    {
+                        BigDecimal theTaxPayable;
+                        theTaxPayable = this.getTaxPayable();
+                        strategy.appendField(locator, this, "taxPayable", buffer, theTaxPayable, (this.taxPayable!= null));
+                    }
+                    {
+                        BigDecimal theNetTotal;
+                        theNetTotal = this.getNetTotal();
+                        strategy.appendField(locator, this, "netTotal", buffer, theNetTotal, (this.netTotal!= null));
+                    }
+                    {
+                        BigDecimal theGrossTotal;
+                        theGrossTotal = this.getGrossTotal();
+                        strategy.appendField(locator, this, "grossTotal", buffer, theGrossTotal, (this.grossTotal!= null));
+                    }
+                    {
+                        Currency theCurrency;
+                        theCurrency = this.getCurrency();
+                        strategy.appendField(locator, this, "currency", buffer, theCurrency, (this.currency!= null));
+                    }
+                    return buffer;
+                }
+            }
+        }
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)
@@ -5167,9 +2545,7 @@ public class SourceDocuments
         "totalCredit",
         "workDocument"
     })
-    public static class WorkingDocuments
-        implements ToString2
-    {
+    public static class WorkingDocuments implements ToString2 {
 
         @XmlElement(name = "NumberOfEntries", required = true)
         @XmlSchemaType(name = "nonNegativeInteger")
@@ -5181,100 +2557,30 @@ public class SourceDocuments
         @XmlElement(name = "WorkDocument")
         protected List<SourceDocuments.WorkingDocuments.WorkDocument> workDocument;
 
-        /**
-         * Gets the value of the numberOfEntries property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link BigInteger }
-         *     
-         */
         public BigInteger getNumberOfEntries() {
             return numberOfEntries;
         }
 
-        /**
-         * Sets the value of the numberOfEntries property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link BigInteger }
-         *     
-         */
         public void setNumberOfEntries(BigInteger value) {
             this.numberOfEntries = value;
         }
 
-        /**
-         * Gets the value of the totalDebit property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link BigDecimal }
-         *     
-         */
         public BigDecimal getTotalDebit() {
             return totalDebit;
         }
 
-        /**
-         * Sets the value of the totalDebit property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link BigDecimal }
-         *     
-         */
         public void setTotalDebit(BigDecimal value) {
             this.totalDebit = value;
         }
 
-        /**
-         * Gets the value of the totalCredit property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link BigDecimal }
-         *     
-         */
         public BigDecimal getTotalCredit() {
             return totalCredit;
         }
 
-        /**
-         * Sets the value of the totalCredit property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link BigDecimal }
-         *     
-         */
         public void setTotalCredit(BigDecimal value) {
             this.totalCredit = value;
         }
 
-        /**
-         * Gets the value of the workDocument property.
-         * 
-         * <p>
-         * This accessor method returns a reference to the live list,
-         * not a snapshot. Therefore any modification you make to the
-         * returned list will be present inside the JAXB object.
-         * This is why there is not a <CODE>set</CODE> method for the workDocument property.
-         * 
-         * <p>
-         * For example, to add a new item, do as follows:
-         * <pre>
-         *    getWorkDocument().add(newItem);
-         * </pre>
-         * 
-         * 
-         * <p>
-         * Objects of the following type(s) are allowed in the list
-         * {@link SourceDocuments.WorkingDocuments.WorkDocument }
-         * 
-         * 
-         */
         public List<SourceDocuments.WorkingDocuments.WorkDocument> getWorkDocument() {
             if (workDocument == null) {
                 workDocument = new ArrayList<SourceDocuments.WorkingDocuments.WorkDocument>();
@@ -5284,14 +2590,14 @@ public class SourceDocuments
 
         @Override
         public String toString() {
-            final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+            final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
             final StringBuilder buffer = new StringBuilder();
             append(null, buffer, strategy);
             return buffer.toString();
         }
 
         @Override
-        public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+        public StringBuilder append(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
             strategy.appendStart(locator, this, buffer);
             appendFields(locator, buffer, strategy);
             strategy.appendEnd(locator, this, buffer);
@@ -5299,7 +2605,7 @@ public class SourceDocuments
         }
 
         @Override
-        public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+        public StringBuilder appendFields(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
             {
                 BigInteger theNumberOfEntries;
                 theNumberOfEntries = this.getNumberOfEntries();
@@ -5341,9 +2647,7 @@ public class SourceDocuments
             "line",
             "documentTotals"
         })
-        public static class WorkDocument
-            implements ToString2
-        {
+        public static class WorkDocument implements ToString2 {
 
             @XmlElement(name = "DocumentNumber", required = true)
             protected String documentNumber;
@@ -5378,328 +2682,135 @@ public class SourceDocuments
             @XmlElement(name = "DocumentTotals", required = true)
             protected SourceDocuments.WorkingDocuments.WorkDocument.DocumentTotals documentTotals;
 
-            /**
-             * Gets the value of the documentNumber property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getDocumentNumber() {
                 return documentNumber;
             }
 
-            /**
-             * Sets the value of the documentNumber property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setDocumentNumber(String value) {
                 this.documentNumber = value;
             }
 
-            /**
-             * Gets the value of the atcud property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getATCUD() {
                 return atcud;
             }
 
-            /**
-             * Sets the value of the atcud property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setATCUD(String value) {
                 this.atcud = value;
             }
 
-            /**
-             * Gets the value of the documentStatus property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus }
-             *     
-             */
             public SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus getDocumentStatus() {
                 return documentStatus;
             }
 
-            /**
-             * Sets the value of the documentStatus property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus }
-             *     
-             */
             public void setDocumentStatus(SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus value) {
                 this.documentStatus = value;
             }
 
-            /**
-             * Gets the value of the hash property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getHash() {
                 return hash;
             }
 
-            /**
-             * Sets the value of the hash property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setHash(String value) {
                 this.hash = value;
             }
 
-            /**
-             * Gets the value of the hashControl property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getHashControl() {
                 return hashControl;
             }
 
-            /**
-             * Sets the value of the hashControl property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setHashControl(String value) {
                 this.hashControl = value;
             }
 
-            /**
-             * Gets the value of the period property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link Integer }
-             *     
-             */
             public Integer getPeriod() {
                 return period;
             }
 
-            /**
-             * Sets the value of the period property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link Integer }
-             *     
-             */
             public void setPeriod(Integer value) {
                 this.period = value;
             }
 
-            /**
-             * Gets the value of the workDate property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public XMLGregorianCalendar getWorkDate() {
                 return workDate;
             }
 
-            /**
-             * Sets the value of the workDate property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public void setWorkDate(XMLGregorianCalendar value) {
                 this.workDate = value;
             }
 
-            /**
-             * Gets the value of the workType property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getWorkType() {
                 return workType;
             }
 
-            /**
-             * Sets the value of the workType property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setWorkType(String value) {
                 this.workType = value;
             }
 
-            /**
-             * Gets the value of the sourceID property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getSourceID() {
                 return sourceID;
             }
 
-            /**
-             * Sets the value of the sourceID property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setSourceID(String value) {
                 this.sourceID = value;
             }
 
-            /**
-             * Gets the value of the eacCode property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getEACCode() {
                 return eacCode;
             }
 
-            /**
-             * Sets the value of the eacCode property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setEACCode(String value) {
                 this.eacCode = value;
             }
 
-            /**
-             * Gets the value of the systemEntryDate property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public XMLGregorianCalendar getSystemEntryDate() {
                 return systemEntryDate;
             }
 
-            /**
-             * Sets the value of the systemEntryDate property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link XMLGregorianCalendar }
-             *     
-             */
             public void setSystemEntryDate(XMLGregorianCalendar value) {
                 this.systemEntryDate = value;
             }
 
-            /**
-             * Gets the value of the transactionID property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getTransactionID() {
                 return transactionID;
             }
 
-            /**
-             * Sets the value of the transactionID property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setTransactionID(String value) {
                 this.transactionID = value;
             }
 
-            /**
-             * Gets the value of the customerID property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getCustomerID() {
                 return customerID;
             }
 
-            /**
-             * Sets the value of the customerID property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setCustomerID(String value) {
                 this.customerID = value;
             }
 
+            public List<SourceDocuments.WorkingDocuments.WorkDocument.Line> getLine() {
+                if (line == null) {
+                    line = new ArrayList<SourceDocuments.WorkingDocuments.WorkDocument.Line>();
+                }
+                return this.line;
+            }
+
+            public SourceDocuments.WorkingDocuments.WorkDocument.DocumentTotals getDocumentTotals() {
+                return documentTotals;
+            }
+
+            public void setDocumentTotals(SourceDocuments.WorkingDocuments.WorkDocument.DocumentTotals value) {
+                this.documentTotals = value;
+            }
+
             @Override
             public String toString() {
-                final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+                final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
                 final StringBuilder buffer = new StringBuilder();
                 append(null, buffer, strategy);
                 return buffer.toString();
             }
 
             @Override
-            public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+            public StringBuilder append(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                 strategy.appendStart(locator, this, buffer);
                 appendFields(locator, buffer, strategy);
                 strategy.appendEnd(locator, this, buffer);
@@ -5707,11 +2818,11 @@ public class SourceDocuments
             }
 
             @Override
-            public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+            public StringBuilder appendFields(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                 {
-                    String theInvoiceNo;
-                    theInvoiceNo = this.getInvoiceNo();
-                    strategy.appendField(locator, this, "invoiceNo", buffer, theInvoiceNo, (this.invoiceNo!= null));
+                    String theDocumentNumber;
+                    theDocumentNumber = this.getDocumentNumber();
+                    strategy.appendField(locator, this, "documentNumber", buffer, theDocumentNumber, (this.documentNumber!= null));
                 }
                 {
                     String theATCUD;
@@ -5719,7 +2830,7 @@ public class SourceDocuments
                     strategy.appendField(locator, this, "atcud", buffer, theATCUD, (this.atcud!= null));
                 }
                 {
-                    SourceDocuments.SalesInvoices.Invoice.DocumentStatus theDocumentStatus;
+                    SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus theDocumentStatus;
                     theDocumentStatus = this.getDocumentStatus();
                     strategy.appendField(locator, this, "documentStatus", buffer, theDocumentStatus, (this.documentStatus!= null));
                 }
@@ -5739,19 +2850,14 @@ public class SourceDocuments
                     strategy.appendField(locator, this, "period", buffer, thePeriod, (this.period!= null));
                 }
                 {
-                    XMLGregorianCalendar theInvoiceDate;
-                    theInvoiceDate = this.getInvoiceDate();
-                    strategy.appendField(locator, this, "invoiceDate", buffer, theInvoiceDate, (this.invoiceDate!= null));
+                    XMLGregorianCalendar theWorkDate;
+                    theWorkDate = this.getWorkDate();
+                    strategy.appendField(locator, this, "workDate", buffer, theWorkDate, (this.workDate!= null));
                 }
                 {
-                    String theInvoiceType;
-                    theInvoiceType = this.getInvoiceType();
-                    strategy.appendField(locator, this, "invoiceType", buffer, theInvoiceType, (this.invoiceType!= null));
-                }
-                {
-                    SpecialRegimes theSpecialRegimes;
-                    theSpecialRegimes = this.getSpecialRegimes();
-                    strategy.appendField(locator, this, "specialRegimes", buffer, theSpecialRegimes, (this.specialRegimes!= null));
+                    String theWorkType;
+                    theWorkType = this.getWorkType();
+                    strategy.appendField(locator, this, "workType", buffer, theWorkType, (this.workType!= null));
                 }
                 {
                     String theSourceID;
@@ -5779,34 +2885,219 @@ public class SourceDocuments
                     strategy.appendField(locator, this, "customerID", buffer, theCustomerID, (this.customerID!= null));
                 }
                 {
-                    ShippingPointStructure theShipTo;
-                    theShipTo = this.getShipTo();
-                    strategy.appendField(locator, this, "shipTo", buffer, theShipTo, (this.shipTo!= null));
+                    List<SourceDocuments.WorkingDocuments.WorkDocument.Line> theLine;
+                    theLine = (((this.line!= null)&&(!this.line.isEmpty()))?this.getLine():null);
+                    strategy.appendField(locator, this, "line", buffer, theLine, ((this.line!= null)&&(!this.line.isEmpty())));
                 }
                 {
-                    ShippingPointStructure theShipFrom;
-                    theShipFrom = this.getShipFrom();
-                    strategy.appendField(locator, this, "shipFrom", buffer, theShipFrom, (this.shipFrom!= null));
-                }
-                {
-                    XMLGregorianCalendar theMovementEndTime;
-                    theMovementEndTime = this.getMovementEndTime();
-                    strategy.appendField(locator, this, "movementEndTime", buffer, theMovementEndTime, (this.movementEndTime!= null));
-                }
-                {
-                    XMLGregorianCalendar theMovementStartTime;
-                    theMovementStartTime = this.getMovementStartTime();
-                    strategy.appendField(locator, this, "movementStartTime", buffer, theMovementStartTime, (this.movementStartTime!= null));
+                    SourceDocuments.WorkingDocuments.WorkDocument.DocumentTotals theDocumentTotals;
+                    theDocumentTotals = this.getDocumentTotals();
+                    strategy.appendField(locator, this, "documentTotals", buffer, theDocumentTotals, (this.documentTotals!= null));
                 }
                 return buffer;
             }
 
+            @XmlAccessorType(XmlAccessType.FIELD)
+            @XmlType(name = "", propOrder = {
+                "workStatus",
+                "workStatusDate",
+                "reason",
+                "sourceID",
+                "sourceBilling"
+            })
+            public static class DocumentStatus implements ToString2 {
+
+                @XmlElement(name = "WorkStatus", required = true)
+                protected String workStatus;
+                @XmlElement(name = "WorkStatusDate", required = true)
+                @XmlSchemaType(name = "dateTime")
+                protected XMLGregorianCalendar workStatusDate;
+                @XmlElement(name = "Reason")
+                protected String reason;
+                @XmlElement(name = "SourceID", required = true)
+                protected String sourceID;
+                @XmlElement(name = "SourceBilling", required = true)
+                @XmlSchemaType(name = "string")
+                protected SAFTPTSourceBilling sourceBilling;
+
+                public String getWorkStatus() {
+                    return workStatus;
+                }
+
+                public void setWorkStatus(String value) {
+                    this.workStatus = value;
+                }
+
+                public XMLGregorianCalendar getWorkStatusDate() {
+                    return workStatusDate;
+                }
+
+                public void setWorkStatusDate(XMLGregorianCalendar value) {
+                    this.workStatusDate = value;
+                }
+
+                public String getReason() {
+                    return reason;
+                }
+
+                public void setReason(String value) {
+                    this.reason = value;
+                }
+
+                public String getSourceID() {
+                    return sourceID;
+                }
+
+                public void setSourceID(String value) {
+                    this.sourceID = value;
+                }
+
+                public SAFTPTSourceBilling getSourceBilling() {
+                    return sourceBilling;
+                }
+
+                public void setSourceBilling(SAFTPTSourceBilling value) {
+                    this.sourceBilling = value;
+                }
+
+                @Override
+                public String toString() {
+                    final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
+                    final StringBuilder buffer = new StringBuilder();
+                    append(null, buffer, strategy);
+                    return buffer.toString();
+                }
+
+                @Override
+                public StringBuilder append(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                    strategy.appendStart(locator, this, buffer);
+                    appendFields(locator, buffer, strategy);
+                    strategy.appendEnd(locator, this, buffer);
+                    return buffer;
+                }
+
+                @Override
+                public StringBuilder appendFields(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                    {
+                        String theWorkStatus;
+                        theWorkStatus = this.getWorkStatus();
+                        strategy.appendField(locator, this, "workStatus", buffer, theWorkStatus, (this.workStatus!= null));
+                    }
+                    {
+                        XMLGregorianCalendar theWorkStatusDate;
+                        theWorkStatusDate = this.getWorkStatusDate();
+                        strategy.appendField(locator, this, "workStatusDate", buffer, theWorkStatusDate, (this.workStatusDate!= null));
+                    }
+                    {
+                        String theReason;
+                        theReason = this.getReason();
+                        strategy.appendField(locator, this, "reason", buffer, theReason, (this.reason!= null));
+                    }
+                    {
+                        String theSourceID;
+                        theSourceID = this.getSourceID();
+                        strategy.appendField(locator, this, "sourceID", buffer, theSourceID, (this.sourceID!= null));
+                    }
+                    {
+                        SAFTPTSourceBilling theSourceBilling;
+                        theSourceBilling = this.getSourceBilling();
+                        strategy.appendField(locator, this, "sourceBilling", buffer, theSourceBilling, (this.sourceBilling!= null));
+                    }
+                    return buffer;
+                }
+            }
+
+            @XmlAccessorType(XmlAccessType.FIELD)
+            @XmlType(name = "", propOrder = {
+                "taxPayable",
+                "netTotal",
+                "grossTotal",
+                "currency"
+            })
+            public static class DocumentTotals implements ToString2 {
+
+                @XmlElement(name = "TaxPayable", required = true)
+                protected BigDecimal taxPayable;
+                @XmlElement(name = "NetTotal", required = true)
+                protected BigDecimal netTotal;
+                @XmlElement(name = "GrossTotal", required = true)
+                protected BigDecimal grossTotal;
+                @XmlElement(name = "Currency")
+                protected Currency currency;
+
+                public BigDecimal getTaxPayable() {
+                    return taxPayable;
+                }
+
+                public void setTaxPayable(BigDecimal value) {
+                    this.taxPayable = value;
+                }
+
+                public BigDecimal getNetTotal() {
+                    return netTotal;
+                }
+
+                public void setNetTotal(BigDecimal value) {
+                    this.netTotal = value;
+                }
+
+                public BigDecimal getGrossTotal() {
+                    return grossTotal;
+                }
+
+                public void setGrossTotal(BigDecimal value) {
+                    this.grossTotal = value;
+                }
+
+                public Currency getCurrency() {
+                    return currency;
+                }
+
+                public void setCurrency(Currency value) {
+                    this.currency = value;
+                }
+
+                @Override
+                public String toString() {
+                    final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
+                    final StringBuilder buffer = new StringBuilder();
+                    append(null, buffer, strategy);
+                    return buffer.toString();
+                }
+
+                @Override
+                public StringBuilder append(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                    strategy.appendStart(locator, this, buffer);
+                    appendFields(locator, buffer, strategy);
+                    strategy.appendEnd(locator, this, buffer);
+                    return buffer;
+                }
+
+                @Override
+                public StringBuilder appendFields(Object locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                    {
+                        BigDecimal theTaxPayable;
+                        theTaxPayable = this.getTaxPayable();
+                        strategy.appendField(locator, this, "taxPayable", buffer, theTaxPayable, (this.taxPayable!= null));
+                    }
+                    {
+                        BigDecimal theNetTotal;
+                        theNetTotal = this.getNetTotal();
+                        strategy.appendField(locator, this, "netTotal", buffer, theNetTotal, (this.netTotal!= null));
+                    }
+                    {
+                        BigDecimal theGrossTotal;
+                        theGrossTotal = this.getGrossTotal();
+                        strategy.appendField(locator, this, "grossTotal", buffer, theGrossTotal, (this.grossTotal!= null));
+                    }
+                    {
+                        Currency theCurrency;
+                        theCurrency = this.getCurrency();
+                        strategy.appendField(locator, this, "currency", buffer, theCurrency, (this.currency!= null));
+                    }
+                    return buffer;
+                }
+            }
         }
-
     }
-
-    // End of SalesInvoices
-
-    // End of WorkingDocuments and end of SourceDocuments class
-
 }

@@ -6,7 +6,7 @@
 // Generated on: 2023.08.19 at 10:48:51 PM GMT 
 //
 
-package com.premiumminds.billy.portugal.services.export.saftpt.v1_02_01.schema;
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -14,37 +14,38 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
-/**
- * <p>Java class for OrderReferences complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType name="OrderReferences"&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}OriginatingON" minOccurs="0"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}OrderDate" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
- */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "OrderReferences", propOrder = {
     "originatingON",
     "orderDate"
 })
 public class OrderReferences implements ToString2 {
+
+    private static final ToStringStrategy2 DEFAULT_TO_STRING_STRATEGY2 = new ToStringStrategy2() {
+        @Override
+        public void appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+            buffer.append(object.getClass().getSimpleName()).append("[");
+        }
+
+        @Override
+        public void appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean notNull) {
+            if (notNull) {
+                if (buffer.charAt(buffer.length() - 1) != '[') {
+                    buffer.append(", ");
+                }
+                buffer.append(fieldName).append("=").append(value);
+            }
+        }
+
+        @Override
+        public void appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+            buffer.append("]");
+        }
+    };
 
     @XmlElement(name = "OriginatingON")
     protected String originatingON;
@@ -55,10 +56,7 @@ public class OrderReferences implements ToString2 {
     /**
      * Gets the value of the originatingON property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
      */
     public String getOriginatingON() {
         return originatingON;
@@ -67,10 +65,7 @@ public class OrderReferences implements ToString2 {
     /**
      * Sets the value of the originatingON property.
      * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * @param value allowed object is {@link String }
      */
     public void setOriginatingON(String value) {
         this.originatingON = value;
@@ -79,10 +74,7 @@ public class OrderReferences implements ToString2 {
     /**
      * Gets the value of the orderDate property.
      * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     * @return possible object is {@link XMLGregorianCalendar }
      */
     public XMLGregorianCalendar getOrderDate() {
         return orderDate;
@@ -91,10 +83,7 @@ public class OrderReferences implements ToString2 {
     /**
      * Sets the value of the orderDate property.
      * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     * @param value allowed object is {@link XMLGregorianCalendar }
      */
     public void setOrderDate(XMLGregorianCalendar value) {
         this.orderDate = value;
@@ -102,7 +91,7 @@ public class OrderReferences implements ToString2 {
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+        final ToStringStrategy2 strategy = DEFAULT_TO_STRING_STRATEGY2;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -130,6 +119,5 @@ public class OrderReferences implements ToString2 {
         }
         return buffer;
     }
-
 }
 ```

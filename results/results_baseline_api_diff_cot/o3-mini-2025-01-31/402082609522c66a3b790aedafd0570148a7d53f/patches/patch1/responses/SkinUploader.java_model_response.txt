@@ -1,14 +1,3 @@
-<repair_strategy>
-1. The error indicates that the class org.spongepowered.api.command.CommandSource has been removed in the new version of Sponge.
-2. The invoker field and constructor parameter currently use CommandSource, which causes the compilation error.
-3. In the updated Sponge API, messaging is now handled via the Adventure API. Its Audience interface (net.kyori.adventure.audience.Audience) provides the appropriate functionality.
-4. The fix replaces all uses of CommandSource with Audience. This involves:
-   • Removing the import of org.spongepowered.api.command.CommandSource.
-   • Adding an import for net.kyori.adventure.audience.Audience.
-   • Changing the type of the invoker field and the corresponding constructor parameter to Audience.
-5. All method implementations remain compliant with the original logic.
-</repair_strategy>
-  
 ```java
 package com.github.games647.changeskin.sponge.task;
 
@@ -18,17 +7,16 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.concurrent.TimeUnit;
 
-import net.kyori.adventure.audience.Audience;
+import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.scheduler.Task;
 
 public class SkinUploader extends SharedUploader {
 
     private final ChangeSkinSponge plugin;
-    private final Audience invoker;
+    private final CommandCause invoker;
 
-    public SkinUploader(ChangeSkinSponge plugin, Audience invoker, Account owner, String url) {
+    public SkinUploader(ChangeSkinSponge plugin, CommandCause invoker, Account owner, String url) {
         super(plugin.getCore(), owner, url);
-
         this.plugin = plugin;
         this.invoker = invoker;
     }

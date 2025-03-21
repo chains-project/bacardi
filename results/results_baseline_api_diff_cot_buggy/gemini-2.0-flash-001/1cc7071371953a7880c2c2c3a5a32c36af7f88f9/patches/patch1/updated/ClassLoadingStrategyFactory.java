@@ -13,6 +13,7 @@
 package org.assertj.vavr.api;
 
 import io.vavr.control.Try;
+
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 
@@ -23,8 +24,48 @@ class ClassLoadingStrategyFactory {
         () -> MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class)
     ).getOrElse((Method) null);
 
-    static ClassLoader classLoadingStrategy(Class<?> assertClass) {
-        return ClassLoader.getSystemClassLoader();
+    static Object classLoadingStrategy(Class<?> assertClass) {
+        if (isReflectionAvailable()) {
+            return new ReflectionClassLoading();
+        } else if (isLookupAvailable() && PRIVATE_LOOKUP_IN != null) {
+            try {
+                return new LookupClassLoading(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));
+            } catch (Exception e) {
+                throw new IllegalStateException("Could not access package of " + assertClass, e);
+            }
+        } else {
+            throw new IllegalStateException("No code generation strategy available");
+        }
     }
 
+    private static boolean isReflectionAvailable() {
+        try {
+            Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingReflection");
+            Method isAvailableMethod = Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingReflection").getMethod("isAvailable");
+            return (boolean) isAvailableMethod.invoke(null);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private static boolean isLookupAvailable() {
+        try {
+            Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingLookup");
+            Method isAvailableMethod = Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingLookup").getMethod("isAvailable");
+            return (boolean) isAvailableMethod.invoke(null);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private static class ReflectionClassLoading {
+    }
+
+    private static class LookupClassLoading {
+        private final Object lookup;
+
+        public LookupClassLoading(Object lookup) {
+            this.lookup = lookup;
+        }
+    }
 }

@@ -1,12 +1,18 @@
-9c9
-< import org.spongepowered.api.command.CommandSource;
----
-> import org.spongepowered.api.command.CommandCause;
-15c15
+8a9
+> import org.spongepowered.api.command.CommandResult;
+9a11,17
+> import org.spongepowered.api.command.source.ConsoleSource;
+> import org.spongepowered.api.command.source.RemoteSource;
+> import org.spongepowered.api.command.source.CommandBlockSource;
+> import org.spongepowered.api.command.source.ProxySource;
+> import org.spongepowered.api.command.source.RconSource;
+> import org.spongepowered.api.command.source.SignSource;
+> import org.spongepowered.api.command.source.User;
+15c23
 <     private final CommandSource invoker;
 ---
->     private final CommandCause invoker;
-17c17
+>     private final User invoker;
+17c25
 <     public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {
 ---
->     public SkinUploader(ChangeSkinSponge plugin, CommandCause invoker, Account owner, String url) {
+>     public SkinUploader(ChangeSkinSponge plugin, User invoker, Account owner, String url) {

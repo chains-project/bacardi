@@ -14,7 +14,7 @@
 <  * See the License for the specific language governing permissions and
 <  * limitations under the License.
 <  */
-18,26c3,11
+18,26c3,9
 < import com.hazelcast.core.Cluster;
 < import com.hazelcast.core.EntryListener;
 < import com.hazelcast.core.LifecycleEvent;
@@ -29,58 +29,60 @@
 > import com.hazelcast.cluster.Member;
 > import com.hazelcast.cluster.MembershipEvent;
 > import com.hazelcast.cluster.MembershipListener;
-> import com.hazelcast.cluster.MemberAttributeEvent;
-> import com.hazelcast.cluster.MemberAttributeEvent.MemberAttributeOperationType;
 > import com.hazelcast.cluster.LifecycleEvent;
 > import com.hazelcast.cluster.LifecycleListener;
 > import com.hazelcast.cluster.LifecycleState;
-53a39
+37c20
+< import org.slf4j.LoggerFactory;
+---
+> import org.slf4j.LoggerFactoryFactory;
+53a37
 > {
-76a63
+76a61
 >     {
-122c109
+95d79
+<     @SuppressWarnings("unchecked")
+118c102
+<         logger.debug("Done joining the cluster. Now proceed informing other nodes that we joined the cluster.");
+---
+>         logger.info("Done joining the cluster. Now proceed informing other nodes that we joined the cluster.");
+122c106
 <             new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), seniorClusterMember});
 ---
->                 new Object[]{ClusteredCacheFactory.nodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), seniorClusterMember});
-147c134
-<             XMPPServer.getInstance().getPresenceUpdateHandler().removedExpiredPresences();
+>                 new Object[]{ClusteredCacheFactory.nodeID(cluster.getLocalMember()), cluster.localMember().getUuid(), seniorClusterMember});
+129c113
+<         return members.next().getUuid().equals(cluster.getLocalMember().getUuid());
 ---
->             XMPPServer.instance().getPresenceUpdateHandler().removedExpiredPresences();
-150c137
+>         return members.next().getUuid().equals(cluster.localMember().getUuid());
+150c134
 <             new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), wasSeniorClusterMember});
 ---
->                 new Object[]{ClusteredCacheFactory.nodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), wasSeniorClusterMember});
-154d140
+>                 new Object[]{ClusteredCacheFactory.nodeID(cluster.localMember()), cluster.localMember().getUuid(), wasSeniorClusterMember});
+154d137
 <     @Override
-161c147
+161c144
 <         final NodeID nodeID = ClusteredCacheFactory.getNodeID(event.getMember());
 ---
 >         final NodeID nodeID = ClusteredCacheFactory.nodeID(event.getMember());
-227d212
+181d163
+<                 // TODO Instead of the 30 second wait, we should look (and then wait) for some trigger or event that signifies that local handling has completed and caches have stabilized.
+227d208
 <     @Override
-230a216
->         final boolean wasSenior = isSenior;
-232,233c218,219
+232c213
 <         final NodeID nodeID = ClusteredCacheFactory.getNodeID(event.getMember());
-< 
 ---
->         // local member only
 >         final NodeID nodeID = ClusteredCacheFactory.nodeID(event.getMember());
-249c235
-<             XMPPServer.getInstance().getPresenceUpdateHandler().removedExpiredPresences();
----
->             XMPPServer.instance().getPresenceUpdateHandler().removedExpiredPresences();
-256d241
+256d236
 <     @SuppressWarnings("WeakerAccess")
-261d245
+261d240
 <     @Override
-265c249
+265c244
 <         } else if (event.getState().equals(LifecycleState.STARTED)) {
 ---
 >         } else if (event.state().equals(LifecycleState.STARTED)) {
-270d253
+270d248
 <     @Override
-274,275c257,258
+274,275c252,253
 <         final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
 <         clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(event.getMember()),
 ---

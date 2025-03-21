@@ -12,19 +12,21 @@ import org.spongepowered.api.scheduler.Task;
 public class SkinUploader extends SharedUploader {
 
     private final ChangeSkinSponge plugin;
-    private final Object invoker;
+    private final Object invoker; // Change type to Object to avoid compile error
 
-    public SkinUploader(ChangeSkinSponge plugin, Object invoker, Account owner, String url) {
+    public SkinUploader(ChangeSkinSponge plugin, Object invoker, Account owner, String url) { // Change parameter type to Object
         super(plugin.getCore(), owner, url);
 
         this.plugin = plugin;
         this.invoker = invoker;
     }
 
+    @Override
     public void sendMessageInvoker(String key) {
-        plugin.sendMessage(invoker, key);
+        plugin.sendMessage(invoker, key); // Assume sendMessage can handle Object type
     }
 
+    @Override
     protected void scheduleChangeTask(String oldSkinUrl) {
         Runnable task = new SkinChanger(plugin, owner, url, oldSkinUrl, invoker);
         Task.builder().delay(1, TimeUnit.MINUTES).execute(task).async().submit(plugin);

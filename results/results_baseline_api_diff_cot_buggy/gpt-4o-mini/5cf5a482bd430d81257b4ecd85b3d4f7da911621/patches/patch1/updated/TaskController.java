@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.mvc.View;
+import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.binding.ParamError;
 import jakarta.mvc.security.CsrfProtected;
 import javax.validation.Valid;
@@ -39,8 +40,8 @@ public class TaskController {
     @Inject
     private Models models;
 
-    // Removed BindingResult as it has been removed in the new version
-    // private BindingResult validationResult;
+    @Inject
+    private BindingResult validationResult;
 
     @Inject
     TaskRepository taskRepository;
@@ -89,13 +90,14 @@ public class TaskController {
     public Response save(@Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "saving new task @{0}", form);
 
-        // Using a simple boolean to check validation instead of BindingResult
-        boolean hasErrors = false; // Placeholder for validation logic
-
-        if (hasErrors) {
-            AlertMessage alert = AlertMessage.danger("Validation violations!");
-            // Assuming we have a way to get errors
-            // models.put("errors", alert);
+        if (validationResult.isFailed()) {
+            AlertMessage alert = AlertMessage.danger("Validation voilations!");
+            validationResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
+            models.put("errors", alert);
             models.put("task", form);
             return Response.status(BAD_REQUEST).entity("add.xhtml").build();
         }
@@ -132,13 +134,14 @@ public class TaskController {
     public Response update(@PathParam(value = "id") Long id, @Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "updating existed task@id:{0}, form data:{1}", new Object[]{id, form});
 
-        // Using a simple boolean to check validation instead of BindingResult
-        boolean hasErrors = false; // Placeholder for validation logic
-
-        if (hasErrors) {
-            AlertMessage alert = AlertMessage.danger("Validation violations!");
-            // Assuming we have a way to get errors
-            // models.put("errors", alert);
+        if (validationResult.isFailed()) {
+            AlertMessage alert = AlertMessage.danger("Validation voilations!");
+            validationResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
+            models.put("errors", alert);
             models.put("task", form);
             return Response.status(BAD_REQUEST).entity("edit.xhtml").build();
         }

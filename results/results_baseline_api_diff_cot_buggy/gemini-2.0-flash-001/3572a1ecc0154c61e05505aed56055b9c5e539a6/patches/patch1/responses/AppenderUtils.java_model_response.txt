@@ -1,62 +1,4 @@
-<fix_planning>
-a. Relevant code and API changes:
-- Code:
 ```java
-import org.apache.thrift.transport.TFastFramedTransport;
-...
-framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);
-```
-- API Changes:
-```
-Class org.apache.thrift.transport.TFastFramedTransport has been removed in the new version of the dependency.
-Construct org.apache.thrift.transport.layered.TFastFramedTransport(org.apache.thrift.transport.TTransport,int,int) has been added in the new version of the dependency.
-Construct org.apache.thrift.transport.layered.TFastFramedTransport(org.apache.thrift.transport.TTransport) has been added in the new version of the dependency.
-Interface org.apache.thrift.transport.layered.TFastFramedTransport has been added in the new version of the dependency.
-Constructor org.apache.thrift.transport.TFastFramedTransport(org.apache.thrift.transport.TTransport,int) has been removed in the new version of the dependency.
-```
-
-b. Specific API changes causing the issue:
-The class `org.apache.thrift.transport.TFastFramedTransport` and the constructor `TFastFramedTransport(TTransport, int)` have been removed. The new class is `org.apache.thrift.transport.layered.TFastFramedTransport` and the new constructor is `TFastFramedTransport(TTransport, int, int)` or `TFastFramedTransport(TTransport)`.
-
-c. Affected lines of code:
-- Line 30: `import org.apache.thrift.transport.TFastFramedTransport;`
-- Line 63: `framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);`
-
-d. Proposed fixes:
-- Line 30: Replace `org.apache.thrift.transport.TFastFramedTransport` with `org.apache.thrift.transport.layered.TFastFramedTransport`.
-- Line 63: Replace `new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity)` with `new org.apache.thrift.transport.layered.TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity, bufferCapacity)`.  Alternatively, use `new org.apache.thrift.transport.layered.TFastFramedTransport(new TIOStreamTransport(os))` if the bufferCapacity is not needed.
-
-e. Potential side effects:
-The change in line 63 might affect the performance if the default buffer size is different from the previous implementation.
-
-f. Adherence to constraints:
-- The function signatures are not changed.
-- Variables can be created if needed.
-- The `@Override` annotation is kept as the method still overrides a method in the parent class.
-- Missing imports are addressed.
-- No existing code is removed unless it directly causes a compilation error.
-
-g. Final summary:
-The best solution is to replace the import statement and the constructor call with the new class and constructor from the updated dependency. Since the old constructor `TFastFramedTransport(TTransport, int)` is removed and the new constructor `TFastFramedTransport(TTransport, int, int)` is added, we will use the new constructor and pass the bufferCapacity twice.
-
-</fix_planning>
-
-```java
-/**
- * Copyright 2019 Pinterest, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *    http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.pinterest.singer.client.logback;
 
 import com.pinterest.singer.thrift.LogMessage;
@@ -105,7 +47,7 @@ public class AppenderUtils {
       // log.
       final int bufferCapacity = 10;
       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
-          bufferCapacity, bufferCapacity);
+          bufferCapacity);
       protocol = new TBinaryProtocol(framedTransport);
     }
 

@@ -1,45 +1,5 @@
-<fix_planning>
-a. Relevant parts of the code and API changes:
-- Code:
 ```java
-import javax.mvc.MvcContext;
-
-@Inject
-private MvcContext mvcContext;
-```
-- API Changes:
-`Class javax.mvc.MvcContext has been removed in the new version of the dependency.`
-
-b. Specific API changes causing the issue:
-The removal of `javax.mvc.MvcContext` causes a compilation error because the `Messages` class depends on it.
-
-c. Affected lines of code:
-- `import javax.mvc.MvcContext;`
-- `private MvcContext mvcContext;`
-
-d. Proposed potential fixes for each affected line:
-1. Remove the import statement `import javax.mvc.MvcContext;`.
-2. Remove the field `private MvcContext mvcContext;`.
-3. Modify the `get` method to obtain the locale from a different source, since `MvcContext` is no longer available.  A possible alternative is to inject `jakarta.servlet.http.HttpServletRequest` and use `request.getLocale()`.
-
-e. Potential side effects of the proposed changes:
-- Removing the `MvcContext` dependency will require a different way to obtain the locale. Using `HttpServletRequest` introduces a dependency on the Servlet API.
-- The functionality of the `get` method must remain the same, i.e., it should still return the correct translation based on the request locale.
-
-f. Adherence to constraints:
-- The function signature of the `get` method must not change.
-- The proposed changes should address the compilation error caused by the missing `MvcContext` class.
-- All code, even unchanged portions, must be included in the final output.
-
-g. Final summary of the chosen fix:
-The best solution is to remove the `MvcContext` dependency and use `HttpServletRequest` to obtain the locale. This involves:
-1. Removing the import statement `import javax.mvc.MvcContext;`.
-2. Removing the field `private MvcContext mvcContext;`.
-3. Injecting `jakarta.servlet.http.HttpServletRequest` and using `request.getLocale()` in the `get` method.
-This approach addresses the compilation error and maintains the functionality of the `get` method while adhering to the given constraints.
-</fix_planning>
-
-```java
+import java.util.Locale;
 import java.util.ResourceBundle;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -71,7 +31,8 @@ public class Messages {
      * placeholder for unknown keys.
      */
     public final String get(final String key) {
-        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, request.getLocale());
+        final Locale locale = request.getLocale();
+        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, locale);
 
         return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);
     }

@@ -1,6 +1,5 @@
 package com.github.games647.changeskin.sponge.task;
 
-import org.spongepowered.api.util.vector.Vector3d;
 import com.github.games647.changeskin.core.model.UserPreference;
 import com.github.games647.changeskin.core.model.skin.SkinModel;
 import com.github.games647.changeskin.core.shared.task.SharedApplier;
@@ -9,20 +8,22 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import java.util.UUID;
 
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.tab.TabListEntry;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.server.ServerLocation;
+import org.spongepowered.api.world.server.ServerWorld;
+import org.spongepowered.math.vector.Vector3d;
 import org.spongepowered.api.data.Keys;
 
 public class SkinApplier extends SharedApplier {
 
     private final ChangeSkinSponge plugin;
-    private final Object invoker;
+    private final CommandCause invoker;
     private final Player receiver;
 
-    public SkinApplier(ChangeSkinSponge plugin, Object invoker, Player receiver, SkinModel targetSkin
+    public SkinApplier(ChangeSkinSponge plugin, CommandCause invoker, Player receiver, SkinModel targetSkin
             , boolean keepSkin) {
         super(plugin.getCore(), targetSkin, keepSkin);
 
@@ -38,8 +39,8 @@ public class SkinApplier extends SharedApplier {
         }
 
         //uuid was successful resolved, we could now make a cooldown check
-        if (invoker instanceof Player) {
-            UUID uniqueId = ((Player) invoker).getUniqueId();
+        if (invoker.getCause().root() instanceof Player) {
+            UUID uniqueId = ((Player) invoker.getCause().root()).getUniqueId();
             core.getCooldownService().trackPlayer(uniqueId);
         }
 
@@ -80,8 +81,8 @@ public class SkinApplier extends SharedApplier {
         sendUpdateSelf();
 
         //triggers an update for others player to see the new skin
-        receiver.offer(Keys.INVISIBLE, true);
-        receiver.offer(Keys.INVISIBLE, false);
+        receiver.offer(Keys.VANISH, true);
+        receiver.offer(Keys.VANISH, false);
     }
 
     private void sendUpdateSelf() {
@@ -94,9 +95,9 @@ public class SkinApplier extends SharedApplier {
                 .profile(receiver.getProfile())
                 .build());
 
-        Location<World> oldLocation = receiver.getLocation();
+        ServerLocation oldLocation = receiver.getLocation();
         Vector3d rotation = receiver.getRotation();
-        World receiverWorld = receiver.getWorld();
+        ServerWorld receiverWorld = receiver.getWorld();
         Sponge.getServer().getWorlds()
                 .stream()
                 .filter(world -> !world.equals(receiverWorld))

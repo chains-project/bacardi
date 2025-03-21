@@ -107,24 +107,12 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		ClassicConfiguration flywayConfig = new ClassicConfiguration();
-		// Set the data source using the new API method on ClassicConfiguration.
-		flywayConfig.setDataSource(this.dataSource());
-		// Set the class loader.
-		flywayConfig.setClassLoader(NisAppConfig.class.getClassLoader());
-		// Convert the comma-separated locations string to an array of Location objects.
-		String locationsProperty = prop.getProperty("flyway.locations");
-		String[] locationStrings = locationsProperty.split(",\\s*");
-		Location[] locations = new Location[locationStrings.length];
-		for (int i = 0; i < locationStrings.length; i++) {
-			locations[i] = new Location(locationStrings[i]);
-		}
-		flywayConfig.setLocations(locations);
-		// Set validation on migrate.
-		flywayConfig.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-
-		// Instantiate Flyway using the new constructor with a Configuration parameter.
-		return new Flyway(flywayConfig);
+		ClassicConfiguration config = new ClassicConfiguration();
+		config.setDataSource(this.dataSource());
+		config.setClassLoader(NisAppConfig.class.getClassLoader());
+		config.setLocations(new Location[] { new Location(prop.getProperty("flyway.locations")) });
+		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		return new Flyway(config);
 	}
 
 	@Bean

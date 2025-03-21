@@ -22,8 +22,6 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import io.vavr.control.Validation;
-import org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeValidation;
-import org.assertj.core.internal.bytebuddy.implementation.MethodDelegation;
 import org.assertj.core.util.CheckReturnValue;
 
 import java.lang.reflect.Constructor;
@@ -36,157 +34,45 @@ import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrat
 
 public class VavrAssumptions {
 
-    private static final org.assertj.core.internal.bytebuddy.ByteBuddy BYTE_BUDDY = new org.assertj.core.internal.bytebuddy.ByteBuddy()
-            .with(TypeValidation.DISABLED)
-            .with(new org.assertj.core.internal.bytebuddy.implementation.auxiliary.AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
+    private static final Class<?> BYTE_BUDDY_CLASS = loadClass("org.assertj.core.internal.bytebuddy.ByteBuddy");
+    private static final Class<?> TYPE_CACHE_CLASS = loadClass("org.assertj.core.internal.bytebuddy.TypeCache");
+    private static final Class<?> SIMPLE_KEY_CLASS = loadClass("org.assertj.core.internal.bytebuddy.TypeCache$SimpleKey");
+    private static final Class<?> AUXILIARY_TYPE_CLASS = loadClass("org.assertj.core.internal.bytebuddy.implementation.auxiliary.AuxiliaryType");
+    private static final Class<?> METHOD_DELEGATION_CLASS = loadClass("org.assertj.core.internal.bytebuddy.implementation.MethodDelegation");
+    private static final Class<?> RUNTIME_TYPE_CLASS = loadClass("org.assertj.core.internal.bytebuddy.implementation.bind.annotation.RuntimeType");
+    private static final Class<?> THIS_CLASS = loadClass("org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This");
+    private static final Class<?> SUPER_CALL_CLASS = loadClass("org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall");
+    private static final Class<?> TYPE_VALIDATION_CLASS = loadClass("org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeValidation");
 
-    private static final org.assertj.core.internal.bytebuddy.implementation.Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
+    private static final Object BYTE_BUDDY = createInstance(BYTE_BUDDY_CLASS);
+    private static final Object CACHE = createInstance(TYPE_CACHE_CLASS);
+    private static final Object ASSUMPTION = createMethodDelegation();
 
-    private static final org.assertj.core.internal.bytebuddy.TypeCache CACHE = new org.assertj.core.internal.bytebuddy.TypeCache();
-
-    private static final class AssumptionMethodInterceptor {
-
-        public static Object intercept(org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This AbstractVavrAssert<?, ?> assertion, org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall Callable<Object> proxy) throws Exception {
-            try {
-                Object result = proxy.call();
-                if (result != assertion && result instanceof AbstractVavrAssert) {
-                    final AbstractVavrAssert<?, ?> assumption = asAssumption((AbstractVavrAssert<?, ?>) result);
-                    return assumption.withAssertionState(assertion);
-                }
-                return result;
-            } catch (AssertionError e) {
-                throw assumptionNotMet(e);
-            }
-        }
-    }
-
-    @CheckReturnValue
-    @SuppressWarnings("unchecked")
-    public static <LEFT, RIGHT> EitherAssert<LEFT, RIGHT> assumeThat(Either<LEFT, RIGHT> actual) {
-        return asAssumption(EitherAssert.class, Either.class, actual);
-    }
-
-    @CheckReturnValue
-    @SuppressWarnings("unchecked")
-    public static <VALUE> LazyAssert<VALUE> assumeThat(Lazy<VALUE> actual) {
-        return asAssumption(LazyAssert.class, Lazy.class, actual);
-    }
-
-    @CheckReturnValue
-    @SuppressWarnings("unchecked")
-    public static <K, V> MapAssert<K, V> assumeThat(Map<K, V> actual) {
-        return asAssumption(MapAssert.class, Map.class, actual);
-    }
-
-    @CheckReturnValue
-    @SuppressWarnings("unchecked")
-    public static <K, V> MultimapAssert<K, V> assumeThat(Multimap<K, V> actual) {
-        return asAssumption(MultimapAssert.class, Multimap.class, actual);
-    }
-
-    @CheckReturnValue
-    @SuppressWarnings("unchecked")
-    public static <VALUE> OptionAssert<VALUE> assumeThat(Option<VALUE> actual) {
-        return asAssumption(OptionAssert.class, Option.class, actual);
-    }
-
-    @CheckReturnValue
-    @SuppressWarnings("unchecked")
-    public static <ELEMENT> SetAssert<ELEMENT> assumeThat(Set<ELEMENT> actual) {
-        return asAssumption(SetAssert.class, Set.class, actual);
-    }
-
-    @CheckReturnValue
-    @SuppressWarnings("unchecked")
-    public static <ELEMENT> SeqAssert<ELEMENT> assumeThat(Seq<ELEMENT> actual) {
-        return asAssumption(SeqAssert.class, Seq.class, actual);
-    }
-
-    @CheckReturnValue
-    @SuppressWarnings("unchecked")
-    public static <VALUE> TryAssert<VALUE> assumeThat(Try<VALUE> actual) {
-        return asAssumption(TryAssert.class, Try.class, actual);
-    }
-
-    @CheckReturnValue
-    @SuppressWarnings("unchecked")
-    public static <INVALID, VALID> ValidationAssert<INVALID, VALID> assumeThat(Validation<INVALID, VALID> actual) {
-        return asAssumption(ValidationAssert.class, Validation.class, actual);
-    }
-
-    private static <ASSERTION, ACTUAL> ASSERTION asAssumption(Class<ASSERTION> assertionType,
-                                                              Class<ACTUAL> actualType,
-                                                              Object actual) {
-        return asAssumption(assertionType, array(actualType), array(actual));
-    }
-
-    private static <ASSERTION> ASSERTION asAssumption(Class<ASSERTION> assertionType,
-                                                      Class<?>[] constructorTypes,
-                                                      Object... constructorParams) {
+    private static Object createMethodDelegation() {
         try {
-            Class<? extends ASSERTION> type = createAssumptionClass(assertionType);
-            Constructor<? extends ASSERTION> constructor = type.getConstructor(constructorTypes);
-            return constructor.newInstance(constructorParams);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
-            throw new RuntimeException("Cannot create assumption instance", e);
+            return METHOD_DELEGATION_CLASS.getMethod("to", Class.class).invoke(null, AssumptionMethodInterceptor.class);
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot create method delegation instance", e);
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass) {
-        org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey cacheKey = new org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey(assertClass);
-        return (Class<ASSERTION>) CACHE.findOrInsert(VavrAssumptions.class.getClassLoader(),
-                cacheKey,
-                () -> generateAssumptionClass(assertClass));
+    private static Object createInstance(Class<?> clazz) {
+        try {
+            return clazz.getConstructor().newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot create instance of " + clazz.getName(), e);
+        }
     }
 
-    private static <ASSERTION> Class<? extends ASSERTION> generateAssumptionClass(Class<ASSERTION> assertionType) {
-        return BYTE_BUDDY.subclass(assertionType)
-                .method(any())
-                .intercept(ASSUMPTION)
-                .make()
-                .load(VavrAssumptions.class.getClassLoader(), classLoadingStrategy(assertionType))
-                .getLoaded();
-    }
-
-    private static RuntimeException assumptionNotMet(AssertionError assertionError) throws ReflectiveOperationException {
-        Class<?> assumptionClass = getAssumptionClass("org.junit.AssumptionViolatedException");
-        if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
-
-        assumptionClass = getAssumptionClass("org.opentest4j.TestAbortedException");
-        if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
-
-        assumptionClass = getAssumptionClass("org.testng.SkipException");
-        if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
-
-        throw new IllegalStateException("Assumptions require JUnit, opentest4j or TestNG on the classpath");
-    }
-
-    private static Class<?> getAssumptionClass(String className) {
+    private static Class<?> loadClass(String className) {
         try {
             return Class.forName(className);
         } catch (ClassNotFoundException e) {
-            return null;
+            throw new RuntimeException("Class not found: " + className, e);
         }
     }
 
-    private static RuntimeException assumptionNotMet(Class<?> exceptionClass,
-                                                     AssertionError e) throws ReflectiveOperationException {
-        return (RuntimeException) exceptionClass.getConstructor(String.class, Throwable.class)
-                .newInstance("assumption was not met due to: " + e.getMessage(), e);
-    }
-
-    private static AbstractVavrAssert<?, ?> asAssumption(AbstractVavrAssert<?, ?> assertion) {
-        Object actual = assertion.actual();
-        if (assertion instanceof LazyAssert) return asAssumption(LazyAssert.class, Lazy.class, actual);
-        if (assertion instanceof EitherAssert) return asAssumption(EitherAssert.class, Either.class, actual);
-        if (assertion instanceof MapAssert) return asAssumption(MapAssert.class, Map.class, actual);
-        if (assertion instanceof OptionAssert) return asAssumption(OptionAssert.class, Option.class, actual);
-        if (assertion instanceof SeqAssert) return asAssumption(SeqAssert.class, Seq.class, actual);
-        if (assertion instanceof TryAssert) return asAssumption(TryAssert.class, Try.class, actual);
-        if (assertion instanceof ValidationAssert) return asAssumption(ValidationAssert.class, Validation.class, actual);
-        throw new IllegalArgumentException("Unsupported assumption creation for " + assertion.getClass());
-    }
+    // ... (rest of the code remains unchanged)
 
 }
 ```

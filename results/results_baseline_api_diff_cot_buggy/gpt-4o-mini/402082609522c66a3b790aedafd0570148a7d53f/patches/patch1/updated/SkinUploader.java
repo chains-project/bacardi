@@ -6,15 +6,15 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.concurrent.TimeUnit;
 
-import org.spongepowered.api.command.source.CommandSource; // Updated import
+import org.spongepowered.api.command.CommandSender; // Updated import
 import org.spongepowered.api.scheduler.Task;
 
 public class SkinUploader extends SharedUploader {
 
     private final ChangeSkinSponge plugin;
-    private final CommandSource invoker; // No change needed here
+    private final CommandSender invoker; // Updated type
 
-    public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {
+    public SkinUploader(ChangeSkinSponge plugin, CommandSender invoker, Account owner, String url) { // Updated type
         super(plugin.getCore(), owner, url);
 
         this.plugin = plugin;

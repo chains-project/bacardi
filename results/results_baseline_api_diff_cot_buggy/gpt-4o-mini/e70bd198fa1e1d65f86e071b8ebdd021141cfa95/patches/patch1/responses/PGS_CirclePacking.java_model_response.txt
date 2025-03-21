@@ -24,8 +24,8 @@ import org.locationtech.jts.util.GeometricShapeFactory;
 import org.tinfour.common.IIncrementalTin;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
-import org.tinspin.index.PointIndex;
-import org.tinspin.index.RectangleIndex;
+import org.tinspin.index.covertree.CoverTree;
+import org.tinspin.index.kdtree.KDTree;
 
 import micycle.pgs.commons.FrontChainPacker;
 import micycle.pgs.commons.LargestEmptyCircles;
@@ -200,7 +200,7 @@ public final class PGS_CirclePacking {
 	public static List<PVector> stochasticPack(final PShape shape, final int points, final double minRadius, boolean triangulatePoints,
 			long seed) {
 
-		final PointIndex<PVector> tree = RectangleIndex.create(3, 2, circleDistanceMetric);
+		final KDTree<PVector> tree = KDTree.create(3, 2, circleDistanceMetric);
 		final List<PVector> out = new ArrayList<>();
 
 		List<PVector> steinerPoints = PGS_Processing.generateRandomPoints(shape, points, seed);

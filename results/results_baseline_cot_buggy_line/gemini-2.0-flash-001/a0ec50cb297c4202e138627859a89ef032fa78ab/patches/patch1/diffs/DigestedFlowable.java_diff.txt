@@ -1,9 +1,0 @@
-15,16c15
-< import org.cactoos.io.BytesOf;
-< import org.cactoos.text.HexOf;
----
-> import org.apache.commons.codec.binary.Hex;
-57c56
-<                 new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
----
->                 new Digest.Sha256(new String(Hex.encodeHex(sha.digest())))

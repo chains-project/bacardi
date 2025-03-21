@@ -1,18 +1,12 @@
-33a34
+35a36
 > import org.apache.thrift.transport.TTransportException;
 121c122
 <   private TSerializer serializer = new TSerializer();
 ---
 >   private TSerializer serializer;
-165d165
-< 
-185a186,190
+185a187,191
 >     try {
->       this.serializer = new TSerializer();
+>       serializer = new TSerializer();
 >     } catch (TTransportException e) {
 >       throw new RuntimeException("Failed to initialize TSerializer", e);
 >     }
-187d191
-< 
-298d301
-< 

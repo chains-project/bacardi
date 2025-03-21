@@ -1,4 +1,14 @@
-15c15
+15c15,16
 < import com.github.javaparser.printer.PrettyPrinterConfiguration;
 ---
-> import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration;
+> import com.github.javaparser.printer.DefaultPrettyPrinter;
+> import com.github.javaparser.printer.DefaultPrettyPrinterConfiguration;
+335c336,337
+<       private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
+---
+>       private final DefaultPrettyPrinterConfiguration noComments = new DefaultPrettyPrinterConfiguration().setPrintComments(false);
+>       private final DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter(noComments);
+344c346
+<             if (n.toString(noComments).contains("solve")) {
+---
+>             if (n.toString().contains("solve")) {

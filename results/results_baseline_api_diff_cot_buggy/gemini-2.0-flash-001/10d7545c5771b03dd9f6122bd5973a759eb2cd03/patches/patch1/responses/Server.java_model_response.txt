@@ -1,51 +1,4 @@
-<fix_planning>
-a. Relevant code and API changes:
-The error occurs in the line `return new JerseyClientBuilder(env)`. The error message "cannot access io.dropwizard.core.setup.Environment class file for io.dropwizard.core.setup.Environment not found" indicates that the `Environment` class might have been moved or renamed. The API changes show that `io.dropwizard.core.setup.Environment` has been added and `io.dropwizard.setup.Environment` has been removed.
-
-b. Specific API changes causing the issue:
-The constructor `io.dropwizard.client.JerseyClientBuilder(io.dropwizard.setup.Environment)` has been removed, and `io.dropwizard.client.JerseyClientBuilder(io.dropwizard.core.setup.Environment)` has been added. The import statement for `Environment` is likely incorrect.
-
-c. Affected lines of code:
-Line 160: `return new JerseyClientBuilder(env)`
-
-d. Proposed potential fixes:
-1. Change the import statement for `Environment` to `io.dropwizard.core.setup.Environment`.
-2. Update the constructor call to use the new `Environment` class.
-
-e. Potential side effects of the proposed changes:
-The change in import might affect other parts of the code that rely on the old `Environment` class. However, since the error is specifically about the constructor of `JerseyClientBuilder`, this is unlikely.
-
-f. Adherence to constraints:
-1. The function signature of `createHttpClient` is not changed.
-2. A variable is not created.
-3. The `@Override` annotation is not removed.
-4. The import statement is updated.
-5. No existing code is removed unless it directly causes a compilation or functionality error.
-6. All code is included in the final output.
-
-g. Final summary:
-The best solution is to update the import statement for `Environment` to `io.dropwizard.core.setup.Environment` and update the constructor call to use the new `Environment` class. This directly addresses the compilation error and should not have any significant side effects.
-</fix_planning>
-
 ```java
-//
-// Wire
-// Copyright (C) 2016 Wire Swiss GmbH
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program. If not, see http://www.gnu.org/licenses/.
-//
-
 package com.wire.lithium;
 
 import com.codahale.metrics.Gauge;
@@ -187,7 +140,7 @@ public abstract class Server<Config extends Configuration> extends Application<C
     }
 
     private Client createHttpClient(Config config, Environment env) {
-        return new JerseyClientBuilder(env)
+        return new JerseyClientBuilder(env.metrics())
                 .using(config.getJerseyClient())
                 .withProvider(MultiPartFeature.class)
                 .withProvider(JacksonJsonProvider.class)

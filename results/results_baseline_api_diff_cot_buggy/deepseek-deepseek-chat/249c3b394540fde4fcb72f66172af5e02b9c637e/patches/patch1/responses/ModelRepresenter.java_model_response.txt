@@ -1,31 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. Relevant code:
-      ```java
-      @Override
-      protected Set<Property> getProperties(Class<? extends Object> type)
-              throws IntrospectionException {
-      ```
-   b. API changes:
-      - Method `org.yaml.snakeyaml.representer.Representer.getProperties(java.lang.Class)` has been removed
-      - New method `org.yaml.snakeyaml.representer.Representer.getProperties(java.lang.Class)` has been added
-      - The error indicates an incompatible throws clause with `IntrospectionException`
-   c. Affected lines:
-      - The `getProperties` method declaration
-   d. Potential fixes:
-      - Remove the `throws IntrospectionException` clause since it's no longer compatible with the new API
-      - Keep the `@Override` annotation as the method still overrides a parent method
-   e. Side effects:
-      - Any code relying on catching `IntrospectionException` from this method will need to be updated
-   f. Constraints check:
-      - The function signature is not changed except for the throws clause
-      - No imports need to be added
-      - No code is removed
-   g. Final solution:
-      - Remove the `throws IntrospectionException` clause while keeping the rest of the method signature intact
-      - This is the minimal change needed to fix the compilation error while maintaining functionality
-</fix_planning>
-
 ```java
 /**
  * Copyright (c) 2012 to original author or authors
@@ -243,20 +215,23 @@ class ModelRepresenter extends Representer {
   /*
    * Change the default order. Important data goes first.
    */
-  @Override
   protected Set<Property> getProperties(Class<? extends Object> type) {
-    if (type.isAssignableFrom(Model.class)) {
-      return sortTypeWithOrder(type, ORDER_MODEL);
-    } else if (type.isAssignableFrom(Developer.class)) {
-      return sortTypeWithOrder(type, ORDER_DEVELOPER);
-    } else if (type.isAssignableFrom(Contributor.class)) {
-      return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-    }  else if (type.isAssignableFrom(Dependency.class)) {
-      return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-    }  else if (type.isAssignableFrom(Plugin.class)) {
-      return sortTypeWithOrder(type, ORDER_PLUGIN);
-    } else {
-      return super.getProperties(type);
+    try {
+      if (type.isAssignableFrom(Model.class)) {
+        return sortTypeWithOrder(type, ORDER_MODEL);
+      } else if (type.isAssignableFrom(Developer.class)) {
+        return sortTypeWithOrder(type, ORDER_DEVELOPER);
+      } else if (type.isAssignableFrom(Contributor.class)) {
+        return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
+      }  else if (type.isAssignableFrom(Dependency.class)) {
+        return sortTypeWithOrder(type, ORDER_DEPENDENCY);
+      }  else if (type.isAssignableFrom(Plugin.class)) {
+        return sortTypeWithOrder(type, ORDER_PLUGIN);
+      } else {
+        return super.getProperties(type);
+      }
+    } catch (IntrospectionException e) {
+      throw new RuntimeException(e);
     }
   }
 

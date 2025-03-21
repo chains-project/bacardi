@@ -1,38 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package com.example.config;
+<repair_strategy>
+1. The error is caused by the removal of the class `javax.mvc.Models` and the introduction of `jakarta.mvc.Models`.
+2. The method signatures and usage of `Models` should remain the same.
+3. The client code needs to update the import statement for `Models`.
+4. The import statement for `Models` must be updated to `jakarta.mvc.Models`.
+5. No other changes are necessary.
+6. The change should not affect other parts of the code.
+7. The class should compile successfully after the import statement is updated.
+8. The import statement for `Models` needs to be updated.
+</repair_strategy>
 
-import com.example.domain.TaskNotFoundException;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.inject.Inject;
-import jakarta.mvc.Models; // Updated import statement
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
-
-/**
- *
- * @author hantsy
- */
-@Provider
-public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFoundException> {
-
-    @Inject Logger log;
-    //private static Logger log = Logger.getLogger(PostNotFoundExceptionMapper.class.getName());
-
-    @Inject
-    Models models; // Updated type
-
-    @Override
-    public Response toResponse(TaskNotFoundException exception) {
-        log.log(Level.INFO, "handling exception : PostNotFoundException");
-        models.put("error", exception.getMessage());
-        return Response.status(Response.Status.NOT_FOUND).entity("error.xhtml").build();
-    }
-
-}

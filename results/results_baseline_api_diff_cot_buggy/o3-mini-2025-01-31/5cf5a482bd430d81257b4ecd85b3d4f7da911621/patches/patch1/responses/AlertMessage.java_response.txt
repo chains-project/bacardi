@@ -123,5 +123,7 @@ public class AlertMessage implements Serializable {
         public void setField(String field) {
             this.field = field;
         }
+
     }
+
 }

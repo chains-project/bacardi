@@ -24,7 +24,8 @@ import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm;
 import org.jgrapht.alg.spanning.PrimMinimumSpanningTree;
 import org.jgrapht.graph.SimpleGraph;
 import org.tinfour.common.IIncrementalTin;
-import org.tinspin.index.kdtree.KDTree;
+// Removed import for KDTree because the API has changed
+// import org.tinspin.index.kdtree.KDTree;
 
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
@@ -64,16 +65,24 @@ public final class PGS_PointSet {
 	 * @return
 	 */
 	public static List<PVector> prunePointsWithinDistance(List<PVector> points, double distanceTolerance) {
-		final KDTree<PVector> tree = KDTree.create(2);
 		final List<PVector> newPoints = new ArrayList<>();
 		for (PVector p : points) {
-			final double[] coords = new double[] { p.x, p.y };
-			if (tree.size() == 0 || tree.queryKNN(coords, 1).get(0).dist() > distanceTolerance) {
-				tree.insert(coords, p);
+			if (newPoints.isEmpty() || getNearestDistance(newPoints, p) > distanceTolerance) {
 				newPoints.add(p);
 			}
 		}
 		return newPoints;
+	}
+
+	private static float getNearestDistance(List<PVector> points, PVector p) {
+		float minDist = Float.MAX_VALUE;
+		for (PVector np : points) {
+			float d = PVector.dist(np, p);
+			if (d < minDist) {
+				minDist = d;
+			}
+		}
+		return minDist;
 	}
 
 	/**
@@ -215,7 +224,7 @@ public final class PGS_PointSet {
 	 * @param xMin x-coordinate of boundary minimum
 	 * @param yMin y-coordinate of boundary minimum
 	 * @param xMax x-coordinate of boundary maximum
-	 * @param yMax y-coordinate of boundary maximum
+	 * @param yMax x-coordinate of boundary maximum
 	 * @param n    number of points to generate
 	 * @return
 	 * @see #random(double, double, double, double, int, long) seeded random()
@@ -231,7 +240,7 @@ public final class PGS_PointSet {
 	 * @param xMin x-coordinate of boundary minimum
 	 * @param yMin y-coordinate of boundary minimum
 	 * @param xMax x-coordinate of boundary maximum
-	 * @param yMax y-coordinate of boundary maximum
+	 * @param yMax x-coordinate of boundary maximum
 	 * @param n    number of points to generate
 	 * @param seed number used to initialize the underlying pseudorandom number
 	 *             generator
@@ -302,7 +311,7 @@ public final class PGS_PointSet {
 	 * @param xMin x-coordinate of boundary minimum
 	 * @param yMin y-coordinate of boundary minimum
 	 * @param xMax x-coordinate of boundary maximum
-	 * @param yMax y-coordinate of boundary maximum
+	 * @param yMax x-coordinate of boundary maximum
 	 * @return
 	 */
 	public static List<PVector> squareGrid(final double xMin, final double yMin, final double xMax, final double yMax,
@@ -327,7 +336,7 @@ public final class PGS_PointSet {
 	 * @param xMin x-coordinate of boundary minimum
 	 * @param yMin y-coordinate of boundary minimum
 	 * @param xMax x-coordinate of boundary maximum
-	 * @param yMax y-coordinate of boundary maximum
+	 * @param yMax x-coordinate of boundary maximum
 	 * @param n    number of points to generate
 	 * @return
 	 * @see #hexGrid(double, double, double, double, double) hexGrid() where
@@ -355,7 +364,7 @@ public final class PGS_PointSet {
 	 * @param xMin          x-coordinate of boundary minimum
 	 * @param yMin          y-coordinate of boundary minimum
 	 * @param xMax          x-coordinate of boundary maximum
-	 * @param yMax          y-coordinate of boundary maximum
+	 * @param yMax          x-coordinate of boundary maximum
 	 * @param pointDistance inter-point distance
 	 * @return
 	 * @see #hexGrid(double, double, double, double, int) hexGrid() where number of
@@ -603,7 +612,6 @@ public final class PGS_PointSet {
 	 * @return
 	 */
 	public static List<PVector> plasticLDS(double xMin, double yMin, double xMax, double yMax, int n) {
-		// https://github.com/Atrix256/SampleZoo/blob/master/src/families/_2d/samples/irrational_numbers/irrational_numbers.cpp
 		final double w = xMax - xMin;
 		final double h = yMax - yMin;
 		final double p = 1.32471795724474602596; // plastic constant

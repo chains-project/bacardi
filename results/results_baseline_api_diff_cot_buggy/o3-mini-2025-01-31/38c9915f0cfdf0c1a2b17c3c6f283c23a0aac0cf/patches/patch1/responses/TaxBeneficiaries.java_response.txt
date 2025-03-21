@@ -26,9 +26,8 @@ package io.zold.api;
 import java.util.Comparator;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.IterableEnvelope;
-import org.cactoos.scalar.LengthOf;
-import org.cactoos.scalar.UncheckedScalar;
 import org.cactoos.iterable.Sorted;
+import org.cactoos.scalar.LengthOf;
 
 /**
  * {@link Remote} nodes that should receive taxes.
@@ -47,7 +46,7 @@ public final class TaxBeneficiaries extends IterableEnvelope<Remote> {
             Comparator.comparing(Remote::score),
             new Filtered<>(
                 // @checkstyle MagicNumberCheck (1 line)
-                n -> new UncheckedScalar<>(new LengthOf(n.score().suffixes())).value() >= 16,
+                n -> new LengthOf(n.score().suffixes()).intValue() >= 16,
                 nodes
             )
         ));

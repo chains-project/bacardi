@@ -1,20 +1,8 @@
 30d29
 < import org.apache.thrift.transport.TFastFramedTransport;
-32c31,32
-< import org.apache.thrift.transport.TTransport;
----
-> // Updated import for TFastFramedTransport from the new layered package.
+32a32
 > import org.apache.thrift.transport.layered.TFastFramedTransport;
-53c53
-<     private TTransport framedTransport;
----
->     private TFastFramedTransport framedTransport;
-60,61c60
-<       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
-<       // log.
----
->       // Use the TFastFramedTransport from the new layered API.
-63,64c62
+63,64c63
 <       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
 <           bufferCapacity);
 ---

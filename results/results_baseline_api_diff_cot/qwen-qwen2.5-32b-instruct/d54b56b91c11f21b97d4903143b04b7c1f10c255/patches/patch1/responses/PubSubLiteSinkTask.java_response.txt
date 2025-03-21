@@ -81,7 +81,8 @@ public class PubSubLiteSinkTask extends SinkTask {
             Constants.KAFKA_PARTITION_HEADER,
             ByteString.copyFromUtf8(record.kafkaPartition().toString()));
         attributes.put(
-            Constants.KAFKA_OFFSET_HEADER, ByteString.copyFromUtf8(Long.toString(record.kafkaOffset())));
+            Constants.KAFKA_OFFSET_HEADER,
+            ByteString.copyFromUtf8(Long.toString(record.kafkaOffset())));
       }
       if (record.timestamp() != null) {
         attributes.put(

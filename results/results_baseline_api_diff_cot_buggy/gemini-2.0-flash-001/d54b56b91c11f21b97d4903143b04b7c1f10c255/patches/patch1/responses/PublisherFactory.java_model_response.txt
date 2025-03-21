@@ -1,30 +1,3 @@
-<fix_planning>
-a. Code and API changes:
-- The code uses `com.google.cloud.pubsublite.PublishMetadata` and `Publisher<PublishMetadata>`.
-- The API changes indicate that `com.google.cloud.pubsublite.PublishMetadata` has been removed.
-
-b. Specific API changes causing the issue:
-- Removal of `com.google.cloud.pubsublite.PublishMetadata`.
-
-c. Affected lines of code:
-- `import com.google.cloud.pubsublite.PublishMetadata;`
-- `Publisher<PublishMetadata> newPublisher(Map<String, String> params);`
-
-d. Proposed fixes:
-- Since `PublishMetadata` has been removed, we need to find a suitable replacement or remove its usage.  Since we don't have enough context to determine a suitable replacement, and the interface defines a `Publisher` of `PublishMetadata`, the best course of action is to change the interface to use `byte[]` instead. This assumes the publisher now publishes raw bytes.
-
-e. Potential side effects:
-- Changing the interface will require changes to any classes that implement this interface.  However, since the problem statement restricts changes to only the client code, and this interface is part of the client code, this is acceptable.
-
-f. Adherence to constraints:
-- The function signature of `newPublisher` is being changed, but the problem statement allows this.
-- No code is being removed unless it directly causes a compilation error.
-- All code is included in the final output.
-
-g. Final summary:
-The best solution is to replace `PublishMetadata` with `byte[]` in the `PublisherFactory` interface. This addresses the compilation errors caused by the removal of `PublishMetadata` and adheres to the given constraints.
-</fix_planning>
-
 ```java
 /*
  * Copyright 2020 Google LLC
@@ -43,11 +16,12 @@ The best solution is to replace `PublishMetadata` with `byte[]` in the `Publishe
  */
 package com.google.pubsublite.kafka.sink;
 
+import com.google.cloud.pubsublite.Offset;
 import com.google.cloud.pubsublite.internal.Publisher;
 import java.util.Map;
 
 interface PublisherFactory {
 
-  Publisher<byte[]> newPublisher(Map<String, String> params);
+  Publisher<Offset> newPublisher(Map<String, String> params);
 }
 ```

@@ -1,14 +1,62 @@
-20,21c20,21
+1,15d0
+< /*
+<  * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+20,21c5
 < import com.hazelcast.core.IMap;
 < import com.hazelcast.core.MapEvent;
 ---
 > import com.hazelcast.map.IMap;
-> import com.hazelcast.map.MapEvent;
-23c23
+23c7,8
 < import com.hazelcast.monitor.LocalMapStats;
 ---
+> import com.hazelcast.map.MapEvent;
 > import com.hazelcast.map.LocalMapStats;
-81c81
-<         listeners.add(map.addEntryListener(listener, false));
+90,91c75,76
+<                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+<                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
 ---
->         listeners.add(map.addEntryListener(listener));
+>                 if (includeEventsFromLocalNode || !event.getSource().localMember()) {
+>                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getSource());
+99,100c84,85
+<                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+<                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+---
+>                 if (includeEventsFromLocalNode || !event.getSource().localMember()) {
+>                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getSource());
+108,109c93,94
+<                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+<                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+---
+>                 if (includeEventsFromLocalNode || !event.getSource().localMember()) {
+>                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getSource());
+117,118c102,103
+<                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+<                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+---
+>                 if (includeEventsFromLocalNode || !event.getSource().localMember()) {
+>                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getSource());
+126,127c111,112
+<                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+<                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+---
+>                 if (includeEventsFromLocalNode || !event.getSource().localMember()) {
+>                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getSource());
+135,136c120,121
+<                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+<                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+---
+>                 if (includeEventsFromLocalNode || !event.getSource().localMember()) {
+>                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getSource());

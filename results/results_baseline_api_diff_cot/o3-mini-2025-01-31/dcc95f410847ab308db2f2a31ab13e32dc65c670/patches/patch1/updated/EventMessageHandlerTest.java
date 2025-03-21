@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.queue.event;
 
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
@@ -80,10 +81,8 @@ class EventMessageHandlerTest {
 
     @Captor
     ArgumentCaptor<Map<String, String>> personalisationCaptor;
-    
     @Mock
     private Appender<ILoggingEvent> mockLogAppender;
-    
     @Captor
     ArgumentCaptor<ILoggingEvent> loggingEventArgumentCaptor;
 
@@ -110,12 +109,10 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        // Instead of casting to a removed Logger type, obtain the logger via the LoggerContext
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        // Attach the mock appender to the ROOT logger so that log events can be captured
-        ch.qos.logback.classic.Logger rootLogger = loggerContext.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
-        rootLogger.setLevel(Level.INFO);
-        rootLogger.addAppender(mockLogAppender);
+        Logger logger = loggerContext.getLogger(EventMessageHandler.class.getName());
+        logger.setLevel(Level.INFO);
+        logger.addAppender(mockLogAppender);
     }
 
     @Test

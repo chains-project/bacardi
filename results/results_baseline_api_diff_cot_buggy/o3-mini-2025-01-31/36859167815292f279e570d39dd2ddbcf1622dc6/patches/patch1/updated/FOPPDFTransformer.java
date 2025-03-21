@@ -111,7 +111,7 @@ public abstract class FOPPDFTransformer {
         // creation of transform source
         StreamSource transformSource = new StreamSource(templateStream);
 
-        // create an instance of fop factory using the current directory as base URI
+        // create an instance of fop factory with a base URI
         FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
         // a user agent is needed for transformation
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
@@ -126,7 +126,7 @@ public abstract class FOPPDFTransformer {
 
         Path qr = null;
         try {
-            if(qrCodeString.isPresent() && !qrCodeString.get().getValue().isEmpty()){
+            if (qrCodeString.isPresent() && !qrCodeString.get().getValue().isEmpty()) {
                 qr = createQR(qrCodeString.get().getValue());
                 documentParams.getRoot().addChild(QR_CODE_PATH, qr.toString());
             }
@@ -197,7 +197,7 @@ public abstract class FOPPDFTransformer {
     }
 
     private void deleteTempFileIfExists(Path path) {
-        if(path != null) {
+        if (path != null) {
             try {
                 Files.deleteIfExists(path);
             } catch (IOException e) {

@@ -1,4 +1,4 @@
-13a14
+10a11
 > import org.yaml.snakeyaml.LoaderOptions;
 40d40
 < 
@@ -6,25 +6,47 @@
 <             Constructor constructor = new Constructor();
 ---
 >             LoaderOptions options = new LoaderOptions();
->             Constructor constructor = new Constructor(options);
-102c103
+>             Constructor constructor = new Constructor(InstanceHolder.class, options);
+102,137d102
 <     @Test(expected = NoSuchFieldException.class)
----
->     @Test
-114c115,116
+<     public void driveAsListFromYaml() {
+<         String config = "" +
+<                 "- !doubleSum\n" +
+<                 "  doubleSuppliers:\n" +
+<                 "  - !stringHandler\n" +
+<                 "    id: A\n" +
+<                 "  - !stringHandler\n" +
+<                 "    id: B\n" +
+<                 "- !stringHandler\n" +
+<                 "  id: C";
+<         sep(c -> {
 <             Constructor constructor = new Constructor();
----
->             LoaderOptions options = new LoaderOptions();
->             Constructor constructor = new Constructor(options);
-132c134
+<             constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
+<             constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
+<             Yaml yaml = new Yaml(constructor);
+<             yaml.loadAs("nodeList:\n" + config, InstanceHolder.class).getNodeList().forEach(c::addNode);
+<         });
+<         DoubleSum aggregator = getField("aggregator");
+<         StringHandler handlerC = getField("stringHandler_C");
+<         onEvent("A");
+<         assertThat(aggregator.sum, is(1.0));
+<         assertThat(handlerC.value, is(0));
+<         onEvent("A");
+<         assertThat(aggregator.sum, is(2.0));
+<         assertThat(handlerC.value, is(0));
+<         onEvent("B");
 <         assertThat(aggregator.sum, is(3.0));
----
->         assertThat(aggregator.sum, is(3.0);
-143d144
+<         assertThat(handlerC.value, is(0));
+<         onEvent("C");
+<         assertThat(aggregator.sum, is(3.0));
+<         assertThat(handlerC.value, is(1));
 < 
-155c156
+<         getField("instanceHolder");
+<     }
 < 
----
->     @Data
-218d218
+143d107
+< 
+155d118
+< 
+218d180
 < 

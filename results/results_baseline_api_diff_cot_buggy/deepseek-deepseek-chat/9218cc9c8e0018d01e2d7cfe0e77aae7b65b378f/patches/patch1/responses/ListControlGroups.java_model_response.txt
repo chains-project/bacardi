@@ -1,32 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The code uses javax.validation packages which have been removed in the new version. The new version uses jakarta.validation packages instead.
-   b. Specific API changes causing issues:
-      - javax.validation.constraints.* → jakarta.validation.constraints.*
-      - javax.validation.metadata.* → jakarta.validation.metadata.*
-      - javax.validation.Validator → jakarta.validation.Validator
-   c. Affected lines:
-      - Import statements (lines 37-43)
-      - Validator usage (line 121)
-      - BeanDescriptor usage (line 122)
-      - ElementDescriptor usage (line 133)
-      - ConstraintDescriptor usage (lines 135,136)
-      - Constraint annotation checks (lines 137-139)
-   d. Proposed fixes:
-      - Replace all javax.validation imports with jakarta.validation equivalents
-      - Keep the same class/method names as they exist in the new package
-   e. Potential side effects:
-      - None expected as the API structure remains the same, only the package names changed
-   f. Constraints check:
-      - Adheres to all constraints: 
-        * No method signatures changed
-        * No code removed
-        * Only package names updated
-        * All code included
-   g. Final summary:
-      - The best solution is to update all javax.validation imports to jakarta.validation as this directly addresses the breaking changes while maintaining the same functionality.
-</fix_planning>
-
 ```java
 /**
  * Copyright (C) 2014 Premium Minds.

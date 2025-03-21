@@ -1,7 +1,6 @@
-19d18
-< import com.fasterxml.jackson.databind.ObjectWriter;
-241,242c240
+241,242c241,242
 <                         ObjectWriter writer = mapper.writer();
 <                         writer.writeValue(segmentListFile, dataList);
 ---
->                         mapper.writeValue(segmentListFile, dataList);
+>             // Use ObjectMapper's writeValue(File, Object) method directly to serialize dataList to file
+>             mapper.writeValue(segmentListFile, dataList);

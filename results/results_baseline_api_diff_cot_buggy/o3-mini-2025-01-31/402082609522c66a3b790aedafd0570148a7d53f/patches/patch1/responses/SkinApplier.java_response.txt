@@ -5,11 +5,11 @@ import com.github.games647.changeskin.core.model.UserPreference;
 import com.github.games647.changeskin.core.model.skin.SkinModel;
 import com.github.games647.changeskin.core.shared.task.SharedApplier;
 import com.github.games647.changeskin.sponge.ChangeSkinSponge;
-import net.kyori.adventure.audience.Audience;
 
 import java.util.UUID;
 
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.tab.TabListEntry;
 import org.spongepowered.api.scheduler.Task;
@@ -19,10 +19,10 @@ import org.spongepowered.api.world.World;
 public class SkinApplier extends SharedApplier {
 
     private final ChangeSkinSponge plugin;
-    private final Audience invoker;
+    private final CommandSource invoker;
     private final Player receiver;
 
-    public SkinApplier(ChangeSkinSponge plugin, Audience invoker, Player receiver, SkinModel targetSkin, boolean keepSkin) {
+    public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin, boolean keepSkin) {
         super(plugin.getCore(), targetSkin, keepSkin);
 
         this.plugin = plugin;
@@ -36,7 +36,7 @@ public class SkinApplier extends SharedApplier {
             return;
         }
 
-        // uuid was successfully resolved, we could now make a cooldown check
+        //uuid was successfully resolved, we could now make a cooldown check
         if (invoker instanceof Player) {
             UUID uniqueId = ((Player) invoker).getUniqueId();
             core.getCooldownService().trackPlayer(uniqueId);
@@ -78,7 +78,7 @@ public class SkinApplier extends SharedApplier {
     private void sendUpdate() {
         sendUpdateSelf();
 
-        // triggers an update for others to see the new skin
+        // triggers an update for other players to see the new skin by toggling vanish mode
         receiver.setVanished(true);
         receiver.setVanished(false);
     }

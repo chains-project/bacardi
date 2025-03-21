@@ -1,148 +1,96 @@
-26,28d25
-< import org.tinspin.index.PointDistanceFunction;
+27c27
 < import org.tinspin.index.PointEntryDist;
-< import org.tinspin.index.covertree.CoverTree;
-57,61d53
-<         /*-
-<          * Roadmap (see/implement): 'A LINEARIZED CIRCLE PACKING ALGORITHM'? 
-<          * 'A note on circle packing' Young Joon AHN.
-<          */
-< 
-107,108c99,100
+---
+> import org.tinspin.index.PointEntry;
+107,108c107,149
 <          * Generates a circle packing of the input shape, using the inscribed circles
 <          * (or incircles) of triangles from a triangulation of the shape.
 ---
->          * Packs a specified number of maximum inscribed circles within the given shape
->          * using the Largest Empty Circle (LEC) algorithm.
-110,111c102,104
-<          * Circles in this packing do not overlap and are contained entirely within the
-<          * shape. However, not every circle is necessarily tangent to others.
----
->          * This method finds and returns the maximum inscribed circles up to the
->          * specified number (n), starting with the largest circle. It uses a tolerance
->          * value to control the accuracy of the LEC algorithm.
-113,120c106,110
-<          * @param shape       the shape from which to generate a circle packing
-<          * @param points      the number of random points to insert into the
-<          *                    triangulation as steiner points. Larger values lead to
-<          *                    more circles that are generally smaller.
-<          * @param refinements number of times to refine the underlying triangulation.
-<          *                    Larger values lead to more circles that are more regularly
-<          *                    spaced and sized. 0...3 is a suitable range for this
-<          *                    parameter
----
->          * @param shape     The input shape to pack maximum inscribed circles within.
->          * @param n         The number of maximum inscribed circles to find and pack.
->          * @param tolerance The tolerance value to control the LEC algorithm's accuracy.
->          *                  Higher values yield faster results but lower accuracy. A
->          *                  value of a 1 is good staring point.
-124,128c114,183
-<         public static List<PVector> trinscribedPack(PShape shape, int points, int refinements) {
-<                 final List<PVector> steinerPoints = PGS_Processing.generateRandomPoints(shape, points);
-<                 final IIncrementalTin tin = PGS_Triangulation.delaunayTriangulationMesh(shape, steinerPoints, true, refinements, true);
-<                 return StreamSupport.stream(tin.triangles().spliterator(), false).filter(filterBorderTriangles).map(t -> inCircle(t))
-<                                 .collect(Collectors.toList());
----
->         public static List<PVector> maximumInscribedPack(PShape shape, int n, double tolerance) {
->                 tolerance = Math.max(0.01, tolerance);
->                 LargestEmptyCircles mics = new LargestEmptyCircles(fromPShape(shape), null, tolerance);
-> 
->                 final List<PVector> out = new ArrayList<>();
->                 for (int i = 0; i < n; i++) {
->                         double[] currentLEC = mics.findNextLEC();
->                         out.add(new PVector((float) currentLEC[0], (float) currentLEC[1], (float) currentLEC[2]));
->                 }
-> 
->                 return out;
->         }
-> 
->         /**
->          * Packs a specified number of maximum inscribed circles within the given shape
->          * using the Largest Empty Circle (LEC) algorithm.
->          * <p>
->          * This method finds and returns the maximum inscribed circles with a radius
->          * equal to or larger than the specified minimum radius. It uses a tolerance
->          * value to control the LEC algorithm's accuracy.
->          *
->          * @param shape     The input shape to pack maximum inscribed circles within.
->          * @param minRadius The minimum allowed radius for the inscribed circles.
->          * @param tolerance The tolerance value to control the LEC algorithm's accuracy.
->          *                  Higher values yield faster results but lower accuracy. A
->          *                  value of a 1 is good staring point.
->          * @return A list of PVectors, each representing one circle: (.x, .y) represent
->          *         the center point and .z represents radius.
->          */
->         public static List<PVector> maximumInscribedPack(PShape shape, double minRadius, double tolerance) {
->                 tolerance = Math.max(0.01, tolerance);
->                 minRadius = Math.max(0.01, minRadius);
->                 LargestEmptyCircles mics = new LargestEmptyCircles(fromPShape(shape), null, tolerance);
-> 
->                 final List<PVector> out = new ArrayList<>();
->                 double[] currentLEC;
->                 do {
->                         currentLEC = mics.findNextLEC();
->                         if (currentLEC[2] >= minRadius) {
->                                 out.add(new PVector((float) currentLEC[0], (float) currentLEC[1], (float) currentLEC[2]));
->                         }
->                 } while (currentLEC[2] >= minRadius);
-> 
->                 return out;
->         }
-> 
->         /**
->          * Generates a circle packing having a pattern of tangencies specified by a
->          * triangulation.
->          * <p>
->          * This is an implementation of 'A circle packing algorithm' by Charles R.
->          * Collins & Kenneth Stephenson.
+>          * Packs circles of varying radii within a given shape, whilst respecting
+>          * pointal obstacles using the Largest Empty Circle (LEC) algorithm. The method
+>          * continues to generate circles until the sum of the areas of the circles
+>          * exceeds a specified proportion of the area of the given shape.
 >          * 
->          * @param triangulation represents the pattern of tangencies; vertices connected
->          *                     by an edge inthe triangulation represent tangent circles
->          *                     in the packing
->          * @param boundaryRadii list of radii of circles associated with the
->          *                     boundary/perimeter vertices of the triangulation. The
->          *                     list may have fewer radii than the number of boundary
->          *                     vertices; in this case, boundary radii will wrap around
->          *                     the list
->          * @return A list of PVectors, each representing one circle: (.x, .y) represent
->          *         the center point and .z represents radius. The packing is centered on
->          *         (0, 0) by default.
->          * @since 1.3.0
->          * @see #repulsionPack(PShape, List)
+>          * @param shape          The shape within which circles will be packed. The
+>          *                       shape should be in the form of PShape.
+>          * @param pointObstacles A collection of PVector points representing obstacles,
+>          *                       around which circles are packed. Only points contained
+>          *                       within the shape are relevant.
+>          * @param areaCoverRatio The target ratio of the total area of the circles to
+>          *                       the area of the shape. This parameter should be a
+>          *                       double between 0 and 1. Circle generation will stop
+>          *                       when this ratio is reached.
+>          * @return A list of PVectors, where each PVector represents a circle. The x and
+>          *         y components of the PVector represent the center of the circle, and
+>          *         the z component represents the radius of the circle.
+>          * @since 1.4.0
 >          */
->         public static List<PVector> tangencyPack(IIncrementalTin triangulation, double[] boundaryRadii) {
->                 TangencyPack pack = new TangencyPack(triangulation, boundaryRadii);
->                 return pack.pack();
-145c200
+>         public static List<PVector> obstaclePack(PShape shape, Collection<PVector> pointObstacles, double areaCoverRatio) {
+>                 final Geometry geometry = fromPShape(shape);
+> 
+>                 LargestEmptyCircles lec = new LargestEmptyCircles(fromPShape(PGS_Conversion.toPointsPShape(pointObstacles)), geometry,
+>                                 areaCoverRatio > 0.95 ? 0.5 : 1);
+> 
+>                 final double shapeArea = geometry.getArea();
+>                 double circlesArea = 0;
+>                 List<PVector> circles = new ArrayList<>();
+> 
+>                 while (circlesArea / shapeArea < areaCoverRatio) {
+>                         double[] currentLEC = lec.findNextLEC();
+>                         circles.add(new PVector((float) currentLEC[0], (float) currentLEC[1], (float) currentLEC[2]));
+>                         circlesArea += Math.PI * currentLEC[2] * currentLEC[2];
+>                         if (currentLEC[2] < 0.5) {
+>                                 break;
+>                         }
+>                 }
+>                 return circles;
+>         }
+> 
+>         /**
+>          * Generates a random circle packing of the input shape, using the inscribed
+>          * circles (or incircles) of triangles from a triangulation of the shape.
+145c186
 <          * which case, such a circle will be tangent to a shape vertex).
 ---
 >          * which case, such a circle will be tangent to a shape vertex.
-165d219
-<          * 
-173,174c227,228
-<          * output. An attempted point is rejected if it lies within an existing circle
-<          * or if its nearest circle is less than {@code minRadius} distance away.
+149c190
+<          *                          number of circles in the packing).
 ---
->          * output. An attempted point is rejected if it lies within an existing circle or
->          * if its nearest circle is less than {@code minRadius} distance away.
-198c252,254
+>          *                          number of circles in the packing)
+154,156c195,197
+<          *                          instead; this results in a packing that covers the
+<          *                          shape more evenly (particularly when points is
+<          *                          small), which is sometimes desirable
+---
+>          *                        instead; this results in a more evenly distributed
+>          *                        packing (particularly when points is small), which is
+>          *                        sometimes desirable
+198c239
 <          *         the center point, and .z represents the radius.
 ---
 >          *         the center point, and .z represents radius.
->          * @since 1.3.0
->          * @see #repulsionPack(PShape, double, double, long)
-203,206c259
-<                 final CoverTree<PVector> tree = CoverTree.create(3, 2, circleDistanceMetric);
-<                 final List<PVector> out = new ArrayList<>();
-< 
-<                 List<PVector> steinerPoints = PGS_Processing.generateRandomPoints(shape, points, seed);
----
->                 final List<PVector> steinerPoints = PGS_Processing.generateRandomPoints(shape, points, seed);
-217c270
+217c258
 <                 vertices.forEach(p -> tree.insert(new double[] { p.x, p.y, 0 }, p));
 ---
 >                 vertices.forEach(p -> tree.insert(new double[] { p.x, p.y, 0 }, p);
-247,513d299
+219,222d259
+<                 /*
+<                  * "To find the circle nearest to a center (x, y), do a proximity search at (x,
+<                  * y, R), where R is greater than or equal to the maximum radius of a circle."
+<                  */
+226c263
+<                         final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+---
+>                         final PointEntry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }; // find nearest-neighbour circle
+235c272
+<                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
+---
+>                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z;
+239c276
+<                                 tree.insert(new double[] { p.x, p.y, radius }, p); // insert circle into tree
+---
+>                                 tree.insert(new double[] { p.x, p.y, radius }, p; // insert circle into tree
+247,513d283
 <          * Generates a random circle packing of tangential circles with varying radii
 <          * that overlap the given shape. The method name references the packing
 <          * algorithm used (Front Chain Packing), rather than any particular
@@ -410,67 +358,65 @@
 <         }
 < 
 <         /**
-527,562d312
+527c297
 <                 final double radius = diameter / 2;
-< 
-<                 final Geometry g = fromPShape(shape);
-<                 final Envelope e = g.getEnvelopeInternal();
+---
+>                 final double radius = diameter / 2d;
+531,533c301,305
 <                 // buffer the geometry to use InAreaLocator to test circles for overlap (this
 <                 // works because all circles have the same diameter)
 <                 final IndexedPointInAreaLocator pointLocator = new IndexedPointInAreaLocator(g.buffer(radius * 0.95));
-<                 final double w = e.getWidth() + diameter + e.getMinX();
+---
+>                 /*
+>                  * Buffer the geometry to use InAreaLocator to test circles for overlap (this
+>                  * works because all circles have the same diameter).
+>                  */
+>                 final IndexedPointInAreaLocator pointLocator = new IndexedPointInAreaLocator(g.buffer(radius * 0.95);
+535c307
 <                 final double h = e.getHeight() + diameter + e.getMinY();
-< 
-<                 final List<PVector> out = new ArrayList<>();
-< 
+---
+>                 final double h = e.getHeight() + diameter + e.minY();
+539,540c311,312
 <                 for (double x = e.getMinX(); x < w; x += diameter) {
 <                         for (double y = e.getMinY(); y < h; y += diameter) {
-<                                 if (pointLocator.locate(new Coordinate(x, y)) != Location.EXTERIOR) {
-<                                         out.add(new PVector((float) x, (float) y, (float) radius));
-<                                 }
-<                         }
-<                 }
-<                 return out;
-<         }
-< 
-<         /**
-<          * Generates a tiled circle packing consisting of equal-sized circles arranged
-<          * in a hexagonal lattice bounded by the input shape.
-<          * <p>
-<          * Circles are included in the packing if they overlap with the given shape.
-<          * 
-<          * @param shape    the shape from which to generate a circle packing
-<          * @param diameter diameter of every circle in the packing
-<          * @return A list of PVectors, each representing one circle: (.x, .y) represent
-<          *         the center point and .z represents radius.
-<          * @see #squareLatticePack(PShape, double)
-<          */
-<         public static List<PVector> hexLatticePack(PShape shape, double diameter) {
-<                 diameter = Math.max(diameter, 0.1);
-571c321
-<                 final IndexedPointInAreaLocator pointLocator = new IndexedPointInAreaLocator(g.buffer(radius * 0.95));
 ---
->                 final IndexedPointInAreaLocator pointLocator = new IndexedPointInAreaLocator(g.buffer(radius * 0.95);
-577,581c327,328
-<                 final double z = radius * Math.sqrt(3); // hex distance between successive columns
-<                 double offset = 0;
-<                 for (double x = e.getMinX(); x < w; x += z) {
-<                         offset = (offset == radius) ? 0 : radius;
-<                         for (double y = e.getMinY() - offset; y < h; y += diameter) {
----
->                 for (double x = e.getMinX(); x < w; x += diameter) {
->                         for (double y = e.getMinY(); y < h; y += diameter) {
-583c330
+>                 for (double x = e.minX(); x < w; x += diameter) {
+>                         for (double y = e.minY(); y < h; y += diameter) {
+542c314
 <                                         out.add(new PVector((float) x, (float) y, (float) radius));
 ---
 >                                         out.add(new PVector((float) x, (float) y, (float) radius);
-645c392
-<         private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {
+569c341
+<                  * works because all circles have the same diameter).
 ---
->         private static final double circleDistanceMetric(double[] p1, double[] p2) {
-654c401
-<         };
+>                  * works because all circles have the same diameter.
+571,573c343,345
+<                 final IndexedPointInAreaLocator pointLocator = new IndexedPointInAreaLocator(g.buffer(radius * 0.95));
+<                 final double w = e.getWidth() + diameter + e.getMinX();
+<                 final double h = e.getHeight() + diameter + e.getMinY();
 ---
->         }
-663d409
-< 
+>                 final IndexedPointInAreaLocator pointLocator = new IndexedPointInAreaLocator(g.buffer(radius * 0.95);
+>                 final double w = e.getWidth() + diameter + e.minX();
+>                 final double h = e.getHeight() + diameter + e.minY();
+579c351
+<                 for (double x = e.getMinX(); x < w; x += z) {
+---
+>                 for (double x = e.minX(); x < w; x += z) {
+581c353
+<                         for (double y = e.getMinY() - offset; y < h; y += diameter) {
+---
+>                         for (double y = e.minY() - offset; y < h; y += diameter) {
+583c355
+<                                         out.add(new PVector((float) x, (float) y, (float) radius));
+---
+>                                         out.add(new PVector((float) x, (float) y, (float) radius);
+628c400
+<          * represents a circle with (x, y, r) coordinates. This custom metric considers
+---
+>          * represents a circle with (x1, y1, r1) coordinates. This custom metric considers
+637,638c409,410
+<          * in a proximity search. To perform the search, use a point (x, y, R) where R
+<          * is greater than or equal to the maximum radius of a circle in the proximity
+---
+>          * in a proximity search. To perform the search, use a point (x, y, R) where R is
+>          * greater than or equal to the maximum radius of a circle in the proximity

@@ -1,36 +1,20 @@
-19d18
+19c19
 < import com.google.api.services.translate.model.LanguagesResource;
-36,37c35,36
+---
+> import com.google.api.services.translate.v3.model.SupportedLanguage;
+36,37c36,37
 <   static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
 <       new Function<LanguagesResource, Language>() {
 ---
->   static final Function<LanguageInfo, Language> FROM_PB_FUNCTION =
->       new Function<LanguageInfo, Language>() {
-39c38
+>   static final Function<SupportedLanguage, Language> FROM_PB_FUNCTION =
+>       new Function<SupportedLanguage, Language>() {
+39c39
 <         public Language apply(LanguagesResource languagePb) {
 ---
->         public Language apply(LanguageInfo languagePb) {
-84,85c83,102
+>         public Language apply(SupportedLanguage languagePb) {
+84,85c84,85
 <   static Language fromPb(LanguagesResource languagePb) {
 <     return new Language(languagePb.getLanguage(), languagePb.getName());
 ---
->   static Language fromPb(LanguageInfo languagePb) {
->     return new Language(languagePb.getCode(), languagePb.getName());
->   }
-> }
-> 
-> class LanguageInfo {
->   private String code;
->   private String name;
-> 
->   public LanguageInfo(String code, String name) {
->     this.code = code;
->     this.name = name;
->   }
-> 
->   public String getCode() {
->     return code;
->   }
-> 
->   public String getName() {
->     return name;
+>   static Language fromPb(SupportedLanguage languagePb) {
+>     return new Language(languagePb.getLanguageCode(), languagePb.getDisplayName());

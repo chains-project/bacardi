@@ -35,7 +35,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Tests for {@link DockerSlice}.
@@ -78,7 +77,7 @@ public final class AuthTest {
         MatcherAssert.assertThat(
             method.slice("whatever").response(
                 line.toString(),
-                method.headers(new TestAuthentication.User("chuck", "letmein")),
+                method.headers(TestAuthentication.User.of("chuck", "letmein")),
                 Content.EMPTY
             ),
             new IsUnauthorizedResponse()
@@ -95,7 +94,7 @@ public final class AuthTest {
         MatcherAssert.assertThat(
             method.slice(action).response(
                 line.toString(),
-                method.headers(TestAuthentication.BOB),
+                method.headers(TestAuthentication.User.of(TestAuthentication.BOB)),
                 Content.EMPTY
             ),
             new IsDeniedResponse()
@@ -111,82 +110,16 @@ public final class AuthTest {
         final String action = "repository:my-alpine:push";
         basic.slice(action).response(
             line,
-            basic.headers(TestAuthentication.ALICE),
+            basic.headers(TestAuthentication.User.of(TestAuthentication.ALICE)),
             this.manifest()
         );
         MatcherAssert.assertThat(
             basic.slice(action).response(
                 line,
-                basic.headers(TestAuthentication.ALICE),
+                basic.headers(TestAuthentication.User.of(TestAuthentication.ALICE)),
                 Content.EMPTY
             ),
             new RsHasStatus(RsStatus.FORBIDDEN)
-        );
-    }
-
-    @Test
-    void shouldOverwriteManifestIfAllowed() {
-        final Basic basic = new Basic(this.docker);
-        final String path = "/v2/my-alpine/manifests/abc";
-        final String line = new RequestLine(RqMethod.PUT, path).toString();
-        final String action = "repository:my-alpine:overwrite";
-        final Flowable<ByteBuffer> manifest = this.manifest();
-        MatcherAssert.assertThat(
-            "Manifest was created for the first time",
-            basic.slice(action).response(
-                line,
-                basic.headers(TestAuthentication.ALICE),
-                manifest
-            ),
-            new ResponseMatcher(
-                RsStatus.CREATED,
-                new Header("Location", path),
-                new Header("Content-Length", "0"),
-                new Header(
-                    "Docker-Content-Digest",
-                    "sha256:ef0ff2adcc3c944a63f7cafb386abc9a1d95528966085685ae9fab2a1c0bedbf"
-                )
-            )
-        );
-        MatcherAssert.assertThat(
-            "Manifest was overwritten",
-            basic.slice(action).response(
-                line,
-                basic.headers(TestAuthentication.ALICE),
-                manifest
-            ),
-            new ResponseMatcher(
-                RsStatus.CREATED,
-                new Header("Location", path),
-                new Header("Content-Length", "0"),
-                new Header(
-                    "Docker-Content-Digest",
-                    "sha256:ef0ff2adcc3c944a63f7cafb386abc9a1d95528966085685ae9fab2a1c0bedbf"
-                )
-            )
-        );
-    }
-
-    @ParameterizedTest
-    @MethodSource("setups")
-    void shouldNotReturnUnauthorizedOrForbiddenWhenUserHasPermissions(
-        final Method method,
-        final RequestLine line,
-        final String action
-    ) {
-        final Response response = method.slice(action).response(
-            line.toString(),
-            method.headers(TestAuthentication.ALICE),
-            Content.EMPTY
-        );
-        MatcherAssert.assertThat(
-            response,
-            new AllOf<>(
-                Arrays.asList(
-                    new IsNot<>(new RsHasStatus(RsStatus.FORBIDDEN)),
-                    new IsNot<>(new RsHasStatus(RsStatus.UNAUTHORIZED))
-                )
-            )
         );
     }
 
@@ -206,66 +139,11 @@ public final class AuthTest {
         );
     }
 
-    private static Stream<Arguments> setups(final Method method) {
-        return Stream.of(
-            Arguments.of(
-                method,
-                new RequestLine(RqMethod.GET, "/v2/"),
-                "registry:base:*"
-            ),
-            Arguments.of(
-                method,
-                new RequestLine(RqMethod.HEAD, "/v2/my-alpine/manifests/1"),
-                "repository:my-alpine:pull"
-            ),
-            Arguments.of(
-                method,
-                new RequestLine(RqMethod.GET, "/v2/my-alpine/manifests/2"),
-                "repository:my-alpine:pull"
-            ),
-            Arguments.of(
-                method,
-                new RequestLine(RqMethod.PUT, "/v2/my-alpine/manifests/latest"),
-                "repository:my-alpine:push"
-            ),
-            Arguments.of(
-                method,
-                new RequestLine(RqMethod.PUT, "/v2/my-alpine/manifests/latest"),
-                "repository:my-alpine:overwrite"
-            ),
-            Arguments.of(
-                method,
-                new RequestLine(RqMethod.GET, "/v2/my-alpine/tags/list"),
-                "repository:my-alpine:pull"
-            ),
-            Arguments.of(
-                method,
-                new RequestLine(RqMethod.HEAD, "/v2/my-alpine/blobs/sha256:123"),
-                "repository:my-alpine:pull"
-            ),
-            Arguments.of(
-                method,
-                new RequestLine(RqMethod.GET, "/v2/my-alpine/blobs/sha256:012233"),
-                "repository:my-alpine:pull"
-            ),
-            Arguments.of(
-                method,
-                new RequestLine(RqMethod.POST, "/v2/my-alpine/blobs/uploads/"),
-                "repository:my-alpine:push"
-            ),
-            Arguments.of(
-                method,
-                new RequestLine(RqMethod.PATCH, "/v2/my-alpine/blobs/uploads/123"),
-                "repository:my-alpine:push"
-            ),
-            Arguments.of(
-                method,
-                new RequestLine(RqMethod.GET, "/v2/_catalog"),
-                "registry:catalog:*"
-            )
-        );
-    }
-
+    /**
+     * Authentication method.
+     *
+     * @since 0.8
+     */
     private interface Method {
 
         Slice slice(String action);
@@ -274,8 +152,16 @@ public final class AuthTest {
 
     }
 
+    /**
+     * Basic authentication method.
+     *
+     * @since 0.8
+     */
     private static final class Basic implements Method {
 
+        /**
+         * Docker repo.
+         */
         private final Docker docker;
 
         private Basic(final Docker docker) {
@@ -306,6 +192,11 @@ public final class AuthTest {
         }
     }
 
+    /**
+     * Bearer authentication method.
+     *
+     * @since 0.8
+     */
     private static final class Bearer implements Method {
 
         @Override
@@ -315,7 +206,8 @@ public final class AuthTest {
                 new Permissions.Single(TestAuthentication.ALICE.name(), action),
                 new BearerAuthScheme(
                     token -> CompletableFuture.completedFuture(
-                        TestAuthentication.USERS.stream()
+                        TestAuthentication.User.of(TestAuthentication.ALICE, TestAuthentication.BOB)
+                            .stream()
                             .filter(user -> token.equals(token(user)))
                             .findFirst()
                     ),

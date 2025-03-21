@@ -77,6 +77,10 @@ public class AppenderUtils {
       framedTransport.close();
     }
 
+    public byte[] headerBytes() {
+      return new byte[0];
+    }
+
     public byte[] footerBytes() {
       return new byte[0];
     }

@@ -53,8 +53,8 @@ class AuthScopeSliceTest {
             (headers, rline) -> CompletableFuture.completedFuture(
                 new AuthScheme.Result() {
                     @Override
-                    public Optional<String> user() {
-                        return Optional.of("alice");
+                    public Optional<AuthScheme.User> user() {
+                        return Optional.of(new AuthScheme.User("alice"));
                     }
 
                     @Override

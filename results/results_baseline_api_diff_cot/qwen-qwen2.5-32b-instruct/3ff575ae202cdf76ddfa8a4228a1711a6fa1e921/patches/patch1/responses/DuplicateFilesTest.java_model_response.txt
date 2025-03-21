@@ -32,14 +32,14 @@ public class DuplicateFilesTest
 
     private static final File destination = getTestFile( "target/output/duplicateFiles" );
 
-    private Logger logger;
-
     public void setUp()
         throws Exception
     {
         super.setUp();
-        // Replace the getLoggerManager() call with a new logger instance
-        logger = new ConsoleLogger( Logger.LEVEL_DEBUG );
+        // getLoggerManager().setThreshold( Logger.LEVEL_DEBUG );
+        // Replace with a new logger instance
+        Logger logger = new ConsoleLogger( Logger.LEVEL_DEBUG );
+        getLoggerManager().setLoggerForComponentType( getClass(), logger );
     }
 
     public void testZipArchiver()
@@ -160,5 +160,3 @@ public class DuplicateFilesTest
 
 }
 ```
-
-In the provided solution, the `getLoggerManager()` method call has been replaced with the instantiation of a `ConsoleLogger` object, which is a concrete implementation of the `Logger` interface. This change is necessary because the `getLoggerManager()` method has been removed in the new version of the dependency. The `ConsoleLogger` is initialized with the debug level to maintain the logging behavior as it was before. This approach ensures that the code remains functional and adheres to the new API constraints.

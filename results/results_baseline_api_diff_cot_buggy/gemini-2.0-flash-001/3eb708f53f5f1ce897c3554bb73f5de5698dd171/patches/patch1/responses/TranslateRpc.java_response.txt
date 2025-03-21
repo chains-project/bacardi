@@ -16,9 +16,15 @@
 
 package com.google.cloud.translate.spi.v2;
 
-import com.google.cloud.ServiceRpc;
+import com.google.cloud.translate.Detection;
+import com.google.cloud.translate.Language;
+import com.google.cloud.translate.Translate.TranslateOption;
+import com.google.cloud.translate.Translation;
+import com.google.cloud.StringListOption;
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public interface TranslateRpc extends ServiceRpc {
 
@@ -47,4 +53,29 @@ public interface TranslateRpc extends ServiceRpc {
       return get(options);
     }
   }
+
+  /**
+   * Returns a list of the languages supported by Google Translation.
+   *
+   * @param optionMap options to listing language translations
+   */
+  List<Language> listSupportedLanguages(Map<Option, ?> optionMap);
+
+  /**
+   * Detects the language of the provided texts.
+   *
+   * @param texts the texts to translate
+   * @return a list of lists of detections, one list of detections for each provided text, in order
+   */
+  List<List<Detection>> detect(List<String> texts);
+
+  /**
+   * Translates the provided texts.
+   *
+   * @param texts the texts to translate
+   * @param optionMap options to text translation
+   * @return a list of resources containing translation information, in the same order of the
+   *     provided texts
+   */
+  List<Translation> translate(List<String> texts, Map<Option, ?> optionMap);
 }

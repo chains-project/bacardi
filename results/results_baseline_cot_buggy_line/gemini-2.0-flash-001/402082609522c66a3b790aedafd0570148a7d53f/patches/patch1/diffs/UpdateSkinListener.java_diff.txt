@@ -1,14 +1,26 @@
-15a16
+14d13
+< import org.spongepowered.api.command.CommandSource;
+15a15
 > import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
-17c18
+17c17
 < import org.spongepowered.api.network.RawDataListener;
 ---
-> import org.spongepowered.api.network.MessageReceiver;
-21c22
+> import org.spongepowered.api.network.MessageReader;
+21c21,23
 < public class UpdateSkinListener implements RawDataListener {
 ---
-> public class UpdateSkinListener implements MessageReceiver {
-27c28
+> import java.io.IOException;
+> 
+> public class UpdateSkinListener  {
+26,28c28,30
+<     @Override
 <     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+<         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
 ---
->     public void handlePayload(RawDataChannel channel, ChannelBuf data, RemoteConnection connection) {
+>     public void handlePayload(RawDataChannel channel, RemoteConnection connection, ChannelBuf data) {
+>         byte[] rawData = data.array();
+>         ByteArrayDataInput dataInput = ByteStreams.newDataInput(rawData);
+35c37
+<             Runnable skinUpdater = new SkinApplier(plugin, (CommandSource) connection, receiver.get(), null, false);
+---
+>             Runnable skinUpdater = new SkinApplier(plugin, receiver.get(), receiver.get(), null, false);

@@ -15,6 +15,7 @@ import org.codehaus.plexus.PlexusTestCase;
 import org.codehaus.plexus.archiver.tar.TarArchiver;
 import org.codehaus.plexus.archiver.tar.TarLongFileMode;
 import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.logging.LoggerManager;
 import org.codehaus.plexus.util.FileUtils;
 
 /**
@@ -34,7 +35,10 @@ public class DuplicateFilesTest
         throws Exception
     {
         super.setUp();
-        getContainer().getLogger().setThreshold( Logger.LEVEL_DEBUG );
+        LoggerManager loggerManager = getContainer().getLoggerManager();
+        if (loggerManager != null) {
+            loggerManager.setThreshold( Logger.LEVEL_DEBUG );
+        }
     }
 
     public void testZipArchiver()

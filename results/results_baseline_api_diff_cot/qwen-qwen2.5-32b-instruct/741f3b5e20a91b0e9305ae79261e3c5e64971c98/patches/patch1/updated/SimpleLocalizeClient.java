@@ -1,8 +1,7 @@
 package io.simplelocalize.cli.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import io.simplelocalize.cli.client.dto.DownloadRequest;
@@ -25,7 +24,6 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 public class SimpleLocalizeClient
 {
@@ -84,16 +82,15 @@ public class SimpleLocalizeClient
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
     throwOnError(httpResponse);
     String body = httpResponse.body();
-    JsonNode jsonNode = objectMapper.readTree(body);
-    ExportResponse exportResponse = objectMapper.treeToValue(jsonNode, ExportResponse.class);
-    return exportResponse.getFiles();
+    JavaType type = objectMapper.getTypeFactory().constructCollectionType(List.class, DownloadableFile.class);
+    return objectMapper.readValue(body, type);
   }
 
   public void downloadFile(DownloadableFile downloadableFile, String downloadPathTemplate)
   {
     Optional<DownloadableFile> optionalDownloadableFile = Optional.of(downloadableFile);
     String downloadPath = downloadPathTemplate
-            .replace(NAMESPACE_TEMPLATE_KEY, optionalDownloadableFile.map(DownloadableFile::getNamespace).orElse(""))
+            .replace(NAMESPACE_TEMPLATE_KEY, optionalDownloadableFile.map(DownloadableFile::getNamespace).orElse("")))
             .replace(LANGUAGE_TEMPLATE_KEY, optionalDownloadableFile.map(DownloadableFile::getLanguage).orElse(""));
     String url = downloadableFile.getUrl();
     HttpRequest httpRequest = httpRequestFactory.createGetRequest(URI.create(url)).build();
@@ -124,10 +121,10 @@ public class SimpleLocalizeClient
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
     throwOnError(httpResponse);
     String json = httpResponse.body();
-    JsonNode jsonNode = objectMapper.readTree(json);
-    Boolean passed = JsonPath.read(jsonNode.toString(), "$.data.passed");
-    String message = JsonPath.read(jsonNode.toString(), "$.data.message");
-    int status = JsonPath.read(jsonNode.toString(), "$.data.status");
+    JavaType type = objectMapper.getTypeFactory().constructType(Boolean.class);
+    Boolean passed = objectMapper.readValue(json, type);
+    String message = JsonPath.read(json, "$.data.message");
+    int status = JsonPath.read(json, "$.data.status");
     log.info("Gate result: {} (status: {}, message: {})", passed, status, message);
     return status;
   }

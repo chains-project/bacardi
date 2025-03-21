@@ -1,39 +1,9 @@
-<fix_planning>
-a. Relevant parts of the code and API changes:
-- Code: `import static develop.p2p.lib.LearnMath.sigmoid;` and `setValue(sigmoid(sum));`
-- API Changes: `Method develop.p2p.lib.LearnMath.sigmoid(double) has been removed` and `Method tokyo.peya.lib.LearnMath.sigmoid(double) has been added`.
-
-b. Specific API changes causing the issue:
-The `develop.p2p.lib.LearnMath.sigmoid(double)` method has been removed, and `tokyo.peya.lib.LearnMath.sigmoid(double)` has been added. This means the import statement is invalid, and the `sigmoid` method call will fail.
-
-c. Affected lines of code:
-- `import static develop.p2p.lib.LearnMath.sigmoid;`
-- `setValue(sigmoid(sum));`
-
-d. Proposed potential fixes for each affected line:
-- For the import statement:
-  - Replace `develop.p2p.lib.LearnMath` with `tokyo.peya.lib.LearnMath`.
-- For the `sigmoid` method call:
-  - No change needed, as the method signature remains the same, only the location has changed.
-
-e. Potential side effects of the proposed changes:
-- The code relies on the `sigmoid` function. Changing the import will only affect where the function is called from. If the new `sigmoid` function in `tokyo.peya.lib.LearnMath` has different behavior, it could affect the output of the neuron. However, based on the problem description, we assume the functionality is the same.
-
-f. Adherence to constraints:
-- The function signatures of existing methods are not changed.
-- No existing code is removed unless it directly causes a compilation error.
-- The correct package is used in accordance with the newer dependency version.
-
-g. Final summary of the chosen fix:
-The best solution is to replace the import statement `import static develop.p2p.lib.LearnMath.sigmoid;` with `import static tokyo.peya.lib.LearnMath.sigmoid;`. This will resolve the compilation error caused by the removed dependency and ensure that the `sigmoid` function is called from the correct location.
-</fix_planning>
-
 ```java
 package ml.peya.plugins.Learn;
 
 import java.util.ArrayList;
 
-import static tokyo.peya.lib.LearnMath.sigmoid;
+import tokyo.peya.lib.LearnMath;
 
 /**
  * 重みを突っ込む器。
@@ -78,7 +48,7 @@ public class Neuron
     public void input(ArrayList<Input> inputData)
     {
         inputData.parallelStream().forEachOrdered(input -> input(input.getWeightingValue()));
-        setValue(sigmoid(sum));
+        setValue(LearnMath.sigmoid(sum));
     }
 
     /**

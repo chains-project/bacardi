@@ -18,6 +18,8 @@ import javax.xml.bind.annotation.XmlElementRefs;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
+import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
@@ -29,7 +31,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "warehouseIDAndLocationID",
     "address"
 })
-public class ShippingPointStructure implements ToString2 {
+public class ShippingPointStructure implements ToString2
+{
 
     @XmlElement(name = "DeliveryID")
     protected List<String> deliveryID;
@@ -59,8 +62,11 @@ public class ShippingPointStructure implements ToString2 {
      *    getDeliveryID().add(newItem);
      * </pre>
      * 
+     * 
+     * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link String }
+     * 
      * 
      */
     public List<String> getDeliveryID() {
@@ -73,7 +79,10 @@ public class ShippingPointStructure implements ToString2 {
     /**
      * Gets the value of the deliveryDate property.
      * 
-     * @return possible object is {@link XMLGregorianCalendar }
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public XMLGregorianCalendar getDeliveryDate() {
         return deliveryDate;
@@ -82,7 +91,10 @@ public class ShippingPointStructure implements ToString2 {
     /**
      * Sets the value of the deliveryDate property.
      * 
-     * @param value allowed object is {@link XMLGregorianCalendar }
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public void setDeliveryDate(XMLGregorianCalendar value) {
         this.deliveryDate = value;
@@ -103,9 +115,13 @@ public class ShippingPointStructure implements ToString2 {
      *    getWarehouseIDAndLocationID().add(newItem);
      * </pre>
      * 
+     * 
+     * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link JAXBElement }{@code <}{@link String }{@code >}
      * {@link JAXBElement }{@code <}{@link String }{@code >}
+     * 
+     * 
      */
     public List<JAXBElement<String>> getWarehouseIDAndLocationID() {
         if (warehouseIDAndLocationID == null) {
@@ -117,7 +133,10 @@ public class ShippingPointStructure implements ToString2 {
     /**
      * Gets the value of the address property.
      * 
-     * @return possible object is {@link AddressStructure }
+     * @return
+     *     possible object is
+     *     {@link AddressStructure }
+     *     
      */
     public AddressStructure getAddress() {
         return address;
@@ -126,7 +145,10 @@ public class ShippingPointStructure implements ToString2 {
     /**
      * Sets the value of the address property.
      * 
-     * @param value allowed object is {@link AddressStructure }
+     * @param value
+     *     allowed object is
+     *     {@link AddressStructure }
+     *     
      */
     public void setAddress(AddressStructure value) {
         this.address = value;
@@ -134,8 +156,7 @@ public class ShippingPointStructure implements ToString2 {
 
     @Override
     public String toString() {
-        // Use the custom SimpleToStringStrategy instead of the removed JAXBToStringStrategy.getInstance()
-        final ToStringStrategy2 strategy = new SimpleToStringStrategy();
+        final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -153,67 +174,25 @@ public class ShippingPointStructure implements ToString2 {
     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         {
             List<String> theDeliveryID;
-            theDeliveryID = (((this.deliveryID != null) && (!this.deliveryID.isEmpty())) ? this.getDeliveryID() : null);
-            strategy.appendField(locator, this, "deliveryID", buffer, theDeliveryID, ((this.deliveryID != null) && (!this.deliveryID.isEmpty())));
+            theDeliveryID = (((this.deliveryID!= null)&&(!this.deliveryID.isEmpty()))?this.getDeliveryID():null);
+            strategy.appendField(locator, this, "deliveryID", buffer, theDeliveryID, ((this.deliveryID!= null)&&(!this.deliveryID.isEmpty())));
         }
         {
             XMLGregorianCalendar theDeliveryDate;
             theDeliveryDate = this.getDeliveryDate();
-            strategy.appendField(locator, this, "deliveryDate", buffer, theDeliveryDate, (this.deliveryDate != null));
+            strategy.appendField(locator, this, "deliveryDate", buffer, theDeliveryDate, (this.deliveryDate!= null));
         }
         {
             List<JAXBElement<String>> theWarehouseIDAndLocationID;
-            theWarehouseIDAndLocationID = (((this.warehouseIDAndLocationID != null) && (!this.warehouseIDAndLocationID.isEmpty())) ? this.getWarehouseIDAndLocationID() : null);
-            strategy.appendField(locator, this, "warehouseIDAndLocationID", buffer, theWarehouseIDAndLocationID, ((this.warehouseIDAndLocationID != null) && (!this.warehouseIDAndLocationID.isEmpty())));
+            theWarehouseIDAndLocationID = (((this.warehouseIDAndLocationID!= null)&&(!this.warehouseIDAndLocationID.isEmpty()))?this.getWarehouseIDAndLocationID():null);
+            strategy.appendField(locator, this, "warehouseIDAndLocationID", buffer, theWarehouseIDAndLocationID, ((this.warehouseIDAndLocationID!= null)&&(!this.warehouseIDAndLocationID.isEmpty())));
         }
         {
             AddressStructure theAddress;
             theAddress = this.getAddress();
-            strategy.appendField(locator, this, "address", buffer, theAddress, (this.address != null));
+            strategy.appendField(locator, this, "address", buffer, theAddress, (this.address!= null));
         }
         return buffer;
-    }
-
-    /**
-     * A simple implementation of ToStringStrategy2 to replace the removed JAXBToStringStrategy.
-     */
-    private static class SimpleToStringStrategy implements ToStringStrategy2 {
-        private boolean firstField;
-
-        public SimpleToStringStrategy() {
-            this.firstField = true;
-        }
-
-        @Override
-        public void appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
-            firstField = true;
-            if (object != null) {
-                buffer.append(object.getClass().getSimpleName());
-            } else {
-                buffer.append("null");
-            }
-            buffer.append(" [");
-        }
-
-        @Override
-        public void appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean hasValue) {
-            if (!hasValue) {
-                return;
-            }
-            if (!firstField) {
-                buffer.append(", ");
-            } else {
-                firstField = false;
-            }
-            buffer.append(fieldName);
-            buffer.append("=");
-            buffer.append(String.valueOf(value));
-        }
-
-        @Override
-        public void appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
-            buffer.append("]");
-        }
     }
 
 }

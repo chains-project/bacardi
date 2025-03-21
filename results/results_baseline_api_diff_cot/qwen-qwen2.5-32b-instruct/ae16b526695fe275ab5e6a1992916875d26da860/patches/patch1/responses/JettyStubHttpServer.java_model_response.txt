@@ -7,9 +7,9 @@ package net.jadler.stubbing.server.jetty;
 
 import net.jadler.RequestManager;
 import net.jadler.stubbing.server.StubHttpServer;
-import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.HttpConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.Validate;
@@ -30,10 +30,10 @@ public class JettyStubHttpServer implements StubHttpServer {
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
         HttpConfiguration httpConfig = new HttpConfiguration();
-        httpConfig.setSendServerVersion(false);
         httpConfig.setSendDateHeader(true);
+        httpConfig.setSendServerVersion(false);
 
-        this.httpConnector = new ServerConnector(server, new HttpConfiguration[]{httpConfig});
+        this.httpConnector = new ServerConnector(server, httpConfig);
         this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);
     }
@@ -77,11 +77,3 @@ public class JettyStubHttpServer implements StubHttpServer {
     }
 }
 ```
-
-In this solution, I've made the following changes to address the API changes:
-
-1. Replaced `SelectChannelConnector` with `ServerConnector` as `SelectChannelConnector` has been removed.
-2. Added `HttpConfiguration` to set `sendServerVersion` and `sendDateHeader` properties, as these properties are now configured through `HttpConfiguration` rather than directly on the `Server` or `Connector`.
-3. Updated the `getPort()` method to call `getLocalPort()` on `ServerConnector` instead of `SelectChannelConnector`.
-
-These changes should ensure that the class is compatible with the new version of the Jetty dependency and resolves the compilation errors.

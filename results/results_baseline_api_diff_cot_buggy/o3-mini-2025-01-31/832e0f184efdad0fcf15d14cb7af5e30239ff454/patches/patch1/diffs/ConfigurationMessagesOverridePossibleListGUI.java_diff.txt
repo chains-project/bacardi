@@ -1,6 +1,16 @@
-72c72
+2a3,9
+> /* <repair_strategy>
+> 1. The API change indicates that the method parseEnchantment() was removed in the new version of XEnchantment.
+> 2. The new API provides getEnchant() to obtain the Bukkit Enchantment.
+> 3. Updated the call to currentEntryMeta.addEnchant() to use getEnchant() instead of parseEnchantment().
+> 4. This change ensures that the client code compiles and functions with the new dependency version.
+> </repair_strategy> */
+> 
+72c79
 <                                         currentEntryMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
 ---
 >                                         currentEntryMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
-112d111
+112d118
 <                                 ;
+121d126
+< 

@@ -61,12 +61,12 @@ public class ClasspathScanner {
     private boolean shouldScan(String s) {
         final String packagesToScan = System.getenv(PACKAGE_TO_SCAN);
         if (packagesToScan == null || packagesToScan.isEmpty()) {
-            return new FilterBuilder().include(".+\\.class").getFilter().apply(s);
+            return new FilterBuilder().include(".+\\.class").get().test(s);
         }
         final String[] packages = packagesToScan.split(",");
         for (String packageToScan : packages) {
             String regex = String.format(".?\\.??%s\\..+\\.class", packageToScan);
-            if (new FilterBuilder().include(regex).getFilter().apply(s)) {
+            if (new FilterBuilder().include(regex).get().test(s)) {
                 return true;
             }
         }

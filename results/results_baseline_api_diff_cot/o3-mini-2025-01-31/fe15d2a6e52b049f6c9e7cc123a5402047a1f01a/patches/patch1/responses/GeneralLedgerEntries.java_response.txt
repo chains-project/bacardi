@@ -18,9 +18,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
+import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
+
 
 /**
  * <p>Java class for anonymous complex type.
@@ -104,7 +106,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "journal"
 })
 @XmlRootElement(name = "GeneralLedgerEntries")
-public class GeneralLedgerEntries implements ToString2 {
+public class GeneralLedgerEntries implements ToString2
+{
 
     @XmlElement(name = "NumberOfEntries", required = true)
     @XmlSchemaType(name = "nonNegativeInteger")
@@ -219,12 +222,13 @@ public class GeneralLedgerEntries implements ToString2 {
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = SimpleToStringStrategy.INSTANCE;
+        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
     }
 
+    @Override
     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         strategy.appendStart(locator, this, buffer);
         appendFields(locator, buffer, strategy);
@@ -232,6 +236,7 @@ public class GeneralLedgerEntries implements ToString2 {
         return buffer;
     }
 
+    @Override
     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         {
             BigInteger theNumberOfEntries;
@@ -324,7 +329,8 @@ public class GeneralLedgerEntries implements ToString2 {
         "description",
         "transaction"
     })
-    public static class Journal implements ToString2 {
+    public static class Journal implements ToString2
+    {
 
         @XmlElement(name = "JournalID", required = true)
         protected String journalID;
@@ -412,12 +418,13 @@ public class GeneralLedgerEntries implements ToString2 {
 
         @Override
         public String toString() {
-            final ToStringStrategy2 strategy = SimpleToStringStrategy.INSTANCE;
+            final ToStringStrategy2 strategy = new DefaultToStringStrategy();
             final StringBuilder buffer = new StringBuilder();
             append(null, buffer, strategy);
             return buffer.toString();
         }
 
+        @Override
         public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
             strategy.appendStart(locator, this, buffer);
             appendFields(locator, buffer, strategy);
@@ -425,6 +432,7 @@ public class GeneralLedgerEntries implements ToString2 {
             return buffer;
         }
 
+        @Override
         public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
             {
                 String theJournalID;
@@ -455,32 +463,44 @@ public class GeneralLedgerEntries implements ToString2 {
          *   &lt;complexContent&gt;
          *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
          *       &lt;sequence&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TransactionID"/&gt;
-         *         &lt;element name="Period" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFPTAccountingPeriod"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TransactionDate"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}JournalID"/&gt;
          *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DocArchivalNumber"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TransactionType"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GLPostingDate"/&gt;
-         *         &lt;choice&gt;
-         *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CustomerID" minOccurs="0"/&gt;
-         *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SupplierID" minOccurs="0"/&gt;
-         *         &lt;/choice&gt;
-         *         &lt;element name="Line" maxOccurs="unbounded" minOccurs="2"&gt;
+         *         &lt;element name="Transaction" maxOccurs="unbounded" minOccurs="0"&gt;
          *           &lt;complexType&gt;
          *             &lt;complexContent&gt;
          *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
          *                 &lt;sequence&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}RecordID"/&gt;
-         *                   &lt;element name="AccountID" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFPTGLAccountID"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceDocumentID" minOccurs="0"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SystemEntryDate"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TransactionID"/&gt;
+         *                   &lt;element name="Period" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFPTAccountingPeriod"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TransactionDate"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
          *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DocArchivalNumber"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TransactionType"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GLPostingDate"/&gt;
          *                   &lt;choice&gt;
-         *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DebitAmount"/&gt;
-         *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CreditAmount"/&gt;
+         *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CustomerID" minOccurs="0"/&gt;
+         *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SupplierID" minOccurs="0"/&gt;
          *                   &lt;/choice&gt;
+         *                   &lt;element name="Line" maxOccurs="unbounded" minOccurs="2"&gt;
+         *                     &lt;complexType&gt;
+         *                       &lt;complexContent&gt;
+         *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+         *                           &lt;sequence&gt;
+         *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}RecordID"/&gt;
+         *                             &lt;element name="AccountID" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFPTGLAccountID"/&gt;
+         *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceDocumentID" minOccurs="0"/&gt;
+         *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SystemEntryDate"/&gt;
+         *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description"/&gt;
+         *                             &lt;choice&gt;
+         *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DebitAmount"/&gt;
+         *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CreditAmount"/&gt;
+         *                             &lt;/choice&gt;
+         *                           &lt;/sequence&gt;
+         *                         &lt;/restriction&gt;
+         *                       &lt;/complexContent&gt;
+         *                     &lt;/complexType&gt;
+         *                   &lt;/element&gt;
          *                 &lt;/sequence&gt;
          *               &lt;/restriction&gt;
          *             &lt;/complexContent&gt;
@@ -508,7 +528,8 @@ public class GeneralLedgerEntries implements ToString2 {
             "supplierID",
             "line"
         })
-        public static class Transaction implements ToString2 {
+        public static class Transaction implements ToString2
+        {
 
             @XmlElement(name = "TransactionID", required = true)
             protected String transactionID;
@@ -799,12 +820,13 @@ public class GeneralLedgerEntries implements ToString2 {
 
             @Override
             public String toString() {
-                final ToStringStrategy2 strategy = SimpleToStringStrategy.INSTANCE;
+                final ToStringStrategy2 strategy = new DefaultToStringStrategy();
                 final StringBuilder buffer = new StringBuilder();
                 append(null, buffer, strategy);
                 return buffer.toString();
             }
 
+            @Override
             public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                 strategy.appendStart(locator, this, buffer);
                 appendFields(locator, buffer, strategy);
@@ -812,6 +834,7 @@ public class GeneralLedgerEntries implements ToString2 {
                 return buffer;
             }
 
+            @Override
             public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                 {
                     String theTransactionID;
@@ -909,7 +932,8 @@ public class GeneralLedgerEntries implements ToString2 {
                 "debitAmount",
                 "creditAmount"
             })
-            public static class Line implements ToString2 {
+            public static class Line implements ToString2
+            {
 
                 @XmlElement(name = "RecordID", required = true)
                 protected String recordID;
@@ -1097,12 +1121,13 @@ public class GeneralLedgerEntries implements ToString2 {
 
                 @Override
                 public String toString() {
-                    final ToStringStrategy2 strategy = SimpleToStringStrategy.INSTANCE;
+                    final ToStringStrategy2 strategy = new DefaultToStringStrategy();
                     final StringBuilder buffer = new StringBuilder();
                     append(null, buffer, strategy);
                     return buffer.toString();
                 }
 
+                @Override
                 public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                     strategy.appendStart(locator, this, buffer);
                     appendFields(locator, buffer, strategy);
@@ -1110,6 +1135,7 @@ public class GeneralLedgerEntries implements ToString2 {
                     return buffer;
                 }
 
+                @Override
                 public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                     {
                         String theRecordID;
@@ -1153,40 +1179,6 @@ public class GeneralLedgerEntries implements ToString2 {
 
         }
 
-    }
-
-    /**
-     * A simple implementation of the ToStringStrategy2 interface that builds a string
-     * representation in the format: ClassName[field1=value1, field2=value2,...]
-     */
-    private static final class SimpleToStringStrategy implements ToStringStrategy2 {
-        public static final SimpleToStringStrategy INSTANCE = new SimpleToStringStrategy();
-
-        private SimpleToStringStrategy() {
-        }
-
-        @Override
-        public void appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
-            buffer.append(object.getClass().getSimpleName()).append("[");
-        }
-
-        @Override
-        public void appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean isSet) {
-            if (buffer.length() > 0 && buffer.charAt(buffer.length() - 1) != '[') {
-                buffer.append(", ");
-            }
-            buffer.append(fieldName).append("=");
-            if (value != null) {
-                buffer.append(value);
-            } else {
-                buffer.append("null");
-            }
-        }
-
-        @Override
-        public void appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
-            buffer.append("]");
-        }
     }
 
 }

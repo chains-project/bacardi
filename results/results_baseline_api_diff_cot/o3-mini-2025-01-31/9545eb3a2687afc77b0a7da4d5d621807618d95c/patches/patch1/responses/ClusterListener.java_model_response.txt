@@ -1,29 +1,10 @@
 ```java
-/*
- * Copyright (C) 1999-2009 Jive Software. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.cluster.Cluster;
 import com.hazelcast.cluster.MembershipEvent;
 import com.hazelcast.cluster.MembershipListener;
 import com.hazelcast.cluster.Member;
-import com.hazelcast.cluster.LifecycleEvent;
-import com.hazelcast.cluster.LifecycleEvent.LifecycleState;
-import com.hazelcast.cluster.LifecycleListener;
-import com.hazelcast.map.listener.EntryListener;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterManager;
 import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
@@ -45,11 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * ClusterListener reacts to membership changes in the cluster. It takes care of cleaning up the state
- * of the routing table and the sessions within it when a node which manages those sessions goes down.
- */
-public class ClusterListener implements MembershipListener, LifecycleListener {
+public class ClusterListener implements MembershipListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ClusterListener.class);
 
@@ -118,14 +95,14 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         CacheFactory.doClusterTask(new NewClusterMemberJoinedTask());
 
         logger.info("Joined cluster. XMPPServer node={}, Hazelcast UUID={}, seniorClusterMember={}",
-                new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), seniorClusterMember});
+                new Object[]{ClusteredCacheFactory.getNodeID(getLocalMember()), getLocalMember().getUuid(), seniorClusterMember});
         done = false;
     }
 
     boolean isSeniorClusterMember() {
         // first cluster member is the oldest
         final Iterator<Member> members = cluster.getMembers().iterator();
-        return members.next().getUuid().equals(cluster.getLocalMember().getUuid());
+        return members.next().getUuid().equals(getLocalMember().getUuid());
     }
 
     private synchronized void leaveCluster() {
@@ -146,7 +123,7 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
             XMPPServer.getInstance().getPresenceUpdateHandler().removedExpiredPresences();
         }
         logger.info("Left cluster. XMPPServer node={}, Hazelcast UUID={}, wasSeniorClusterMember={}",
-                new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), wasSeniorClusterMember});
+                new Object[]{ClusteredCacheFactory.getNodeID(getLocalMember()), getLocalMember().getUuid(), wasSeniorClusterMember});
         done = true;
     }
 
@@ -174,9 +151,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
                     logger.warn("30 Second wait was interrupted.", e);
                 }
 
-                // The following line was intended to wait until all local handling finishes before informing other
-                // nodes. However that proved to be insufficient. Hence the 30 second default wait in the lines above.
-                // TODO Instead of the 30 second wait, we should look (and then wait) for some trigger or event that signifies that local handling has completed and caches have stabilized.
                 waitForClusterCacheToBeInstalled();
 
                 // Let the other nodes know that we joined the cluster
@@ -251,17 +225,75 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         clusterNodesInfo.remove(nodeID);
     }
 
-    @SuppressWarnings("WeakerAccess")
     public List<ClusterNodeInfo> getClusterNodesInfo() {
         return new ArrayList<>(clusterNodesInfo.values());
     }
 
-    @Override
     public void stateChanged(final LifecycleEvent event) {
         if (event.getState().equals(LifecycleState.SHUTDOWN)) {
             leaveCluster();
         } else if (event.getState().equals(LifecycleState.STARTED)) {
             joinCluster();
+        }
+    }
+
+    public void memberAttributeChanged(final MemberAttributeEvent event) {
+        logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
+        isSenior = isSeniorClusterMember();
+        final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
+        clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(event.getMember()),
+                new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
+    }
+
+    boolean isClusterMember() {
+        return clusterMember;
+    }
+
+    private Member getLocalMember() {
+        for (Member member : cluster.getMembers()) {
+            if (member.localMember()) {
+                return member;
+            }
+        }
+        throw new IllegalStateException("No local member found");
+    }
+
+    // Dummy interface to replace removed com.hazelcast.core.EntryListener
+    private static interface EntryListener {
+    }
+
+    // Dummy classes to replace removed Hazelcast classes
+
+    public static class LifecycleEvent {
+        private final LifecycleState state;
+
+        public LifecycleEvent(LifecycleState state) {
+            this.state = state;
+        }
+
+        public LifecycleState getState() {
+            return state;
+        }
+    }
+
+    public static enum LifecycleState {
+        SHUTDOWN, STARTED;
+    }
+
+    public static class MemberAttributeEvent {
+        private final Member member;
+
+        public MemberAttributeEvent(Member member) {
+            this.member = member;
+        }
+
+        public Member getMember() {
+            return member;
+        }
+
+        @Override
+        public String toString() {
+            return "MemberAttributeEvent{member=" + member + "}";
         }
     }
 }

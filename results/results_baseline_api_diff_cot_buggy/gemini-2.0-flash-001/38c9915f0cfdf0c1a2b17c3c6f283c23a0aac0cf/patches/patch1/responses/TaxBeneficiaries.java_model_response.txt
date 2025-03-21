@@ -1,35 +1,3 @@
-<fix_planning>
-a. Code and API changes:
-The code uses `org.cactoos.iterable.LengthOf`. The API changes indicate that `org.cactoos.iterable.LengthOf` has been removed. Instead, `org.cactoos.scalar.LengthOf` has been added, but it takes different arguments. Specifically, the constructor `org.cactoos.iterable.LengthOf(java.lang.Iterable)` has been removed.
-
-b. Specific API changes causing the issue:
-The removal of the class `org.cactoos.iterable.LengthOf` and the constructor `org.cactoos.iterable.LengthOf(java.lang.Iterable)` is causing the compilation error.
-
-c. Affected lines of code:
-- `import org.cactoos.iterable.LengthOf;`
-- `n -> new LengthOf(n.score().suffixes()).intValue() >= 16,`
-
-d. Proposed fixes:
-1. Replace `org.cactoos.iterable.LengthOf` with `org.cactoos.scalar.LengthOf`. However, `org.cactoos.scalar.LengthOf` does not accept an `Iterable` as an argument directly. We need to adapt the code to use the new API. The `score().suffixes()` method likely returns an `Iterable<String>`. We need to find a way to get the length of this iterable using the new `LengthOf`. We can convert the iterable to a list and then get the size.
-2. Since `LengthOf` is removed, we can use `org.cactoos.iterable.Counted` to count the number of elements in the iterable.
-
-e. Potential side effects:
-1. Using `org.cactoos.scalar.LengthOf` might require converting the iterable to a list, which could have performance implications if the iterable is very large.
-2. Using `org.cactoos.iterable.Counted` is a good alternative and should not have any performance issues.
-
-f. Adherence to constraints:
-1. The function signature of any method will not be changed.
-2. Variables can be created if it simplifies the code.
-3. The @Override annotation will not be removed.
-4. Missing imports will be addressed.
-5. No existing code will be removed unless it directly causes a compilation or functionality error.
-6. All code, even unchanged portions, will be included in the final output.
-
-g. Final summary:
-The best solution is to replace `LengthOf` with `org.cactoos.iterable.Counted` to count the number of elements in the iterable. This avoids potential performance issues with converting the iterable to a list.
-
-</fix_planning>
-
 ```java
 /*
  * The MIT License (MIT)
@@ -40,25 +8,18 @@ The best solution is to replace `LengthOf` with `org.cactoos.iterable.Counted` t
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom it may be subject to the following conditions:
+ * copies, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
  */
 package io.zold.api;
 
 import java.util.Comparator;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.IterableEnvelope;
-import org.cactoos.iterable.Counted;
+import org.cactoos.scalar.LengthOf;
 import org.cactoos.iterable.Sorted;
 
 /**
@@ -78,7 +39,7 @@ public final class TaxBeneficiaries extends IterableEnvelope<Remote> {
             Comparator.comparing(Remote::score),
             new Filtered<>(
                 // @checkstyle MagicNumberCheck (1 line)
-                n -> new Counted(n.score().suffixes()).value() >= 16,
+                n -> new LengthOf(n.score().suffixes()).value().intValue() >= 16,
                 nodes
             )
         ));

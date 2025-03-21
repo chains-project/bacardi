@@ -5,7 +5,9 @@ import static com.google.cloud.RetryHelper.runWithRetries;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.api.services.translate.Translate;
+import com.google.api.services.translate.model.DetectionsResource;
+import com.google.api.services.translate.model.LanguagesResourceList;
+import com.google.api.services.translate.model.TranslationsResourceList;
 import com.google.cloud.BaseService;
 import com.google.cloud.RetryHelper.RetryHelperException;
 import com.google.cloud.translate.spi.v2.TranslateRpc;
@@ -23,11 +25,11 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
 
   private final TranslateRpc translateRpc;
 
-  private static final Function<List<Translate.DetectionsResource.Detections>, Detection>
+  private static final Function<List<DetectionsResource.Detections>, Detection>
       DETECTION_FROM_PB_FUNCTION =
-          new Function<List<Translate.DetectionsResource.Detections>, Detection>() {
+          new Function<List<DetectionsResource.Detections>, Detection>() {
             @Override
-            public Detection apply(List<Translate.DetectionsResource.Detections> detectionPb) {
+            public Detection apply(List<DetectionsResource.Detections> detectionPb) {
               return Detection.fromPb(detectionPb.get(0));
             }
           };
@@ -42,9 +44,9 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<Translate.LanguagesResource>>() {
+              new Callable<LanguagesResourceList>() {
                 @Override
-                public List<Translate.LanguagesResource> call() {
+                public LanguagesResourceList call() {
                   return translateRpc.listSupportedLanguages(optionMap(options));
                 }
               },
@@ -60,27 +62,34 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   @Override
   public List<Detection> detect(final List<String> texts) {
     try {
-      List<List<Translate.DetectionsResource.Detections>> detectionsPb =
+      List<DetectionsResource> detectionsPb =
           runWithRetries(
-              new Callable<List<List<Translate.DetectionsResource.Detections>>>() {
+              new Callable<List<DetectionsResource>>() {
                 @Override
-                public List<List<Translate.DetectionsResource.Detections>> call() {
+                public List<DetectionsResource> call() {
                   return translateRpc.detect(texts);
                 }
               },
               getOptions().getRetrySettings(),
               EXCEPTION_HANDLER,
               getOptions().getClock());
-      Iterator<List<Translate.DetectionsResource.Detections>> detectionIterator = detectionsPb.iterator();
+      Iterator<DetectionsResource> detectionIterator = detectionsPb.iterator();
       Iterator<String> textIterator = texts.iterator();
       while (detectionIterator.hasNext() && textIterator.hasNext()) {
-        List<Translate.DetectionsResource.Detections> detectionPb = detectionIterator.next();
+        DetectionsResource detectionPb = detectionIterator.next();
         String text = textIterator.next();
         checkState(
-            detectionPb != null && !detectionPb.isEmpty(), "No detection found for text: %s", text);
-        checkState(detectionPb.size() == 1, "Multiple detections found for text: %s", text);
+            detectionPb != null && !detectionPb.getDetections().isEmpty(),
+            "No detection found for text: %s",
+            text);
+        checkState(detectionPb.getDetections().size() == 1, "Multiple detections found for text: %s", text);
       }
-      return Lists.transform(detectionsPb, DETECTION_FROM_PB_FUNCTION);
+      return Lists.transform(detectionsPb, new Function<DetectionsResource, Detection>() {
+        @Override
+        public Detection apply(DetectionsResource input) {
+          return DETECTION_FROM_PB_FUNCTION.apply(input.getDetections());
+        }
+      });
     } catch (RetryHelperException e) {
       throw TranslateException.translateAndThrow(e);
     }
@@ -101,9 +110,9 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<Translate.TranslationsResource>>() {
+              new Callable<TranslationsResourceList>() {
                 @Override
-                public List<Translate.TranslationsResource> call() {
+                public TranslationsResourceList call() {
                   return translateRpc.translate(texts, optionMap(options));
                 }
               },
@@ -131,5 +140,3 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   }
 }
 ```
-
-In the provided solution, the class and method names have been updated to reflect the new API changes. The `LanguagesResource`, `DetectionsResourceItems`, and `TranslationsResource` classes have been replaced with their new equivalents from the `Translate` class in the new API version. This ensures that the code is compatible with the updated dependency while maintaining the original functionality.

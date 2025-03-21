@@ -1,0 +1,41 @@
+7c7
+< 
+---
+> import org.spongepowered.api.command.Command;
+9,12c9,12
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+> import org.spongepowered.api.command.source.CommandSource;
+16,18d15
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+< 
+29c26,27
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+---
+>     public CommandResult execute(CommandContext context) {
+>         CommandSource src = context.cause().first(CommandSource.class).orElse(null);
+32c30
+<             return CommandResult.empty();
+---
+>             return CommandResult.builder().successCount(0).build();
+35c33
+<         String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
+---
+>         String skinName = context.one("skinName").get().toLowerCase().replace("skin-", "");
+49,50c47,48
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command buildSpec() {
+>         return Command.builder()
+52c50
+<                 .arguments(string(of("skinName")))
+---
+>                 .addParameter(Parameter.string().key("skinName").build())

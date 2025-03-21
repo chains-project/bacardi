@@ -1,18 +1,42 @@
-48c48,50
+45a46
+> import org.hamcrest.Description;
+48c49,52
 < import org.hamcrest.Matchers;
 ---
+> import org.hamcrest.TypeSafeMatcher;
 > import static org.hamcrest.CoreMatchers.not;
-> import static org.hamcrest.collection.IsEmptyIterable.emptyIterableOf;
-> import static org.hamcrest.collection.IsIterableContainingInAnyOrder.hasItems;
-210c212
+> import static org.hamcrest.CoreMatchers.notNullValue;
+> import static org.hamcrest.collection.IsIterableContaining.hasItem;
+210c214
 <         return this.assertHeader(name, Matchers.hasItems(value));
 ---
->         return this.assertHeader(name, hasItems(value));
-246c248
+>         return this.assertHeader(name, hasItem(value));
+246c250
 <             Matchers.not(Matchers.emptyIterableOf(String.class))
 ---
 >             not(emptyIterableOf(String.class))
-284c286
+284c288
 <             Matchers.notNullValue()
 ---
->             org.hamcrest.CoreMatchers.notNullValue()
+>             notNullValue()
+327d330
+<         @Override
+332a336,353
+>     /**
+>      * Creates a matcher for an empty iterable of a given type.
+>      * @param <T> type of the iterable elements
+>      * @param cls class of the iterable elements 
+>      * @return Matcher that checks if an iterable is empty
+>      */
+>     private static <T> Matcher<Iterable<T>> emptyIterableOf(final Class<T> cls) {
+>         return new TypeSafeMatcher<Iterable<T>>() {
+>             @Override
+>             public void describeTo(final Description description) {
+>                 description.appendText("an empty iterable");
+>             }
+>             @Override
+>             protected boolean matchesSafely(final Iterable<T> iterable) {
+>                 return !iterable.iterator().hasNext();
+>             }
+>         };
+>     }

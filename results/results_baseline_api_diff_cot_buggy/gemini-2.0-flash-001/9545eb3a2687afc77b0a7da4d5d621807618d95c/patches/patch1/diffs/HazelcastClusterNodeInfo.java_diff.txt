@@ -1,0 +1,21 @@
+24c24,26
+< import com.hazelcast.core.Member;
+---
+> import com.hazelcast.cluster.Member;
+> 
+> import java.net.InetSocketAddress;
+42c44,55
+<         this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";
+---
+>         String hostnameAttribute = null;
+>         try {
+>             java.lang.reflect.Method getStringAttributeMethod = member.getClass().getMethod("getStringAttribute", String.class);
+>             hostnameAttribute = (String) getStringAttributeMethod.invoke(member, HOST_NAME_ATTRIBUTE);
+>         } catch (Exception e) {
+>             // Ignore. This is only used for backward compatibility with older Hazelcast versions.
+>         }
+> 
+>         InetSocketAddress socketAddress = member.getSocketAddress();
+>         String hostString = socketAddress != null ? socketAddress.getHostString() : "unknown";
+> 
+>         this.hostname = (hostnameAttribute != null ? hostnameAttribute : "unknown") + " (" + hostString + ")";

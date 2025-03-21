@@ -20,17 +20,14 @@ import javax.ws.rs.Path;
 public class LocaleController {
 
     @Inject
-    MvcContext mvc;
-
-    @Inject
-    Models models;
-
-    @Inject
     Logger log;
+
+    @Inject
+    jakarta.mvc.Models models;
 
     @GET
     public String get() {
-        Locale locale = mvc.getLocale();
+        Locale locale = Locale.getDefault();
         models.put("locale", locale);
         return "locale.xhtml";
     }

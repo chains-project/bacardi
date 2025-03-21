@@ -1,0 +1,46 @@
+7c7,8
+< 
+---
+> import org.spongepowered.api.Sponge;
+> import org.spongepowered.api.command.Command;
+9,12c10,13
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.source.CommandSource;
+14c15,16
+< import org.spongepowered.api.scheduler.Task;
+---
+> import org.spongepowered.api.scheduler.Scheduler;
+> import org.spongepowered.api.text.Text;
+21c23
+<     InvalidateCommand(ChangeSkinSponge plugin) {
+---
+>     public InvalidateCommand(ChangeSkinSponge plugin) {
+26c28,30
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+---
+>     public CommandResult execute(CommandContext args) throws CommandException {
+>         CommandSource src = args.cause().first(CommandSource.class)
+>                 .orElseThrow(() -> new CommandException(Text.of("No command source provided.")));
+29c33
+<             return CommandResult.empty();
+---
+>             return CommandResult.builder().build();
+33c37,38
+<         Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+---
+>         Scheduler scheduler = Sponge.getScheduler();
+>         scheduler.executor(plugin).execute(new SkinInvalidator(plugin, receiver));
+37,39c42,43
+<     @Override
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command buildSpec() {
+>         return Command.builder()

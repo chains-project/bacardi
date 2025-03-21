@@ -16,9 +16,12 @@
 
 package com.google.cloud.translate;
 
+import com.google.api.services.translate.model.LanguagesListResponse;
+import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.List;
 
 /**
  * Information about a language supported by Google Translation. Objects of this class contain the
@@ -31,11 +34,18 @@ import java.util.Objects;
 public class Language implements Serializable {
 
   private static final long serialVersionUID = 5205240279371907020L;
+  static final Function<com.google.api.services.translate.model.LanguagesResource, Language> FROM_PB_FUNCTION =
+      new Function<com.google.api.services.translate.model.LanguagesResource, Language>() {
+        @Override
+        public Language apply(com.google.api.services.translate.model.LanguagesResource languagePb) {
+          return Language.fromPb(languagePb);
+        }
+      };
 
   private final String code;
   private final String name;
 
-  public Language(String code, String name) {
+  private Language(String code, String name) {
     this.code = code;
     this.name = name;
   }
@@ -70,5 +80,9 @@ public class Language implements Serializable {
     }
     Language other = (Language) obj;
     return Objects.equals(code, other.code) && Objects.equals(name, other.name);
+  }
+
+  static Language fromPb(com.google.api.services.translate.model.LanguagesResource languagePb) {
+    return new Language(languagePb.getLanguage(), languagePb.getName());
   }
 }

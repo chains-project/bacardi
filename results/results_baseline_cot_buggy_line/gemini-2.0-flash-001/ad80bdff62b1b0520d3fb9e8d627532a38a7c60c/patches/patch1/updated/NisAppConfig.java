@@ -1,6 +1,7 @@
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -39,8 +40,6 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.*;
-
-import org.flywaydb.core.api.configuration.FluentConfiguration;
 
 @Configuration
 @ComponentScan(basePackages = {
@@ -107,13 +106,13 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		FluentConfiguration configuration = new FluentConfiguration();
-		configuration.dataSource(this.dataSource());
-		configuration.classLoader(NisAppConfig.class.getClassLoader());
-		configuration.locations(prop.getProperty("flyway.locations"));
-		configuration.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		FluentConfiguration configure = new FluentConfiguration();
+		configure.dataSource(this.dataSource());
+		configure.classLoader(NisAppConfig.class.getClassLoader());
+		configure.locations(prop.getProperty("flyway.locations"));
+		configure.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 
-		final Flyway flyway = new Flyway(configuration);
+		final org.flywaydb.core.Flyway flyway = new Flyway(configure);
 		return flyway;
 	}
 
@@ -248,7 +247,7 @@ public class NisAppConfig {
 	@Bean
 	@SuppressWarnings("serial")
 	public ImportanceCalculator importanceCalculator() {
-		final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<ImportanceCalculator>>() {
+		final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<ImportanceCalculator>>>() {
 			{
 				this.put(BlockChainFeature.PROOF_OF_IMPORTANCE,
 						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));

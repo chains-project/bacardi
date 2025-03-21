@@ -1,30 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs because the package `net.lingala.zip4j.core` no longer exists in the new version of the dependency.
-   b. The specific API changes causing the issue are:
-      - Class `net.lingala.zip4j.core.ZipFile` has been removed
-      - New class `net.lingala.zip4j.ZipFile` has been added
-   c. Affected lines of code:
-      - Import statement: `import net.lingala.zip4j.core.ZipFile;`
-      - Usage in `unpack` method: `final ZipFile zipFile = new ZipFile(file);`
-   d. Proposed fixes:
-      - Change import to: `import net.lingala.zip4j.ZipFile;`
-      - Keep the usage in `unpack` method the same since the new `ZipFile` class has a constructor that takes a `File` parameter
-   e. Potential side effects:
-      - None expected as the new `ZipFile` class provides the same functionality
-   f. Constraints check:
-      - The fix adheres to all constraints
-      - Function signatures remain unchanged
-      - No code is removed
-      - Correct import is used
-   g. Final summary:
-      - The best solution is to update the import statement to use the new package location while keeping the usage the same since the constructor signature is compatible.
-
-2. Fix to apply:
-   - Update import statement to use the new package
-   - Keep the rest of the code unchanged
-</fix_planning>
-
 ```java
 /*
  *  Copyright 2021 Qameta Software OÜ

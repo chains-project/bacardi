@@ -16,14 +16,11 @@
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.cluster.Cluster;
-import com.hazelcast.map.listener.EntryListener;
 import com.hazelcast.cluster.LifecycleEvent;
-import com.hazelcast.cluster.LifecycleEvent.LifecycleState;
-import com.hazelcast.cluster.LifecycleListener;
-import com.hazelcast.cluster.Member;
-import com.hazelcast.cluster.MemberAttributeEvent;
 import com.hazelcast.cluster.MembershipEvent;
 import com.hazelcast.cluster.MembershipListener;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MemberAttributeEvent;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterManager;
 import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
@@ -45,21 +42,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * ClusterListener reacts to membership changes in the cluster. It takes care of cleaning up the state
- * of the routing table and the sessions within it when a node which manages those sessions goes down.
- */
-public class ClusterListener implements MembershipListener, LifecycleListener {
+public class ClusterListener implements MembershipListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ClusterListener.class);
 
     private boolean seniorClusterMember = false;
 
-    private final Map<Cache<?,?>, EntryListener> entryListeners = new HashMap<>();
-    
+    private final Map<Cache<?, ?>, EntryListener> entryListeners = new HashMap<>();
+
     private final Cluster cluster;
     private final Map<NodeID, ClusterNodeInfo> clusterNodesInfo = new ConcurrentHashMap<>();
-    
+
     /**
      * Flag that indicates if the listener has done all clean up work when noticed that the
      * cluster has been stopped. This will force Openfire to wait until all clean
@@ -73,7 +66,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
     private boolean isSenior;
 
     ClusterListener(final Cluster cluster) {
-
         this.cluster = cluster;
         for (final Member member : cluster.getMembers()) {
             clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(member),
@@ -83,9 +75,9 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
 
     private void addEntryListener(final Cache<?, ?> cache, final EntryListener listener) {
         if (cache instanceof CacheWrapper) {
-            final Cache wrapped = ((CacheWrapper)cache).getWrappedCache();
+            final Cache wrapped = ((CacheWrapper) cache).getWrappedCache();
             if (wrapped instanceof ClusteredCache) {
-                ((ClusteredCache)wrapped).addEntryListener(listener);
+                ((ClusteredCache) wrapped).addEntryListener(listener);
                 // Keep track of the listener that we added to the cache
                 entryListeners.put(cache, listener);
             }
@@ -161,7 +153,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         final NodeID nodeID = ClusteredCacheFactory.getNodeID(event.getMember());
         if (event.getMember().localMember()) { // We left and re-joined the cluster
             joinCluster();
-
         } else {
             if (wasSenior && !isSenior) {
                 logger.warn("Recovering from split-brain; firing leftCluster()/joinedCluster() events");
@@ -176,9 +167,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
                     logger.warn("30 Second wait was interrupted.", e);
                 }
 
-                // The following line was intended to wait until all local handling finishes before informing other
-                // nodes. However that proved to be insufficient. Hence the 30 second default wait in the lines above.
-                // TODO Instead of the 30 second wait, we should look (and then wait) for some trigger or event that signifies that local handling has completed and caches have stabilized.
                 waitForClusterCacheToBeInstalled();
 
                 // Let the other nodes know that we joined the cluster
@@ -252,29 +240,34 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         NodeID.deleteInstance(nodeID.toByteArray());
         clusterNodesInfo.remove(nodeID);
     }
-    
-    @Override
-    public void memberAttributeChanged(final MemberAttributeEvent event) {
-        logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
-        isSenior = isSeniorClusterMember();
-        logger.warn("Member attribute update event ignored as new API does not support retrieving member info.");
+
+    @SuppressWarnings("WeakerAccess")
+    public List<ClusterNodeInfo> getClusterNodesInfo() {
+        return new ArrayList<>(clusterNodesInfo.values());
     }
 
-    boolean isClusterMember() {
-        return clusterMember;
-    }
-
-    @Override
     public void stateChanged(final LifecycleEvent event) {
-        if (event.getState().equals(LifecycleState.SHUTDOWN)) {
+        if (event.getState().equals(LifecycleEvent.LifecycleState.SHUTDOWN)) {
             leaveCluster();
-        } else if (event.getState().equals(LifecycleState.STARTED)) {
+        } else if (event.getState().equals(LifecycleEvent.LifecycleState.STARTED)) {
             joinCluster();
         }
     }
 
     @Override
-    public List<ClusterNodeInfo> getClusterNodesInfo() {
-        return new ArrayList<>(clusterNodesInfo.values());
+    public void memberAttributeChanged(final MemberAttributeEvent event) {
+        logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
+        isSenior = isSeniorClusterMember();
+        final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
+        clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(event.getMember()),
+                new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
+    }
+
+    boolean isClusterMember() {
+        return clusterMember;
+    }
+    
+    private interface EntryListener {
+        // Empty placeholder interface for compatibility with the new Hazelcast API
     }
 }

@@ -1,12 +1,12 @@
 /**
  * Copyright 2019 Pinterest, Inc.
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,11 +28,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-/**
- * Reader that reads Thrift messages of thrift type from a file
- * <p/>
- * This class is NOT thread-safe.
- */
 @SuppressWarnings("rawtypes")
 public class ThriftReader<T extends TBase> implements Closeable {
 
@@ -60,7 +55,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
   // The ByteOffsetInputStream to read from.
   private final ByteOffsetInputStream byteOffsetInputStream;
 
-  // The framedTransport instance.
+  // The framed transport.
   private final TFramedTransport framedTransport;
 
   // TProtocol implementation.
@@ -77,8 +72,9 @@ public class ThriftReader<T extends TBase> implements Closeable {
 
     this.byteOffsetInputStream = new ByteOffsetInputStream(
         new RandomAccessFile(path, "r"), readBufferSize);
-    this.framedTransport = new TFramedTransport(
-        new TIOStreamTransport(this.byteOffsetInputStream), maxMessageSize);
+    TTransport ioTransport = new TIOStreamTransport(this.byteOffsetInputStream);
+    this.framedTransport = (TFramedTransport) new TFramedTransport.Factory(maxMessageSize)
+        .getTransport(ioTransport);
     this.baseFactory = Preconditions.checkNotNull(baseFactory);
     this.protocol = protocolFactory.get(this.framedTransport);
   }

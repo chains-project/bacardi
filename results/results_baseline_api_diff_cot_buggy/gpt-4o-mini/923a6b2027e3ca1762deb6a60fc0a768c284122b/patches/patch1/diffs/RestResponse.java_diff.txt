@@ -1,15 +1,8 @@
-48c48,51
+48d47
 < import org.hamcrest.Matchers;
+210c209
+<         return this.assertHeader(name, Matchers.hasItems(value));
 ---
-> import org.hamcrest.Matchers; // This import will be removed
-> import org.hamcrest.core.IsNot; // New import to replace Matchers.not
-> import org.hamcrest.core.IsEmptyIterable; // New import to replace Matchers.emptyIterableOf
-> import org.hamcrest.core.IsNull; // New import to replace Matchers.notNullValue
-246c249
-<             Matchers.not(Matchers.emptyIterableOf(String.class))
----
->             IsNot.not(IsEmptyIterable.emptyIterableOf(String.class)) // Updated matcher
-284c287
-<             Matchers.notNullValue()
----
->             IsNot.not(IsNull.notNullValue()) // Updated matcher
+>         return this.assertHeader(name, Matchers.hasItem(value));
+327d325
+<         @Override

@@ -4,6 +4,8 @@ package org.codehaus.plexus.archiver;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Enumeration;
@@ -16,7 +18,8 @@ import org.codehaus.plexus.archiver.tar.TarLongFileMode;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 
-public class DuplicateFilesTest extends PlexusTestCase
+public class DuplicateFilesTest
+    extends PlexusTestCase
 {
 
     private static final File file1 = getTestFile( "src/test/resources/group-writable/foo.txt" );
@@ -29,7 +32,6 @@ public class DuplicateFilesTest extends PlexusTestCase
         throws Exception
     {
         super.setUp();
-        // Removed call to getLoggerManager() because it has been removed in the new API.
     }
 
     public void testZipArchiver()
@@ -64,6 +66,7 @@ public class DuplicateFilesTest extends PlexusTestCase
         Archiver archiver = (Archiver) lookup( Archiver.ROLE, "dir" );
         createArchive( archiver, "dir" );
         testFinalFile( "target/output/duplicateFiles.dir/duplicateFiles/foo.txt" );
+
     }
 
     public void testTarArchiver()

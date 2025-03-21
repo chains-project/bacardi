@@ -1,65 +1,3 @@
-<fix_planning>
-Okay, let's analyze the errors and the API changes to come up with a fix.
-
-a. Relevant code and API changes:
-
-The code has the following lines that are causing errors:
-
-```java
-final org.flywaydb.core.Flyway flyway = new Flyway();
-flyway.setDataSource(this.dataSource());
-flyway.setClassLoader(NisAppConfig.class.getClassLoader());
-flyway.setLocations(prop.getProperty("flyway.locations"));
-flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-```
-
-The API changes indicate:
-
-*   `Constructor org.flywaydb.core.Flyway()` has been removed. `Construct org.flywaydb.core.Flyway(org.flywaydb.core.api.configuration.Configuration)` has been added.
-*   `Method org.flywaydb.core.Flyway.setDataSource(javax.sql.DataSource)` has been removed. `Method org.flywaydb.core.api.configuration.ClassicConfiguration.setDataSource(javax.sql.DataSource)` has been added.
-*   `Method org.flywaydb.core.Flyway.setClassLoader(java.lang.ClassLoader)` has been removed. `Method org.flywaydb.core.api.configuration.ClassicConfiguration.setClassLoader(java.lang.ClassLoader)` has been added.
-*   `Method org.flywaydb.core.Flyway.setLocations(java.lang.String[])` has been removed. `Method org.flywaydb.core.api.configuration.ClassicConfiguration.setLocations(org.flywaydb.core.api.Location[])` has been added.
-*   `Method org.flywaydb.core.Flyway.setValidateOnMigrate(boolean)` has been removed. `Method org.flywaydb.core.api.configuration.ClassicConfiguration.setValidateOnMigrate(java.lang.Boolean)` has been added.
-
-b. Specific API changes causing the issue:
-
-The constructor change and the removal of the `setDataSource`, `setClassLoader`, `setLocations`, and `setValidateOnMigrate` methods from the `Flyway` class are the root cause of the errors.
-
-c. Affected lines of code:
-
-The following lines are directly affected:
-
-*   `final org.flywaydb.core.Flyway flyway = new Flyway();`
-*   `flyway.setDataSource(this.dataSource());`
-*   `flyway.setClassLoader(NisAppConfig.class.getClassLoader());`
-*   `flyway.setLocations(prop.getProperty("flyway.locations"));`
-*   `flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));`
-
-d. Proposed fixes:
-
-1.  **Constructor:** Replace `final org.flywaydb.core.Flyway flyway = new Flyway();` with `final org.flywaydb.core.Flyway flyway = new org.flywaydb.core.Flyway(org.flywaydb.core.Flyway.configure().dataSource(this.dataSource()).classLoader(NisAppConfig.class.getClassLoader()).locations(prop.getProperty("flyway.locations")).validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate"))).load());`
-
-    This uses the new constructor that takes a `Configuration` object and configures it using the builder pattern.
-
-2.  **setDataSource, setClassLoader, setLocations, setValidateOnMigrate:** Since these methods are no longer available on the `Flyway` object directly, we need to use the `Flyway.configure()` builder to set these properties before creating the `Flyway` instance.
-
-    This is incorporated into the fix for the constructor.
-
-e. Potential side effects:
-
-The builder pattern might have slight performance implications, but it should be negligible. The code should function as before, just using the new API.
-
-f. Adherence to constraints:
-
-*   The function signature of `flyway()` is not changed.
-*   New variables are created to hold intermediate values.
-*   No existing code is removed unless it directly causes a compilation error.
-*   All code is included in the final output.
-
-g. Final summary:
-
-The best solution is to use the `Flyway.configure()` builder to create a `Configuration` object and pass it to the `Flyway` constructor. This addresses all the compilation errors caused by the API changes and adheres to all the constraints.
-
 ```java
 package org.nem.specific.deploy.appconfig;
 
@@ -97,6 +35,8 @@ import org.springframework.context.annotation.*;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
+import org.flywaydb.core.api.Location;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -168,12 +108,16 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final Flyway flyway = new Flyway(Flyway.configure()
-				.dataSource(this.dataSource())
-				.classLoader(NisAppConfig.class.getClassLoader())
-				.locations(prop.getProperty("flyway.locations"))
-				.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
-				.load());
+		ClassicConfiguration configuration = new ClassicConfiguration();
+		configuration.setDataSource(this.dataSource());
+		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+		String locations = prop.getProperty("flyway.locations");
+		if (locations != null) {
+			configuration.setLocations(Arrays.stream(locations.split(",")).map(Location::new).toArray(Location[]::new));
+		}
+		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+
+		final org.flywaydb.core.Flyway flyway = new Flyway(configuration);
 		return flyway;
 	}
 

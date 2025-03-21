@@ -12,6 +12,7 @@ import com.redislabs.redisgraph.impl.resultset.ResultSetImpl;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.util.SafeEncoder;
+import redis.clients.jedis.commands.RedisCommand;
 
 /**
  * An implementation of RedisGraphContext. Allows sending RedisGraph and some Redis commands,
@@ -50,7 +51,7 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
         Jedis conn = getConnection();
         try {
             @SuppressWarnings("unchecked")
-            List<Object> rawResponse = (List<Object>) conn.sendCommand(RedisGraphCommand.QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
+            List<Object> rawResponse = (List<Object>) conn.sendCommand((RedisCommand)RedisGraphCommand.QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
             return new ResultSetImpl(rawResponse, this, caches.getGraphCache(graphId));
         } catch (JRedisGraphException rt) {
             throw rt;
@@ -70,7 +71,7 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
         Jedis conn = getConnection();
         try {
             @SuppressWarnings("unchecked")
-            List<Object> rawResponse = (List<Object>) conn.sendCommand(RedisGraphCommand.RO_QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
+            List<Object> rawResponse = (List<Object>) conn.sendCommand((RedisCommand)RedisGraphCommand.RO_QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
             return new ResultSetImpl(rawResponse, this, caches.getGraphCache(graphId));
         } catch (JRedisGraphException ge) {
             throw ge;
@@ -91,7 +92,7 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
         Jedis conn = getConnection();
         try {
             @SuppressWarnings("unchecked")
-            List<Object> rawResponse = (List<Object>) conn.sendBlockingCommand(RedisGraphCommand.QUERY,
+            List<Object> rawResponse = (List<Object>) conn.sendBlockingCommand((RedisCommand)RedisGraphCommand.QUERY,
                     graphId, preparedQuery, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING, Long.toString(timeout));
             return new ResultSetImpl(rawResponse, this, caches.getGraphCache(graphId));
         } catch (JRedisGraphException rt) {
@@ -113,7 +114,7 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
         Jedis conn = getConnection();
         try {
             @SuppressWarnings("unchecked")
-            List<Object> rawResponse = (List<Object>) conn.sendBlockingCommand(RedisGraphCommand.RO_QUERY,
+            List<Object> rawResponse = (List<Object>) conn.sendBlockingCommand((RedisCommand)RedisGraphCommand.RO_QUERY,
                     graphId, preparedQuery, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING, Long.toString(timeout));
             return new ResultSetImpl(rawResponse, this, caches.getGraphCache(graphId));
         } catch (JRedisGraphException ge) {
@@ -138,8 +139,10 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphTransaction multi() {
         Jedis jedis = getConnection();
-        jedis.multi();
-        RedisGraphTransaction transaction = new RedisGraphTransaction(jedis.getClient(), this);
+        redis.clients.jedis.Connection connection = (redis.clients.jedis.Connection) jedis.getClient();
+        connection.multi();
+        connection.getOne();
+        RedisGraphTransaction transaction = new RedisGraphTransaction(connection, this);
         transaction.setRedisGraphCaches(caches);
         return transaction;
     }
@@ -151,7 +154,8 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphPipeline pipelined() {
         Jedis jedis = getConnection();
-        RedisGraphPipeline pipeline = new RedisGraphPipeline(jedis.getClient(), this);
+        redis.clients.jedis.Connection connection = (redis.clients.jedis.Connection) jedis.getClient();
+        RedisGraphPipeline pipeline = new RedisGraphPipeline(connection, this);
         pipeline.setRedisGraphCaches(caches);
         return pipeline;
     }
@@ -185,7 +189,7 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
         Jedis conn = getConnection();
         Object response;
         try {
-            response = conn.sendCommand(RedisGraphCommand.DELETE, graphId);
+            response = conn.sendCommand((RedisCommand)RedisGraphCommand.DELETE, graphId);
         } catch (Exception e) {
             conn.close();
             throw e;

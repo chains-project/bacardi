@@ -12,23 +12,15 @@
 <     private static final SystemProperty<Duration> CLUSTER_STARTUP_RETRY_TIME = SystemProperty.Builder.ofType(Duration.class)
 ---
 >     private static final SystemProperty<Duration] CLUSTER_STARTUP_RETRY_TIME = SystemProperty.Builder.ofType(Duration.class)
-271d269
-<                 // Ignore
-430c428
-<         final Collection<T> result = new ArrayList<>();
+288c287
+<             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
 ---
->         final Collection<T] result = new ArrayList<>();
-656c654
+>             dynamicConfig.setMaxSizeConfig(new com.hazelcast.config.MaxSizePolicy(hazelcastMaxCacheSizeInMegaBytes, com.hazelcast.config.MaxSizePolicy.USED_HEAP_SIZE));
+656c655
 <         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
 ---
 >         return NodeID.getInstance(member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
-695c693
-<         } finally {
----
->         } finally
-699d696
-< 
-701,703d697
+701,703d699
 < 
 < 
 < 

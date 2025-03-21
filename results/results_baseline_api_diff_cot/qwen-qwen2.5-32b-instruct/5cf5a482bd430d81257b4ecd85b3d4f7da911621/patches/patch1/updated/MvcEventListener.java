@@ -22,7 +22,7 @@ public class MvcEventListener {
     }
 
     private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
-        LOGGER.info(() -> "View engine: " + event.getEngine());
+        LOGGER.info(() -> "View engine: " + event.getEngine().getClass().getName());
     }
 
     private void onAfterControllerEvent(@Observes AfterControllerEvent event) {
@@ -30,7 +30,7 @@ public class MvcEventListener {
     }
 
     private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
-        LOGGER.info(() -> "AfterProcessViewEvent:: " + event.getEngine());
+        LOGGER.info(() -> "AfterProcessViewEvent:: " + event);
     }
     
     private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {

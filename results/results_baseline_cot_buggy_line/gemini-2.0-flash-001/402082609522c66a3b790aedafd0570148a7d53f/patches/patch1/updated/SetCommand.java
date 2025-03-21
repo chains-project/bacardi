@@ -13,21 +13,15 @@ import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.CommonParameters;
-import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.command.spec.CommandExecutor;
+import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
-import static org.spongepowered.api.command.CommandResult.success;
-import org.spongepowered.api.command.exception.CommandException;
-import org.spongepowered.api.command.CommandCause;
-import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.text.Text;
 
-import java.util.Optional;
-
-import org.spongepowered.api.command.parameter.managed.Flag;
-import org.spongepowered.api.command.CommandExecutor;
-
-public class SetCommand implements CommandExecutor, ChangeSkinCommand {
+public class SetCommand implements CommandExecutor {
 
     private final ChangeSkinSponge plugin;
     private final ChangeSkinCore core;
@@ -39,64 +33,51 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
     }
 
     @Override
-    public CommandResult execute(CommandContext args) throws CommandException {
-        CommandCause cause = args.cause();
-        Object source = cause.root();
-
-        if (!(source instanceof Player)) {
-            plugin.sendMessage(source, "no-console");
+    public CommandResult execute(CommandContext context) {
+        CommandSource src = context.getCause().root();
+        if (!(src instanceof Player)) {
+            plugin.sendMessage(src, "no-console");
             return CommandResult.empty();
         }
 
-        UUID uniqueId = ((Player) source).uniqueId();
+        UUID uniqueId = ((Player) src).getUniqueId();
         if (core.getCooldownService().isTracked(uniqueId)) {
-            plugin.sendMessage(source, "cooldown");
+            plugin.sendMessage(src, "cooldown");
             return CommandResult.empty();
         }
 
-        Player receiver = (Player) source;
-        Optional<String> targetSkinOptional = args.one(CommonParameters.STRING);
-
-        if (!targetSkinOptional.isPresent()) {
-             plugin.sendMessage(source, "invalid-usage");
-             return CommandResult.empty();
-        }
-
-        String targetSkin = targetSkinOptional.get();
-        boolean keepSkin = args.hasAny("keep");
+        Player receiver = (Player) src;
+        String targetSkin = context.one(CommonParameters.STRING).orElse("");
+        boolean keepSkin = context.hasFlag("keep");
 
         if ("reset".equals(targetSkin)) {
-            targetSkin = receiver.uniqueId().toString();
+            targetSkin = receiver.getUniqueId().toString();
         }
 
         if (targetSkin.length() > 16) {
             UUID targetUUID = UUID.fromString(targetSkin);
 
-            if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(source, targetUUID, true)) {
+            if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(src, targetUUID, true)) {
                 return CommandResult.empty();
             }
 
-            plugin.sendMessage(source, "skin-change-queue");
-            Runnable skinDownloader = new SkinDownloader(plugin, source, receiver, targetUUID, keepSkin);
+            plugin.sendMessage(src, "skin-change-queue");
+            Runnable skinDownloader = new SkinDownloader(plugin, src, receiver, targetUUID, keepSkin);
             Task.builder().async().execute(skinDownloader).submit(plugin);
-            return success();
+            return CommandResult.success();
         }
 
-        Runnable nameResolver = new NameResolver(plugin, source, targetSkin, receiver, keepSkin);
+        Runnable nameResolver = new NameResolver(plugin, src, targetSkin, receiver, keepSkin);
         Task.builder().async().execute(nameResolver).submit(plugin);
-        return success();
+        return CommandResult.success();
     }
 
-    @Override
-    public Command.Builder buildSpec() {
-        Parameter.Value<String> skinParameter = Parameter.string().key("skin").build();
-
-        Flag keepFlag = Flag.builder().alias("keep").build();
-
-        return Command.builder()
+    public CommandSpec buildSpec() {
+        return CommandSpec.builder()
                 .executor(this)
-                .addParameter(skinParameter)
-                .addFlag(keepFlag)
-                .permission(PomData.ARTIFACT_ID + ".command.setskin.base");
+                .addParameter(CommonParameters.string("skin"))
+                .addFlag(org.spongepowered.api.command.parameter.Flag.builder().setAliases("keep").build())
+                .permission(PomData.ARTIFACT_ID + ".command.setskin.base")
+                .build();
     }
 }

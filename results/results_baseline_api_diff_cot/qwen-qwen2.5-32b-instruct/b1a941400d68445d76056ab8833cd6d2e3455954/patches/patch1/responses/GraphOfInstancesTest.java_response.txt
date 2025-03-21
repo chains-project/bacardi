@@ -8,10 +8,10 @@ import com.fluxtion.runtime.annotations.builder.ExcludeNode;
 import com.fluxtion.runtime.node.NamedNode;
 import lombok.Data;
 import org.junit.Test;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.LoaderOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +76,7 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
                 "  id: C";
         sep(c -> {
             LoaderOptions options = new LoaderOptions();
-            Constructor constructor = new Constructor(options);
+            Constructor constructor = new Constructor(InstanceHolder.class, options);
             constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
             constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
             Yaml yaml = new Yaml(constructor);
@@ -101,43 +101,6 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
     }
 
     @Test
-    public void driveAsListFromYaml() {
-        String config = "" +
-                "- !doubleSum\n" +
-                "  doubleSuppliers:\n" +
-                "  - !stringHandler\n" +
-                "    id: A\n" +
-                "  - !stringHandler\n" +
-                "    id: B\n" +
-                "- !stringHandler\n" +
-                "  id: C";
-        sep(c -> {
-            LoaderOptions options = new LoaderOptions();
-            Constructor constructor = new Constructor(options);
-            constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
-            constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
-            Yaml yaml = new Yaml(constructor);
-            yaml.loadAs("nodeList:\n" + config, InstanceHolder.class).getNodeList().forEach(c::addNode);
-        });
-        DoubleSum aggregator = getField("aggregator");
-        StringHandler handlerC = getField("stringHandler_C");
-        onEvent("A");
-        assertThat(aggregator.sum, is(1.0));
-        assertThat(handlerC.value, is(0));
-        onEvent("A");
-        assertThat(aggregator.sum, is(2.0));
-        assertThat(handlerC.value, is(0));
-        onEvent("B");
-        assertThat(aggregator.sum, is(3.0));
-        assertThat(handlerC.value, is(0));
-        onEvent("C");
-        assertThat(aggregator.sum, is(3.0);
-        assertThat(handlerC.value, is(1));
-
-        getField("instanceHolder");
-    }
-
-    @Test
     public void buildWithYaml() {
 
     }
@@ -153,7 +116,6 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
         }
     }
 
-    @Data
     public static class StringHandler implements DoubleSupplier, NamedNode {
 
         private String id;

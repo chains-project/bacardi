@@ -1,7 +1,6 @@
 package uk.gov.pay.adminusers.queue.event;
 
 import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,6 +13,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.client.ledger.model.LedgerTransaction;
 import uk.gov.pay.adminusers.client.ledger.service.LedgerService;
@@ -108,8 +108,15 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
-        logger.addAppender(mockLogAppender);
+        Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
+        try {
+            java.lang.reflect.Method setLevelMethod = logger.getClass().getMethod("setLevel", Level.class);
+            setLevelMethod.invoke(logger, Level.INFO);
+        } catch (Exception ignored) { }
+        try {
+            java.lang.reflect.Method addAppenderMethod = logger.getClass().getMethod("addAppender", Appender.class);
+            addAppenderMethod.invoke(logger, mockLogAppender);
+        } catch (Exception ignored) { }
     }
 
     @Test

@@ -10,29 +10,28 @@ import com.github.games647.changeskin.sponge.command.InvalidateCommand;
 import com.github.games647.changeskin.sponge.command.SelectCommand;
 import com.github.games647.changeskin.sponge.command.SetCommand;
 import com.github.games647.changeskin.sponge.command.UploadCommand;
-import com.github.games647.changeskin.sponge.PomData;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import java.nio.file.Path;
+import java.util.UUID;
 import org.slf4j.Logger;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
-import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
 import org.spongepowered.api.event.lifecycle.RegisterChannelEvent;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
-import org.spongepowered.api.event.lifecycle.StopPluginEvent;
-import java.nio.file.Path;
-import java.util.UUID;
-
-import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
-import static com.github.games647.changeskin.core.message.SkinUpdateMessage.UPDATE_SKIN_CHANNEL;
+import org.spongepowered.api.event.lifecycle.StopGameEvent;
+import org.spongepowered.plugin.Plugin;
+import com.github.games647.changeskin.sponge.LoginListener;
 
 @Singleton
+@Plugin(id = PomData.ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+        url = PomData.URL, description = PomData.DESCRIPTION)
 public class ChangeSkinSponge implements PlatformPlugin<Audience> {
 
     private final Path dataFolder;
@@ -44,16 +43,17 @@ public class ChangeSkinSponge implements PlatformPlugin<Audience> {
 
     private boolean initialized;
 
+    // We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
     @Inject
-    public ChangeSkinSponge(Logger logger, @ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
+    ChangeSkinSponge(Logger logger, @ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
         this.dataFolder = dataFolder;
         this.logger = logger;
-        // Create a child injector and bind the core so dependent classes can access it.
         this.injector = injector.createChildInjector(binder -> binder.bind(ChangeSkinCore.class).toInstance(core));
     }
 
     @Listener
-    public void onConstruct(ConstructPluginEvent event) {
+    public void onPreInit(ConstructPluginEvent event) {
+        // load config and database
         try {
             core.load(true);
             initialized = true;
@@ -63,48 +63,29 @@ public class ChangeSkinSponge implements PlatformPlugin<Audience> {
     }
 
     @Listener
-    public void onRegisterCommand(RegisterCommandEvent event) {
+    public void onInit(RegisterCommandEvent event) {
         if (!initialized) {
             return;
         }
+
         event.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
         event.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
         event.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
         event.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
         event.register(this, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
+
+        Sponge.eventManager().registerListeners(this, injector.getInstance(LoginListener.class));
+    }
+
+    @Listener
+    public void onShutdown(StopGameEvent event) {
+        core.close();
     }
 
     @Listener
     public void onRegisterChannel(RegisterChannelEvent event) {
-        if (!initialized) {
-            return;
-        }
-        String updateChannelName = new NamespaceKey(PomData.ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
-        String permissionChannelName = new NamespaceKey(PomData.ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
-
-        ResourceKey updateKey;
-        String[] updateParts = updateChannelName.split(":");
-        if (updateParts.length == 2) {
-            updateKey = ResourceKey.of(updateParts[0], updateParts[1]);
-        } else {
-            updateKey = ResourceKey.of(PomData.ARTIFACT_ID, updateChannelName);
-        }
-
-        ResourceKey permissionKey;
-        String[] permParts = permissionChannelName.split(":");
-        if (permParts.length == 2) {
-            permissionKey = ResourceKey.of(permParts[0], permParts[1]);
-        } else {
-            permissionKey = ResourceKey.of(PomData.ARTIFACT_ID, permissionChannelName);
-        }
-
-        event.register(updateKey, UpdateSkinListener.class);
-        event.register(permissionKey, CheckPermissionListener.class);
-    }
-
-    @Listener
-    public void onShutdown(StopPluginEvent event) {
-        core.close();
+        event.register(ResourceKey.of(PomData.ARTIFACT_ID, UPDATE_SKIN_CHANNEL), UpdateSkinListener.class);
+        event.register(ResourceKey.of(PomData.ARTIFACT_ID, CHECK_PERM_CHANNEL), CheckPermissionListener.class);
     }
 
     public ChangeSkinCore getCore() {
@@ -113,15 +94,15 @@ public class ChangeSkinSponge implements PlatformPlugin<Audience> {
 
     @Override
     public boolean hasSkinPermission(Audience invoker, UUID uuid, boolean sendMessage) {
-        if (invoker instanceof ServerPlayer) {
-            ServerPlayer player = (ServerPlayer) invoker;
-            if (player.hasPermission(PomData.ARTIFACT_ID + ".skin.whitelist." + uuid)) {
-                return true;
-            }
+        if (invoker.hasPermission(PomData.ARTIFACT_ID + ".skin.whitelist." + uuid)) {
+            return true;
         }
+
+        // disallow - not whitelisted or blacklisted
         if (sendMessage) {
             sendMessage(invoker, "no-permission");
         }
+
         return false;
     }
 
@@ -148,8 +129,7 @@ public class ChangeSkinSponge implements PlatformPlugin<Audience> {
     public void sendMessage(Audience receiver, String key) {
         String message = core.getMessage(key);
         if (message != null && receiver != null) {
-            Component component = LegacyComponentSerializer.legacySection().deserialize(message);
-            receiver.sendMessage(component);
+            receiver.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(message));
         }
     }
 }

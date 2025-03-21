@@ -1,12 +1,3 @@
-<repair_strategy>
-1. The issue appears in the fetchDownloadableFiles method where the code calls ObjectMapper.readValue(String, Class). According to the API changes, this method signature has been removed and replaced by the new ObjectReader.readValue(String, Class) method.
-2. We compare the old usage (objectMapper.readValue(body, ExportResponse.class)) with the new API – that now requires using objectMapper.readerFor(ExportResponse.class).readValue(body) instead.
-3. We update the fetchDownloadableFiles method accordingly.
-4. No function signatures are changed and only minimal changes are made.
-5. No other parts of the code use the removed method signature.
-6. This change should avoid any dependency on the removed type (and its missing StreamReadException).
-</repair_strategy>
-
 ```java
 package io.simplelocalize.cli.client;
 
@@ -172,5 +163,6 @@ public class SimpleLocalizeClient
     }
     return "";
   }
+
 }
 ```

@@ -41,7 +41,11 @@ public final class ModelConstructor extends Constructor {
   private final Map<Class<?>, Construct> pomConstructors = new HashMap<>();
 
   public ModelConstructor() {
-    super(Model.class, new LoaderOptions());
+    this(new LoaderOptions());
+  }
+
+  public ModelConstructor(LoaderOptions loaderOptions) {
+    super(new TypeDescription(Model.class), loaderOptions);
 
     yamlConstructors.put(XPP3DOM_TAG, new ConstructXpp3Dom());
     yamlClassConstructors.put(NodeId.mapping, new MavenObjectConstruct());

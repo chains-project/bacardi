@@ -27,9 +27,10 @@ import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
-import org.spongepowered.api.network.ChannelBinding;
-import org.spongepowered.api.network.ChannelBinding.ChannelBuilder;
+import org.spongepowered.api.network.channel.ChannelBinding;
+import org.spongepowered.api.network.channel.packet.PacketChannel;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
 import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
@@ -85,13 +86,13 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
         Sponge.getEventManager().registerListeners(this, injector.getInstance(LoginListener.class));
 
         //incoming channel
-        ChannelBuilder channelBuilder = Sponge.getNetworkManager().createChannelBuilder();
+        ChannelBinding channelReg = Sponge.getChannelRegistrar();
         String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
         String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
-        ChannelBinding<ByteBuf> updateChannel = channelBuilder.createChannel(updateChannelName);
-        ChannelBinding<ByteBuf> permChannel = channelBuilder.createChannel(permissionChannelName);
-        updateChannel.registerListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
-        permChannel.registerListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class);
+        PacketChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
+        PacketChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
+        updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+        permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class);
     }
 
     @Listener

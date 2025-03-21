@@ -1,47 +1,3 @@
-<fix_planning>
-a. Relevant parts of the code and API changes:
-- The code implements the `org.hibernate.usertype.UserType` interface.
-- The error message indicates that `org.hibernate.engine.spi.SessionImplementor` has been removed and `nullSafeSet` now requires `org.hibernate.engine.spi.SharedSessionContractImplementor`.
-- The `@Override` annotations on `nullSafeGet` and other methods are causing errors because the method signatures no longer match the interface due to the `SessionImplementor` change.
-
-b. Specific API changes causing the issue:
-- Removal of `org.hibernate.engine.spi.SessionImplementor`.
-- Change in the `nullSafeSet` method signature in `org.hibernate.usertype.UserType` to use `org.hibernate.engine.spi.SharedSessionContractImplementor` instead of `org.hibernate.engine.spi.SessionImplementor`.
-
-c. Affected lines of code:
-- Line 31: `public class ServiceDateUserType implements UserType {` (missing implementation of `nullSafeSet` with the new signature)
-- Line 68: `@Override` (for `nullSafeGet`)
-- Line 84: `@Override` (for `nullSafeSet`)
-
-d. Proposed potential fixes:
-- **Fix for `nullSafeSet`:**
-  - Change the `nullSafeSet` method signature to use `org.hibernate.engine.spi.SharedSessionContractImplementor`.
-  - Add the necessary import for `org.hibernate.engine.spi.SharedSessionContractImplementor`.
-  - Remove the `@Override` annotation from `nullSafeGet` since the signature of the method in the interface has changed.
-- **Fix for `@Override` annotations:**
-  - Remove the `@Override` annotation from methods where the signature no longer matches the interface due to the API change.
-
-e. Potential side effects of the proposed changes:
-- The code will now be compatible with the updated Hibernate dependency.
-- Removing `@Override` might hide potential issues if the method signature is unintentionally different from the interface.
-
-f. Adherence to constraints:
-- The function signatures of existing methods are not changed, except for `nullSafeSet` which is required by the interface.
-- Variables can be created if needed.
-- `@Override` annotations are removed only when necessary.
-- No existing code is removed unless it directly causes a compilation error.
-- All code is included in the final output.
-
-g. Final summary of the chosen fix:
-The best solution is to:
-1. Change the `nullSafeSet` method signature to use `org.hibernate.engine.spi.SharedSessionContractImplementor`.
-2. Add the necessary import for `org.hibernate.engine.spi.SharedSessionContractImplementor`.
-3. Remove the `@Override` annotation from `nullSafeGet` since the signature of the method in the interface has changed.
-4. Remove the `@Override` annotation from `nullSafeSet` since the signature of the method in the interface has changed.
-
-This approach directly addresses the API changes and ensures that the code compiles and functions correctly with the updated dependency.
-</fix_planning>
-
 ```java
 /**
  * Copyright (C) 2011 Brian Ferris <bdferris@onebusaway.org>
@@ -54,7 +10,7 @@ This approach directly addresses the API changes and ensures that the code compi
  *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -110,6 +66,7 @@ public class ServiceDateUserType implements UserType {
     return new ServiceDate((ServiceDate) value);
   }
 
+  @Override
   public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor sessionImplementor, Object owner)
       throws HibernateException, SQLException {
 
@@ -125,6 +82,7 @@ public class ServiceDateUserType implements UserType {
     }
   }
 
+  @Override
   public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor sessionImplementor)
       throws HibernateException, SQLException {
 

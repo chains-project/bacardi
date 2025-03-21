@@ -10,28 +10,25 @@
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.parameter.Parameter;
-25c23
+21a20
+> import org.spongepowered.api.service.permission.Subject;
+25c24
 < public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
 ---
-> public class InfoCommand implements Command {
-35c33,34
+> public class InfoCommand implements Command, ChangeSkinCommand {
+34,35c33
+<     @Override
 <     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 ---
->     public CommandResult execute(org.spongepowered.api.command.CommandCause cause, CommandContext args) {
->         org.spongepowered.api.command.CommandSource src = cause.cause().first(org.spongepowered.api.command.CommandSource.class).orElse(null);
-52,54c51,52
-<     @Override
+>     public CommandResult execute(Subject src, CommandContext args) {
+53,54c51,52
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
 ---
->     public org.spongepowered.api.command.Command.Builder buildSpec() {
->         return org.spongepowered.api.command.Command.builder()
+>     public Command.Builder builder() {
+>         return Command.builder()
 56,57c54
 <                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
 <                 .build();
 ---
 >                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base");
-70c67
-<                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
----
->                 Text text = TextSerializers.FORMATTING_CODE.deserialize(formatted);

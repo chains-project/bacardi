@@ -1,8 +1,15 @@
 20d19
 < import com.google.cloud.pubsublite.PublishMetadata;
-36c35
+28d26
+< import java.util.Map;
+30a29,30
+> import java.util.Map;
+> 
+36c36
 <   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
 ---
 >   public Publisher<?> newPublisher(Map<String, String> params) {
-53d51
+53c53
 <                 .setContext(PubsubContext.of(FRAMEWORK))
+---
+>                 // .setContext(PubsubContext.of(FRAMEWORK)) // Removed due to API change

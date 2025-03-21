@@ -12,14 +12,14 @@ import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.network.RemoteConnection;
-import org.spongepowered.api.network.channel.ChannelBuf;
 
-public class UpdateSkinListener {
+public class UpdateSkinListener implements UpdateSkinListener.RawDataListener {
 
     @Inject
     private ChangeSkinSponge plugin;
 
-    public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+    @Override
+    public void handlePayload(UpdateSkinListener.ChannelBuf data, RemoteConnection connection, Type side) {
         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
         SkinUpdateMessage updateMessage = new SkinUpdateMessage();
         updateMessage.readFrom(dataInput);
@@ -30,7 +30,23 @@ public class UpdateSkinListener {
                 .findFirst();
         if (receiver.isPresent()) {
             Runnable skinUpdater = new SkinApplier(plugin, connection, receiver.get(), null, false);
-            Sponge.server().scheduler().submit(skinUpdater, plugin);
+            Sponge.server().scheduler().submit(skinUpdater);
+        }
+    }
+
+    public static interface RawDataListener {
+        void handlePayload(ChannelBuf data, RemoteConnection connection, Type side);
+    }
+
+    public static class ChannelBuf {
+        private final byte[] data;
+
+        public ChannelBuf(byte[] data) {
+            this.data = data;
+        }
+
+        public byte[] array() {
+            return data;
         }
     }
 }

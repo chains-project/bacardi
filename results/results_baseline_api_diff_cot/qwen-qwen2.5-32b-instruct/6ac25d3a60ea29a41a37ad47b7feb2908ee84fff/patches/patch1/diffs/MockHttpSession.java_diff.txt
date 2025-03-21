@@ -4,7 +4,7 @@
 <     return new Vector(attributes.keySet()).elements();
 ---
 >     return new Vector<>(attributes.keySet()).elements();
-64,83c63,64
+64,84d62
 <   /** @deprecated */
 <   @Deprecated
 <   @Override
@@ -25,22 +25,36 @@
 <   public String[] getValueNames() {
 <     return new String[0];
 <   }
----
->   // Removed HttpSessionContext related methods as the class is no longer available in the new API version
->   // The following methods are deprecated and removed in the new version of the dependency
-94,108d74
+< 
+94,99d71
 <   /** @deprecated */
 <   @Deprecated
 <   @Override
 <   public void putValue(final String s, final Object o) {
 <   }
 < 
-<   @Override
-<   public void removeAttribute(final String s) {
-<     attributes.remove(s);
-<   }
-< 
-<   @Override
+106,109d77
 <   public void removeValue(final String s) {
 <   }
 < 
+<   @Override
+121a90,108
+> 
+>   // Methods that are no longer needed due to API changes
+>   public HttpSessionContext getSessionContext() {
+>     return null;
+>   }
+> 
+>   public Object getValue(final String s) {
+>     return null;
+>   }
+> 
+>   public String[] getValueNames() {
+>     return new String[0];
+>   }
+> 
+>   public void putValue(final String s, final Object o) {
+>   }
+> 
+>   public void removeValue(final String s) {
+>   }

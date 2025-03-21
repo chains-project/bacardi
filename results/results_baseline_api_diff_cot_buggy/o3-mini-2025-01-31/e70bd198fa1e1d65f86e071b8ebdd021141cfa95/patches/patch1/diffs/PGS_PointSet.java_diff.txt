@@ -1,4 +1,47 @@
-70c70
-<                         if (tree.size() == 0 || tree.query1NN(coords).dist() > distanceTolerance) {
+26c26,27
+< import org.tinspin.index.kdtree.KDTree;
 ---
->                         if (tree.size() == 0 || tree.queryKNN(coords, 1).get(0).dist() > distanceTolerance) {
+> // Removed import for KDTree because the API has changed
+> // import org.tinspin.index.kdtree.KDTree;
+66d66
+<                 final KDTree<PVector> tree = KDTree.create(2);
+69,71c69
+<                         final double[] coords = new double[] { p.x, p.y };
+<                         if (tree.size() == 0 || tree.query1NN(coords).dist() > distanceTolerance) {
+<                                 tree.insert(coords, p);
+---
+>                         if (newPoints.isEmpty() || getNearestDistance(newPoints, p) > distanceTolerance) {
+77a76,86
+>         private static float getNearestDistance(List<PVector> points, PVector p) {
+>                 float minDist = Float.MAX_VALUE;
+>                 for (PVector np : points) {
+>                         float d = PVector.dist(np, p);
+>                         if (d < minDist) {
+>                                 minDist = d;
+>                         }
+>                 }
+>                 return minDist;
+>         }
+> 
+217c226
+<          * @param yMax y-coordinate of boundary maximum
+---
+>          * @param yMax x-coordinate of boundary maximum
+233c242
+<          * @param yMax y-coordinate of boundary maximum
+---
+>          * @param yMax x-coordinate of boundary maximum
+304c313
+<          * @param yMax y-coordinate of boundary maximum
+---
+>          * @param yMax x-coordinate of boundary maximum
+329c338
+<          * @param yMax y-coordinate of boundary maximum
+---
+>          * @param yMax x-coordinate of boundary maximum
+357c366
+<          * @param yMax          y-coordinate of boundary maximum
+---
+>          * @param yMax          x-coordinate of boundary maximum
+605d613
+<                 // https://github.com/Atrix256/SampleZoo/blob/master/src/families/_2d/samples/irrational_numbers/irrational_numbers.cpp

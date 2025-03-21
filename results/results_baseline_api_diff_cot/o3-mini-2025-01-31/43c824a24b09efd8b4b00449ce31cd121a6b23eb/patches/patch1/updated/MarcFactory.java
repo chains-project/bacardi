@@ -53,8 +53,6 @@ public class MarcFactory {
   private static final Logger logger = Logger.getLogger(MarcFactory.class.getCanonicalName());
   private static final List<String> fixableControlFields = Arrays.asList("006", "007", "008");
 
-  // Updated initialization: in the new version of the dependency the concept of JsonBranch has been removed.
-  // We assume that MarcJsonSchema#getPaths() now returns a List of String keys (or JSON fragments)
   private static Schema schema = new MarcJsonSchema();
 
   private MarcFactory() {
@@ -67,13 +65,17 @@ public class MarcFactory {
 
   public static BibliographicRecord create(JsonPathCache cache, MarcVersion version) {
     var marcRecord = new Marc21Record();
-    // Now the schema paths are returned as a list of String identifiers.
-    for (String branch : schema.getPaths()) {
-      // In the old implementation we skipped branches with a non-null parent.
-      // Since JsonBranch is removed in the new API, we assume the returned branch keys are top-level.
-      // We use the branch value itself as its label.
-      String label = branch;
-      switch (label) {
+    List<?> branchList = schema.getPaths();
+    for (Object obj : branchList) {
+      JsonBranch branch;
+      if (obj instanceof String) {
+        branch = new JsonBranch((String) obj);
+      } else {
+        branch = (JsonBranch) obj;
+      }
+      if (branch.getParent() != null)
+        continue;
+      switch (branch.getLabel()) {
         case "leader":
           marcRecord.setLeader(new Leader(extractFirst(cache, branch)));
           break;
@@ -87,16 +89,19 @@ public class MarcFactory {
           marcRecord.setControl005(new Control005(extractFirst(cache, branch), marcRecord));
           break;
         case "006":
-          marcRecord.setControl006(new Control006(extractFirst(cache, branch), marcRecord));
+          marcRecord.setControl006(
+            new Control006(extractFirst(cache, branch), marcRecord));
           break;
         case "007":
-          marcRecord.setControl007(new Control007(extractFirst(cache, branch), marcRecord));
+          marcRecord.setControl007(
+            new Control007(extractFirst(cache, branch), marcRecord));
           break;
         case "008":
-          marcRecord.setControl008(new Control008(extractFirst(cache, branch), marcRecord));
+          marcRecord.setControl008(
+            new Control008(extractFirst(cache, branch), marcRecord));
           break;
         default:
-          JSONArray fieldInstances = (JSONArray) cache.getFragment(branch);
+          JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getLabel());
           for (var fieldInsanceNr = 0; fieldInsanceNr < fieldInstances.size(); fieldInsanceNr++) {
             var fieldInstance = (Map) fieldInstances.get(fieldInsanceNr);
             var field = MapToDatafield.parse(fieldInstance, version);
@@ -104,7 +109,7 @@ public class MarcFactory {
               marcRecord.addDataField(field);
               field.setMarcRecord(marcRecord);
             } else {
-              marcRecord.addUnhandledTags(label);
+              marcRecord.addUnhandledTags(branch.getLabel());
             }
           }
           break;
@@ -313,9 +318,8 @@ public class MarcFactory {
     return field;
   }
 
-  // Updated helper methods: the second parameter is now a String key (used in place of the removed JsonBranch)
-  private static List<String> extractList(JsonPathCache cache, String branch) {
-    List<XmlFieldInstance> instances = cache.get(branch);
+  private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
+    List<XmlFieldInstance> instances = cache.get(branch.getLabel());
     List<String> values = new ArrayList<>();
     if (instances != null)
       for (XmlFieldInstance instance : instances)
@@ -323,7 +327,7 @@ public class MarcFactory {
     return values;
   }
 
-  private static String extractFirst(JsonPathCache cache, String branch) {
+  private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
     List<String> list = extractList(cache, branch);
     if (!list.isEmpty())
       return list.get(0);
@@ -473,7 +477,6 @@ public class MarcFactory {
     Record marc4jRecord = new RecordImpl();
     String id = null;
     for (PicaLine line : lines) {
-      // String tag = schema.containsKey(line.getQualifiedTag()) ? line.getQualifiedTag() : line.getTag();
       DataFieldImpl df = new DataFieldImpl(line.getQualifiedTag(), ' ', ' ');
       for (PicaSubfield picaSubfield : line.getSubfields()) {
         df.addSubfield(new SubfieldImpl(picaSubfield.getCode().charAt(0), picaSubfield.getValue()));
@@ -485,5 +488,25 @@ public class MarcFactory {
     if (id != null)
       marc4jRecord.addVariableField(new ControlFieldImpl("001", id));
     return marc4jRecord;
+  }
+  
+  public static class JsonBranch {
+    private final String label;
+
+    public JsonBranch(String label) {
+      this.label = label;
+    }
+
+    public Object getParent() {
+      return null;
+    }
+
+    public String getLabel() {
+      return label;
+    }
+
+    public String getJsonPath() {
+      return label;
+    }
   }
 }

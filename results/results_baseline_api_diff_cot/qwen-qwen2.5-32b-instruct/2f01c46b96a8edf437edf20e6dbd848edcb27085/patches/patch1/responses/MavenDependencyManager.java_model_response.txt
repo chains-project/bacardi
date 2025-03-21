@@ -27,6 +27,7 @@ import se.kth.depclean.core.analysis.graph.DependencyGraph;
 import se.kth.depclean.core.analysis.model.ProjectDependencyAnalysis;
 import se.kth.depclean.core.analysis.src.ImportsAnalyzer;
 import se.kth.depclean.core.wrapper.DependencyManagerWrapper;
+import se.kth.depclean.core.wrapper.LogWrapper;
 import se.kth.depclean.graph.MavenDependencyGraph;
 import se.kth.depclean.util.MavenDebloater;
 import se.kth.depclean.util.MavenInvoker;
@@ -96,7 +97,7 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
   @Override
   @SneakyThrows
   public DependencyGraph dependencyGraph() {
-    ProjectBuildingRequest buildingRequest = new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
+    DefaultProjectBuildingRequest buildingRequest = new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
     buildingRequest.setProject(project);
     DependencyNode rootNode = dependencyGraphBuilder.buildDependencyGraph(buildingRequest, null);
     return new MavenDependencyGraph(project, model, rootNode);
@@ -134,9 +135,12 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
   public Set<String> collectUsedClassesFromProcessors() {
     getLog().debug("# collectUsedClassesFromProcessors()");
     return Optional.ofNullable(project.getPlugin("org.bsc.maven:maven-processor-plugin"))
-        .map(plugin -> plugin.getExecutionsAsMap().get("process"))
+        .map(plugin -> plugin.getExecutions().stream()
+            .filter(exec -> "process".equals(exec.getId()))
+            .findFirst()
+            .orElse(null))
         .map(exec -> exec.getConfiguration())
-        .map(config -> config.getChild("processors"))
+        .map(config -> config.get("processors"))
         .map(processors -> processors.getChildren())
         .map(arr -> Arrays.stream(arr).map(processor -> processor.getValue()).collect(Collectors.toSet()))
         .orElse(of());
@@ -145,7 +149,7 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
   @Override
   public Path getDependenciesDirectory() {
     String dependencyDirectoryName = project.getBuild().getDirectory() + "/" + DIRECTORY_TO_COPY_DEPENDENCIES;
-    return new File(dependencyDirectoryName).toPath();
+    return new File(dependencyDirectoryName).toPath());
   }
 
   @Override
@@ -184,7 +188,6 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
     return new File(project.getBuild().getTestSourceDirectory()).toPath();
   }
 
-  @SneakyThrows
   @Override
   public void generateDependencyTree(File treeFile) throws IOException, InterruptedException {
     MavenInvoker.runCommand("mvn dependency:tree -DoutputFile=" + treeFile + " -Dverbose=true", null);
@@ -203,14 +206,3 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
   }
 }
 ```
-
-<repair_strategy>
-1. The error indicates that the `org.codehaus.plexus.util.xml.Xpp3Dom` class is no longer available in the new version of the dependency.
-2. The `Xpp3Dom` class has been removed entirely, and all constructors have been removed as well.
-3. The client code uses `Xpp3Dom` in the `collectUsedClassesFromProcessors` method to parse the processors from the plugin configuration.
-4. The fix involves replacing the usage of `Xpp3Dom` with an alternative approach to parse the processors from the plugin configuration.
-5. The minimal set of changes involves updating the `collectUsedClassesFromProcessors` method to use a different approach to extract the processors from the plugin configuration.
-6. The changes should not affect the functionality of the method and should ensure that the processors are correctly collected.
-7. The changes should ensure that the class compiles and functions as expected.
-8. No additional imports are needed as the `Xpp3Dom` class is no longer used.
-</repair_strategy>

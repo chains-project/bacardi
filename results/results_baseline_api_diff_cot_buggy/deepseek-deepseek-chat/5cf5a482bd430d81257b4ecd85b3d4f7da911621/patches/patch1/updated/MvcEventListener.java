@@ -33,7 +33,7 @@ public class MvcEventListener {
         LOGGER.info(() -> "AfterProcessViewEvent:: " + event);
     }
     
-     private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
+    private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
         LOGGER.info(() -> "ControllerRedirectEvent:: " + event);
     }
 

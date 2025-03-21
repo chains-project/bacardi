@@ -1,28 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The error occurs in the line `Constructor constructor = new Constructor(Config.class);`
-   b. The API changes indicate that all Constructor constructors have been removed, including the one that takes a Class parameter
-   c. Affected line: `Constructor constructor = new Constructor(Config.class);`
-   d. Potential fixes:
-      - Use the new SafeConstructor class instead of Constructor
-      - Create a LoaderOptions object and pass it to the Yaml constructor
-      - Modify the code to use the new API pattern for YAML parsing
-   e. Side effects:
-      - Using SafeConstructor might change the parsing behavior slightly
-      - Need to ensure the new approach maintains the same functionality
-   f. Constraints check:
-      - The function signature remains unchanged
-      - No existing code is removed
-      - All imports are properly handled
-   g. Final solution:
-      - Replace Constructor with SafeConstructor
-      - This is the most straightforward fix that maintains functionality while adhering to the new API
-
-2. Chosen fix:
-   - Replace `Constructor constructor = new Constructor(Config.class);` with `SafeConstructor constructor = new SafeConstructor();`
-   - Add import for SafeConstructor: `import org.yaml.snakeyaml.constructor.SafeConstructor;`
-</fix_planning>
-
 ```java
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -57,7 +32,8 @@ import org.jclouds.byon.Node;
 import org.jclouds.byon.domain.YamlNode;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.SafeConstructor;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.LoaderOptions;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
@@ -106,7 +82,8 @@ public class NodesFromYamlStream implements Function<ByteSource, LoadingCache<St
    @Override
    public LoadingCache<String, Node> apply(ByteSource source) {
 
-      SafeConstructor constructor = new SafeConstructor();
+      LoaderOptions options = new LoaderOptions();
+      Constructor constructor = new Constructor(options);
 
       TypeDescription nodeDesc = new TypeDescription(YamlNode.class);
       nodeDesc.putListPropertyType("tags", String.class);

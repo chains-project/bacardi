@@ -1,16 +1,12 @@
-10,12c10,11
-< import com.redislabs.redisgraph.impl.resultset.ResultSetImpl;
-< 
+12d11
 < import redis.clients.jedis.Client;
----
-> import com.redislabs.redisgraph.impl.transaction.RedisGraphPipeline;
-> import com.redislabs.redisgraph.impl.transaction.RedisGraphTransaction;
-13a13,14
-> import redis.clients.jedis.JedisClientConfig;
-> import redis.clients.jedis.JedisPool;
-15d15
+14,15c13,14
+< import redis.clients.jedis.exceptions.JedisDataException;
 < import redis.clients.jedis.util.SafeEncoder;
-56,59c56,58
+---
+> import redis.clients.jedis.Transaction;
+> import redis.clients.jedis.Pipeline;
+98,101c97,99
 <         } catch (JRedisGraphException rt) {
 <             throw rt;
 <         } catch (JedisDataException j) {
@@ -19,56 +15,68 @@
 >         } catch (Exception e) {
 >             conn.close();
 >             throw e;
-76,79c75,77
-<         } catch (JRedisGraphException ge) {
-<             throw ge;
-<         } catch (JedisDataException de) {
-<             throw new JRedisGraphException(de);
----
->         } catch (Exception e) {
->             conn.close();
->             throw e;
-86d83
-<      * @param timeout
-87a85
->      * @param timeout
-98,101c96,98
-<         } catch (JRedisGraphException rt) {
-<             throw rt;
-<         } catch (JedisDataException j) {
-<             throw new JRedisGraphException(j);
----
->         } catch (Exception e) {
->             conn.close();
->             throw e;
-108d104
-<      * @param timeout
-109a106
->      * @param timeout
-120,123c117,119
-<         } catch (JRedisGraphException ge) {
-<             throw ge;
-<         } catch (JedisDataException de) {
-<             throw new JRedisGraphException(de);
----
->         } catch (Exception e) {
->             conn.close();
->             throw e;
-142,145c138,139
+128,163d125
+<      * @return Returns the instance Jedis connection.
+<      */
+<     @Override
+<     public Jedis getConnectionContext() {
+<         return this.connectionContext;
+<     }
+< 
+<     /**
+<      * Creates a new RedisGraphTransaction transactional object
+<      * @return new RedisGraphTransaction
+<      */
+<     @Override
+<     public RedisGraphTransaction multi() {
+<         Jedis jedis = getConnection();
 <         Client client = jedis.getClient();
 <         client.multi();
 <         client.getOne();
 <         RedisGraphTransaction transaction = new RedisGraphTransaction(client, this);
----
->         // Directly use Jedis for transaction, as Client class is no longer available
->         RedisGraphTransaction transaction = new RedisGraphTransaction(jedis, this);
-157,158c151,152
+<         transaction.setRedisGraphCaches(caches);
+<         return transaction;
+<     }
+< 
+<     /**
+<      * Creates a new RedisGraphPipeline pipeline object
+<      * @return new RedisGraphPipeline
+<      */
+<     @Override
+<     public RedisGraphPipeline pipelined() {
+<         Jedis jedis = getConnection();
 <         Client client = jedis.getClient();
 <         RedisGraphPipeline pipeline = new RedisGraphPipeline(client, this);
----
->         // Directly use Jedis for pipeline, as Client class is no longer available
->         RedisGraphPipeline pipeline = new RedisGraphPipeline(jedis, this);
-208d201
+<         pipeline.setRedisGraphCaches(caches);
+<         return pipeline;
+<     }
 < 
-215d207
+<     /**
+208d169
 < 
+215a177,201
+>     /**
+>      * Creates a new RedisGraphTransaction transactional object
+>      * @return new RedisGraphTransaction
+>      */
+>     @Override
+>     public RedisGraphTransaction multi() {
+>         Jedis conn = getConnection();
+>         Transaction transaction = conn.multi();
+>         RedisGraphTransaction redisGraphTransaction = new RedisGraphTransaction(transaction, this);
+>         redisGraphTransaction.setRedisGraphCaches(caches);
+>         return redisGraphTransaction;
+>     }
+> 
+>     /**
+>      * Creates a new RedisGraphPipeline pipeline object
+>      * @return new RedisGraphPipeline
+>      */
+>     @Override
+>     public RedisGraphPipeline pipelined() {
+>         Jedis conn = getConnection();
+>         Pipeline pipeline = conn.pipelined();
+>         RedisGraphPipeline redisGraphPipeline = new RedisGraphPipeline(pipeline, this);
+>         redisGraphPipeline.setRedisGraphCaches(caches);
+>         return redisGraphPipeline;
+>     }

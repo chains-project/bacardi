@@ -1,18 +1,3 @@
-/**
- * Copyright 2019 Pinterest, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *    http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.pinterest.singer.client.logback;
 
 import com.pinterest.singer.thrift.LogMessage;
@@ -34,6 +19,7 @@ import org.apache.thrift.transport.TTransport;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 /**
  * Utils to create logback appenders
@@ -55,15 +41,6 @@ public class AppenderUtils {
     private OutputStream os;
 
     @Override
-    public byte[] headerBytes() {
-      return new byte[0];
-    }
-
-    @Override
-    public byte[] footerBytes() {
-      return new byte[0];
-    }
-
     public void init(OutputStream os) {
       this.os = os;
       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
@@ -74,17 +51,33 @@ public class AppenderUtils {
       protocol = new TBinaryProtocol(framedTransport);
     }
 
-    public void doEncode(LogMessage logMessage) throws IOException {
+    public byte[] encode(LogMessage logMessage) throws IOException {
       try {
         logMessage.write(protocol);
         framedTransport.flush();
+        return "".getBytes(getDefaultCharset());
       } catch (TException e) {
         throw new IOException(e);
       }
     }
 
+    @Override
     public void close() throws IOException {
       framedTransport.close();
+    }
+
+    @Override
+    public byte[] headerBytes() {
+      return null;
+    }
+
+    @Override
+    public byte[] footerBytes() {
+      return null;
+    }
+
+    private Charset getDefaultCharset() {
+      return Charset.defaultCharset();
     }
   }
 

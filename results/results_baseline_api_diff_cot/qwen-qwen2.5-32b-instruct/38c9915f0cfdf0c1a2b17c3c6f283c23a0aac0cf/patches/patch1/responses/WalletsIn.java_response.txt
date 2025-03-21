@@ -30,10 +30,15 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Random;
 import org.cactoos.Func;
+import org.cactoos.FuncOf;
 import org.cactoos.Scalar;
+import org.cactoos.Text;
+import org.cactoos.TextOf;
 import org.cactoos.io.Directory;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.Mapped;
+import org.cactoos.scalar.CheckedScalar;
+import org.cactoos.scalar.ScalarOf;
 import org.cactoos.text.FormattedText;
 import org.cactoos.text.UncheckedText;
 
@@ -47,7 +52,7 @@ public final class WalletsIn implements Wallets {
     /**
      * Path containing wallets.
      */
-    private final Path path;
+    private final CheckedScalar<Path> path;
 
     /**
      * Filter for matching file extensions.
@@ -70,7 +75,7 @@ public final class WalletsIn implements Wallets {
      */
     public WalletsIn(final Path pth) {
         this(
-            pth,
+            () -> pth,
             "z",
             new Random()
         );
@@ -83,7 +88,7 @@ public final class WalletsIn implements Wallets {
      */
     public WalletsIn(final Path pth, final Random random) {
         this(
-            pth,
+            () -> pth,
             "z",
             random
         );
@@ -97,19 +102,27 @@ public final class WalletsIn implements Wallets {
      */
     public WalletsIn(final Scalar<Path> pth, final String ext,
         final Random random) {
-        this.path = pth.value();
-        this.filter = file -> file.toFile().isFile()
-            && FileSystems.getDefault()
-            .getPathMatcher(String.format("glob:**.%s", ext))
-            .matches(file);
+        this.path = new CheckedScalar<>(
+            new ScalarOf<>(pth)
+        );
+        this.filter = new FuncOf<Path, Boolean>(
+            (file) -> file.toFile().isFile()
+                && FileSystems.getDefault()
+                .getPathMatcher(String.format("glob:**.%s", ext))
+                .matches(file)
+        );
         this.ext = ext;
         this.random = random;
     }
 
     @Override
     public Wallet create() throws IOException {
-        final Path wpth = this.path.resolve(
-            String.format("%s.%s", Long.toHexString(this.random.nextLong()), this.ext)
+        final Path wpth = this.path.value().resolve(
+            new TextOf(
+                "%s.%s",
+                Long.toHexString(this.random.nextLong()),
+                this.ext
+            ).asString()
         );
         if (wpth.toFile().exists()) {
             throw new IOException(
@@ -126,7 +139,12 @@ public final class WalletsIn implements Wallets {
     }
 
     @Override
-    public Wallet create(final long id, final String pubkey, final String network) throws IOException {
+    // @todo #65:30min Create the new wallet in the path with all wallets.
+    //  It should contain the correct content according to the
+    //  white paper (network, protocol version, id and public RSA key). After
+    //  this remove exception expect for tests on WalletsInTest.
+    public Wallet create(final long id, final String pubkey, final String
+        network) throws IOException {
         throw new UnsupportedOperationException(
             "WalletsIn.create(String, String, String) not supported"
         );
@@ -137,7 +155,7 @@ public final class WalletsIn implements Wallets {
         try {
             return new Mapped<Path, Wallet>(
                 (pth) -> new Wallet.File(pth),
-                new Filtered<>(this.filter, new Directory(this.path))
+                new Filtered<>(this.filter, new Directory(this.path.value()))
             ).iterator();
         } catch (final IOException ex) {
             throw new IllegalStateException(ex);

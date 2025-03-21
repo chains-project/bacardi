@@ -181,7 +181,8 @@ public class Decorations
     public static void magic(Player player, int seconds)
     {
         final int[] count = {0};
-        //WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1); // Removed due to missing dependency
+        // WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1);
+        final double waveStatic = 1.8;
 
         BukkitRunnable runnable = new BukkitRunnable()
         {
@@ -196,7 +197,7 @@ public class Decorations
 
                     circle(center.add(0, 0.7, 0), count[0], 2.7, Particle.ENCHANTMENT_TABLE);
 
-                    //circle(center.clone().add(0, wave.get(0.01, false), 0), count[0], wave.getStatic()); // Removed due to missing dependency
+                    circle(center.clone().add(0, 0.8, 0), count[0], waveStatic);
 
                     circle(center.clone().add(3.2, 0.7, 3.2), count[0], 1.5);
                     circle(center.clone().add(-3.2, 0.7, -3.2), count[0], 1.5);

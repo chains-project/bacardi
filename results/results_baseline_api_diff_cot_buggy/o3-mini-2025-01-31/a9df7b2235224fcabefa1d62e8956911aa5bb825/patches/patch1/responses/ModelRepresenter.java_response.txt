@@ -22,7 +22,6 @@ import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
 
-import java.beans.IntrospectionException;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -92,6 +91,7 @@ class ModelRepresenter extends Representer {
     }
     return false;
   }
+
 
   private class RepresentXpp3Dom implements Represent {
     private static final String ATTRIBUTE_PREFIX = "attr/";
@@ -167,41 +167,38 @@ class ModelRepresenter extends Representer {
   }
 
   // Model elements order {
-  //TODO move to polyglot-common, or to org.apache.maven:maven-model
   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
       "modelEncoding",
-          "modelVersion",
-          "parent",
-          "groupId",
-          "artifactId",
-          "version",
-          "packaging",
+      "modelVersion",
+      "parent",
+      "groupId",
+      "artifactId",
+      "version",
+      "packaging",
 
-          "name",
-          "description",
-          "url",
-          "inceptionYear",
-          "organization",
-          "licenses",
-          "developers",
-          "contributers",
-          "mailingLists",
-          "scm",
-          "issueManagement",
-          "ciManagement",
+      "name",
+      "description",
+      "url",
+      "inceptionYear",
+      "organization",
+      "licenses",
+      "developers",
+      "contributers",
+      "mailingLists",
+      "scm",
+      "issueManagement",
+      "ciManagement",
 
-          "properties",
-          "prerequisites",
-          "modules",
-          "dependencyManagement",
-          "dependencies",
-          "distributionManagement",
-          //"repositories",
-          //"pluginRepositories",
-          "build",
-          "profiles",
-          "reporting"
-          ));
+      "properties",
+      "prerequisites",
+      "modules",
+      "dependencyManagement",
+      "dependencies",
+      "distributionManagement",
+      "build",
+      "profiles",
+      "reporting"
+  ));
   private static List<String> ORDER_DEVELOPER = new ArrayList<String>(Arrays.asList(
       "name", "id", "email"));
   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<String>(Arrays.asList(
@@ -212,10 +209,6 @@ class ModelRepresenter extends Representer {
       "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
   //}
 
-  /*
-   * Change the default order. Important data goes first.
-   */
-  @Override
   protected Set<Property> getProperties(Class<? extends Object> type) {
     if (type.isAssignableFrom(Model.class)) {
       return sortTypeWithOrder(type, ORDER_MODEL);
@@ -247,14 +240,12 @@ class ModelRepresenter extends Representer {
     }
 
     public int compare(Property o1, Property o2) {
-      // important go first
       for (String name : names) {
         int c = compareByName(o1, o2, name);
         if (c != 0) {
           return c;
         }
       }
-      // all the rest
       return o1.compareTo(o2);
     }
 
@@ -264,7 +255,7 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0;// compare further
+      return 0;
     }
   }
 }

@@ -1,30 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The code uses `TlsFatalAlert` and `AlertDescription` from `org.bouncycastle.crypto.tls` package, which have been removed in the new version.
-   b. The specific API changes causing the issue are:
-      - Removal of `TlsFatalAlert` class
-      - Removal of `AlertDescription` class
-   c. Affected lines:
-      - `import org.bouncycastle.crypto.tls.TlsFatalAlert;`
-      - `import org.bouncycastle.crypto.tls.AlertDescription;`
-      - `throw new TlsFatalAlert(AlertDescription.bad_record_mac);`
-   d. Potential fixes:
-      - Replace `TlsFatalAlert` with a custom exception
-      - Replace `AlertDescription.bad_record_mac` with a constant value
-   e. Side effects:
-      - The custom exception might need to be handled differently by calling code
-      - The error handling behavior should remain consistent
-   f. Constraints check:
-      - Function signatures remain unchanged
-      - No existing code is removed
-      - Missing imports are addressed
-   g. Final summary:
-      - Create a custom exception class `ChachaDecoderException`
-      - Replace `TlsFatalAlert` with `ChachaDecoderException`
-      - Use a constant value for the error code
-      - This solution adheres to all constraints and maintains functionality
-</fix_planning>
-
 ```java
 package io.github.hapjava.server.impl.crypto;
 
@@ -54,7 +27,7 @@ public class ChachaDecoder {
     byte[] calculatedMAC = PolyKeyCreator.create(macKey, additionalData, ciphertext);
 
     if (!Arrays.constantTimeAreEqual(calculatedMAC, receivedMAC)) {
-      throw new ChachaDecoderException("Bad record MAC");
+      throw new RuntimeException("Bad record MAC");
     }
 
     byte[] output = new byte[ciphertext.length];
@@ -76,12 +49,6 @@ public class ChachaDecoder {
     KeyParameter macKey = new KeyParameter(firstBlock, 16, 32);
     Poly1305KeyGenerator.clamp(macKey.getKey());
     return macKey;
-  }
-
-  private static class ChachaDecoderException extends IOException {
-    public ChachaDecoderException(String message) {
-      super(message);
-    }
   }
 }
 ```

@@ -1,14 +1,9 @@
 <repair_strategy>
-1. The error is caused because the Sponge API has removed the class CommandSource.
-2. In the old API the invoker was of type CommandSource, but in the new API Sponge now uses the Audience interface for entities that can receive messages.
-3. The NameResolver class stores the invoker and passes it to plugin.sendMessage and SkinDownloader. Both need to be updated to use Audience rather than the removed CommandSource.
-4. We update the field and the constructor parameter type from CommandSource to Audience and adjust the import accordingly.
-5. These are the minimal changes required to restore a complete and compilable class.
-6. The side effects are limited to the invoker handling; we assume that plugin.sendMessage and SkinDownloader have been updated to use an Audience.
-7. The resulting class fully compiles against the new Sponge API version.
-8. An additional import for org.spongepowered.api.audience.Audience is required.
+1. The new version of the Sponge dependency removed the old CommandSource class in the package "org.spongepowered.api.command".
+2. The replacement is now located in "org.spongepowered.api.command.source.CommandSource".
+3. The only client code change required is to update the import statement accordingly.
+4. The rest of the code remains unchanged.
 </repair_strategy>
-
 ```java
 package com.github.games647.changeskin.sponge.task;
 
@@ -17,19 +12,18 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.UUID;
 
-import org.spongepowered.api.audience.Audience;
+import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 
 public class NameResolver extends SharedNameResolver {
 
     private final ChangeSkinSponge plugin;
-    private final Audience invoker;
+    private final CommandSource invoker;
     private final Player receiver;
     private final boolean keepSkin;
 
-    public NameResolver(ChangeSkinSponge plugin, Audience invoker, String targetName, Player receiver, boolean keepSkin) {
+    public NameResolver(ChangeSkinSponge plugin, CommandSource invoker, String targetName, Player receiver, boolean keepSkin) {
         super(plugin.getCore(), targetName, keepSkin);
-
         this.plugin = plugin;
         this.invoker = invoker;
         this.receiver = receiver;
@@ -49,7 +43,7 @@ public class NameResolver extends SharedNameResolver {
 
     @Override
     protected void scheduleDownloader(UUID uuid) {
-        //run this is the same thread
+        //run this in the same thread
         new SkinDownloader(plugin, invoker, receiver, uuid, keepSkin).run();
     }
 }

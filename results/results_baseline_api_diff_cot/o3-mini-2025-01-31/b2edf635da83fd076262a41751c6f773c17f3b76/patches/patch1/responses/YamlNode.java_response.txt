@@ -26,6 +26,8 @@ import org.jclouds.byon.Node;
 import org.jclouds.util.Closeables2;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.constructor.Constructor;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
@@ -37,6 +39,33 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.io.ByteSource;
 
+/**
+ * Serializes to the following
+ * 
+ * <pre>
+ *       id: cluster-1
+ *       name: cluster-1
+ *       description: xyz
+ *       hostname: cluster-1.mydomain.com
+ *       location_id: virginia
+ *       os_arch: x86
+ *       os_family: linux
+ *       os_description: redhat
+ *       os_version: 5.3
+ *       os_64bit: 5.3
+ *       login_port: 2022
+ *       group: hadoop
+ *       tags:
+ *           - vanilla
+ *       metadata:
+ *           key1: val1
+ *       username: kelvin
+ *       credential: password_or_rsa
+ *         or
+ *       credential_url: password_or_rsa_file ex. resource:///id_rsa will get the classpath /id_rsa; file://path/to/id_rsa
+ *       sudo_password: password
+ * </pre>
+ */
 public class YamlNode {
    public String id;
    public String name;
@@ -62,26 +91,12 @@ public class YamlNode {
       public Node apply(YamlNode arg0) {
          if (arg0 == null)
             return null;
-         return Node.builder()
-                  .id(arg0.id)
-                  .name(arg0.name)
-                  .description(arg0.description)
-                  .locationId(arg0.location_id)
-                  .hostname(arg0.hostname)
-                  .osArch(arg0.os_arch)
-                  .osFamily(arg0.os_family)
-                  .osDescription(arg0.os_description)
-                  .osVersion(arg0.os_version)
-                  .os64Bit(arg0.os_64bit)
-                  .group(arg0.group)
-                  .loginPort(arg0.login_port)
-                  .tags(arg0.tags)
-                  .metadata(arg0.metadata)
-                  .username(arg0.username)
-                  .credential(arg0.credential)
-                  .credentialUrl(arg0.credential_url != null ? URI.create(arg0.credential_url) : null)
-                  .sudoPassword(arg0.sudo_password)
-                  .build();
+         return Node.builder().id(arg0.id).name(arg0.name).description(arg0.description).locationId(arg0.location_id)
+                  .hostname(arg0.hostname).osArch(arg0.os_arch).osFamily(arg0.os_family).osDescription(
+                           arg0.os_description).osVersion(arg0.os_version).os64Bit(arg0.os_64bit).group(arg0.group)
+                  .loginPort(arg0.login_port).tags(arg0.tags).metadata(arg0.metadata).username(arg0.username).credential(arg0.credential).credentialUrl(
+                           arg0.credential_url != null ? URI.create(arg0.credential_url) : null).sudoPassword(
+                           arg0.sudo_password).build();
       }
    };
 
@@ -97,7 +112,9 @@ public class YamlNode {
          InputStream in = null;
          try {
             in = byteSource.openStream();
-            return new Yaml().loadAs(in, YamlNode.class);
+            LoaderOptions loaderOptions = new LoaderOptions();
+            Constructor constructor = new Constructor(loaderOptions, YamlNode.class);
+            return (YamlNode) new Yaml(constructor).load(in);
          } catch (IOException ioe) {
             throw Throwables.propagate(ioe);
          } finally {

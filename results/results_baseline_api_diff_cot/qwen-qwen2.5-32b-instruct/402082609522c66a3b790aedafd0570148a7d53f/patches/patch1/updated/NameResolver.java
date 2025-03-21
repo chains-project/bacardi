@@ -28,7 +28,7 @@ public class NameResolver extends SharedNameResolver {
 
     @Override
     public void sendMessageInvoker(String id) {
-        plugin.sendMessage(invoker, Text.of(id));
+        plugin.sendMessage((org.spongepowered.api.command.source.CommandSource) invoker, id);
     }
 
     @Override
@@ -40,6 +40,6 @@ public class NameResolver extends SharedNameResolver {
     @Override
     protected void scheduleDownloader(UUID uuid) {
         //run this is the same thread
-        new SkinDownloader(plugin, invoker, receiver, uuid, keepSkin).run();
+        new SkinDownloader(plugin, (org.spongepowered.api.command.source.CommandSource) invoker, receiver, uuid, keepSkin).run();
     }
 }

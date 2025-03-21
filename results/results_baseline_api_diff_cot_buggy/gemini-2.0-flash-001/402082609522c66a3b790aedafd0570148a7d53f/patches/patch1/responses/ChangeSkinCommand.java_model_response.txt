@@ -1,38 +1,14 @@
-<fix_planning>
-a. Code and API changes:
-The code uses `org.spongepowered.api.command.spec.CommandSpec`. The API changes indicate that `org.spongepowered.api.command.spec.CommandSpec` has been removed.
-
-b. Specific API changes causing the issue:
-The removal of `org.spongepowered.api.command.spec.CommandSpec` is causing the compilation errors.
-
-c. Affected lines of code:
-- `import org.spongepowered.api.command.spec.CommandSpec;`
-- `CommandSpec buildSpec();`
-
-d. Proposed fixes:
-Since `CommandSpec` is removed, we need to find a replacement or a different way to define the command specification.  Without more context on how `CommandSpec` was used, it's difficult to provide a precise replacement. However, since we cannot change the method signature, the only viable option is to change the return type to `Object`. This will allow the code to compile, but it might require changes in other parts of the codebase that use the return value of this method.
-
-e. Potential side effects:
-Changing the return type to `Object` will require changes in any code that calls `buildSpec()` and expects a `CommandSpec`. This could be a significant change, but it's the only way to make the code compile without changing the method signature.
-
-f. Adherence to constraints:
-- The function signature of `buildSpec()` is maintained.
-- A variable is not created.
-- The `@FunctionalInterface` annotation is kept.
-- The import statement is removed.
-- No existing code is removed unless it directly causes a compilation error.
-- All code is included in the final output.
-
-g. Final summary:
-The best solution is to change the return type of `buildSpec()` to `Object` and remove the import statement for `CommandSpec`. This allows the code to compile while adhering to the constraints. This change will likely require further modifications in other parts of the project that use the `ChangeSkinCommand` interface.
-</fix_planning>
-
 ```java
 package com.github.games647.changeskin.sponge.command;
+
+import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandCause;
 
 @FunctionalInterface
 public interface ChangeSkinCommand {
 
-    Object buildSpec();
+    Command.Parameterized buildSpec();
 }
 ```

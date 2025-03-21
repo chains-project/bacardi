@@ -1,19 +1,21 @@
-2a3,4
-> import org.pitest.classinfo.ClassName;
+2a3,5
 > import org.pitest.classinfo.ClassInfoVisitor;
-6d7
-< import org.pitest.mutationtest.SourceLocator;
-103a105,113
->     // Adjusting the method call to use the new API
->     ClassName className = ClassName.fromString(data.getMutatedClass());
+> import org.pitest.classinfo.ClassName;
+> import org.pitest.classinfo.ClassInfo;
+103a107,118
+>     // Assuming the new API requires a different approach to get class info
+>     // This is a placeholder for the actual implementation that should be provided based on the new API
+>     // For demonstration, we assume a method that can provide the necessary information
 >     ClassInfoVisitor visitor = new ClassInfoVisitor() {
 >       @Override
->       public void visitClass(ClassName className, byte[] classBytes, long timestamp) {
->         // Implement the logic to handle the class info if necessary
+>       public void visit(ClassInfo classInfo) {
+>         // Implementation to get class info
 >       }
 >     };
->     coverage.getClassInfo(Collections.singleton(className), visitor);
-105c115
+>     // Assuming the new method signature is as follows:
+>     // coverage.getClassInfo(visitor, className, byteCode, timestamp);
+>     // Placeholder for the actual implementation
+105c120
 <         data.getMutations(), coverage.getClassInfo(Collections.singleton(data.getMutatedClass())));
 ---
->         data.getMutations(), visitor.getClassInfo(className));
+>         data.getMutations(), coverage.getClassInfo(visitor, ClassName.fromString(data.getMutatedClass()), new byte[]{}, 0L));

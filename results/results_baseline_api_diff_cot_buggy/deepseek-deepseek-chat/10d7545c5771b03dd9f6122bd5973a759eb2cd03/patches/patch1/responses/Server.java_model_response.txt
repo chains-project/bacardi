@@ -1,28 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. Relevant code: 
-      ```java
-      return new JerseyClientBuilder(env)
-      ```
-   b. API changes:
-      - Constructor `io.dropwizard.client.JerseyClientBuilder(io.dropwizard.setup.Environment)` has been removed
-      - Constructor `io.dropwizard.client.JerseyClientBuilder(io.dropwizard.core.setup.Environment)` has been added
-   c. Affected lines: Line 160
-   d. Proposed fixes:
-      - Change the import from `io.dropwizard.setup.Environment` to `io.dropwizard.core.setup.Environment`
-      - Update the constructor call to use the new package
-   e. Side effects:
-      - This change requires updating the import statement
-      - No functional changes expected
-   f. Constraints check:
-      - Function signature remains unchanged
-      - No code removed
-      - Import updated to match new dependency
-   g. Final summary:
-      - The best solution is to update the import statement to use the new package path for Environment
-      - This directly addresses the compilation error while maintaining all functionality
-</fix_planning>
-
 ```java
 //
 // Wire
@@ -74,9 +49,9 @@ import io.dropwizard.Application;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
-import io.dropwizard.core.setup.Environment;
 import io.dropwizard.servlets.tasks.Task;
 import io.dropwizard.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.flywaydb.core.Flyway;

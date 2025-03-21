@@ -3,71 +3,72 @@
 11a13,14
 > import org.spongepowered.api.command.Command;
 > import org.spongepowered.api.command.CommandExecutor;
-13,17c16,17
+13,17c16,18
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.args.GenericArguments;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
+> import org.spongepowered.api.command.exception.CommandException;
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.parameter.Parameter;
-21,24d20
+21,24d21
 < import static org.spongepowered.api.command.args.GenericArguments.flags;
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 < import static org.spongepowered.api.text.Text.of;
 < 
-37,39c33,36
+37,39c34,37
 <     public CommandResult execute(CommandSource src, CommandContext args) {
 <         if (!(src instanceof Player)) {
 <             plugin.sendMessage(src, "no-console");
 ---
->     public CommandResult execute(CommandContext context) {
+>     public CommandResult execute(CommandContext context) throws CommandException {
 >         Optional<Player> playerOpt = context.cause().first(Player.class);
 >         if (!playerOpt.isPresent()) {
 >             plugin.sendMessage(context.cause().root(), "no-console");
-43c40,41
+42,43c40,41
+< 
 <         UUID uniqueId = ((Player) src).getUniqueId();
 ---
->         Player sender = playerOpt.get();
->         UUID uniqueId = sender.getUniqueId();
+>         Player receiver = playerOpt.get();
+>         UUID uniqueId = receiver.getUniqueId();
 45c43
 <             plugin.sendMessage(src, "cooldown");
 ---
->             plugin.sendMessage(sender, "cooldown");
-49,51c47,49
+>             plugin.sendMessage(receiver, "cooldown");
+49,51c47,48
 <         Player receiver = (Player) src;
 <         String targetSkin = args.<String>getOne("skin").get();
 <         boolean keepSkin = args.hasAny("keep");
 ---
->         Player receiver = sender;
->         String targetSkin = context.one(String.class, "skin").get();
->         boolean keepSkin = context.one(Boolean.class, "keep").orElse(false);
-60c58,59
+>         String targetSkin = context.requireOne("skin");
+>         boolean keepSkin = context.hasFlag("keep");
+60c57
 <             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(src, targetUUID, true)) {
 ---
->             if (core.getConfig().getBoolean("skinPermission")
->                     && !plugin.hasSkinPermission(sender, targetUUID, true)) {
-64,65c63,64
+>             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(receiver, targetUUID, true)) {
+64,65c61,62
 <             plugin.sendMessage(src, "skin-change-queue");
 <             Runnable skinDownloader = new SkinDownloader(plugin, src, receiver, targetUUID, keepSkin);
 ---
->             plugin.sendMessage(sender, "skin-change-queue");
->             Runnable skinDownloader = new SkinDownloader(plugin, sender, receiver, targetUUID, keepSkin);
-70c69
+>             plugin.sendMessage(receiver, "skin-change-queue");
+>             Runnable skinDownloader = new SkinDownloader(plugin, receiver, receiver, targetUUID, keepSkin);
+70c67
 <         Runnable nameResolver = new NameResolver(plugin, src, targetSkin, receiver, keepSkin);
 ---
->         Runnable nameResolver = new NameResolver(plugin, sender, targetSkin, receiver, keepSkin);
-76,77c75,76
+>         Runnable nameResolver = new NameResolver(plugin, receiver, targetSkin, receiver, keepSkin);
+75,77c72,73
+<     @Override
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
 ---
 >     public Command.Parameterized buildSpec() {
 >         return Command.builder()
-79,81c78,79
+79,81c75,76
 <                 .arguments(
 <                         string(of("skin")),
 <                         flags().flag("keep").buildWith(GenericArguments.none()))
 ---
 >                 .addParameter(Parameter.string().key("skin").build())
->                 .addParameter(Parameter.bool().key("keep").optional().build())
+>                 .flag(flag -> flag.addAlias("keep").build())

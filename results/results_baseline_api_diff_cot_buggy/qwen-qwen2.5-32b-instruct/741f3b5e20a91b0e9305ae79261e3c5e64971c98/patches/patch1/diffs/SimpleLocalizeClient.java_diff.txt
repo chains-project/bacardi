@@ -1,25 +1,31 @@
 3a4
-> import com.fasterxml.jackson.core.type.TypeReference;
+> import com.fasterxml.jackson.databind.type.TypeFactory;
 26,29d26
 < import java.util.Optional;
 < 
 < import static io.simplelocalize.cli.TemplateKeys.LANGUAGE_TEMPLATE_KEY;
 < import static io.simplelocalize.cli.TemplateKeys.NAMESPACE_TEMPLATE_KEY;
+84c81
+<     HttpRequest httpRequest = httpRequestFactory.createGetRequest(downloadUri).build();
+---
+>     HttpRequest httpRequest = httpRequestFactory.createGetRequest(downloadUri).build());
 88c85
 <     ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
 ---
->     ExportResponse exportResponse = objectMapper.readValue(body, new TypeReference<ExportResponse>() {});
-138,144c135,136
-<       com.jayway.jsonpath.Configuration parseContext = com.jayway.jsonpath.Configuration
-<               .defaultConfiguration()
-<               .addOptions(Option.SUPPRESS_EXCEPTIONS);
-< 
-<       Object responseBody = httpResponse.body();
+>     ExportResponse exportResponse = objectMapper.readValue(body, objectMapper.getTypeFactory().constructType(ExportResponse.class));
+127,129c124,126
+<     Boolean passed = JsonPath.read(json, "$.data.passed");
+<     String message = JsonPath.read(json, "$.data.message");
+<     int status = JsonPath.read(json, "$.data.status");
+---
+>     Boolean passed = JsonPath.parse(json).read("$.data.passed");
+>     String message = JsonPath.parse(json).read("$.data.message");
+>     int status = JsonPath.parse(json).read("$.data.status");
+143,144c140
 <       String stringBody = safeCastHttpBodyToString(responseBody);
 <       String message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH);
 ---
->       com.fasterxml.jackson.databind.JsonNode jsonNode = objectMapper.readTree(httpResponse.body().toString());
->       String message = JsonPath.read(jsonNode, ERROR_MESSAGE_PATH);
-165,166d156
+>       String message = JsonPath.using(parseContext).parse(safeCastHttpBodyToString(responseBody)).read(ERROR_MESSAGE_PATH);
+165,166d160
 < 
 < 

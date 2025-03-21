@@ -1,19 +1,7 @@
-4c4
-< import ch.qos.logback.classic.Logger;
----
+4a5
 > import ch.qos.logback.classic.LoggerContext;
-82a83
->     
-84a86
->     
-111,113c113,118
+111c112,113
 <         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
-<         logger.setLevel(Level.INFO);
-<         logger.addAppender(mockLogAppender);
 ---
->         // Instead of casting to a removed Logger type, obtain the logger via the LoggerContext
 >         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
->         // Attach the mock appender to the ROOT logger so that log events can be captured
->         ch.qos.logback.classic.Logger rootLogger = loggerContext.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
->         rootLogger.setLevel(Level.INFO);
->         rootLogger.addAppender(mockLogAppender);
+>         Logger logger = loggerContext.getLogger(EventMessageHandler.class.getName());

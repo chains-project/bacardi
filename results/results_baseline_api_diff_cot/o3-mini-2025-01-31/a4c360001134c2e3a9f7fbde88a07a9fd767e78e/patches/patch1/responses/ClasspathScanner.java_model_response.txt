@@ -1,14 +1,3 @@
-<repair_strategy>
-1. The API change removes the method apply(String) on the FilterBuilder type that was used to test whether a class name should be scanned.
-2. In the old API, FilterBuilder.include(String) returned an object that implemented a predicate-like method apply(String) (from Guava's Predicate), while the new version replaces that behavior with the standard java.util.function.Predicate interface method test(String).
-3. The client code uses apply(s) in two places in the shouldScan method. These calls now need to be replaced with test(s).
-4. The constraints require minimal code changes and not altering function signatures.
-5. The minimal change is to replace both invocations of .apply(s) with .test(s).
-6. No additional imports are necessary since java.util.function.Predicate is available by default.
-7. This change should keep the class fully compilable.
-8. The complete ClasspathScanner class is given below.
-</repair_strategy>
-
 ```java
 /*----------------------------------------------------------------
  *  Copyright (c) ThoughtWorks, Inc.

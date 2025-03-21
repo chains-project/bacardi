@@ -1,30 +1,13 @@
-<repair_strategy>
-1. The error occurs because the client code imports and instantiates TFramedTransport from the old package (org.apache.thrift.transport) which no longer exists. The new version of the dependency now provides a TFramedTransport in the package org.apache.thrift.transport.layered.
-2. The old API provided the class TFramedTransport with constructors that take a TTransport (or TTransport with an int parameter). The new API has removed the old class and moved the type reference (with the same signatures) to an interface in package org.apache.thrift.transport.layered.
-3. The client code instantiates TFramedTransport using:
-   new TFramedTransport(new TIOStreamTransport(byteOffsetInputStream), maxMessageSize);
-   and assigns it to a field declared as TFramedTransport. Both of these must now reference the type from org.apache.thrift.transport.layered.
-4. We must update the import statement for TFramedTransport from org.apache.thrift.transport.TFramedTransport to org.apache.thrift.transport.layered.TFramedTransport.
-5. Since the constructor taking (TTransport, int) remains available in the new API’s type reference, the instantiation code can remain unchanged except for the import update.
-6. The remaining code that calls methods like getBytesRemainingInBuffer(), consumeBuffer(), and close() on the framedTransport is assumed to be compatible with the new API.
-7. No change to public method signatures is needed.
-8. No additional changes are necessary; we only update the import statement and corresponding variable types.
-</repair_strategy>
-
-Below is the complete, fixed class:
-
---------------------------------------------------
-
 ```java
 /**
  * Copyright 2019 Pinterest, Inc.
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -46,11 +29,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-/**
- * Reader that reads Thrift messages of thrift type from a file
- * <p/>
- * This class is NOT thread-safe.
- */
 @SuppressWarnings("rawtypes")
 public class ThriftReader<T extends TBase> implements Closeable {
 
@@ -78,7 +56,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
   // The ByteOffsetInputStream to read from.
   private final ByteOffsetInputStream byteOffsetInputStream;
 
-  // The framedTransport instance.
+  // The framed transport.
   private final TFramedTransport framedTransport;
 
   // TProtocol implementation.
@@ -95,8 +73,9 @@ public class ThriftReader<T extends TBase> implements Closeable {
 
     this.byteOffsetInputStream = new ByteOffsetInputStream(
         new RandomAccessFile(path, "r"), readBufferSize);
-    this.framedTransport = new TFramedTransport(
-        new TIOStreamTransport(this.byteOffsetInputStream), maxMessageSize);
+    TTransport ioTransport = new TIOStreamTransport(this.byteOffsetInputStream);
+    this.framedTransport = (TFramedTransport) new TFramedTransport.Factory(maxMessageSize)
+        .getTransport(ioTransport);
     this.baseFactory = Preconditions.checkNotNull(baseFactory);
     this.protocol = protocolFactory.get(this.framedTransport);
   }
@@ -158,7 +137,3 @@ public class ThriftReader<T extends TBase> implements Closeable {
   }
 }
 ```
-
---------------------------------------------------
-
-This fix updates the import and variable types to use the new API in org.apache.thrift.transport.layered.TFramedTransport while leaving the rest of the functional logic intact.

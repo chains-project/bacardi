@@ -1,47 +1,3 @@
-<fix_planning>
-a. Relevant code:
-```java
-return (YamlNode) new Yaml(new Constructor(YamlNode.class)).load(in);
-```
-API changes:
-```
-Constructor org.yaml.snakeyaml.constructor.Constructor(org.yaml.snakeyaml.TypeDescription) has been removed in the new version of the dependency.
-Constructor org.yaml.snakeyaml.constructor.Constructor(java.lang.String) has been removed in the new version of the dependency.
-Constructor org.yaml.snakeyaml.constructor.Constructor() has been removed in the new version of the dependency.
-Constructor org.yaml.snakeyaml.constructor.Constructor(java.lang.Class) has been removed in the new version of the dependency.
-Constructor org.yaml.snakeyaml.constructor.Constructor(org.yaml.snakeyaml.TypeDescription,java.util.Collection) has been removed in the new version of the dependency.
-```
-
-b. The constructor `Constructor(java.lang.Class)` has been removed.
-
-c. Affected line:
-```java
-return (YamlNode) new Yaml(new Constructor(YamlNode.class)).load(in);
-```
-
-d. Potential fixes:
-
-   1. Use the default constructor `Constructor()` and then add a `TypeDescription` for `YamlNode`.
-   2. Use the `Yaml()` constructor without any arguments and rely on default behavior.
-
-e. Side effects:
-
-   1. Using the default constructor might require additional configuration to ensure that the YAML is correctly mapped to the `YamlNode` class.
-   2. Using the `Yaml()` constructor without arguments might change the default behavior of the YAML parsing.
-
-f. Constraints:
-
-   - Do not change the function signature of any method.
-   - You may create variables if it simplifies the code.
-   - Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
-   - If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
-   - Do not remove any existing code unless it directly causes a compilation or functionality error.
-   - Include all code, even unchanged portions, in your final output.
-
-g. Summary:
-
-The best solution is to use the `Yaml()` constructor without arguments. This is the simplest change and avoids the need to manually configure the `TypeDescription`. It also adheres to all the given constraints.
-
 ```java
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -70,6 +26,7 @@ import java.util.Map;
 import org.jclouds.byon.Node;
 import org.jclouds.util.Closeables2;
 import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
@@ -156,7 +113,10 @@ public class YamlNode {
          InputStream in = null;
          try {
             in = byteSource.openStream();
-            return (YamlNode) new Yaml().load(in);
+            LoaderOptions loaderOptions = new LoaderOptions();
+            Constructor constructor = new Constructor(YamlNode.class, loaderOptions);
+            Yaml yaml = new Yaml(constructor);
+            return (YamlNode) yaml.load(in);
          } catch (IOException ioe) {
             throw Throwables.propagate(ioe);
          } finally {

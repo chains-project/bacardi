@@ -34,13 +34,15 @@ import org.springframework.context.annotation.*;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
+import org.flywaydb.core.api.Location;
 
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.*;
-import org.flywaydb.core.api.configuration.ClassicConfiguration;
-import org.flywaydb.core.api.Location;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Configuration
 @ComponentScan(basePackages = {
@@ -107,27 +109,20 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final ClassicConfiguration configuration = new ClassicConfiguration();
-
-		final DriverManagerDataSource dataSource = (DriverManagerDataSource)this.dataSource();
-		final String url = dataSource.getUrl();
-		final String username = dataSource.getUsername();
-		final String password = dataSource.getPassword();
-
-		configuration.setDataSource(url, username, password);
+		ClassicConfiguration configuration = new ClassicConfiguration();
+		configuration.setDataSource(this.dataSource());
 		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
 
-		final String locationsString = prop.getProperty("flyway.locations");
-		final String[] locationsArray = locationsString.split(",");
-		final Location[] locations = new Location[locationsArray.length];
-		for (int i = 0; i < locationsArray.length; i++) {
-			locations[i] = new Location(locationsArray[i]);
-		}
-		configuration.setLocations(locations);
+		String locationsString = prop.getProperty("flyway.locations");
+		List<Location> locations = Stream.of(locationsString.split(","))
+				.map(String::trim)
+				.map(Location::new)
+				.collect(Collectors.toList());
+		configuration.setLocations(locations.toArray(new Location[0]));
 
 		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 
-		final org.flywaydb.core.Flyway flyway = new Flyway(configuration);
+		final Flyway flyway = new Flyway(configuration);
 		return flyway;
 	}
 

@@ -1,57 +1,79 @@
-7,8c7,8
+7,12c7,11
 < 
 < import org.spongepowered.api.command.CommandResult;
----
-> import org.spongepowered.api.command.Command;
-> import org.spongepowered.api.command.CommandExecutor;
-10,12c10,11
+< import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
+> import net.kyori.adventure.text.Component;
+> import static net.kyori.adventure.text.Component.text;
+> import org.spongepowered.api.command.CommandExecutor;
 > import org.spongepowered.api.command.parameter.CommandContext;
-> import org.spongepowered.api.command.parameter.Parameter;
+> import org.spongepowered.api.command.source.CommandSource;
 16,18d14
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 < import static org.spongepowered.api.text.Text.of;
 < 
-21a18
->     private static final Parameter.Key<String> SKIN_NAME_KEY = Parameter.key("skinName", String.class);
-24c21
-<     SelectCommand(ChangeSkinSponge plugin) {
----
->     public SelectCommand(ChangeSkinSponge plugin) {
-29c26,27
-<     public CommandResult execute(CommandSource src, CommandContext args) {
----
->     public int execute(CommandContext context) {
->         CommandSource src = context.cause().first(CommandSource.class).orElse(null);
-32c30
-<             return CommandResult.empty();
----
->             return 0;
-35c33
-<         String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
----
->         String skinName = context.requireOne(SKIN_NAME_KEY).toLowerCase().replace("skin-", "");
-40,41c38,39
+40c36
 <             Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
-<         } catch (NumberFormatException numberFormatException) {
 ---
 >             Task.builder().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
->         } catch (NumberFormatException e) {
-45c43
-<         return CommandResult.success();
----
->         return 1;
-48,50c46,47
-<     @Override
-<     public CommandSpec buildSpec() {
-<         return CommandSpec.builder()
----
->     public Command buildSpec() {
->         return Command.builder()
-52c49
+52c48
 <                 .arguments(string(of("skinName")))
 ---
->                 .addParameter(Parameter.string().key(SKIN_NAME_KEY).build())
+>                 .arguments(string(text("skinName")))
+54a51,103
+>     }
+> 
+>     private static Object string(Component component) {
+>         return component;
+>     }
+> 
+>     public static class CommandResult {
+>         public static CommandResult empty() {
+>             return new CommandResult();
+>         }
+> 
+>         public static CommandResult success() {
+>             return new CommandResult();
+>         }
+>     }
+> 
+>     public static class CommandSpec {
+>         private CommandExecutor executor;
+>         private Object arguments;
+>         private String permission;
+> 
+>         public static Builder builder() {
+>             return new Builder();
+>         }
+> 
+>         public static class Builder {
+>             private CommandExecutor executor;
+>             private Object arguments;
+>             private String permission;
+> 
+>             public Builder executor(CommandExecutor executor) {
+>                 this.executor = executor;
+>                 return this;
+>             }
+> 
+>             public Builder arguments(Object arguments) {
+>                 this.arguments = arguments;
+>                 return this;
+>             }
+> 
+>             public Builder permission(String permission) {
+>                 this.permission = permission;
+>                 return this;
+>             }
+> 
+>             public CommandSpec build() {
+>                 CommandSpec spec = new CommandSpec();
+>                 spec.executor = this.executor;
+>                 spec.arguments = this.arguments;
+>                 spec.permission = this.permission;
+>                 return spec;
+>             }
+>         }

@@ -20,5 +20,7 @@ import java.util.Map;
 
 interface PublisherFactory {
 
-  Publisher<Void> newPublisher(Map<String, String> params);
+  Publisher<PublishMetadata> newPublisher(Map<String, String> params);
+
+  class PublishMetadata {}
 }

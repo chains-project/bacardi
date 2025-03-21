@@ -3,8 +3,6 @@ package ml.peya.plugins.Learn;
 
 import java.util.ArrayList;
 
-import develop.p2p.lib.LearnMath;
-
 /**
  * 重みを突っ込む器。
  */
@@ -40,6 +38,11 @@ public class Neuron
         this.value = value;
     }
 
+    private double sigmoid(double x)
+    {
+        return 1 / (1 + Math.exp(-x));
+    }
+
     /**
      * ReLU関数で値を強めて出力系に入れる。
      *
@@ -48,7 +51,7 @@ public class Neuron
     public void input(ArrayList<Input> inputData)
     {
         inputData.parallelStream().forEachOrdered(input -> input(input.getWeightingValue()));
-        setValue(LearnMath.sigmoid(sum));
+        setValue(sigmoid(sum));
     }
 
     /**

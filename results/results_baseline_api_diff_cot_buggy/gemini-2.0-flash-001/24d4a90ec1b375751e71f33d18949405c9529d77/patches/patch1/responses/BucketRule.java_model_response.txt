@@ -1,35 +1,3 @@
-<fix_planning>
-a. Relevant parts of the code and API changes:
-- The code uses `com.jcabi.aspects.Tv`.
-- The API change states that `Class com.jcabi.aspects.Tv has been removed`.
-
-b. Specific API changes causing the issue:
-- The removal of the `com.jcabi.aspects.Tv` class.
-
-c. Affected lines of code:
-- `import com.jcabi.aspects.Tv;`
-- `RandomStringUtils.randomAlphabetic(Tv.FIVE)`
-
-d. Proposed potential fixes for each affected line:
-- `import com.jcabi.aspects.Tv;`: Remove this import statement as the class no longer exists.
-- `RandomStringUtils.randomAlphabetic(Tv.FIVE)`: Replace `Tv.FIVE` with the integer value it represents, which is 5.
-
-e. Potential side effects of the proposed changes:
-- Removing the import statement will resolve the compilation error.
-- Replacing `Tv.FIVE` with `5` will maintain the original functionality of generating a 5-character random string.
-
-f. Adherence to constraints:
-1. The function signatures of all methods remain unchanged.
-2. A variable is not created.
-3. The `@Override` annotation is not removed.
-4. No new imports are added.
-5. No existing code is removed except for the import statement.
-6. All code, including unchanged portions, is included in the final output.
-
-g. Final summary of the chosen fix:
-The best solution is to remove the import statement `import com.jcabi.aspects.Tv;` and replace `Tv.FIVE` with `5`. This resolves the compilation error caused by the missing class and maintains the original functionality of the code.
-</fix_planning>
-
 ```java
 /**
  * Copyright (c) 2012-2022, jcabi.com
@@ -50,8 +18,8 @@ The best solution is to remove the import statement `import com.jcabi.aspects.Tv
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
  * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- * COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+ * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)

@@ -1,28 +1,29 @@
-3a4,5
-> import com.fasterxml.jackson.databind.JsonNode;
-> import com.fasterxml.jackson.core.JsonProcessingException;
-28,30d29
+3a4
+> import com.fasterxml.jackson.databind.JavaType;
+26,29d26
+< import java.util.Optional;
+< 
 < import static io.simplelocalize.cli.TemplateKeys.LANGUAGE_TEMPLATE_KEY;
 < import static io.simplelocalize.cli.TemplateKeys.NAMESPACE_TEMPLATE_KEY;
-< 
-88c87,88
+88,89c85,86
 <     ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
+<     return exportResponse.getFiles();
 ---
->     JsonNode jsonNode = objectMapper.readTree(body);
->     ExportResponse exportResponse = objectMapper.treeToValue(jsonNode, ExportResponse.class);
-127,129c127,130
+>     JavaType type = objectMapper.getTypeFactory().constructCollectionType(List.class, DownloadableFile.class);
+>     return objectMapper.readValue(body, type);
+96c93
+<             .replace(NAMESPACE_TEMPLATE_KEY, optionalDownloadableFile.map(DownloadableFile::getNamespace).orElse(""))
+---
+>             .replace(NAMESPACE_TEMPLATE_KEY, optionalDownloadableFile.map(DownloadableFile::getNamespace).orElse("")))
+127c124,125
 <     Boolean passed = JsonPath.read(json, "$.data.passed");
-<     String message = JsonPath.read(json, "$.data.message");
-<     int status = JsonPath.read(json, "$.data.status");
 ---
->     JsonNode jsonNode = objectMapper.readTree(json);
->     Boolean passed = JsonPath.read(jsonNode.toString(), "$.data.passed");
->     String message = JsonPath.read(jsonNode.toString(), "$.data.message");
->     int status = JsonPath.read(jsonNode.toString(), "$.data.status");
-144c145
+>     JavaType type = objectMapper.getTypeFactory().constructType(Boolean.class);
+>     Boolean passed = objectMapper.readValue(json, type);
+144c142
 <       String message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH);
 ---
 >       String message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH));
-165,166d165
+165,166d162
 < 
 < 

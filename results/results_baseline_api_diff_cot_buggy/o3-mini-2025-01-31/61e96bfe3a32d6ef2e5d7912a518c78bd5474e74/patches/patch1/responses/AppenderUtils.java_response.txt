@@ -31,7 +31,6 @@ import org.apache.thrift.transport.TFastFramedTransport;
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.apache.thrift.transport.TTransport;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -51,31 +50,32 @@ public class AppenderUtils {
    */
   public static class LogMessageEncoder implements Encoder<LogMessage> {
 
+    private TTransport framedTransport;
+    private TProtocol protocol;
     private OutputStream os;
+    private Context context;
 
     @Override
-    public void init(OutputStream os) {
+    public void init(OutputStream os) throws IOException {
       this.os = os;
+      final int bufferCapacity = 10;
+      framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);
+      protocol = new TBinaryProtocol(framedTransport);
+    }
+
+    @Override
+    public void doEncode(LogMessage logMessage) throws IOException {
+      try {
+        logMessage.write(protocol);
+        framedTransport.flush();
+      } catch (TException e) {
+        throw new IOException(e);
+      }
     }
 
     @Override
     public byte[] headerBytes() {
       return null;
-    }
-
-    @Override
-    public byte[] encode(LogMessage logMessage) throws IOException {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      final int bufferCapacity = 10;
-      TTransport framedTransport = new TFastFramedTransport(new TIOStreamTransport(baos), bufferCapacity);
-      TProtocol protocol = new TBinaryProtocol(framedTransport);
-      try {
-        logMessage.write(protocol);
-        framedTransport.flush();
-        return baos.toByteArray();
-      } catch (TException e) {
-        throw new IOException(e);
-      }
     }
 
     @Override
@@ -85,7 +85,32 @@ public class AppenderUtils {
 
     @Override
     public void close() throws IOException {
-      // No resources to close
+      framedTransport.close();
+    }
+
+    @Override
+    public void setContext(Context context) {
+      this.context = context;
+    }
+
+    @Override
+    public Context getContext() {
+      return this.context;
+    }
+
+    @Override
+    public boolean isStarted() {
+      return true;
+    }
+
+    @Override
+    public void start() {
+      // no-op
+    }
+
+    @Override
+    public void stop() {
+      // no-op
     }
   }
 

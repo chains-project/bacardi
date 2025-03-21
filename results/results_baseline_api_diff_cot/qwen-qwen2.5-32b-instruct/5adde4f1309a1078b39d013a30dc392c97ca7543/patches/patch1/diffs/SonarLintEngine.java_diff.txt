@@ -1,29 +1,25 @@
 36,37d35
 < import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisConfiguration;
 < import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneGlobalConfiguration;
-42d39
-< import org.sonarsource.sonarlint.core.commons.progress.ProgressMonitor;
-46d42
+46c44
 < import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader.Configuration;
-49d44
-< import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginRequirementsCheckResult;
-67c62
+---
+> import org.sonarsource.sonarlint.core.plugin.commons.Configuration;
+67c65
 <     // The only instance of this singleton class
 ---
 >     // The only instance of this class
-77c72
+77c75
 <         this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, null);
 ---
 >         this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, logOutput);
-147c142
+147c145
 <                 pluginInstancesByKeys, new PluginInstancesLoader());
 ---
->                 pluginInstancesByKeys, pluginInstancesLoader);
-163c158
+>                 (pluginInstancesByKeys, pluginInstancesLoader);
+163c161
 <                 .addEnabledLanguages(globalConfig.getEnabledLanguages())
 ---
 >                 .addEnabledLanguages(List.of(Language.JAVA))
-223d217
+223d220
 <                                             logOutput),
-278a273
->     {

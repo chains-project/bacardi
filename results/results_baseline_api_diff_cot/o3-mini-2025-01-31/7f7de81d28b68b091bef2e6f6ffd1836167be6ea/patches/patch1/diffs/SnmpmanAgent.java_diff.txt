@@ -1,24 +1,92 @@
-62c62
+13c13
+< import org.snmp4j.agent.*;
+---
+> import org.snmp4j.agent.BaseAgent;
+16c16,18
+< import org.snmp4j.agent.mo.snmp.*;
+---
+> import org.snmp4j.agent.mo.snmp.DefaultMOContextScope;
+> import org.snmp4j.agent.mo.snmp.DefaultMOQuery;
+> import org.snmp4j.agent.mo.snmp.MOScope;
+26c28,34
+< import java.io.*;
+---
+> import java.io.BufferedReader;
+> import java.io.File;
+> import java.io.FileInputStream;
+> import java.io.FileNotFoundException;
+> import java.io.IOException;
+> import java.io.InputStreamReader;
+> import java.io.UnsupportedEncodingException;
+30c38,44
+< import java.util.*;
+---
+> import java.util.ArrayList;
+> import java.util.Collections;
+> import java.util.HashMap;
+> import java.util.List;
+> import java.util.Map;
+> import java.util.SortedMap;
+> import java.util.TreeMap;
+62c76
 <     private final List<ManagedObject> groups = new ArrayList<>();
 ---
->     private final List<ManagedObject<?>> groups = new ArrayList<>();
-266c266
+>     private final List<MOGroup> groups = new ArrayList<>();
+266c280
 <                     ManagedObject mo = server.lookup(new DefaultMOQuery(scope, false));
 ---
->                     ManagedObject<?> mo = server.lookup(new DefaultMOQuery(scope, false));
-357c357
+>                     Object mo = server.lookup(new DefaultMOQuery(scope, false));
+356,357c370,371
+<                 MOContextScope contextScope = new DefaultMOContextScope(new OctetString(), group.getScope());
 <                 ManagedObject other = server.lookup(new DefaultMOQuery(contextScope, false));
 ---
->                 ManagedObject<?> other = server.lookup(new DefaultMOQuery(contextScope, false));
-389c389
+>                 DefaultMOContextScope contextScope = new DefaultMOContextScope(new OctetString(), group.getScope());
+>                 Object other = server.lookup(new DefaultMOQuery(contextScope, false));
+373c387
+<         } catch (final DuplicateRegistrationException e) {
+---
+>         } catch (final Exception e) {
+379c393
+<      * Sets the private registry value of {@link DefaultMOServer} via reflection.
+---
+>      * Sets the private registry value of the server via reflection.
+383c397
+<      * @param group {@link ManagedObject} to register.
+---
+>      * @param group {@link MOGroup} to register.
+384a399
+>     @SuppressWarnings("unchecked")
+389c404
 <             final SortedMap<MOScope, ManagedObject> reg = server.getRegistry();
 ---
->             final SortedMap<MOScope, ManagedObject<?>> reg = server.getRegistry();
-440c440
+>             final SortedMap<MOScope, Object> reg = (SortedMap<MOScope, Object>) server.getRegistry();
+440c455
 <         ManagedObject query;
 ---
->         ManagedObject<?> query;
-489c489
+>         Object query;
+481d495
+< 
+489c503
 <         for (final ManagedObject mo : groups) {
 ---
->         for (final ManagedObject<?> mo : groups) {
+>         for (final MOGroup mo : groups) {
+501c515
+<     protected void addNotificationTargets(final SnmpTargetMIB snmpTargetMIB, final SnmpNotificationMIB snmpNotificationMIB) {
+---
+>     protected void addNotificationTargets(final org.snmp4j.agent.mo.snmp.SnmpTargetMIB snmpTargetMIB, final org.snmp4j.agent.mo.snmp.SnmpNotificationMIB snmpNotificationMIB) {
+507c521
+<     protected void addViews(final VacmMIB vacmMIB) {
+---
+>     protected void addViews(final org.snmp4j.agent.mo.snmp.VacmMIB vacmMIB) {
+544c558
+<     protected void addCommunities(final SnmpCommunityMIB snmpCommunityMIB) {
+---
+>     protected void addCommunities(final org.snmp4j.agent.mo.snmp.SnmpCommunityMIB snmpCommunityMIB) {
+559c573
+<     private void configureSnmpCommunity(final SnmpCommunityMIB snmpCommunityMIB, final Long context) {
+---
+>     private void configureSnmpCommunity(final org.snmp4j.agent.mo.snmp.SnmpCommunityMIB snmpCommunityMIB, final Long context) {
+578c592
+<         final SnmpCommunityMIB.SnmpCommunityEntryRow row = snmpCommunityMIB.getSnmpCommunityEntry().createRow(
+---
+>         final org.snmp4j.agent.mo.snmp.SnmpCommunityMIB.SnmpCommunityEntryRow row = snmpCommunityMIB.getSnmpCommunityEntry().createRow(

@@ -3,8 +3,8 @@ package com.premiumminds.billy.portugal.webservices.documents;
 import jakarta.jws.WebMethod;
 import jakarta.jws.WebParam;
 import jakarta.jws.WebResult;
-import jakarta.jws.WebService;
 import jakarta.jws.soap.SOAPBinding;
+import jakarta.jws.WebService;
 import jakarta.xml.bind.annotation.XmlSeeAlso;
 
 /**
@@ -20,7 +20,6 @@ import jakarta.xml.bind.annotation.XmlSeeAlso;
 })
 public interface FatcorewsPort {
 
-{
     /**
      * 
      * @param registerInvoiceRequest

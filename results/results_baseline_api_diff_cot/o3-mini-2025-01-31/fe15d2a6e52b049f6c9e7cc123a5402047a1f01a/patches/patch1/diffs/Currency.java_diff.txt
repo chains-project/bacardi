@@ -1,12 +1,64 @@
 8d7
 < 
-16c15
+16d14
 < import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
----
-> import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
-21d19
+21,42d18
 < 
-133c131
+< /**
+<  * <p>Java class for Currency complex type.
+<  * 
+<  * <p>The following schema fragment specifies the expected content contained within this class.
+<  * 
+<  * <pre>
+<  * &lt;complexType name="Currency"&gt;
+<  *   &lt;complexContent&gt;
+<  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+<  *       &lt;sequence&gt;
+<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}CurrencyCode"/&gt;
+<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}CurrencyAmount"/&gt;
+<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}ExchangeRate" minOccurs="0"/&gt;
+<  *       &lt;/sequence&gt;
+<  *     &lt;/restriction&gt;
+<  *   &lt;/complexContent&gt;
+<  * &lt;/complexType&gt;
+<  * </pre>
+<  * 
+<  * 
+<  */
+51a28,29
+>     private static final ToStringStrategy2 DEFAULT_TO_STRING_STRATEGY = new DefaultToStringStrategy();
+> 
+133c111
 <         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ---
->         final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+>         final ToStringStrategy2 strategy = DEFAULT_TO_STRING_STRATEGY;
+166a145,173
+>     private static class DefaultToStringStrategy implements ToStringStrategy2 {
+> 
+>         @Override
+>         public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+>             if (object != null) {
+>                 buffer.append(object.getClass().getSimpleName()).append(" [");
+>             } else {
+>                 buffer.append("[");
+>             }
+>             return buffer;
+>         }
+> 
+>         @Override
+>         public StringBuilder appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean isSet) {
+>             if (isSet) {
+>                 if (buffer.length() > 0 && buffer.charAt(buffer.length() - 1) != '[') {
+>                     buffer.append(", ");
+>                 }
+>                 buffer.append(fieldName).append("=").append(value);
+>             }
+>             return buffer;
+>         }
+> 
+>         @Override
+>         public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+>             buffer.append("]");
+>             return buffer;
+>         }
+>     }

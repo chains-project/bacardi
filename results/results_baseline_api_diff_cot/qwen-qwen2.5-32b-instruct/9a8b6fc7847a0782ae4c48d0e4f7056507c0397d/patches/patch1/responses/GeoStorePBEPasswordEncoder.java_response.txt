@@ -29,12 +29,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import org.jasypt.encryption.pbe.StandardPBEByteEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
-import org.jasypt.spring.security2.PBEPasswordEncoder; // Adjusted import
-
-import it.geosolutions.geostore.core.security.password.CharArrayPasswordEncoder;
-import it.geosolutions.geostore.core.security.password.KeyStoreProvider;
-import it.geosolutions.geostore.core.security.password.KeyStoreProviderImpl;
-import it.geosolutions.geostore.core.security.password.PasswordEncodingType;
+import org.jasypt.spring.security3.PBEStringEncryptor;
 
 /**
  * Password Encoder using symmetric encryption
@@ -104,10 +99,7 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			}
 			stringEncrypter.setAlgorithm(getAlgorithm());
 
-			PBEPasswordEncoder encoder = new PBEPasswordEncoder(); // Adjusted class name
-			encoder.setPbeStringEncryptor(stringEncrypter);
-
-			return encoder;
+			return stringEncrypter;
 		} finally {
 			scramble(password);
 			scramble(chars);
@@ -131,7 +123,7 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			@Override
 			public boolean isPasswordValid(String encPass, char[] rawPass,
 					Object salt) {
-				byte[] decoded = Base64.getDecoder().decode(removePrefix(encPass).getBytes());
+				byte[] decoded = Base64.getDecoder().decode(encPass.getBytes());
 				byte[] decrypted = byteEncrypter.decrypt(decoded);
 
 				char[] chars = toChars(decrypted);

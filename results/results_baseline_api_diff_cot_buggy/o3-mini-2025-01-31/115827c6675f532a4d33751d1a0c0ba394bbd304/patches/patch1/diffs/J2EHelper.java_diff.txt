@@ -4,7 +4,7 @@
 ---
 > import jakarta.servlet.DispatcherType;
 > import jakarta.servlet.FilterRegistration;
-37c37
-<         filter.setClients(fConf.getClients());
+77c77
+<                 .servlets().addFilter(filter.getClass().getName(), filter);
 ---
->         filter.setClientNames(fConf.getClients());
+>                 .servlets().addFilter(filter.getClass().getName(), (jakarta.servlet.Filter)(Object) filter);

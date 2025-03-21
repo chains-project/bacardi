@@ -1,20 +1,9 @@
-29a30,41
->     private static final class User {
->         private final String name;
-> 
->         User(String name) {
->             this.name = name;
->         }
-> 
->         String name() {
->             return this.name;
->         }
->     }
-> 
-55,57c67,68
-<                     @Override
-<                     public Optional<Authentication.User> user() {
+57c57,62
 <                         return Optional.of(new Authentication.User("alice"));
 ---
->                     public Optional<User> user() {
->                         return Optional.of(new User("alice"));
+>                         return Optional.of(new Authentication.User() {
+>                             @Override
+>                             public String name() {
+>                                 return "alice";
+>                             }
+>                         });

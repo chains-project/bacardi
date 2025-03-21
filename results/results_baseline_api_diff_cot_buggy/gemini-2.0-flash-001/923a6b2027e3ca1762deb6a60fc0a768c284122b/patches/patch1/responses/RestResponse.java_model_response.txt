@@ -1,46 +1,3 @@
-<fix_planning>
-a. Relevant parts of the code and API changes:
-- The code imports `org.hamcrest.Matchers`.
-- The error message indicates that `org.hamcrest.Matchers` cannot be found.
-- The API changes state that `Class org.hamcrest.Matchers has been removed in the new version of the dependency`.
-
-b. Specific API changes causing the issue:
-- The removal of the `org.hamcrest.Matchers` class.
-
-c. Affected lines of code:
-- `import org.hamcrest.Matchers;`
-- Several lines using `Matchers` class, such as:
-  - `RestResponse.assertBody(Matchers.containsString("hello, world!"))`
-  - `RestResponse.assertHeader("Content-Type", Matchers.hasItem("text/plain"))`
-  - `this.assertHeader(name, Matchers.hasItems(value))`
-  - `Matchers.not(Matchers.emptyIterableOf(String.class))`
-  - `cookie, Matchers.notNullValue()`
-
-d. Proposed potential fixes:
-- Remove the import statement `import org.hamcrest.Matchers;`.
-- Replace usages of `Matchers.containsString`, `Matchers.hasItem`, `Matchers.hasItems`, `Matchers.not`, `Matchers.emptyIterableOf`, and `Matchers.notNullValue` with alternatives from `org.hamcrest.CoreMatchers` or other appropriate Hamcrest classes.
-
-e. Potential side effects of the proposed changes:
-- Replacing `Matchers` methods with alternatives might require different import statements and could potentially change the behavior of the assertions if the replacement methods are not perfectly equivalent.
-
-f. Adherence to constraints:
-- The proposed changes do not change any function signatures.
-- New variables can be created if needed.
-- The `@Override` annotation is not present in the code.
-- Missing imports will be addressed.
-- No existing code will be removed unless it directly causes a compilation error.
-- All code will be included in the final output.
-
-g. Final summary of the chosen fix:
-The best solution is to remove the import statement `import org.hamcrest.Matchers;` and replace the usages of methods from the removed `Matchers` class with their equivalents from `org.hamcrest.CoreMatchers`. This addresses the compilation error while preserving the intended functionality of the assertions. Specifically:
-- `Matchers.containsString` becomes `org.hamcrest.CoreMatchers.containsString`
-- `Matchers.hasItem` becomes `org.hamcrest.CoreMatchers.hasItem`
-- `Matchers.hasItems` becomes `org.hamcrest.CoreMatchers.hasItems`
-- `Matchers.not` becomes `org.hamcrest.CoreMatchers.not`
-- `Matchers.emptyIterableOf(String.class)` becomes `org.hamcrest.CoreMatchers.notNullValue(Iterable.class)` and requires changing the `not` matcher to `org.hamcrest.CoreMatchers.notNullValue`
-- `Matchers.notNullValue()` becomes `org.hamcrest.CoreMatchers.notNullValue()`
-</fix_planning>
-
 ```java
 /*
  * Copyright (c) 2011-2017, jcabi.com
@@ -61,8 +18,8 @@ The best solution is to remove the import statement `import org.hamcrest.Matcher
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
  * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- * COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+ * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
@@ -89,7 +46,10 @@ import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.CoreMatchers;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.emptyIterableOf;
+import static org.hamcrest.Matchers.notNullValue;
 
 /**
  * REST response.
@@ -251,7 +211,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, CoreMatchers.hasItems(value));
+        return this.assertHeader(name, hasItems(value));
     }
 
     /**
@@ -287,7 +247,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            CoreMatchers.not(CoreMatchers.notNullValue(Iterable.class))
+            not(emptyIterableOf(String.class))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -325,7 +285,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            CoreMatchers.notNullValue()
+            notNullValue()
         );
         assert cookie != null;
         return cookie;

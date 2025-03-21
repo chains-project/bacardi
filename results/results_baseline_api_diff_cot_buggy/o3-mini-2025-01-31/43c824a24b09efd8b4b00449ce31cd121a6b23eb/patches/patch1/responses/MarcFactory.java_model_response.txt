@@ -62,10 +62,12 @@ public class MarcFactory {
 
   public static BibliographicRecord create(JsonPathCache cache, MarcVersion version) {
     var marcRecord = new Marc21Record();
-    for (String branch : schema.getPaths()) {
-      // In the previous version, branches with a non-null parent were skipped.
-      // With the new API, we assume that schema.getPaths() returns top-level keys.
-      switch (branch) {
+    // Adapt to new API: schema.getPaths() now returns List<String>
+    for (String path : schema.getPaths()) {
+      JsonBranch branch = new JsonBranch(path);
+      if (branch.getParent() != null)
+        continue;
+      switch (branch.getLabel()) {
         case "leader":
           marcRecord.setLeader(new Leader(extractFirst(cache, branch)));
           break;
@@ -79,24 +81,27 @@ public class MarcFactory {
           marcRecord.setControl005(new Control005(extractFirst(cache, branch), marcRecord));
           break;
         case "006":
-          marcRecord.setControl006(new Control006(extractFirst(cache, branch), marcRecord));
+          marcRecord.setControl006(
+            new Control006(extractFirst(cache, branch), marcRecord));
           break;
         case "007":
-          marcRecord.setControl007(new Control007(extractFirst(cache, branch), marcRecord));
+          marcRecord.setControl007(
+            new Control007(extractFirst(cache, branch), marcRecord));
           break;
         case "008":
-          marcRecord.setControl008(new Control008(extractFirst(cache, branch), marcRecord));
+          marcRecord.setControl008(
+            new Control008(extractFirst(cache, branch), marcRecord));
           break;
         default:
-          JSONArray fieldInstances = (JSONArray) cache.getFragment(branch);
-          for (int fieldInstanceNr = 0; fieldInstanceNr < fieldInstances.size(); fieldInstanceNr++) {
-            var fieldInstance = (Map) fieldInstances.get(fieldInstanceNr);
+          JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());
+          for (var fieldInsanceNr = 0; fieldInsanceNr < fieldInstances.size(); fieldInsanceNr++) {
+            var fieldInstance = (Map) fieldInstances.get(fieldInsanceNr);
             var field = MapToDatafield.parse(fieldInstance, version);
             if (field != null) {
               marcRecord.addDataField(field);
               field.setMarcRecord(marcRecord);
             } else {
-              marcRecord.addUnhandledTags(branch);
+              marcRecord.addUnhandledTags(branch.getLabel());
             }
           }
           break;
@@ -305,8 +310,8 @@ public class MarcFactory {
     return field;
   }
 
-  private static List<String> extractList(JsonPathCache cache, String branch) {
-    List<XmlFieldInstance> instances = cache.get(branch);
+  private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
+    List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
     List<String> values = new ArrayList<>();
     if (instances != null)
       for (XmlFieldInstance instance : instances)
@@ -314,7 +319,7 @@ public class MarcFactory {
     return values;
   }
 
-  private static String extractFirst(JsonPathCache cache, String branch) {
+  private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
     List<String> list = extractList(cache, branch);
     if (!list.isEmpty())
       return list.get(0);
@@ -476,6 +481,29 @@ public class MarcFactory {
     if (id != null)
       marc4jRecord.addVariableField(new ControlFieldImpl("001", id));
     return marc4jRecord;
+  }
+  
+  // Local compatibility class to replace the removed de.gwdg.metadataqa.api.json.JsonBranch
+  private static class JsonBranch {
+    private final String label;
+
+    public JsonBranch(String label) {
+      this.label = label;
+    }
+
+    public Object getParent() {
+      // In the new API, the concept of parent is removed; assume root branch.
+      return null;
+    }
+
+    public String getLabel() {
+      return label;
+    }
+
+    public String getJsonPath() {
+      // In the new API, we assume that the label itself can serve as the json path.
+      return label;
+    }
   }
 }
 ```

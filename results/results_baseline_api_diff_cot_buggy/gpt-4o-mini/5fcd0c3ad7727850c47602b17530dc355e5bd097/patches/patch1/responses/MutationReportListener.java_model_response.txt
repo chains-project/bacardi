@@ -11,6 +11,7 @@ import org.pitest.elements.utils.JsonParser;
 import org.pitest.util.FileUtil;
 import org.pitest.util.ResultOutputStrategy;
 import org.pitest.classinfo.ClassName; // Added import for ClassName
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
@@ -102,9 +103,9 @@ public class MutationReportListener implements MutationResultListener {
 
   private MutationTestSummaryData createSummaryData(
       final CoverageDatabase coverage, final ClassMutationResults data) {
-    ClassName mutatedClass = data.getMutatedClass(); // Store mutated class
+    ClassName mutatedClass = data.getMutatedClass(); // Create variable for mutatedClass
     return new MutationTestSummaryData(data.getFileName(),
-        data.getMutations(), coverage.getClassInfo(Collections.singleton(mutatedClass))); // Updated to use ClassName
+        data.getMutations(), coverage.getClassInfo(mutatedClass, null, 0)); // Updated method call
   }
 
   private void updatePackageSummary(

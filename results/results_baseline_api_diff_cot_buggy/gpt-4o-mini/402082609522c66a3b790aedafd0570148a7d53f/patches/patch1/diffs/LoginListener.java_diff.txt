@@ -1,6 +1,10 @@
-13a14
-> import org.spongepowered.api.event.network.ClientConnectionEvent.Login; // Updated import
-29c30
+29c29
 <     public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
 ---
->     public void onPlayerPreLogin(Login preLoginEvent) { // Updated event type
+>     public void onPlayerPreLogin(ClientConnectionEvent.Login preLoginEvent) {
+45c45
+<             String playerName = profile.getName().get();
+---
+>             String playerName = profile.getName().orElse("Unknown");
+61d60
+<     @Override

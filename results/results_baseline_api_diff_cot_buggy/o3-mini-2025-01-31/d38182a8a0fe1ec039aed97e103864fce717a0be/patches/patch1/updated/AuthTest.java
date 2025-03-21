@@ -17,6 +17,7 @@ import com.artipie.http.Slice;
 import com.artipie.http.auth.Authentication;
 import com.artipie.http.auth.AuthUser;
 import com.artipie.http.auth.BasicAuthScheme;
+import com.artipie.http.auth.BearerAuthScheme;
 import com.artipie.http.auth.Permissions;
 import com.artipie.http.headers.Authorization;
 import com.artipie.http.headers.Header;
@@ -28,7 +29,6 @@ import com.artipie.http.rs.RsStatus;
 import io.reactivex.Flowable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 import org.hamcrest.MatcherAssert;
@@ -351,7 +351,7 @@ public final class AuthTest {
                     token -> CompletableFuture.completedFuture(
                         Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
                             .filter(user -> token.equals(token(user)))
-                            .map(user -> new TestAuthUser(user.name()))
+                            .map(user -> new AuthUserImpl(user.name()))
                             .findFirst()
                     ),
                     ""
@@ -376,10 +376,13 @@ public final class AuthTest {
         }
     }
     
-    private static final class TestAuthUser implements AuthUser {
+    /**
+     * Minimal implementation of the AuthUser interface for the updated authentication API.
+     */
+    private static final class AuthUserImpl implements AuthUser {
         private final String name;
 
-        TestAuthUser(final String name) {
+        AuthUserImpl(final String name) {
             this.name = name;
         }
 

@@ -1,8 +1,11 @@
 9d8
 < 
-12d10
+12c11,12
 < 
-14,19c12,15
+---
+> import net.kyori.adventure.text.Component;
+> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+14,19c14,17
 < import org.spongepowered.api.command.CommandException;
 < import org.spongepowered.api.command.CommandResult;
 < import org.spongepowered.api.command.CommandSource;
@@ -14,61 +17,81 @@
 > import org.spongepowered.api.command.CommandExecutor;
 > import org.spongepowered.api.command.exception.CommandException;
 > import org.spongepowered.api.command.parameter.CommandContext;
-21,23c17,18
+21,23d18
 < import org.spongepowered.api.scheduler.Task;
 < import org.spongepowered.api.text.Text;
 < import org.spongepowered.api.text.serializer.TextSerializers;
----
-> import net.kyori.adventure.text.Component;
-> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 33d27
 < 
-35,38c29,33
-<     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+36c30
 <         if (!(src instanceof Player)) {
-<             plugin.sendMessage(src, "no-console");
-<             return CommandResult.empty();
 ---
->     public void execute(CommandContext args) throws CommandException {
->         Optional<Player> playerOpt = args.cause().first(Player.class);
->         if (!playerOpt.isPresent()) {
->             plugin.sendMessage(args.cause(), "no-console");
->             return;
-41,47c36,37
-<         UUID uniqueId = ((Player) src).getUniqueId();
+>         if (!Player.class.isInstance(src)) {
+42,43c36
 <         Task.builder().async()
 <                 .execute(() -> {
-<                     UserPreference preferences = plugin.getCore().getStorage().getPreferences(uniqueId);
+---
+>         Sponge.server().scheduler().executor(plugin).submit(() -> {
+45,47c38,39
 <                     Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).submit(plugin);
 <                 })
 <                 .submit(plugin);
 ---
->         Player player = playerOpt.get();
->         UUID uniqueId = player.uniqueId();
-49c39,42
-<         return CommandResult.success();
----
->         Sponge.server().scheduler().executor(plugin).submit(() -> {
->             UserPreference preferences = plugin.getCore().getStorage().getPreferences(uniqueId);
 >             Sponge.server().scheduler().executor(plugin).submit(() -> sendSkinDetails(uniqueId, preferences));
 >         });
-52,54c45,46
+52d43
 <     @Override
-<     public CommandSpec buildSpec() {
+54c45
 <         return CommandSpec.builder()
 ---
->     public Command buildSpec() {
->         return Command.builder()
-61c53,55
+>         Command cmd = Command.builder()
+57a49
+>         return new CommandSpecWrapper(cmd);
+61c53
 <         Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
 ---
->         Optional<Player> optPlayer = Sponge.server().onlinePlayers().stream()
->                 .filter(p -> p.uniqueId().equals(uuid))
->                 .findFirst();
-69,71c63,64
-< 
+>         Optional<Player> optPlayer = Sponge.server().player(uuid);
+70c62
 <                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
-<                 player.sendMessage(text);
 ---
->                 Component component = LegacyComponentSerializer.legacyAmpersand().deserialize(formatted);
->                 player.sendMessage(component);
+>                 Component text = LegacyComponentSerializer.legacyAmpersand().deserialize(formatted);
+74a67,105
+>         }
+>     }
+> 
+>     // Compatibility stub to replace the removed CommandSource type.
+>     public static interface CommandSource {
+>     }
+> 
+>     // Minimal compatibility implementation for CommandResult.
+>     public static class CommandResult {
+>         private final boolean success;
+> 
+>         private CommandResult(boolean success) {
+>             this.success = success;
+>         }
+> 
+>         public static CommandResult empty() {
+>             return new CommandResult(false);
+>         }
+> 
+>         public static CommandResult success() {
+>             return new CommandResult(true);
+>         }
+>     }
+> 
+>     // Stub interface for CommandSpec that extends the new Command interface.
+>     public static interface CommandSpec extends Command {
+>     }
+> 
+>     // Wrapper to adapt a Command from the new API into our CommandSpec.
+>     private static class CommandSpecWrapper implements CommandSpec {
+>         private final Command command;
+> 
+>         CommandSpecWrapper(Command command) {
+>             this.command = command;
+>         }
+> 
+>         @Override
+>         public CommandResult process(CommandContext context) throws CommandException {
+>             return command.process(context);

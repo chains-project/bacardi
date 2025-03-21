@@ -42,8 +42,8 @@ public class Signer {
         boolean visibleSignature = params.getPage() != null;
         //https://github.com/apache/pdfbox/blob/trunk/examples/src/main/java/org/apache/pdfbox/examples/signature/CreateVisibleSignature2.java
         //https://ec.europa.eu/cefdigital/DSS/webapp-demo/doc/dss-documentation.html
-        //load PDF file in DSSDocument format
-        DSSDocument toSignDocument = new FileDocument(pdfFile.toFile());
+        //load PDF file
+        //PDDocument doc = PDDocument.load(pdfFile.toFile());
 
         //load certificate and private key
         JKSSignatureToken signingToken = new JKSSignatureToken(keyStore, new KeyStore.PasswordProtection(keyStorePassword));
@@ -64,9 +64,7 @@ public class Signer {
         } else {
             signatureParameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_B);
         }
-        // CertificationPermission.MINIMAL_CHANGES_PERMITTED is removed, so we need to find an alternative.
-        // Assuming the requirement is to allow minimal changes, we can set the permission to false for full document encryption.
-        signatureParameters.setDocumentTimestamp(false);
+        //signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
 
         // Create common certificate verifier
         CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
@@ -149,7 +147,7 @@ public class Signer {
         // private key and specified algorithm
         DigestAlgorithm digestAlgorithm = signatureParameters.getDigestAlgorithm();
         log.debug("Data to be signed loaded");
-        SignatureValue signatureValue = signingToken.sign(dataToSign, digestAlgorithm, signingToken.getKey(keyAlias));
+        SignatureValue signatureValue = signingToken.sign(dataToSign, digestAlgorithm, signingToken.getKey("alias"));
 
         /*if (service.isValidSignatureValue(dataToSign, signatureValue, signingToken.getKey("alias").getCertificate())) {
             log.debug("is true");

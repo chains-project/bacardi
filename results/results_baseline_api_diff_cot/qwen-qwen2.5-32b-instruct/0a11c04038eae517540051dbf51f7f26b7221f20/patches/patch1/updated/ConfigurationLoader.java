@@ -24,12 +24,14 @@ public final class ConfigurationLoader
 
   public Configuration loadOrGetDefault(Path configurationFilePath)
   {
+    ConfigurationLoader configurationLoader = new ConfigurationLoader();
+
     if (configurationFilePath == null)
     {
       configurationFilePath = DEFAULT_CONFIG_FILE_NAME;
     }
 
-    return load(configurationFilePath);
+    return configurationLoader.load(configurationFilePath);
   }
 
   private Configuration load(Path configurationFilePath)

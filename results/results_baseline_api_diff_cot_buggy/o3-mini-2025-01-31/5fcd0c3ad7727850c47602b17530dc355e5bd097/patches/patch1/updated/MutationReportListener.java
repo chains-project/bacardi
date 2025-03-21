@@ -9,22 +9,24 @@ import org.pitest.elements.models.PackageSummaryMap;
 import org.pitest.elements.utils.JsonParser;
 import org.pitest.util.FileUtil;
 import org.pitest.util.ResultOutputStrategy;
+import org.pitest.classinfo.ClassInfoVisitor;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.io.InputStream;
-import java.io.ByteArrayOutputStream;
-import org.pitest.classinfo.ClassName;
-import org.pitest.classinfo.ClassInfoVisitor;
 
 public class MutationReportListener implements MutationResultListener {
 
   private final ResultOutputStrategy outputStrategy;
+
   private final JsonParser jsonParser;
-  private final CoverageDatabase coverage;
+
+  private final CoverageDatabase  coverage;
   private final PackageSummaryMap packageSummaryData = new PackageSummaryMap();
 
   private static final String HTML_PAGE = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n"
@@ -54,7 +56,8 @@ public class MutationReportListener implements MutationResultListener {
       final ResultOutputStrategy outputStrategy, final SourceLocator... locators) {
     this.coverage = coverage;
     this.outputStrategy = outputStrategy;
-    this.jsonParser = new JsonParser(new HashSet<>(Arrays.asList(locators)));
+    this.jsonParser = new JsonParser(
+        new HashSet<>(Arrays.asList(locators)));
   }
 
   private String loadMutationTestElementsJs() throws IOException {
@@ -64,7 +67,8 @@ public class MutationReportListener implements MutationResultListener {
 
   private void createHtml() {
     final String content = HTML_PAGE;
-    final Writer writer = this.outputStrategy.createWriterForFile("html2" + File.separatorChar + "index.html");
+    final Writer writer = this.outputStrategy
+        .createWriterForFile("html2" + File.separatorChar + "index.html");
     try {
       writer.write(content);
       writer.close();
@@ -74,8 +78,10 @@ public class MutationReportListener implements MutationResultListener {
   }
 
   private void createJs(final String json) {
-    final String content = "document.querySelector('mutation-test-report-app').report = " + json;
-    final Writer writer = this.outputStrategy.createWriterForFile("html2" + File.separatorChar + "report.js");
+    final String content =
+        "document.querySelector('mutation-test-report-app').report = " + json;
+    final Writer writer = this.outputStrategy
+        .createWriterForFile("html2" + File.separatorChar + "report.js");
     try {
       writer.write(content);
       writer.close();
@@ -85,7 +91,8 @@ public class MutationReportListener implements MutationResultListener {
   }
   
   private void createMutationTestingElementsJs() {
-    final Writer writer = this.outputStrategy.createWriterForFile("html2" + File.separatorChar + "mutation-test-elements.js");
+    final Writer writer = this.outputStrategy
+      .createWriterForFile("html2" + File.separatorChar + "mutation-test-elements.js");
     try {
       final String content = this.loadMutationTestElementsJs();
       writer.write(content);
@@ -95,17 +102,18 @@ public class MutationReportListener implements MutationResultListener {
     }
   }
 
-  private MutationTestSummaryData createSummaryData(final CoverageDatabase coverage, final ClassMutationResults data) {
-    return new MutationTestSummaryData(
-        data.getFileName(),
-        data.getMutations(),
-        getClassInfoFor(data.getMutatedClass())
-    );
+  private MutationTestSummaryData createSummaryData(
+      final CoverageDatabase coverage, final ClassMutationResults data) {
+    return new MutationTestSummaryData(data.getFileName(),
+        data.getMutations(), getClassInfo(data));
   }
 
-  private void updatePackageSummary(final ClassMutationResults mutationMetaData) {
+  private void updatePackageSummary(
+      final ClassMutationResults mutationMetaData) {
     final String packageName = mutationMetaData.getPackageName();
-    this.packageSummaryData.update(packageName, createSummaryData(this.coverage, mutationMetaData));
+
+    this.packageSummaryData.update(packageName,
+        createSummaryData(this.coverage, mutationMetaData));
   }
 
   @Override
@@ -130,30 +138,31 @@ public class MutationReportListener implements MutationResultListener {
     }
   }
   
-  private Object getClassInfoFor(ClassName className) {
+  private Object getClassInfo(final ClassMutationResults data) {
     try {
-      byte[] classBytes = loadClassBytes(className);
+      String resourcePath = data.getMutatedClass().asJavaName().replace('.', '/') + ".class";
+      InputStream in = this.getClass().getClassLoader().getResourceAsStream(resourcePath);
+      if (in == null) {
+        return null;
+      }
+      byte[] bytes = readAllBytes(in);
       long timestamp = 0L;
-      return ClassInfoVisitor.getClassInfo(className, classBytes, timestamp);
+      ClassInfoVisitor visitor = new ClassInfoVisitor();
+      return visitor.getClassInfo(data.getMutatedClass(), bytes, timestamp);
     } catch (IOException e) {
       e.printStackTrace();
       return null;
     }
   }
   
-  private byte[] loadClassBytes(ClassName className) throws IOException {
-    String resourceName = className.asJavaName().replace('.', '/') + ".class";
-    try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(resourceName)) {
-      if (is == null) {
-        throw new IOException("Unable to load class resource: " + resourceName);
-      }
-      ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-      int nRead;
-      byte[] dataBuffer = new byte[1024];
-      while ((nRead = is.read(dataBuffer, 0, dataBuffer.length)) != -1) {
-        buffer.write(dataBuffer, 0, nRead);
-      }
-      return buffer.toByteArray();
+  private byte[] readAllBytes(InputStream input) throws IOException {
+    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+    int nRead;
+    byte[] data = new byte[16384];
+    while ((nRead = input.read(data, 0, data.length)) != -1) {
+      buffer.write(data, 0, nRead);
     }
+    buffer.flush();
+    return buffer.toByteArray();
   }
 }

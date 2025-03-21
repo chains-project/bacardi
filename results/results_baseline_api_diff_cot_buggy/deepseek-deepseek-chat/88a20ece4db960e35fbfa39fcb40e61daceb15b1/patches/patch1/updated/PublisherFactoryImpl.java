@@ -44,10 +44,12 @@ class PublisherFactoryImpl implements PublisherFactory {
             .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
             .build();
     builder.setTopic(topic);
-    builder.setPublisher(
-        SinglePartitionPublisherBuilder.newBuilder()
-            .setTopic(topic)
-            .build());
+    builder.setPublisherFactory(
+        partition ->
+            SinglePartitionPublisherBuilder.newBuilder()
+                .setTopic(topic)
+                .setPartition(partition)
+                .build());
     return builder.build();
   }
 }

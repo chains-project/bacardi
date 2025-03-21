@@ -27,6 +27,7 @@ import org.jclouds.util.Closeables2;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.LoaderOptions;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
@@ -111,7 +112,8 @@ public class YamlNode {
          InputStream in = null;
          try {
             in = byteSource.openStream();
-            return (YamlNode) new Yaml().load(in);
+            LoaderOptions loaderOptions = new LoaderOptions();
+            return new Yaml(new Constructor(YamlNode.class, loaderOptions)).load(in);
          } catch (IOException ioe) {
             throw Throwables.propagate(ioe);
          } finally {
@@ -124,7 +126,7 @@ public class YamlNode {
       return byteSourceToYamlNode.apply(in);
    }
 
-   public static final Function<YamlNode, ByteSource) yamlNodeToByteSource = new Function<YamlNode, ByteSource>() {
+   public static final Function<YamlNode, ByteSource> yamlNodeToByteSource = new Function<YamlNode, ByteSource>() {
       @Override
       public ByteSource apply(YamlNode in) {
          if (in == null)

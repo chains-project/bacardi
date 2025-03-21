@@ -1,7 +1,6 @@
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -53,7 +52,6 @@ import java.util.function.*;
 @EnableTransactionManagement
 public class NisAppConfig {
 
-{
 	@Autowired
 	private AccountDao accountDao;
 
@@ -102,21 +100,20 @@ public class NisAppConfig {
 		return dataSource;
 	}
 
-	@Bean(initMethod = "migrate")
+	@Bean
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		ClassicConfiguration config = new ClassicConfiguration();
-		config.setDataSource(this.dataSource());
-		config.setLocations(prop.getProperty("flyway.locations").split(","));
-		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		config.setClassLoader(NisAppConfig.class.getClassLoader());
-
-		return new Flyway(config);
+		final Flyway flyway = new Flyway(new org.flywaydb.core.api.configuration.Configuration());
+		flyway.setDataSource(this.dataSource());
+		flyway.setLocations(prop.getProperty("flyway.locations").split(","));
+		flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		return flyway;
 	}
 
 	@Bean
+	@DependsOn("flyway")
 	public SessionFactory sessionFactory() throws IOException {
 		return SessionFactoryLoader.load(this.dataSource());
 	}
@@ -333,8 +330,8 @@ public class NisAppConfig {
 	private Supplier<WeightedBalances> weighedBalancesSupplier() {
 		final Map<BlockChainFeature, Supplier<Supplier<WeightedBalances>>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<WeightedBalances>>>() {
 			{
-				this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
-				this.put(BlockChainFeature.WB_IMMEDIATE_VESTINGING, () -> AlwaysVestedBalances::new);
+				this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
+				this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
 			}
 		};
 

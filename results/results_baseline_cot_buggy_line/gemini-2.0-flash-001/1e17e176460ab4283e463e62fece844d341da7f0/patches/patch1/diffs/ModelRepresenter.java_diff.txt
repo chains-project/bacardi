@@ -1,7 +1,31 @@
-37a38
+1,7d0
+< /**
+<  * Copyright (c) 2012 to original author or authors
+<  * All rights reserved. This program and the accompanying materials
+<  * are made available under the terms of the Eclipse Public License v1.0
+<  * which accompanies this distribution, and is available at
+<  * http://www.eclipse.org/legal/epl-v10.html
+<  */
+37a31
 >     super();
-218,219c219
+218,220c212,213
 <   protected Set<Property> getProperties(Class<? extends Object> type)
 <           throws IntrospectionException {
+<     if (type.isAssignableFrom(Model.class)) {
 ---
->   protected Set<Property> getProperties(Class<? extends Object> type) throws IntrospectionException {
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+>     try {
+222,231c215,216
+<     } else if (type.isAssignableFrom(Developer.class)) {
+<       return sortTypeWithOrder(type, ORDER_DEVELOPER);
+<     } else if (type.isAssignableFrom(Contributor.class)) {
+<       return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
+<     }  else if (type.isAssignableFrom(Dependency.class)) {
+<       return sortTypeWithOrder(type, ORDER_DEPENDENCY);
+<     }  else if (type.isAssignableFrom(Plugin.class)) {
+<       return sortTypeWithOrder(type, ORDER_PLUGIN);
+<     } else {
+<       return super.getProperties(type);
+---
+>     } catch (IntrospectionException e) {
+>       throw new RuntimeException(e);

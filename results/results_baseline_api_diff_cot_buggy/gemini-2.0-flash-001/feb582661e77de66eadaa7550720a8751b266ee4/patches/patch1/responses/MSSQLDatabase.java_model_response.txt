@@ -1,44 +1,10 @@
-<fix_planning>
-a. Code and API changes:
-The code has the following line:
-```java
-ExecutorService.getInstance().getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
-```
-The API changes indicate that `liquibase.executor.ExecutorService.getInstance()` has been removed. A new method `liquibase.executor.ExecutorService.getExecutor(java.lang.String,liquibase.database.Database)` has been added. Also, the interface `liquibase.executor.ExecutorService` has been removed.
-
-b. Specific API changes causing the issue:
-The removal of `ExecutorService.getInstance()` is the direct cause of the compilation error.
-
-c. Affected lines of code:
-```java
-ExecutorService.getInstance().getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
-```
-
-d. Proposed fixes:
-Since `ExecutorService.getInstance()` is removed, we need to find an alternative way to get an `Executor`. The new API provides `ExecutorService.getExecutor(java.lang.String,liquibase.database.Database)`. However, since the `ExecutorService` interface is also removed, we cannot directly call the static method `getExecutor`. We need to find a way to access an implementation of the Executor.
-
-Since we cannot instantiate the ExecutorService directly, we need to find another way to get the executor. After further investigation, it seems that the `ExecutorService` is now managed internally, and we can get the executor using `liquibase.Scope.getCurrentScope().getSingleton(liquibase.executor.Executor.class, database)`.
-
-Therefore, the proposed fix is to replace the line with:
-```java
-liquibase.Scope.getCurrentScope().getSingleton(liquibase.executor.Executor.class, this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
-```
-
-e. Potential side effects:
-This change relies on the `liquibase.Scope` which might have its own lifecycle and could potentially introduce issues if not properly initialized or managed. However, this seems to be the intended way to access the executor in the new version.
-
-f. Adherence to constraints:
-The proposed change does not change the function signature. It creates no new methods. It only modifies the line causing the error. It adheres to all given constraints.
-
-g. Summary:
-The best solution is to use `liquibase.Scope.getCurrentScope().getSingleton(liquibase.executor.Executor.class, this)` to get the executor, as `ExecutorService.getInstance()` is no longer available. This aligns with the new API and resolves the compilation error.
-</fix_planning>
-
 ```java
 package liquibase.ext.mssql.database;
 
 import liquibase.CatalogAndSchema;
 import liquibase.exception.LiquibaseException;
+import liquibase.database.Database;
+import liquibase.Scope;
 import liquibase.ext.mssql.statement.DropStoredProcedureStatement;
 
 public class MSSQLDatabase extends liquibase.database.core.MSSQLDatabase {
@@ -51,7 +17,8 @@ public class MSSQLDatabase extends liquibase.database.core.MSSQLDatabase {
     @Override
     public void dropDatabaseObjects(CatalogAndSchema schemaToDrop) throws LiquibaseException {
         super.dropDatabaseObjects(schemaToDrop);
-        liquibase.Scope.getCurrentScope().getSingleton(liquibase.executor.Executor.class, this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+        Database database = this;
+        Scope.getCurrentScope().getSingleton(liquibase.executor.ExecutorService.class).getExecutor(database).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
     }
 }
 ```

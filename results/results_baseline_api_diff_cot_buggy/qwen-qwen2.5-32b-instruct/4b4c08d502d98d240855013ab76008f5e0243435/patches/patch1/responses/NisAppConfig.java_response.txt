@@ -106,21 +106,19 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final ClassicConfiguration configuration = new ClassicConfiguration();
-		configuration.setDataSource(this.dataSource());
-		configuration.setLocations(new Location[]{new Location(prop.getProperty("flyway.locations"))});
-		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+		final ClassicConfiguration config = new ClassicConfiguration();
+		config.setDataSource(this.dataSource());
+		config.setLocations(prop.getProperty("flyway.locations").split(","));
+		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		config.setClassLoader(NisAppConfig.class.getClassLoader());
 
-		return new Flyway(configuration);
-	}
-
-	@Bean(initMethod = "migrate")
-	public Flyway flywayInstance() throws IOException {
-		return flyway();
+		final Flyway flyway = new Flyway(config);
+		flyway.migrate();
+		return flyway;
 	}
 
 	@Bean
+	@DependsOn("flyway")
 	public SessionFactory sessionFactory() throws IOException {
 		return SessionFactoryLoader.load(this.dataSource());
 	}
@@ -200,20 +198,6 @@ public class NisAppConfig {
 
 	// endregion
 
-	// region mappers
-
-	@Bean
-	public BlockChainUpdater blockChainUpdater() {
-		return new BlockChainUpdater(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainContextFactory(),
-				this.unconfirmedTransactions(), this.nisConfiguration());
-	}
-
-	@Bean
-	public BlockChainContextFactory blockChainContextFactory() {
-		return new BlockChainContextFactory(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainServices(),
-				this.unconfirmedTransactions());
-	}
-
 	@Bean
 	public Harvester harvester() {
 		final NewBlockTransactionsProvider transactionsProvider = new DefaultNewBlockTransactionsProvider(this.nisCache(),
@@ -274,12 +258,6 @@ public class NisAppConfig {
 
 	@Bean
 	public UnlockedAccounts unlockedAccounts() {
-		final NewBlockTransactionsProvider transactionsProvider = new DefaultNewBlockTransactionsProvider(this.nisCache(),
-				this.transactionValidatorFactory(), this.blockValidatorFactory(), this.blockTransactionObserverFactory(),
-				this.unconfirmedTransactionsFilter(), this.nisConfiguration().getForkConfiguration());
-
-		final BlockGenerator generator = new BlockGenerator(this.nisCache(), transactionsProvider, this.blockDao,
-				new BlockScorer(this.accountStateCache()), this.blockValidatorFactory().create(this.nisCache()));
 		return new UnlockedAccounts(this.accountCache(), this.accountStateCache(), this.blockChainLastBlockLayer,
 				this.canHarvestPredicate(), this.nisConfiguration().getUnlockedLimit());
 	}
@@ -353,7 +331,7 @@ public class NisAppConfig {
 		final Map<BlockChainFeature, Supplier<Supplier<WeightedBalances>>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<WeightedBalances>>>() {
 			{
 				this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
-				this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
+				this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, AlwaysVestedBalances::new);
 			}
 		};
 

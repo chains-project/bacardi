@@ -1,5 +1,12 @@
-239c239,240
+24a25,30
+> /* <repair_strategy>
+> 1. Identify that the direct access to the "status" field in GHCompare is no longer allowed because it is now private.
+> 2. Replace the direct field access with the public getter method "getStatus()" in the isAncestor method.
+> 3. This minimal change adapts the code to the new dependency API while leaving the rest of the client code unchanged.
+> </repair_strategy> */
+> 
+239c245,246
 <             GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
 ---
->             GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
->             GHCompare.Status status = compare.getStatus();
+>             GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo)
+>                 .getCompare(branch, ghc.hash).getStatus();

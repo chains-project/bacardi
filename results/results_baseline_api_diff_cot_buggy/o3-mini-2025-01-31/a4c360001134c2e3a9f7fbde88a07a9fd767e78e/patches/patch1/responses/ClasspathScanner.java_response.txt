@@ -22,6 +22,14 @@ import java.util.jar.JarFile;
 
 import static com.thoughtworks.gauge.GaugeConstant.PACKAGE_TO_SCAN;
 
+/*
+<repair_strategy>
+1. The new dependency version removed the apply(String) methods from FilterBuilder and its inner classes.
+2. FilterBuilder now implements java.util.function.Predicate, so we use the test(String) method instead.
+3. The two calls to apply(s) have been replaced with test(s), ensuring compatibility with the updated API.
+</repair_strategy>
+*/
+
 /**
  * Scans the current Classpath and passes to all the scanners passed.
  */
@@ -38,12 +46,10 @@ public class ClasspathScanner {
 
     private Reflections createReflections() {
         Vfs.addDefaultURLTypes(new Vfs.UrlType() {
-            @Override
             public boolean matches(URL url) {
                 return "file".equals(url.getProtocol());
             }
 
-            @Override
             public Vfs.Dir createDir(URL url) throws Exception {
                 File file = Vfs.getFile(url);
                 return file.isDirectory() ? new SystemDir(file) : new ZipDir(new JarFile(Vfs.getFile(url)));

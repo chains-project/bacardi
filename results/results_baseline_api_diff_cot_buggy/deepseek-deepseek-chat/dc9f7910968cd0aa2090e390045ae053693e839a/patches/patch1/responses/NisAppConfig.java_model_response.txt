@@ -1,52 +1,8 @@
-<fix_planning>
-1. Analysis:
-   a. Relevant API changes:
-      - `Flyway.setDataSource(DataSource)` removed
-      - `Flyway.setClassLoader(ClassLoader)` removed
-      - `Flyway()` constructor removed
-      - `Flyway.setLocations(String)` removed
-      - `Flyway.setValidateOnMigrate(boolean)` removed
-      - New methods added in `ClassicConfiguration` interface
-      - New `Flyway(Configuration)` constructor added
-
-   b. Specific API changes causing issues:
-      - The code uses deprecated/removed methods and constructor
-      - Need to use new configuration-based approach
-
-   c. Affected lines:
-      - Line 108: `final org.flywaydb.core.Flyway flyway = new Flyway();`
-      - Line 109: `flyway.setDataSource(this.dataSource());`
-      - Line 110: `flyway.setClassLoader(NisAppConfig.class.getClassLoader());`
-      - Line 111: `flyway.setLocations(prop.getProperty("flyway.locations"));`
-      - Line 112: `flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));`
-
-   d. Proposed fixes:
-      - Create a `Configuration` object first
-      - Use new `Flyway(Configuration)` constructor
-      - Move all configuration settings to the `Configuration` object
-      - Use `Flyway.configure()` to create configuration
-
-   e. Potential side effects:
-      - Need to ensure all configuration properties are properly set
-      - Migration behavior should remain the same
-
-   f. Constraints check:
-      - Function signature remains unchanged
-      - No existing code removed
-      - All required imports are present
-      - New variables introduced to simplify code
-
-   g. Final solution:
-      - Use `Flyway.configure()` to create configuration
-      - Set all properties through configuration
-      - Create Flyway instance with configuration
-      - This is the most straightforward way to migrate to the new API
-</fix_planning>
-
 ```java
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -151,13 +107,12 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final Flyway flyway = Flyway.configure()
-			.dataSource(this.dataSource())
-			.classLoader(NisAppConfig.class.getClassLoader())
-			.locations(prop.getProperty("flyway.locations"))
-			.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
-			.load();
-		return flyway;
+		final ClassicConfiguration configuration = new ClassicConfiguration();
+		configuration.setDataSource(this.dataSource());
+		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
+		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		return new Flyway(configuration);
 	}
 
 	@Bean

@@ -1,54 +1,3 @@
-<fix_planning>
-The core issue is the removal of `com.google.api.services.translate.model.TranslationsResource`. The code uses this class to represent the translation result and extract data from it. The API changes indicate that `TranslationsResource` and its methods `getTranslatedText()`, `getDetectedSourceLanguage()`, and `getModel()` are no longer available. The new API provides `com.google.api.services.translate.v3.model.Translation` which has `getTranslatedText()` and `getModel()`.
-
-Here's a breakdown of the affected lines and potential fixes:
-
-*   **Line 19:** `import com.google.api.services.translate.model.TranslationsResource;`
-    *   This import is no longer valid. We need to find the replacement class. Based on the API changes, `com.google.api.services.translate.v3.model.Translation` seems like a suitable replacement, but we also need to consider how the translate method is called and what it returns. Let's assume for now that we can replace it with `com.google.api.services.translate.v3.model.Translation`.
-    *   Fix: Replace with `import com.google.api.services.translate.v3.model.Translation;`
-
-*   **Line 37:** `static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =`
-    *   `TranslationsResource` is no longer valid. We need to update this to use the new `com.google.api.services.translate.v3.model.Translation`.
-    *   Fix: Replace with `static final Function<com.google.api.services.translate.v3.model.Translation, Translation> FROM_PB_FUNCTION =`
-
-*   **Line 38:** `new Function<TranslationsResource, Translation>() {`
-    *   `TranslationsResource` is no longer valid. We need to update this to use the new `com.google.api.services.translate.v3.model.Translation`.
-    *   Fix: Replace with `new Function<com.google.api.services.translate.v3.model.Translation, Translation>() {`
-
-*   **Line 40:** `public Translation apply(TranslationsResource translationPb) {`
-    *   `TranslationsResource` is no longer valid. We need to update this to use the new `com.google.api.services.translate.v3.model.Translation`.
-    *   Fix: Replace with `public Translation apply(com.google.api.services.translate.v3.model.Translation translationPb) {`
-
-*   **Line 41:** `return Translation.fromPb(translationPb);`
-    *   This line calls the `fromPb` method, which also needs to be updated.
-
-*   **Line 106:** `static Translation fromPb(TranslationsResource translationPb) {`
-    *   `TranslationsResource` is no longer valid. We need to update this to use the new `com.google.api.services.translate.v3.model.Translation`.
-    *   Fix: Replace with `static Translation fromPb(com.google.api.services.translate.v3.model.Translation translationPb) {`
-
-*   **Line 108:** `translationPb.getTranslatedText(),`
-    *   `getTranslatedText()` is no longer a method of `TranslationsResource`. The new `com.google.api.services.translate.v3.model.Translation` has this method.
-    *   No change needed here after the class change.
-
-*   **Line 109:** `translationPb.getDetectedSourceLanguage(),`
-    *   `getDetectedSourceLanguage()` is no longer a method of `TranslationsResource`. We need to find an alternative way to get the detected source language. Since this information is crucial, we'll need to investigate where this information is now available. For now, let's assume we can't get it and set it to null.
-    *   Fix: Replace with `null,`
-
-*   **Line 110:** `translationPb.getModel());`
-    *   `getModel()` is no longer a method of `TranslationsResource`. The new `com.google.api.services.translate.v3.model.Translation` has this method.
-    *   No change needed here after the class change.
-
-Summary of changes:
-
-1.  Replace `import com.google.api.services.translate.model.TranslationsResource;` with `import com.google.api.services.translate.v3.model.Translation;`
-2.  Replace `Function<TranslationsResource, Translation>` with `Function<com.google.api.services.translate.v3.model.Translation, Translation>` in the declaration of `FROM_PB_FUNCTION`.
-3.  Update the parameter type of the `apply` method in the anonymous `Function` implementation to `com.google.api.services.translate.v3.model.Translation`.
-4.  Update the parameter type of the `fromPb` method to `com.google.api.services.translate.v3.model.Translation`.
-5.  Replace `translationPb.getDetectedSourceLanguage()` with `null` in the `fromPb` method.
-
-These changes address the compilation errors and adapt the code to the new API. The loss of the detected source language is a potential side effect, but without more context on how the `Translation` object is used, it's the safest approach. The constraints are all met.
-</fix_planning>
-
 ```java
 /*
  * Copyright 2016 Google LLC
@@ -68,7 +17,7 @@ These changes address the compilation errors and adapt the code to the new API. 
 
 package com.google.cloud.translate;
 
-import com.google.api.services.translate.v3.model.Translation;
+import com.google.api.services.translate.v3.model.Translation as TranslationPb;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
@@ -86,10 +35,10 @@ import java.util.Objects;
 public class Translation implements Serializable {
 
   private static final long serialVersionUID = 2556017420486245581L;
-  static final Function<com.google.api.services.translate.v3.model.Translation, Translation> FROM_PB_FUNCTION =
-      new Function<com.google.api.services.translate.v3.model.Translation, Translation>() {
+  static final Function<TranslationPb, Translation> FROM_PB_FUNCTION =
+      new Function<TranslationPb, Translation>() {
         @Override
-        public Translation apply(com.google.api.services.translate.v3.model.Translation translationPb) {
+        public Translation apply(TranslationPb translationPb) {
           return Translation.fromPb(translationPb);
         }
       };
@@ -155,10 +104,10 @@ public class Translation implements Serializable {
         && Objects.equals(sourceLanguage, other.sourceLanguage);
   }
 
-  static Translation fromPb(com.google.api.services.translate.v3.model.Translation translationPb) {
+  static Translation fromPb(TranslationPb translationPb) {
     return new Translation(
         translationPb.getTranslatedText(),
-        null,
+        translationPb.getSourceLanguageCode(),
         translationPb.getModel());
   }
 }

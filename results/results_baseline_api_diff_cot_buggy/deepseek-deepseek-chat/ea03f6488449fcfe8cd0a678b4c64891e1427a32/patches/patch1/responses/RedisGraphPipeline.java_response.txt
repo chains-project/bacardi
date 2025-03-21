@@ -1,7 +1,7 @@
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
-
+import redis.clients.jedis.ClusterPipeline;
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
@@ -117,7 +117,6 @@ public interface RedisGraphPipeline extends Closeable {
      */
     Response<String> deleteGraph(String graphId);
 
-    
     /**
      * Synchronize pipeline by reading all responses. This operation close the pipeline. Whenever
      * possible try to avoid using this version and use Pipeline.sync() as it won't go through all the
@@ -132,7 +131,6 @@ public interface RedisGraphPipeline extends Closeable {
      * commands you execute.
      */
     public void sync();
-    
     
     /**
      * Blocks until all the previous write commands are successfully transferred and acknowledged by

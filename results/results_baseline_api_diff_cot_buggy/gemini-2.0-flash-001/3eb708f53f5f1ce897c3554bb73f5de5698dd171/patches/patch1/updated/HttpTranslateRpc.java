@@ -22,6 +22,15 @@ import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.translate.v3.Translate;
+import com.google.api.services.translate.v3.Translate.Projects.Locations.TranslateText;
+import com.google.api.services.translate.v3.model.DetectLanguageRequest;
+import com.google.api.services.translate.v3.model.DetectLanguageResponse;
+import com.google.api.services.translate.v3.model.Language;
+import com.google.api.services.translate.v3.model.Location;
+import com.google.api.services.translate.v3.model.TranslateTextRequest;
+import com.google.api.services.translate.v3.model.TranslateTextResponse;
+import com.google.api.services.translate.v3.model.Translation;
 import com.google.cloud.http.HttpTransportOptions;
 import com.google.cloud.translate.TranslateException;
 import com.google.cloud.translate.TranslateOptions;
@@ -29,13 +38,14 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class HttpTranslateRpc implements TranslateRpc {
 
   private final TranslateOptions options;
-  private final com.google.api.services.translate.Translate translate;
+  private final Translate translate;
 
   public HttpTranslateRpc(TranslateOptions options) {
     HttpTransportOptions transportOptions = (HttpTransportOptions) options.getTransportOptions();
@@ -43,8 +53,7 @@ public class HttpTranslateRpc implements TranslateRpc {
     HttpRequestInitializer initializer = transportOptions.getHttpRequestInitializer(options);
     this.options = options;
     translate =
-        new com.google.api.services.translate.Translate.Builder(transport, new JacksonFactory(), initializer)
-            .setApplicationName(options.getApplicationName())
+        new Translate.Builder(transport, new JacksonFactory(), initializer)
             .build();
   }
 
@@ -61,36 +70,60 @@ public class HttpTranslateRpc implements TranslateRpc {
   }
 
   @Override
-  public List<List<com.google.api.services.translate.model.DetectionsResourceItems>> detect(List<String> texts) {
+  public List<List<com.google.api.services.translate.v3.model.DetectedLanguage>> detect(List<String> texts) {
     try {
-      List<List<com.google.api.services.translate.model.DetectionsResourceItems>> detections = null;
-          detections = ImmutableList.<List<com.google.api.services.translate.model.DetectionsResourceItems>>of();
-      return detections != null ? detections : ImmutableList.<List<com.google.api.services.translate.model.DetectionsResourceItems>>of();
+      List<List<com.google.api.services.translate.v3.model.DetectedLanguage>> detections = new ArrayList<>();
+      for (String text : texts) {
+        Translate.Projects.Locations.DetectLanguage detect = translate.projects().locations().detectLanguage("projects/" + options.getProjectId() + "/locations/" + options.getLocation(), new DetectLanguageRequest().setContent(text));
+        DetectLanguageResponse response = detect.execute();
+        detections.add(response.getLanguages());
+      }
+      return detections;
     } catch (IOException ex) {
       throw translate(ex);
     }
   }
 
   @Override
-  public List<com.google.api.services.translate.model.LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
+  public List<Language> listSupportedLanguages(Map<Option, ?> optionMap) {
     try {
-      List<com.google.api.services.translate.model.LanguagesResource> languages = null;
-          languages = ImmutableList.<com.google.api.services.translate.model.LanguagesResource>of();
-      return languages != null ? languages : ImmutableList.<com.google.api.services.translate.model.LanguagesResource>of();
+      String targetLanguage =
+          firstNonNull(
+              Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
+      Translate.Projects.Locations.GetSupportedLanguages list = translate.projects().locations().getSupportedLanguages("projects/" + options.getProjectId() + "/locations/" + options.getLocation());
+      list.setTarget(targetLanguage);
+      com.google.api.services.translate.v3.model.SupportedLanguages execute = list.execute();
+      List<Language> languages = execute.getLanguages();
+      return languages != null ? languages : ImmutableList.<Language>of();
     } catch (IOException ex) {
       throw translate(ex);
     }
   }
 
   @Override
-  public List<com.google.api.services.translate.model.TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap) {
+  public List<com.google.api.services.translate.v3.model.Translation> translate(List<String> texts, Map<Option, ?> optionMap) {
     try {
       String targetLanguage =
           firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
       final String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
-      List<com.google.api.services.translate.model.TranslationsResource> translations = null;
-          translations = ImmutableList.<com.google.api.services.translate.model.TranslationsResource>of();
-      return translations;
+
+      List<com.google.api.services.translate.v3.model.Translation> allTranslations = new ArrayList<>();
+
+      for (String text : texts) {
+        TranslateTextRequest translateTextRequest = new TranslateTextRequest()
+            .setTargetLanguageCode(targetLanguage)
+            .setSourceLanguageCode(sourceLanguage)
+            .setContents(ImmutableList.of(text));
+
+        TranslateText translateText = translate.projects().locations().translateText("projects/" + options.getProjectId() + "/locations/" + options.getLocation(), translateTextRequest);
+        TranslateTextResponse response = translateText.execute();
+        List<Translation> translations = response.getTranslations();
+        if (translations != null) {
+          allTranslations.addAll(translations);
+        }
+      }
+
+      return allTranslations;
     } catch (IOException ex) {
       throw translate(ex);
     }

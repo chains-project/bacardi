@@ -24,8 +24,6 @@ import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm;
 import org.jgrapht.alg.spanning.PrimMinimumSpanningTree;
 import org.jgrapht.graph.SimpleGraph;
 import org.tinfour.common.IIncrementalTin;
-import org.tinspin.index.kdtree.KDTree;
-import org.tinspin.index.kdtree.KDTree.Entry;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
 import micycle.pgs.commons.GeometricMedian;
@@ -64,20 +62,17 @@ public final class PGS_PointSet {
 	 * @return
 	 */
 	public static List<PVector> prunePointsWithinDistance(List<PVector> points, double distanceTolerance) {
-		final KDTree<PVector> tree = KDTree.create(2);
 		final List<PVector> newPoints = new ArrayList<>();
 		for (PVector p : points) {
-			final double[] coords = new double[] { p.x, p.y };
-			if (tree.size() == 0) {
-				tree.insert(coords, p);
-				newPoints.add(p);
-			} else {
-				List<? extends Entry<PVector>> nearest = tree.queryKNN(coords, 1);
-				// If no neighbor is found or the nearest neighbor is further than the tolerance then add the point
-				if (nearest.isEmpty() || nearest.get(0).distance() > distanceTolerance) {
-					tree.insert(coords, p);
-					newPoints.add(p);
+			boolean isFarEnough = true;
+			for (PVector existing : newPoints) {
+				if (PVector.dist(existing, p) <= distanceTolerance) {
+					isFarEnough = false;
+					break;
 				}
+			}
+			if (isFarEnough) {
+				newPoints.add(p);
 			}
 		}
 		return newPoints;
@@ -557,7 +552,7 @@ public final class PGS_PointSet {
 	 * theta.
 	 * 
 	 * @param centerX x coordinate of the center of the point set
-	 * @param centerY y coordinate of the center of the point set
+	 * @param centerY x coordinate of the center of the point set
 	 * @param n       number of points to generate
 	 * @param radius  radius of circular phyllotaxis extent (max distance of a point
 	 *                from the center position)
@@ -610,7 +605,6 @@ public final class PGS_PointSet {
 	 * @return
 	 */
 	public static List<PVector> plasticLDS(double xMin, double yMin, double xMax, double yMax, int n) {
-		// https://github.com/Atrix256/SampleZoo/blob/master/src/families/_2d/samples/irrational_numbers/irrational_numbers.cpp
 		final double w = xMax - xMin;
 		final double h = yMax - yMin;
 		final double p = 1.32471795724474602596; // plastic constant
@@ -673,7 +667,6 @@ public final class PGS_PointSet {
 	 *      irrationalJitteredLDS()
 	 */
 	public static List<PVector> plasticJitteredLDS(double xMin, double yMin, double xMax, double yMax, int n, long seed) {
-		// https://github.com/Atrix256/SampleZoo/blob/master/src/families/_2d/samples/irrational_numbers/irrational_numbers.cpp
 		final double w = xMax - xMin;
 		final double h = yMax - yMin;
 
@@ -986,7 +979,6 @@ public final class PGS_PointSet {
 			point = new double[] { p.x, p.y };
 		}
 
-		@Override
 		public double[] getPoint() {
 			return point;
 		}

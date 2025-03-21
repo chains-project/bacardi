@@ -1,12 +1,3 @@
-<repair_strategy>
-1. The error is caused because the client code imports and uses liquibase.util.StringUtils, which has been removed in the new dependency version.
-2. In the new API, liquibase.util.StringUtils has been removed and replaced by liquibase.repackaged.org.apache.commons.lang3.StringUtils, which provides a similar trimToNull(String) method.
-3. The code only uses StringUtils.trimToNull(statement.getTablespace()), so we need to update the import accordingly.
-4. We must not change any method signatures, so the only needed change is to replace the erroneous import.
-5. The minimal change is to remove the old import and add an import for liquibase.repackaged.org.apache.commons.lang3.StringUtils.
-6. This change should not impact the rest of the code, and it makes the class fully compilable.
-</repair_strategy>
-
 ```java
 package liquibase.ext.mssql.sqlgenerator;
 
@@ -19,7 +10,7 @@ import liquibase.sqlgenerator.SqlGeneratorChain;
 import liquibase.sqlgenerator.core.AddPrimaryKeyGenerator;
 import liquibase.statement.core.AddPrimaryKeyStatement;
 import liquibase.structure.core.Index;
-import liquibase.repackaged.org.apache.commons.lang3.StringUtils;
+import liquibase.util.StringUtil;
 
 public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
   @Override
@@ -62,11 +53,11 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
   private Sql[] generateMSSQLSql(AddPrimaryKeyStatementMSSQL statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
     String sql;
     if (statement.getConstraintName() == null) {
-      sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) 
-            + " ADD PRIMARY KEY (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
+      sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) +
+            " ADD PRIMARY KEY (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
     } else {
-      sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) 
-            + " ADD CONSTRAINT " + database.escapeConstraintName(statement.getConstraintName()) + " PRIMARY KEY";
+      sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) +
+            " ADD CONSTRAINT " + database.escapeConstraintName(statement.getConstraintName()) + " PRIMARY KEY";
       if (!statement.isClustered()) {
         sql += " NONCLUSTERED";
       }
@@ -76,20 +67,16 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
     // the only new feature being added is support for fillFactor
     sql += " WITH (FILLFACTOR = " + statement.getFillFactor() + ")";
 
-    if (StringUtils.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
+    if (StringUtil.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
       sql += " ON " + statement.getTablespace();
     }
 
     if (statement.getForIndexName() != null) {
-      sql += " USING INDEX " + database.escapeObjectName(
-          statement.getForIndexCatalogName(), 
-          statement.getForIndexSchemaName(), 
-          statement.getForIndexName(), 
-          Index.class);
+      sql += " USING INDEX " + database.escapeObjectName(statement.getForIndexCatalogName(), statement.getForIndexSchemaName(), statement.getForIndexName(), Index.class);
     }
 
     return new Sql[] {
-        new UnparsedSql(sql, getAffectedPrimaryKey(statement))
+      new UnparsedSql(sql, getAffectedPrimaryKey(statement))
     };
   }
 

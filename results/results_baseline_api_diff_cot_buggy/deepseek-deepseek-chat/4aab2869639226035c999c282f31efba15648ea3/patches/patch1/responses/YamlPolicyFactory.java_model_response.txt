@@ -1,35 +1,3 @@
-<fix_planning>
-1. Analysis:
-   a. The code uses `Storages` class and its `newStorage` method, which have been removed in the new version.
-   b. The specific API changes causing the issue are:
-      - `com.artipie.asto.factory.Storages` class removed
-      - `Storages.newStorage(String, YamlMapping)` method removed
-      - New method `StorageFactory.newStorage(Config)` added
-   c. Affected lines:
-      - Line 43: `new Storages().newStorage(...)`
-      - Line 9: `import com.artipie.asto.factory.Storages;`
-   d. Potential fixes:
-      - Replace `Storages` with specific storage factory (e.g., `FileStorageFactory`)
-      - Update the import statement
-      - Modify the method call to use the new API
-   e. Side effects:
-      - The fix assumes the storage type is filesystem (fs)
-      - May need additional changes if other storage types are used
-   f. Constraints check:
-      - Function signature remains unchanged
-      - No code removed except for the problematic parts
-      - All code included in final output
-   g. Final solution:
-      - Use `FileStorageFactory` directly since the example shows fs storage
-      - Update the import statement
-      - Modify the method call to use the new API
-
-2. Chosen fix:
-   - Replace `Storages` with `FileStorageFactory`
-   - Update import statement
-   - Modify method call to use new API
-</fix_planning>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
@@ -39,6 +7,8 @@ package com.artipie.security.policy;
 
 import com.amihaiemil.eoyaml.Yaml;
 import com.artipie.asto.blocking.BlockingStorage;
+import com.artipie.asto.factory.Config;
+import com.artipie.asto.factory.StorageFactory;
 import com.artipie.asto.fs.FileStorageFactory;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -74,7 +44,7 @@ public final class YamlPolicyFactory implements PolicyFactory {
             return new YamlPolicy(
                 new BlockingStorage(
                     new FileStorageFactory().newStorage(
-                        Yaml.createYamlInput(sub.toString()).readYamlMapping()
+                        new Config(Yaml.createYamlInput(sub.toString()).readYamlMapping())
                     )
                 )
             );

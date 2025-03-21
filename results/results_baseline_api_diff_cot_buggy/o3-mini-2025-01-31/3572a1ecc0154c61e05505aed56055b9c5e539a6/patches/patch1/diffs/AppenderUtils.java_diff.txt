@@ -4,11 +4,26 @@
 < import org.apache.thrift.transport.TTransport;
 ---
 > import org.apache.thrift.transport.layered.TFastFramedTransport;
-53c52
+38,39c37,44
+< /**
+<  * Utils to create logback appenders
+---
+> /* <repair_strategy>
+>    1. The dependency update removed the original TFastFramedTransport class from
+>       org.apache.thrift.transport, and replaced it with a new type in
+>       org.apache.thrift.transport.layered.
+>    2. Updated the import to use org.apache.thrift.transport.layered.TFastFramedTransport.
+>    3. Retained the constructor call with (TTransport, int) since the new type now
+>       provides a corresponding constructor.
+>    </repair_strategy>
+53c58
 <     private TTransport framedTransport;
 ---
 >     private TFastFramedTransport framedTransport;
-63,64c62
+60,61d64
+<       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
+<       // log.
+63,64c66
 <       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
 <           bufferCapacity);
 ---

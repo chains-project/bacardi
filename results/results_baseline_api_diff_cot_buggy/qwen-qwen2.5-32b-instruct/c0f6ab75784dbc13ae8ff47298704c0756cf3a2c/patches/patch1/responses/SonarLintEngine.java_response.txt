@@ -28,21 +28,20 @@ import org.sonarsource.sonarlint.core.analysis.api.ActiveRule;
 import org.sonarsource.sonarlint.core.analysis.api.AnalysisConfiguration;
 import org.sonarsource.sonarlint.core.analysis.api.AnalysisEngineConfiguration;
 import org.sonarsource.sonarlint.core.analysis.api.AnalysisResults;
-import org.sonarsource.sonarlint.core.analysis.command.AnalyzeCommand;
 import org.sonarsource.sonarlint.core.client.api.common.PluginDetails;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.DefaultClientIssue;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.IssueListener;
 import org.sonarsource.sonarlint.core.client.api.exceptions.SonarLintWrappedException;
-import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisConfiguration;
 import org.sonarsource.sonarlint.core.commons.Language;
+import org.sonarsource.sonarlint.core.commons.RuleKey;
 import org.sonarsource.sonarlint.core.commons.log.ClientLogOutput;
 import org.sonarsource.sonarlint.core.commons.progress.ClientProgressMonitor;
 import org.sonarsource.sonarlint.core.commons.progress.ProgressMonitor;
 import org.sonarsource.sonarlint.core.plugin.commons.LoadedPlugins;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoadResult;
-import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInfo;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInstancesLoader;
+import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginRequirementsCheckResult;
 import org.sonarsource.sonarlint.core.rule.extractor.SonarLintRuleDefinition;
 import sorald.FileUtils;
 import sorald.util.ConfigLoader;
@@ -60,7 +59,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     private static final AnalysisEngineConfiguration analysisGlobalConfig =
             buildAnalysisEngineConfiguration();
 
-    // The only instance of this class
+    // The only instance of this singleton class
     private static SonarLintEngine theOnlyInstance;
 
     // We need to reinitialise it before starting analysis of any source files on any rules.
@@ -140,7 +139,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                 instancesLoader.instantiatePluginClasses(allPlugins);
 
         return new LoadedPluginsThatDoesNotCloseLoader(
-                pluginInstancesByKeys, instancesLoader);
+                pluginInstancesByKeys, new PluginInstancesLoader());
     }
 
     private static Collection<PluginInfo> getAllPlugins(
@@ -156,7 +155,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
         return AnalysisEngineConfiguration.builder()
-                .setLanguages(globalConfig.getEnabledLanguages())
+                .addEnabledLanguage(Language.JAVA)
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())
@@ -180,6 +179,11 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
      */
     public void recreateAnalysisEngine() {
         this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, logOutput);
+    }
+
+    @Override
+    public AnalysisEngine getAnalysisEngine() {
+        return analysisEngine;
     }
 
     public AnalysisResults analyze(
@@ -210,7 +214,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                                                             new DefaultClientIssue(
                                                                     i,
                                                                     allRulesDefinitionsByKey.get(
-                                                                            i.getRuleKey()))),
+                                                                            i.getRuleKey())),
                                             logOutput),
                                     new ProgressMonitor(monitor))
                             .get();

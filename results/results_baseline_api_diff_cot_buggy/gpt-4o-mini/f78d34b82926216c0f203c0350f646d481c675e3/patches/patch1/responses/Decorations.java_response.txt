@@ -1,6 +1,6 @@
 package ml.peya.plugins.Objects;
 
-import tokyo.peya.lib.WaveCreator; // Updated import statement
+import tokyo.peya.lib.WaveCreator; // Updated import
 import ml.peya.plugins.PeyangSuperbAntiCheat;
 import ml.peya.plugins.Variables;
 import org.bukkit.Location;

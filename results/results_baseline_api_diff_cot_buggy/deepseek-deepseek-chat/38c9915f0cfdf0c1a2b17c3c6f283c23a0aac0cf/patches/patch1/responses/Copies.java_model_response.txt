@@ -1,34 +1,3 @@
-<fix_planning>
-1. **Analysis of the Problem:**
-   - The error occurs because the `CollectionOf` class from the `org.cactoos.collection` package has been removed in the new version of the dependency.
-   - The affected line is:
-     ```java
-     import org.cactoos.collection.CollectionOf;
-     ```
-   - The `CollectionOf` class is used in the `equalWallets` method to compare the sizes of the ledgers of two wallets:
-     ```java
-     return first.id() == second.id() && new CollectionOf<>(
-         first.ledger()
-     ).size() == new CollectionOf<>(second.ledger()).size();
-     ```
-
-2. **Proposed Fixes:**
-   - Since `CollectionOf` has been removed, we can replace it with a standard Java collection, such as `ArrayList`, to achieve the same functionality.
-   - The fix involves converting the iterable returned by `first.ledger()` and `second.ledger()` into a list and then comparing their sizes.
-
-3. **Potential Side Effects:**
-   - The change from `CollectionOf` to `ArrayList` should not have any significant side effects, as both are used to store and manipulate collections of objects.
-   - The functionality of comparing the sizes of the ledgers remains the same.
-
-4. **Adherence to Constraints:**
-   - The function signature of `equalWallets` remains unchanged.
-   - No existing code is removed, only replaced.
-   - The fix does not require any additional imports beyond what is already present.
-
-5. **Final Summary:**
-   - The best solution is to replace `CollectionOf` with `ArrayList` to maintain the same functionality without relying on the removed class. This adheres to all constraints and ensures the code compiles and runs correctly.
-</fix_planning>
-
 ```java
 /*
  * The MIT License (MIT)
@@ -119,9 +88,9 @@ public final class Copies extends IterableEnvelope<Copy> {
      */
     private static boolean equalWallets(final Wallet first,
         final Wallet second) throws IOException {
-        return first.id() == second.id() && new ArrayList<>(
+        return first.id() == second.id() && new IterableOf<>(
             first.ledger()
-        ).size() == new ArrayList<>(second.ledger()).size();
+        ).iterator().hasNext() == new IterableOf<>(second.ledger()).iterator().hasNext();
     }
 
     /**

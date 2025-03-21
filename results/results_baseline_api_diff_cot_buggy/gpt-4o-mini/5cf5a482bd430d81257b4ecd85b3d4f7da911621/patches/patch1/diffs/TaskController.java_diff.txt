@@ -1,4 +1,4 @@
-12,17c12,16
+12,17c12,17
 < import javax.mvc.Controller;
 < import javax.mvc.Models;
 < import javax.mvc.View;
@@ -9,49 +9,10 @@
 > import jakarta.mvc.Controller;
 > import jakarta.mvc.Models;
 > import jakarta.mvc.View;
+> import jakarta.mvc.binding.BindingResult;
 > import jakarta.mvc.binding.ParamError;
 > import jakarta.mvc.security.CsrfProtected;
-43,44c42,43
-<     @Inject
-<     private BindingResult validationResult;
----
->     // Removed BindingResult as it has been removed in the new version
->     // private BindingResult validationResult;
-90d88
+90d89
 <     //@ValidateOnExecution(type = ExecutableType.NONE)
-94,101c92,98
-<         if (validationResult.isFailed()) {
-<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-<             validationResult.getAllErrors()
-<                     .stream()
-<                     .forEach((ParamError t) -> {
-<                         alert.addError(t.getParamName(), "", t.getMessage());
-<                     });
-<             models.put("errors", alert);
----
->         // Using a simple boolean to check validation instead of BindingResult
->         boolean hasErrors = false; // Placeholder for validation logic
-> 
->         if (hasErrors) {
->             AlertMessage alert = AlertMessage.danger("Validation violations!");
->             // Assuming we have a way to get errors
->             // models.put("errors", alert);
-138,145c135,141
-<         if (validationResult.isFailed()) {
-<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-<             validationResult.getAllErrors()
-<                     .stream()
-<                     .forEach((ParamError t) -> {
-<                         alert.addError(t.getParamName(), "", t.getMessage());
-<                     });
-<             models.put("errors", alert);
----
->         // Using a simple boolean to check validation instead of BindingResult
->         boolean hasErrors = false; // Placeholder for validation logic
-> 
->         if (hasErrors) {
->             AlertMessage alert = AlertMessage.danger("Validation violations!");
->             // Assuming we have a way to get errors
->             // models.put("errors", alert);
-164d159
+164d162
 <     //@CsrfProtected

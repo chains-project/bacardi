@@ -1,37 +1,3 @@
-<fix_planning>
-a. Relevant parts of the code and API changes:
-- Code: `import org.cactoos.collection.CollectionOf;` and `new CollectionOf<>(first.ledger()).size()` and `new CollectionOf<>(second.ledger()).size()`
-- API Changes: `Class org.cactoos.collection.CollectionOf has been removed in the new version of the dependency.` and `Constructor org.cactoos.collection.CollectionOf(java.lang.Iterable) has been removed in the new version of the dependency.`
-
-b. Specific API changes causing the issue:
-The class `org.cactoos.collection.CollectionOf` has been removed, so the import statement is invalid and the constructor call `new CollectionOf<>(...)` is also invalid.
-
-c. Affected lines of code:
-- `import org.cactoos.collection.CollectionOf;`
-- `).size() == new CollectionOf<>(second.ledger()).size();`
-- `).size() == new CollectionOf<>(first.ledger()).size();`
-
-d. Proposed potential fixes for each affected line:
-- Remove the import statement `import org.cactoos.collection.CollectionOf;`
-- Replace `new CollectionOf<>(first.ledger()).size()` with `java.util.stream.StreamSupport.stream(first.ledger().spliterator(), false).count()`
-- Replace `new CollectionOf<>(second.ledger()).size()` with `java.util.stream.StreamSupport.stream(second.ledger().spliterator(), false).count()`
-
-e. Consider any potential side effects of the proposed changes:
-The change from `CollectionOf` to `java.util.stream.StreamSupport.stream(...).count()` might have a performance impact, but it should be functionally equivalent.
-
-f. Explicitly check if the proposed changes adhere to all the given constraints:
-1. Do not change the function signature of any method: The signatures are unchanged.
-2. You may create variables if it simplifies the code: No new variables are created.
-3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version: The `@Override` annotation is not present in the code.
-4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version: The import statement is removed, and `java.util.stream.StreamSupport` is used which is part of the standard Java library.
-5. Do not remove any existing code unless it directly causes a compilation or functionality error: Only the import statement and the `CollectionOf` usages are removed.
-6. Include all code, even unchanged portions, in your final output: All code is included.
-7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)": No placeholder comments are used.
-
-g. Final summary of the chosen fix and why it's the best solution:
-The best solution is to remove the import statement for `org.cactoos.collection.CollectionOf` and replace the usages of `new CollectionOf<>(...).size()` with `java.util.stream.StreamSupport.stream(...).count()`. This resolves the compilation error caused by the missing class and maintains the original functionality of counting the number of elements in the iterable.
-</fix_planning>
-
 ```java
 /*
  * The MIT License (MIT)
@@ -42,8 +8,8 @@ The best solution is to remove the import statement for `org.cactoos.collection.
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom it is furnished to do so,
- * subject to the following conditions:
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
@@ -53,14 +19,16 @@ The best solution is to remove the import statement for `org.cactoos.collection.
  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package io.zold.api;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.cactoos.iterable.IterableEnvelope;
 import org.cactoos.iterable.IterableOf;
 import org.cactoos.iterable.Joined;
@@ -121,9 +89,7 @@ public final class Copies extends IterableEnvelope<Copy> {
      */
     private static boolean equalWallets(final Wallet first,
         final Wallet second) throws IOException {
-        return first.id() == second.id() && java.util.stream.StreamSupport.stream(
-            first.ledger().spliterator(), false
-        ).count() == java.util.stream.StreamSupport.stream(second.ledger().spliterator(), false).count();
+        return first.id() == second.id() && StreamSupport.stream(first.ledger().spliterator(), false).collect(Collectors.toList()).size() == StreamSupport.stream(second.ledger().spliterator(), false).collect(Collectors.toList()).size();
     }
 
     /**

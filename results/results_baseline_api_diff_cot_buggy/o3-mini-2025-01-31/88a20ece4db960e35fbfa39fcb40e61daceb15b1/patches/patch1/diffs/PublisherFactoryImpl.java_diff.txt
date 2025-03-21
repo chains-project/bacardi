@@ -1,56 +1,28 @@
-1,15d0
-< /*
-<  * Copyright 2020 Google LLC
-<  *
-<  * Licensed under the Apache License, Version 2.0 (the "License");
-<  * you may not use this file except in compliance with the License.
-<  * You may obtain a copy of the License at
-<  *
-<  *       http://www.apache.org/licenses/LICENSE-2.0
-<  *
-<  * Unless required by applicable law or agreed to in writing, software
-<  * distributed under the License is distributed on an "AS IS" BASIS,
-<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-<  * See the License for the specific language governing permissions and
-<  * limitations under the License.
-<  */
-20d4
+20c20
 < import com.google.cloud.pubsublite.PublishMetadata;
-36c20
-<   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
 ---
->   public Publisher<Void> newPublisher(Map<String, String> params) {
-40,46c24,27
+> // Removed obsolete dependency: import com.google.cloud.pubsublite.PublishMetadata;
+34a35,37
+>   // Added a local stub for PublishMetadata since it was removed from the dependency.
+>   public static class PublishMetadata {}
+> 
+40,41c43
 <         TopicPath.newBuilder()
 <             .setProject(
-<                 ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
+---
+>         TopicPath.of(
+43,46c45,47
 <                     .project())
 <             .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
 <             .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
 <             .build();
 ---
->         TopicPath.of(
->             ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value()).project(),
+>                 .project(),
 >             CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()),
 >             TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()));
-48,50c29,32
+48c49
 <     builder.setPublisherFactory(
-<         partition ->
-<             SinglePartitionPublisherBuilder.newBuilder()
 ---
->     builder.setPublisherFactory(new com.google.cloud.pubsublite.internal.wire.PartitionPublisherFactory() {
->       @Override
->       public Publisher<Void> newPublisher(int partition) {
->         return SinglePartitionPublisherBuilder.newBuilder()
-53,54c35,42
+>     builder.setPublisherSupplier(
+53d53
 <                 .setContext(PubsubContext.of(FRAMEWORK))
-<                 .build());
----
->             .build();
->       }
-> 
->       @Override
->       public Publisher<Void> newFallbackPublisher() {
->         return newPublisher(0);
->       }
->     });

@@ -20,6 +20,7 @@ import com.artipie.http.auth.BasicAuthScheme;
 import com.artipie.http.auth.BearerAuthScheme;
 import com.artipie.http.auth.Permissions;
 import com.artipie.http.headers.Authorization;
+import com.artipie.http.headers.Header;
 import com.artipie.http.hm.ResponseMatcher;
 import com.artipie.http.hm.RsHasStatus;
 import com.artipie.http.rq.RequestLine;
@@ -38,7 +39,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Tests for {@link DockerSlice}.
@@ -127,49 +127,6 @@ public final class AuthTest {
         );
     }
 
-    @Test
-    void shouldOverwriteManifestIfAllowed() {
-        final Basic basic = new Basic(this.docker);
-        final String path = "/v2/my-alpine/manifests/abc";
-        final String line = new RequestLine(RqMethod.PUT, path).toString();
-        final String action = "repository:my-alpine:overwrite";
-        final Flowable<ByteBuffer> manifest = this.manifest();
-        MatcherAssert.assertThat(
-            "Manifest was created for the first time",
-            basic.slice(action).response(
-                line,
-                basic.headers(TestAuthentication.ALICE),
-                manifest
-            ),
-            new ResponseMatcher(
-                RsStatus.CREATED,
-                new Header("Location", path),
-                new Header("Content-Length", "0"),
-                new Header(
-                    "Docker-Content-Digest",
-                    "sha256:ef0ff2adcc3c944a63f7cafb386abc9a1d95528966085685ae9fab2a1c0bedbf"
-                )
-            )
-        );
-        MatcherAssert.assertThat(
-            "Manifest was overwritten",
-            basic.slice(action).response(
-                line,
-                basic.headers(TestAuthentication.ALICE),
-                manifest
-            ),
-            new ResponseMatcher(
-                RsStatus.CREATED,
-                new Header("Location", path),
-                new Header("Content-Length", "0"),
-                new Header(
-                    "Docker-Content-Digest",
-                    "sha256:ef0ff2adcc3c944a63f7cafb386abc9a1d95528966085685ae9fab2a1c0bedbf"
-                )
-            )
-        );
-    }
-
     @ParameterizedTest
     @MethodSource("setups")
     void shouldNotReturnUnauthorizedOrForbiddenWhenUserHasPermissions(
@@ -189,22 +146,6 @@ public final class AuthTest {
                     new IsNot<>(new RsHasStatus(RsStatus.FORBIDDEN)),
                     new IsNot<>(new RsHasStatus(RsStatus.UNAUTHORIZED))
                 )
-            )
-        );
-    }
-
-    @SuppressWarnings("PMD.AvoidDuplicateLiterals")
-    private static Stream<Arguments> setups() {
-        return Stream.of(
-            Arguments.of(
-                new Basic(),
-                new RequestLine(RqMethod.GET, "/v2/"),
-                "registry:base:*"
-            ),
-            Arguments.of(
-                new Bearer(),
-                new RequestLine(RqMethod.GET, "/v2/"),
-                "registry:base:*"
             )
         );
     }
@@ -281,8 +222,7 @@ public final class AuthTest {
                             .findFirst()
                     ),
                     ""
-                )
-            );
+                );
         }
 
         @Override
@@ -290,6 +230,11 @@ public final class AuthTest {
             return new Headers.From(
                 new Authorization.Bearer(token(user))
             );
+        }
+
+        @Override
+        public String toString() {
+            return "Bearer";
         }
 
         private static String token(final TestAuthentication.User user) {

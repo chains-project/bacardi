@@ -6,7 +6,6 @@ import static com.google.common.collect.ImmutableSet.of;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -19,10 +18,8 @@ import lombok.SneakyThrows;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
 import se.kth.depclean.core.AbstractDebloater;
@@ -134,35 +131,20 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
     return model;
   }
 
-  /**
-   * Maven processors are defined like this.
-   * <pre>{@code
-   *       <plugin>
-   *         <groupId>org.bsc.maven</groupId>
-   *         <artifactId>maven-processor-plugin</artifactId>
-   *         <executions>
-   *           <execution>
-   *             <id>process</id>
-   *             [...]
-   *             <configuration>
-   *               <processors>
-   *                 <processor>XXXProcessor</processor>
-   *               </processors>
-   *             </configuration>
-   *           </execution>
-   *         </executions>
-   *       </plugin>
-   * }</pre>
-   */
   @Override
   public Set<String> collectUsedClassesFromProcessors() {
     getLog().debug("# collectUsedClassesFromProcessors()");
     return Optional.ofNullable(project.getPlugin("org.bsc.maven:maven-processor-plugin"))
-        .map(plugin -> plugin.getExecutionsAsMap().get("process"))
+        .map(plugin -> plugin.getExecutions().stream()
+            .filter(exec -> "process".equals(exec.getId()))
+            .findFirst()
+            .orElse(null))
         .map(exec -> exec.getConfiguration())
-        .map(config -> config.getChild("processors"))
-        .map(processors -> processors.getChildren("processor"))
-        .map(children -> children.stream().map(child -> child.getValue()).collect(Collectors.toSet()))
+        .map(config -> config.getChildren("processors"))
+        .map(processors -> processors.stream()
+            .flatMap(proc -> proc.getChildren("processor").stream())
+            .map(Xpp3Dom::getValue)
+            .collect(Collectors.toSet()))
         .orElse(of());
   }
 

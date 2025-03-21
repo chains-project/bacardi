@@ -1,33 +1,3 @@
-<fix_planning>
-a. Relevant code and API changes:
-- Code: `super(Model.class);`
-- API Changes:
-  - `Constructor org.yaml.snakeyaml.constructor.Constructor(org.yaml.snakeyaml.TypeDescription) has been removed`
-  - `Constructor org.yaml.snakeyaml.constructor.Constructor(java.lang.Class,org.yaml.snakeyaml.LoaderOptions) has been added`
-  - `Constructor org.yaml.snakeyaml.constructor.Constructor() has been removed`
-  - `Constructor org.yaml.snakeyaml.constructor.Constructor(org.yaml.snakeyaml.LoaderOptions) has been added`
-
-b. Specific API changes causing the issue:
-The constructor `Constructor(Class)` has been removed. The new API provides `Constructor(Class, LoaderOptions)` and `Constructor(LoaderOptions)`.
-
-c. Affected lines of code:
-- `super(Model.class);`
-
-d. Proposed potential fixes:
-1. Replace `super(Model.class)` with `super(Model.class, new org.yaml.snakeyaml.LoaderOptions());`.
-2. Replace `super(Model.class)` with `super(new org.yaml.snakeyaml.LoaderOptions());` and then set the root type using `this.rootType = Model.class;`.
-
-e. Potential side effects of the proposed changes:
-1. Using `super(Model.class, new org.yaml.snakeyaml.LoaderOptions())` should be safe and maintain the original functionality.
-2. Using `super(new org.yaml.snakeyaml.LoaderOptions())` and setting the root type might introduce subtle changes in behavior, although unlikely in this specific case.
-
-f. Adherence to constraints:
-- All constraints are met by both proposed solutions.
-
-g. Final summary of the chosen fix:
-The best solution is to replace `super(Model.class)` with `super(Model.class, new org.yaml.snakeyaml.LoaderOptions());`. This directly addresses the API change while minimizing potential side effects. It also adheres to all given constraints.
-</fix_planning>
-
 ```java
 /**
  * Copyright (c) 2012 to original author or authors
@@ -72,7 +42,11 @@ public final class ModelConstructor extends Constructor {
   private final Map<Class<?>, Construct> pomConstructors = new HashMap<>();
 
   public ModelConstructor() {
-    super(Model.class, new LoaderOptions());
+    this(new LoaderOptions());
+  }
+
+  public ModelConstructor(LoaderOptions loaderOptions) {
+    super(new TypeDescription(Model.class), loaderOptions);
 
     yamlConstructors.put(XPP3DOM_TAG, new ConstructXpp3Dom());
     yamlClassConstructors.put(NodeId.mapping, new MavenObjectConstruct());

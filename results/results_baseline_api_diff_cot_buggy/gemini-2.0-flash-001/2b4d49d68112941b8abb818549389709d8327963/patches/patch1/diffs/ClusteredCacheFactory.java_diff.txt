@@ -1,0 +1,43 @@
+22,23d21
+< import com.hazelcast.config.MaxSizeConfig;
+< import com.hazelcast.config.MemberAttributeConfig;
+27d24
+< import com.hazelcast.core.Cluster;
+30d26
+< import com.hazelcast.core.Member;
+73a70,72
+> import com.hazelcast.cluster.Member;
+> import com.hazelcast.cluster.Cluster;
+> import com.hazelcast.config.MaxSizeConfig;
+192a192
+>                 /*
+195a196,198
+>                 */
+>                 config.setProperty(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
+>                 config.setProperty(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
+288c291,294
+<             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+---
+>             MaxSizeConfig maxSizeConfig = new MaxSizeConfig();
+>             maxSizeConfig.setSize(hazelcastMaxCacheSizeInMegaBytes);
+>             maxSizeConfig.setMaxSizePolicy(MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE);
+>             dynamicConfig.setMaxSizeConfig(maxSizeConfig);
+656c662,673
+<         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
+---
+>         //return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
+>         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE) != null ? member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8) : "".getBytes(StandardCharsets.UTF_8));
+>     }
+> 
+>     private Member getMember(final byte[] nodeID) {
+>         final NodeID memberToFind = NodeID.getInstance(nodeID);
+>         for (final Member member : cluster.getMembers()) {
+>             if (memberToFind.equals(getNodeID(member))) {
+>                 return member;
+>             }
+>         }
+>         return null;
+701,703d717
+< 
+< 
+< 

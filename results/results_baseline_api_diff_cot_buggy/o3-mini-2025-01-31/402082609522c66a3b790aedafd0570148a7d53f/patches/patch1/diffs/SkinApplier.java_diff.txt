@@ -2,29 +2,25 @@
 < import com.flowpowered.math.vector.Vector3d;
 ---
 > import org.spongepowered.math.vector.Vector3d;
-7a8
-> import net.kyori.adventure.audience.Audience;
-12,13d12
+12,13c12
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.data.key.Keys;
-23c22
-<     private final CommandSource invoker;
 ---
->     private final Audience invoker;
+> import org.spongepowered.api.command.source.CommandSource;
 26,27c25
 <     public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
 <             , boolean keepSkin) {
 ---
->     public SkinApplier(ChangeSkinSponge plugin, Audience invoker, Player receiver, SkinModel targetSkin, boolean keepSkin) {
+>     public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin, boolean keepSkin) {
 41c39
 <         //uuid was successful resolved, we could now make a cooldown check
 ---
->         // uuid was successfully resolved, we could now make a cooldown check
+>         //uuid was successfully resolved, we could now make a cooldown check
 83,85c81,83
 <         //triggers an update for others player to see the new skin
 <         receiver.offer(Keys.VANISH, true);
 <         receiver.offer(Keys.VANISH, false);
 ---
->         // triggers an update for others to see the new skin
+>         // triggers an update for other players to see the new skin by toggling vanish mode
 >         receiver.setVanished(true);
 >         receiver.setVanished(false);

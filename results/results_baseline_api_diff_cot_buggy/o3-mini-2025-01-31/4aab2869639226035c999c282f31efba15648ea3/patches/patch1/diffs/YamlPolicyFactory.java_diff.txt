@@ -1,16 +1,59 @@
-7a8
+1,4d0
+< /*
+<  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
+<  * https://github.com/artipie/http/blob/master/LICENSE.txt
+<  */
+7a4
 > import com.amihaiemil.eoyaml.YamlMapping;
-9c10,11
+9c6,7
 < import com.artipie.asto.factory.Storages;
 ---
-> import com.artipie.asto.fs.FileStorageFactory;
 > import com.artipie.asto.factory.Config;
-40a43,44
+> import com.artipie.asto.factory.StorageFactory;
+13,33d10
+< /**
+<  * Policy factory to create {@link YamlPolicy}. Yaml policy is read from storage, and it's required
+<  * to describe this storage in the configuration. Configuration format is the following:
+<  *
+<  * policy:
+<  *   type: yaml_policy
+<  *   storage:
+<  *     type: fs
+<  *     path: /some/path
+<  *
+<  * The storage itself is expected to have yaml files with permissions in the following structure:
+<  *
+<  * ..
+<  * ├── roles.yaml
+<  * ├── users
+<  * │   ├── david.yaml
+<  * │   ├── jane.yaml
+<  * │   ├── ...
+<  *
+<  * @since 1.2
+<  */
+40a18,19
 >             final YamlMapping mapping = Yaml.createYamlInput(sub.toString()).readYamlMapping();
->             final Config storageConfig = Config.fromYaml(mapping);
-43,45c47
+>             final Config storageConfig = new YamlStorageConfig(mapping);
+42,46c21
+<                 new BlockingStorage(
 <                     new Storages().newStorage(
 <                         sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
 <                     )
+<                 )
 ---
->                     new FileStorageFactory().newStorage(storageConfig)
+>                 new BlockingStorage(StorageFactory.newStorage(storageConfig))
+49a25,37
+>         }
+>     }
+> 
+>     private static final class YamlStorageConfig implements Config {
+>         private final YamlMapping mapping;
+> 
+>         YamlStorageConfig(final YamlMapping mapping) {
+>             this.mapping = mapping;
+>         }
+> 
+>         @Override
+>         public String string(final String key) {
+>             return this.mapping.string(key);

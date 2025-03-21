@@ -239,11 +239,11 @@ public class RecognitionHelper {
 				dataList.add(pageList);
 			}
 			ObjectWriter writer = mapper.writer();
-			try {
-				writer.writeValue(segmentListFile, dataList);
-			} catch (com.fasterxml.jackson.core.JsonGenerationException | com.fasterxml.jackson.databind.JsonMappingException e) {
-				throw new IOException(e);
-			}
+            try {
+                writer.writeValue(segmentListFile, dataList);
+            } catch (com.fasterxml.jackson.core.exc.StreamWriteException e) {
+                throw new IOException(e);
+            }
 
             processHandler = new ProcessHandler();
             processHandler.setFetchProcessConsole(true);

@@ -43,6 +43,30 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteSource;
 
+/**
+ * Parses the following syntax.
+ * 
+ * <pre>
+ * nodes:
+ *     - id: cluster-1:
+ *       name: cluster-1
+ *       description: xyz
+ *       hostname: cluster-1.mydomain.com
+ *       location_id: virginia
+ *       os_arch: x86
+ *       os_family: linux
+ *       os_description: redhat
+ *       os_version: 5.3
+ *       group: hadoop
+ *       tags:
+ *           - vanilla
+ *       username: kelvin
+ *       credential: password_or_rsa
+ *         or
+ *       credential_url: password_or_rsa_file ex. resource:///id_rsa will get the classpath /id_rsa; file://path/to/id_rsa
+ *       sudo_password: password
+ * </pre>
+ */
 @Singleton
 public class NodesFromYamlStream implements Function<ByteSource, LoadingCache<String, Node>> {
 
@@ -58,7 +82,8 @@ public class NodesFromYamlStream implements Function<ByteSource, LoadingCache<St
    public LoadingCache<String, Node> apply(ByteSource source) {
 
       LoaderOptions loaderOptions = new LoaderOptions();
-      Constructor constructor = new Constructor(loaderOptions, Config.class);
+      Constructor constructor = new Constructor(loaderOptions);
+      constructor.setRootType(Config.class);
 
       TypeDescription nodeDesc = new TypeDescription(YamlNode.class);
       nodeDesc.putListPropertyType("tags", String.class);
@@ -67,7 +92,6 @@ public class NodesFromYamlStream implements Function<ByteSource, LoadingCache<St
       TypeDescription configDesc = new TypeDescription(Config.class);
       configDesc.putListPropertyType("nodes", YamlNode.class);
       constructor.addTypeDescription(configDesc);
-      
       Yaml yaml = new Yaml(constructor);
       Config config;
       InputStream in = null;

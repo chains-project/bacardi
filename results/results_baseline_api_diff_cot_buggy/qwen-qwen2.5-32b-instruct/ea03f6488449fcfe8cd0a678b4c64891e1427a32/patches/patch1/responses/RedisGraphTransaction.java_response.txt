@@ -1,10 +1,8 @@
 package com.redislabs.redisgraph;
 
+import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 import redis.clients.jedis.exceptions.JedisException;
-import redis.clients.jedis.params.ScanParams;
-import redis.clients.jedis.resps.ScanResult;
-import redis.clients.jedis.util.SafeEncoder;
 
 import java.io.Closeable;
 import java.util.List;
@@ -13,7 +11,7 @@ import java.util.Map;
 /**
  * An interface which aligned to Jedis transactional interface
  */
-public interface RedisGraphTransaction extends Closeable {
+public interface RedisGraphTransaction extends Pipeline, Closeable {
 
     /**
      * Execute a Cypher query.
@@ -42,10 +40,10 @@ public interface RedisGraphTransaction extends Closeable {
 
     /**
      * Executes a cypher read-only query with timeout.
-     * @param graphId a graph to perform the query on
-     * @param query Cypher query
+     * @param graphId a graph to perform the query on.
+     * @param query Cypher query.
      * @param timeout
-     * @return a response which builds the result set with the query answer.
+     * @return  a response which builds the result set with the query answer.
      */
     Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout);
 

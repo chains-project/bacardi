@@ -53,6 +53,7 @@ import xdev.tableexport.config.HeaderColumn;
 import xdev.tableexport.config.PageProperties;
 import xdev.tableexport.config.TemplateColumn;
 import xdev.tableexport.config.TemplateConfig;
+import xdev.tableexport.export.ExportException;
 import xdev.vt.XdevBlob;
 import xdev.vt.XdevClob;
 
@@ -152,48 +153,6 @@ public class ReportBuilder
 	}
 	
 	
-	private void createTemplateFields(final JasperDesign jasperDesign) throws ExportException
-	{
-		JRDesignField field;
-		
-		for(final TemplateColumn col : this.config.getColumns())
-		{
-			field = new JRDesignField();
-			field.setName(col.getContentColumn().getFieldName());
-			this.chooseValueClass(col,field);
-			
-			try
-			{
-				jasperDesign.addField(field);
-				this.fieldSet.add(field);
-			}
-			catch(final JRException e)
-			{
-				throw new ExportException("error during add the field "
-						+ col.getContentColumn().getFieldName(),e);
-			}
-		}
-		
-	}
-
-	
-	private JRDesignField chooseValueClass(final TemplateColumn col, final JRDesignField field)
-	{
-		final Class<?> valueClass = col.getContentColumn().getColumnValueClass();
-		
-		if(valueClass.isAssignableFrom(byte[].class) || valueClass.isAssignableFrom(XdevBlob.class) || valueClass.isAssignableFrom(XdevClob.class))
-		{
-			field.setValueClass(String.class);
-		}
-		else
-		{
-			field.setValueClass(valueClass);
-		}
-		
-		return field;
-	}
-	
-	
 	private void createHeaderAndContent(final JRDesignBand headerBand, final JRDesignBand detailBand)
 	{
 		JRDesignStaticText headerLabel;
@@ -215,7 +174,8 @@ public class ReportBuilder
 			// Header is created
 			if(createHeader)
 			{
-				// If this column has a header the JRDesignStaticText get the propertys of the Column
+				// If this column has a header the JRDesignStaticText get the
+				// propertys of the Column
 				if(col.hasHeaderColumn())
 				{
 					final HeaderColumn headerColumn = col.getHeaderColumn();
@@ -267,6 +227,8 @@ public class ReportBuilder
 			
 			textField.setPositionType(PositionTypeEnum.FLOAT);
 			
+			detailBand.addElement(textField);
+			
 			x += col.getWidth();
 		}
 		
@@ -300,9 +262,7 @@ public class ReportBuilder
 			return;
 		}
 		
-		// Convert int to float for lineWidth
-		float lineWidth = border.getLineWidth();
-		textField.getLineBox().getPen().setLineWidth(lineWidth);
+		textField.getLineBox().getPen().setLineWidth((float)border.getLineWidth()); // Cast to float
 		textField.getLineBox().getPen().setLineColor(border.getLineColor());
 		textField.getLineBox().getPen().setLineStyle(border.getLineStyle().getLineStyleEnum());
 	}
@@ -331,7 +291,7 @@ public class ReportBuilder
 	/**
 	 * 
 	 * Assemble and compile a {@link JasperReport} based on the information of
-	 * the {@link TemplateConfig} object.
+	 * the {@link TemplateConfig}.
 	 * 
 	 * @return the compiled {@link JasperReport}
 	 * @throws ExportException

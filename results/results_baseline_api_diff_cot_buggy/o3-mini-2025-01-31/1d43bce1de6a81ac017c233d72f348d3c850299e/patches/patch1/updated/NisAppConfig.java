@@ -106,15 +106,14 @@ public class NisAppConfig {
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
-
 		ClassicConfiguration config = new ClassicConfiguration();
 		config.setDataSource(this.dataSource());
 		config.setClassLoader(NisAppConfig.class.getClassLoader());
-		String locationsStr = prop.getProperty("flyway.locations");
-		String[] locationsArr = locationsStr.split(",");
-		Location[] locations = new Location[locationsArr.length];
-		for (int i = 0; i < locationsArr.length; i++) {
-			locations[i] = new Location(locationsArr[i].trim());
+		String locationsProp = prop.getProperty("flyway.locations");
+		String[] parts = locationsProp.split(",");
+		Location[] locations = new Location[parts.length];
+		for (int i = 0; i < parts.length; i++) {
+			locations[i] = new Location(parts[i].trim());
 		}
 		config.setLocations(locations);
 		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));

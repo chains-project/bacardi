@@ -14,8 +14,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -33,6 +31,7 @@ import java.util.stream.Collectors;
 
 import static ml.peya.plugins.Utils.MessageEngine.get;
 import static ml.peya.plugins.Variables.skin;
+import tokyo.peya.lib.LeetConverter;
 
 /**
  * プレイヤーに関してまとめたやつ！
@@ -111,8 +110,9 @@ public class PlayerUtils
 
         if (random.nextBoolean())
         {
-            first = tokyo.peya.lib.LeetConverter.convert(first);
-            last = tokyo.peya.lib.LeetConverter.convert(last);
+            LeetConverter leetConverter = new LeetConverter();
+            first = leetConverter.convert(first);
+            last = leetConverter.convert(last);
         }
 
         String name = first + (random.nextBoolean() ? "_": "") + last + (random.nextBoolean() ? "19" + random.nextInt(120): "");

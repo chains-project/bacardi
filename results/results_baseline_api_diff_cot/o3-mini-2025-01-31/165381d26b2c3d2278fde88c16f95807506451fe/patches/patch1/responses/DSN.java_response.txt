@@ -144,8 +144,8 @@ public class DSN {
         }
         path = Paths.get(root, "func.csv");
         out = funcs.stream()
-                .map(c -> Integer.toString(c))
-                .collect(Collectors.joining("\n"));
+                        .map(c -> Integer.toString(c))
+                        .collect(Collectors.joining("\n"));
         Files.write(path, out.getBytes());
     }
 
@@ -177,8 +177,9 @@ public class DSN {
         Path out = Paths.get(root, "func-freq.csv");
         Files.deleteIfExists(out);
         String cnt = "name;freq\n" +
-                map.entrySet().stream().map(e -> e.getKey() + ";" + e.getValue() + "\n").collect(Collectors.joining());
+                    map.entrySet().stream().map(e -> e.getKey() + ";" + e.getValue() + "\n").collect(Collectors.joining());
         Files.write(out, cnt.getBytes());
+
     }
 
     //@Test
@@ -281,14 +282,13 @@ public class DSN {
         });
     }
 
+
     //@Test
     //Extract the number of line of codes of tests
     public void testSloc() throws Exception {
         //Parse the legacy unit tests
         List<Integer> unitTests = new ArrayList<>();
-        List<Path> paths = Files.list(Paths.get("choco/src/test/java/org/btrplace/scheduler/choco/constraint/"))
-                .filter(Files::isRegularFile)
-                .collect(Collectors.toList());
+        List<Path> paths = Files.list(Paths.get("choco/src/test/java/org/btrplace/scheduler/choco/constraint/")).filter(Files::isRegularFile).collect(Collectors.toList());
         for (Path p : paths) {
             try (InputStream in = Files.newInputStream(p)) {
                 ParseResult<CompilationUnit> cu = new JavaParser().parse(in);
@@ -335,9 +335,8 @@ public class DSN {
 
         UnitTestsVisitor(List<Integer> numbers) {
             this.l = numbers;
-            PrettyPrinterConfiguration tempConfig = new PrettyPrinterConfiguration();
-            tempConfig.setPrintComments(false);
-            this.noComments = tempConfig;
+            noComments = new PrettyPrinterConfiguration();
+            noComments.setPrintComments(false);
         }
 
         @Override

@@ -1,4 +1,4 @@
-4,12c4
+4,11c4
 < import redis.clients.jedis.commands.BasicRedisPipeline;
 < import redis.clients.jedis.commands.BinaryRedisPipeline;
 < import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
@@ -7,10 +7,9 @@
 < import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
 < import redis.clients.jedis.commands.RedisPipeline;
 < import redis.clients.jedis.commands.ScriptingCommandsPipeline;
-< 
 ---
 > import redis.clients.jedis.ClusterPipeline;
-20,24c12
+20,24c13
 < public interface RedisGraphPipeline extends
 <         MultiKeyBinaryRedisPipeline,
 <         MultiKeyCommandsPipeline, ClusterPipeline,
@@ -18,15 +17,18 @@
 <         BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
 ---
 > public interface RedisGraphPipeline extends ClusterPipeline, Closeable {
-54c42
-<      * @param query Cypher query
----
->      * @param query Cypher query.
-132d119
+132d120
 <     
-143c130
+143c131
 <      * get return values from pipelined commands, capture the different Response&lt;?&gt; of the
 ---
 >      * get return values from pipelined commands, capture the different Response<?> of the
-148d134
+146,147c134
+<     public void sync();
 <     
+---
+>     void sync();
+159c146
+<     public Response<Long> waitReplicas(int replicas, long timeout);
+---
+>     Response<Long> waitReplicas(int replicas, long timeout);

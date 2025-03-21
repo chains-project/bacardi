@@ -2,44 +2,58 @@
 < import ch.qos.logback.core.encoder.EncoderBase;
 ---
 > import ch.qos.logback.core.encoder.Encoder;
-33a34
-> import java.io.ByteArrayOutputStream;
-51c52
+51c51
 <   public static class LogMessageEncoder extends EncoderBase<LogMessage> {
 ---
 >   public static class LogMessageEncoder implements Encoder<LogMessage> {
-53,54d53
-<     private TTransport framedTransport;
-<     private TProtocol protocol;
-60,65d58
+55a56
+>     private Context context;
+58c59
+<     public void init(OutputStream os) {
+---
+>     public void init(OutputStream os) throws IOException {
+60,61d60
 <       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
 <       // log.
-<       final int bufferCapacity = 10;
+63,64c62
 <       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
 <           bufferCapacity);
-<       protocol = new TBinaryProtocol(framedTransport);
-69c62,71
-<     public void doEncode(LogMessage logMessage) throws IOException {
 ---
+>       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);
+78a77,86
 >     public byte[] headerBytes() {
 >       return null;
 >     }
 > 
 >     @Override
->     public byte[] encode(LogMessage logMessage) throws IOException {
->       ByteArrayOutputStream baos = new ByteArrayOutputStream();
->       final int bufferCapacity = 10;
->       TTransport framedTransport = new TFastFramedTransport(new TIOStreamTransport(baos), bufferCapacity);
->       TProtocol protocol = new TBinaryProtocol(framedTransport);
-72a75
->         return baos.toByteArray();
-78a82,86
 >     public byte[] footerBytes() {
 >       return null;
 >     }
 > 
 >     @Override
-80c88
-<       framedTransport.close();
----
->       // No resources to close
+80a89,113
+>     }
+> 
+>     @Override
+>     public void setContext(Context context) {
+>       this.context = context;
+>     }
+> 
+>     @Override
+>     public Context getContext() {
+>       return this.context;
+>     }
+> 
+>     @Override
+>     public boolean isStarted() {
+>       return true;
+>     }
+> 
+>     @Override
+>     public void start() {
+>       // no-op
+>     }
+> 
+>     @Override
+>     public void stop() {
+>       // no-op

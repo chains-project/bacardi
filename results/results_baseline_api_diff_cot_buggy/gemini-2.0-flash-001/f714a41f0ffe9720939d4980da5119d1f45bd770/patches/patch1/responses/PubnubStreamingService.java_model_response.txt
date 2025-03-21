@@ -1,95 +1,3 @@
-<fix_planning>
-a. Relevant parts of the code and API changes:
-
-*   Code:
-    ```java
-    PNConfiguration pnConfiguration = new PNConfiguration();
-    ```
-    API Change:
-    ```
-    Constructor com.pubnub.api.PNConfiguration() has been removed in the new version of the dependency.
-    Construct com.pubnub.api.PNConfiguration(com.pubnub.api.UserId) has been added in the new version of the dependency.
-    Field com.pubnub.api.PNConfiguration(java.lang.String) has been added in the new version of the dependency.
-    ```
-*   Code:
-    ```java
-    @Override
-    public void user(PubNub pubnub, PNUserResult pnUserResult) {
-      LOG.debug("PubNub user: {}", pnUserResult.toString());
-    }
-
-    @Override
-    public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
-      LOG.debug("PubNub space: {}", pnSpaceResult.toString());
-    }
-
-    @Override
-    public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
-      LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
-    }
-    ```
-    API Change:
-    ```
-    Class com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult has been removed in the new version of the dependency.
-    Class com.pubnub.api.models.consumer.pubsub.objects.PNUserResult has been removed in the new version of the dependency.
-    Class com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult has been removed in the new version of the dependency.
-    ```
-*   Code:
-    ```java
-    @Override
-    ```
-    ```java
-    new SubscribeCallback() {
-    ```
-    API Change:
-    ```
-    Interface com.pubnub.api.models.consumer.pubsub.PNSignalResult has been removed in the new version of the dependency.
-    Interface com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult has been removed in the new version of the dependency.
-    ```
-
-b. Specific API changes causing the issue:
-
-*   The `PNConfiguration()` constructor has been removed. We need to use a different constructor or setter to configure the `PNConfiguration` object.
-*   The `PNUserResult`, `PNSpaceResult`, and `PNMembershipResult` classes have been removed from the `com.pubnub.api.models.consumer.pubsub.objects` package. This means the `user`, `space`, and `membership` methods in the `SubscribeCallback` are no longer valid overrides.
-*   The `PNSignalResult` and `PNPresenceEventResult` interfaces have been removed. This means the `signal` and `presence` methods in the `SubscribeCallback` are no longer valid overrides.
-
-c. Affected lines of code:
-
-*   Line 40: `PNConfiguration pnConfiguration = new PNConfiguration();`
-*   Lines 92-94: `@Override public void user(PubNub pubnub, PNUserResult pnUserResult) { ... }`
-*   Lines 97-99: `@Override public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) { ... }`
-*   Lines 102-104: `@Override public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) { ... }`
-*   Lines 86-88: `@Override public void signal(PubNub pubnub, PNSignalResult pnSignalResult) { ... }`
-*   Lines 81-83: `@Override public void presence(PubNub pubNub, PNPresenceEventResult pnPresenceEventResult) { ... }`
-
-d. Proposed fixes for each affected line:
-
-*   Line 40: Replace `PNConfiguration pnConfiguration = new PNConfiguration();` with `PNConfiguration pnConfiguration = new PNConfiguration(publicKey);`.  Since `publicKey` is available, we can use the `PNConfiguration(String)` constructor.
-*   Lines 92-94, 97-99, 102-104: Remove the `@Override` annotation and the methods `user`, `space`, and `membership` entirely, as the corresponding classes have been removed.
-*   Lines 86-88, 81-83: Remove the `@Override` annotation and the methods `signal` and `presence` entirely, as the corresponding interfaces have been removed.
-
-e. Potential side effects of the proposed changes:
-
-*   Removing the `user`, `space`, `membership`, `signal`, and `presence` methods will mean that the application no longer processes these types of PubNub events. This might affect the application's functionality if it relies on these events. However, given the API changes, these methods are no longer valid, so removing them is the correct course of action.
-
-f. Adherence to constraints:
-
-*   The function signatures of existing methods are not changed.
-*   Variables are not created unnecessarily.
-*   The `@Override` annotation is removed when the method no longer overrides a supertype method.
-*   No existing code is removed unless it directly causes a compilation error.
-*   All code, even unchanged portions, is included in the final output.
-
-g. Final summary of the chosen fix:
-
-The best solution is to:
-
-1.  Replace `PNConfiguration pnConfiguration = new PNConfiguration();` with `PNConfiguration pnConfiguration = new PNConfiguration(); pnConfiguration.setSubscribeKey(publicKey);` and then set the subscribe key.
-2.  Remove the `@Override` annotation and the methods `user`, `space`, `membership`, `signal`, and `presence` entirely.
-
-This addresses the compilation errors caused by the API changes while adhering to all the given constraints.
-</fix_planning>
-
 ```java
 package info.bitrich.xchangestream.service.pubnub;
 
@@ -102,7 +10,12 @@ import com.pubnub.api.callbacks.SubscribeCallback;
 import com.pubnub.api.enums.PNStatusCategory;
 import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
-import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
+import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
+import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
+import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
+import com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult;
+import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
+import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -125,7 +38,7 @@ public class PubnubStreamingService {
   public PubnubStreamingService(String publicKey) {
     mapper = new ObjectMapper();
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    PNConfiguration pnConfiguration = new PNConfiguration();
+    PNConfiguration pnConfiguration = new PNConfiguration(publicKey);
     pnConfiguration.setSubscribeKey(publicKey);
     pubnub = new PubNub(pnConfiguration);
     pnStatusCategory = PNStatusCategory.PNDisconnectedCategory;
@@ -169,8 +82,39 @@ public class PubnubStreamingService {
                 }
 
                 @Override
-                public void file(PubNub pubNub, PNFileEventResult pnFileEventResult) {
-                  // NOOP
+                public void presence(PubNub pubNub, PNPresenceEventResult pnPresenceEventResult) {
+                  LOG.debug("PubNub presence: {}", pnPresenceEventResult.toString());
+                }
+
+                @Override
+                public void signal(PubNub pubnub, PNSignalResult pnSignalResult) {
+                  LOG.debug("PubNub signal: {}", pnSignalResult.toString());
+                }
+
+                @Override
+                public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
+                  LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
+                }
+
+                @Override
+                public void messageAction(
+                    PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
+                  LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
+                }
+
+                @Override
+                public void user(PubNub pubnub, com.pubnub.api.models.consumer.objects_api.user.PNUserResult pnUserResult) {
+                  LOG.debug("PubNub user: {}", pnUserResult.toString());
+                }
+
+                @Override
+                public void space(PubNub pubnub, com.pubnub.api.models.consumer.objects_api.space.PNSpaceResult pnSpaceResult) {
+                  LOG.debug("PubNub space: {}", pnSpaceResult.toString());
+                }
+
+                @Override
+                public void file(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult pnFileEventResult) {
+                  LOG.debug("PubNub file: {}", pnFileEventResult.toString());
                 }
               });
           e.onComplete();

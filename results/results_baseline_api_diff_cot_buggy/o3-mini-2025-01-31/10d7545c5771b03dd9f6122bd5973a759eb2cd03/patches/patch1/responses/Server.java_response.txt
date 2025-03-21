@@ -44,13 +44,15 @@ import com.wire.xenon.factories.StorageFactory;
 import com.wire.xenon.state.FileState;
 import com.wire.xenon.state.JdbiState;
 import com.wire.xenon.tools.Logger;
+import io.dropwizard.core.Application;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.servlets.tasks.Task;
-import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
+import io.federecio.dropwizard.swagger.SwaggerBundle;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.flywaydb.core.Flyway;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.jdbi.v3.core.Jdbi;
@@ -92,7 +94,7 @@ public abstract class Server<Config extends Configuration> extends Application<C
      * @param env    Environment object
      * @throws Exception allowed to throw exception
      */
-    @SuppressWarnings("RedundantThrows") // this method can be overridden
+    @SuppressWarnings("RedundantThrows")
     protected void initialize(Config config, Environment env) throws Exception {
 
     }
@@ -106,7 +108,7 @@ public abstract class Server<Config extends Configuration> extends Application<C
      * @param env    Environment object
      * @throws Exception allowed to throw exception
      */
-    @SuppressWarnings("RedundantThrows") // this method can be overridden
+    @SuppressWarnings("RedundantThrows")
     protected void onRun(Config config, Environment env) throws Exception {
 
     }

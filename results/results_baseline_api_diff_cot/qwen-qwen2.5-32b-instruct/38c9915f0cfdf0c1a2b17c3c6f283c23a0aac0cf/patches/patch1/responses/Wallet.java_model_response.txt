@@ -6,16 +6,19 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
 import org.cactoos.Func;
-import org.cactoos.collection.Filtered;
+import org.cactoos.FuncOf;
+import org.cactoos.Text;
+import org.cactoos.TextOf;
 import org.cactoos.collection.Mapped;
-import org.cactoos.collection.Skipped;
-import org.cactoos.collection.ListOf;
+import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.IterableOf;
 import org.cactoos.iterable.Joined;
-import org.cactoos.iterable.FilteredIterable;
-import org.cactoos.iterable.MappedIterable;
-import org.cactoos.iterable.SkippedIterable;
+import org.cactoos.iterable.Skipped;
+import org.cactoos.iterable.Transformed;
+import org.cactoos.scalar.CheckedScalar;
+import org.cactoos.scalar.Or;
 import org.cactoos.text.FormattedText;
+import org.cactoos.text.SplitText;
 import org.cactoos.text.TextOf;
 import org.cactoos.text.UncheckedText;
 
@@ -109,7 +112,7 @@ public interface Wallet {
          * @param id The wallet id.
          * @param pubkey The public RSA key of the wallet owner.
          * @param network The network the walet belongs to.
-         * @checkstyle UnusedFormalParameter (1 line)
+         * @checkstyle UnusedFormalParameter (2 lines)
          */
         public Fake(final long id, final String pubkey, final String network) {
             this(id);
@@ -139,18 +142,16 @@ public interface Wallet {
                 );
             }
             final Iterable<Transaction> ledger = this.ledger();
-            final Iterable<Transaction> candidates = new FilteredIterable<>(
-                incoming -> new FilteredIterable<>(
-                    origin -> new Func<Boolean>() {
-                        @Override
-                        public Boolean apply(final Object input) {
-                            final Transaction t = (Transaction) input;
-                            return incoming.equals(t)
-                                || (incoming.id() == t.id() && incoming.bnf().equals(t.bnf()))
-                                || (incoming.id() == t.id() && incoming.amount() < 0L)
-                                || incoming.prefix().equals(t.prefix());
-                        }
-                    },
+            final Iterable<Transaction> candidates = new Filtered<>(
+                incoming -> new Filtered<>(
+                    origin -> new Or<>(
+                        () -> incoming.equals(origin),
+                        () -> incoming.id() == origin.id()
+                            && incoming.bnf().equals(origin.bnf()),
+                        () -> incoming.id() == origin.id()
+                            && incoming.amount() < 0L,
+                        () -> incoming.prefix().equals(origin.prefix())
+                    ).value(),
                     ledger
                 ).isEmpty(),
                 other.ledger()
@@ -163,11 +164,14 @@ public interface Wallet {
 
         @Override
         public Iterable<Transaction> ledger() {
-            return new MappedIterable<>(
+            return new Transformed<>(
                 txt -> new RtTransaction(txt.asString()),
-                new SkippedIterable<>(
+                new Skipped<>(
                     new ListOf<>(
-                        new TextOf(this.path).asString().split("\\n")
+                        new SplitText(
+                            new TextOf(this.path),
+                            "\\n"
+                        )
                     ),
                     // @checkstyle MagicNumberCheck (1 line)
                     5
@@ -185,7 +189,108 @@ public interface Wallet {
             );
         }
     }
+
+    /**
+     * Default File implementation.
+     * @checkstyle ClassDataAbstractionCouplingCheck (2 lines)
+     */
+    final class File implements Wallet {
+
+        /**
+         * Path of this wallet.
+         */
+        private final Path path;
+
+        /**
+         * Ctor.
+         * @param path Path of wallet
+         */
+        File(final Path path) {
+            this.path = path;
+        }
+
+        @Override
+        public long id() throws IOException {
+            return new CheckedScalar<>(
+                () -> Long.parseUnsignedLong(
+                    new ListOf<>(
+                        new SplitText(
+                            new TextOf(this.path),
+                            "\n"
+                        )
+                    ).get(2).asString(),
+                    // @checkstyle MagicNumberCheck (1 line)
+                    16
+                ),
+                e -> new IOException(e)
+            ).value();
+        }
+
+        @Override
+        public void pay(final long amt, final long bnf) throws IOException {
+            try (final Writer out = new FileWriter(this.path.toFile(), true)) {
+                out.write('\n');
+                out.write(new CpTransaction(amt, bnf).toString());
+            }
+        }
+
+        @Override
+        public Wallet merge(final Wallet other) throws IOException {
+            if (other.id() != this.id()) {
+                throw new IOException(
+                    new UncheckedText(
+                        new FormattedText(
+                            "Wallet ID mismatch, ours is %d, theirs is %d",
+                            other.id(),
+                            this.id()
+                        )
+                    ).asString()
+                );
+            }
+            final Iterable<Transaction> ledger = this.ledger();
+            final Iterable<Transaction> candidates = new Filtered<>(
+                incoming -> new Filtered<>(
+                    origin -> new Or<>(
+                        () -> incoming.equals(origin),
+                        () -> incoming.id() == origin.id()
+                            && incoming.bnf().equals(origin.bnf()),
+                        () -> incoming.id() == origin.id()
+                            && incoming.amount() < 0L,
+                        () -> incoming.prefix().equals(origin.prefix())
+                    ).value(),
+                    ledger
+                ).isEmpty(),
+                other.ledger()
+            );
+            return new Wallet.Fake(
+                this.id(),
+                new Joined<Transaction>(ledger, candidates)
+            );
+        }
+
+        @Override
+        public Iterable<Transaction> ledger() {
+            return new Transformed<>(
+                txt -> new RtTransaction(txt.asString()),
+                new Skipped<>(
+                    new ListOf<>(
+                        new SplitText(
+                            new TextOf(this.path),
+                            "\\n"
+                        )
+                    ),
+                    // @checkstyle MagicNumberCheck (1 line)
+                    5
+                )
+            );
+        }
+
+        @Override
+        public String key() {
+            throw new UnsupportedOperationException(
+                "key() not yet supported"
+            );
+        }
+    }
 }
 ```
-
-In the provided solution, the `Filtered`, `SplitText`, `UncheckedScalar`, and `CheckedScalar` classes have been replaced with their new equivalents or alternative implementations to align with the new dependency API. The `FilteredIterable` and `MappedIterable` classes are used to replace the removed `Filtered` and `SplitText` classes, and the `Func` interface is used to replace the `UncheckedScalar` and `CheckedScalar` classes. The `ledger` method has been updated to use `split` method for splitting the text, as `SplitText` is no longer available.

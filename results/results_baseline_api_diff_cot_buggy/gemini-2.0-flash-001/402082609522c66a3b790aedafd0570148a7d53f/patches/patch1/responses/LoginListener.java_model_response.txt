@@ -1,35 +1,3 @@
-<fix_planning>
-a. Relevant code and API changes:
-- The code uses `org.spongepowered.api.event.network.ClientConnectionEvent.Auth`.
-- The API changes indicate that `org.spongepowered.api.event.network.ClientConnectionEvent` and `org.spongepowered.api.event.network.ClientConnectionEvent$Auth` have been removed.
-- The code uses `preLoginEvent.getProfile()` which was previously part of `ClientConnectionEvent.Auth`.
-
-b. Specific API changes causing the issue:
-- Removal of `org.spongepowered.api.event.network.ClientConnectionEvent$Auth`.
-
-c. Affected lines of code:
-- `import org.spongepowered.api.event.network.ClientConnectionEvent;`
-- `@Listener public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent)`
-- `GameProfile profile = preLoginEvent.getProfile();`
-
-d. Proposed fixes:
-- Replace `ClientConnectionEvent.Auth` with `org.spongepowered.api.event.server.ClientPingServerEvent`. However, this event doesn't provide the profile.
-- Investigate alternative events that provide the `GameProfile` during login. `org.spongepowered.api.event.network.ServerSideConnectionEvent.Auth` seems like a suitable replacement.
-
-e. Potential side effects:
-- Changing the event might require adapting the logic within the event handler.
-
-f. Adherence to constraints:
-- The proposed changes do not change the function signature of any method.
-- The proposed changes may require creating variables.
-- The proposed changes may require removing the `@Override` annotation.
-- The proposed changes address missing imports.
-- The proposed changes do not remove any existing code unless it directly causes a compilation or functionality error.
-
-g. Final summary:
-The best solution is to replace `ClientConnectionEvent.Auth` with `org.spongepowered.api.event.network.ServerSideConnectionEvent.Auth.Login`, which appears to be the correct replacement based on the Sponge API documentation. This requires updating the import statement and casting the event.
-</fix_planning>
-
 ```java
 package com.github.games647.changeskin.sponge;
 
@@ -43,7 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.network.ServerSideConnectionEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent.Auth;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.scheduler.Task;
 
@@ -59,7 +27,7 @@ public class LoginListener extends SharedListener {
     }
 
     @Listener
-    public void onPlayerPreLogin(ServerSideConnectionEvent.Auth.Login preLoginEvent) {
+    public void onPlayerPreLogin(Auth preLoginEvent) {
         SkinStorage storage = core.getStorage();
         GameProfile profile = preLoginEvent.getProfile();
         UUID playerUUID = profile.getUniqueId();
@@ -75,11 +43,8 @@ public class LoginListener extends SharedListener {
             plugin.getApi().applyProperties(profile, targetSkin);
             save(preferences);
         } else {
-            String playerName = profile.getName().orElse(null);
-            if (playerName == null) {
-                return;
-            }
-            if (!core.getConfig().getBoolean("restoreSkins") || !refetchSkin(playerName, preferences)) {
+            Optional<String> playerName = profile.getName();
+            if (!core.getConfig().getBoolean("restoreSkins") || (playerName.isPresent() && !refetchSkin(playerName.get(), preferences))) {
                 setDefaultSkin(preferences, profile);
             }
         }

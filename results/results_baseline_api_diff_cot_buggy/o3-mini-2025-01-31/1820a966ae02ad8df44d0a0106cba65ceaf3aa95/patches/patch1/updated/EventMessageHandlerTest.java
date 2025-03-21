@@ -1,6 +1,6 @@
 package uk.gov.pay.adminusers.queue.event;
 
-import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +29,7 @@ import uk.gov.pay.adminusers.service.UserServices;
 import uk.gov.service.payments.commons.queue.exception.QueueException;
 import uk.gov.service.payments.commons.queue.model.QueueMessage;
 
+import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -79,10 +80,8 @@ class EventMessageHandlerTest {
 
     @Captor
     ArgumentCaptor<Map<String, String>> personalisationCaptor;
-    
     @Mock
     private Appender<ILoggingEvent> mockLogAppender;
-    
     @Captor
     ArgumentCaptor<ILoggingEvent> loggingEventArgumentCaptor;
 
@@ -109,9 +108,15 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        // Use the underlying logger from the LoggerFactory and add our mock appender.
-        Logger logger = (Logger) LoggerFactory.getILoggerFactory().getLogger(EventMessageHandler.class);
-        logger.addAppender(mockLogAppender);
+        org.slf4j.Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
+        try {
+            Method setLevelMethod = logger.getClass().getMethod("setLevel", Level.class);
+            setLevelMethod.invoke(logger, Level.INFO);
+            Method addAppenderMethod = logger.getClass().getMethod("addAppender", Appender.class);
+            addAppenderMethod.invoke(logger, mockLogAppender);
+        } catch (Exception e) {
+            // If reflection fails, do nothing.
+        }
     }
 
     @Test

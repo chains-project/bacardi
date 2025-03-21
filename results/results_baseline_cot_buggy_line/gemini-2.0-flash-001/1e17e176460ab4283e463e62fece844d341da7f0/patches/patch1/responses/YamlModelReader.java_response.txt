@@ -15,6 +15,7 @@ import org.sonatype.maven.polyglot.io.ModelReaderSupport;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -34,7 +35,8 @@ public class YamlModelReader extends ModelReaderSupport {
 
   public YamlModelReader() {
     ModelConstructor constructor = new ModelConstructor();
-    yaml = new Yaml(constructor, new DumperOptions(), new ModelResolver());
+    Representer representer = new Representer();
+    yaml = new Yaml(new Constructor(), representer, new DumperOptions(), new ModelResolver());
   }
 
   public Model read(Reader input, Map<String, ?> options) throws IOException, ModelParseException {

@@ -1,0 +1,36 @@
+18a19,20
+> import com.hazelcast.cluster.Cluster;
+> import com.hazelcast.cluster.Member;
+22,23d23
+< import com.hazelcast.config.MaxSizeConfig;
+< import com.hazelcast.config.MemberAttributeConfig;
+27d26
+< import com.hazelcast.core.Cluster;
+30d28
+< import com.hazelcast.core.Member;
+192a191
+>                 /*
+195a195
+>                 */
+288c288,289
+<             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+---
+>             //dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+>             dynamicConfig.setMaxSizeConfig(new com.hazelcast.config.MaxSizeConfig().setSize(hazelcastMaxCacheSizeInMegaBytes).setMaxSizePolicy(com.hazelcast.config.MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+356c357
+<         return cluster == null ? System.currentTimeMillis() : cluster.getClusterTime();
+---
+>         return cluster == null ? System.currentTimeMillis() : hazelcast.getCluster().getClusterTime();
+496c497
+<             result = new HazelcastClusterNodeInfo(member, cluster.getClusterTime());
+---
+>             result = new HazelcastClusterNodeInfo(member, hazelcast.getCluster().getClusterTime());
+656c657,658
+<         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
+---
+>         //return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
+>         return NodeID.getInstance(member.getUuid().toString().getBytes(StandardCharsets.UTF_8));
+701,703d702
+< 
+< 
+< 

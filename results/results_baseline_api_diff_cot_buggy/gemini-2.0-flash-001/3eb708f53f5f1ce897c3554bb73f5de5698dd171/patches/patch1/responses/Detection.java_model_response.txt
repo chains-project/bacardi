@@ -1,36 +1,3 @@
-<fix_planning>
-a. Code and API changes:
-The code uses `com.google.api.services.translate.model.DetectionsResourceItems`. The API changes indicate that this class has been removed. Also, `DetectionsResourceItems.getConfidence()` and `DetectionsResourceItems.getLanguage()` have been removed. `com.google.api.services.translate.v3.model.DetectedLanguage.getConfidence()` has been added.
-
-b. Specific API changes causing the issue:
-The removal of `com.google.api.services.translate.model.DetectionsResourceItems` and its methods `getConfidence()` and `getLanguage()` are causing the errors.
-
-c. Affected lines of code:
-- Line 19: `import com.google.api.services.translate.model.DetectionsResourceItems;`
-- Line 87: `static Detection fromPb(DetectionsResourceItems detectionPb) {`
-- Line 88: `return new Detection(detectionPb.getLanguage(), detectionPb.getConfidence());`
-
-d. Proposed fixes:
-1. Replace `com.google.api.services.translate.model.DetectionsResourceItems` with `com.google.api.services.translate.v3.model.DetectedLanguage`.
-2. Replace `detectionPb.getLanguage()` with `detectionPb.getLanguageCode()` since the method name changed.
-3. Replace `detectionPb.getConfidence()` with `detectionPb.getConfidence()` since the method name is the same, but the class changed.
-
-e. Potential side effects:
-The change in class and method names might affect the functionality if the new class doesn't provide the same information or if the returned values have different meanings. However, based on the API documentation, the new class `DetectedLanguage` seems to be the correct replacement.
-
-f. Adherence to constraints:
-The proposed changes adhere to all constraints:
-- The function signature of `fromPb` is not changed.
-- Variables can be created if needed.
-- `@Override` annotations are only removed if necessary.
-- Missing imports are addressed.
-- No existing code is removed unless it causes errors.
-- All code is included in the final output.
-
-g. Summary:
-The best solution is to replace the deprecated class `com.google.api.services.translate.model.DetectionsResourceItems` with the new class `com.google.api.services.translate.v3.model.DetectedLanguage` and adapt the method calls accordingly. This will resolve the compilation errors and maintain the intended functionality.
-</fix_planning>
-
 ```java
 /*
  * Copyright 2016 Google LLC
@@ -50,10 +17,10 @@ The best solution is to replace the deprecated class `com.google.api.services.tr
 
 package com.google.cloud.translate;
 
-import com.google.api.services.translate.v3.model.DetectedLanguage;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import java.util.Objects;
+import com.google.api.services.translate.v3.model.DetectedLanguage;
 
 /**
  * Information about a language detection. Objects of this class contain the detected language and
@@ -119,7 +86,7 @@ public class Detection implements Serializable {
   }
 
   static Detection fromPb(DetectedLanguage detectionPb) {
-    return new Detection(detectionPb.getLanguageCode(), detectionPb.getConfidence().floatValue());
+    return new Detection(detectionPb.getLanguage(), detectionPb.getConfidence().floatValue());
   }
 }
 ```

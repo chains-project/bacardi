@@ -1,32 +1,3 @@
-<fix_planning>
-1. **Relevant parts of the code and API changes:**
-   - The code uses `liquibase.util.StringUtils.trimToNull()` which has been removed.
-   - The new API provides `liquibase.util.StringUtil.trimToNull()` and `liquibase.repackaged.org.apache.commons.lang3.StringUtils.trimToNull()`.
-
-2. **Specific API changes causing the issue:**
-   - `liquibase.util.StringUtils.trimToNull()` has been removed.
-   - The class `liquibase.util.StringUtils` has been removed.
-
-3. **Affected lines of code:**
-   - `import liquibase.util.StringUtils;`
-   - `if (StringUtils.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {`
-
-4. **Proposed fixes:**
-   - Replace `import liquibase.util.StringUtils;` with `import liquibase.util.StringUtil;`.
-   - Replace `StringUtils.trimToNull()` with `StringUtil.trimToNull()`.
-
-5. **Potential side effects:**
-   - The new method `StringUtil.trimToNull()` should behave the same as the old `StringUtils.trimToNull()`, so no functional side effects are expected.
-
-6. **Adherence to constraints:**
-   - The function signatures remain unchanged.
-   - No existing code is removed.
-   - The correct package is used in accordance with the newer dependency version.
-
-7. **Final summary:**
-   - The best solution is to replace the import and method call with the new API provided by the dependency. This adheres to all constraints and fixes the compilation error without introducing new issues.
-</fix_planning>
-
 ```java
 package liquibase.ext.mssql.sqlgenerator;
 

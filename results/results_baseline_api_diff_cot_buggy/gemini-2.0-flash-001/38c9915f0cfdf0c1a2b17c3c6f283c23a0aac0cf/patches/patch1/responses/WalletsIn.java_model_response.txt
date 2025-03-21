@@ -1,47 +1,3 @@
-<fix_planning>
-a. Relevant code and API changes:
-
-The code uses `org.cactoos.scalar.IoCheckedScalar`, `org.cactoos.scalar.SolidScalar`, and `org.cactoos.text.JoinedText`. All three classes and their constructors used in the code have been removed in the newer version of the `cactoos` dependency.
-
-Specifically:
-- `new IoCheckedScalar<>(new SolidScalar<>(pth))` is used to create `this.path`.
-- `new JoinedText(".", Long.toHexString(this.random.nextLong()), this.ext).asString()` is used to generate a file name.
-
-b. API changes causing the issue:
-
-The removal of `IoCheckedScalar`, `SolidScalar`, and `JoinedText` classes and their constructors.
-
-c. Affected lines of code:
-
-- Line 37: `import org.cactoos.scalar.IoCheckedScalar;`
-- Line 38: `import org.cactoos.scalar.SolidScalar;`
-- Line 40: `import org.cactoos.text.JoinedText;`
-- Line 53: `private final IoCheckedScalar<Path> path;`
-- Line 66: `this.path = new IoCheckedScalar<>(new SolidScalar<>(pth));`
-- Line 98: `new JoinedText(".", Long.toHexString(this.random.nextLong()), this.ext).asString()`
-
-d. Proposed fixes:
-
-- Replace `IoCheckedScalar<Path>` with `Scalar<Path>` and remove the `IoCheckedScalar` wrapper. Use `pth.value()` directly.
-- Replace `SolidScalar<>(pth)` with `pth`.
-- Replace `JoinedText` with a standard Java string concatenation.
-
-e. Potential side effects:
-
-- Removing `IoCheckedScalar` might expose potential `IOException`s. However, the code already handles `IOException` in the `iterator()` method, so this should be acceptable.
-
-f. Adherence to constraints:
-
-- The proposed changes do not change any function signatures.
-- The proposed changes create local variables to simplify the code.
-- The proposed changes remove the imports that are no longer needed.
-- The proposed changes do not remove any existing code unless it directly causes a compilation error.
-
-g. Final summary:
-
-The best solution is to replace `IoCheckedScalar` and `SolidScalar` with `Scalar` and directly use the `pth` value. Replace `JoinedText` with string concatenation. This addresses the API changes while minimizing the impact on the existing code and adhering to all constraints.
-</fix_planning>
-
 ```java
 /*
  * The MIT License (MIT)
@@ -52,7 +8,7 @@ The best solution is to replace `IoCheckedScalar` and `SolidScalar` with `Scalar
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom this software is
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
@@ -63,8 +19,8 @@ The best solution is to replace `IoCheckedScalar` and `SolidScalar` with `Scalar
  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package io.zold.api;
 
@@ -79,8 +35,11 @@ import org.cactoos.func.IoCheckedFunc;
 import org.cactoos.io.Directory;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.Mapped;
+import org.cactoos.scalar.Unchecked;
 import org.cactoos.text.FormattedText;
+import org.cactoos.text.Text;
 import org.cactoos.text.UncheckedText;
+import org.cactoos.text.Joined;
 
 /**
  * Wallets in path.
@@ -92,7 +51,7 @@ public final class WalletsIn implements Wallets {
     /**
      * Path containing wallets.
      */
-    private final Scalar<Path> path;
+    private final Unchecked<Path> path;
 
     /**
      * Filter for matching file extensions.
@@ -142,7 +101,7 @@ public final class WalletsIn implements Wallets {
      */
     public WalletsIn(final Scalar<Path> pth, final String ext,
         final Random random) {
-        this.path = pth;
+        this.path = new Unchecked<>(pth);
         this.filter = new IoCheckedFunc<Path, Boolean>(
             (file) -> file.toFile().isFile()
                 && FileSystems.getDefault()
@@ -156,11 +115,11 @@ public final class WalletsIn implements Wallets {
     @Override
     public Wallet create() throws IOException {
         final Path wpth = this.path.value().resolve(
-            String.format(
-                "%s.%s",
+            new Joined(
+                ".",
                 Long.toHexString(this.random.nextLong()),
                 this.ext
-            )
+            ).asString()
         );
         if (wpth.toFile().exists()) {
             throw new IOException(

@@ -3,12 +3,13 @@ package org.pitest.elements;
 import org.pitest.coverage.CoverageDatabase;
 import org.pitest.mutationtest.ClassMutationResults;
 import org.pitest.mutationtest.MutationResultListener;
-import org.pitest.mutationtest.SourceLocator;
 import org.pitest.elements.models.MutationTestSummaryData;
 import org.pitest.elements.models.PackageSummaryMap;
 import org.pitest.elements.utils.JsonParser;
 import org.pitest.util.FileUtil;
 import org.pitest.util.ResultOutputStrategy;
+import org.pitest.classinfo.ClassName;
+import org.pitest.mutationtest.SourceLocator;
 
 import java.io.File;
 import java.io.IOException;
@@ -102,7 +103,7 @@ public class MutationReportListener implements MutationResultListener {
   private MutationTestSummaryData createSummaryData(
       final CoverageDatabase coverage, final ClassMutationResults data) {
     return new MutationTestSummaryData(data.getFileName(),
-        data.getMutations(), coverage.getCoverage(data.getMutatedClass()));
+        data.getMutations(), coverage.getCoverage(ClassName.fromString(data.getMutatedClass())));
   }
 
   private void updatePackageSummary(

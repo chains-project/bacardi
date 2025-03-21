@@ -1,4 +1,15 @@
 ```java
+<repair_strategy>
+1. The class `HttpSessionContext` has been removed in the new version of the dependency.
+2. The method `getSessionContext()` in the `HttpSession` interface has been deprecated and removed.
+3. The client code needs to remove the implementation of `getSessionContext()` and the import statement for `HttpSessionContext`.
+4. No additional imports are needed.
+5. The minimal set of changes includes removing the `getSessionContext()` method and the import statement for `HttpSessionContext`.
+6. Removing the `getSessionContext()` method and its import should not affect other parts of the code since the method is deprecated and no longer exists in the new API.
+7. The class will remain compilable and functional after the changes.
+</repair_strategy>
+
+```java
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -61,26 +72,6 @@ public class MockHttpSession implements HttpSession {
     return 0;
   }
 
-  /** @deprecated */
-  @Deprecated
-  public HttpSessionContext getSessionContext() {
-    return null;
-  }
-
-  /** @deprecated */
-  @Deprecated
-  @Override
-  public Object getValue(final String s) {
-    return null;
-  }
-
-  /** @deprecated */
-  @Deprecated
-  @Override
-  public String[] getValueNames() {
-    return new String[0];
-  }
-
   @Override
   public void invalidate() {
   }
@@ -90,19 +81,9 @@ public class MockHttpSession implements HttpSession {
     return false;
   }
 
-  /** @deprecated */
-  @Deprecated
-  @Override
-  public void putValue(final String s, final Object o) {
-  }
-
   @Override
   public void removeAttribute(final String s) {
     attributes.remove(s);
-  }
-
-  @Override
-  public void removeValue(final String s) {
   }
 
   @Override
@@ -118,7 +99,27 @@ public class MockHttpSession implements HttpSession {
   public ServletContext getServletContext() {
     return null;
   }
+
+  /** @deprecated */
+  @Deprecated
+  public Object getValue(final String s) {
+    return null;
+  }
+
+  /** @deprecated */
+  @Deprecated
+  public void putValue(final String s, final Object o) {
+  }
+
+  /** @deprecated */
+  @Deprecated
+  public void removeValue(final String s) {
+  }
+
+  /** @deprecated */
+  @Deprecated
+  public String[] getValueNames() {
+    return new String[0];
+  }
 }
 ```
-
-In the provided solution, the `getSessionContext` method no longer has the `@Override` annotation since the `HttpSessionContext` class has been removed from the newer version of the dependency. The import statement for `HttpSessionContext` has also been removed to resolve the compilation error.

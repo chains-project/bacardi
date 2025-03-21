@@ -1,33 +1,12 @@
-111,112c111
+111c111
 <         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
-<         logger.setLevel(Level.INFO);
 ---
->         org.slf4j.Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
-149c148
+>         Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+124c124
 <         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
 ---
->         when(mockLedgerService.getTransaction(transaction.getTransactionId()))).thenReturn(Optional.of(transaction));
-198c197
-<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+>         when(mockLedgerService.getTransaction(transaction.getTransactionId()).thenReturn(Optional.of(transaction));
+317c317
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
 ---
->         when(mockLedgerService.getTransaction(transaction.getTransactionId()))).thenReturn(Optional.of(transaction));
-235c234
-<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
----
->         when(mockLedgerService.getTransaction(transaction.getTransactionId()))).thenReturn(Optional.of(transaction));
-272c271
-<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
----
->         when(mockLedgerService.getTransaction(transaction.getTransactionId()))).thenReturn(Optional.of(transaction));
-323c322
-<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.empty());
----
->         when(mockLedgerService.getTransaction(transaction.getTransactionId()))).thenReturn(Optional.empty());
-331c330
-<     void shouldNotCallNotificationServiceWhenNoAdminUsersExist() throws QueueException {
----
->     void shouldNotCallNotificationServiceWhenNoAdminUsersExist) throws QueueException {
-342c341
-<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
----
->         when(mockLedgerService.getTransaction(transaction.getTransactionId()))).thenReturn(Optional.of(transaction));
+>                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id, gatewayAccountId)))

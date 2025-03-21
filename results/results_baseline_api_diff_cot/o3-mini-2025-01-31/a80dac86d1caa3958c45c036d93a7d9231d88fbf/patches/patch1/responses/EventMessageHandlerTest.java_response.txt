@@ -1,5 +1,7 @@
 package uk.gov.pay.adminusers.queue.event;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -78,10 +80,8 @@ class EventMessageHandlerTest {
 
     @Captor
     ArgumentCaptor<Map<String, String>> personalisationCaptor;
-    
     @Mock
     private Appender<ILoggingEvent> mockLogAppender;
-
     @Captor
     ArgumentCaptor<ILoggingEvent> loggingEventArgumentCaptor;
 
@@ -96,12 +96,7 @@ class EventMessageHandlerTest {
 
     @BeforeEach
     void setUp() {
-        eventMessageHandler = new EventMessageHandler(mockEventSubscriberQueue,
-                mockLedgerService,
-                mockNotificationService,
-                mockServiceFinder,
-                mockUserServices,
-                objectMapper);
+        eventMessageHandler = new EventMessageHandler(mockEventSubscriberQueue, mockLedgerService, mockNotificationService, mockServiceFinder, mockUserServices, objectMapper);
         service = Service.from(randomInt(), randomUuid(), new ServiceName(DEFAULT_NAME_VALUE));
         service.setMerchantDetails(new MerchantDetails("Organisation Name", null, null, null, null, null, null, null, null));
         transaction = aLedgerTransactionFixture()
@@ -112,10 +107,15 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin1"),
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
-        // Removed logger configuration that depended on removed Logback API:
-        // Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
-        // logger.setLevel(Level.INFO);
-        // logger.addAppender(mockLogAppender);
+
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        Object logger = loggerContext.getLogger(EventMessageHandler.class.getName());
+        try {
+            logger.getClass().getMethod("setLevel", Level.class).invoke(logger, Level.INFO);
+            logger.getClass().getMethod("addAppender", Appender.class).invoke(logger, mockLogAppender);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to configure logger", e);
+        }
     }
 
     @Test
@@ -178,8 +178,12 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("unrecognized"), is("no"));
         assertThat(personalisation.get("paymentAmount"), is(nullValue()));
         assertThat(personalisation.get("disputeEvidenceDueDate"), is(nullValue()));
-        
-        // Removed log appender verification due to dependency API changes.
+
+        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+
+        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
 
     @Test
@@ -211,8 +215,12 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("serviceName"), is(service.getName()));
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
-        
-        // Removed log appender verification due to dependency API changes.
+
+        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+
+        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
 
     @Test
@@ -244,8 +252,12 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("serviceName"), is(service.getName()));
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
-        
-        // Removed log appender verification due to dependency API changes.
+
+        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+
+        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
 
     @Test
@@ -277,8 +289,12 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("serviceName"), is(service.getName()));
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
-        
-        // Removed log appender verification due to dependency API changes.
+
+        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+
+        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
 
     @Test

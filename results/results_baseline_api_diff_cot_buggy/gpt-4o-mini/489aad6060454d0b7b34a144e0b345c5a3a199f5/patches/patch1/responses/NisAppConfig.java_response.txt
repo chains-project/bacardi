@@ -112,8 +112,8 @@ public class NisAppConfig {
 			prop.getProperty("jdbc.username"),
 			prop.getProperty("jdbc.password")
 		);
-		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
 		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
 
 		final Flyway flyway = new Flyway(configuration);
 		return flyway;

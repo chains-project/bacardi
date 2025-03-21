@@ -14,13 +14,14 @@ import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
-import org.spongepowered.api.command.source.CommandSource;
+import org.spongepowered.api.command.spec.CommandExecutor;
+import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.service.permission.Subject;
+import org.spongepowered.api.text.Text;
 
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.Component;
-
-public class UploadCommand implements Command.Executor, ChangeSkinCommand {
+public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
     private final ChangeSkinCore core;
@@ -32,20 +33,19 @@ public class UploadCommand implements Command.Executor, ChangeSkinCommand {
     }
 
     @Override
-    public CommandResult execute(CommandContext context) {
-        CommandSource src = context.cause().first(CommandSource.class).orElse(null);
+    public CommandResult execute(CommandContext args) {
+        Subject src = args.cause().subject();
 
-        if (src == null) {
-            return CommandResult.empty();
-        }
+        Parameter.Value<String> urlValue = args.one(Text.of("url"));
+        Optional<String> optUrl = urlValue.value();
 
-        Parameter.Value<String> urlParameter = context.one(Parameter.string("url")).orElse(null);
-        if (urlParameter == null) {
+        if (!optUrl.isPresent()) {
             plugin.sendMessage(src, "no-valid-url");
             return CommandResult.empty();
         }
 
-        String url = urlParameter;
+        String url = optUrl.get();
+
         if (url.startsWith("http://") || url.startsWith("https://")) {
             List<Account> accounts = plugin.getCore().getUploadAccounts();
             if (accounts.isEmpty()) {
@@ -63,10 +63,11 @@ public class UploadCommand implements Command.Executor, ChangeSkinCommand {
     }
 
     @Override
-    public Command.Builder buildSpec() {
-        return Command.builder()
+    public CommandSpec buildSpec() {
+        return CommandSpec.builder()
                 .executor(this)
-                .addParameter(Parameter.string("url"))
-                .permission(PomData.ARTIFACT_ID + ".command.skinupload.base");
+                .addParameter(Parameter.string().key("url").build())
+                .permission(PomData.ARTIFACT_ID + ".command.skinupload.base")
+                .build();
     }
 }

@@ -20,8 +20,6 @@ import static com.google.cloud.RetryHelper.runWithRetries;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.cloud.BaseService;
-import com.google.cloud.RetryHelper.RetryHelperException;
 import com.google.cloud.translate.spi.v2.TranslateRpc;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -32,11 +30,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.function.Function;
 
 final class TranslateImpl extends BaseService<TranslateOptions> implements Translate {
 
   private final TranslateRpc translateRpc;
+
+  private static final Function<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionResult>, Detection>
+      DETECTION_FROM_PB_FUNCTION =
+          new Function<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionResult>, Detection>() {
+            @Override
+            public Detection apply(List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionResult> detectionPb) {
+              return Detection.fromPb(detectionPb.get(0));
+            }
+          };
 
   TranslateImpl(TranslateOptions options) {
     super(options);
@@ -46,7 +52,18 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   @Override
   public List<Language> listSupportedLanguages(final LanguageListOption... options) {
     try {
-      return translateRpc.listSupportedLanguages(optionMap(options));
+      return Lists.transform(
+          runWithRetries(
+              new Callable<List<com.google.cloud.translate.spi.v2.TranslateRpc.Language>>() {
+                @Override
+                public List<com.google.cloud.translate.spi.v2.TranslateRpc.Language> call() {
+                  return translateRpc.listSupportedLanguages(optionMap(options));
+                }
+              },
+              getOptions().getRetrySettings(),
+              EXCEPTION_HANDLER,
+              getOptions().getClock()),
+          Language.FROM_PB_FUNCTION);
     } catch (RetryHelperException e) {
       throw TranslateException.translateAndThrow(e);
     }
@@ -55,19 +72,27 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   @Override
   public List<Detection> detect(final List<String> texts) {
     try {
-      List<String> detectionsPb =
+      List<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionResult>> detectionsPb =
           runWithRetries(
-              new Callable<List<String>>() {
+              new Callable<List<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionResult>>>() {
                 @Override
-                public List<String> call() {
+                public List<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionResult>> call() {
                   return translateRpc.detect(texts);
                 }
               },
               getOptions().getRetrySettings(),
               EXCEPTION_HANDLER,
               getOptions().getClock());
-
-      return Lists.transform(detectionsPb, Detection::new);
+      Iterator<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionResult>> detectionIterator = detectionsPb.iterator();
+      Iterator<String> textIterator = texts.iterator();
+      while (detectionIterator.hasNext() && textIterator.hasNext()) {
+        List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionResult> detectionPb = detectionIterator.next();
+        String text = textIterator.next();
+        checkState(
+            detectionPb != null && !detectionPb.isEmpty(), "No detection found for text: %s", text);
+        checkState(detectionPb.size() == 1, "Multiple detections found for text: %s", text);
+      }
+      return Lists.transform(detectionsPb, DETECTION_FROM_PB_FUNCTION);
     } catch (RetryHelperException e) {
       throw TranslateException.translateAndThrow(e);
     }
@@ -86,7 +111,18 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   @Override
   public List<Translation> translate(final List<String> texts, final TranslateOption... options) {
     try {
-      return translateRpc.translate(texts, optionMap(options));
+      return Lists.transform(
+          runWithRetries(
+              new Callable<List<com.google.cloud.translate.spi.v2.TranslateRpc.TranslationResult>>() {
+                @Override
+                public List<com.google.cloud.translate.spi.v2.TranslateRpc.TranslationResult> call() {
+                  return translateRpc.translate(texts, optionMap(options));
+                }
+              },
+              getOptions().getRetrySettings(),
+              EXCEPTION_HANDLER,
+              getOptions().getClock()),
+          Translation.FROM_PB_FUNCTION);
     } catch (RetryHelperException e) {
       throw TranslateException.translateAndThrow(e);
     }

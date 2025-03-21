@@ -1,25 +1,5 @@
 package it.geosolutions.geostore.core.security.password;
 
-/*
- *  Copyright (C) 2007 - 2011 GeoSolutions S.A.S.
- *  http://www.geo-solutions.it
- *
- *  GPLv3 + Classpath exception
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 import static it.geosolutions.geostore.core.security.password.SecurityUtils.scramble;
 import static it.geosolutions.geostore.core.security.password.SecurityUtils.toBytes;
 import static it.geosolutions.geostore.core.security.password.SecurityUtils.toChars;
@@ -88,7 +68,6 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 	@Override
 	protected PasswordEncoder createStringEncoder() {
 		byte[] password = lookupPasswordFromKeyStore();
-
 		char[] chars = toChars(password);
 		try {
 			stringEncrypter = new StandardPBEStringEncryptor();
@@ -100,16 +79,12 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			stringEncrypter.setAlgorithm(getAlgorithm());
 
 			return new PasswordEncoder() {
-				public String encodePassword(String rawPassword, Object salt) {
-					return stringEncrypter.encrypt(rawPassword);
+				public String encodePassword(String rawPass, Object salt) {
+					return stringEncrypter.encrypt(rawPass);
 				}
 
 				public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
-					try {
-						return stringEncrypter.decrypt(encPass).equals(rawPass);
-					} catch (Exception e) {
-						return false;
-					}
+					return stringEncrypter.decrypt(removePrefix(encPass)).equals(rawPass);
 				}
 			};
 		} finally {
@@ -133,7 +108,8 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 
 		return new CharArrayPasswordEncoder() {
 			@Override
-			public boolean isPasswordValid(String encPass, char[] rawPass, Object salt) {
+			public boolean isPasswordValid(String encPass, char[] rawPass,
+					Object salt) {
 				byte[] decoded = Base64.getDecoder().decode(encPass.getBytes());
 				byte[] decrypted = byteEncrypter.decrypt(decoded);
 
@@ -150,7 +126,8 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			public String encodePassword(char[] rawPass, Object salt) {
 				byte[] bytes = toBytes(rawPass);
 				try {
-					return new String(Base64.getEncoder().encode(byteEncrypter.encrypt(bytes)));
+					return new String(Base64.getEncoder().encode(byteEncrypter
+							.encrypt(bytes)));
 				} finally {
 					scramble(bytes);
 				}
@@ -161,12 +138,15 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 	byte[] lookupPasswordFromKeyStore() {
 		try {
 			if (!keystoreProvider.containsAlias(getKeyAliasInKeyStore())) {
-				throw new RuntimeException("Keystore: " + keystoreProvider.getFile() + " does not"
+				throw new RuntimeException("Keystore: "
+						+ keystoreProvider.getFile() + " does not"
 						+ " contain alias: " + getKeyAliasInKeyStore());
 			}
-			return keystoreProvider.getSecretKey(getKeyAliasInKeyStore()).getEncoded();
+			return keystoreProvider.getSecretKey(getKeyAliasInKeyStore())
+					.getEncoded();
 		} catch (IOException e) {
-			throw new RuntimeException("Cannot find alias: " + getKeyAliasInKeyStore() + " in "
+			throw new RuntimeException("Cannot find alias: "
+					+ getKeyAliasInKeyStore() + " in "
 					+ keystoreProvider.getFile().getAbsolutePath());
 		}
 	}
@@ -186,7 +166,8 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 	}
 
 	@Override
-	public char[] decodeToCharArray(String encPass) throws UnsupportedOperationException {
+	public char[] decodeToCharArray(String encPass)
+			throws UnsupportedOperationException {
 		if (byteEncrypter == null) {
 			// not initialized
 			getCharEncoder();

@@ -1,13 +1,12 @@
-27a28,29
+27a28
 > import org.yaml.snakeyaml.LoaderOptions;
-> import org.yaml.snakeyaml.TypeDescription;
-114c116,118
+114c115,117
 <             return (YamlNode) new Yaml(new Constructor(YamlNode.class)).load(in);
 ---
->             TypeDescription yamlNodeDescription = new TypeDescription(YamlNode.class);
->             Constructor constructor = new Constructor(yamlNodeDescription);
->             return (YamlNode) new Yaml(constructor).load(in);
-126a131,166
+>             LoaderOptions options = new LoaderOptions();
+>             options.setAllowDuplicateKeys(true);
+>             return (YamlNode) new Yaml(new Constructor(YamlNode.class, options)).load(in);
+126a130,161
 >    public static final Function<Node, YamlNode> nodeToYamlNode = new Function<Node, YamlNode>() {
 >       @Override
 >       public YamlNode apply(Node arg0) {
@@ -36,19 +35,13 @@
 >       }
 >    };
 > 
->    public ByteSource toYaml() {
->       return yamlNodeToByteSource.apply(this);
->    }
-> 
 >    public static YamlNode fromNode(Node in) {
 >       return nodeToYamlNode.apply(in);
 >    }
 > 
-174,210d213
-< 
-<    public ByteSource toYaml() {
-<       return yamlNodeToByteSource.apply(this);
-<    }
+172d206
+<       }
+178,210d211
 < 
 <    public static YamlNode fromNode(Node in) {
 <       return nodeToYamlNode.apply(in);

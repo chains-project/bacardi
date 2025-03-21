@@ -93,6 +93,7 @@ class ModelRepresenter extends Representer {
     return false;
   }
 
+
   private class RepresentXpp3Dom implements Represent {
     private static final String ATTRIBUTE_PREFIX = "attr/";
 
@@ -232,12 +233,11 @@ class ModelRepresenter extends Representer {
         return super.getProperties(type);
       }
     } catch (IntrospectionException e) {
-      throw new YAMLException(e);
+      throw new RuntimeException(e);
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
-          throws IntrospectionException {
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
     Set<Property> standard = super.getProperties(type);
     Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
     sorted.addAll(standard);
@@ -269,7 +269,7 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0;
+      return 0;// compare further
     }
   }
 }

@@ -1,34 +1,35 @@
-18,19c18,19
-<  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
-<  * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
----
->  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
->  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-48c48,50
+48c48,49
 < import org.hamcrest.Matchers;
 ---
 > import org.hamcrest.CoreMatchers;
-> import org.hamcrest.collection.IsEmptyCollection;
-> import org.hamcrest.collection.IsIterableContaining;
-60,61c62,63
+> import org.hamcrest.core.IsCollectionContaining;
+60,61c61,62
 <  *   .assertBody(Matchers.containsString("hello, world!"))
 <  *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
 ---
 >  *   .assertBody(CoreMatchers.containsString("hello, world!"))
->  *   .assertHeader("Content-Type", IsIterableContaining.hasItem("text/plain"))
-175c177
-<      * <p>The iterator for the matcher will always be a real object an never
----
->      * <p>The iterator for the matcher will always be a real object and never
-210c212
+>  *   .assertHeader("Content-Type", IsCollectionContaining.hasItem("text/plain"))
+210c211
 <         return this.assertHeader(name, Matchers.hasItems(value));
 ---
->         return this.assertHeader(name, IsIterableContaining.hasItem(value));
-246c248
+>         return this.assertHeader(name, IsCollectionContaining.hasItem(value));
+246c247
 <             Matchers.not(Matchers.emptyIterableOf(String.class))
 ---
->             CoreMatchers.not(IsEmptyCollection.empty())
-284c286
+>             CoreMatchers.not(emptyIterableOf(String.class))
+284c285
 <             Matchers.notNullValue()
 ---
 >             CoreMatchers.notNullValue()
+332a334,344
+>     private static <T> Matcher<Iterable<T>> emptyIterableOf(final Class<T> type) {
+>         return new CustomMatcher<Iterable<T>>("an empty iterable of " + type.getName()) {
+>             @Override
+>             public boolean matches(final Object item) {
+>                 if (item instanceof Iterable) {
+>                     return !((Iterable<?>) item).iterator().hasNext();
+>                 }
+>                 return false;
+>             }
+>         };
+>     }

@@ -1,0 +1,74 @@
+21d20
+< import org.codehaus.plexus.util.xml.Xpp3Dom;
+25d23
+< 
+29a28,33
+> import org.w3c.dom.Element;
+> import org.w3c.dom.Node;
+> import org.w3c.dom.NodeList;
+> import java.util.ArrayList;
+> import java.util.List;
+> 
+70,76c74,82
+<         if (config instanceof Xpp3Dom) {
+<             return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
+<                     .flatMap(aggregate -> stream(aggregate.getChildren("path")))
+<                     .map(processor -> system.createArtifact(
+<                             extractChildValue(processor, "groupId"),
+<                             extractChildValue(processor, "artifactId"),
+<                             extractChildValue(processor, "version"),
+---
+>         if (config instanceof Element) {
+>             Element configElement = (Element) config;
+>             List<Element> annotationProcessorPathsElements = getChildElementsByName(configElement, "annotationProcessorPaths");
+>             return annotationProcessorPathsElements.stream()
+>                     .flatMap(annPaths -> getChildElementsByName(annPaths, "path").stream())
+>                     .map(pathElem -> system.createArtifact(
+>                             extractChildValue(pathElem, "groupId"),
+>                             extractChildValue(pathElem, "artifactId"),
+>                             extractChildValue(pathElem, "version"),
+78,79d83
+<                     // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
+<                     // therefore there is little use in logging incomplete paths that are filtered out.
+85,87d88
+<         // It is expected that this will never occur due to all Configuration instances of all plugins being provided as
+<         // XML document. If this happens to occur on very old plugin versions, we can safely add the type support and
+<         // simply return an empty set.
+95,97c96,113
+<      * @param node the parent node
+<      * @param name the child node name
+<      * @return Returns child value if child node present or otherwise empty string.
+---
+>      * @param element the parent element
+>      * @param childName the child element name
+>      * @return Returns child value if child element present or otherwise empty string.
+>      */
+>     private static String extractChildValue(Element element, String childName) {
+>         List<Element> children = getChildElementsByName(element, childName);
+>         if (!children.isEmpty()) {
+>             return children.get(0).getTextContent().trim();
+>         }
+>         return "";
+>     }
+> 
+>     /**
+>      * Get direct child elements with the specified name.
+>      *
+>      * @param parent the parent element
+>      * @param name the name of the child elements to retrieve
+>      * @return List of child elements with the specified name.
+99,101c115,124
+<     private static String extractChildValue(Xpp3Dom node, String name) {
+<         final Xpp3Dom child = node.getChild(name);
+<         return child == null ? "" : child.getValue();
+---
+>     private static List<Element> getChildElementsByName(Element parent, String name) {
+>         List<Element> children = new ArrayList<>();
+>         NodeList nodes = parent.getChildNodes();
+>         for (int i = 0; i < nodes.getLength(); i++) {
+>             Node node = nodes.item(i);
+>             if (node.getNodeType() == Node.ELEMENT_NODE && name.equals(node.getNodeName())) {
+>                 children.add((Element) node);
+>             }
+>         }
+>         return children;

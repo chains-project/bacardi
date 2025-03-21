@@ -20,7 +20,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.BlockIterator;
-import tokyo.peya.lib.LeetConverter;
 
 import javax.annotation.Nullable;
 import java.sql.Connection;
@@ -33,6 +32,7 @@ import java.util.stream.Collectors;
 
 import static ml.peya.plugins.Utils.MessageEngine.get;
 import static ml.peya.plugins.Variables.skin;
+import tokyo.peya.lib.LeetConverter;
 
 /**
  * プレイヤーに関してまとめたやつ！

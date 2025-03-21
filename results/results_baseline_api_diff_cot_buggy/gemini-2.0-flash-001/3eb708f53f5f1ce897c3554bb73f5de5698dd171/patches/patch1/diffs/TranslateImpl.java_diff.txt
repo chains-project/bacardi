@@ -1,68 +1,54 @@
-23,25d22
+23,27d22
 < import com.google.api.services.translate.model.DetectionsResourceItems;
 < import com.google.api.services.translate.model.LanguagesResource;
 < import com.google.api.services.translate.model.TranslationsResource;
-37a35
-> import java.util.function.Function;
-43,51d40
+< import com.google.cloud.BaseService;
+< import com.google.cloud.RetryHelper.RetryHelperException;
+43c38
 <   private static final Function<List<DetectionsResourceItems>, Detection>
-<       DETECTION_FROM_PB_FUNCTION =
+---
+>   private static final Function<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionResult>, Detection>
+45c40
 <           new Function<List<DetectionsResourceItems>, Detection>() {
-<             @Override
+---
+>           new Function<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionResult>, Detection>() {
+47c42
 <             public Detection apply(List<DetectionsResourceItems> detectionPb) {
-<               return Detection.fromPb(detectionPb.get(0));
-<             }
-<           };
-< 
-60,64d48
-<       return Lists.transform(
-<           runWithRetries(
+---
+>             public Detection apply(List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionResult> detectionPb) {
+62c57
 <               new Callable<List<LanguagesResource>>() {
-<                 @Override
+---
+>               new Callable<List<com.google.cloud.translate.spi.v2.TranslateRpc.Language>>() {
+64c59
 <                 public List<LanguagesResource> call() {
-66,71d49
-<                 }
-<               },
-<               getOptions().getRetrySettings(),
-<               EXCEPTION_HANDLER,
-<               getOptions().getClock()),
-<           Language.FROM_PB_FUNCTION);
-80c58
+---
+>                 public List<com.google.cloud.translate.spi.v2.TranslateRpc.Language> call() {
+80c75
 <       List<List<DetectionsResourceItems>> detectionsPb =
 ---
->       List<String> detectionsPb =
-82c60
+>       List<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionResult>> detectionsPb =
+82c77
 <               new Callable<List<List<DetectionsResourceItems>>>() {
 ---
->               new Callable<List<String>>() {
-84c62
+>               new Callable<List<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionResult>>>() {
+84c79
 <                 public List<List<DetectionsResourceItems>> call() {
 ---
->                 public List<String> call() {
-91,100c69,70
+>                 public List<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionResult>> call() {
+91c86
 <       Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
-<       Iterator<String> textIterator = texts.iterator();
-<       while (detectionIterator.hasNext() && textIterator.hasNext()) {
-<         List<DetectionsResourceItems> detectionPb = detectionIterator.next();
-<         String text = textIterator.next();
-<         checkState(
-<             detectionPb != null && !detectionPb.isEmpty(), "No detection found for text: %s", text);
-<         checkState(detectionPb.size() == 1, "Multiple detections found for text: %s", text);
-<       }
-<       return Lists.transform(detectionsPb, DETECTION_FROM_PB_FUNCTION);
 ---
-> 
->       return Lists.transform(detectionsPb, Detection::new);
-119,123d88
-<       return Lists.transform(
-<           runWithRetries(
+>       Iterator<List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionResult>> detectionIterator = detectionsPb.iterator();
+94c89
+<         List<DetectionsResourceItems> detectionPb = detectionIterator.next();
+---
+>         List<com.google.cloud.translate.spi.v2.TranslateRpc.DetectionResult> detectionPb = detectionIterator.next();
+121c116
 <               new Callable<List<TranslationsResource>>() {
-<                 @Override
+---
+>               new Callable<List<com.google.cloud.translate.spi.v2.TranslateRpc.TranslationResult>>() {
+123c118
 <                 public List<TranslationsResource> call() {
-125,130d89
-<                 }
-<               },
-<               getOptions().getRetrySettings(),
-<               EXCEPTION_HANDLER,
-<               getOptions().getClock()),
-<           Translation.FROM_PB_FUNCTION);
+---
+>                 public List<com.google.cloud.translate.spi.v2.TranslateRpc.TranslationResult> call() {

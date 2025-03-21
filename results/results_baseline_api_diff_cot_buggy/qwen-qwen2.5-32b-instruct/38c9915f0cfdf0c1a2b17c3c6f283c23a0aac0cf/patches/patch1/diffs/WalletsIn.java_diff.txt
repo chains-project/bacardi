@@ -1,46 +1,65 @@
-37,38d36
+31d30
+< import java.util.Random;
+33c32,33
+< import org.cactoos.func.IoCheckedFunc;
+---
+> import org.cactoos.Func;
+> import org.cactoos.Text;
+37,40d36
 < import org.cactoos.scalar.IoCheckedScalar;
 < import org.cactoos.scalar.SolidScalar;
-40d37
+< import org.cactoos.text.FormattedText;
 < import org.cactoos.text.JoinedText;
-53c50
+53c49
 <     private final IoCheckedScalar<Path> path;
 ---
 >     private final Path path;
-76c73
+58c54
+<     private final IoCheckedFunc<Path, Boolean> filter;
+---
+>     private final Func<Path, Boolean> filter;
+76c72
 <             () -> pth,
 ---
 >             pth,
-89c86
+89c85
 <             () -> pth,
 ---
 >             pth,
-98d94
+98d93
 <      * @param random Randomizer
-99a96
+99a95
 >      * @param random Randomizer
-101,105c98,99
+101,107c97,99
 <     public WalletsIn(final Scalar<Path> pth, final String ext,
 <         final Random random) {
 <         this.path = new IoCheckedScalar<>(
 <             new SolidScalar<>(pth)
 <         );
+<         this.filter = new IoCheckedFunc<Path, Boolean>(
+<             (file) -> file.toFile().isFile()
 ---
 >     public WalletsIn(final Path pth, final String ext, final Random random) {
 >         this.path = pth;
-118,120c112,114
+>         this.filter = file -> file.toFile().isFile()
+110,111c102
+<                 .matches(file)
+<         );
+---
+>             .matches(file);
+118,119c109,111
 <         final Path wpth = this.path.value().resolve(
 <             new JoinedText(
-<                 ".",
 ---
 >         final Path wpth = this.path.resolve(
->             new FormattedText(
->                 "%s.%s",
-141,142c135
-<     //  It should contain the correct content according to the
-<     //  white paper (network, protocol version, id and public RSA key). After
+>             new UncheckedText(
+>                 new org.cactoos.text.JoinedText(
+122a115
+>                 )
+128c121
+<                     new FormattedText(
 ---
->     //  It should contain the correct content according to the white paper (network, protocol version, id and public RSA key). After
+>                     new org.cactoos.text.FormattedText(
 156c149
 <                 new Filtered<>(this.filter, new Directory(this.path.value()))
 ---

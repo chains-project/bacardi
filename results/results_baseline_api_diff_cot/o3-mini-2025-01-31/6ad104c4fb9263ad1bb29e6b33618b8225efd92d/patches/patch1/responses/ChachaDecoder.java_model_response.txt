@@ -1,13 +1,3 @@
-<repair_strategy>
-1. The compiler errors indicate that the classes TlsFatalAlert and AlertDescription from the package org.bouncycastle.crypto.tls no longer exist.
-2. In the previous API, the code used TlsFatalAlert(AlertDescription.bad_record_mac) to signal an authentication failure. In the new API these classes have been removed.
-3. Thus, the part of the code in decodeCiphertext() that throws new TlsFatalAlert(AlertDescription.bad_record_mac) must be updated.
-4. The constraint is that we cannot change the function signatures; therefore, we will substitute the throw with an IOException carrying a message identifying the error.
-5. The minimal change is to remove the now-invalid imports and replace the throw statement with: throw new IOException("bad_record_mac").
-6. Other parts of the code remain unchanged to ensure functionality.
-7. The final result is a fully compilable class without any references to the removed API classes.
-</repair_strategy>
-
 ```java
 package io.github.hapjava.server.impl.crypto;
 
@@ -40,7 +30,6 @@ public class ChachaDecoder {
 
     byte[] output = new byte[ciphertext.length];
     decryptCipher.processBytes(ciphertext, 0, ciphertext.length, output, 0);
-
     return output;
   }
 
@@ -51,8 +40,6 @@ public class ChachaDecoder {
   private KeyParameter initRecordMAC(ChaChaEngine cipher) {
     byte[] firstBlock = new byte[64];
     cipher.processBytes(firstBlock, 0, firstBlock.length, firstBlock, 0);
-
-    // NOTE: The BC implementation puts 'r' after 'k'
     System.arraycopy(firstBlock, 0, firstBlock, 32, 16);
     KeyParameter macKey = new KeyParameter(firstBlock, 16, 32);
     Poly1305KeyGenerator.clamp(macKey.getKey());

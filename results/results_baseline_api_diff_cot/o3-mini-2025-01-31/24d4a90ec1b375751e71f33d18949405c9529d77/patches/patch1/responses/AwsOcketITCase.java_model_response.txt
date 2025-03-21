@@ -1,14 +1,3 @@
-<repair_strategy>
-1. The specific API change is that the class com.jcabi.aspects.Tv has been removed, which directly impacts any references to its constants.
-2. In the previous code, Tv.HUNDRED and Tv.THOUSAND were used to define the length of a random string. The new API no longer provides these constants.
-3. The client code needs to be updated by replacing these references with literal values (e.g., 100 and 1000) since Tv.HUNDRED * Tv.THOUSAND equals 100 * 1000.
-4. The constraints require that function signatures remain unchanged and that only minimal modifications are performed. We also need to remove the now-broken import.
-5. The minimal changes include removing the Tv import and updating the arithmetic expression in the random string generation.
-6. There are no side effects since these constants only served as numeric multipliers.
-7. The final class will be complete and compilable.
-8. No additional imports are needed.
-</repair_strategy>
-
 ```java
 /**
  * Copyright (c) 2012-2022, jcabi.com
@@ -50,7 +39,7 @@ import org.junit.Test;
 /**
  * Integration case for {@link AwsOcket}.
  *
- * @author Yegor Bugayenko (yegor256@gmail.com)
+ * @author Yegor Bugayenko
  * @version $Id: d67286e195243030346f4424945bcc8027d7b932 $
  * @since 0.1
  */

@@ -1,6 +1,4 @@
-4,17c4,16
-< import javax.enterprise.context.RequestScoped;
-< import javax.inject.Inject;
+6,17c6,14
 < import javax.mvc.Controller;
 < import javax.mvc.Models;
 < import javax.mvc.UriRef;
@@ -14,16 +12,24 @@
 < import javax.ws.rs.POST;
 < import javax.ws.rs.Path;
 ---
-> import jakarta.enterprise.context.RequestScoped;
-> import jakarta.inject.Inject;
 > import jakarta.mvc.Controller;
 > import jakarta.mvc.Models;
-> import jakarta.mvc.binding.BindingResult;
-> import jakarta.mvc.binding.MvcBinding;
-> import jakarta.mvc.binding.ParamError;
+> import com.example.web.AlertMessage; // Assuming AlertMessage is a custom class, adjust the import if necessary
 > import jakarta.mvc.security.CsrfProtected;
 > import jakarta.validation.constraints.NotBlank;
 > import jakarta.ws.rs.FormParam;
 > import jakarta.ws.rs.GET;
 > import jakarta.ws.rs.POST;
 > import jakarta.ws.rs.Path;
+29c26
+<     BindingResult bindingResult;
+---
+>     jakarta.mvc.binding.BindingResult bindingResult;
+49c46
+<             @MvcBinding
+---
+>             @jakarta.mvc.binding.MvcBinding
+55c52
+<                     .forEach((ParamError t) -> {
+---
+>                     .forEach((t) -> {

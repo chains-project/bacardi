@@ -26,6 +26,7 @@ import se.kth.depclean.core.analysis.graph.DependencyGraph;
 import se.kth.depclean.core.analysis.model.ProjectDependencyAnalysis;
 import se.kth.depclean.core.analysis.src.ImportsAnalyzer;
 import se.kth.depclean.core.wrapper.DependencyManagerWrapper;
+import se.kth.depclean.core.wrapper.LogWrapper;
 import se.kth.depclean.graph.MavenDependencyGraph;
 import se.kth.depclean.util.MavenDebloater;
 import se.kth.depclean.util.MavenInvoker;
@@ -95,7 +96,7 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
   @Override
   @SneakyThrows
   public DependencyGraph dependencyGraph() {
-    ProjectBuildingRequest buildingRequest = new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
+    DefaultProjectBuildingRequest buildingRequest = new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
     buildingRequest.setProject(project);
     DependencyNode rootNode = dependencyGraphBuilder.buildDependencyGraph(buildingRequest, null);
     return new MavenDependencyGraph(project, model, rootNode);
@@ -133,9 +134,12 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
   public Set<String> collectUsedClassesFromProcessors() {
     getLog().debug("# collectUsedClassesFromProcessors()");
     return Optional.ofNullable(project.getPlugin("org.bsc.maven:maven-processor-plugin"))
-        .map(plugin -> plugin.getExecutionsAsMap().get("process"))
+        .map(plugin -> plugin.getExecutions().stream()
+            .filter(exec -> "process".equals(exec.getId()))
+            .findFirst()
+            .orElse(null))
         .map(exec -> exec.getConfiguration())
-        .map(config -> config.getChild("processors"))
+        .map(config -> config.get("processors"))
         .map(processors -> processors.getChildren())
         .map(arr -> Arrays.stream(arr).map(processor -> processor.getValue()).collect(Collectors.toSet()))
         .orElse(of());
@@ -144,7 +148,7 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
   @Override
   public Path getDependenciesDirectory() {
     String dependencyDirectoryName = project.getBuild().getDirectory() + "/" + DIRECTORY_TO_COPY_DEPENDENCIES;
-    return new File(dependencyDirectoryName).toPath();
+    return new File(dependencyDirectoryName).toPath());
   }
 
   @Override
@@ -183,7 +187,6 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
     return new File(project.getBuild().getTestSourceDirectory()).toPath();
   }
 
-  @SneakyThrows
   @Override
   public void generateDependencyTree(File treeFile) throws IOException, InterruptedException {
     MavenInvoker.runCommand("mvn dependency:tree -DoutputFile=" + treeFile + " -Dverbose=true", null);

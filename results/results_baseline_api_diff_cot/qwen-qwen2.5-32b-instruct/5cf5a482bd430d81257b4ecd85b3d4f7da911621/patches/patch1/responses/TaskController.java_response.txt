@@ -11,14 +11,13 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
-import jakarta.mvc.View;
 import jakarta.mvc.binding.BindingResult;
+import jakarta.mvc.binding.ParamError;
 import jakarta.mvc.security.CsrfProtected;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -26,6 +25,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import org.eclipse.krazo.engine.Viewable;
 
 @Path("tasks")
 @Controller
@@ -48,8 +48,7 @@ public class TaskController {
     AlertMessage flashMessage;
 
     @GET
-    @View("tasks.xhtml")
-    public void allTasks() {
+    public Viewable allTasks() {
         log.log(Level.INFO, "fetching all tasks");
 
         List<Task> todotasks = taskRepository.findByStatus(Task.Status.TODO);
@@ -62,6 +61,7 @@ public class TaskController {
         models.put("doingtasks", doingtasks);
         models.put("donetasks", donetasks);
 
+        return new Viewable("tasks.xhtml");
     }
 
     @GET
@@ -158,6 +158,7 @@ public class TaskController {
 
     @PUT
     @Path("{id}/status")
+    @CsrfProtected
     public Response updateStatus(@PathParam(value = "id") Long id, @NotNull @FormParam(value = "status") String status) {
         log.log(Level.INFO, "updating status of the existed task@id:{0}, status:{1}", new Object[]{id, status});
 

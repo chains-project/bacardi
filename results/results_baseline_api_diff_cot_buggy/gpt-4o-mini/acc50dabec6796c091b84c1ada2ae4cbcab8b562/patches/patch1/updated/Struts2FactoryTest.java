@@ -44,12 +44,10 @@ public class Struts2FactoryTest extends TestCase {
       this.module = module;
     }
 
-    @Override
     protected Injector getInjector() {
       return Guice.createInjector(
           new Struts2GuicePluginModule(),
           new ServletModule() {
-            @Override
             protected void configureServlets() {
               // Struts 2 setup
               bind(StrutsPrepareAndExecuteFilter.class)

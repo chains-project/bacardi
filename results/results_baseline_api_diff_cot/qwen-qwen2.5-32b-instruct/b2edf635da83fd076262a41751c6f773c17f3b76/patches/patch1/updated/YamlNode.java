@@ -26,7 +26,6 @@ import org.jclouds.byon.Node;
 import org.jclouds.util.Closeables2;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
-import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
@@ -113,9 +112,9 @@ public class YamlNode {
          InputStream in = null;
          try {
             in = byteSource.openStream();
-            TypeDescription yamlNodeDescription = new TypeDescription(YamlNode.class);
-            Constructor constructor = new Constructor(yamlNodeDescription);
-            return (YamlNode) new Yaml(constructor).load(in);
+            LoaderOptions options = new LoaderOptions();
+            options.setAllowDuplicateKeys(true);
+            return (YamlNode) new Yaml(new Constructor(YamlNode.class, options)).load(in);
          } catch (IOException ioe) {
             throw Throwables.propagate(ioe);
          } finally {
@@ -155,10 +154,6 @@ public class YamlNode {
          return yaml;
       }
    };
-
-   public ByteSource toYaml() {
-      return yamlNodeToByteSource.apply(this);
-   }
 
    public static YamlNode fromNode(Node in) {
       return nodeToYamlNode.apply(in);
@@ -209,6 +204,9 @@ public class YamlNode {
          DumperOptions options = new DumperOptions();
          options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
          return ByteSource.wrap(new Yaml(options).dump(prettier.build()).getBytes(Charsets.UTF_8));
-      }
    };
+
+   public ByteSource toYaml() {
+      return yamlNodeToByteSource.apply(this);
+   }
 }

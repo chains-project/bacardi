@@ -1,4 +1,11 @@
-70c70
+26a27
+> import org.tinspin.index.kdtree.KDTreeNode;
+70c71
 <                         if (tree.size() == 0 || tree.query1NN(coords).dist() > distanceTolerance) {
 ---
->                         if (tree.size() == 0 || tree.query1NN(coords, distanceTolerance) == null) {
+>                         if (tree.size() == 0 || nearestNeighbor(tree, coords).dist() > distanceTolerance) {
+75a77,80
+>         }
+> 
+>         private static KDTreeNode<PVector> nearestNeighbor(KDTree<PVector> tree, double[] coords) {
+>                 return tree.query1NN(coords);
