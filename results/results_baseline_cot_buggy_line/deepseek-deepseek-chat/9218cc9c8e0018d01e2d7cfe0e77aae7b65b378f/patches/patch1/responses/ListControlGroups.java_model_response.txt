@@ -167,4 +167,90 @@ public abstract class ListControlGroups<T> extends Panel {
 					if(typesControlGroup==ObjectChoiceControlGroup.class){
 						IObjectRenderer<?> renderer = renderers.get(objectProperty.type);
 						if(renderer==null){
-					
+							renderer = new IObjectRenderer<Object>() {
+								private static final long serialVersionUID = -6171655578529011405L;
+
+								public String render(Object object) {
+									return object.toString();
+								}
+							};
+						}
+						((ObjectChoiceControlGroup<?>) controlGroup).setConfiguration(getEntityProvider(objectProperty.name), renderer);
+					} else if(typesControlGroup==CollectionControlGroup.class){
+						((CollectionControlGroup<?>) controlGroup).setConfiguration(getEntityProvider(objectProperty.name), renderers);
+					}
+
+				} else {
+					controlGroup = controlGroupProviders
+							.get(objectProperty.type)
+							.createControlGroup(view.newChildId()
+									, new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name)
+									, objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
+				}
+				view.add(controlGroup);
+
+				fieldComponents.put(objectProperty.name, controlGroup);
+			} catch (SecurityException e) {
+				throw new RuntimeException(e);
+			} catch (NoSuchMethodException e) {
+				throw new RuntimeException(e);
+			} catch (IllegalArgumentException e) {
+				throw new RuntimeException(e);
+			} catch (InstantiationException e) {
+				throw new RuntimeException(e);
+			} catch (IllegalAccessException e) {
+				throw new RuntimeException(e);
+			} catch (InvocationTargetException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		add(view);
+	}
+
+	@SuppressWarnings("unchecked")
+	public IModel<T> getModel(){
+		return (IModel<T>) getDefaultModel();
+	}
+
+	public Component getResourceBase(){
+		return this;
+	}
+
+	public Map<String, AbstractControlGroup<?>> getFieldsControlGroup(){
+		return Collections.unmodifiableMap(fieldComponents);
+	}
+
+	@SuppressWarnings("rawtypes")
+	private Class<? extends AbstractControlGroup> getControlGroupByType(Class<?> type){
+		for(Class<?> mapType : typesControlGroups.keySet()){
+			if(type.isAssignableFrom(mapType)) return typesControlGroups.get(mapType);
+		}
+		return null;
+	}
+
+	private static final class ObjectProperties implements Serializable {
+		private static final long serialVersionUID = 1747577998897955928L;
+		private String name;
+		private boolean enabled;
+		private Class<?> type;
+		private boolean required;
+
+		public ObjectProperties(PropertyDescriptor descriptor, boolean required){
+			this.name = descriptor.getName();
+			this.enabled = descriptor.getWriteMethod()!=null;
+			this.type = descriptor.getPropertyType();
+			this.required = required;
+		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	public Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap(){
+		return typesControlGroups;
+	}
+	
+	public Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> getControlGroupProviders(){
+		return this.controlGroupProviders;
+	}
+}
+```

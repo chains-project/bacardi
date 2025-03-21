@@ -344,4 +344,46 @@ public class SnmpmanAgent extends BaseAgent {
             } else {
                 log.trace("created modified variable for OID {}", binding.getKey());
                 try {
-                    if (modifiers.stream().filter(m -> m instanceof Modifier).map(m -> (Modifier) m).anyMatch(m -> m.getModifier() instanceof CommunityContextModifier)
+                    if (modifiers.stream().filter(m -> m instanceof Modifier).map(m -> (Modifier) m).anyMatch(m -> m.getModifier() instanceof CommunityContextModifier)) {
+                        final List<CommunityContextModifier> contextModifiers = modifiers.stream().filter(m -> m instanceof Modifier).map(m -> (Modifier) m).filter(m -> m.getModifier() instanceof CommunityContextModifier).map(m -> (CommunityContextModifier) m.getModifier()).collect(Collectors.toList());
+                        for (final CommunityContextModifier contextModifier : contextModifiers) {
+                            result.putAll(contextModifier.getVariableBindings(context, binding.getKey()));
+                        }
+                    } else {
+                        result.put(binding.getKey(), new ModifiedVariable(binding.getValue(), modifiers));
+                    }
+                } catch (final ClassCastException e) {
+                    log.error("could not create variable binding for " + binding.getKey().toString() + " and file " + configuration.getWalk().getAbsolutePath(), e);
+                }
+            }
+
+        }
+        return result;
+    }
+
+    @Override
+    protected void unregisterManagedObjects() {
+        log.trace("unregistered managed objects for agent \"{}\"", agent);
+        for (final ManagedObject mo : groups) {
+            server.unregister(mo, null);
+        }
+    }
+
+    @Override
+    protected void addUsmUser(final USM usm) {
+        log.trace("adding usm user {} for agent \"{}\"", usm.toString(), configuration.getName());
+    }
+
+    @Override
+    protected void addNotificationTargets(final SnmpTargetMIB snmpTargetMIB, final SnmpNotificationMIB snmpNotificationMIB) {
+        log.trace("adding notification targets {}, {} for agent \"{}\"", snmpTargetMIB.toString(), snmpNotificationMIB.toString(), configuration.getName());
+    }
+
+    @Override
+    protected void addViews(final VacmMIB vacmMIB) {
+        log.trace("adding views in the vacm MIB {} for agent \"{}\"", vacmMIB.toString(), configuration.getName());
+        vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_SNMPv1, new OctetString(configuration.getCommunity()), new OctetString("v1v2group"), StorageType.nonVolatile);
+        vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_SNMPv2c, new OctetString(configuration.getCommunity()), new OctetString("v1v2group"), StorageType.nonVolatile);
+        vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("SHADES"), new OctetString("v3group"), StorageType.nonVolatile);
+        vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("TEST"), new OctetString("v3test"), StorageType.nonVolatile);
+        vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_USM,

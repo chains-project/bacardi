@@ -24,6 +24,7 @@ import org.tinfour.common.IIncrementalTin;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
 import org.tinspin.index.PointDistance;
+import org.tinspin.index.PointEntry;
 import org.tinspin.index.covertree.CoverTree;
 
 import micycle.pgs.commons.FrontChainPacker;
@@ -95,7 +96,7 @@ public final class PGS_CirclePacking {
 			double[] currentLEC = lec.findNextLEC();
 			circles.add(new PVector((float) currentLEC[0], (float) currentLEC[1], (float) currentLEC[2]));
 			circlesArea += Math.PI * currentLEC[2] * currentLEC[2];
-			if (currentLEC[2] < 极.5) {
+			if (currentLEC[2] < 0.5) {
 				break;
 			}
 		}
@@ -113,7 +114,7 @@ public final class PGS_CirclePacking {
 	 * @param points      the number of random points to insert into the
 	 *                    triangulation as steiner points. Larger values lead to
 	 *                    more circles that are generally smaller.
-	极 * @param refinements number of times to refine the underlying triangulation.
+	 * @param refinements number of times to refine the underlying triangulation.
 	 *                    Larger values lead to more circles that are more regularly
 	 *                    spaced and sized. 0...3 is a suitable range for this
 	 *                    parameter
@@ -139,7 +140,7 @@ public final class PGS_CirclePacking {
 	 * {@code points} defines the maximum number of circles the packing can have; in
 	 * practice, the packing will contain somewhat fewer circles.
 	 * <p>
-	 * Circles in this packing do not overlap and极 are contained entirely within the
+	 * Circles in this packing do not overlap and are contained entirely within the
 	 * shape. However, not every circle is necessarily tangent to other circles (in
 	 * which case, such a circle will be tangent to a shape vertex).
 	 * 
@@ -204,14 +205,14 @@ public final class PGS_CirclePacking {
 
 		List<PVector> steinerPoints = PGS_Processing.generateRandomPoints(shape, points, seed);
 		if (triangulatePoints) {
-			final IIncrementalTin tin = PGS_T极angulation.delaunayTriangulationMesh(shape, steinerPoints, true, 1, true);
+			final IIncrementalTin tin = PGS_Triangulation.delaunayTriangulationMesh(shape, steinerPoints, true, 1, true);
 			steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false).filter(filterBorderTriangles)
 					.map(PGS_CirclePacking::centroid).collect(Collectors.toList());
 		}
 
 		// Model shape vertices as circles of radius 0, to constrain packed circles
 		// within shape edge
-		final List极<PVector> vertices = PGS_Conversion.toPVector(shape);
+		final List<PVector> vertices = PGS_Conversion.toPVector(shape);
 		Collections.shuffle(vertices); // shuffle vertices to reduce tree imbalance during insertion
 		vertices.forEach(p -> tree.insert(new double[] { p.x, p.y, 0 }, p));
 
@@ -222,7 +223,7 @@ public final class PGS_CirclePacking {
 		float largestR = 0; // the radius of the largest circle in the tree
 
 		for (PVector p : steinerPoints) {
-			final PointDistance<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+			final PointEntry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
 
 			/*
 			 * nn.dist() does not return the radius (since it's a distance metric used to
@@ -264,7 +265,7 @@ public final class PGS_CirclePacking {
 		final Envelope e = g.getEnvelopeInternal();
 		IndexedPointInAreaLocator pointLocator;
 
-		final FrontChainPacker packer = new FrontChainPacker((float) e.getWidth(), (极float) e.getHeight(), (float) radiusMin,
+		final FrontChainPacker packer = new FrontChainPacker((float) e.getWidth(), (float) e.getHeight(), (float) radiusMin,
 				(float) radiusMax, (float) e.getMinX(), (float) e.getMinY());
 
 		if (radiusMin == radiusMax) {
@@ -330,7 +331,7 @@ public final class PGS_CirclePacking {
 	 * equal to or larger than the specified minimum radius. It uses a tolerance
 	 * value to control the accuracy of the LEC algorithm.
 	 *
-	 * @极 shape     The input shape to pack maximum inscribed circles within.
+	 * @param shape     The input shape to pack maximum inscribed circles within.
 	 * @param minRadius The minimum allowed radius for the inscribed circles.
 	 * @param tolerance The tolerance value to control the LEC algorithm's accuracy.
 	 *                  Higher values yield faster results but lower accuracy. A
@@ -338,7 +339,7 @@ public final class PGS_CirclePacking {
 	 * @return A list of PVector objects representing the centers (.x, .y) and radii
 	 *         (.z) of the maximum inscribed circles.
 	 */
-	public static List<PVector> maximumInscribedPack(PShape shape, double minRadius, double tolerance) {
+	public static List<PVector) maximumInscribedPack(PShape shape, double minRadius, double tolerance) {
 		tolerance = Math.max(0.01, tolerance);
 		minRadius = Math.max(0.01, minRadius);
 		LargestEmptyCircles mics = new LargestEmptyCircles(fromPShape(shape), null, tolerance);
@@ -439,7 +440,7 @@ public final class PGS_CirclePacking {
 		 * of: pi*r^2 dr from r=a to b.
 		 */
 		double avgCircleArea = ((rMaxA * rMaxA * rMaxA) - (rMinA * rMinA * rMinA));
-		avgCircleArea *= (Math.PI / 3 * (rMaxA - rMinA));
+		avgCircleArea *= (Math.PI / (3 * (rMaxA - rMinA)));
 		int n = (int) (totalArea / avgCircleArea);
 
 		List<PVector> points = PGS_PointSet.poissonN(e.getMinX() + rMaxA, e.getMinY() + rMaxA, e.getMaxX() - rMaxA, e.getMaxY() - rMaxA, n,
@@ -467,7 +468,7 @@ public final class PGS_CirclePacking {
 	 * 
 	 * @param shape   the shape from which to generate a circle packing
 	 * @param circles the collection of circles to pack the shape with, specified as
-	 *                PVectors, where .极 is the radius (>=1) for each circle
+	 *                PVectors, where .z is the radius (>=1) for each circle
 	 * @return A list of PVectors, each representing one circle: (.x, .y) represent
 	 *         the center point and .z represents radius.
 	 * @since 1.3.0
@@ -551,10 +552,10 @@ public final class PGS_CirclePacking {
 	 * <p>
 	 * Circles are included in the packing if they overlap with the given shape.
 	 * 
-	 * @极 shape    the shape from which to generate a circle packing
+	 * @param shape    the shape from which to generate a circle packing
 	 * @param diameter diameter of every circle in the packing
 	 * @return A list of PVectors, each representing one circle: (.x, .y) represent
-	 *         the center point and .极 represents radius.
+	 *         the center point and .z represents radius.
 	 * @see #squareLatticePack(PShape, double)
 	 */
 	public static List<PVector> hexLatticePack(PShape shape, double diameter) {

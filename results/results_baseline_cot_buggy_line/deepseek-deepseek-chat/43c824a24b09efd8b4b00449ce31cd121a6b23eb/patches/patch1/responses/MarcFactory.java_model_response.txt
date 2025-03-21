@@ -65,36 +65,36 @@ public class MarcFactory {
 
   public static BibliographicRecord create(JsonPathCache cache, MarcVersion version) {
     var marcRecord = new Marc21Record();
-    for (String path : schema.getPaths()) {
-      if (path.startsWith("$."))
+    for (JsonBranch branch : schema.getPaths()) {
+      if (branch.getParent() != null)
         continue;
-      switch (path) {
+      switch (branch.getLabel()) {
         case "leader":
-          marcRecord.setLeader(new Leader(extractFirst(cache, path)));
+          marcRecord.setLeader(new Leader(extractFirst(cache, branch)));
           break;
         case "001":
-          marcRecord.setControl001(new Control001(extractFirst(cache, path)));
+          marcRecord.setControl001(new Control001(extractFirst(cache, branch)));
           break;
         case "003":
-          marcRecord.setControl003(new Control003(extractFirst(cache, path)));
+          marcRecord.setControl003(new Control003(extractFirst(cache, branch)));
           break;
         case "005":
-          marcRecord.setControl005(new Control005(extractFirst(cache, path), marcRecord));
+          marcRecord.setControl005(new Control005(extractFirst(cache, branch), marcRecord));
           break;
         case "006":
           marcRecord.setControl006(
-            new Control006(extractFirst(cache, path), marcRecord));
+            new Control006(extractFirst(cache, branch), marcRecord));
           break;
         case "007":
           marcRecord.setControl007(
-            new Control007(extractFirst(cache, path), marcRecord));
+            new Control007(extractFirst(cache, branch), marcRecord));
           break;
         case "008":
           marcRecord.setControl008(
-            new Control008(extractFirst(cache, path), marcRecord));
+            new Control008(extractFirst(cache, branch), marcRecord));
           break;
         default:
-          JSONArray fieldInstances = (JSONArray) cache.getFragment(path);
+          JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());
           for (var fieldInsanceNr = 0; fieldInsanceNr < fieldInstances.size(); fieldInsanceNr++) {
             var fieldInstance = (Map) fieldInstances.get(fieldInsanceNr);
             var field = MapToDatafield.parse(fieldInstance, version);
@@ -102,7 +102,7 @@ public class MarcFactory {
               marcRecord.addDataField(field);
               field.setMarcRecord(marcRecord);
             } else {
-              marcRecord.addUnhandledTags(path);
+              marcRecord.addUnhandledTags(branch.getLabel());
             }
           }
           break;
@@ -311,8 +311,8 @@ public class MarcFactory {
     return field;
   }
 
-  private static List<String> extractList(JsonPathCache cache, String path) {
-    List<XmlFieldInstance> instances = cache.get(path);
+  private static List<String> extractList(JsonPathCache cache, String jsonPath) {
+    List<XmlFieldInstance> instances = cache.get(jsonPath);
     List<String> values = new ArrayList<>();
     if (instances != null)
       for (XmlFieldInstance instance : instances)
@@ -320,8 +320,8 @@ public class MarcFactory {
     return values;
   }
 
-  private static String extractFirst(JsonPathCache cache, String path) {
-    List<String> list = extractList(cache, path);
+  private static String extractFirst(JsonPathCache cache, String jsonPath) {
+    List<String> list = extractList(cache, jsonPath);
     if (!list.isEmpty())
       return list.get(0);
     return null;
@@ -408,35 +408,4 @@ public class MarcFactory {
         try {
           marc4jRecord.setLeader(new LeaderImpl(line.getContent()));
         } catch (StringIndexOutOfBoundsException e) {
-          logger.severe("Error at creating leader: " + e.getMessage());
-        }
-      } else if (line.isNumericTag()) {
-        if (line.isControlField()) {
-          marc4jRecord.addVariableField(new ControlFieldImpl(line.getTag(), line.getContent()));
-        } else {
-          var df = new DataFieldImpl(line.getTag(), line.getInd1().charAt(0), line.getInd2().charAt(0));
-          for (String[] pair : line.parseSubfields()) {
-            if (pair.length == 2 && pair[0] != null && pair[1] != null) {
-              df.addSubfield(new SubfieldImpl(pair[0].charAt(0), pair[1]));
-            } else {
-              logger.warning(String.format(
-                "parse error in record #%s) tag %s: '%s'",
-                line.getRecordID(), line.getTag(), line.getRawContent()
-              ));
-            }
-          }
-          marc4jRecord.addVariableField(df);
-        }
-      }
-    }
-    return marc4jRecord;
-  }
-
-  public static Record createRecordFromMarcMaker(List<MarcMakerLine> lines) {
-    Record marc4jRecord = new RecordImpl();
-    for (MarcMakerLine line : lines) {
-      if (line.isLeader()) {
-        try {
-          marc4jRecord.setLeader(new LeaderImpl(line.getContent()));
-        } catch (StringIndexOutOfBoundsException e) {
-          logger.severe("Error at creating leader:
+          logger.severe("Error at creating leader: '
