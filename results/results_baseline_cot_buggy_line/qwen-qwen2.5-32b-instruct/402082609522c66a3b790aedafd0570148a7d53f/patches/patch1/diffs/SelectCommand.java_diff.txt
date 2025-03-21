@@ -1,8 +1,60 @@
-11,12c11,12
+11,12c11,13
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
-> import org.spongepowered.api.command.CommandExecutor;
-> import org.spongepowered.api.command.CommandSpec;
-48d47
-<     @Override
+> import org.spongepowered.api.command.CommandException;
+> import org.spongepowered.api.command.Command;
+> import org.spongepowered.api.command.CommandCallable;
+16,17c17
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import java.util.Optional;
+19c19
+< public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class SelectCommand implements CommandCallable, ChangeSkinCommand {
+29c29
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+---
+>     public CommandResult process(CommandSource src, String arguments) throws CommandException {
+35c35,41
+<         String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
+---
+>         Optional<String> skinNameOptional = args.getOne("skinName");
+>         if (!skinNameOptional.isPresent()) {
+>             plugin.sendMessage(src, "invalid-skin-name");
+>             return CommandResult.empty();
+>         }
+> 
+>         String skinName = skinNameOptional.get().toLowerCase().replace("skin-", "");
+49,54c55,76
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+<                 .executor(this)
+<                 .arguments(string(of("skinName")))
+<                 .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
+<                 .build();
+---
+>     public List<String> getSuggestions(CommandSource src, String arguments, CommandContext context) throws CommandException {
+>         return Collections.emptyList();
+>     }
+> 
+>     @Override
+>     public boolean testPermission(CommandSource src) {
+>         return src.hasPermission(PomData.ARTIFACT_ID + ".command.skinselect.base");
+>     }
+> 
+>     @Override
+>     public String getHelp(CommandSource src) {
+>         return "Select a skin by ID.";
+>     }
+> 
+>     @Override
+>     public String getShortDescription(CommandSource src) {
+>         return "Select a skin by ID.";
+>     }
+> 
+>     @Override
+>     public String getUsage(CommandSource src) {
+>         return "/select <skinName>";

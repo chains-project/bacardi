@@ -4,14 +4,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Named;
-import javax.enterprise.context.SessionScoped; // Assuming SessionScoped is a suitable replacement
+// import javax.mvc.RedirectScoped; // Removed import statement for non-existent package
 
 /**
  * Used to transport messages back to the client.
  *
  * @author Hantsy Bai<hantsy@gmail.com>
  */
-@SessionScoped // Replaced RedirectScoped with SessionScoped
+//@RedirectScoped // Removed annotation for non-existent package
 @Named("flashMessage")
 public class AlertMessage implements Serializable {
 
@@ -91,8 +91,8 @@ public class AlertMessage implements Serializable {
         private String code;
         private String message;
         private String field;
-
-        public Error() {}
+        
+        public Error(){}
 
         private Error(String field, String code, String message) {
             this.field = field;

@@ -1,26 +1,155 @@
-3a4
-> import org.flywaydb.core.api.configuration.FlywayConfiguration;
-108,112c109,115
+16,18d15
+< import org.nem.nis.dao.*;
+< import org.nem.nis.harvesting.*;
+< import org.nem.nis.mappers.*;
+21,31d17
+< import org.nem.nis.pox.pos.PosImportanceCalculator;
+< import org.nem.nis.secret.*;
+< import org.nem.nis.service.BlockChainLastBlockLayer;
+< import org.nem.nis.state.*;
+< import org.nem.nis.sync.*;
+< import org.nem.nis.validators.*;
+< import org.nem.peer.connect.CommunicationMode;
+< import org.nem.peer.node.*;
+< import org.nem.peer.services.ChainServices;
+< import org.nem.peer.trust.*;
+< import org.nem.specific.deploy.*;
+65,66c51
+<         @SuppressWarnings("unused")
+<         private TransferDao transferDao;
+---
+>         private NisConfiguration nisConfiguration;
+68c53,63
+<         private static final int MAX_AUDIT_HISTORY_SIZE = 50;
+---
+>         @Autowired
+>         private TimeProvider timeProvider;
+> 
+>         @Autowired
+>         private BlockChainConfiguration blockChainConfiguration;
+> 
+>         @Autowired
+>         private ForkConfiguration forkConfiguration;
+> 
+>         @Autowired
+>         private DataSource dataSource;
+85,103d79
+<         public DataSource dataSource() throws IOException {
+<                 final NisConfiguration configuration = this.nisConfiguration();
+<                 final String nemFolder = configuration.getNemFolder();
+<                 final Properties prop = new Properties();
+<                 prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+< 
+<                 // replace url parameters with values from configuration
+<                 final String jdbcUrl = prop.getProperty("jdbc.url").replace("${nem.folder}", nemFolder).replace("${nem.network}",
+<                                 configuration.getNetworkName());
+< 
+<                 final DriverManagerDataSource dataSource = new DriverManagerDataSource();
+<                 dataSource.setDriverClassName(prop.getProperty("jdbc.driverClassName"));
+<                 dataSource.setUrl(jdbcUrl);
+<                 dataSource.setUsername(prop.getProperty("jdbc.username"));
+<                 dataSource.setPassword(prop.getProperty("jdbc.password"));
+<                 return dataSource;
+<         }
+< 
+<         @Bean(initMethod = "migrate")
+105,112c81,85
+<                 final Properties prop = new Properties();
+<                 prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+< 
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
 <                 flyway.setLocations(prop.getProperty("flyway.locations"));
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 ---
->                 final FlywayConfiguration configuration = FlywayConfiguration.defaultConfiguration();
->                 configuration.setDataSource(this.dataSource());
->                 configuration.setLocations(prop.getProperty("flyway.locations"));
->                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
->                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
-> 
->                 final Flyway flyway = new Flyway(configuration);
-117d119
+>                 Flyway flyway = Flyway.configure()
+>                                 .dataSource(this.dataSource())
+>                                 .locations(prop.getProperty("flyway.locations"))
+>                                 .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
+>                                 .load();
+117,299d89
 <         @DependsOn("flyway")
-169c171
+<         public SessionFactory sessionFactory() throws IOException {
+<                 return SessionFactoryLoader.load(this.dataSource());
+<         }
+< 
+<         @Bean
+<         public BlockChain blockChain() {
+<                 return new BlockChain(this.blockChainLastBlockLayer, this.blockChainUpdater());
+<         }
+< 
+<         @Bean
+<         public BlockChainServices blockChainServices() {
+<                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
+<                                 this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+<         }
+< 
+<         @Bean
+<         public BlockChainUpdater blockChainUpdater() {
+<                 return new BlockChainUpdater(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainContextFactory(),
+<                                 this.unconfirmedTransactions(), this.nisConfiguration());
+<         }
+< 
+<         @Bean
+<         public BlockChainContextFactory blockChainContextFactory() {
+<                 return new BlockChainContextFactory(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainServices(),
+<                                 this.unconfirmedTransactions());
+<         }
+< 
+<         // region mappers
+< 
+<         @Bean
+<         public MapperFactory mapperFactory() {
+<                 return new DefaultMapperFactory(this.mosaicIdCache());
+<         }
+< 
+<         @Bean
+<         public NisMapperFactory nisMapperFactory() {
+<                 return new NisMapperFactory(this.mapperFactory());
+<         }
+< 
+<         @Bean
+<         public NisModelToDbModelMapper nisModelToDbModelMapper() {
+<                 return new NisModelToDbModelMapper(this.mapperFactory().createModelToDbModelMapper(new AccountDaoLookupAdapter(this.accountDao)));
+<         }
+< 
+<         @Bean
+<         public NisDbModelToModelMapper nisDbModelToModelMapper() {
+<                 return this.nisMapperFactory().createDbModelToModelNisMapper(this.accountCache());
+<         }
+< 
+<         // endregion
+< 
 <         // region observers + validators
----
->         // region mappers
-198,447c200
+< 
+<         @Bean
+<         public BlockTransactionObserverFactory blockTransactionObserverFactory() {
+<                 final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
+<                 final ForkConfiguration forkConfiguration = this.nisConfiguration().getForkConfiguration();
+<                 return new BlockTransactionObserverFactory(this.observerOptions(), estimatedBlocksPerYear, forkConfiguration);
+<         }
+< 
+<         @Bean
+<         public BlockValidatorFactory blockValidatorFactory() {
+<                 return new BlockValidatorFactory(this.timeProvider(), this.nisConfiguration().getForkConfiguration());
+<         }
+< 
+<         @Bean
+<         public TransactionValidatorFactory transactionValidatorFactory() {
+<                 return new TransactionValidatorFactory(this.timeProvider(), this.nisConfiguration().getNetworkInfo(),
+<                                 this.nisConfiguration().getForkConfiguration(), this.nisConfiguration().ignoreFees());
+<         }
+< 
+<         @Bean
+<         public SingleTransactionValidator transactionValidator() {
+<                 // this is only consumed by the TransactionController and used in transaction/prepare,
+<                 // which should propagate incomplete transactions
+<                 return this.transactionValidatorFactory().createIncompleteSingleBuilder(this.nisCache()).build();
+<         }
+< 
+<         // endregion
+< 
 <         @Bean
 <         public Harvester harvester() {
 <                 final NewBlockTransactionsProvider transactionsProvider = new DefaultNewBlockTransactionsProvider(this.nisCache(),
@@ -123,14 +252,9 @@
 <         }
 < 
 <         @Bean
-<         public HibernateTransactionManager transactionManager() throws IOException {
-<                 return new HibernateTransactionManager(this.sessionFactory());
-<         }
-< 
-<         @Bean
-<         public NisMain nisMain() {
-<                 final NisConfiguration nisConfiguration = this.nisConfiguration();
-< 
+306a97
+>                 final HarvestingTask harvestingTask = new HarvestingTask(this.blockChain(), this.harvester(), this.unconfirmedTransactions());
+308,321c99
 <                 // initialize network info
 <                 NetworkInfos.setDefault(nisConfiguration.getNetworkInfo());
 < 
@@ -145,14 +269,14 @@
 <                                                         nisConfiguration.getForkConfiguration().getFeeFork().getSecondHeight()
 <                                         }));
 <                 }
-< 
+---
+>                 final PeerNetworkScheduler scheduler = new PeerNetworkScheduler(this.timeProvider(), harvestingTask);
+323,324c101
 <                 NemGlobals.setBlockChainConfiguration(nisConfiguration.getBlockChainConfiguration());
 <                 NemStateGlobals.setWeightedBalancesSupplier(this.weighedBalancesSupplier());
-< 
-<                 return new NisMain(this.blockDao, this.nisCache(), this.networkHostBootstrapper(), this.nisModelToDbModelMapper(), nisConfiguration,
-<                                 this.blockAnalyzer(), System::exit);
-<         }
-< 
+---
+>                 final CountingBlockSynchronizer synchronizer = new CountingBlockSynchronizer(this.blockChain());
+330,342d106
 <         @SuppressWarnings("serial")
 <         private Supplier<WeightedBalances> weighedBalancesSupplier() {
 <                 final Map<BlockChainFeature, Supplier<Supplier<WeightedBalances>>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<WeightedBalances>>>() {
@@ -166,23 +290,38 @@
 <                                 "weighted balance scheme", featureSupplierMap);
 <         }
 < 
-<         @Bean
+344,349c108,112
 <         public BlockAnalyzer blockAnalyzer() {
 <                 final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
 <                 final ForkConfiguration forkConfiguration = this.nisConfiguration().getForkConfiguration();
 <                 return new BlockAnalyzer(this.blockDao, this.blockChainUpdater(), this.blockChainLastBlockLayer, this.nisMapperFactory(),
 <                                 estimatedBlocksPerYear, forkConfiguration);
 <         }
-< 
+---
+>         public DataSource dataSource() throws IOException {
+>                 final NisConfiguration configuration = this.nisConfiguration();
+>                 final String nemFolder = configuration.getNemFolder();
+>                 final Properties prop = new Properties();
+>                 prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+351,356c114,123
 <         @Bean
 <         public HttpConnectorPool httpConnectorPool() {
 <                 final CommunicationMode communicationMode = this.nisConfiguration().useBinaryTransport()
 <                                 ? CommunicationMode.BINARY
 <                                 : CommunicationMode.JSON;
 <                 return new HttpConnectorPool(communicationMode, this.outgoingAudits());
-<         }
-< 
-<         @Bean
+---
+>                 // replace url parameters with values from configuration
+>                 final String jdbcUrl = prop.getProperty("jdbc.url").replace("${nem.folder}", nemFolder).replace("${nem.network}",
+>                                 configuration.getNetworkName());
+> 
+>                 final DriverManagerDataSource dataSource = new DriverManagerDataSource();
+>                 dataSource.setDriverClassName(prop.getProperty("jdbc.driverClassName"));
+>                 dataSource.setUrl(jdbcUrl);
+>                 dataSource.setUsername(prop.getProperty("jdbc.username"));
+>                 dataSource.setPassword(prop.getProperty("jdbc.password"));
+>                 return dataSource;
+360,368c127,129
 <         public NisPeerNetworkHost nisPeerNetworkHost() {
 <                 final HarvestingTask harvestingTask = new HarvestingTask(this.blockChain(), this.harvester(), this.unconfirmedTransactions());
 < 
@@ -192,32 +331,18 @@
 < 
 <                 return new NisPeerNetworkHost(this.nisCache(), synchronizer, scheduler, this.chainServices(), this.nodeCompatibilityChecker(),
 <                                 this.nisConfiguration(), this.httpConnectorPool(), this.trustProvider(), this.incomingAudits(), this.outgoingAudits());
-<         }
-< 
-<         @Bean
+---
+>         public BlockChainUpdater blockChainUpdater() {
+>                 return new BlockChainUpdater(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainContextFactory(),
+>                                 this.unconfirmedTransactionsFilter(), this.nisConfiguration().getForkConfiguration());
+372,373c133,135
 <         public NetworkHostBootstrapper networkHostBootstrapper() {
 <                 return new HarvestAwareNetworkHostBootstrapper(this.nisPeerNetworkHost(), this.unlockedAccounts(), this.nisConfiguration());
-<         }
-< 
-<         @Bean
-<         public NisConfiguration nisConfiguration() {
-<                 return new NisConfiguration();
-<         }
-< 
-<         @Bean
-<         public TimeProvider timeProvider() {
-<                 return CommonStarter.TIME_PROVIDER;
-<         }
-< 
-<         @Bean
-<         public TrustProvider trustProvider() {
-<                 final int LOW_COMMUNICATION_NODE_WEIGHT = 30;
-<                 final int TRUST_CACHE_TIME = 15 * 60;
-<                 return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME,
-<                                 this.timeProvider());
-<         }
-< 
-<         @Bean
+---
+>         public BlockChainContextFactory blockChainContextFactory() {
+>                 return new BlockChainContextFactory(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainServices(),
+>                                 this.unconfirmedTransactions());
+395,424d156
 <         public NemConfigurationPolicy configurationPolicy() {
 <                 return new NisConfigurationPolicy();
 <         }
@@ -248,28 +373,3 @@
 <         }
 < 
 <         @Bean
-<         public EnumSet<ObserverOption> observerOptions() {
-<                 final EnumSet<ObserverOption> observerOptions = EnumSet.noneOf(ObserverOption.class);
-<                 if (this.nisConfiguration().isFeatureSupported(NodeFeature.HISTORICAL_ACCOUNT_DATA)) {
-<                         observerOptions.add(ObserverOption.NoHistoricalDataPruning);
-<                 }
-< 
-<                 final BlockChainConfiguration blockChainConfiguration = this.nisConfiguration().getBlockChainConfiguration();
-<                 if (blockChainConfiguration.isBlockChainFeatureSupported(BlockChainFeature.PROOF_OF_STAKE)) {
-<                         observerOptions.add(ObserverOption.NoOutlinkObserver);
-<                 }
-< 
-<                 return observerOptions;
-<         }
-< 
-<         @Bean
-<         public Function<Address, Collection<Address>> cosignatoryLookup() {
-<                 return a -> this.accountStateCache().findStateByAddress(a).getMultisigLinks().getCosignatories();
-<         }
-< 
-<         @Bean
-<         public MosaicIdCache mosaicIdCache() {
-<                 return new SynchronizedMosaicIdCache(new DefaultMosaicIdCache());
-<         }
----
->         // ... (rest of the class remains unchanged)

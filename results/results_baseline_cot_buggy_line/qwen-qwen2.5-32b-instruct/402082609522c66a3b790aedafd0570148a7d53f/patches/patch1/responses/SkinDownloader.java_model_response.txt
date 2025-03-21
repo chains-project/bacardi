@@ -1,25 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `CommandSource` cannot be found, which suggests that the `CommandSource` class has been removed or moved in the updated version of the Sponge API dependency.
-   - The error occurs in the import statement and in the class definition where `CommandSource` is used.
-
-2. Review the client code:
-   - The `CommandSource` class is used as a type for the `invoker` field and in the constructor of the `SkinDownloader` class.
-   - The `CommandSource` import is declared at the top of the file.
-
-3. Consider potential fixes:
-   - Since `CommandSource` is no longer available, we need to find an alternative that can replace its functionality.
-   - If the new version of the Sponge API provides a similar class or interface, we should use that instead.
-   - If no direct replacement is available, we may need to adjust the code to use a different approach for handling command invokers.
-
-4. Plan the necessary changes:
-   - Replace `CommandSource` with the new class or interface that serves a similar purpose in the updated Sponge API.
-   - Update the import statement to reflect the new class or interface.
-   - Ensure that the replacement class or interface is compatible with the existing code logic.
-</code_analysis>
-
-To proceed with the fix, we need to know the new class or interface that replaces `CommandSource` in the updated Sponge API. Since the exact replacement is not specified, I will assume that `CommandSource` has been replaced by `CommandSender` in the new version of the Sponge API. Here is the proposed fix:
-
 ```java
 package com.github.games647.changeskin.sponge.task;
 
@@ -29,17 +7,15 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.UUID;
 
-import org.spongepowered.api.command.CommandSender;
-import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.text.source.TextSource;
 
 public class SkinDownloader extends SharedDownloader {
 
     private final ChangeSkinSponge plugin;
-    private final CommandSender invoker;
+    private final TextSource invoker;
     private final Player receiver;
 
-    public SkinDownloader(ChangeSkinSponge plugin, CommandSender invoker, Player receiver, UUID targetUUID
+    public SkinDownloader(ChangeSkinSponge plugin, TextSource invoker, Player receiver, UUID targetUUID
             , boolean keepSkin) {
         super(plugin.getCore(), keepSkin, targetUUID, receiver.getUniqueId());
 
@@ -60,5 +36,3 @@ public class SkinDownloader extends SharedDownloader {
     }
 }
 ```
-
-In this fix, I have replaced `CommandSource` with `CommandSender` and updated the import statement accordingly. This assumes that `CommandSender` is the correct replacement for `CommandSource` in the new version of the Sponge API. If `CommandSender` is not the correct replacement, you should replace it with the appropriate class or interface from the updated Sponge API documentation.

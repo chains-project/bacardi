@@ -1,15 +1,17 @@
-2a3
+2a3,4
 > import com.fasterxml.jackson.core.JsonProcessingException;
-88c89,95
+> import com.fasterxml.jackson.databind.JsonNode;
+88c90,92
 <     ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
 ---
->     ExportResponse exportResponse;
 >     try {
->       exportResponse = objectMapper.readValue(body, ExportResponse.class);
+>       JsonNode jsonNode = objectMapper.readTree(body);
+>       ExportResponse exportResponse = objectMapper.treeToValue(jsonNode, ExportResponse.class);
+89a94,97
 >     } catch (JsonProcessingException e) {
 >       log.error("Failed to parse JSON response", e);
->       throw new IOException("Failed to parse JSON response", e);
+>       throw new RuntimeException(e);
 >     }
-165,166d171
+165,166d172
 < 
 < 

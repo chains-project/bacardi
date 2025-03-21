@@ -1,9 +1,10 @@
-12d11
+9d8
+< import liquibase.sqlgenerator.core.AddPrimaryKeyGenerator;
+12c11
 < import liquibase.util.StringUtils;
-67c66,67
+---
+> import liquibase.util.StringUtil;
+67c66
 <     if (StringUtils.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
 ---
->     // Replace StringUtils.trimToNull with a direct check for null or empty string
->     if (statement.getTablespace() != null && !statement.getTablespace().trim().isEmpty() && database.supportsTablespaces()) {
-84d83
-< 
+>     if (StringUtil.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {

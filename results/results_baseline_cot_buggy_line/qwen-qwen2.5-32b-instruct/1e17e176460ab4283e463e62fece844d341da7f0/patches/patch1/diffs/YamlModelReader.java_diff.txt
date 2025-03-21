@@ -1,4 +1,4 @@
-1,7d0
+1,47c1,10
 < /**
 <  * Copyright (c) 2012 to original author or authors
 <  * All rights reserved. This program and the accompanying materials
@@ -6,13 +6,55 @@
 <  * which accompanies this distribution, and is available at
 <  * http://www.eclipse.org/legal/epl-v10.html
 <  */
-16a10
-> import org.yaml.snakeyaml.constructor.Constructor;
-36,37c30,33
+< package org.sonatype.maven.polyglot.yaml;
+< 
+< import org.apache.maven.model.Model;
+< import org.apache.maven.model.io.ModelParseException;
+< import org.apache.maven.model.io.ModelReader;
+< import org.codehaus.plexus.component.annotations.Component;
+< import org.sonatype.maven.polyglot.io.ModelReaderSupport;
+< import org.yaml.snakeyaml.DumperOptions;
+< import org.yaml.snakeyaml.Yaml;
+< import org.yaml.snakeyaml.representer.Representer;
+< 
+< import java.io.IOException;
+< import java.io.Reader;
+< import java.util.Map;
+< 
+< /**
+<  * YAML model reader.
+<  *
+<  * @author jvanzyl
+<  * @author bentmann
+<  *
+<  * @since 0.7
+<  */
+< @Component(role = ModelReader.class, hint = "yaml")
+< public class YamlModelReader extends ModelReaderSupport {
+<   private final Yaml yaml;
+< 
+<   public YamlModelReader() {
 <     ModelConstructor constructor = new ModelConstructor();
 <     yaml = new Yaml(constructor, new Representer(), new DumperOptions(), new ModelResolver());
+<   }
+< 
+<   public Model read(Reader input, Map<String, ?> options) throws IOException, ModelParseException {
+<     if (input == null) {
+<       throw new IllegalArgumentException("YAML Reader is null.");
+<     }
+< 
+<     return (Model) yaml.load(input);
+<   }
+< }
 ---
->     Constructor constructor = new ModelConstructor();
->     Representer representer = new Representer();
->     DumperOptions options = new DumperOptions();
->     yaml = new Yaml(constructor, representer, options, new ModelResolver());
+> <repair_strategy>
+> 1. The error indicates that the Representer class no longer has a no-argument constructor.
+> 2. The Representer class in the new version of the SnakeYAML library requires a constructor with a Representer.DefaultRepresenter configuration.
+> 3. Update the instantiation of the Representer class to use the new constructor.
+> 4. Ensure that the YamlModelReader class remains functional and adheres to the new API.
+> 5. The minimal change is to update the Representer instantiation.
+> 6. No side effects are expected from this change.
+> 7. The class should compile and function correctly with the new dependency version.
+> 8. No additional imports are needed.
+> </repair_strategy>
+\ No newline at end of file

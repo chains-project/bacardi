@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.IsEqual;
 import org.junit.jupiter.api.Test;
+import org.reactivestreams.Publisher;
 
 /**
  * Tests for {@link AuthScopeSlice}.
@@ -53,8 +54,12 @@ class AuthScopeSliceTest {
                 new AuthScheme.Result() {
                     @Override
                     public Optional<Authentication> user() {
-                        // Assuming the new version of the dependency uses Authentication directly
-                        return Optional.of(Authentication.of("alice"));
+                        return Optional.of(new Authentication() {
+                            @Override
+                            public String id() {
+                                return "alice";
+                            }
+                        });
                     }
 
                     @Override

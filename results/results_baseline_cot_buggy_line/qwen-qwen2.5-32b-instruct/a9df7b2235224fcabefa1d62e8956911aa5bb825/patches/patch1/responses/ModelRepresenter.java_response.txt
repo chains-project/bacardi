@@ -19,13 +19,6 @@ import java.util.*;
 
 import static java.lang.String.format;
 
-/**
- * YAML model representer.
- *
- * @author jvanzyl
- * @author bentmann
- * @since 0.7
- */
 class ModelRepresenter extends Representer {
   public ModelRepresenter() {
     this.representers.put(Xpp3Dom.class, new RepresentXpp3Dom());
@@ -38,7 +31,7 @@ class ModelRepresenter extends Representer {
   }
 
   protected NodeTuple representJavaBeanProperty(Object javaBean, Property property,
-                                                 Object propertyValue, Tag customTag) {
+                                                Object propertyValue, Tag customTag) {
     if (property != null && property.getName().equals("pomFile")) {
       // "pomFile" is not a part of POM http://maven.apache.org/xsd/maven-4.0.0.xsd
       return null;
@@ -112,18 +105,7 @@ class ModelRepresenter extends Representer {
 
         Object childValue = child.getValue();
         if (childValue == null) {
-          boolean isList = singularName != null;
-          if (isList) { // check for eventual list construction
-            for (int j = 0, grandChildCount = child.getChildCount(); j < grandChildCount; j++) {
-              String grandChildName = child.getChild(j).getName();
-              isList &= grandChildName.equals(singularName);
-            }
-          }
-          if (isList) {
-            childValue = toList(child, singularName);
-          } else {
-            childValue = toMap(child);
-          }
+          childValue = toList(child, singularName);
         }
         map.put(childName, childValue);
       }
@@ -159,8 +141,7 @@ class ModelRepresenter extends Representer {
   }
 
   // Model elements order {
-  //TODO move to polyglot-common, or to org.apache.maven:maven-model
-  private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
+  private static List<String> ORDER_MODEL = new ArrayList<>(Arrays.asList(
           "modelEncoding",
           "modelVersion",
           "parent",
@@ -194,41 +175,40 @@ class ModelRepresenter extends Representer {
           "profiles",
           "reporting"
   ));
-  private static List<String> ORDER_DEVELOPER = new ArrayList<String>(Arrays.asList(
+  private static List<String> ORDER_DEVELOPER = new ArrayList<>(Arrays.asList(
           "name", "id", "email"));
-  private static List<String> ORDER_CONTRIBUTOR = new ArrayList<String>(Arrays.asList(
+  private static List<String> ORDER_CONTRIBUTOR = new ArrayList<>(Arrays.asList(
           "name", "id", "email"));
-  private static List<String> ORDER_DEPENDENCY = new ArrayList<String>(Arrays.asList(
+  private static List<String> ORDER_DEPENDENCY = new ArrayList<>(Arrays.asList(
           "groupId", "artifactId", "version", "type", "classifier", "scope"));
-  private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
+  private static List<String> ORDER_PLUGIN = new ArrayList<>(Arrays.asList(
           "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
   //}
 
   protected Set<Property> getProperties(Class<? extends Object> type) {
-    try {
-      if (type.isAssignableFrom(Model.class)) {
-        return sortTypeWithOrder(type, ORDER_MODEL);
-      } else if (type.isAssignableFrom(Developer.class)) {
-        return sortTypeWithOrder(type, ORDER_DEVELOPER);
-      } else if (type.isAssignableFrom(Contributor.class)) {
-        return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-      } else if (type.isAssignableFrom(Dependency.class)) {
-        return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-      } else if (type.isAssignableFrom(Plugin.class)) {
-        return sortTypeWithOrder(type, ORDER_PLUGIN);
-      } else {
+    if (type.isAssignableFrom(Model.class)) {
+      return sortTypeWithOrder(type, ORDER_MODEL);
+    } else if (type.isAssignableFrom(Developer.class)) {
+      return sortTypeWithOrder(type, ORDER_DEVELOPER);
+    } else if (type.isAssignableFrom(Contributor.class)) {
+      return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
+    } else if (type.isAssignableFrom(Dependency.class)) {
+      return sortTypeWithOrder(type, ORDER_DEPENDENCY);
+    } else if (type.isAssignableFrom(Plugin.class)) {
+      return sortTypeWithOrder(type, ORDER_PLUGIN);
+    } else {
+      try {
         return super.getProperties(type);
+      } catch (IntrospectionException e) {
+        throw new RuntimeException(e);
       }
-    } catch (IntrospectionException e) {
-      // Handle the exception here, possibly by logging or rethrowing as a runtime exception
-      throw new RuntimeException("IntrospectionException occurred", e);
     }
   }
 
   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
           throws IntrospectionException {
     Set<Property> standard = super.getProperties(type);
-    Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
+    Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));
     sorted.addAll(standard);
     return sorted;
   }
@@ -258,7 +238,7 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0; // compare further
+      return 0;// compare further
     }
   }
 }

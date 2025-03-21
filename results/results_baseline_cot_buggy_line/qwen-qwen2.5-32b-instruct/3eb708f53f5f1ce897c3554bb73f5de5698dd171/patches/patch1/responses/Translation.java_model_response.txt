@@ -1,25 +1,7 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `TranslationsResource` cannot be found, and the package `com.google.api.services.translate.model` does not exist. This suggests that the dependency update has removed or renamed the `TranslationsResource` class.
-
-2. Review the client code:
-   - The problematic areas are where `TranslationsResource` is used, specifically in the `FROM_PB_FUNCTION` and `fromPb` method.
-   - The import statement for `TranslationsResource` is also causing an error.
-
-3. Consider potential fixes:
-   - The `TranslationsResource` class is no longer available, so we need to find an alternative or remove the dependency on it.
-   - If the new dependency version provides a different class or method to achieve the same functionality, we should use that instead.
-   - If the functionality is no longer available, we need to refactor the code to remove the dependency on `TranslationsResource`.
-
-4. Plan the necessary changes:
-   - Remove the import statement for `TranslationsResource`.
-   - Remove or refactor the `FROM_PB_FUNCTION` and `fromPb` method to not depend on `TranslationsResource`.
-   - Ensure the class still compiles and maintains its intended functionality.
-</code_analysis>
-
 ```java
 package com.google.cloud.translate;
 
+import com.google.cloud.translate.v2.model.TranslationsResource;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
@@ -37,6 +19,13 @@ import java.util.Objects;
 public class Translation implements Serializable {
 
   private static final long serialVersionUID = 2556017420486245581L;
+  static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
+      new Function<TranslationsResource, Translation>() {
+        @Override
+        public Translation apply(TranslationsResource translationPb) {
+          return Translation.fromPb(translationPb);
+        }
+      };
 
   private final String translatedText;
   private final String sourceLanguage;
@@ -99,11 +88,11 @@ public class Translation implements Serializable {
         && Objects.equals(sourceLanguage, other.sourceLanguage);
   }
 
-  // Assuming the new dependency version does not provide a direct replacement for `TranslationsResource`
-  // and the `fromPb` method is no longer needed, we can remove it.
-  // If there is a replacement class or method, we should update the code accordingly.
-  // For now, we will remove the method and the function that uses it.
+  static Translation fromPb(TranslationsResource translationPb) {
+    return new Translation(
+        translationPb.getTranslatedText(),
+        translationPb.getDetectedSourceLanguage(),
+        translationPb.getModel());
+  }
 }
 ```
-
-In this solution, I have removed the `fromPb` method and the `FROM_PB_FUNCTION` since the `TranslationsResource` class is no longer available. If there is a replacement class or method in the new dependency version, the code should be updated to use that instead. The rest of the class remains unchanged to maintain its intended functionality.

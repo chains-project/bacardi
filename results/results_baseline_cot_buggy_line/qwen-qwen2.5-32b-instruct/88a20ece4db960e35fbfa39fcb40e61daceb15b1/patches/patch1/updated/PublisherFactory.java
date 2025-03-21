@@ -1,25 +1,10 @@
-/*
- * Copyright 2020 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package com.google.pubsublite.kafka.sink;
-
-import com.google.cloud.pubsublite.PublishInfo; // Assuming PublishMetadata has been replaced by PublishInfo
-import com.google.cloud.pubsublite.internal.Publisher;
-import java.util.Map;
-
-interface PublisherFactory {
-
-  Publisher<PublishInfo> newPublisher(Map<String, String> params); // Update the type parameter
-}
+<repair_strategy>
+1. The error indicates that the class `PublishMetadata` cannot be found, which suggests that the class or its package has been renamed or removed in the new version of the dependency.
+2. The import statement for `PublishMetadata` is incorrect or the class no longer exists in the specified package.
+3. The client code needs to be updated to use the correct class or package name for `PublishMetadata`.
+4. The fix should not change the function signature of `newPublisher`.
+5. The minimal change would be to update the import statement to the correct package or class name.
+6. The change should not affect other parts of the code.
+7. The class should be compilable after the fix.
+8. The correct import statement needs to be identified.
+</repair_strategy>

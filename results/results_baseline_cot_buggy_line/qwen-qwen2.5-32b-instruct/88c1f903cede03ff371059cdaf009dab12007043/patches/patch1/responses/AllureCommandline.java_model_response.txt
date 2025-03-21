@@ -1,20 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the package `net.lingala.zip4j.core` does not exist, which suggests that the `zip4j` library has been updated and the package structure has changed.
-
-2. Review the client code:
-   - The problematic import statement is `import net.lingala.zip4j.core.ZipFile;`.
-   - The class `ZipFile` is used in the `unpack` method to extract a zip file.
-
-3. Consider potential fixes that adhere to the following constraints:
-   - The `ZipFile` class is still present in the newer version of `zip4j`, but the package structure has changed.
-   - The new package for `ZipFile` is `net.lingala.zip4j.ZipFile`.
-
-4. Plan the necessary changes to fix the issue:
-   - Update the import statement to reflect the new package structure.
-   - Ensure that the rest of the code remains unchanged to maintain the original functionality.
-</code_analysis>
-
 ```java
 package io.qameta.allure.maven;
 
@@ -122,7 +105,7 @@ public class AllureCommandline {
     private void checkAllureExists() throws FileNotFoundException {
         if (allureNotExists()) {
             throw new FileNotFoundException("There is no valid allure installation."
-                    + " Make sure you're using allure version not less than 2.x.");
+                    + " Make sure you're using allure version not less then 2.x.");
         }
     }
 
@@ -173,6 +156,7 @@ public class AllureCommandline {
                 unpack(resolved.next().getArtifact().getFile());
             } else {
                 throw new IOException("No allure commandline artifact found.");
+
             }
         } catch (DependencyResolverException e) {
             throw new IOException("Cannot resolve allure commandline dependencies.", e);
@@ -242,5 +226,3 @@ public class AllureCommandline {
     }
 }
 ```
-
-In this patch, the import statement for `ZipFile` has been updated to reflect the new package structure in the updated `zip4j` library. The rest of the code remains unchanged to ensure that the original functionality is preserved.

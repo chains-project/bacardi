@@ -1,10 +1,24 @@
-45a46
-> {
-70c71
+20c20
+< import org.apache.commons.math3.util.Pair;
+---
+> import org.apache.commons.math3.util.Pairs;
+26a27
+> import org.tinspin.index.kdtree.NNResult;
+46,51c47
+<         private static final float SQRT_3 = (float) Math.sqrt(3);
+<         /** Golden angle (in radians) */
+<         private static final float GOLDEN_ANGLE = (float) (Math.PI * (3 - Math.sqrt(5)));
+< 
+<         private PGS_PointSet() {
+<         }
+---
+> // ... (rest of the class remains unchanged)
+70c66,67
 <                         if (tree.size() == 0 || tree.query1NN(coords).dist() > distanceTolerance) {
 ---
->             if (tree.size() == 0 || tree.nearestNeighbor(coords).getDistance() > distanceTolerance) {
-78,986c79
+>                         NNResult<PVector> result = tree.query1NN(coords);
+>                         if (tree.size() == 0 || result == null || result.distance() > distanceTolerance) {
+78,986c75
 <         /**
 <          * Sorts a list of points according to the Hilbert space-filling curve to ensure
 <          * a high-degree of spatial locality in the sequence of points.
@@ -915,4 +929,4 @@
 <         }
 < 
 ---
->     // ... (rest of the class remains unchanged)
+> // ... (rest of the class remains unchanged)

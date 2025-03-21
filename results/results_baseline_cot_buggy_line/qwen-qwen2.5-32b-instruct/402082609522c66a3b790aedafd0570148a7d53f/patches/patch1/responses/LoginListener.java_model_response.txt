@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the `ClientConnectionEvent` class cannot be found, which suggests that the class or package has been removed or renamed in the updated dependency.
-   - The error occurs in the `LoginListener` class, specifically in the `onPlayerPreLogin` method and the import statement.
-
-2. Review the client code:
-   - The problematic import statement is `import org.spongepowered.api.event.network.ClientConnectionEvent;`.
-   - The method `onPlayerPreLogin` uses `ClientConnectionEvent.Auth preLoginEvent` as a parameter, which is causing the compilation error.
-
-3. Consider potential fixes:
-   - The `ClientConnectionEvent` class might have been renamed or moved to a different package in the updated version of the Sponge API.
-   - The fix should involve updating the import statement and the method parameter to reflect the new class name or package.
-
-4. Plan the necessary changes:
-   - Update the import statement to the correct package or class name.
-   - Update the method parameter to use the new class name.
-   - Ensure that the rest of the code remains unchanged and that the class compiles correctly.
-</code_analysis>
-
 ```java
 package com.github.games647.changeskin.sponge;
 
@@ -30,7 +11,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.network.PlayerPreLoginEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.scheduler.Task;
 
@@ -46,7 +28,7 @@ public class LoginListener extends SharedListener {
     }
 
     @Listener
-    public void onPlayerPreLogin(PlayerPreLoginEvent preLoginEvent) {
+    public void onPlayerPreLogin(Join preLoginEvent) {
         SkinStorage storage = core.getStorage();
         GameProfile profile = preLoginEvent.getProfile();
         UUID playerUUID = profile.getUniqueId();
@@ -94,5 +76,3 @@ public class LoginListener extends SharedListener {
     }
 }
 ```
-
-In this fix, the `ClientConnectionEvent.Auth` has been replaced with `PlayerPreLoginEvent` based on the assumption that the `ClientConnectionEvent` class has been renamed or replaced in the newer version of the Sponge API. The import statement has also been updated to reflect this change.

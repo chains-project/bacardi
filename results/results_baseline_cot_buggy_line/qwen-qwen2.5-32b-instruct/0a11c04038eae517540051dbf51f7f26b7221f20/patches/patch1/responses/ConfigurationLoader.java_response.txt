@@ -3,8 +3,8 @@ package io.simplelocalize.cli.configuration;
 import io.simplelocalize.cli.exception.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.io.File;
@@ -24,12 +24,14 @@ public final class ConfigurationLoader
 
   public Configuration loadOrGetDefault(Path configurationFilePath)
   {
+    ConfigurationLoader configurationLoader = new ConfigurationLoader();
+
     if (configurationFilePath == null)
     {
       configurationFilePath = DEFAULT_CONFIG_FILE_NAME;
     }
 
-    return load(configurationFilePath);
+    return configurationLoader.load(configurationFilePath);
   }
 
   private Configuration load(Path configurationFilePath)

@@ -1,12 +1,3 @@
-<code_analysis>
-The error messages indicate that the classes and packages related to Sponge API have been updated, and the new version no longer contains the classes `CommandExecutor`, `CommandSpec`, `CommandSource`, and `CommandContext`. This suggests that the client code is using outdated references to these classes, which have either been renamed, moved, or removed in the newer version of the Sponge API.
-
-To resolve these issues, the following steps are necessary:
-1. Identify the new class names or packages for the missing classes.
-2. Update the imports to reflect the new class names or packages.
-3. Remove the `@Override` annotations for methods that no longer override methods from the updated dependency version, as the method signatures may no longer match the expected ones in the new API version.
-</code_analysis>
-
 ```java
 package com.github.games647.changeskin.sponge.command;
 
@@ -18,7 +9,8 @@ import com.google.inject.Inject;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.command.spec.CommandExecutor;
+import org.spongepowered.api.command.CommandExecutor;
+import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
@@ -31,6 +23,7 @@ public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
         this.plugin = plugin;
     }
 
+    @Override
     public CommandResult execute(CommandSource src, CommandContext args) {
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
@@ -42,6 +35,7 @@ public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
         return CommandResult.success();
     }
 
+    @Override
     public CommandSpec buildSpec() {
         return CommandSpec.builder()
                 .executor(this)
@@ -50,8 +44,3 @@ public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
     }
 }
 ```
-
-In the provided solution:
-- The `@Override` annotations have been removed from the `execute` and `buildSpec` methods, as the new version of the Sponge API might have changed the method signatures or the class hierarchy.
-- The imports have been kept as they are, assuming that the classes `CommandResult`, `CommandSource`, `CommandContext`, `CommandExecutor`, `Player`, and `Task` still exist in the new version of the Sponge API, but under the same package names. If these classes have been moved or renamed, the imports should be updated accordingly.
-- The `buildSpec` method is kept as it is, assuming that the `CommandSpec` class still exists and is used in the same way. If the `CommandSpec` class has been removed or replaced, this method would need to be updated to use the new API for command specification.

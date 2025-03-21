@@ -39,31 +39,42 @@ public class AppenderUtils {
     private TProtocol protocol;
     private OutputStream os;
 
+    @Override
     public void init(OutputStream os) {
       this.os = os;
-      // Use the TFlushingFastFramedTransport to be compatible with singer_thrift log.
+      // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
+      // log.
       final int bufferCapacity = 10;
       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
           bufferCapacity);
       protocol = new TBinaryProtocol(framedTransport);
     }
 
-    public void doEncode(LogMessage logMessage) throws IOException {
+    @Override
+    public byte[] encode(LogMessage logMessage) throws IOException {
       try {
+        TTransport transport = new TFastFramedTransport(new TIOStreamTransport(os));
+        TProtocol protocol = new TBinaryProtocol(transport);
         logMessage.write(protocol);
-        framedTransport.flush();
+        transport.flush();
+        return transport.getBuffer().array();
       } catch (TException e) {
         throw new IOException(e);
       }
     }
 
+    @Override
     public void close() throws IOException {
       framedTransport.close();
     }
 
     @Override
-    public byte[] footerBytes() {
-      // Implement the footerBytes method as required by the updated dependency.
+    public byte[] getHeaderBytes() {
+      return new byte[0];
+    }
+
+    @Override
+    public byte[] getFooterBytes() {
       return new byte[0];
     }
   }

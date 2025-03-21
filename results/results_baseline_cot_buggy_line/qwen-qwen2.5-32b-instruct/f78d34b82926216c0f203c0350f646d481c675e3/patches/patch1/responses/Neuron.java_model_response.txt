@@ -1,19 +1,9 @@
-<code_analysis>
-1. The error message indicates that the package `develop.p2p.lib` does not exist, and the method `sigmoid(double)` cannot be found. This suggests that the `develop.p2p.lib` package or the `sigmoid` method has been removed or moved in the updated dependency.
-
-2. The client code imports `sigmoid` statically from `develop.p2p.lib.LearnMath`. The `sigmoid` method is used in the `input` method of the `Neuron` class to set the value of the neuron.
-
-3. To fix the issue, we need to either:
-   - Replace the `sigmoid` method with an equivalent method from the updated dependency.
-   - Implement the `sigmoid` method locally if it is no longer provided by the dependency.
-
-4. The plan is to implement the `sigmoid` method locally within the `Neuron` class to avoid dependency issues.
-</code_analysis>
-
 ```java
 package ml.peya.plugins.Learn;
 
 import java.util.ArrayList;
+
+import static ml.peya.lib.LearnMath.sigmoid; // Adjusted import based on the new dependency
 
 /**
  * 重みを突っ込む器。
@@ -70,17 +60,5 @@ public class Neuron
     {
         sum += value;
     }
-
-    /**
-     * Sigmoid function implementation.
-     *
-     * @param x input value
-     * @return sigmoid of x
-     */
-    private double sigmoid(double x) {
-        return 1 / (1 + Math.exp(-x));
-    }
 }
 ```
-
-This solution implements the `sigmoid` method directly within the `Neuron` class, ensuring that the code remains functional without relying on the missing `develop.p2p.lib.LearnMath.sigmoid` method.

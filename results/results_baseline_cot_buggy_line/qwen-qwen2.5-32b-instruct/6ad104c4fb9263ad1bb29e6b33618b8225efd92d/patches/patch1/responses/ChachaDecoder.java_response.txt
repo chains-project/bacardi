@@ -5,6 +5,7 @@ import org.bouncycastle.crypto.engines.ChaChaEngine;
 import org.bouncycastle.crypto.generators.Poly1305KeyGenerator;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
+import org.bouncycastle.crypto.macs.Poly1305;
 import org.bouncycastle.util.Arrays;
 
 public class ChachaDecoder {
@@ -23,10 +24,10 @@ public class ChachaDecoder {
 
     KeyParameter macKey = initRecordMAC(decryptCipher);
 
-    byte[] calculatedMAC = PolyKeyCreator.create(macKey, additionalData, ciphertext);
+    byte[] calculatedMAC = Poly1305.create(macKey, additionalData, ciphertext);
 
     if (!Arrays.constantTimeAreEqual(calculatedMAC, receivedMAC)) {
-      throw new IOException("Bad record MAC");
+      throw new RuntimeException("Bad record MAC");
     }
 
     byte[] output = new byte[ciphertext.length];

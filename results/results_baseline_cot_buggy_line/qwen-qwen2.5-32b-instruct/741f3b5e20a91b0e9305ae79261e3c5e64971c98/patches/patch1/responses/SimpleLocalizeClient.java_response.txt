@@ -1,6 +1,7 @@
 package io.simplelocalize.cli.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
@@ -86,14 +87,14 @@ public class SimpleLocalizeClient
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
     throwOnError(httpResponse);
     String body = httpResponse.body();
-    ExportResponse exportResponse;
     try {
-      exportResponse = objectMapper.readValue(body, ExportResponse.class);
+      JsonNode jsonNode = objectMapper.readTree(body);
+      ExportResponse exportResponse = objectMapper.treeToValue(jsonNode, ExportResponse.class);
+      return exportResponse.getFiles();
     } catch (JsonProcessingException e) {
       log.error("Failed to parse JSON response", e);
-      throw new IOException("Failed to parse JSON response", e);
+      throw new RuntimeException(e);
     }
-    return exportResponse.getFiles();
   }
 
   public void downloadFile(DownloadableFile downloadableFile, String downloadPathTemplate)

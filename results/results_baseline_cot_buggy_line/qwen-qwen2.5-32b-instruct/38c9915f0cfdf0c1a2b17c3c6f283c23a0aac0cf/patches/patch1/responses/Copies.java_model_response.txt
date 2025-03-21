@@ -1,24 +1,7 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the class `CollectionOf` cannot be found in the package `org.cactoos.collection`.
-   - This suggests that the `CollectionOf` class has been removed or moved in the updated dependency version.
-
-2. Review the client code:
-   - The `CollectionOf` class is used in the `equalWallets` method to compare the size of the ledgers of two wallets.
-   - The error occurs in the line where `CollectionOf` is used to wrap the ledgers of the wallets.
-
-3. Consider potential fixes that adhere to the following constraints:
-   - Since `CollectionOf` is no longer available, we need to find an alternative way to compare the sizes of the ledgers.
-   - We can use the `size()` method directly on the ledgers if they implement `Iterable` or `Collection`.
-
-4. Plan the necessary changes to fix the issue:
-   - Replace the usage of `CollectionOf` with direct calls to the `size()` method of the ledgers.
-   - Ensure that the ledgers are of a type that supports the `size()` method.
-</code_analysis>
-
 ```java
 package io.zold.api;
 
+import io.zold.api.Copies.Copy;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -152,5 +135,3 @@ public final class Copies extends IterableEnvelope<Copy> {
     }
 }
 ```
-
-In the provided solution, the `CollectionOf` class is replaced with direct calls to the `size()` method on the `ledger()` method of the `Wallet` class. This assumes that the `ledger()` method returns a type that supports the `size()` method, such as `Iterable` or `Collection`. If the `ledger()` method does not return a type that supports `size()`, further adjustments would be necessary.

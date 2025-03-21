@@ -1,16 +1,19 @@
 package org.pitest.elements;
 
-import org.pitest.classinfo.ClassName;
-import org.pitest.classinfo.ClassInfo;
 import org.pitest.coverage.CoverageDatabase;
 import org.pitest.mutationtest.ClassMutationResults;
 import org.pitest.mutationtest.MutationResultListener;
+import org.pitest.mutationtest.SourceLocator;
+import org.pitest.elements.models.MutationTestSummaryData;
+import org.pitest.elements.models.PackageSummaryMap;
+import org.pitest.elements.utils.JsonParser;
 import org.pitest.util.FileUtil;
 import org.pitest.util.ResultOutputStrategy;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,7 +21,10 @@ import java.util.Set;
 public class MutationReportListener implements MutationResultListener {
 
   private final ResultOutputStrategy outputStrategy;
-  private final CoverageDatabase coverage;
+
+  private final JsonParser jsonParser;
+
+  private final CoverageDatabase  coverage;
   private final PackageSummaryMap packageSummaryData = new PackageSummaryMap();
 
   private static final String HTML_PAGE = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n"
@@ -45,9 +51,11 @@ public class MutationReportListener implements MutationResultListener {
     + "</html>";
 
   public MutationReportListener(final CoverageDatabase coverage,
-      final ResultOutputStrategy outputStrategy) {
+      final ResultOutputStrategy outputStrategy, final SourceLocator... locators) {
     this.coverage = coverage;
     this.outputStrategy = outputStrategy;
+    this.jsonParser = new JsonParser(
+        new HashSet<>(Arrays.asList(locators)));
   }
 
   private String loadMutationTestElementsJs() throws IOException {
@@ -79,7 +87,7 @@ public class MutationReportListener implements MutationResultListener {
       e.printStackTrace();
     }
   }
-
+  
   private void createMutationTestingElementsJs() {
     final Writer writer = this.outputStrategy
       .createWriterForFile("html2" + File.separatorChar + "mutation-test-elements.js");
@@ -93,17 +101,18 @@ public class MutationReportListener implements MutationResultListener {
   }
 
   private MutationTestSummaryData createSummaryData(
-      final ClassMutationResults data) {
-    // Assuming the new method signature requires a single ClassName instead of a Set<ClassName>
-    ClassName className = ClassName.fromString(data.getMutatedClass());
-    ClassInfo classInfo = coverage.getClassInfo(className);
-    return new MutationTestSummaryData(data.getFileName(), data.getMutations(), classInfo);
+      final CoverageDatabase coverage, final ClassMutationResults data) {
+    Set<String> classNames = Collections.singleton(data.getMutatedClass().getName());
+    return new MutationTestSummaryData(data.getFileName(),
+        data.getMutations(), coverage.getClassInfo(classNames));
   }
 
   private void updatePackageSummary(
       final ClassMutationResults mutationMetaData) {
     final String packageName = mutationMetaData.getPackageName();
-    this.packageSummaryData.update(packageName, createSummaryData(mutationMetaData));
+
+    this.packageSummaryData.update(packageName,
+        createSummaryData(this.coverage, mutationMetaData));
   }
 
   @Override
@@ -119,7 +128,7 @@ public class MutationReportListener implements MutationResultListener {
   @Override
   public void runEnd() {
     try {
-      String json = packageSummaryData.toJson();
+      String json = jsonParser.toJson(this.packageSummaryData);
       createHtml();
       createMutationTestingElementsJs();
       createJs(json);

@@ -30,75 +30,57 @@
 <  */
 45d15
 < import org.hamcrest.CustomMatcher;
-48c18,35
+48c18,19
 < import org.hamcrest.Matchers;
 ---
 > import org.hamcrest.core.IsEqual;
 > import org.hamcrest.core.StringContains;
-> import org.hamcrest.core.IsAnything;
-> import org.hamcrest.core.IsNot;
-> import org.hamcrest.core.IsEqual;
-> import org.hamcrest.core.IsInstanceOf;
-> import org.hamcrest.core.IsNull;
-> import org.hamcrest.core.IsNot;
-> import org.hamcrest.core.IsSame;
-> import org.hamcrest.core.StringContains;
-> import org.hamcrest.core.IsAnything;
-> import org.hamcrest.core.IsEqual;
-> import org.hamcrest.core.IsInstanceOf;
-> import org.hamcrest.core.IsNull;
-> import org.hamcrest.core.IsNot;
-> import org.hamcrest.core.IsSame;
-> import org.hamcrest.core.StringContains;
-> import org.hamcrest.core.IsAnything;
-60,61c47,48
+54c25
+<  * HTTP response and manipulate with it afterwords, for example:
+---
+>  * HTTP response and manipulate with it afterwards, for example:
+60,61c31,32
 <  *   .assertBody(Matchers.containsString("hello, world!"))
 <  *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
 ---
->  *   .assertBody(StringContains.containsString("hello, world!"))
->  *   .assertHeader("Content-Type", IsEqual.equalTo("text/plain"))
-65,67d51
+>  *   .assertBody(new StringContains("hello, world!"))
+>  *   .assertHeader("Content-Type", new IsEqual<>(Collections.singletonList("text/plain")))
+65,67d35
 <  * <p>Method {@link #jump(URI)} creates a new instance of class
 <  * {@link Request} with all cookies transferred from the current one.
 <  *
-103c87
+103c71
 <      * @return The same object
 ---
 >      * @return This object
-114,115c98
+114,115c82
 <             this,
 <             new RestResponse.StatusMatch(message, status)
 ---
->             this.status(), IsEqual.equalTo(status)
-123c106
+>             this.status(), new IsEqual<>(status)
+121,123c88,90
+<      * Verifies HTTP response status code against the provided matcher,
+<      * and throws {@link AssertionError} in case of mismatch.
 <      * @param matcher Matcher to validate status code
 ---
+>      * Verifies HTTP response status code against the provided matcher, and throws
+>      * {@link AssertionError} in case of mismatch.
 >      * @param matcher The matcher to use
-165c148,149
-<             ), this.binary(),
----
->             ),
->             this.binary(),
-175c159
+175c142
 <      * <p>The iterator for the matcher will always be a real object an never
 ---
 >      * <p>The iterator for the matcher will always be a real object and never
-210c194
+210c177
 <         return this.assertHeader(name, Matchers.hasItems(value));
 ---
->         return this.assertHeader(name, IsEqual.equalTo(value));
-246c230
+>         return this.assertHeader(name, new IsEqual<>(Collections.singletonList(value)));
+246c213
 <             Matchers.not(Matchers.emptyIterableOf(String.class))
 ---
->             IsEqual.equalTo(HttpHeaders.LOCATION)
-263c247,248
-<             headers.containsKey(HttpHeaders.SET_COOKIE)
----
->             headers.containsKey(HttpHeaders.SET_COOKIE),
->             IsEqual.equalTo(true)
-284c269
+>             new IsEqual<>(Collections.singletonList("http://example.com"))
+284c251
 <             Matchers.notNullValue()
 ---
->             IsNotNull.notNullValue()
-332d316
+>             new IsEqual<>(null)
+332d298
 < 

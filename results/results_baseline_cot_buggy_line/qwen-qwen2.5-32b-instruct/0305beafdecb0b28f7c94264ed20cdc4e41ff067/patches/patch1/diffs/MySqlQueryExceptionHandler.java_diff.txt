@@ -15,11 +15,12 @@
 <  * limitations under the License.
 <  */
 < 
-21,22d4
+21,22c5
 < import com.mysql.jdbc.exceptions.MySQLTimeoutException;
 < 
-40c22,23
+---
+> import java.sql.SQLTimeoutException;
+40c23
 <         return exception instanceof MySQLTimeoutException || super.isTimeoutException(exception);
 ---
->         // Check if the SQL state code indicates a timeout exception
->         return "08006".equals(exception.getSQLState()) || super.isTimeoutException(exception);
+>         return exception instanceof SQLTimeoutException || super.isTimeoutException(exception);

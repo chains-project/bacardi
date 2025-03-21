@@ -4,7 +4,9 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
+import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -35,18 +37,18 @@ public class SupplierAddressStructure implements ToString2
     @XmlElement(name = "Country", required = true)
     protected String country;
 
-    // ... (other methods remain unchanged)
+    // ... (rest of the getters and setters)
 
     @Override
     public String toString() {
-        final org.jvnet.jaxb2_commons.lang.ToStringStrategy2 strategy = new org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy2();
+        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
     }
 
     @Override
-    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, org.jvnet.jaxb2_commons.lang.ToStringStrategy2 strategy) {
+    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         strategy.appendStart(locator, this, buffer);
         appendFields(locator, buffer, strategy);
         strategy.appendEnd(locator, this, buffer);
@@ -54,7 +56,7 @@ public class SupplierAddressStructure implements ToString2
     }
 
     @Override
-    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, org.jvnet.jaxb2_commons.lang.ToStringStrategy2 strategy) {
+    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         {
             String theBuildingNumber;
             theBuildingNumber = this.getBuildingNumber();

@@ -2,11 +2,13 @@ package com.example.web;
 
 import java.util.Locale;
 import java.util.logging.Logger;
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
-import jakarta.mvc.annotation.Controller;
-import jakarta.mvc.Models;
-import jakarta.mvc.MvcContext;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.mvc.annotation.Controller;
+import javax.mvc.binding.MvcContext;
+import javax.mvc.Models;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 
 /**
  *

@@ -9,12 +9,11 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import jakarta.mvc.Controller;
-import jakarta.mvc.Models;
-import jakarta.mvc.View;
-import jakarta.mvc.binding.BindingResult;
-import jakarta.mvc.binding.ParamError;
-import jakarta.mvc.security.CsrfProtected;
+import javax.mvc.annotation.Controller;
+import javax.mvc.annotation.View;
+import javax.mvc.binding.BindingResult;
+import javax.mvc.binding.ParamError;
+import javax.mvc.security.CsrfProtected;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
@@ -27,7 +26,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import org.eclipse.krazo.engine.Viewable;
 
+@Path("tasks")
 @Controller
 @RequestScoped
 public class TaskController {
@@ -36,7 +37,7 @@ public class TaskController {
     Logger log;
 
     @Inject
-    private Models models;
+    private javax.mvc.annotation.Models models;
 
     @Inject
     private BindingResult validationResult;
@@ -102,7 +103,7 @@ public class TaskController {
 
         Task task = new Task();
         task.setName(form.getName());
-        task.setDescription(form.getDescription());
+        task.description(form.getDescription());
 
         taskRepository.save(task);
 
@@ -121,7 +122,7 @@ public class TaskController {
         TaskForm form = new TaskForm();
         form.setId(task.getId());
         form.setName(task.getName());
-        form.setDescription(task.getDescription());
+        form.description(task.getDescription());
         models.put("task", form);
         return new Viewable("edit.xhtml");
     }
@@ -146,8 +147,8 @@ public class TaskController {
 
         Task task = taskRepository.findById(id);
 
-        task.setName(form.getName());
-        task.setDescription(form.getDescription());
+        task.name(form.getName());
+        task.description(form.getDescription());
 
         taskRepository.update(task);
 

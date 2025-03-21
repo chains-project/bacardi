@@ -1,9 +1,8 @@
-12d11
+12c12
 < import liquibase.util.StringUtils;
-77,78c76,78
-<     if (StringUtils.trimToNull(statement.getTablespace()) != null) {
-<       builder.append(" ON ").append(statement.getTablespace());
 ---
->     String tablespace = statement.getTablespace();
->     if (tablespace != null && !tablespace.trim().isEmpty()) {
->       builder.append(" ON ").append(tablespace);
+> import liquibase.util.StringUtil;
+77c77
+<     if (StringUtils.trimToNull(statement.getTablespace()) != null) {
+---
+>     if (StringUtil.trimToNull(statement.getTablespace()) != null) {

@@ -4,16 +4,14 @@ import com.github.games647.changeskin.core.model.auth.Account;
 import com.github.games647.changeskin.core.shared.task.SharedSkinChanger;
 import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.text.serializer.TextSerializers;
-import org.spongepowered.api.command.source.CommandSource;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class SkinChanger extends SharedSkinChanger {
 
-    private final CommandSource invoker;
+    private final @Nullable Object invoker;
 
-    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker) {
+    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, @Nullable Object invoker) {
         super(plugin.getCore(), owner, url, oldSkinUrl);
 
         this.invoker = invoker;
@@ -21,9 +19,10 @@ public class SkinChanger extends SharedSkinChanger {
 
     @Override
     protected void sendMessageInvoker(String localeMessage) {
-        // Assuming the TextSerializers.LEGACY_FORMATTING_CODE is no longer available,
-        // we use a different method to create a Text object.
-        Text text = Text.of(TextColors.RESET, localeMessage);
-        invoker.sendMessage(text);
+        if (invoker != null) {
+            // Assuming invoker has a sendMessage method that accepts a String
+            // This is a placeholder and may need to be adjusted based on the actual method signature
+            ((CommandSource) invoker).sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(localeMessage));
+        }
     }
 }

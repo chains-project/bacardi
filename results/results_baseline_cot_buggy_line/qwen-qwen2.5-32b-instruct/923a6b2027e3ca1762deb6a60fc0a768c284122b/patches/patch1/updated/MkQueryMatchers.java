@@ -2,7 +2,7 @@ package com.jcabi.http.mock;
 
 import java.net.URI;
 import org.hamcrest.Matcher;
-import org.hamcrest.core.StringContains;
+import org.hamcrest.CoreMatchers;
 
 /**
  * Convenient set of matchers for {@link MkQuery}.
@@ -53,18 +53,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasPath(final Matcher<String> path) {
         return new MkQueryUriMatcher(
-            new Matcher<URI>() {
-                @Override
-                public boolean matchesSafely(URI item) {
-                    return path.matches(item.getRawPath());
-                }
-
-                @Override
-                public void describeTo(org.hamcrest.Description description) {
-                    description.appendText("URI with path ");
-                    path.describeTo(description);
-                }
-            }
+            CoreMatchers.<URI>hasProperty("rawPath", path)
         );
     }
 
@@ -76,18 +65,8 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasQuery(final Matcher<String> query) {
         return new MkQueryUriMatcher(
-            new Matcher<URI>() {
-                @Override
-                public boolean matchesSafely(URI item) {
-                    return query.matches(item.getRawQuery());
-                }
-
-                @Override
-                public void describeTo(org.hamcrest.Description description) {
-                    description.appendText("URI with query ");
-                    query.describeTo(description);
-                }
-            }
+            CoreMatchers.<URI>hasProperty("rawQuery", query)
         );
     }
+
 }

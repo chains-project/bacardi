@@ -1,5 +1,6 @@
 package com.google.cloud.translate;
 
+import com.google.cloud.translate.v2.model.LanguagesResource;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
@@ -16,6 +17,13 @@ import java.util.Objects;
 public class Language implements Serializable {
 
   private static final long serialVersionUID = 5205240279371907020L;
+  static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
+      new Function<LanguagesResource, Language>() {
+        @Override
+        public Language apply(LanguagesResource languagePb) {
+          return Language.fromPb(languagePb);
+        }
+      };
 
   private final String code;
   private final String name;
@@ -57,8 +65,7 @@ public class Language implements Serializable {
     return Objects.equals(code, other.code) && Objects.equals(name, other.name);
   }
 
-  // Assuming LanguagesResource is no longer available, we remove the method that depends on it.
-  // static Language fromPb(LanguagesResource languagePb) {
-  //   return new Language(languagePb.getLanguage(), languagePb.getName());
-  // }
+  static Language fromPb(LanguagesResource languagePb) {
+    return new Language(languagePb.getLanguage(), languagePb.getName());
+  }
 }

@@ -23,6 +23,10 @@
 <  * THE SOFTWARE.
 <  */
 < 
+40c16
+< import org.kohsuke.github.GHCompare;
+---
+> import org.kohsuke.github.GHCompareResult;
 63,99d38
 <     @FunctionalInterface
 <     public interface Log {
@@ -61,7 +65,31 @@
 <         }
 <     }
 < 
-147,156d85
+123,161d61
+<     private @CheckForNull VersionAndRepo doFind(String groupId, String artifactId, String currentVersion, String branch) throws Exception {
+<         ComparableVersion currentV = new ComparableVersion(currentVersion);
+<         log.info("Searching for updates to " + groupId + ":" + artifactId + ":" + currentV + " within " + branch);
+<         SortedSet<VersionAndRepo> candidates = loadVersions(groupId, artifactId);
+<         if (candidates.isEmpty()) {
+<             log.info("Found no candidates");
+<             return null;
+<         }
+<         log.info("Found " + candidates.size() + " candidates from " + candidates.first() + " down to " + candidates.last());
+<         for (VersionAndRepo candidate : candidates) {
+<             if (candidate.version.compareTo(currentV) <= 0) {
+<                 log.info("Stopping search at " + candidate + " since it is no newer than " + currentV);
+<                 return null;
+<             }
+<             log.info("Considering " + candidate);
+<             GitHubCommit ghc = loadGitHubCommit(candidate);
+<             if (ghc != null) {
+<                 log.info("Mapped to: " + ghc);
+<                 if (isAncestor(ghc, branch)) {
+<                     log.info("Seems to be within " + branch + ", so accepting");
+<                     return candidate;
+<                 } else {
+<                     log.info("Does not seem to be within " + branch);
+<                 }
 <             } else {
 <                 log.info("Does not seem to be an incremental release, so accepting");
 <                 // TODO may still be useful to select MRP versions targeted to an origin branch.
@@ -72,54 +100,29 @@
 <                 // it would have to be made more complicated to resolve the parent POM(s),
 <                 // or we would need to switch the implementation to use Maven/Aether resolution APIs.
 <                 return candidate;
-162,187d90
-<     /**
-<      * Look for all known versions of a given artifact.
-<      * @param repos a set of repository URLs to check
-<      * @return a possibly empty set of versions, sorted descending
-<      */
-<     private SortedSet<VersionAndRepo> loadVersions(String groupId, String artifactId) throws Exception {
-<         // TODO consider using official Aether APIs here (could make use of local cache)
-<         SortedSet<VersionAndRepo> r = new TreeSet<>();
-<         for (String repo : repos) {
-<             String mavenMetadataURL = repo + groupId.replace('.', '/') + '/' + artifactId + "/maven-metadata.xml";
-<             Document doc;
-<             try {
-<                 doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mavenMetadataURL);
-<             } catch (FileNotFoundException x) {
-<                 continue; // not even defined in this repo, fine
-<             }
-<             Element versionsE = theElement(doc, "versions", mavenMetadataURL);
-<             NodeList versionEs = versionsE.getElementsByTagName("version");
-<             for (int i = 0; i < versionEs.getLength(); i++) {
-<                 // Not bothering to exclude timestamped snapshots for now, since we are working with release repositories anyway.
-<                 r.add(new VersionAndRepo(groupId, artifactId, new ComparableVersion(versionEs.item(i).getTextContent()), repo));
 <             }
 <         }
-<         return r;
+<         return null;
 <     }
 < 
-202,204d104
-<     /**
-<      * Parses {@code /project/scm/url} and {@code /project/scm/tag} out of a POM, if mapped to a commit.
-<      */
-210c110
-<             return null;
----
->             throw new Exception("Could not find <scm> in " + pom);
-229,236d128
-<     /**
-<      * Checks whether a commit is an ancestor of a given branch head.
-<      * {@code curl -s -u … https://api.github.com/repos/<owner>/<repo>/compare/<branch>...<hash> | jq -r .status}
-<      * will return {@code identical} or {@code behind} if so, else {@code diverged} or {@code ahead}.
-<      * @param branch may be {@code master} or {@code forker:branch}
-<      * @see <a href="https://developer.github.com/v3/repos/commits/#compare-two-commits">Compare two commits</a>
-<      * @see <a href="https://stackoverflow.com/a/23970412/12916">Discussion</a>
-<      */
-239c131,132
-<             GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
----
->             GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
->             GHCompare.Status status = compare.getStatus(); // Use the getStatus() method instead of accessing the status field directly
-279d171
+188,201d87
+<     private static final class GitHubCommit {
+<         final String owner;
+<         final String repo;
+<         final String hash;
+<         GitHubCommit(String owner, String repo, String hash) {
+<             this.owner = owner;
+<             this.repo = repo;
+<             this.hash = hash;
+<         }
+<         @Override public String toString() {
+<             return "https://github.com/" + owner + '/' + repo + "/commit/" + hash;
+<         }
+<     }
 < 
+239,240c125,126
+<             GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
+<             return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
+---
+>             GHCompareResult compareResult = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).compare(ghc.hash, branch);
+>             return compareResult.getStatus().equals(GHCompareResult.Status.BEHIND) || compareResult.getStatus().equals(GHCompareResult.Status.IDENTICAL);

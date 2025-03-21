@@ -1,43 +1,8 @@
-2a3,4
-> import org.pitest.classinfo.ClassName;
-> import org.pitest.classinfo.ClassInfo;
-6,9d7
-< import org.pitest.mutationtest.SourceLocator;
-< import org.pitest.elements.models.MutationTestSummaryData;
-< import org.pitest.elements.models.PackageSummaryMap;
-< import org.pitest.elements.utils.JsonParser;
-16d13
-< import java.util.Arrays;
-18a16
+18a19
 > import java.util.Set;
-23,25d20
-< 
-<   private final JsonParser jsonParser;
-< 
-53c48
-<       final ResultOutputStrategy outputStrategy, final SourceLocator... locators) {
----
->       final ResultOutputStrategy outputStrategy) {
-56,57d50
-<     this.jsonParser = new JsonParser(
-<         new HashSet<>(Arrays.asList(locators)));
-103,105c96,100
-<       final CoverageDatabase coverage, final ClassMutationResults data) {
-<     return new MutationTestSummaryData(data.getFileName(),
+103a105
+>     Set<String> classNames = Collections.singleton(data.getMutatedClass().getName());
+105c107
 <         data.getMutations(), coverage.getClassInfo(Collections.singleton(data.getMutatedClass())));
 ---
->       final ClassMutationResults data) {
->     // Assuming the new method signature requires a single ClassName instead of a Set<ClassName>
->     ClassName className = ClassName.fromString(data.getMutatedClass());
->     ClassInfo classInfo = coverage.getClassInfo(className);
->     return new MutationTestSummaryData(data.getFileName(), data.getMutations(), classInfo);
-111,113c106
-< 
-<     this.packageSummaryData.update(packageName,
-<         createSummaryData(this.coverage, mutationMetaData));
----
->     this.packageSummaryData.update(packageName, createSummaryData(mutationMetaData));
-129c122
-<       String json = jsonParser.toJson(this.packageSummaryData);
----
->       String json = packageSummaryData.toJson();
+>         data.getMutations(), coverage.getClassInfo(classNames));

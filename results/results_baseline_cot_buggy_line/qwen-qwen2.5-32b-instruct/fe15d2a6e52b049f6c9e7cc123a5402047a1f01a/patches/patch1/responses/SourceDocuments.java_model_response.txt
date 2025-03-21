@@ -1,9 +1,161 @@
-<code_analysis>
-The error message indicates that the method `getInstance()` is not found in the class `org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy`. This suggests that the dependency update has removed or changed the `getInstance()` method. The error occurs in multiple places where the `toString()` method is overridden to generate a string representation of the object using the `JAXBToStringStrategy`.
-
-To fix this issue, we need to remove the calls to `getInstance()` and replace it with a new instance of `JAXBToStringStrategy`. if the method no longer exists in the updated dependency. This will ensure that the code compiles and runs correctly with the new dependency version.
-</code_analysis>
-
 ```java
-package
-user
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_02_01.schema;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSchemaType;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.datatype.XMLGregorianCalendar;
+import org.jvnet.jaxb2_commons.lang.ToString2;
+import org.jvnet.jaxb2_commons.locator.ObjectLocator;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "", propOrder = {
+    "salesInvoices",
+    "movementmentOfGoods",
+    "workingDocuments"
+})
+@XmlRootElement(name = "SourceDocuments")
+public class SourceDocuments implements ToString2 {
+
+{
+
+    @XmlElement(name = "SalesInvoices")
+    protected SourceDocuments.SalesInvoices salesInvoices;
+    @XmlElement(name = "MovementOfGoods")
+    protected SourceDocuments.MovementOfGoods movementOfGoods;
+    @XmlElement(name = "WorkingDocuments")
+    protected SourceDocuments.WorkingDocuments workingDocuments;
+
+    // ... (rest of the class remains unchanged)
+
+    @Override
+    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+        strategy.appendStart(locator, this, buffer);
+        appendFields(locator, buffer, strategy);
+        strategy.appendEnd(locator, this, buffer);
+        return buffer;
+    }
+
+    @Override
+    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+        {
+            SourceDocuments.SalesInvoices theSalesInvoice;
+            theSalesInvoice = this.getSalesInvoice();
+            strategy.appendField(locator, this, "saleInvoice", buffer, theSaleInvoice, (this.saleInvoice!= null);
+        }
+        {
+            SourceDocuments.MovementOfGoods theMovementOfGoods;
+            theMovementOfGoods = this.getMovementOfGoods();
+            strategy.appendField(locator, this, "movementmentOfGoods", buffer, theMovementOfGoods, (this.movementOfGoods!= null);
+        }
+        {
+            SourceDocuments.WorkingDocuments theWorkingDocuments;
+            theWorkingDocuments = this.getWorkingDocuments();
+            strategy.appendField(locator, this, "workingDocuments", buffer, theWorkingDocuments, (this.workingDocuments!= null);
+        }
+        return buffer;
+    }
+
+    // ... (rest of the class remains unchanged)
+
+    @Override
+    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+        strategy.appendStart(locator, this, buffer);
+        appendFields(locator, buffer, strategy);
+        strategy.appendEnd(locator, this, buffer);
+        return buffer;
+    }
+
+    @Override
+    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+        {
+            String theInvoiceNo;
+            theInvoiceNo = this.getInvoiceNo();
+            strategy.appendField(locator, this, "invoiceNo", buffer, theInvoiceNo, (this.invoiceNo!= null);
+        }
+        {
+            SourceDocuments.SalesInvoice.DocumentStatus theDocumentStatus;
+            theDocumentStatus = this.getDocumentStatus();
+            strategy.appendField(locator, this, "documentStatus", buffer, theDocumentStatus, (this.documentStatus!= null);
+        }
+        {
+            String theHash;
+            theHash = this.getHash();
+            strategy.appendField(locator, this, "hash", buffer, theHash, (this.hash!= null);
+        }
+        {
+            String theHashControl;
+            theHashControl = this.getHashControl();
+            strategy.appendField(locator, this, "hashControl", buffer, theHashControl, (this.hashControl!= null);
+        }
+        {
+            Integer thePeriod;
+            thePeriod = this.getPeriod();
+            strategy.appendField(locator, this, "period", buffer, thePeriod, (this.period!= null)
+        }
+        {
+            XMLGregorianCalendar theInvoiceDate;
+            theInvoiceDate = this.getInvoiceDate();
+            strategy.appendField(locator, this, "invoiceDate", buffer, theInvoiceDate, (this.invoiceDate!= null)
+        }
+        {
+            String theInvoiceType;
+            theInvoiceType = this.getInvoiceType();
+            strategy.appendField(locator, this, "invoiceType", buffer, theInvoiceType, (this.invoiceType!= null)
+        }
+        {
+            int theSelfBillingIndicator;
+            theSelfBillingIndicator = this.getSelfBillingIndicator();
+            strategy.appendField(locator, this, "selfBillingIndicator", buffer, theSelfBillingIndicator, true);
+        }
+        {
+            String theSourceID;
+            theSourceID = this.getSourceID();
+            strategy.appendField(locator, this, "sourceID", buffer, theSourceID, (this.sourceID!= null)
+        }
+        {
+            String theEACCode;
+            theEACCode = this.getEACCode();
+            strategy.appendField(locator, this, "eacCode", buffer, theEACCode, (this.eacCode!= null)
+        }
+        {
+            XMLGregorianCalendar theSystemEntryDate;
+            theSystemEntryDate = this.getSystemEntryDate();
+            strategy.appendField(locator, this, "systemEntryDate", buffer, theSystemEntryDate, (this.systemEntryDate!= null)
+        }
+        {
+            String theTransactionID;
+            theTransactionID = this.transactionID();
+            strategy.appendField(locator, this, "transactionID", buffer, theTransactionID, (this.transactionID!= null)
+        }
+        {
+            String theCustomerID;
+            theCustomerID = this.getCustomerID();
+            strategy.appendField(locator, this, "customerID", buffer, theCustomerID, (this.customerID!= null)
+        }
+        {
+            ShippingPointStructure theShipTo;
+            theShipTo = this.getShipTo();
+            strategy.appendField(locator, this, "shipTo", buffer, theShipTo, (this.shipTo!= null)
+        }
+        {
+            SHIPPINGPointStructure theShipFrom;
+            theShipFrom = this.getShipFrom();
+            strategy.appendField(locator, this, "shipFrom", buffer, theShipFrom, (this.shipFrom!= null)
+        }
+        {
+            XMLGregorianCalendar theMovementEndTime;
+            theMovementEndTime = this.getMovementEndTime();
+            strategy.appendField(locator, this, "movementmentEndTime", buffer, theMovementEndTime, (this.movementEndTime!= null)
+        }
+        {
+            XMLGregorianCalendar theMovementStartTime;
+            theMovementStartTime = this.getMovementStartTime();
+            strategy.appendField(locator, this, "

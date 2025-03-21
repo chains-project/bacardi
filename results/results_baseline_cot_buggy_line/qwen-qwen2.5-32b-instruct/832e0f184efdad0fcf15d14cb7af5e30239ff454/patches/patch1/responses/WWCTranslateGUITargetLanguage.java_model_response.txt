@@ -1,21 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the method `parseEnchantment()` cannot be found in the `XEnchantment` class.
-   - This suggests that the `XEnchantment` class from the `xseries` library has been updated, and the method `parseEnchantment()` is no longer available.
-
-2. Review the client code:
-   - The problematic line is where `XEnchantment.matchXEnchantment("power").get().parseEnchantment()` is called.
-   - The `XEnchantment.matchXEnchantment("power").get()` part is likely to return an `XEnchantment` object, but the `parseEnchantment()` method is no longer available.
-
-3. Consider potential fixes:
-   - The `XEnchantment` class might have a different method to get the actual enchantment object.
-   - The `XEnchantment` class might now directly return the enchantment object from the `matchXEnchantment` method.
-
-4. Plan the necessary changes:
-   - Replace the `parseEnchantment()` call with the appropriate method or directly use the returned object from `matchXEnchantment`.
-   - Ensure that the enchantment is correctly applied to the item meta.
-</code_analysis>
-
 ```java
 package com.expl0itz.worldwidechat.inventory.wwctranslategui;
 
@@ -97,7 +79,7 @@ public class WWCTranslateGUITargetLanguage implements InventoryProvider {
 				/* Add Glow Effect */
 				currentLangMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 				if (currTranslator.getOutLangCode().equals(main.getSupportedTranslatorLanguages().get(i).getLangCode())) {
-					currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get(), 1, false);
+					currentLangMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
 					lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceOrTargetTranslationAlreadyActive"));
 				}
 				currentLangMeta.setDisplayName(main.getSupportedTranslatorLanguages().get(i).getLangName());
@@ -160,5 +142,3 @@ public class WWCTranslateGUITargetLanguage implements InventoryProvider {
 
 }
 ```
-
-In the provided solution, the `parseEnchantment()` method call has been removed, and the `addEnchant` method now directly uses the `XEnchantment` object returned by `XEnchantment.matchXEnchantment("power").get()`. This change is based on the assumption that the `XEnchantment` class now directly returns the enchantment object that can be used with `ItemMeta.addEnchant`. If the `XEnchantment` class has a different method to get the enchantment, that method should be used instead.

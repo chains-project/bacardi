@@ -14,40 +14,8 @@
 <  * See the License for the specific language governing permissions and
 <  * limitations under the License.
 <  */
-19a5,6
-> import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-> import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
-21c8,9
+21,22c6
 < import org.codehaus.plexus.util.xml.Xpp3Dom;
+< 
 ---
-> import org.codehaus.plexus.util.xml.XmlStreamReader;
-> import org.codehaus.plexus.util.xml.XmlStreamWriter;
-22a11,12
-> import java.io.StringReader;
-> import java.io.StringWriter;
-70,71c60,64
-<         if (config instanceof Xpp3Dom) {
-<             return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
----
->         if (config instanceof String) {
->             try {
->                 MavenXpp3Reader reader = new MavenXpp3Reader();
->                 Plugin parsedPlugin = reader.read(new XmlStreamReader(new StringReader((String) config)));
->                 return stream(parsedPlugin.getConfiguration().getChildren("annotationProcessorPaths"))
-78,79d70
-<                     // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
-<                     // therefore there is little use in logging incomplete paths that are filtered out.
-83a75,77
->             } catch (Exception e) {
->                 throw new RuntimeException("Failed to parse plugin configuration", e);
->             }
-85,87d78
-<         // It is expected that this will never occur due to all Configuration instances of all plugins being provided as
-<         // XML document. If this happens to occur on very old plugin versions, we can safely add the type support and
-<         // simply return an empty set.
-99,100c90,91
-<     private static String extractChildValue(Xpp3Dom node, String name) {
-<         final Xpp3Dom child = node.getChild(name);
----
->     private static String extractChildValue(org.apache.maven.model.Configuration node, String name) {
->         final org.apache.maven.model.Configuration child = node.getChild(name);
+> import org.apache.maven.shared.utils.xml.Xpp3Dom;

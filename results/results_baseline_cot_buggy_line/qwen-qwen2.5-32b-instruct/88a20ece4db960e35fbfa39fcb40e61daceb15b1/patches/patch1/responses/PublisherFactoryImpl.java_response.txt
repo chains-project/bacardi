@@ -1,46 +1,9 @@
-package com.google.pubsublite.kafka.sink;
-
-import com.google.cloud.pubsublite.CloudZone;
-import com.google.cloud.pubsublite.ProjectPath;
-import com.google.cloud.pubsublite.TopicName;
-import com.google.cloud.pubsublite.TopicPath;
-import com.google.cloud.pubsublite.internal.Publisher;
-import com.google.cloud.pubsublite.internal.wire.PubsubContext;
-import com.google.cloud.pubsublite.internal.wire.PubsubContext.Framework;
-import com.google.cloud.pubsublite.internal.wire.RoutingPublisherBuilder;
-import com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder;
-import com.google.cloud.pubsublite.internal.wire.PartitionPublisherFactory;
-import java.util.Map;
-import org.apache.kafka.common.config.ConfigValue;
-
-class PublisherFactoryImpl implements PublisherFactory {
-
-  private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
-
-  @Override
-  public Publisher<Void> newPublisher(Map<String, String> params) {
-    Map<String, ConfigValue> config = ConfigDefs.config().validateAll(params);
-    RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
-    TopicPath topic =
-        TopicPath.newBuilder()
-            .setProject(
-                ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
-                    .project())
-            .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
-            .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
-            .build();
-    builder.setTopic(topic);
-    builder.setPublisherFactory(
-        new PartitionPublisherFactory() {
-          @Override
-          public Publisher<Void> createPublisher(TopicPath topicPath, int partition) {
-            return SinglePartitionPublisherBuilder.newBuilder()
-                .setTopic(topicPath)
-                .setPartition(partition)
-                .setContext(PubsubContext.of(FRAMEWORK))
-                .build();
-          }
-        });
-    return builder.build();
-  }
-}
+<repair_strategy>
+1. The error indicates that `PublishMetadata` cannot be found, suggesting a change in the dependency where `PublishMetadata` is no longer available.
+2. The error also indicates a type mismatch with `PartitionPublisherFactory`, suggesting a change in the expected type.
+3. The fix will involve replacing `PublishMetadata` with a compatible type and ensuring the `PartitionPublisherFactory` is used correctly.
+4. The fix should maintain the original structure and functionality of the class.
+5. The fix will involve updating the import statements and method signatures to match the new API.
+6. The fix should not introduce any new compilation errors or side effects.
+7. The fix will ensure the class is fully compilable and functional.
+</repair_strategy>

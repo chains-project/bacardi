@@ -1,11 +1,3 @@
-<code_analysis>
-The error message indicates that the package `org.codehaus.plexus.util.xml` does not exist, which means the class `Xpp3Dom` is no longer available in the updated dependency. This is likely due to a change in the Maven or Plexus libraries. The class `Xpp3Dom` is used in the `collectUsedClassesFromProcessors` method to parse the Maven plugin configuration. To fix this issue, we need to find an alternative way to parse the plugin configuration or update the dependency to a version that still includes `Xpp3Dom`. Since the exact nature of the dependency update is not specified, we will assume that the `Xpp3Dom` class is no longer available and that we need to find an alternative approach.
-
-Given the constraints, we will remove the usage of `Xpp3Dom` and replace it with a method that does not rely on this class. This might involve using a different approach to parse the plugin configuration or removing the functionality if it is no longer necessary. However, since the exact functionality is not clear from the context, we will assume that the functionality is critical and find an alternative approach to parse the plugin configuration.
-
-For the sake of this example, we will assume that the plugin configuration can be parsed using a different method or that the `Xpp3Dom` class has been replaced by another class in the updated dependency. We will replace `Xpp3Dom` with a placeholder method that simulates the parsing of the plugin configuration.
-</code_analysis>
-
 ```java
 package se.kth.depclean.wrapper;
 
@@ -27,11 +19,12 @@ import lombok.SneakyThrows;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
+import org.apache.maven.plugin.descriptor.ConfigurationElement;
 import se.kth.depclean.core.AbstractDebloater;
 import se.kth.depclean.core.analysis.graph.DependencyGraph;
 import se.kth.depclean.core.analysis.model.ProjectDependencyAnalysis;
@@ -144,9 +137,14 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
   @Override
   public Set<String> collectUsedClassesFromProcessors() {
     getLog().debug("# collectUsedClassesFromProcessors()");
-    // Placeholder for parsing the plugin configuration without Xpp3Dom
-    // This is a simplified example and should be replaced with the actual parsing logic
-    return of();
+    return Optional.ofNullable(project.getPlugin("org.bsc.maven:maven-processor-plugin"))
+        .map(plugin -> plugin.getExecutions().get(0))
+        .map(exec -> exec.getConfiguration())
+        .map(ConfigurationElement.class::cast)
+        .map(config -> config.getChild("processors"))
+        .map(ConfigurationElement::getChildren)
+        .map(arr -> Arrays.stream(arr).map(ConfigurationElement::getValue).collect(Collectors.toSet()))
+        .orElse(of());
   }
 
   @Override
@@ -209,5 +207,3 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
   }
 }
 ```
-
-In the above code, the `collectUsedClassesFromProcessors` method has been modified to return an empty set, as the original implementation using `Xpp3Dom` is no longer available. This is a placeholder and should be replaced with the actual logic to parse the plugin configuration using the updated dependency. If the functionality of `Xpp3Dom` is no longer available in the updated dependency, the method should be updated to use the new API or removed if it is no longer necessary.

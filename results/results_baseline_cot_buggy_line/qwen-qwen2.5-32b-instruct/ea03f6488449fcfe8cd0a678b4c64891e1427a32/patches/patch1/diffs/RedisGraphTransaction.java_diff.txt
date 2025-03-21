@@ -1,4 +1,4 @@
-4,11d3
+4,12c4,5
 < import redis.clients.jedis.commands.BasicRedisPipeline;
 < import redis.clients.jedis.commands.BinaryRedisPipeline;
 < import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
@@ -7,15 +7,18 @@
 < import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
 < import redis.clients.jedis.commands.RedisPipeline;
 < import redis.clients.jedis.commands.ScriptingCommandsPipeline;
-20,24c12
-< public interface RedisGraphTransaction extends
+< 
+---
+> import redis.clients.jedis.Pipeline;
+> import redis.clients.jedis.Closeable;
+21,24c14
 <         MultiKeyBinaryRedisPipeline,
 <         MultiKeyCommandsPipeline, ClusterPipeline,
 <         BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
 <         BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
 ---
-> public interface RedisGraphTransaction extends Closeable {
-52,99d39
+>         Pipeline, Closeable {
+52,80d41
 <      * Execute a Cypher read-only query with timeout.
 <      * @param graphId a graph to perform the query on
 <      * @param query Cypher query
@@ -45,15 +48,7 @@
 <     Response<ResultSet> query(String graphId, String query, Map<String, Object> params);
 < 
 <     /**
-<      * Executes a cypher read-only query with parameters.
-<      * @param graphId a graph to perform the query on.
-<      * @param query Cypher query.
-<      * @param params parameters map.
-<      * @return  a response which builds the result set with the query answer.
-<      */
-<     Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params);
-< 
-<     /**
+90,100c51
 <      * Executes a cypher query with parameters and timeout.
 <      * @param graphId a graph to perform the query on.
 <      * @param query Cypher query.
@@ -64,23 +59,18 @@
 <     Response<ResultSet> query(String graphId, String query, Map<String, Object> params, long timeout);
 < 
 <     /**
-105c45
-<      * @return  a response which builds the result set with the query answer.
+<      * Executes a cypher read-only query with parameters and timeout.
 ---
->      * @return  a response which builds result set with the query answer.
-118,126d57
-<      * Invokes stored procedure with arguments
-<      * @param graphId a graph to perform the query on
-<      * @param procedure procedure name to invoke
-<      * @param args procedure arguments
-<      * @return a response which builds result set with the procedure data
-<      */
-<     Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args);
+>      * Executes a cypher query with parameters.
+104d54
+<      * @param timeout
+107c57
+<     Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params, long timeout);
+---
+>     Response<ResultSet> query(String graphId, String query, Map<String, Object> params);
+143d92
 < 
-<     /**
-143d73
-< 
-151,152c81
+151,152c100
 <      * If object is in transaction mode,
 <      * flushes all previously queued commands in a transaction and restores the connection state to normal
 ---

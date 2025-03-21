@@ -17,9 +17,6 @@ import java.util.jar.JarFile;
 
 import static com.thoughtworks.gauge.GaugeConstant.PACKAGE_TO_SCAN;
 
-/**
- * Scans the current Classpath and passes to all the scanners passed.
- */
 public class ClasspathScanner {
 
     private Reflections reflections;
@@ -56,12 +53,12 @@ public class ClasspathScanner {
     private boolean shouldScan(String s) {
         final String packagesToScan = System.getenv(PACKAGE_TO_SCAN);
         if (packagesToScan == null || packagesToScan.isEmpty()) {
-            return new FilterBuilder().include(".+\\.class").asMatchPredicate().test(s);
+            return new FilterBuilder().includePackagePattern(".+\\.class").apply(s);
         }
         final String[] packages = packagesToScan.split(",");
         for (String packageToScan : packages) {
             String regex = String.format(".?\\.??%s\\..+\\.class", packageToScan);
-            if (new FilterBuilder().include(regex).asMatchPredicate().test(s)) {
+            if (new FilterBuilder().includePackagePattern(regex).apply(s)) {
                 return true;
             }
         }

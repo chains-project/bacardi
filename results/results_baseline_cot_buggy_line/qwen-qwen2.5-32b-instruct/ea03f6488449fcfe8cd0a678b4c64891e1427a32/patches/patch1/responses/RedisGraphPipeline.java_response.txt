@@ -1,6 +1,6 @@
 package com.redislabs.redisgraph;
 
-import redis.clients.jedis.JedisPipeline; // Assuming a new combined interface
+import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
 import java.io.Closeable;
@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * An interface which aligned to Jedis Pipeline interface
  */
-public interface RedisGraphPipeline extends JedisPipeline, Closeable { // Assuming JedisPipeline combines all functionalities
+public interface RedisGraphPipeline extends Pipeline, Closeable {
 
     /**
      * Execute a Cypher query.
@@ -27,24 +27,6 @@ public interface RedisGraphPipeline extends JedisPipeline, Closeable { // Assumi
      * @return a response which builds the result set with the query answer.
      */
     Response<ResultSet> readOnlyQuery(String graphId, String query);
-
-    /**
-     * Executes a cypher query with parameters.
-     * @param graphId a graph to perform the query on.
-     * @param query Cypher query.
-     * @param params parameters map.
-     * @return  a response which builds the result set with the query answer.
-     */
-    Response<ResultSet> query(String graphId, String query, Map<String, Object> params);
-
-    /**
-     * Executes a cypher read-only query with parameters.
-     * @param graphId a graph to perform the query on.
-     * @param query Cypher query.
-     * @param params parameters map.
-     * @return  a response which builds the result set with the query answer.
-     */
-    Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params);
 
     /**
      * Executes a cypher query with parameters and timeout.
@@ -68,7 +50,7 @@ public interface RedisGraphPipeline extends JedisPipeline, Closeable { // Assumi
 
     /**
      * Invokes stored procedures without arguments
-     * @param graphId graph to perform the query on
+     * @param graphId a graph to perform the query on
      * @param procedure procedure name to invoke
      * @return a response which builds result set with the procedure data
      */
@@ -76,7 +58,7 @@ public interface RedisGraphPipeline extends JedisPipeline, Closeable { // Assumi
 
     /**
      * Invokes stored procedure with arguments
-     * @param graphId graph to perform the query on
+     * @param graphId a graph to perform the query on
      * @param procedure procedure name to invoke
      * @param args procedure arguments
      * @return a response which builds result set with the procedure data
@@ -85,13 +67,13 @@ public interface RedisGraphPipeline extends JedisPipeline, Closeable { // Assumi
 
     /**
      * Invoke a stored procedure
-     * @param graphId graph to perform the query on
+     * @param graphId a graph to perform the query on
      * @param procedure - procedure to execute
      * @param args - procedure arguments
      * @param kwargs - procedure output arguments
      * @return a response which builds result set with the procedure data
      */
-    Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args, Map<String, List<String>> kwargs);
+    Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args  , Map<String, List<String>> kwargs);
 
     /**
      * Deletes the entire graph
@@ -110,7 +92,7 @@ public interface RedisGraphPipeline extends JedisPipeline, Closeable { // Assumi
 
     /**
      * Synchronize pipeline by reading all responses. This operation close the pipeline. In order to
-     * get return values from pipelined commands, capture the different Response&lt;?&gt; of the
+     * get return values from pipelined commands, capture the different Response<?> of the
      * commands you execute.
      */
     void sync();

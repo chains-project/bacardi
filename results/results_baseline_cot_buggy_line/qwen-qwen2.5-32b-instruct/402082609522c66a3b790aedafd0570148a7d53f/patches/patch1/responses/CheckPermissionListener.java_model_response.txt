@@ -1,23 +1,9 @@
-<code_analysis>
-The error messages indicate that several classes and interfaces from the Sponge API have been removed or renamed in the updated dependency version. Specifically, the classes `ChannelBuf`, `ChannelRegistrar`, `RawDataListener`, and `RawDataChannel` are not found. This suggests that the new version of the Sponge API has undergone significant changes, possibly deprecating or removing these classes.
-
-To fix the issue, we need to identify the replacements for these classes and interfaces in the new version of the Sponge API. Based on the error messages, it seems that the `ChannelBuf` and `RawDataListener` are no longer available, and we need to find the new equivalents or alternative approaches to handle network communication and channel registration.
-
-The following changes are proposed:
-- Replace `ChannelBuf` with `ByteBuf` from the Netty library, which is commonly used in Sponge for handling network data.
-- Replace `RawDataListener` with `PacketListener` or a similar interface that handles packet data.
-- Replace `ChannelRegistrar` and `RawDataChannel` with the new methods or classes provided by the updated Sponge API for channel registration and data transmission.
-
-The exact replacements will depend on the specific changes in the new version of the Sponge API. For this example, I will assume that `ChannelRegistrar` and `RawDataChannel` have been replaced by `ChannelManager` and `Channel` respectively, and `RawDataListener` has been replaced by `PacketListener`.
-</code_analysis>
-
 ```java
 package com.github.games647.changeskin.sponge.bungee;
 
 import com.github.games647.changeskin.core.message.NamespaceKey;
 import com.github.games647.changeskin.core.message.CheckPermMessage;
 import com.github.games647.changeskin.core.message.PermResultMessage;
-import com.github.games647.changeskin.core.model.skin.SkinModel;
 import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
@@ -28,30 +14,33 @@ import java.util.UUID;
 
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.network.ChannelManager;
-import org.spongepowered.api.network.Channel;
-import org.spongepowered.api.network.packet.PacketListener;
-import org.spongepowered.api.network.RemoteConnection;
+import org.spongepowered.api.network.ChannelBinding;
+import org.spongepowered.api.network.ChannelBinding.ChannelReader;
+import org.spongepowered.api.network.ChannelBinding.ChannelWriter;
+import org.spongepowered.api.network.ChannelId;
+import org.spongepowered.api.network.ChannelRegistrar;
 
 import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
 import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 
-public class CheckPermissionListener implements PacketListener {
+public class CheckPermissionListener implements ChannelReader<ChannelBuf> {
 
     private final ChangeSkinSponge plugin;
-    private final Channel permissionsResultChannel;
+    private final ChannelWriter<ChannelBuf> permissionsResultChannel;
 
     @Inject
-    CheckPermissionListener(ChangeSkinSponge plugin, ChannelManager channelManager) {
+    CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
         this.plugin = plugin;
 
         String combinedName = new NamespaceKey(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL).getCombinedName();
-        permissionsResultChannel = channelManager.getOrCreateChannel(combinedName);
+        ChannelId channelId = ChannelId.of(combinedName);
+        permissionsResultChannel = channelRegistrar.registerOutgoing(channelId, ChannelBuf.class);
     }
 
     @Override
-    public void handlePayload(byte[] data, RemoteConnection connection, Type side) {
-        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data);
+    public void handle(ChannelBuf data, RemoteConnection connection) {
+
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
         CheckPermMessage checkMessage = new CheckPermMessage();
         checkMessage.readFrom(dataInput);
 
@@ -92,9 +81,7 @@ public class CheckPermissionListener implements PacketListener {
     private void sendResultMessage(Player receiver, PermResultMessage resultMessage) {
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
         resultMessage.writeTo(dataOutput);
-        permissionsResultChannel.sendTo(receiver, dataOutput.toByteArray());
+        permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
     }
 }
 ```
-
-In this solution, I have replaced `ChannelRegistrar` with `ChannelManager`, `RawDataChannel` with `Channel`, and `RawDataListener` with `PacketListener`. The method `handlePayload` now takes a `byte[]` instead of `ChannelBuf` for the data parameter. The `permissionsResultChannel.sendTo` method is updated to use the new `Channel` class. These changes are based on the assumption that the new Sponge API uses `ChannelManager` and `Channel` for channel management and data transmission, and `PacketListener` for handling packet data. Adjustments may be necessary based on the actual changes in the new Sponge API version.

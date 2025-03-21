@@ -5,17 +5,18 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.UUID;
 
-import org.spongepowered.api.command.source.CommandSource; // Updated import statement
+import org.spongepowered.api.text.source.TextSource;
+
 import org.spongepowered.api.entity.living.player.Player;
 
 public class NameResolver extends SharedNameResolver {
 
     private final ChangeSkinSponge plugin;
-    private final CommandSource invoker;
+    private final TextSource invoker;
     private final Player receiver;
     private final boolean keepSkin;
 
-    public NameResolver(ChangeSkinSponge plugin, CommandSource invoker, String targetName, Player receiver
+    public NameResolver(ChangeSkinSponge plugin, TextSource invoker, String targetName, Player receiver
             , boolean keepSkin) {
         super(plugin.getCore(), targetName, keepSkin);
 

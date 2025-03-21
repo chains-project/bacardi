@@ -1,10 +1,3 @@
-<code_analysis>
-1. The error message indicates that the `StringUtils` class cannot be found, which suggests that the `StringUtils` class has been removed or moved in the updated dependency version.
-2. The client code uses `StringUtils.trimToNull` to check if `statement.getTablespace()` is null or empty. This method is no longer available, leading to a compilation error.
-3. To fix this issue, we need to replace the usage of `StringUtils.trimToNull` with an equivalent method or logic that does not rely on the `StringUtils` class.
-4. We can use Java's built-in `String` methods to achieve the same functionality.
-</code_analysis>
-
 ```java
 package liquibase.ext.mssql.sqlgenerator;
 
@@ -14,9 +7,9 @@ import liquibase.ext.mssql.statement.AddPrimaryKeyStatementMSSQL;
 import liquibase.sql.Sql;
 import liquibase.sql.UnparsedSql;
 import liquibase.sqlgenerator.SqlGeneratorChain;
-import liquibase.sqlgenerator.core.AddPrimaryKeyGenerator;
 import liquibase.statement.core.AddPrimaryKeyStatement;
 import liquibase.structure.core.Index;
+import liquibase.util.StringUtil;
 
 public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
   @Override
@@ -71,8 +64,7 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
     // the only new feature being added is support for fillFactor
     sql += " WITH (FILLFACTOR = " + statement.getFillFactor() + ")";
 
-    // Replace StringUtils.trimToNull with a direct check for null or empty string
-    if (statement.getTablespace() != null && !statement.getTablespace().trim().isEmpty() && database.supportsTablespaces()) {
+    if (StringUtil.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
       sql += " ON "+statement.getTablespace();
     }
 
@@ -89,7 +81,6 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
   public boolean supports(AddPrimaryKeyStatement statement, Database database) {
     return database instanceof MSSQLDatabase;
   }
+
 }
 ```
-
-In this fix, the `StringUtils.trimToNull` method has been replaced with a direct check for null or empty string using `statement.getTablespace() != null && !statement.getTablespace().trim().isEmpty()`. This ensures that the code remains functional without relying on the `StringUtils` class, which is no longer available.

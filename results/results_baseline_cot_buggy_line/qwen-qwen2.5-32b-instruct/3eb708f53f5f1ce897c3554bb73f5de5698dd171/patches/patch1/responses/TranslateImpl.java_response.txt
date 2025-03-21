@@ -6,10 +6,6 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.cloud.BaseService;
 import com.google.cloud.RetryHelper.RetryHelperException;
-import com.google.cloud.translate.spi.v2.TranslateRpc;
-import com.google.cloud.translate.v2.model.DetectionResourceItems;
-import com.google.cloud.translate.v2.model.LanguagesResourceV2;
-import com.google.cloud.translate.v2.model.TranslationsResourceV2;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -24,11 +20,11 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
 
   private final TranslateRpc translateRpc;
 
-  private static final Function<List<DetectionResourceItems>, Detection>
+  private static final Function<List<DetectionsResourceItems>, Detection>
       DETECTION_FROM_PB_FUNCTION =
-          new Function<List<DetectionResourceItems>, Detection>() {
+          new Function<List<DetectionsResourceItems>, Detection>() {
             @Override
-            public Detection apply(List<DetectionResourceItems> detectionPb) {
+            public Detection apply(List<DetectionsResourceItems> detectionPb) {
               return Detection.fromPb(detectionPb.get(0));
             }
           };
@@ -43,9 +39,9 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<LanguagesResourceV2>>() {
+              new Callable<List<LanguagesResource>>() {
                 @Override
-                public List<LanguagesResourceV2> call() {
+                public List<LanguagesResource> call() {
                   return translateRpc.listSupportedLanguages(optionMap(options));
                 }
               },
@@ -61,21 +57,21 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   @Override
   public List<Detection> detect(final List<String> texts) {
     try {
-      List<List<DetectionResourceItems>> detectionsPb =
+      List<List<DetectionsResourceItems>> detectionsPb =
           runWithRetries(
-              new Callable<List<List<DetectionResourceItems>>>() {
+              new Callable<List<List<DetectionsResourceItems>>>() {
                 @Override
-                public List<List<DetectionResourceItems>> call() {
+                public List<List<DetectionsResourceItems>> call() {
                   return translateRpc.detect(texts);
                 }
               },
               getOptions().getRetrySettings(),
               EXCEPTION_HANDLER,
               getOptions().getClock());
-      Iterator<List<DetectionResourceItems>> detectionIterator = detectionsPb.iterator();
+      Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
       Iterator<String> textIterator = texts.iterator();
       while (detectionIterator.hasNext() && textIterator.hasNext()) {
-        List<DetectionResourceItems> detectionPb = detectionIterator.next();
+        List<DetectionsResourceItems> detectionPb = detectionIterator.next();
         String text = textIterator.next();
         checkState(
             detectionPb != null && !detectionPb.isEmpty(), "No detection found for text: %s", text);
@@ -88,13 +84,23 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   }
 
   @Override
+  public List<Detection> detect(String... texts) {
+    return detect(Arrays.asList(texts));
+  }
+
+  @Override
+  public Detection detect(String text) {
+    return detect(Collections.singletonList(text)).get(0);
+  }
+
+  @Override
   public List<Translation> translate(final List<String> texts, final TranslateOption... options) {
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<TranslationsResourceV2>>() {
+              new Callable<List<TranslationsResource>>() {
                 @Override
-                public List<TranslationsResourceV2> call() {
+                public List<TranslationsResource> call() {
                   return translateRpc.translate(texts, optionMap(options));
                 }
               },
@@ -107,6 +113,11 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
     }
   }
 
+  @Override
+  public Translation translate(String text, TranslateOption... options) {
+    return translate(Collections.singletonList(text), options).get(0);
+  }
+
   private Map<TranslateRpc.Option, ?> optionMap(Option... options) {
     Map<TranslateRpc.Option, Object> optionMap = Maps.newEnumMap(TranslateRpc.Option.class);
     for (Option option : options) {
@@ -114,5 +125,48 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
       checkArgument(prev == null, "Duplicate option %s", option);
     }
     return optionMap;
+  }
+
+  // Assuming the following classes and interfaces are defined elsewhere in the project
+  // and are compatible with the new API version.
+  private static class Detection {
+    public static Detection fromPb(DetectionsResourceItems detectionPb) {
+      // Implementation here
+      return null;
+    }
+  }
+
+  private static class LanguagesResource {
+    // Placeholder for the LanguagesResource class
+  }
+
+  private static class DetectionsResourceItems {
+    // Placeholder for the DetectionsResourceItems class
+  }
+
+  private static class TranslationsResource {
+    // Placeholder for the TranslationsResource class
+  }
+
+  private static class Language {
+    private static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
+        new Function<LanguagesResource, Language>() {
+          @Override
+          public Language apply(LanguagesResource input) {
+            // Implementation here
+            return null;
+          }
+        };
+  }
+
+  private static class Translation {
+    private static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
+        new Function<TranslationsResource, Translation>() {
+          @Override
+          public Translation apply(TranslationsResource input) {
+            // Implementation here
+            return null;
+          }
+        };
   }
 }

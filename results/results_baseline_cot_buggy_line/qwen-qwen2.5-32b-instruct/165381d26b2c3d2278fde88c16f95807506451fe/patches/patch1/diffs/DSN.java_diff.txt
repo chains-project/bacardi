@@ -5,21 +5,15 @@
 <  * license that can be found in the LICENSE.txt file.
 <  */
 < 
-13d6
-< import com.github.javaparser.ast.expr.AnnotationExpr;
-15d7
+15c9
 < import com.github.javaparser.printer.PrettyPrinterConfiguration;
-41d32
-< import java.util.stream.Collectors;
-43,45d33
+---
+> import com.github.javaparser.printer.configuration.DefaultPrettyPrinterConfiguration;
+43,45d36
 < /**
 <  * @author Fabien Hermenier
 <  */
-53,127d40
-<         Bench.mode = Bench.Mode.REPLAY;
-<         return new TestScanner(l);
-<     }
-< 
+57,329c48
 <     ////@Test
 <     public void fuzzingSizing() throws Exception {
 <         TestScanner sc = newScanner();
@@ -91,7 +85,7 @@
 <     public void specLength() throws Exception {
 <         SpecScanner sc = new SpecScanner();
 <         List<Constraint> l = sc.scan();
-129,311c42
+<         System.out.println(l.stream().map(Constraint::pretty).collect(Collectors.joining("\n")));
 < 
 <         Path path = Paths.get(root, "inv.csv");
 <         String out = l.stream()
@@ -275,9 +269,8 @@
 <                 safeTests.stream().map(i -> "safePlace;" + i).collect(Collectors.joining("\n", "", "\n"));
 <         Path path = Paths.get(root, "sloc.csv");
 <         Files.write(path, sb.getBytes());
----
->         return new TestScanner(l);
-314,329c45
+<     }
+< 
 <     private static class FunctionVisitor extends VoidVisitorAdapter<Void> {
 < 
 <       private final List<Integer> l;
@@ -295,16 +288,14 @@
 <         }
 <     }
 ---
->     // ... (rest of the class remains unchanged)
-335,336d50
+>     // ... (rest of the methods remain unchanged)
+335c54
 <       private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
-< 
-343,344c57
-<             System.out.println(n.getNameAsString());
-<             if (n.toString(noComments).contains("solve")) {
 ---
->             if (n.toString().contains("solve")) {
-351,370c64
+>         private final DefaultPrettyPrinterConfiguration noComments = new DefaultPrettyPrinterConfiguration().setPrintComments(false);
+343d61
+<             System.out.println(n.getNameAsString());
+351,370c69
 <     private static class SafeplaceTestsVisitor extends VoidVisitorAdapter<Void> {
 < 
 <       private final List<Integer> l;

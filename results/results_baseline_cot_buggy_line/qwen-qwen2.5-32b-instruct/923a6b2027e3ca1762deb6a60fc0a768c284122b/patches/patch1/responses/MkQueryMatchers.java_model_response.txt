@@ -1,30 +1,9 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the class `Matchers` cannot be found in the package `org.hamcrest`.
-   - This suggests that the `Matchers` class has been moved or removed in the updated version of the `hamcrest` library.
-
-2. Review the client code:
-   - The `Matchers` class is used in the `hasPath` and `hasQuery` methods to create matchers for the URI properties.
-   - The `Matchers` class is imported at the top of the file, but it seems that the import is no longer valid due to the dependency update.
-
-3. Consider potential fixes:
-   - The `Matchers` class is part of the `hamcrest` library, and it seems that the class has been moved or renamed in the newer version.
-   - The `Matchers` class is often used to create matchers for various types, and it's possible that the functionality has been moved to a different class or package in the newer version.
-
-4. Plan the necessary changes:
-   - Replace the import statement for `Matchers` with the correct import from the updated `hamcrest` library.
-   - If the `Matchers` class has been moved to a different package, update the import statement accordingly.
-   - If the `Matchers` class has been renamed, update the import and usage in the code.
-</code_analysis>
-
-Based on the analysis, the `Matchers` class might have been moved to a different package or renamed in the updated `hamcrest` library. Assuming the `Matchers` class has been moved to `org.hamcrest.core`, the following patch can be applied:
-
 ```java
 package com.jcabi.http.mock;
 
 import java.net.URI;
 import org.hamcrest.Matcher;
-import org.hamcrest.core.StringContains;
+import org.hamcrest.CoreMatchers;
 
 /**
  * Convenient set of matchers for {@link MkQuery}.
@@ -75,18 +54,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasPath(final Matcher<String> path) {
         return new MkQueryUriMatcher(
-            new Matcher<URI>() {
-                @Override
-                public boolean matchesSafely(URI item) {
-                    return path.matches(item.getRawPath());
-                }
-
-                @Override
-                public void describeTo(org.hamcrest.Description description) {
-                    description.appendText("URI with path ");
-                    path.describeTo(description);
-                }
-            }
+            CoreMatchers.<URI>hasProperty("rawPath", path)
         );
     }
 
@@ -98,21 +66,9 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasQuery(final Matcher<String> query) {
         return new MkQueryUriMatcher(
-            new Matcher<URI>() {
-                @Override
-                public boolean matchesSafely(URI item) {
-                    return query.matches(item.getRawQuery());
-                }
-
-                @Override
-                public void describeTo(org.hamcrest.Description description) {
-                    description.appendText("URI with query ");
-                    query.describeTo(description);
-                }
-            }
+            CoreMatchers.<URI>hasProperty("rawQuery", query)
         );
     }
+
 }
 ```
-
-In this patch, the `Matchers` import is removed and replaced with custom matchers for `hasPath` and `hasQuery` methods to ensure the code compiles and functions correctly with the updated dependency. If the `Matchers` class is still available in a different package, the import should be updated to reflect the new location.

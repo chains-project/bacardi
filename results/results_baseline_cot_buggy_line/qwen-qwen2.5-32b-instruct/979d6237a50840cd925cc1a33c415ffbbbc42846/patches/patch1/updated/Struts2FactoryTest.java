@@ -1,5 +1,6 @@
 package com.google.inject.struts2;
 
+import org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter; // Updated import
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -7,7 +8,6 @@ import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
-import org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter; // Updated import
 import java.util.Date;
 import junit.framework.TestCase;
 

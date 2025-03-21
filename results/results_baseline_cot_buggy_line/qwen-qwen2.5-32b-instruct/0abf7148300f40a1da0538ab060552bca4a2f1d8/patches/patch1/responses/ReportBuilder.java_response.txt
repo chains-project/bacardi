@@ -22,6 +22,7 @@ package xdev.tableexport.export;
  * #L%
  */
 
+
 import java.awt.Color;
 import java.awt.Font;
 import java.util.HashSet;
@@ -39,6 +40,7 @@ import net.sf.jasperreports.engine.design.JRDesignField;
 import net.sf.jasperreports.engine.design.JRDesignSection;
 import net.sf.jasperreports.engine.design.JRDesignStaticText;
 import net.sf.jasperreports.engine.design.JRDesignTextElement;
+import net.sf.jasperreports.engine.design.JRDesignTextField;
 import net.sf.jasperreports.engine.design.JasperDesign;
 import net.sf.jasperreports.engine.type.ModeEnum;
 import net.sf.jasperreports.engine.type.PositionTypeEnum;
@@ -51,6 +53,7 @@ import xdev.tableexport.config.HeaderColumn;
 import xdev.tableexport.config.PageProperties;
 import xdev.tableexport.config.TemplateColumn;
 import xdev.tableexport.config.TemplateConfig;
+import xdev.tableexport.export.ExportException;
 import xdev.vt.XdevBlob;
 import xdev.vt.XdevClob;
 
@@ -123,6 +126,13 @@ public class ReportBuilder
 		return width;
 	}
 
+	/***
+	 * Calculated the page width including the margins.
+	 * 
+	 * @param properties
+	 * 
+	 * @return
+	 */
 	private int calcPageWidth(final PageProperties properties)
 	{
 		int width = 0;
@@ -145,12 +155,10 @@ public class ReportBuilder
 		for(final TemplateColumn col : this.config.getColumns())
 		{
 			final ColumnStyle style = col.getHeaderColumn().getStyle();
-			final Font font = style.getFont();
-			lbl.setFont(font);
+			final Font f = style.getFont();
+			lbl.setFont(f);
 			int lblHeigh = (int)lbl.getPreferredSize().getHeight();
-			//Add border width
 			lblHeigh+= style.getColBorder().getLineWidth()*2;
-			//Add padding
 			lblHeigh+= style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
 
 			if(lblHeigh > maxHeight)
@@ -170,12 +178,10 @@ public class ReportBuilder
 		for(final TemplateColumn col : this.config.getColumns())
 		{
 			final ColumnStyle style = col.getContentColumn().getStyle();
-			final Font font = style.getFont();
-			lbl.setFont(font);
+			final Font f = style.getFont();
+			lbl.setFont(f);
 			int lblHeigh = (int)lbl.getPreferredSize().getHeight();
-			//Add border width
 			lblHeigh+= style.getColBorder().getLineWidth()*2;
-			//Add padding
 			lblHeigh+= style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
 
 			if(lblHeigh > maxHeight)
@@ -195,7 +201,7 @@ public class ReportBuilder
 		{
 			field = new JRDesignField();
 			field.setName(col.getContentColumn().getFieldName());
-			this.chooseValueClass(col, field);
+			this.chooseValueClass(col,field);
 
 			try
 			{
@@ -205,7 +211,7 @@ public class ReportBuilder
 			catch(final JRException e)
 			{
 				throw new ExportException("error during add the field "
-						+ col.getContentColumn().getFieldName(), e);
+						+ col.getContentColumn().getFieldName(),e);
 			}
 		}
 
@@ -239,14 +245,12 @@ public class ReportBuilder
 		final int contentLabelHeight = this.calcMaxContentHeight();
 		detailBand.setHeight(contentLabelHeight);
 
-		final boolean createHeader = this.config.hasAnyHeader();
-
 		int x = 0;
 
 		for(final TemplateColumn col : this.config.getColumns())
 		{
 			// Header is created
-			if(createHeader)
+			if(this.config.hasAnyHeader())
 			{
 				// If this column has a header the JRDesignStaticText get the
 				// propertys of the Column
@@ -260,9 +264,9 @@ public class ReportBuilder
 					headerLabel.setY(TemplateConfig.DEFAULT_COMPONENT_Y_POSITION);
 
 					headerLabel.setHeight(headerLabelHeight);
-					this.setStlyeForTextField(headerLabel, headerColumn.getStyle());
-					this.prepareTextfieldWithBorder(headerLabel, headerColumn.getStyle());
-					this.prepareTextfieldPadding(headerLabel, headerColumn.getStyle());
+					this.setStlyeForTextField(headerLabel,headerColumn.getStyle());
+					this.prepareTextfieldWithBorder(headerLabel,headerColumn.getStyle());
+					this.prepareTextfieldPadding(headerLabel,headerColumn.getStyle());
 
 					headerLabel.setPositionType(PositionTypeEnum.FLOAT);
 
@@ -273,6 +277,7 @@ public class ReportBuilder
 				else
 				{
 					// an empty label must be added to complete the layout
+					// Build label and set x / y
 					emptyHeaderLabel = new JRDesignStaticText();
 					emptyHeaderLabel.setX(x);
 					emptyHeaderLabel.setWidth(col.getWidth());
@@ -288,21 +293,17 @@ public class ReportBuilder
 			textField.setY(TemplateConfig.DEFAULT_COMPONENT_Y_POSITION);
 			textField.setHeight(contentLabelHeight);
 
-			this.setStlyeForTextField(textField, contentColumn.getStyle());
+			this.setStlyeForTextField(textField,contentColumn.getStyle());
 			textField.setPattern(contentColumn.getProperty());
 
 			// box tag properties
-			this.prepareTextfieldWithBorder(textField, contentColumn.getStyle());
-			this.prepareTextfieldPadding(textField, contentColumn.getStyle());
+			this.prepareTextfieldWithBorder(textField,contentColumn.getStyle());
+			this.prepareTextfieldPadding(textField,contentColumn.getStyle());
 
 			textField.setExpression(this.buildExpression(contentColumn));
 
 			textField.setPositionType(PositionTypeEnum.FLOAT);
 
-			if(this.config.isBlankWhenNullValue())
-			{
-				textField.setBlankWhenNull(true);
-			}
 			detailBand.addElement(textField);
 
 			x += col.getWidth();
@@ -319,8 +320,13 @@ public class ReportBuilder
 		txtField.setFontName(f.getName());
 		txtField.setFontSize(Float.valueOf(f.getSize()));
 		txtField.setBold(Boolean.valueOf(f.isBold()));
-		txtField.setItalic(Boolean.valueOf(f.isItalic()));
 		txtField.setHorizontalTextAlign(style.getHorizontalAlignment().getHorizontalTextAlignEnum());
+
+
+		if(!style.getBackground().equals(Color.WHITE))
+		{
+			txtField.setMode(ModeEnum.OPAQUE);
+		}
 	}
 
 	private void prepareTextfieldWithBorder(final JRDesignTextElement textField, final ColumnStyle style)
@@ -331,7 +337,7 @@ public class ReportBuilder
 			return;
 		}
 
-		textField.getLineBox().getPen().setLineWidth((float) border.getLineWidth()); // Cast int to float
+		textField.getLineBox().getPen().setLineWidth((float)border.getLineWidth());
 		textField.getLineBox().getPen().setLineColor(border.getLineColor());
 		textField.getLineBox().getPen().setLineStyle(border.getLineStyle().getLineStyleEnum());
 	}
@@ -358,7 +364,61 @@ public class ReportBuilder
 	 * 
 	 * @return
 	 */
-	private JasperReport assembleReport() throws ExportException
+	private int calcMaxHeaderHeight()
+	{
+		final JLabel lbl = new JLabel("a");
+		int maxHeight = 0;
+
+		for(final TemplateColumn col : this.config.getColumns())
+		{
+			final ColumnStyle style = col.getHeaderColumn().getStyle();
+			final Font font = style.getFont();
+			lbl.setFont(font);
+			int lblHeigh = (int)lbl.getPreferredSize().getHeight();
+			lblHeigh+= style.getColBorder().getLineWidth()*2;
+			lblHeigh+= style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
+
+			if(lblHeigh > maxHeight)
+			{
+				maxHeight = lblHeigh;
+			}
+		}
+
+		return maxHeight;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private int calcMaxContentHeight()
+	{
+		final JLabel lbl = new JLabel("a");
+		int maxHeight = 0;
+
+		for(final TemplateColumn col : this.config.getColumns())
+		{
+			final ColumnStyle style = col.getContentColumn().getStyle();
+			final Font font = style.getFont();
+			lbl.setFont(font);
+			int lblHeigh = (int)lbl.getPreferredSize().getHeight();
+			lblHeigh+= style.getColBorder().getLineWidth()*2;
+			lblHeigh+= style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
+
+			if(lblHeigh > maxHeight)
+			{
+				maxHeight = lblHeigh;
+			}
+		}
+
+		return maxHeight;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public JasperReport assembleReport() throws ExportException
 	{
 		try
 		{
@@ -368,9 +428,9 @@ public class ReportBuilder
 			final JRDesignBand headerBand = this.initHeaderBand();
 			final JRDesignBand detailBand = this.initDetailBand();
 
-			this.createHeaderAndContent(headerBand, detailBand);
+			this.createHeaderAndContent(headerBand,detailBand);
 
-			((JRDesignSection) jasperDesign.getDetailSection()).addBand(detailBand);
+			((JRDesignSection)jasperDesign.getDetailSection()).addBand(detailBand);
 			if(this.config.hasAnyHeader())
 			{
 				jasperDesign.setTitle(headerBand);

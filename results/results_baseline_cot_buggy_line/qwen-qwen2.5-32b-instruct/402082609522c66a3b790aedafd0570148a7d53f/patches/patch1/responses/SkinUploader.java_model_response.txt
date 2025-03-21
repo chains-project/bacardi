@@ -1,24 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `CommandSource` cannot be found, which suggests that the `CommandSource` class has been removed or moved in the newer version of the Sponge dependency.
-   - The error occurs in the `SkinUploader` class, specifically in the constructor and the field declaration.
-
-2. Review the client code:
-   - The `CommandSource` class is used as a field type and in the constructor parameter.
-   - The import statement for `CommandSource` is present, but it seems the class is no longer available in the specified package.
-
-3. Consider potential fixes:
-   - Since the `CommandSource` class is no longer available, we need to find an alternative or update the import to the correct package if it has been moved.
-   - If the class has been replaced by another class, we need to update the code to use the new class.
-
-4. Plan the necessary changes:
-   - Check the Sponge API documentation or changelog for the new version to find the replacement for `CommandSource`.
-   - If `CommandSource` has been replaced, update the field type and constructor parameter to use the new class.
-   - Update the import statement to reflect the new class or package.
-</code_analysis>
-
-Based on the analysis, let's assume that `CommandSource` has been replaced by `org.spongepowered.api.command.source.CommandSource` in the newer version of the Sponge API. Here is the proposed fix:
-
 ```java
 package com.github.games647.changeskin.sponge.task;
 
@@ -28,15 +7,14 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.concurrent.TimeUnit;
 
-import org.spongepowered.api.command.source.CommandSource; // Updated import
-import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.service.context.Context;
 
 public class SkinUploader extends SharedUploader {
 
     private final ChangeSkinSponge plugin;
-    private final CommandSource invoker;
+    private final Context invoker;
 
-    public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {
+    public SkinUploader(ChangeSkinSponge plugin, Context invoker, Account owner, String url) {
         super(plugin.getCore(), owner, url);
 
         this.plugin = plugin;
@@ -55,5 +33,3 @@ public class SkinUploader extends SharedUploader {
     }
 }
 ```
-
-In this fix, the import statement for `CommandSource` has been updated to reflect the new package. If the class name has changed, the field type and constructor parameter would also need to be updated accordingly. If the class has been removed entirely, a different approach would be needed, such as using a different class or method to achieve the same functionality.

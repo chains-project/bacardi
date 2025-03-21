@@ -20,11 +20,9 @@ import com.artipie.http.auth.BasicAuthScheme;
 import com.artipie.http.auth.BearerAuthScheme;
 import com.artipie.http.auth.Permissions;
 import com.artipie.http.headers.Authorization;
+import com.artipie.http.headers.Header;
 import com.artipie.http.hm.ResponseMatcher;
 import com.artipie.http.hm.RsHasStatus;
-import com.artipie.http.rq.RequestLine;
-import com.artipie.http.rq.RqMethod;
-import com.artipie.http.rs.RsStatus;
 import io.reactivex.Flowable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -49,7 +47,7 @@ import org.junit.jupiter.params.provider.MethodSource;
  * @todo #434:30min test `shouldReturnForbiddenWhenUserHasNoRequiredPermissionOnSecondManifestPut`
  *  fails in github actions, locally it works fine. Figure out what is the problem and fix it.
  */
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
+@SuppressWarnings("PMD.UnusedPrivateMethod")
 public final class AuthTest {
 
     /**
@@ -109,7 +107,8 @@ public final class AuthTest {
     @Disabled
     void shouldReturnForbiddenWhenUserHasNoRequiredPermissionOnSecondManifestPut() {
         final Basic basic = new Basic(this.docker);
-        final String line = new RequestLine(RqMethod.PUT, "/v2/my-alpine/manifests/latest").toString();
+        final String line = new RequestLine(RqMethod.PUT, "/v2/my-alpine/manifests/latest")
+            .toString();
         final String action = "repository:my-alpine:push";
         basic.slice(action).response(
             line,
@@ -123,49 +122,6 @@ public final class AuthTest {
                 Content.EMPTY
             ),
             new RsHasStatus(RsStatus.FORBIDDEN)
-        );
-    }
-
-    @Test
-    void shouldOverwriteManifestIfAllowed() {
-        final Basic basic = new Basic(this.docker);
-        final String path = "/v2/my-alpine/manifests/abc";
-        final String line = new RequestLine(RqMethod.PUT, path).toString();
-        final String action = "repository:my-alpine:overwrite";
-        final Flowable<ByteBuffer> manifest = this.manifest();
-        MatcherAssert.assertThat(
-            "Manifest was created for the first time",
-            basic.slice(action).response(
-                line,
-                basic.headers(TestAuthentication.ALICE),
-                manifest
-            ),
-            new ResponseMatcher(
-                RsStatus.CREATED,
-                new Header("Location", path),
-                new Header("Content-Length", "0"),
-                new Header(
-                    "Docker-Content-Digest",
-                    "sha256:ef0ff2adcc3c944a63f7cafb386abc9a1d95528966085685ae9fab2a1c0bedbf"
-                )
-            )
-        );
-        MatcherAssert.assertThat(
-            "Manifest was overwritten",
-            basic.slice(action).response(
-                line,
-                basic.headers(TestAuthentication.ALICE),
-                manifest
-            ),
-            new ResponseMatcher(
-                RsStatus.CREATED,
-                new Header("Location", path),
-                new Header("Content-Length", "0"),
-                new Header(
-                    "Docker-Content-Digest",
-                    "sha256:ef0ff2adcc3c944a63f7cafb386abc9a1d95528966085685ae9fab2a1c0bedbf"
-                )
-            )
         );
     }
 
@@ -192,21 +148,68 @@ public final class AuthTest {
         );
     }
 
+    /**
+     * Create manifest content.
+     *
+     * @return Manifest content.
+     */
+    private Flowable<ByteBuffer> manifest() {
+        final byte[] content = "config".getBytes();
+        final Blob config = this.docker.repo(new RepoName.Valid("my-alpine")).layers()
+            .put(new TrustedBlobSource(content))
+            .toCompletableFuture().join();
+        final byte[] data = String.format(
+            "{\"config\":{\"digest\":\"%s\"},\"layers\":[],\"mediaType\":\"my-type\"}",
+            config.digest().string()
+        ).getBytes();
+        return Flowable.just(ByteBuffer.wrap(data));
+    }
+
     private static Stream<Arguments> setups() {
         return Stream.of(
             Arguments.of(
-                new Basic(),
+                new Basic(this.docker),
                 new RequestLine(RqMethod.GET, "/v2/"),
                 "registry:base:*"
             ),
             Arguments.of(
-                new Bearer(),
-                new RequestLine(RqMethod.GET, "/v2/"),
-                "registry:base:*"
+                new Basic(this.docker),
+                new RequestLine(RqMethod.HEAD, "/v2/my-alpine/manifests/1"),
+                "repository:my-alpine:pull"
+            ),
+            Arguments.of(
+                new Basic(this.docker),
+                new RequestLine(RqMethod.GET, "/v2/my-alpine/manifests/2"),
+                "repository:my-alpine:pull"
+            ),
+            Arguments.of(
+                new Basic(this.docker),
+                new RequestLine(RqMethod.PUT, "/v2/my-alpine/manifests/latest"),
+                "repository:my-alpine:push"
+            ),
+            Arguments.of(
+                new Basic(this.docker),
+                new RequestLine(RqMethod.PUT, "/v2/my-alpine/manifests/latest"),
+                "repository:my-alpine:overwrite"
+            ),
+            Arguments.of(
+                new Basic(this.docker),
+                new RequestLine(RqMethod.GET, "/v2/my-alpine/blobs/sha256:123"),
+                "repository:my-alpine:pull"
+            ),
+            Arguments.of(
+                new Basic(this.docker),
+                new RequestLine(RqMethod.GET, "/v2/_catalog"),
+                "registry:catalog:*"
             )
         );
     }
 
+    /**
+     * Authentication method.
+     *
+     * @since 0.8
+     */
     private interface Method {
 
         Slice slice(String action);
@@ -215,8 +218,16 @@ public final class AuthTest {
 
     }
 
+    /**
+     * Basic authentication method.
+     *
+     * @since 0.8
+     */
     private static final class Basic implements Method {
 
+        /**
+         * Docker repo.
+         */
         private final Docker docker;
 
         private Basic(final Docker docker) {
@@ -247,6 +258,11 @@ public final class AuthTest {
         }
     }
 
+    /**
+     * Bearer authentication method.
+     *
+     * @since 0.8
+     */
     private static final class Bearer implements Method {
 
         @Override
@@ -258,7 +274,7 @@ public final class AuthTest {
                     token -> CompletableFuture.completedFuture(
                         Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
                             .filter(user -> token.equals(token(user)))
-                            .map(AuthTest::toAuthUser)
+                            .map(user -> new AuthUser(user.name()))
                             .findFirst()
                     ),
                     ""
@@ -273,17 +289,8 @@ public final class AuthTest {
             );
         }
 
-        @Override
-        public String toString() {
-            return "Bearer";
-        }
-
         private static String token(final TestAuthentication.User user) {
             return String.format("%s:%s", user.name(), user.password());
-        }
-
-        private static AuthUser toAuthUser(final TestAuthentication.User user) {
-            return new AuthUser(user.name());
         }
     }
 }

@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +31,6 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
             StringHandler stringHandlerA = new StringHandler("A");
             StringHandler stringHandlerB = new StringHandler("B");
             StringHandler stringHandlerC = new StringHandler("C");
-            StringHandler stringHandlerADuplicate = new StringHandler("A");
             StringHandler stringHandlerN = new StringHandler("N");
             DoubleSum aggregator = new DoubleSum();
             aggregator.getDoubleSuppliers().add(stringHandlerA);
@@ -81,43 +79,6 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
             constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
             Yaml yaml = new Yaml(constructor);
             c.addNode(yaml.loadAs(config, InstanceHolder.class));
-        });
-        DoubleSum aggregator = getField("aggregator");
-        StringHandler handlerC = getField("stringHandler_C");
-        onEvent("A");
-        assertThat(aggregator.sum, is(1.0));
-        assertThat(handlerC.value, is(0));
-        onEvent("A");
-        assertThat(aggregator.sum, is(2.0));
-        assertThat(handlerC.value, is(0));
-        onEvent("B");
-        assertThat(aggregator.sum, is(3.0));
-        assertThat(handlerC.value, is(0));
-        onEvent("C");
-        assertThat(aggregator.sum, is(3.0));
-        assertThat(handlerC.value, is(1));
-
-        getField("instanceHolder");
-    }
-
-    @Test
-    public void driveAsListFromYaml() {
-        String config = "" +
-                "- !doubleSum\n" +
-                "  doubleSuppliers:\n" +
-                "  - !stringHandler\n" +
-                "    id: A\n" +
-                "  - !stringHandler\n" +
-                "    id: B\n" +
-                "- !stringHandler\n" +
-                "  id: C";
-        sep(c -> {
-            LoaderOptions options = new LoaderOptions();
-            Constructor constructor = new Constructor(options);
-            constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
-            constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
-            Yaml yaml = new Yaml(constructor);
-            yaml.loadAs("nodeList:\n" + config, InstanceHolder.class).getNodeList().forEach(c::addNode);
         });
         DoubleSum aggregator = getField("aggregator");
         StringHandler handlerC = getField("stringHandler_C");

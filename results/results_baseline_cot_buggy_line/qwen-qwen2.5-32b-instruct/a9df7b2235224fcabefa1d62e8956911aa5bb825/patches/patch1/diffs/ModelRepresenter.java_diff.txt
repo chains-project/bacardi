@@ -6,11 +6,53 @@
 <  * which accompanies this distribution, and is available at
 <  * http://www.eclipse.org/legal/epl-v10.html
 <  */
-94d86
+29,35d21
+< /**
+<  * YAML model representer.
+<  *
+<  * @author jvanzyl
+<  * @author bentmann
+<  * @since 0.7
+<  */
+94d79
 < 
-107a100
+107a93
 > 
-214,219c207,208
+122,129d107
+<           boolean isList = singularName != null;
+<           if (isList) { // check for eventual list construction
+<             for (int j = 0, grandChildCount = child.getChildCount(); j < grandChildCount; j++) {
+<               String grandChildName = child.getChild(j).getName();
+<               isList &= grandChildName.equals(singularName);
+<             }
+<           }
+<           if (isList) {
+131,133d108
+<           } else {
+<             childValue = toMap(child);
+<           }
+169,170c144
+<   //TODO move to polyglot-common, or to org.apache.maven:maven-model
+<   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
+---
+>   private static List<String> ORDER_MODEL = new ArrayList<>(Arrays.asList(
+204c178
+<   private static List<String> ORDER_DEVELOPER = new ArrayList<String>(Arrays.asList(
+---
+>   private static List<String> ORDER_DEVELOPER = new ArrayList<>(Arrays.asList(
+206c180
+<   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<String>(Arrays.asList(
+---
+>   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<>(Arrays.asList(
+208c182
+<   private static List<String> ORDER_DEPENDENCY = new ArrayList<String>(Arrays.asList(
+---
+>   private static List<String> ORDER_DEPENDENCY = new ArrayList<>(Arrays.asList(
+210c184
+<   private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
+---
+>   private static List<String> ORDER_PLUGIN = new ArrayList<>(Arrays.asList(
+214,219c188
 <   /*
 <    * Change the default order. Important data goes first.
 <    */
@@ -19,9 +61,13 @@
 <           throws IntrospectionException {
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) {
->     try {
-232a222,225
->     } catch (IntrospectionException e) {
->       // Handle the exception here, possibly by logging or rethrowing as a runtime exception
->       throw new RuntimeException("IntrospectionException occurred", e);
->     }
+230a200
+>       try {
+231a202,204
+>       } catch (IntrospectionException e) {
+>         throw new RuntimeException(e);
+>       }
+238c211
+<       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
+---
+>     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));

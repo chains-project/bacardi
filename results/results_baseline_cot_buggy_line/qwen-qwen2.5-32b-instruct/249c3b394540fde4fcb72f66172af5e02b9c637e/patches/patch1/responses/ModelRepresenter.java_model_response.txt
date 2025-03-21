@@ -1,23 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the `IntrospectionException` is not compatible with the throws clause in the `Representer.getProperties(Class<? extends Object>)` method.
-   - The error occurs at line 218, which is the `getProperties` method in the `ModelRepresenter` class.
-   - The issue likely arises from a change in the `Representer` class in the updated dependency, where the `getProperties` method no longer declares `IntrospectionException` in its throws clause.
-
-2. Review the client code:
-   - The `getProperties` method in `ModelRepresenter` throws `IntrospectionException`, which is not declared in the `Representer` class's `getProperties` method in the updated dependency.
-   - The `IntrospectionException` is thrown in the `sortTypeWithOrder` method, which is called from `getProperties`.
-
-3. Consider potential fixes:
-   - Since the `Representer` class's `getProperties` method no longer declares `IntrospectionException` in its throws clause, the `ModelRepresenter` class must handle this exception internally.
-   - The `@Override` annotation should be removed if the method signature in the updated dependency no longer matches.
-
-4. Plan the necessary changes:
-   - Remove the `throws IntrospectionException` from the `getProperties` method.
-   - Wrap the `sortTypeWithOrder` call in a try-catch block to handle `IntrospectionException`.
-   - Remove the `@Override` annotation if the method no longer overrides a method in the updated dependency version.
-</code_analysis>
-
 ```java
 package org.sonatype.maven.polyglot.yaml;
 
@@ -40,13 +20,6 @@ import java.util.*;
 
 import static java.lang.String.format;
 
-/**
- * YAML model representer.
- *
- * @author jvanzyl
- * @author bentmann
- * @since 0.7
- */
 class ModelRepresenter extends Representer {
   public ModelRepresenter() {
     this.representers.put(Xpp3Dom.class, new RepresentXpp3Dom());
@@ -59,7 +32,7 @@ class ModelRepresenter extends Representer {
   }
 
   protected NodeTuple representJavaBeanProperty(Object javaBean, Property property,
-                                                 Object propertyValue, Tag customTag) {
+                                                Object propertyValue, Tag customTag) {
     if (property != null && property.getName().equals("pomFile")) {
       // "pomFile" is not a part of POM http://maven.apache.org/xsd/maven-4.0.0.xsd
       return null;
@@ -182,7 +155,7 @@ class ModelRepresenter extends Representer {
   // Model elements order {
   //TODO move to polyglot-common, or to org.apache.maven:maven-model
   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
-          "modelEncoding",
+		  "modelEncoding",
           "modelVersion",
           "parent",
           "groupId",
@@ -214,15 +187,15 @@ class ModelRepresenter extends Representer {
           "build",
           "profiles",
           "reporting"
-  ));
+          ));
   private static List<String> ORDER_DEVELOPER = new ArrayList<String>(Arrays.asList(
-          "name", "id", "email"));
+		  "name", "id", "email"));
   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<String>(Arrays.asList(
-          "name", "id", "email"));
+		  "name", "id", "email"));
   private static List<String> ORDER_DEPENDENCY = new ArrayList<String>(Arrays.asList(
-          "groupId", "artifactId", "version", "type", "classifier", "scope"));
+		  "groupId", "artifactId", "version", "type", "classifier", "scope"));
   private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
-          "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
+		  "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
   //}
 
   protected Set<Property> getProperties(Class<? extends Object> type) {
@@ -241,7 +214,7 @@ class ModelRepresenter extends Representer {
         return super.getProperties(type);
       }
     } catch (IntrospectionException e) {
-      throw new RuntimeException("Failed to get properties for type " + type.getName(), e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -278,10 +251,8 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0; // compare further
+      return 0;// compare further
     }
   }
 }
 ```
-
-In this fix, the `getProperties` method no longer declares `throws IntrospectionException` and instead catches the exception and rethrows it as a `RuntimeException`. This ensures that the method signature remains compatible with the updated dependency while still handling the exception. The `@Override` annotation is removed as it is no longer necessary if the method signature has changed in the updated dependency.

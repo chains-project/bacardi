@@ -4,13 +4,13 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.cryptomorin.xseries.XEnchantment;
 import com.cryptomorin.xseries.XMaterial;
 import com.expl0itz.worldwidechat.WorldwideChat;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -76,7 +76,7 @@ public class WWCInventoryManager extends InventoryManager {
 			pageMeta.setDisplayName(ChatColor.AQUA
 					+ CommonDefinitions.getMessage("wwcGUIPageNumber", args));
 			if (args[0].equals("1")) {
-				pageMeta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+				pageMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
 			}
 		} else {
 			pageMeta.setDisplayName(ChatColor.RED + "Not a valid button! This is a bug, please report it.");

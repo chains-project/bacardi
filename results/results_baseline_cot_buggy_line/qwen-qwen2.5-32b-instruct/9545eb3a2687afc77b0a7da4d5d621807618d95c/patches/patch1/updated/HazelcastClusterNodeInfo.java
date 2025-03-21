@@ -5,7 +5,9 @@ import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
 import org.jivesoftware.openfire.cluster.NodeID;
 import org.jivesoftware.openfire.plugin.util.cache.ClusteredCacheFactory;
 
-import com.hazelcast.core.ClusterMember; // Updated import statement
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.MemberSelector;
+import com.hazelcast.core.HazelcastInstanceAware;
 
 /**
  * Cluster Node information as provided by Hazelcast.
@@ -13,7 +15,7 @@ import com.hazelcast.core.ClusterMember; // Updated import statement
  * @author Tom Evans
  * @author Gaston Dombiak
  */
-public class HazelcastClusterNodeInfo implements ClusterNodeInfo {
+public class HazelcastClusterNodeInfo implements ClusterNodeInfo, HazelcastInstanceAware {
 
     public static final String HOST_NAME_ATTRIBUTE = "hostname";
     public static final String NODE_ID_ATTRIBUTE = "node-id";
@@ -21,10 +23,11 @@ public class HazelcastClusterNodeInfo implements ClusterNodeInfo {
     private final NodeID nodeID;
     private final long joinedTime;
     private final boolean seniorMember;
+    private HazelcastInstance hazelcastInstance;
 
-    public HazelcastClusterNodeInfo(final ClusterMember member, final long joinedTime) { // Updated parameter type
-        this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";
-        this.nodeID = ClusteredCacheFactory.getNodeID(member);
+    public HazelcastClusterNodeInfo(final MemberSelector member, final long joinedTime) {
+        this.hostname = member.select(hazelcastInstance).get().getAttributes().get(HOST_NAME_ATTRIBUTE) + " (" + member.select(hazelcastInstance).get().getAddress().getHost() + ")";
+        this.nodeID = ClusteredCacheFactory.getNodeID(member.select(hazelcastInstance).get());
         this.joinedTime = joinedTime;
         this.seniorMember = ClusterManager.getSeniorClusterMember().equals(nodeID);
     }
@@ -43,5 +46,10 @@ public class HazelcastClusterNodeInfo implements ClusterNodeInfo {
 
     public boolean isSeniorMember() {
         return seniorMember;
+    }
+
+    @Override
+    public void setHazelcastInstance(HazelcastInstance hazelcastInstance) {
+        this.hazelcastInstance = hazelcastInstance;
     }
 }
