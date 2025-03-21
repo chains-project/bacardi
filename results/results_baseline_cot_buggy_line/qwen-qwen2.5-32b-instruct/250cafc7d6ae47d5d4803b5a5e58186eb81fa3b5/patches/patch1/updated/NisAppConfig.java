@@ -85,6 +85,91 @@ public class NisAppConfig {
 	@Bean
 	public DataSource dataSource() throws IOException {
 		final NisConfiguration configuration = this.nisConfiguration();
+
+		// initialize network info
+		NetworkInfos.setDefault(configuration.getNetworkInfo());
+
+		// initialize other globals
+		final Properties prop = new Properties();
+		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+
+		// replace url parameters with values from configuration
+		final String jdbcUrl = prop.getProperty("jdbc.url").replace("${nem.folder}", configuration.getNemFolder()).replace("${nem.network}",
+				configuration.getNetworkName());
+
+		final DriverManagerDataSource dataSource = new DriverManagerDataSource();
+		dataSource.setDriverClassName(prop.getProperty("jdbc.driverClassName"));
+		dataSource.setUrl(jdbcUrl);
+		dataSource.setUsername(prop.getProperty("jdbc.username"));
+		dataSource.setPassword(prop.getProperty("jdbc.password"));
+		return dataSource;
+	}
+
+	@Bean
+	public Flyway flyway() throws IOException {
+		final Properties prop = new Properties();
+		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+
+		final FlywayConfiguration configuration = FlywayConfiguration.createDefaultConfiguration();
+		configuration.setDataSource(this.dataSource());
+		configuration.setLocations(prop.getProperty("flyway.locations"));
+		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+
+		return Flyway.configure().configuration(configuration).load();
+	}
+
+	@Bean
+	@DependsOn("flyway")
+	public HibernateTransactionManager transactionManager() throws IOException {
+		return new HibernateTransactionManager(this.sessionFactory());
+	}
+
+	@Bean
+	public SessionFactory sessionFactory() throws IOException {
+		return SessionFactoryLoader.load(this.dataSource());
+	}
+
+	@Bean
+	public BlockChain blockChain() {
+		return new BlockChain(this.blockChainLastBlockLayer, this.blockChainUpdater());
+	}
+
+	@Bean
+	public BlockChainServices blockChainServices() {
+		return new DefaultBlockChainServices(this.blockChainLastBlockLayer, this.httpConnectorPool());
+	}
+
+	@Bean
+	public BlockChainUpdater blockChainUpdater() {
+		return new BlockChainUpdater(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainContextFactory(),
+				this.unconfirmedTransactions(), this.nisConfiguration());
+	}
+
+	@Bean
+	public BlockChainContextFactory blockChainContextFactory() {
+		return new BlockChainContextFactory(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainServices(),
+				this.unconfirmedTransactions());
+	}
+
+	// region mappers
+
+	@Bean
+	protected AuditCollection outgoingAudits() {
+		return this.createAuditCollection();
+	}
+
+	@Bean
+	protected AuditCollection incomingAudits() {
+		return this.createAuditCollection();
+	}
+
+	private AuditCollection createAuditCollection() {
+		return new AuditCollection(MAX_AUDIT_HISTORY_SIZE, this.timeProvider());
+	}
+
+	@Bean
+	public DataSource dataSource() throws IOException {
+		final NisConfiguration configuration = this.nisConfiguration();
 		final String nemFolder = configuration.getNemFolder();
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
@@ -101,22 +186,21 @@ public class NisAppConfig {
 		return dataSource;
 	}
 
-	@Bean(initMethod = "migrate")
+	@Bean
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final FlywayConfiguration configuration = FlywayConfiguration.create();
+		final FlywayConfiguration configuration = FlywayConfiguration.createDefaultConfiguration();
 		configuration.setDataSource(this.dataSource());
 		configuration.setLocations(prop.getProperty("flyway.locations"));
 		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
 
-		final Flyway flyway = Flyway.configure().configuration(configuration).load();
-		return flyway;
+		return Flyway.configure().configuration(configuration).load();
 	}
 
 	@Bean
+	@DependsOn("flyway")
 	public SessionFactory sessionFactory() throws IOException {
 		return SessionFactoryLoader.load(this.dataSource());
 	}
@@ -128,8 +212,159 @@ public class NisAppConfig {
 
 	@Bean
 	public BlockChainServices blockChainServices() {
-		return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
-				this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+		return new DefaultBlockChainServices(this.blockChainLastBlockLayer, this.httpConnectorPool());
+	}
+
+	@Bean
+	public BlockChainUpdater blockChainUpdater() {
+		return new BlockChainUpdater(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainContextFactory(),
+				this.unconfirmedTransactions(), this.nisConfiguration());
+	}
+
+	@Bean
+	public BlockChainContextFactory blockChainContextFactory() {
+		return new BlockChainContextFactory(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainServices(),
+				this.unconfirmedTransactions());
+	}
+
+	// region mappers
+
+	@Bean
+	protected AuditCollection outgoingAudits() {
+		return this.createAuditCollection();
+	}
+
+	@Bean
+	protected AuditCollection incomingAudits() {
+		return this.createAuditCollection();
+	}
+
+	private AuditCollection createAuditCollection() {
+		return new AuditCollection(MAX_AUDIT_HISTORY_SIZE, this.timeProvider());
+	}
+
+	@Bean
+	public DataSource dataSource() throws IOException {
+		final NisConfiguration configuration = this.nisConfiguration();
+		final String nemFolder = configuration.getNemFolder();
+		final Properties prop = new Properties();
+		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+
+		// replace url parameters with values from configuration
+		final String jdbcUrl = prop.getProperty("jdbc.url").replace("${nem.folder}", nemFolder).replace("${nem.network",
+				configuration.getNetworkName());
+
+		final DriverManagerDataSource dataSource = new DriverManagerDataSource();
+		dataSource.setDriverClassName(prop.getProperty("jdbc.driverClassName"));
+		dataSource.setUrl(jdbcUrl);
+		dataSource.setUsername(prop.getProperty("jdbc.username"));
+		dataSource.setPassword(prop.getProperty("jdbc.password"));
+		return dataSource;
+	}
+
+	@Bean
+	public Flyway flyway() throws IOException {
+		final Properties prop = new Properties();
+		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+
+		final FlywayConfiguration configuration = FlywayConfiguration.createDefaultConfiguration();
+		configuration.setDataSource(this.dataSource());
+		configuration.setLocations(prop.getProperty("flyway.locations"));
+		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+
+		return Flyway.configure().configuration(configuration).load();
+	}
+
+	@Bean
+	@DependsOn("flyway")
+	public SessionFactory sessionFactory() throws IOException {
+		return SessionFactoryLoader.load(this.dataSource());
+	}
+
+	@Bean
+	public BlockChain blockChain() {
+		return new BlockChain(this.blockChainLastBlockLayer, this.blockChainUpdater());
+	}
+
+	@Bean
+	public BlockChainServices blockChainServices() {
+		return new DefaultBlockChainServices(this.blockChainLastBlockLayer, this.httpConnectorPool());
+	}
+
+	@Bean
+	public BlockChainUpdater blockChainUpdater() {
+		return new BlockChainUpdater(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainContextFactory(),
+				this.unconfirmedTransactions(), this.nisConfiguration());
+	}
+
+	@Bean
+	public BlockChainContextFactory blockChainContextFactory() {
+		return new BlockChainContextFactory(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainServices(),
+				this.unconfirmedTransactions());
+	}
+
+	// region mappers
+
+	@Bean
+	protected AuditCollection outgoingAudits() {
+		return this.createAuditCollection();
+	}
+
+	@Bean
+	protected AuditCollection incomingAudits() {
+		return this.createAuditCollection();
+	}
+
+	private AuditCollection createAuditCollection() {
+		return new AuditCollection(MAX_AUDIT_HISTORY_SIZE, this.timeProvider());
+	}
+
+	@Bean
+	public DataSource dataSource() throws IOException {
+		final NisConfiguration configuration = this.nisConfiguration();
+		final String nemFolder = configuration.getNemFolder();
+		final Properties prop = new Properties();
+		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+
+		// replace url parameters with values from configuration
+		final String jdbcUrl = prop.getProperty("jdbc.url").replace("${nem.folder}", nemFolder).replace("${nem.network}",
+				configuration.getNetworkName());
+
+		final DriverManagerDataSource dataSource = new DriverManagerDataSource();
+		dataSource.setDriverClassName(prop.getProperty("jdbc.driverClassName"));
+		dataSource.setUrl(jdbcUrl);
+		dataSource.setUsername(prop.getProperty("jdbc.username"));
+		dataSource.setPassword(prop.getProperty("jdbc.password"));
+		return dataSource;
+	}
+
+	@Bean
+	public Flyway flyway() throws IOException {
+		final Properties prop = new Properties();
+		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+
+		final FlywayConfiguration configuration = FlywayConfiguration.createDefaultConfiguration();
+		configuration.setDataSource(this.dataSource());
+		configuration.setLocations(prop.getProperty("flyway.locations"));
+		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+
+		return Flyway.configure().configuration(configuration).load();
+	}
+
+	@Bean
+	@DependsOn("flyway")
+	public SessionFactory sessionFactory() throws IOException {
+		return SessionFactoryLoader.load(this.dataSource());
+	}
+
+	@Bean
+	public BlockChain blockChain() {
+		return new BlockChain(this.blockChainLastBlockLayer, this.blockChainUpdater());
+	}
+
+	@Bean
+	public BlockChainServices blockChainServices() {
+		return new DefaultBlockChainServices(this.blockChainLastBlockLayer, this.httpConnectorPool());
 	}
 
 	@Bean
@@ -168,7 +403,7 @@ public class NisAppConfig {
 
 	// endregion
 
-	// region mappers
+	// region observers + validators
 
 	@Bean
 	public BlockTransactionObserverFactory blockTransactionObserverFactory() {
@@ -334,7 +569,7 @@ public class NisAppConfig {
 		final Map<BlockChainFeature, Supplier<Supplier<WeightedBalances>>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<WeightedBalances>>>() {
 			{
 				this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
-				this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, AlwaysVestedBalances::new);
+				this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
 			}
 		};
 

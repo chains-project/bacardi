@@ -1,11 +1,6 @@
 package io.github.hapjava.server.impl.crypto;
 
 import java.io.IOException;
-import org.bouncycastle.crypto.engines.ChaChaEngine;
-import org.bouncycastle.crypto.generators.Poly1305KeyGenerator;
-import org.bouncycastle.crypto.params.KeyParameter;
-import org.bouncycastle.crypto.params.ParametersWithIV;
-import org.bouncycastle.util.Arrays;
 
 public class ChachaDecoder {
 

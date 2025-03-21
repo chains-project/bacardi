@@ -1,34 +1,11 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class file for `org.slf4j.spi.LoggingEventAware` cannot be found.
-   - This suggests that the SLF4J API has been updated, and the class `LoggingEventAware` is no longer available or has been moved.
-   - The error occurs at line 181, where the logger level is being set.
-
-2. Review the client code:
-   - The problematic line is `((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);`.
-   - The cast to `Logger` is likely causing the issue because the `Logger` class may have changed in the new SLF4J version.
-   - The `TRACE` level is also incorrect, but the cast to `Logger` is problematic.
-
-3. Consider potential fixes:
-   - The `Logger` class in SLF4J may have changed, and the cast to `Logger` may no longer be valid.
-   - The `TRACE` level should be `TRACE`, which is a typo in the code.
-   - The `LoggingEventAware` class is not found, which suggests that the SLF4J API has changed, and the cast to `Logger` is no longer valid.
-
-4. Plan the necessary changes:
-   - Remove the cast to `Logger` and use the `Logger` instance directly.
-   - Correct the typo `TRACE` to `TRACE`.
-   - Ensure that the `Logger` instance is obtained correctly and the level is set without casting.
-</code_analysis>
-
 ```java
 package com.feedzai.commons.sql.abstraction.engine.impl.abs;
 
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.feedzai.commons.sql.abstraction.ddl.AlterColumn;
 import com.feedzai.commons.sql.abstraction.ddl.DbColumn;
 import com.feedzai.commons.sql.abstraction.ddl.DbColumnConstraint;
-import com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType;
+import com.feedzai.commons.sql.abstraction.ddl.DbColumnType;
 import com.feedzai.commons.sql.abstraction.ddl.DbEntity;
 import com.feedzai.commons.sql.abstraction.ddl.Rename;
 import com.feedzai.commons.sql.abstraction.dml.Expression;
@@ -108,7 +85,7 @@ import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.ceiling
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.coalesce;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.column;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.concat;
-import static com.com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.count;
+import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.count;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.createView;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.dbColumn;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.dbEntity;
@@ -130,4 +107,4 @@ import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.min;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.mod;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.neq;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.notBetween
-
+```

@@ -1,5 +1,5 @@
-22d21
-< import com.artipie.http.headers.Header;
+41d40
+< import org.junit.jupiter.params.provider.MethodSource;
 52c51
 < @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 ---
@@ -12,11 +12,53 @@
 >                 Headers.EMPTY,
 >                 Content.EMPTY
 >             ),
-192c195
+126,168d128
+<     @Test
+<     void shouldOverwriteManifestIfAllowed() {
+<         final Basic basic = new Basic(this.docker);
+<         final String path = "/v2/my-alpine/manifests/abc";
+<         final String line = new RequestLine(RqMethod.PUT, path).toString();
+<         final String action = "repository:my-alpine:overwrite";
+<         final Flowable<ByteBuffer> manifest = this.manifest();
+<         MatcherAssert.assertThat(
+<             "Manifest was created for the first time",
+<             basic.slice(action).response(
+<                 line,
+<                 basic.headers(TestAuthentication.ALICE),
+<                 manifest
+<             ),
+<             new ResponseMatcher(
+<                 RsStatus.CREATED,
+<                 new Header("Location", path),
+<                 new Header("Content-Length", "0"),
+<                 new Header(
+<                     "Docker-Content-Digest",
+<                     "sha256:ef0ff2adcc3c944a63f7cafb386abc9a1d95528966085685ae9fab2a1c0bedbf"
+<                 )
+<             )
+<         );
+<         MatcherAssert.assertThat(
+<             "Manifest was overwritten",
+<             basic.slice(action).response(
+<                 line,
+<                 basic.headers(TestAuthentication.ALICE),
+<                 manifest
+<             ),
+<             new ResponseMatcher(
+<                 RsStatus.CREATED,
+<                 new Header("Location", path),
+<                 new Header("Content-Length", "0"),
+<                 new Header(
+<                     "Docker-Content-Digest",
+<                     "sha256:ef0ff2adcc3c944a63f7cafb386abc9a1d95528966085685ae9fab2a1c0bedbf"
+<                 )
+<             )
+<         );
+<     }
+< 
+192,283d151
 <     @SuppressWarnings("PMD.UnusedPrivateMethod")
----
->     @SuppressWarnings("PMD.AvoidDuplicateLiterals")
-194,214d196
+<     private static Stream<Arguments> setups() {
 <         return Stream.of(new Basic(), new Bearer()).flatMap(AuthTest::setups);
 <     }
 < 
@@ -38,11 +80,13 @@
 <     }
 < 
 <     private static Stream<Arguments> setups(final Method method) {
-217c199
+<         return Stream.of(
+<             Arguments.of(
 <                 method,
----
->                 new Basic(),
-222,279c204,206
+<                 new RequestLine(RqMethod.GET, "/v2/"),
+<                 "registry:base:*"
+<             ),
+<             Arguments.of(
 <                 method,
 <                 new RequestLine(RqMethod.HEAD, "/v2/my-alpine/manifests/1"),
 <                 "repository:my-alpine:pull"
@@ -101,15 +145,11 @@
 <                 method,
 <                 new RequestLine(RqMethod.GET, "/v2/_catalog"),
 <                 "registry:catalog:*"
----
->                 new Bearer(),
->                 new RequestLine(RqMethod.GET, "/v2/"),
->                 "registry:base:*"
-353d279
-<                             .map(user -> new Authentication.User(user.name()))
-366,370d291
-<         }
+<             )
+<         );
+<     }
 < 
-<         @Override
-<         public String toString() {
-<             return "Bearer";
+353d220
+<                             .map(user -> new Authentication.User(user.name()))
+357d223
+<                 )

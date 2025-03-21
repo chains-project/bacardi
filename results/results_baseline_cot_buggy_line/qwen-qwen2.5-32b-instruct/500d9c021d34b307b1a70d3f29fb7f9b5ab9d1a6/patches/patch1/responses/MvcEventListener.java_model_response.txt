@@ -1,20 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error messages indicate that the `javax.mvc.event` package and its classes are not found. This suggests that the dependency related to the `javax.mvc.event` package has been updated or removed, and the new version does not include these classes.
-
-2. Review the client code:
-   - The client code imports several classes from the `javax.mvc.event` package, which are causing compilation errors.
-   - The methods in the `MvcEventListener` class are using these classes as parameters, which are no longer available.
-
-3. Consider potential fixes:
-   - The `javax.mvc.event` package is part of the older Java EE specification. In the newer Jakarta EE specification, the package has been moved to `jakarta.mvc.event`.
-   - The fix involves updating the import statements to use the new package name.
-
-4. Plan the necessary changes:
-   - Replace all `javax.mvc.event` imports with `jakarta.mvc.event`.
-   - Ensure that the class names and method signatures remain unchanged.
-</code_analysis>
-
 ```java
 package com.example;
 
@@ -50,7 +33,7 @@ public class MvcEventListener {
     private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
         LOGGER.info(() -> "AfterProcessViewEvent:: " + event);
     }
-
+    
     private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
         LOGGER.info(() -> "ControllerRedirectEvent:: " + event);
     }
@@ -61,5 +44,3 @@ public class MvcEventListener {
     }
 }
 ```
-
-This fix updates the import statements to use the `jakarta.mvc.event` package, which should resolve the compilation errors caused by the dependency update.

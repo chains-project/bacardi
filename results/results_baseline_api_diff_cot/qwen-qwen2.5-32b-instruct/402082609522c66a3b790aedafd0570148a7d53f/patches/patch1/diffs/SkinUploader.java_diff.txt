@@ -3,10 +3,12 @@
 15c14
 <     private final CommandSource invoker;
 ---
->     private final Object invoker; // Assuming CommandSource was replaced with a more generic type or removed
+>     private final Object invoker; // Assuming CommandSource is replaced with a more generic type
 17c16
 <     public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {
 ---
->     public SkinUploader(ChangeSkinSponge plugin, Object invoker, Account owner, String url) {
-25a25
->         // Assuming sendMessage now accepts a more generic type or the method signature has changed
+>     public SkinUploader(ChangeSkinSponge plugin, Object invoker, Account owner, String url) { // Adjusted parameter type
+26c25
+<         plugin.sendMessage(invoker, key);
+---
+>         plugin.sendMessage(invoker, key); // Assuming sendMessage is compatible with the new type

@@ -1,14 +1,7 @@
-<code_analysis>
-The error messages indicate that the class `LanguagesResource` from the package `com.google.api.services.translate.model` cannot be found. This suggests that the dependency update has either removed or renamed this class. To resolve this issue, we need to identify the replacement for `LanguagesResource` in the updated dependency and adjust the code accordingly. If the class is no longer available, we need to refactor the code to work without it.
-
-Given the constraints, we will assume that the `LanguagesResource` class is no longer available and that the `Language` class needs to be adjusted to work without it. We will remove the references to `LanguagesResource` and update the code to use alternative methods or classes if available. If no alternative is available, we will remove the methods and fields that depend on `LanguagesResource`.
-
-Here is the proposed fix:
-</code_analysis>
-
 ```java
 package com.google.cloud.translate;
 
+import com.google.cloud.translate.v2.model.LanguagesResource;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
@@ -25,6 +18,13 @@ import java.util.Objects;
 public class Language implements Serializable {
 
   private static final long serialVersionUID = 5205240279371907020L;
+  static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
+      new Function<LanguagesResource, Language>() {
+        @Override
+        public Language apply(LanguagesResource languagePb) {
+          return Language.fromPb(languagePb);
+        }
+      };
 
   private final String code;
   private final String name;
@@ -66,11 +66,8 @@ public class Language implements Serializable {
     return Objects.equals(code, other.code) && Objects.equals(name, other.name);
   }
 
-  // Assuming LanguagesResource is no longer available, we remove the method that depends on it.
-  // static Language fromPb(LanguagesResource languagePb) {
-  //   return new Language(languagePb.getLanguage(), languagePb.getName());
-  // }
+  static Language fromPb(LanguagesResource languagePb) {
+    return new Language(languagePb.getLanguage(), languagePb.getName());
+  }
 }
 ```
-
-In this fix, the `fromPb` method and the `FROM_PB_FUNCTION` have been removed because they depend on the `LanguagesResource` class, which is no longer available. The rest of the class remains unchanged to ensure that the functionality of the `Language` class is preserved as much as possible.

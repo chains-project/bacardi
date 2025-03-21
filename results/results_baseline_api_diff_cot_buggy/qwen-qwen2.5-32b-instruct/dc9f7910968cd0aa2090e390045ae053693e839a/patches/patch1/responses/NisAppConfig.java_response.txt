@@ -7,28 +7,28 @@ import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
 import org.nem.core.node.NodeFeature;
 import org.nem.core.time.TimeProvider;
-import org.nis.deploy.*;
-import org.nis.nis.*;
-import org.nis.nis.audit.AuditCollection;
-import org.nis.nis.boot.*;
-import org.nis.nis.cache.*;
-import org.nis.nis.connect.*;
-import org.nis.nis.controller.interceptors.LocalHostDetector;
-import org.nis.nis.dao.*;
-import org.nis.nis.harvesting.*;
-import org.nis.nis.mappers.*;
-import org.nis.nis.pox.ImportanceCalculator;
-import org.nis.nis.pox.poi.*;
-import org.nis.nis.pox.pos.PosImportanceCalculator;
-import org.nis.nis.secret.*;
-import org.nis.nis.service.BlockChainLastBlockLayer;
-import org.nis.nis.state.*;
-import org.nis.nis.sync.*;
-import org.nis.nis.validators.*;
-import org.nis.peer.connect.CommunicationMode;
-import org.nis.peer.node.*;
-import org.nis.peer.services.ChainServices;
-import org.nis.peer.trust.*;
+import org.nem.deploy.*;
+import org.nem.nis.*;
+import org.nem.nis.audit.AuditCollection;
+import org.nem.nis.boot.*;
+import org.nem.nis.cache.*;
+import org.nem.nis.connect.*;
+import org.nem.nis.controller.interceptors.LocalHostDetector;
+import org.nem.nis.dao.*;
+import org.nem.nis.harvesting.*;
+import org.nem.nis.mappers.*;
+import org.nem.nis.pox.ImportanceCalculator;
+import org.nem.nis.pox.poi.*;
+import org.nem.nis.pox.pos.PosImportanceCalculator;
+import org.nem.nis.secret.*;
+import org.nem.nis.service.BlockChainLastBlockLayer;
+import org.nem.nis.state.*;
+import org.nem.nis.sync.*;
+import org.nem.nis.validators.*;
+import org.nem.peer.connect.CommunicationMode;
+import org.nem.peer.node.*;
+import org.nem.peer.services.ChainServices;
+import org.nem.peer.trust.*;
 import org.nem.specific.deploy.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.*;
@@ -43,11 +43,11 @@ import java.util.function.*;
 
 @Configuration
 @ComponentScan(basePackages = {
-		"org.nis.nis"
+		"org.nem.nis"
 }, excludeFilters = {
 		@ComponentScan.Filter(type = FilterType.ANNOTATION, value = org.springframework.stereotype.Controller.class),
 		@ComponentScan.Filter(type = FilterType.REGEX, pattern = {
-				"org.nis.nis.websocket.*"
+				"org.nem.nis.websocket.*"
 		})
 })
 @EnableTransactionManagement
@@ -106,13 +106,13 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final ClassicConfiguration configuration = new ClassicConfiguration();
-		configuration.setDataSource(this.dataSource());
-		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
-		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+		final ClassicConfiguration config = new ClassicConfiguration();
+		config.setDataSource(this.dataSource());
+		config.setLocations(prop.getProperty("flyway.locations").split(","));
+		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		config.setClassLoader(NisAppConfig.class.getClassLoader());
 
-		return new Flyway(configuration);
+		return new Flyway(config);
 	}
 
 	@Bean
@@ -196,8 +196,6 @@ public class NisAppConfig {
 
 	// endregion
 
-	// region harvester
-
 	@Bean
 	public Harvester harvester() {
 		final NewBlockTransactionsProvider transactionsProvider = new DefaultNewBlockTransactionsProvider(this.nisCache(),
@@ -271,7 +269,7 @@ public class NisAppConfig {
 		return getBlockDependentPoiOptions(height).getMinHarvesterBalance();
 	}
 
-	private static org.nis.nis.pox.poi.PoiOptions getBlockDependentPoiOptions(final BlockHeight height) {
+	private static org.nem.nis.pox.poi.PoiOptions getBlockDependentPoiOptions(final BlockHeight height) {
 		return new PoiOptionsBuilder(height).create();
 	}
 
@@ -330,8 +328,72 @@ public class NisAppConfig {
 	private Supplier<WeightedBalances> weighedBalancesSupplier() {
 		final Map<BlockChainFeature, Supplier<Supplier<WeightedBalances>>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<WeightedBalances>>>() {
 			{
-				this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
-				this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
+				this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
+				this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, AlwaysVestedBalances::new);
+			}
+		};
+
+		return BlockChainFeatureDependentFactory.createObject(this.nisConfiguration().getBlockChainConfiguration(),
+				"weighted balance scheme", featureSupplierMap);
+	}
+
+	@Bean
+	public Supplier<BlockHeight> lastBlockHeight() {
+		return this.blockChainLastBlockLayer::getLastBlockHeight;
+	}
+
+	@Bean
+	public UnconfirmedTransactions unconfirmedTransactions() {
+		final BlockChainConfiguration blockChainConfiguration = this.nisConfiguration().getBlockChainConfiguration();
+		final UnconfirmedStateFactory unconfirmedStateFactory = new UnconfirmedStateFactory(this.transactionValidatorFactory(),
+				this.blockTransactionObserverFactory()::createExecuteCommitObserver, this.timeProvider(), this.lastBlockHeight(),
+				blockChainConfiguration.getMaxTransactionsPerBlock(), this.nisConfiguration().getForkConfiguration());
+		final UnconfirmedTransactions unconfirmedTransactions = new DefaultUnconfirmedTransactions(unconfirmedStateFactory,
+				this.nisCache());
+		return new SynchronizedUnconfirmedTransactions(unconfirmedTransactions);
+	}
+
+	@Bean
+	public UnconfirmedTransactionsFilter unconfirmedTransactionsFilter() {
+		return this.unconfirmedTransactions().asFilter();
+	}
+
+	@Bean
+	public HibernateTransactionManager transactionManager() throws IOException {
+		return new HibernateTransactionManager(this.sessionFactory());
+	}
+
+	@Bean
+	public NisMain nisMain() {
+		// initialize network info
+		NetworkInfos.setDefault(this.nisConfiguration().getNetworkInfo());
+
+		// initialize other globals
+		final NamespaceCacheLookupAdapters adapters = new NamespaceCacheLookupAdapters(this.namespaceCache());
+		if (this.nisConfiguration().ignoreFees()) {
+			NemGlobals.setTransactionFeeCalculator(new ZeroTransactionFeeCalculator());
+		} else {
+			NemGlobals.setTransactionFeeCalculator(new DefaultTransactionFeeCalculator(adapters.asMosaicFeeInformationLookup(),
+					() -> this.blockChainLastBlockLayer.getLastBlockHeight().next(), new BlockHeight[]{
+							new BlockHeight(BlockMarkerConstants.FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24)),
+							new BlockHeight(
+									BlockMarkerConstants.SECOND_FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24))
+					}));
+		}
+
+		NemGlobals.setBlockChainConfiguration(this.nisConfiguration().getBlockChainConfiguration());
+		NemStateGlobals.setWeightedBalancesSupplier(this.weighedBalancesSupplier());
+
+		return new NisMain(this.blockDao, this.nisCache(), this.networkHostBootstrapper(), this.nisModelToDbModelMapper(),
+				this.nisConfiguration(), this.blockAnalyzer(), System::exit);
+	}
+
+	@SuppressWarnings("serial")
+	private Supplier<WeightedBalances> weighedBalancesSupplier() {
+		final Map<BlockChainFeature, Supplier<Supplier<WeightedBalances>>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<WeightedBalances>>>() {
+			{
+				this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
+				this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, AlwaysVestedBalances::new);
 			}
 		};
 

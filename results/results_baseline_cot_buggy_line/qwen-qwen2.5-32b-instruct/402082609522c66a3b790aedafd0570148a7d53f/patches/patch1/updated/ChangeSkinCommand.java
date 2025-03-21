@@ -1,9 +1,9 @@
 package com.github.games647.changeskin.sponge.command;
 
-import org.spongepowered.api.command.args.CommandElement;
+import org.checkerframework.checker.units.qual.A;
 
 @FunctionalInterface
 public interface ChangeSkinCommand {
 
-    CommandElement buildSpec();
+    A buildSpec();
 }

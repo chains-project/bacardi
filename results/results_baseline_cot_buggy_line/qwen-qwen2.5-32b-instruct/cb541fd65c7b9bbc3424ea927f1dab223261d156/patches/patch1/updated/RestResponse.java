@@ -13,9 +13,11 @@ import java.util.Map;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.HttpHeaders;
 import lombok.EqualsAndHashCode;
-import org.hamcrest.CoreMatchers;
+import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.IsEqual;
+import org.hamcrest.core.StringContains;
 
 /**
  * REST response.
@@ -27,10 +29,13 @@ import org.hamcrest.MatcherAssert;
  *   .fetch()
  *   .as(RestResponse.class)
  *   .assertStatus(200)
- *   .assertBody(CoreMatchers.containsString("hello, world!"))
- *   .assertHeader("Content-Type", CoreMatchers.hasItems("text/plain"))
+ *   .assertBody(new StringContains("hello, world!"))
+ *   .assertHeader("Content-Type", new IsEqual<>(Collections.singletonList("text/plain")))
  *   .jump(URI.create("/users"))
  *   .fetch();</pre>
+ *
+ * <p>Method {@link #jump(URI)} creates a new instance of class
+ * {@link Request} with all cookies transferred from the current one.
  *
  * <p>The class is immutable and thread-safe.
  *
@@ -56,9 +61,7 @@ public final class RestResponse extends AbstractResponse {
      */
     public RestResponse assertThat(final Matcher<Response> matcher) {
         MatcherAssert.assertThat(
-            String.format(
-                "HTTP response is not valid: %s", this
-            ),
+            String.format("HTTP response is not valid: %s", this),
             this,
             matcher
         );
@@ -80,8 +83,7 @@ public final class RestResponse extends AbstractResponse {
                 "HTTP response status is not equal to %d:%n%s",
                 status, this
             ),
-            this,
-            new RestResponse.StatusMatch(message, status)
+            this.status(), new IsEqual<>(status)
         );
         return this;
     }
@@ -141,7 +143,7 @@ public final class RestResponse extends AbstractResponse {
      * Verifies HTTP header against provided matcher, and throws
      * {@link AssertionError} in case of mismatch.
      *
-     * <p>The iterator for the matcher will always be a real object and never
+     * <p>The iterator for the matcher will always be a real object an never
      * {@code NULL}, even if such a header is absent in the response. If the
      * header is absent the iterable will be empty.
      *
@@ -176,7 +178,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, CoreMatchers.hasItems(value));
+        return this.assertHeader(name, new IsEqual<>(Collections.singletonList(value)));
     }
 
     /**
@@ -194,10 +196,10 @@ public final class RestResponse extends AbstractResponse {
             for (final String header : headers.get(HttpHeaders.SET_COOKIE)) {
                 for (final HttpCookie cookie : HttpCookie.parse(header)) {
                     req = req.header(
-                        (HttpHeaders.COOKIE,
-                         String.format(
-                             "%s=%s", cookie.getName(), cookie.getValue()
-                         )
+                        HttpHeaders.COOKIE,
+                        String.format(
+                            "%s=%s", cookie.getName(), cookie.getValue()
+                        )
                     );
                 }
             }
@@ -212,7 +214,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            CoreMatchers.not(CoreMatchers.emptyIterable())
+            new IsEqual<>(Collections.singletonList("http://example.com"))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -250,7 +252,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            CoreMatchers.notNullValue()
+            new IsEqual<>(null)
         );
         assert cookie != null;
         return cookie;

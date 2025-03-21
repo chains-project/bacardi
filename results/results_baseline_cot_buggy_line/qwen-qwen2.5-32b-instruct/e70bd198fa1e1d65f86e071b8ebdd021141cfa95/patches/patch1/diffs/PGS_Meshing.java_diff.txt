@@ -1,26 +1,8 @@
 38d37
 < import org.tinspin.index.PointIndex;
-40a40
-> import micycle.pgs.PGS_Triangulation;
-42d41
-< import micycle.pgs.color.Colors;
-53,64d51
-< /**
-<  * Mesh generation (excluding triangulation) and processing.
-<  * <p>
-<  * Many of the methods within this class process an existing Delaunay
-<  * triangulation; you may first generate such a triangulation from a shape using
-<  * the
-<  * {@link PGS_Triangulation#delaunayTriangulationMesh(PShape, Collection, boolean, int, boolean)
-<  * delaunayTriangulationMesh()} method.
-<  * 
-<  * @author Michael Carleton
-<  * @since 1.2.0
-<  */
-67,122c54,55
-<         private PGS_Meshing() {
-<         }
-< 
+66a66
+> {
+70,96d69
 <         /**
 <          * Generates a shape consisting of polygonal faces of an <i>Urquhart graph</i>.
 <          * An Urquhart graph is obtained by removing the longest edge from each triangle
@@ -48,36 +30,7 @@
 <          * @since 1.1.0
 <          * @see #gabrielFaces(IIncrementalTin, boolean)
 <          */
-<         public static PShape urquhartFaces(final IIncrementalTin triangulation, final boolean preservePerimeter) {
-<                 final HashSet<IQuadEdge> edges = PGS.makeHashSet(triangulation.getMaximumEdgeAllocationIndex());
-<                 final HashSet<IQuadEdge> uniqueLongestEdges = PGS.makeHashSet(triangulation.getMaximumEdgeAllocationIndex());
-< 
-<                 final boolean notConstrained = triangulation.getConstraints().isEmpty();
-< 
-<                 TriangleCollector.visitSimpleTriangles(triangulation, t -> {
-<                         final IConstraint constraint = t.getContainingRegion();
-<                         if (notConstrained || (constraint != null && constraint.definesConstrainedRegion())) {
-<                                 edges.add(t.getEdgeA().getBaseReference());
-<                                 edges.add(t.getEdgeB().getBaseReference());
-<                                 edges.add(t.getEdgeC().getBaseReference());
-<                                 final IQuadEdge longestEdge = findLongestEdge(t).getBaseReference();
-<                                 if (!preservePerimeter || (preservePerimeter && !longestEdge.isConstrainedRegionBorder())) {
-<                                         uniqueLongestEdges.add(longestEdge);
-<                                 }
-<                         }
-<                 });
-< 
-<                 edges.removeAll(uniqueLongestEdges);
-< 
-<                 final Collection<PEdge> meshEdges = new ArrayList<>(edges.size());
-<                 edges.forEach(edge -> meshEdges.add(new PEdge(edge.getA().x, edge.getA().y, edge.getB().x, edge.getB().y)));
-< 
-<                 return PGS.polygonizeEdges(meshEdges);
-<         }
----
-> {
->     // ... (rest of the class remains unchanged)
-124,147c57,59
+124,146d96
 <         /**
 <          * Generates a shape consisting of polygonal faces of a <i>Gabriel graph</i>. A
 <          * Gabriel graph is obtained by removing each edge E from a triangulation if a
@@ -101,24 +54,15 @@
 <          * @since 1.1.0
 <          * @see #urquhartFaces(IIncrementalTin, boolean)
 <          */
-<         public static PShape gabrielFaces(final IIncrementalTin triangulation, final boolean preservePerimeter) {
----
->     public static PShape edgeCollapseQuadrangulation(final IIncrementalTin triangulation, final boolean preservePerimeter)
->     {
->         final boolean unconstrained = triangulation.getConstraints().isEmpty();
-164c76
+164c114
 <                 final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {
 ---
->         final KDTree<Vertex> tree = new KDTree<>(2, (p1, p2) -> {
-174c86
-<                         final Vertex near = tree.query1NN(midpoint).value();
----
->             final Vertex near = tree.nearestNeighbor(midpoint);
-184c96
+>         final KDTree<Vertex> tree = KDTree.create(2, (p1, p2) -> {
+184c134
 <                 edges.forEach(edge -> meshEdges.add(new PEdge(edge.getA().x, edge.getA().y, edge.getB().x, edge.getB().y)));
 ---
 >         edges.forEach(edge -> meshEdges.add(new PEdge(edge.getA().x, edge.getA().y, edge.getB().x, edge.getB().y));
-189,910c101
+189,205d138
 <         /**
 <          * Generates a shape consisting of polygonal faces of a <i>Relative neighborhood
 <          * graph</i> (RNG).
@@ -136,44 +80,14 @@
 <          * @return
 <          * @since 1.3.0
 <          */
-<         public static PShape relativeNeighborFaces(final IIncrementalTin triangulation, final boolean preservePerimeter) {
-<                 SimpleGraph<Vertex, IQuadEdge> graph = PGS_Triangulation.toTinfourGraph(triangulation);
-<                 NeighborCache<Vertex, IQuadEdge> cache = new NeighborCache<>(graph);
-< 
-<                 Set<IQuadEdge> edges = new HashSet<>(graph.edgeSet());
-< 
+212,215d144
 <                 /*
 <                  * If any vertex is nearer to both vertices of an edge, than the length of the
 <                  * edge, this edge does not belong in the RNG.
 <                  */
-<                 graph.edgeSet().forEach(e -> {
-<                         double l = e.getLength();
-<                         cache.neighborsOf(e.getA()).forEach(n -> {
-<                                 if (Math.max(n.getDistance(e.getA()), n.getDistance(e.getB())) < l) {
-<                                         if (!preservePerimeter || (preservePerimeter && !e.isConstrainedRegionBorder())) {
-<                                                 edges.remove(e);
-<                                         }
-<                                 }
-<                         });
-<                         cache.neighborsOf(e.getB()).forEach(n -> {
-<                                 if (Math.max(n.getDistance(e.getA()), n.getDistance(e.getB())) < l) {
-<                                         if (!preservePerimeter || (preservePerimeter && !e.isConstrainedRegionBorder())) {
-<                                                 edges.remove(e);
-<                                         }
-<                                 }
-<                         });
-<                 });
+241d169
 < 
-<                 List<PEdge> edgesOut = edges.stream().map(PGS_Triangulation::toPEdge).collect(Collectors.toList());
-< 
-<                 if (preservePerimeter) {
-<                         return PGS.polygonizeEdgesRobust(edgesOut);
-<                 } else {
-<                         return PGS.polygonizeEdges(edgesOut);
-<                 }
-< 
-<         }
-< 
+244,257d171
 <         /**
 <          * Generates a shape consisting of polygonal faces formed by edges returned by a
 <          * greedy sparse spanner applied to a triangulation.
@@ -188,27 +102,7 @@
 <          * @return a GROUP PShape where each child shape is a single face
 <          * @since 1.3.0
 <          */
-<         public static PShape spannerFaces(final IIncrementalTin triangulation, int k, final boolean preservePerimeter) {
-<                 SimpleGraph<PVector, PEdge> graph = PGS_Triangulation.toGraph(triangulation);
-<                 if (graph.edgeSet().isEmpty()) {
-<                         return new PShape();
-<                 }
-< 
-<                 k = Math.max(2, k); // min(2) since k=1 returns triangulation
-<                 GreedyMultiplicativeSpanner<PVector, PEdge> spanner = new GreedyMultiplicativeSpanner<>(graph, k);
-<                 List<PEdge> spannerEdges = spanner.getSpanner().stream().collect(Collectors.toList());
-<                 if (preservePerimeter) {
-<                         if (triangulation.getConstraints().isEmpty()) { // does not have constraints
-<                                 spannerEdges.addAll(triangulation.getPerimeter().stream().map(PGS_Triangulation::toPEdge).collect(Collectors.toList()));
-<                         } else { // has constraints
-<                                 spannerEdges.addAll(triangulation.getEdges().stream().filter(IQuadEdge::isConstrainedRegionBorder)
-<                                                 .map(PGS_Triangulation::toPEdge).collect(Collectors.toList()));
-<                         }
-<                 }
-< 
-<                 return PGS.polygonizeEdgesRobust(spannerEdges);
-<         }
-< 
+279,296d192
 <         /**
 <          * Generates a (mesh-like) shape consisting of polygonal faces of the dual graph
 <          * of the given triangulation.
@@ -227,15 +121,9 @@
 <          * @return a GROUP PShape where each child shape is a single face
 <          * @since 1.2.0
 <          */
-<         public static PShape dualFaces(final IIncrementalTin triangulation) {
+298d193
 <                 // TODO SEE HOT: Hodge-Optimized Triangulations - use voronoi dual / HOT
-<                 final IncrementalTinDual dual = new IncrementalTinDual(triangulation);
-<                 final PShape dualMesh = dual.getMesh();
-<                 PGS_Conversion.setAllFillColor(dualMesh, Colors.WHITE);
-<                 PGS_Conversion.setAllStrokeColor(dualMesh, Colors.PINK, 2);
-<                 return dualMesh;
-<         }
-< 
+306,323d200
 <         /**
 <          * Produces a quadrangulation from a triangulation, by splitting each triangle
 <          * into three quadrangles (using the <i>Catmull and Clark</i> technique). A
@@ -254,10 +142,9 @@
 <          * @return a GROUP PShape, where each child shape is one quadrangle
 <          * @since 1.2.0
 <          */
-<         public static PShape splitQuadrangulation(final IIncrementalTin triangulation) {
+325d201
 <                 // https://www.cs.mcgill.ca/~cs507/projects/1998/rachelp/welcome.html
-<                 final PShape quads = new PShape(PConstants.GROUP);
-< 
+328,335d203
 <                 /*-
 <                  * 1. Insert a Steiner point along the interior of every edge of each 
 <                  * triangle.
@@ -266,41 +153,35 @@
 <                  * edges of that triangle.
 <                  * Each triangle is converted into three quadrangles.
 <                  */
-<                 final boolean unconstrained = triangulation.getConstraints().isEmpty();
-< 
-<                 TriangleCollector.visitSimpleTriangles(triangulation, t -> {
-<                         final IConstraint constraint = t.getContainingRegion();
-<                         if (unconstrained || (constraint != null && constraint.definesConstrainedRegion())) {
-<                                 final PVector p1 = PGS_Triangulation.toPVector(t.getVertexA());
-<                                 final PVector p2 = PGS_Triangulation.toPVector(t.getVertexB());
-<                                 final PVector p3 = PGS_Triangulation.toPVector(t.getVertexC());
-<                                 final PVector sA = PVector.add(p1, p2).div(2); // steiner point p1-p2
+345,346c213,214
 <                                 final PVector sB = PVector.add(p2, p3).div(2); // steiner point p2-p3
 <                                 final PVector sC = PVector.add(p3, p1).div(2); // steiner point p3-p1
-< 
+---
+>                 final PVector sB = PVector.add(p2, p3).div(2; // steiner point p2-p3
+>                 final PVector sC = PVector.add(p3, p1).div(2; // steiner point p3-p1
+348d215
 <                                 // compute ?barycenter? of triangle = interior steiner point
-<                                 final PVector cSeg = PVector.add(sA, sB).div(2);
+350c217
 <                                 final PVector sI = PVector.add(cSeg, sC).div(2); // interior steiner point
-< 
+---
+>                 final PVector sI = PVector.add(cSeg, sC).div(2; // interior steiner point
+352,355c219,221
 <                                 // anti-clockwise, starting at original vertex
 <                                 quads.addChild(PGS_Conversion.fromPVector(p1, sC, sI, sA, p1));
 <                                 quads.addChild(PGS_Conversion.fromPVector(p2, sA, sI, sB, p2));
 <                                 quads.addChild(PGS_Conversion.fromPVector(p3, sB, sI, sC, p3));
-<                         }
-<                 });
-< 
+---
+>                 quads.addChild(PGS_Conversion.fromPVector(p1, sC, sI, sA, p1);
+>                 quads.addChild(PGS_Conversion.fromPVector(p2, sA, sI, sB, p2);
+>                 quads.addChild(PGS_Conversion.fromPVector(p3, sB, sI, sC, p3);
+359,364d224
 <                 /*-
 <                  * Now ideally "regularize" the mesh using techniques explored here:
 <                  * https://acdl.mit.edu/ESP/Publications/AIAApaper2019-1988.pdf
 <                  * https://acdl.mit.edu/ESP/Publications/IMR28.pdf
 <                  */
 < 
-<                 PGS_Conversion.setAllFillColor(quads, Colors.WHITE);
-<                 PGS_Conversion.setAllStrokeColor(quads, Colors.PINK, 2);
-< 
-<                 return quads;
-<         }
-< 
+371,386d230
 <         /**
 <          * Generates a quadrangulation from a triangulation by selectively removing (or
 <          * "collapsing") the edges shared by neighboring triangles (via edge coloring).
@@ -317,7 +198,7 @@
 <          * @return a GROUP PShape, where each child shape is one quadrangle
 <          * @since 1.2.0
 <          */
-<         public static PShape edgeCollapseQuadrangulation(final IIncrementalTin triangulation, final boolean preservePerimeter) {
+388,439c232
 <                 /*-
 <                  * From 'Fast unstructured quadrilateral mesh generation'.
 <                  * A better coloring approach is given in 'Face coloring in unstructured CFD codes'.
@@ -370,7 +251,9 @@
 <                         return removeHoles(quads, triangulation);
 <                 }
 <         }
-< 
+---
+>         final PShape quads = new PShape(PConstants.GROUP);
+441,459d233
 <         /**
 <          * Generates a quadrangulation from a triangulation by "inverting" triangles
 <          * (for each triangle, create edges joining its centroid to each of its
@@ -390,11 +273,15 @@
 <          * @since 1.2.0
 <          */
 <         public static PShape centroidQuadrangulation(final IIncrementalTin triangulation, final boolean preservePerimeter) {
-<                 final boolean unconstrained = triangulation.getConstraints().isEmpty();
+461c235
 <                 final HashSet<PEdge> edges = new HashSet<>();
-<                 TriangleCollector.visitSimpleTriangles(triangulation, t -> {
+---
+> 
+463c237
 <                         final IConstraint constraint = t.getContainingRegion();
-<                         if (unconstrained || (constraint != null && constraint.definesConstrainedRegion())) {
+---
+>             final IConstraint constraint = t.getContainRegion();
+465,479c239,244
 <                                 Vertex centroid = centroid(t);
 <                                 edges.add(new PEdge(centroid.getX(), centroid.getY(), t.getVertexA().x, t.getVertexA().y));
 <                                 edges.add(new PEdge(centroid.getX(), centroid.getY(), t.getVertexB().x, t.getVertexB().y));
@@ -410,7 +297,14 @@
 <                                 }
 <                         });
 <                 }
-< 
+---
+>                 final PVector p1 = PGS_Triangulation.toPVector(t.getVertexA());
+>                 final PVector p2 = PGS_Triangulation.toPVector(t.getVertexB());
+>                 final PVector p3 = PGS_Triangulation.toPVector(t.getVertexC());
+>                 final PVector sA = PVector.add(p1, p2).div(2; // steiner point p1-p2
+>                 final PVector sB = PVector.add(p2, p3).div(2; // steiner point p2-p3
+>                 final PVector sC = PVector.add(p3, p1).div(2; // steiner point p3-p1
+481,487c246,247
 <                 final PShape quads = PGS.polygonizeEdges(edges);
 <                 if (triangulation.getConstraints().size() < 2) { // assume constraint 1 is the boundary (not a hole)
 <                         return quads;
@@ -418,7 +312,10 @@
 <                         return removeHoles(quads, triangulation);
 <                 }
 <         }
-< 
+---
+>                 final PVector cSeg = PVector.add(sA, sB).div(2);
+>                 final PVector sI = PVector.add(cSeg, sC).div(2; // interior steiner point
+489,516c249,251
 <         /**
 <          * Removes (what should be) holes from a polygonized quadrangulation.
 <          * <p>
@@ -447,9 +344,11 @@
 <                         if (!Orientation.isCCWArea(coords.toCoordinateArray())) { // triangulation holes are CW
 <                                 Polygon polygon = PGS.GEOM_FACTORY.createPolygon(coords.toCoordinateArray());
 <                                 tree.insert(polygon.getEnvelopeInternal(), polygon);
-<                         }
-<                 });
-< 
+---
+>                 quads.addChild(PGS_Conversion.fromPVector(p1, sC, sI, sA, p1);
+>                 quads.addChild(PGS_Conversion.fromPVector(p2, sA, sI, sB, p2);
+>                 quads.addChild(PGS_Conversion.fromPVector(p3, sB, sI, sC, p3);
+520,582c255,256
 <                 List<PShape> nonHoles = PGS_Conversion.getChildren(faces).parallelStream().filter(quad -> {
 <                         /*
 <                          * If quad overlaps with a hole detect whether it *is* that hole via Hausdorff
@@ -513,7 +412,10 @@
 <          */
 <         public static PShape nodeNonMesh(PShape shape) {
 <                 final List<SegmentString> segmentStrings = new ArrayList<>(shape.getChildCount() * 3);
-< 
+---
+>         PGS_Conversion.setAllFillColor(quads, Colors.WHITE);
+>         PGS_Conversion.setAllStrokeColor(quads, Colors.PINK, 2);
+584,593c258
 <                 for (PShape face : shape.getChildren()) {
 <                         for (int i = 0; i < face.getVertexCount(); i++) {
 <                                 final PVector a = face.getVertex(i);
@@ -524,8 +426,9 @@
 <                         }
 <                 }
 <                 return PGS.polygonizeSegments(segmentStrings, true);
-<         }
-< 
+---
+>         return quads;
+596,610d260
 <         /**
 <          * Randomly merges together / dissolves adjacent faces of a mesh.
 <          * <p>
@@ -541,10 +444,7 @@
 <          * @return a new GROUP PShape representing the result of the operation
 <          * @since 1.4.0
 <          */
-<         public static PShape stochasticMerge(PShape mesh, int nClasses, long seed) {
-<                 final RandomGenerator random = new XoRoShiRo128PlusRandomGenerator(seed);
-<                 SimpleGraph<PShape, DefaultEdge> graph = PGS_Conversion.toDualGraph(mesh);
-<                 Map<PShape, Integer> classes = new HashMap<>();
+615,634c265
 <                 graph.vertexSet().forEach(v -> classes.put(v, random.nextInt(Math.max(nClasses, 1))));
 < 
 <                 /*
@@ -565,24 +465,21 @@
 <                                 classes.put(v, nClass1); // reassign face class
 <                         }
 <                 });
-< 
-<                 List<DefaultEdge> toRemove = new ArrayList<>();
-<                 graph.edgeSet().forEach(e -> {
-<                         PShape a = graph.getEdgeSource(e);
-<                         PShape b = graph.getEdgeTarget(e);
-<                         if (!classes.get(a).equals(classes.get(b))) {
-<                                 toRemove.add(e);
-<                         }
+---
+>         graph.vertexSet().forEach(v -> classes.put(v, random.nextInt(Math.max(nClasses, 1)));
+643c274
 <                 });
-<                 graph.removeAllEdges(toRemove);
+---
+>         );
+645c276
 <                 ConnectivityInspector<PShape, DefaultEdge> ci = new ConnectivityInspector<>(graph);
-< 
+---
+>         ConnectivtyInspector<PShape, DefaultEdge> ci = new ConnectivtyInspector<>(graph);
+647c278
 <                 List<PShape> blobs = ci.connectedSets().stream().map(group -> PGS_ShapeBoolean.unionMesh(PGS_Conversion.flatten(group)))
-<                                 .collect(Collectors.toList());
-< 
-<                 return applyOriginalStyling(PGS_Conversion.flatten(blobs), mesh);
-<         }
-< 
+---
+>         List<PShape> blobs = ci.connectedSets().stream().map(group -> PGS_ShapeBoolean.unionMesh(PGS_Conversion.flatten(group))
+653,676d283
 <         /**
 <          * Smoothes a mesh via iterative weighted <i>Laplacian smoothing</i>. The
 <          * general effect of which is mesh faces become more uniform in size and shape
@@ -607,14 +504,7 @@
 <          * @return The smoothed mesh. Input face styling is preserved.
 <          * @since 1.4.0
 <          */
-<         public static PShape smoothMesh(PShape mesh, int iterations, boolean preservePerimeter, double taubin, double t2) {
-<                 PMesh m = new PMesh(mesh);
-<                 for (int i = 0; i < iterations; i++) {
-<                         m.smoothTaubin(0.25, -0.251, preservePerimeter);
-<                 }
-<                 return m.getMesh();
-<         }
-< 
+685,713d291
 <         /**
 <          * Smoothes a mesh via iterative weighted <i>Laplacian smoothing</i>. The
 <          * general effect of which is mesh faces become more uniform in size and shape
@@ -644,17 +534,7 @@
 <          * @return The smoothed mesh. Input face styling is preserved.
 <          * @since 1.4.0
 <          */
-<         public static PShape smoothMesh(PShape mesh, double displacementCutoff, boolean preservePerimeter) {
-<                 displacementCutoff = Math.max(displacementCutoff, 1e-3);
-<                 PMesh m = new PMesh(mesh);
-< 
-<                 double displacement;
-<                 do {
-<                         displacement = m.smoothTaubin(0.25, -0.251, preservePerimeter);
-<                 } while (displacement > displacementCutoff);
-<                 return m.getMesh();
-<         }
-< 
+725,739d302
 <         /**
 <          * Simplifies the boundaries of the faces in a mesh while preserving the
 <          * original mesh topology.
@@ -670,18 +550,7 @@
 <          * @return GROUP shape comprising the simplfied mesh faces
 <          * @since 1.4.0
 <          */
-<         public static PShape simplifyMesh(PShape mesh, double tolerance, boolean preservePerimeter) {
-<                 Geometry[] geometries = PGS_Conversion.getChildren(mesh).stream().map(s -> PGS_Conversion.fromPShape(s)).toArray(Geometry[]::new);
-<                 CoverageSimplifier simplifier = new CoverageSimplifier(geometries);
-<                 Geometry[] output;
-<                 if (preservePerimeter) {
-<                         output = simplifier.simplifyInner(tolerance);
-<                 } else {
-<                         output = simplifier.simplify(tolerance);
-<                 }
-<                 return applyOriginalStyling(PGS_Conversion.toPShape(Arrays.asList(output)), mesh);
-<         }
-< 
+752,769d314
 <         /**
 <          * Subdivides the faces of a mesh using the Catmull-Clark split approach,
 <          * wherein each face is divided into N parts, where N is the number of vertices
@@ -700,33 +569,22 @@
 <          * @return A new GROUP PShape representing the subdivided mesh.
 <          * @since 1.4.0
 <          */
-<         public static PShape subdivideMesh(PShape mesh, double edgeSplitRatio) {
-<                 edgeSplitRatio %= 1;
-<                 PShape newMesh = new PShape(PShape.GROUP);
-<                 for (PShape face : getChildren(mesh)) {
-<                         List<PVector> vertices = PGS_Conversion.toPVector(face);
-<                         List<PVector> midPoints = new ArrayList<>();
-<                         PVector centroid = new PVector();
-<                         for (int i = 0; i < vertices.size(); i++) {
-<                                 PVector a = vertices.get(i);
+779,780c324,325
 <                                 PVector b = vertices.get((i + 1) % vertices.size());
 <                                 midPoints.add(PVector.lerp(a, b, (float) edgeSplitRatio));
-<                                 centroid.add(a);
-<                         }
+---
+>                 PVector b = vertices.get((i + 1) % vertices.size();
+>                 midPoints.add(PVector.lerp(a, b, (float) edgeSplitRatio);
+783,784c328
 <                         // TODO find "visibility center" of concave shape
 <                         centroid.div(vertices.size()); // NOTE simple centroid, assuming convex
-< 
-<                         for (int i = 0; i < vertices.size(); i++) {
-<                                 PVector a = vertices.get(i);
-<                                 PVector b = midPoints.get(i);
-<                                 PVector c = centroid.copy();
-<                                 PVector d = midPoints.get(i - 1 < 0 ? vertices.size() - 1 : i - 1);
+---
+>             centroid.div(vertices.size(); // NOTE simple centroid, assuming convex
+791c335
 <                                 newMesh.addChild(PGS_Conversion.fromPVector(a, b, c, d, a));
-<                         }
-<                 }
-<                 return newMesh;
-<         }
-< 
+---
+>                 newMesh.addChild(PGS_Conversion.fromPVector(a, b, c, d, a);
+797,805d340
 <         /**
 <          * Extracts all inner edges from a mesh. Inner edges consist only of edges that
 <          * are shared by adjacent faces, and not edges comprising the mesh boundary nor
@@ -736,17 +594,7 @@
 <          * @return A shape representing the dissolved linework of inner mesh edges.
 <          * @since 1.4.0
 <          */
-<         public static PShape extractInnerEdges(PShape mesh) {
-<                 List<PEdge> edges = PGS_SegmentSet.fromPShape(mesh);
-<                 Map<PEdge, Integer> bag = new HashMap<>(edges.size());
-<                 edges.forEach(edge -> {
-<                         bag.merge(edge, 1, Integer::sum);
-<                 });
-< 
-<                 List<PEdge> innerEdges = bag.entrySet().stream().filter(e -> e.getValue() > 1).map(e -> e.getKey()).collect(Collectors.toList());
-<                 return PGS_SegmentSet.dissolve(innerEdges);
-<         }
-< 
+817,829d351
 <         /**
 <          * Recursively merges smaller faces of a mesh into their adjacent faces. The
 <          * procedure continues until there are no resulting faces with an area smaller
@@ -760,11 +608,7 @@
 <          * @return GROUP shape comprising the merged mesh faces
 <          * @since 1.4.0
 <          */
-<         public static PShape areaMerge(PShape mesh, double areaThreshold) {
-<                 PShape merged = AreaMerge.areaMerge(mesh, areaThreshold);
-<                 return applyOriginalStyling(merged, mesh);
-<         }
-< 
+835,847d356
 <         /**
 <          * Splits each edge of a given mesh shape into a specified number of
 <          * equal-length parts and creates a new shape from the resulting smaller edges.
@@ -778,68 +622,25 @@
 <          * @return A new mesh PShape created from the split edges.
 <          * @since 1.4.0
 <          */
-<         public static PShape splitEdges(PShape split, int parts) {
-<                 parts = Math.max(1, parts);
+850c359
 <                 HashSet<PEdge> edges = new HashSet<>(PGS_SegmentSet.fromPShape(split));
-<                 List<PEdge> splitEdges = new ArrayList<>(edges.size() * parts);
-< 
-<                 for (PEdge edge : edges) {
-<                         double from = 0;
-<                         double step = 1.0 / parts;
-<                         for (int i = 0; i < parts; i++) {
-<                                 double to = from + step;
-<                                 PEdge subEdge = edge.slice(from, to);
-<                                 splitEdges.add(subEdge);
-<                                 from = to;
-<                         }
-<                 }
-< 
-<                 return PGS.polygonizeEdges(splitEdges);
-<         }
-< 
-<         private static PShape applyOriginalStyling(final PShape newMesh, final PShape oldMesh) {
+---
+>         HashSet<PEdge> edges = new HashSet<>(PGS_SegmentSet.fromPShape(split);
+868c377
 <                 final PShapeData data = new PShapeData(oldMesh.getChild(0)); // use first child; assume global.
-<                 for (int i = 0; i < newMesh.getChildCount(); i++) {
+---
+>         final PShapeData data = new PShapeData(oldMesh.getChild(0); // use first child; assume global.
+870c379
 <                         data.applyTo(newMesh.getChild(i));
-<                 }
-<                 return newMesh;
-<         }
-< 
+---
+>             data.applyTo(newMesh.getChild(i);
+875,877d383
 <         /**
 <          * Calculate the longest edge of a given triangle.
 <          */
-<         private static IQuadEdge findLongestEdge(final SimpleTriangle t) {
-<                 if (t.getEdgeA().getLength() > t.getEdgeB().getLength()) {
-<                         if (t.getEdgeC().getLength() > t.getEdgeA().getLength()) {
-<                                 return t.getEdgeC();
-<                         } else {
-<                                 return t.getEdgeA();
-<                         }
-<                 } else {
-<                         if (t.getEdgeC().getLength() > t.getEdgeB().getLength()) {
-<                                 return t.getEdgeC();
-<                         } else {
-<                                 return t.getEdgeB();
-<                         }
-<                 }
-<         }
-< 
-<         private static double[] midpoint(final IQuadEdge edge) {
-<                 final Vertex a = edge.getA();
-<                 final Vertex b = edge.getB();
+897c403
 <                 return new double[] { (a.x + b.x) / 2d, (a.y + b.y) / 2d };
-<         }
-< 
-<         private static Vertex centroid(final SimpleTriangle t) {
-<                 final Vertex a = t.getVertexA();
-<                 final Vertex b = t.getVertexB();
-<                 final Vertex c = t.getVertexC();
-<                 double x = a.x + b.x + c.x;
-<                 x /= 3;
-<                 double y = a.y + b.y + c.y;
-<                 y /= 3;
-<                 return new Vertex(x, y, 0);
-<         }
-< 
 ---
->     // ... (rest of the class remains unchanged)
+>         return new double[] { (a.x + b.x) / 2d, (a.y + b.y) / 2d;
+910d415
+< 

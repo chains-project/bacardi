@@ -1,20 +1,9 @@
-<code_analysis>
-The error messages indicate that the classes and packages `ClassLoadingStrategy`, `ClassInjector`, and `org.assertj.core.internal.bytebuddy.dynamic.loading` are not found. This suggests that the dependency `byte-buddy` or its related packages have been updated, and the new version no longer contains these classes or has moved them to a different package.
-
-To resolve these issues, we need to:
-1. Identify the correct package or class names in the new version of the dependency.
-2. Update the imports to reflect the new package structure.
-3. Ensure that the code logic remains intact and functional.
-
-Given the nature of the errors, it seems that the `byte-buddy` library has undergone a significant change, possibly moving or renaming classes. We need to find the equivalent classes in the new version and update the code accordingly.
-</code_analysis>
-
 ```java
 package org.assertj.vavr.api;
 
 import io.vavr.control.Try;
-import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.dynamic.loading.ClassInjector;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
@@ -39,7 +28,6 @@ class ClassLoadingStrategyFactory {
             throw new IllegalStateException("No code generation strategy available");
         }
     }
+
 }
 ```
-
-In this fix, I have updated the imports to reflect the new package structure of `byte-buddy` as `net.bytebuddy.dynamic.loading.ClassLoadingStrategy` and `net.bytebuddy.dynamic.loading.ClassInjector`. This should resolve the compilation errors related to missing classes and packages.

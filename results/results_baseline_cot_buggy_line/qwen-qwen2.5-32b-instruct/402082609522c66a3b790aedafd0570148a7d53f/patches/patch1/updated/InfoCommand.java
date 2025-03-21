@@ -11,10 +11,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandCallable;
-import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandMapping;
+import org.spongepowered.api.command.CommandCompletion;
+import org.spongepowered.api.command.CommandCallable;
+import org.spongepowered.api.command.CommandException;
+import org.spongepowered.api.command.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
@@ -29,7 +32,7 @@ public class InfoCommand implements CommandCallable, ChangeSkinCommand {
     private SkinFormatter formatter;
 
     @Override
-    public CommandResult process(CommandSource src, CommandContext args) throws Exception {
+    public CommandResult process(CommandSource src, String arguments) throws CommandException {
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
             return CommandResult.empty();
@@ -47,13 +50,21 @@ public class InfoCommand implements CommandCallable, ChangeSkinCommand {
     }
 
     @Override
-    public String getId() {
-        return "info";
+    public List<String> getSuggestions(CommandSource src, String arguments, CommandContext context, TextChannel channel) throws CommandException {
+        return new ArrayList<>();
     }
 
     @Override
-    public String getHelp() {
-        return "Provides information about the current skin.";
+    public boolean testPermission(CommandSource src) {
+        return src.hasPermission(PomData.ARTIFACT_ID + ".command.skininfo.base");
+    }
+
+    @Override
+    public CommandSpec getSpec() {
+        return CommandSpec.builder()
+                .executor(this)
+                .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
+                .build();
     }
 
     private void sendSkinDetails(UUID uuid, UserPreference preference) {

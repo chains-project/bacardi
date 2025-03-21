@@ -5,30 +5,17 @@
 < import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader.Configuration;
 ---
 > import org.sonarsource.sonarlint.core.plugin.commons.Configuration;
-49d46
-< import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginRequirementsCheckResult;
-67c64
-<     // The only instance of this singleton class
----
->     // The only instance of this class
-70c67,68
-<     // We need to reinitialise it before starting analysis of any source files on any rules.
----
->     // We need to reinitialize the analysis engine as it is stopped after each analysis executed by {@link
->     // SonarStaticAnalyzer}.
 77c75
 <         this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, null);
 ---
 >         this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, logOutput);
-123c121
-<                 .addEnabledLanguage(Language.JAVA)
----
->                 .addEnabledLanguage(Language.JAVA) // Changed from addEnabledLanguages to addEnabledLanguage
-163c161
-<                 .addEnabledLanguages(globalConfig.getEnabledLanguages())
----
->                 .addEnabledLanguage(Language.JAVA) // Changed from addEnabledLanguages to addEnabledLanguage
 222c220
 <                                                                             i.getRuleKey()))),
 ---
 >                                                                             i.getRuleKey())),
+274,275c272,273
+<      * Overriding this class to ensure that plugin instance loader never closes throughout the
+<      * lifecycle of JVM.
+---
+>      * Override this class to ensure that plugin instance loader never closes throughout the lifecycle
+>      * of JVM.

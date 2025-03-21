@@ -1,13 +1,25 @@
-15,17d14
+8,9c8
+< import com.pubnub.api.callbacks.SubscribeCallback;
+< import com.pubnub.api.enums.PNStatusCategory;
+---
+> import com.pubnub.api.callbacks.PNCallback;
+14,17d12
+< import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
 < import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
 < import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
 < import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
-40,41c37
+40,41c35
 <     PNConfiguration pnConfiguration = new PNConfiguration();
 <     pnConfiguration.setSubscribeKey(publicKey);
 ---
 >     PNConfiguration pnConfiguration = new PNConfiguration(publicKey);
-94,108d89
+50c44
+<               new SubscribeCallback() {
+---
+>               new PNCallback<PNStatus>() {
+92,112d85
+< 
+<                 @Override
 <                 public void user(PubNub pubnub, PNUserResult pnUserResult) {
 <                   LOG.debug("PubNub user: {}", pnUserResult.toString());
 <                 }
@@ -23,8 +35,7 @@
 <                 }
 < 
 <                 @Override
-112a94,97
-> 
->                 // Removed methods that are no longer part of the SubscribeCallback interface
->                 // public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {}
->                 // public void user(PubNub pubnub, PNUserResult pnUserResult) {}
+<                 public void messageAction(
+<                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
+<                   LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
+<                 }

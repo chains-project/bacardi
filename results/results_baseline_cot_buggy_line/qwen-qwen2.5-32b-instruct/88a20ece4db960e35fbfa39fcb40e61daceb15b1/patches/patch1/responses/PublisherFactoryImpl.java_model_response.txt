@@ -1,20 +1,13 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `PublishMetadata` cannot be found, suggesting that the class has been removed or renamed in the updated dependency.
-   - The second error indicates that the `PartitionPublisherFactory` is not a functional interface, which suggests that the interface has been modified in the updated dependency.
-
-2. Review the client code:
-   - The `PublishMetadata` class is used as a type parameter for the `Publisher` class.
-   - The `PartitionPublisherFactory` is used to create a `Publisher`, but the method `setPublisherFactory` is now incompatible with the new version of the dependency.
-
-3. Consider potential fixes that adhere to the following constraints:
-   - Since `PublishMetadata` is not found, we need to find an alternative type that can be used in its place.
-   - The `PartitionPublisherFactory` issue suggests that the method signature or the interface itself has changed, and we need to adjust the implementation to match the new requirements.
-
-4. Plan the necessary changes to fix the issue:
-   - Replace `PublishMetadata` with a compatible type or remove it if it's not necessary.
-   - Adjust the `setPublisherFactory` method to match the new requirements of the `PartitionPublisherFactory` interface.
-</code_analysis>
+```java
+<repair_strategy>
+1. The error indicates that `PublishMetadata` cannot be found, suggesting a change in the dependency where `PublishMetadata` is no longer available.
+2. The error also indicates a type mismatch with `PartitionPublisherFactory`, suggesting a change in the expected type.
+3. The fix will involve replacing `PublishMetadata` with a compatible type and ensuring the `PartitionPublisherFactory` is used correctly.
+4. The fix should maintain the original structure and functionality of the class.
+5. The fix will involve updating the import statements and method signatures to match the new API.
+6. The fix should not introduce any new compilation errors or side effects.
+7. The fix will ensure the class is fully compilable and functional.
+</repair_strategy>
 
 ```java
 package com.google.pubsublite.kafka.sink;
@@ -28,16 +21,16 @@ import com.google.cloud.pubsublite.internal.wire.PubsubContext;
 import com.google.cloud.pubsublite.internal.wire.PubsubContext.Framework;
 import com.google.cloud.pubsublite.internal.wire.RoutingPublisherBuilder;
 import com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder;
-import com.google.cloud.pubsublite.internal.wire.PartitionPublisherFactory;
 import java.util.Map;
-import org.apache.kafka.common.config.ConfigValue;
+import org.apache.kafka.connect.errors.ConnectException;
+import org.apache.kafka.connect.sink.SinkRecord;
 
 class PublisherFactoryImpl implements PublisherFactory {
 
   private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
 
   @Override
-  public Publisher<Void> newPublisher(Map<String, String> params) {
+  public Publisher<SinkRecord> newPublisher(Map<String, String> params) {
     Map<String, ConfigValue> config = ConfigDefs.config().validateAll(params);
     RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
     TopicPath topic =
@@ -50,19 +43,13 @@ class PublisherFactoryImpl implements PublisherFactory {
             .build();
     builder.setTopic(topic);
     builder.setPublisherFactory(
-        new PartitionPublisherFactory() {
-          @Override
-          public Publisher<Void> createPublisher(TopicPath topicPath, int partition) {
-            return SinglePartitionPublisherBuilder.newBuilder()
-                .setTopic(topicPath)
+        partition ->
+            SinglePartitionPublisherBuilder.newBuilder()
+                .setTopic(topic)
                 .setPartition(partition)
                 .setContext(PubsubContext.of(FRAMEWORK))
-                .build();
-          }
-        });
+                .build());
     return builder.build();
   }
 }
 ```
-
-In this fix, `PublishMetadata` has been replaced with `Void` as a placeholder, assuming that the `PublishMetadata` was not being used in the method. The `PartitionPublisherFactory` is now implemented as an anonymous class to comply with the new interface requirements. This approach ensures that the code is compatible with the updated dependency while maintaining the original functionality.

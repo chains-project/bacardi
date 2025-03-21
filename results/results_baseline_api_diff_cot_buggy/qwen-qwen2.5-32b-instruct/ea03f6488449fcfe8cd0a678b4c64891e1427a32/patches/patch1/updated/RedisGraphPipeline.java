@@ -1,9 +1,10 @@
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
+import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.PipelineBase;
+import redis.clients.jedis.params.ScriptParams;
 import redis.clients.jedis.exceptions.JedisException;
-import redis.clients.jedis.params.ScanParams;
-import redis.clients.jedis.resps.ScanResult;
 import redis.clients.jedis.util.SafeEncoder;
 
 import java.io.Closeable;
@@ -13,7 +14,7 @@ import java.util.Map;
 /**
  * An interface which aligned to Jedis Pipeline interface
  */
-public interface RedisGraphPipeline extends Closeable {
+public interface RedisGraphPipeline extends PipelineBase, Closeable {
 
     /**
      * Execute a Cypher query.
@@ -30,24 +31,6 @@ public interface RedisGraphPipeline extends Closeable {
      * @return a response which builds the result set with the query answer.
      */
     Response<ResultSet> readOnlyQuery(String graphId, String query);
-
-    /**
-     * Execute a Cypher query with timeout.
-     * @param graphId a graph to perform the query on.
-     * @param query Cypher query.
-     * @param timeout
-     * @return  a response which builds the result set with the query answer.
-     */
-    Response<ResultSet> query(String graphId, String query, long timeout);
-
-    /**
-     * Executes a cypher read-only query with timeout.
-     * @param graphId a graph to perform the query on.
-     * @param query Cypher query.
-     * @param timeout
-     * @return  a response which builds the result set with the query answer.
-     */
-    Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout);
 
     /**
      * Executes a cypher query with parameters.
@@ -89,7 +72,7 @@ public interface RedisGraphPipeline extends Closeable {
 
     /**
      * Invokes stored procedures without arguments
-     * @param graphId a graph to perform the query on
+     * @param graphId graph to perform the query on
      * @param procedure procedure name to invoke
      * @return a response which builds result set with the procedure data
      */
@@ -97,7 +80,7 @@ public interface RedisGraphPipeline extends Closeable {
 
     /**
      * Invokes stored procedure with arguments
-     * @param graphId a graph to perform the query on
+     * @param graphId graph to perform the query on
      * @param procedure procedure name to invoke
      * @param args procedure arguments
      * @return a response which builds result set with the procedure data
@@ -106,7 +89,7 @@ public interface RedisGraphPipeline extends Closeable {
 
     /**
      * Invoke a stored procedure
-     * @param graphId a graph to perform the query on
+     * @param graphId graph to perform the query on
      * @param procedure - procedure to execute
      * @param args - procedure arguments
      * @param kwargs - procedure output arguments
@@ -138,7 +121,8 @@ public interface RedisGraphPipeline extends Closeable {
 
     /**
      * Blocks until all the previous write commands are successfully transferred and acknowledged by
-     * at least the specified number of replicas.
+     * at least the specified number of replicas. If the timeout, specified in milliseconds, is
+     * reached, the command returns even if the specified number of replicas were not yet reached.
      * @param replicas successfully transferred and acknowledged by at least the specified number of
      *          replicas
      * @param timeout the time to block in milliseconds, a timeout of 0 means to block forever

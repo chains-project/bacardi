@@ -1,9 +1,11 @@
-21d20
-< import org.reactivestreams.Publisher;
-56,57c55,57
+56,57c56,62
 <                     public Optional<Authentication.User> user() {
 <                         return Optional.of(new Authentication.User("alice"));
 ---
 >                     public Optional<Authentication> user() {
->                         // Assuming the new version of the dependency uses Authentication directly
->                         return Optional.of(Authentication.of("alice"));
+>                         return Optional.of(new Authentication() {
+>                             @Override
+>                             public String id() {
+>                                 return "alice";
+>                             }
+>                         });

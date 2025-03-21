@@ -1,21 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error messages indicate that the classes `TlsFatalAlert` and `AlertDescription` from the `org.bouncycastle.crypto.tls` package cannot be found. This suggests that the BouncyCastle library version used in the project has been updated, and these classes have either been moved or removed.
-
-2. Review the client code:
-   - The problematic areas are the imports and the usage of `TlsFatalAlert` and `AlertDescription`.
-   - The code uses these classes to handle specific cryptographic errors, particularly related to MAC validation.
-
-3. Consider potential fixes:
-   - Since the classes `TlsFatalAlert` and `AlertDescription` are not found, it is likely that they have been moved to a different package or removed in the newer version of BouncyCastle.
-   - To fix the issue, we need to either find the new location of these classes or replace their usage with an alternative approach that does not rely on these specific classes.
-
-4. Plan the necessary changes:
-   - Remove the imports for `TlsFatalAlert` and `AlertDescription`.
-   - Replace the usage of `TlsFatalAlert` with a custom exception or a standard Java exception.
-   - If `AlertDescription` is only used to provide a specific error code, we can replace it with a string or a custom enum that represents the error.
-</code_analysis>
-
 ```java
 package io.github.hapjava.server.impl.crypto;
 
@@ -24,6 +6,7 @@ import org.bouncycastle.crypto.engines.ChaChaEngine;
 import org.bouncycastle.crypto.generators.Poly1305KeyGenerator;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
+import org.bouncycastle.crypto.macs.Poly1305;
 import org.bouncycastle.util.Arrays;
 
 public class ChachaDecoder {
@@ -42,10 +25,10 @@ public class ChachaDecoder {
 
     KeyParameter macKey = initRecordMAC(decryptCipher);
 
-    byte[] calculatedMAC = PolyKeyCreator.create(macKey, additionalData, ciphertext);
+    byte[] calculatedMAC = Poly1305.create(macKey, additionalData, ciphertext);
 
     if (!Arrays.constantTimeAreEqual(calculatedMAC, receivedMAC)) {
-      throw new IOException("Bad record MAC");
+      throw new RuntimeException("Bad record MAC");
     }
 
     byte[] output = new byte[ciphertext.length];
@@ -70,5 +53,3 @@ public class ChachaDecoder {
   }
 }
 ```
-
-In this fix, the `TlsFatalAlert` and `AlertDescription` classes have been removed, and the error handling has been simplified by throwing a standard `IOException` with a descriptive message. This approach ensures that the code remains functional and adheres to the constraints provided.

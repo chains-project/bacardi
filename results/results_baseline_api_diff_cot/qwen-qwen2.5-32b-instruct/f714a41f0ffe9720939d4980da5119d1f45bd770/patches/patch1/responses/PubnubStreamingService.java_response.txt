@@ -9,9 +9,6 @@ import com.pubnub.api.callbacks.SubscribeCallback;
 import com.pubnub.api.enums.PNStatusCategory;
 import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
-import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
-import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
-import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
 import com.pubnub.api.models.objects_api.membership.PNMembershipResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -88,14 +85,23 @@ public class PubnubStreamingService {
                 }
 
                 @Override
-                public void file(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult pnFileEventResult) {
-                  LOG.debug("PubNub file: {}", pnFileEventResult.toString());
+                public void user(PubNub pubnub, PNUserResult pnUserResult) {
+                  LOG.debug("PubNub user: {}", pnUserResult.toString());
                 }
 
                 @Override
-                public void messageAction(
-                    PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
-                  LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
+                public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
+                  LOG.debug("PubNub space: {}", pnSpaceResult.toString());
+                }
+
+                @Override
+                public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
+                  LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
+                }
+
+                @Override
+                public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
+                  LOG.debug("PubNub file: {}", pnFileEventResult.toString());
                 }
               });
           e.onComplete();

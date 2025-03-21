@@ -1,27 +1,7 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the package `net.lingala.zip4j.core` does not exist, which suggests that the `zip4j` library has been updated and the package structure has changed.
-   - The error occurs at line 18, where the `ZipFile` class from the `net.lingala.zip4j.core` package is imported.
-
-2. Review the client code:
-   - The `ZipFile` class is used in the `unpack` method to extract the contents of a zip file.
-   - The `ZipFile` class is the only part of the `zip4j` library used in the code.
-
-3. Consider potential fixes:
-   - The `zip4j` library has likely been updated, and the `ZipFile` class might now be in a different package or the class name might have changed.
-   - The `zip4j` library's latest version might have a different way of handling zip files.
-
-4. Plan the necessary changes:
-   - Update the import statement to reflect the new package structure or class name.
-   - Ensure that the `unpack` method is updated to use the new API if the class name or method signatures have changed.
-</code_analysis>
-
-Based on the analysis, the following patch is proposed to fix the issue:
-
 ```java
 package io.qameta.allure.maven;
 
-import net.lingala.zip4j.ZipFile; // Updated import statement
+import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
@@ -53,7 +33,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings({"ClassDataAbstractionCoupling", "MultipleStringLiterals"})
+@SuppressWarnings({"ClassDataAbstractionCoupling", "ClassFanOutComplexity",
+        "MultipleStringLiterals"})
 public class AllureCommandline {
 
     public static final String ALLURE_DEFAULT_VERSION = "2.13.9";
@@ -124,7 +105,7 @@ public class AllureCommandline {
     private void checkAllureExists() throws FileNotFoundException {
         if (allureNotExists()) {
             throw new FileNotFoundException("There is no valid allure installation."
-                    + " Make sure you're using allure version not less than 2.x.");
+                    + " Make sure you're using allure version not less then 2.x.");
         }
     }
 
@@ -175,6 +156,7 @@ public class AllureCommandline {
                 unpack(resolved.next().getArtifact().getFile());
             } else {
                 throw new IOException("No allure commandline artifact found.");
+
             }
         } catch (DependencyResolverException e) {
             throw new IOException("Cannot resolve allure commandline dependencies.", e);
@@ -219,7 +201,7 @@ public class AllureCommandline {
 
     private void unpack(final File file) throws IOException {
         try {
-            final ZipFile zipFile = new ZipFile(file); // Updated ZipFile usage
+            final ZipFile zipFile = new ZipFile(file);
             zipFile.extractAll(getInstallationDirectory().toAbsolutePath().toString());
         } catch (ZipException e) {
             throw new IOException(e);
@@ -244,5 +226,3 @@ public class AllureCommandline {
     }
 }
 ```
-
-In this patch, the import statement for `ZipFile` has been updated to reflect the new package structure in the updated `zip4j` library. The usage of `ZipFile` in the `unpack` method has been kept the same, assuming the class and method names have not changed. If the API has changed, further adjustments would be necessary.

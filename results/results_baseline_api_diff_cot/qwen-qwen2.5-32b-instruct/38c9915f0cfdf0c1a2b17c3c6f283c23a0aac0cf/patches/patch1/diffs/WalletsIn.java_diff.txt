@@ -1,66 +1,44 @@
-31a32
+31a32,33
 > import org.cactoos.Func;
-33d33
+> import org.cactoos.FuncOf;
+33c35,36
 < import org.cactoos.func.IoCheckedFunc;
-37,38d36
+---
+> import org.cactoos.Text;
+> import org.cactoos.TextOf;
+37,38c40,41
 < import org.cactoos.scalar.IoCheckedScalar;
 < import org.cactoos.scalar.SolidScalar;
-40d37
+---
+> import org.cactoos.scalar.CheckedScalar;
+> import org.cactoos.scalar.ScalarOf;
+40d42
 < import org.cactoos.text.JoinedText;
-53c50
+53c55
 <     private final IoCheckedScalar<Path> path;
 ---
->     private final Path path;
-58c55
+>     private final CheckedScalar<Path> path;
+58c60
 <     private final IoCheckedFunc<Path, Boolean> filter;
 ---
 >     private final Func<Path, Boolean> filter;
-76c73
-<             () -> pth,
----
->             pth,
-89c86
-<             () -> pth,
----
->             pth,
-98d94
+98d99
 <      * @param random Randomizer
-99a96
+99a101
 >      * @param random Randomizer
-103,107c100,101
+103,104c105,106
 <         this.path = new IoCheckedScalar<>(
 <             new SolidScalar<>(pth)
-<         );
+---
+>         this.path = new CheckedScalar<>(
+>             new ScalarOf<>(pth)
+106c108
 <         this.filter = new IoCheckedFunc<Path, Boolean>(
-<             (file) -> file.toFile().isFile()
 ---
->         this.path = pth.value();
->         this.filter = file -> file.toFile().isFile()
-110,111c104
-<                 .matches(file)
-<         );
----
->             .matches(file);
-118,123c111,112
-<         final Path wpth = this.path.value().resolve(
+>         this.filter = new FuncOf<Path, Boolean>(
+119,120c121,122
 <             new JoinedText(
 <                 ".",
-<                 Long.toHexString(this.random.nextLong()),
-<                 this.ext
-<             ).asString()
 ---
->         final Path wpth = this.path.resolve(
->             String.format("%s.%s", Long.toHexString(this.random.nextLong()), this.ext)
-140,145c129
-<     // @todo #65:30min Create the new wallet in the path with all wallets.
-<     //  It should contain the correct content according to the
-<     //  white paper (network, protocol version, id and public RSA key). After
-<     //  this remove exception expect for tests on WalletsInTest.
-<     public Wallet create(final long id, final String pubkey, final String
-<         network) throws IOException {
----
->     public Wallet create(final long id, final String pubkey, final String network) throws IOException {
-156c140
-<                 new Filtered<>(this.filter, new Directory(this.path.value()))
----
->                 new Filtered<>(this.filter, new Directory(this.path))
+>             new TextOf(
+>                 "%s.%s",

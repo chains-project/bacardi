@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Named;
-import jakarta.mvc.RedirectScoped; // Updated import for the new version
+import jakarta.mvc.RedirectScoped;
 
 /**
  * Used to transport messages back to the client.
@@ -92,8 +92,8 @@ public class AlertMessage implements Serializable {
         private String code;
         private String message;
         private String field;
-
-        public Error() {}
+        
+        public Error(){}
 
         private Error(String field, String code, String message) {
             this.field = field;
@@ -129,5 +129,3 @@ public class AlertMessage implements Serializable {
 
 }
 ```
-
-The fix involves updating the import statement for `RedirectScoped` to use the new package `jakarta.mvc.RedirectScoped` instead of the old `javax.mvc.RedirectScoped`. This change is necessary because the old class has been removed and replaced with a new one in the updated dependency. The rest of the class remains unchanged to ensure that the functionality is preserved.

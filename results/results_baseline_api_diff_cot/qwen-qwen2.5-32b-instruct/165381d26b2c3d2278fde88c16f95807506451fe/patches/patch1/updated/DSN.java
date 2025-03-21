@@ -4,7 +4,7 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration; // Updated import
 import org.btrplace.safeplace.spec.Constraint;
 import org.btrplace.safeplace.spec.SpecScanner;
@@ -31,10 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-/**
- * @author Fabien Hermenier
- */
 public class DSN {
 
     public static String root = "xp-dsn";
@@ -42,7 +40,7 @@ public class DSN {
     public TestScanner newScanner() throws Exception {
         SpecScanner specScanner = new SpecScanner();
         List<Constraint> l = specScanner.scan();
-        System.out.println(l.stream().map(Constraint::pretty).collect(Collectors.joining("\n")));
+        Bench.mode = Bench.Mode.REPLAY;
         return new TestScanner(l);
     }
 
@@ -52,7 +50,7 @@ public class DSN {
 
         private final List<Integer> l;
 
-        private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false); // Updated instantiation
+        private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false); // Updated constructor and method call
 
         UnitTestsVisitor(List<Integer> numbers) {
             this.l = numbers;
@@ -60,6 +58,7 @@ public class DSN {
 
         @Override
         public void visit(MethodDeclaration n, Void arg) {
+            System.out.println(n.getNameAsString());
             if (n.toString(noComments).contains("solve")) {
                 n.getRange().ifPresent(r -> l.add(r.end.line - r.begin.line));
             }

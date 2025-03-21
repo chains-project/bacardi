@@ -6,9 +6,9 @@ import liquibase.ext.mssql.statement.AddPrimaryKeyStatementMSSQL;
 import liquibase.sql.Sql;
 import liquibase.sql.UnparsedSql;
 import liquibase.sqlgenerator.SqlGeneratorChain;
-import liquibase.sqlgenerator.core.AddPrimaryKeyGenerator;
 import liquibase.statement.core.AddPrimaryKeyStatement;
 import liquibase.structure.core.Index;
+import liquibase.util.StringUtil;
 
 public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
   @Override
@@ -63,8 +63,7 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
     // the only new feature being added is support for fillFactor
     sql += " WITH (FILLFACTOR = " + statement.getFillFactor() + ")";
 
-    // Replace StringUtils.trimToNull with a direct check for null or empty string
-    if (statement.getTablespace() != null && !statement.getTablespace().trim().isEmpty() && database.supportsTablespaces()) {
+    if (StringUtil.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
       sql += " ON "+statement.getTablespace();
     }
 
@@ -81,4 +80,5 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
   public boolean supports(AddPrimaryKeyStatement statement, Database database) {
     return database instanceof MSSQLDatabase;
   }
+
 }

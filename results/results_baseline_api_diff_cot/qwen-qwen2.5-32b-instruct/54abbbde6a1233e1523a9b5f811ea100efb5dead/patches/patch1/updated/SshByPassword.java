@@ -1,11 +1,13 @@
 package com.jcabi.ssh;
 
 import com.jcabi.aspects.RetryOnFailure;
+import com.jcabi.log.Logger;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -40,10 +42,11 @@ public final class SshByPassword extends AbstractSshShell {
     }
 
     // @checkstyle ProtectedMethodInFinalClassCheck (10 lines)
+    @Override
     @RetryOnFailure(
         attempts = 7,
         delay = 1,
-        unit = java.util.concurrent.TimeUnit.MINUTES,
+        unit = TimeUnit.MINUTES,
         verbose = false,
         types = IOException.class
     )

@@ -80,7 +80,7 @@ public final class AwsOcketITCase {
         final Bucket bucket = this.rule.bucket();
         final String name = "test-44.txt";
         final Ocket.Text ocket = new Ocket.Text(bucket.ocket(name));
-        final String data = RandomStringUtils.random(100000); // Assuming 100 * 1000 was used for large data
+        final String data = RandomStringUtils.random(100 * 1000); // Assuming Tv.HUNDRED * Tv.THOUSAND was 100 * 1000
         ocket.write(data);
         try {
             MatcherAssert.assertThat(ocket.read(), Matchers.equalTo(data));
@@ -124,5 +124,3 @@ public final class AwsOcketITCase {
 
 }
 ```
-
-In the provided solution, the `Tv.HUNDRED * Tv.THOUSAND` reference has been replaced with a direct value `100000` to generate a large string for testing, as the `Tv` class is no longer available. This change ensures that the code remains functional and compilable with the updated dependency.

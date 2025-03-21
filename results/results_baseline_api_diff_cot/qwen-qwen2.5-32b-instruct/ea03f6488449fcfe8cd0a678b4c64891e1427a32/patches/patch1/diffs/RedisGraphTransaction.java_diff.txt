@@ -1,4 +1,4 @@
-4,12c4,5
+4,11c4,14
 < import redis.clients.jedis.commands.BasicRedisPipeline;
 < import redis.clients.jedis.commands.BinaryRedisPipeline;
 < import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
@@ -7,32 +7,38 @@
 < import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
 < import redis.clients.jedis.commands.RedisPipeline;
 < import redis.clients.jedis.commands.ScriptingCommandsPipeline;
-< 
 ---
-> import redis.clients.jedis.ClusterPipeline;
-> import redis.clients.jedis.Transaction;
-21,24c14
+> import redis.clients.jedis.commands.ScriptingCommands;
+> import redis.clients.jedis.pipeline.PipelineBase;
+> import redis.clients.jedis.pipeline.PipelineBaseImpl;
+> import redis.clients.jedis.pipeline.PipelinedCommand;
+> import redis.clients.jedis.pipeline.PipelinedMultiKeyCommands;
+> import redis.clients.jedis.pipeline.PipelinedMultiKeyBinaryCommands;
+> import redis.clients.jedis.pipeline.PipelinedScriptingCommands;
+> import redis.clients.jedis.pipeline.PipelinedClusterCommands;
+> import redis.clients.jedis.pipeline.PipelinedCommands;
+> import redis.clients.jedis.pipeline.PipelinedBinaryCommands;
+> import redis.clients.jedis.pipeline.PipelinedBinaryScriptingCommands;
+21,24c24,27
 <         MultiKeyBinaryRedisPipeline,
 <         MultiKeyCommandsPipeline, ClusterPipeline,
 <         BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
 <         BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
 ---
->         Closeable {
-44,45c34,35
-<      * @param graphId a graph to perform the query on
-<      * @param query Cypher query
----
->      * @param graphId a graph to perform the query on.
->      * @param query Cypher query.
-52,54c42,44
+>         PipelinedMultiKeyBinaryCommands,
+>         PipelinedMultiKeyCommands, PipelinedClusterCommands,
+>         PipelinedBinaryScriptingCommands, PipelinedScriptingCommands,
+>         PipelineBase, PipelinedBinaryCommands, PipelinedCommands, Closeable {
+52,80d54
 <      * Execute a Cypher read-only query with timeout.
 <      * @param graphId a graph to perform the query on
 <      * @param query Cypher query
----
->      * Executes a cypher read-only query with timeout.
->      * @param graphId a graph to perform the query on.
->      * @param query Cypher query.
-61,71d50
+<      * @param timeout
+<      * @return a response which builds the result set with the query answer.
+<      */
+<     Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout);
+< 
+<     /**
 <      * Execute a Cypher query with arguments
 <      * @param graphId a graph to perform the query on
 <      * @param query Cypher query
@@ -44,17 +50,28 @@
 <     Response<ResultSet> query(String graphId, String query, Object ...args);
 < 
 <     /**
-111c90
-<      * @param graphId a graph to perform the query on
+<      * Executes a cypher query with parameters.
+<      * @param graphId a graph to perform the query on.
+<      * @param query Cypher query.
+<      * @param params parameters map.
+<      * @return  a response which builds the result set with the query answer.
+<      */
+<     Response<ResultSet> query(String graphId, String query, Map<String, Object> params);
+< 
+<     /**
+87,97c61
+<     Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params);
+< 
+<     /**
+<      * Executes a cypher query with parameters and timeout.
+<      * @param graphId a graph to perform the query on.
+<      * @param query Cypher query.
+<      * @param params parameters map.
+<      * @param timeout
+<      * @return  a response which builds the result set with the query answer.
+<      */
+<     Response<ResultSet> query(String graphId, String query, Map<String, Object> params, long timeout);
 ---
->      * @param graphId graph to perform the query on
-119c98
-<      * @param graphId a graph to perform the query on
----
->      * @param graphId graph to perform the query on
-128c107
-<      * @param graphId a graph to perform the query on
----
->      * @param graphId graph to perform the query on
-143d121
+>     Response<ResultSet> query(String graphId, String query, Map<String, Object> params);
+143d106
 < 

@@ -16,7 +16,7 @@
 
 package com.google.inject.struts2;
 
-import org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter; // Updated import
+import org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;

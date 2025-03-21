@@ -1,26 +1,8 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `JsonBranch` cannot be found in the package `de.gwdg.metadataqa.api.json`.
-   - This suggests that the `JsonBranch` class has been removed or moved in the updated dependency.
-
-2. Review the client code:
-   - The `JsonBranch` class is used in the `extractList` and `extractFirst` methods.
-   - The `JsonBranch` class is also imported at the beginning of the file.
-
-3. Consider potential fixes that adhere to the following constraints:
-   - Since `JsonBranch` is not found, we need to find an alternative or remove the usage of `JsonBranch` if it is no longer available.
-   - We need to ensure that the methods `extractList` and `extractFirst` still function correctly without `JsonBranch`.
-
-4. Plan the necessary changes to fix the issue:
-   - Remove the import statement for `JsonBranch`.
-   - Modify the `extractList` and `extractFirst` methods to work without `JsonBranch`.
-   - Ensure that the methods still return the expected data structure.
-</code_analysis>
-
 ```java
 package de.gwdg.metadataqa.marc;
 
 import de.gwdg.metadataqa.api.model.pathcache.JsonPathCache;
+import de.gwdg.metadataqa.api.model.pathcache.JsonPathCache.JsonBranch;
 import de.gwdg.metadataqa.api.model.XmlFieldInstance;
 import de.gwdg.metadataqa.api.schema.MarcJsonSchema;
 import de.gwdg.metadataqa.api.schema.Schema;
@@ -83,33 +65,47 @@ public class MarcFactory {
 
   public static BibliographicRecord create(JsonPathCache cache, MarcVersion version) {
     var marcRecord = new Marc21Record();
-    for (String path : schema.getPaths()) {
-      if (path != null && path.startsWith("leader")) {
-        marcRecord.setLeader(new Leader(extractFirst(cache, path), null));
-      } else if (path != null && path.startsWith("001")) {
-        marcRecord.setControl001(new Control001(extractFirst(cache, path)));
-      } else if (path != null && path.startsWith("003")) {
-        marcRecord.setControl003(new Control003(extractFirst(cache, path)));
-      } else if (path != null && path.startsWith("005")) {
-        marcRecord.setControl005(new Control005(extractFirst(cache, path), marcRecord));
-      } else if (path != null && path.startsWith("006")) {
-        marcRecord.setControl006(new Control006(extractFirst(cache, path), marcRecord));
-      } else if (path != null && path.startsWith("007")) {
-        marcRecord.setControl007(new Control007(extractFirst(cache, path), marcRecord));
-      } else if (path != null && path.startsWith("008")) {
-        marcRecord.setControl008(new Control008(extractFirst(cache, path), marcRecord));
-      } else {
-        JSONArray fieldInstances = (JSONArray) cache.getFragment(path);
-        for (var fieldInsanceNr = 0; fieldInsanceNr < fieldInstances.size(); fieldInsanceNr++) {
-          var fieldInstance = (Map) fieldInstances.get(fieldInsanceNr);
-          var field = MapToDatafield.parse(fieldInstance, version);
-          if (field != null) {
-            marcRecord.addDataField(field);
-            field.setMarcRecord(marcRecord);
-          } else {
-            marcRecord.addUnhandledTags(path);
+    for (JsonBranch branch : schema.getPaths()) {
+      if (branch.getParent() != null)
+        continue;
+      switch (branch.getLabel()) {
+        case "leader":
+          marcRecord.setLeader(new Leader(extractFirst(cache, branch)));
+          break;
+        case "001":
+          marcRecord.setControl001(new Control001(extractFirst(cache, branch)));
+          break;
+        case "003":
+          marcRecord.setControl003(new Control003(extractFirst(cache, branch)));
+          break;
+        case "005":
+          marcRecord.setControl005(new Control005(extractFirst(cache, branch), marcRecord));
+          break;
+        case "006":
+          marcRecord.setControl006(
+            new Control006(extractFirst(cache, branch), marcRecord));
+          break;
+        case "007":
+          marcRecord.setControl007(
+            new Control007(extractFirst(cache, branch), marcRecord));
+          break;
+        case "008":
+          marcRecord.setControl008(
+            new Control008(extractFirst(cache, branch), marcRecord));
+          break;
+        default:
+          JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());
+          for (var fieldInsanceNr = 0; fieldInsanceNr < fieldInstances.size(); fieldInsanceNr++) {
+            var fieldInstance = (Map) fieldInstances.get(fieldInsanceNr);
+            var field = MapToDatafield.parse(fieldInstance, version);
+            if (field != null) {
+              marcRecord.addDataField(field);
+              field.setMarcRecord(marcRecord);
+            } else {
+              marcRecord.addUnhandledTags(branch.getLabel());
+            }
           }
-        }
+          break;
       }
     }
     return marcRecord;
@@ -130,8 +126,8 @@ public class MarcFactory {
   }
 
   public static BibliographicRecord createFromMarc4j(Record marc4jRecord,
-                                                    Leader.Type defaultType,
-                                                    MarcVersion marcVersion) {
+                                                     Leader.Type defaultType,
+                                                     MarcVersion marcVersion) {
     return createFromMarc4j(marc4jRecord, defaultType, marcVersion, null);
   }
 
@@ -282,8 +278,41 @@ public class MarcFactory {
     return field;
   }
 
-  private static List<String> extractList(JsonPathCache cache, String path) {
-    List<XmlFieldInstance> instances = cache.get(path);
+  private static DataField extractPicaDataField(org.marc4j.marc.DataField dataField,
+                                                PicaFieldDefinition definition,
+                                                MarcVersion marcVersion) {
+    DataField field = null;
+    if (definition == null) {
+      field = new DataField(dataField.getTag(),
+        Character.toString(dataField.getIndicator1()),
+        Character.toString(dataField.getIndicator2()),
+        marcVersion
+      );
+    } else {
+      field = new DataField(
+        (definition,
+        Character.toString(dataField.getIndicator1()),
+        Character.toString(dataField.getIndicator2())
+      );
+    }
+    for (Subfield subfield : dataField.getSubfields()) {
+      var code = Character.toString(subfield.getCode());
+      SubfieldDefinition subfieldDefinition = definition == null ? null : definition.getSubfield(code);
+      MarcSubfield marcSubfield = null;
+      if (subfieldDefinition == null) {
+        marcSubfield = new MarcSubfield(null, code, subfield.getData());
+      } else {
+        marcSubfield = new MarcSubfield(subfieldDefinition, code, subfield.getData());
+      }
+      marcSubfield.setField(field);
+      field.getSubfields().add(marcSubfield);
+    }
+    field.indexSubfields();
+    return field;
+  }
+
+  private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
+    List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
     List<String> values = new ArrayList<>();
     if (instances != null)
       for (XmlFieldInstance instance : instances)
@@ -291,8 +320,8 @@ public class MarcFactory {
     return values;
   }
 
-  private static String extractFirst(JsonPathCache cache, String path) {
-    List<String> list = extractList(cache, path);
+  private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
+    List<String> list = extractList(cache, branch);
     if (!list.isEmpty())
       return list.get(0);
     return null;
@@ -328,7 +357,7 @@ public class MarcFactory {
   }
 
   public static BibliographicRecord createFromAlephseq(List<AlephseqLine> lines,
-                                                      MarcVersion marcVersion) {
+                                                       MarcVersion marcVersion) {
     if (marcVersion == null)
       marcVersion = MarcVersion.MARC21;
 
@@ -385,7 +414,9 @@ public class MarcFactory {
         if (line.isControlField()) {
           marc4jRecord.addVariableField(new ControlFieldImpl(line.getTag(), line.getContent()));
         } else {
-          var df = new DataFieldImpl(line.getTag(), line.getInd1().charAt(0), line.getInd2().charAt(0));
+          var df = new DataFieldImpl(
+            (line.getTag(), line.getInd1().charAt(0), line.getInd2().charAt(0)
+          );
           for (String[] pair : line.parseSubfields()) {
             if (pair.length == 2 && pair[0] != null && pair[1] != null) {
               df.addSubfield(new SubfieldImpl(pair[0].charAt(0), pair[1]));
@@ -456,5 +487,3 @@ public class MarcFactory {
   }
 }
 ```
-
-In the provided solution, the `JsonBranch` class has been removed from the code, and the methods `extractList` and `extractFirst` have been modified to accept a `String` path instead of a `JsonBranch` object. This change assumes that the `JsonPathCache` can directly handle paths as strings, which is a common approach in JSON path handling. If the `JsonPathCache` class requires a different approach, further adjustments may be necessary.

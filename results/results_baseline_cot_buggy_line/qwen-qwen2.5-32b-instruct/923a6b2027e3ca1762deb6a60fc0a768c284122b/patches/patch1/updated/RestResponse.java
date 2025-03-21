@@ -17,35 +17,19 @@ import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.StringContains;
-import org.hamcrest.core.IsAnything;
-import org.hamcrest.core.IsNot;
-import org.hamcrest.core.IsEqual;
-import org.hamcrest.core.IsInstanceOf;
-import org.hamcrest.core.IsNull;
-import org.hamcrest.core.IsNot;
-import org.hamcrest.core.IsSame;
-import org.hamcrest.core.StringContains;
-import org.hamcrest.core.IsAnything;
-import org.hamcrest.core.IsEqual;
-import org.hamcrest.core.IsInstanceOf;
-import org.hamcrest.core.IsNull;
-import org.hamcrest.core.IsNot;
-import org.hamcrest.core.IsSame;
-import org.hamcrest.core.StringContains;
-import org.hamcrest.core.IsAnything;
 
 /**
  * REST response.
  *
  * <p>This response decorator is able to make basic assertions on
- * HTTP response and manipulate with it afterwords, for example:
+ * HTTP response and manipulate with it afterwards, for example:
  *
  * <pre> String name = new JdkRequest("http://my.example.com")
  *   .fetch()
  *   .as(RestResponse.class)
  *   .assertStatus(200)
- *   .assertBody(StringContains.containsString("hello, world!"))
- *   .assertHeader("Content-Type", IsEqual.equalTo("text/plain"))
+ *   .assertBody(new StringContains("hello, world!"))
+ *   .assertHeader("Content-Type", new IsEqual<>(Collections.singletonList("text/plain")))
  *   .jump(URI.create("/users"))
  *   .fetch();</pre>
  *
@@ -95,14 +79,14 @@ public final class RestResponse extends AbstractResponse {
                 "HTTP response status is not equal to %d:%n%s",
                 status, this
             ),
-            this.status(), IsEqual.equalTo(status)
+            this.status(), new IsEqual<>(status)
         );
         return this;
     }
 
     /**
-     * Verifies HTTP response status code against the provided matcher,
-     * and throws {@link AssertionError} in case of mismatch.
+     * Verifies HTTP response status code against the provided matcher, and throws
+     * {@link AssertionError} in case of mismatch.
      * @param matcher The matcher to use
      * @return This object
      */
@@ -145,8 +129,7 @@ public final class RestResponse extends AbstractResponse {
             String.format(
                 "HTTP response binary content is not valid:%n%s",
                 this
-            ),
-            this.binary(),
+            ), this.binary(),
             matcher
         );
         return this;
@@ -191,7 +174,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, IsEqual.equalTo(value));
+        return this.assertHeader(name, new IsEqual<>(Collections.singletonList(value)));
     }
 
     /**
@@ -227,7 +210,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            IsEqual.equalTo(HttpHeaders.LOCATION)
+            new IsEqual<>(Collections.singletonList("http://example.com"))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -244,8 +227,7 @@ public final class RestResponse extends AbstractResponse {
         final Map<String, List<String>> headers = this.headers();
         MatcherAssert.assertThat(
             "cookies should be set in HTTP header",
-            headers.containsKey(HttpHeaders.SET_COOKIE),
-            IsEqual.equalTo(true)
+            headers.containsKey(HttpHeaders.SET_COOKIE)
         );
         final List<String> cookies = headers.get(HttpHeaders.SET_COOKIE);
         final Iterator<String> iterator = cookies.iterator();
@@ -266,7 +248,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            IsNotNull.notNullValue()
+            new IsEqual<>(null)
         );
         assert cookie != null;
         return cookie;

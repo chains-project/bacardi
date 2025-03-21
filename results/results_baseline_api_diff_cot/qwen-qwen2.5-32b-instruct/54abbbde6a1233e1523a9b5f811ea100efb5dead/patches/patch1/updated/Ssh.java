@@ -40,14 +40,13 @@ import org.cactoos.text.UncheckedText;
  * they will simplify operations.</p>
  *
  * <p>Instances of this class are NOT reusable. Once you do
- * {@link Ssh#exec(String, InputStream, OutputStream, OutputStream)},
+ * {@link #exec(String, InputStream, OutputStream, OutputStream)},
  * the connection is lost. You have to create a new {@link Ssh} object, if
  * you need to execute a new command.</p>
  *
  * @since 1.0
  * @see <a href="http://www.yegor256.com/2014/09/02/java-ssh-client.html">article by Yegor Bugayenko</a>
- * @todo #30:30min Refactor this class into smaller ones to avoid null
- *  checking of passphrase.
+ * @checkstyle ParameterNumberCheck (6 lines)
  */
 @ToString
 @EqualsAndHashCode(of = "key", callSuper = true)
@@ -92,6 +91,32 @@ public final class Ssh extends AbstractSshShell {
      */
     public Ssh(final InetAddress adr, final String user, final URL priv)
         throws IOException {
+        this(adr, Ssh.PORT, user, priv);
+    }
+
+    /**
+     * Constructor.
+     * @param adr IP address
+     * @param user Login
+     * @param priv Private SSH key
+     * @throws UnknownHostException If fails
+     * @since 1.4
+     */
+    public Ssh(final String adr, final String user, final String priv)
+        throws UnknownHostException {
+        this(adr, Ssh.PORT, user, priv, null);
+    }
+
+    /**
+     * Constructor.
+     * @param adr IP address
+     * @param user Login
+     * @param priv Private SSH key
+     * @throws UnknownHostException If fails
+     * @since 1.4
+     */
+    public Ssh(final InetAddress adr, final String user, final String priv)
+        throws UnknownHostException {
         this(adr.getCanonicalHostName(), Ssh.PORT, user, priv);
     }
 
@@ -101,8 +126,41 @@ public final class Ssh extends AbstractSshShell {
      * @param prt Port of server
      * @param user Login
      * @param priv Private SSH key
-     * @throws UnknownHostException If fails
+     * @throws IOException If fails
      * @since 1.4
+     * @checkstyle ParameterNumberCheck (6 lines)
+     */
+    public Ssh(final String adr, final int prt,
+        final String user, final URL priv) throws IOException {
+        this(adr, prt, user, new UncheckedText(new TextOf(priv)).asString());
+    }
+
+    /**
+     * Constructor.
+     * @param adr IP address
+     * @param prt Port of server
+     * @param user Login
+     * @param priv Private SSH key
+     * @throws IOException If fails
+     * @since 1.4
+     * @checkstyle ParameterNumberCheck (6 lines)
+     */
+    public Ssh(final InetAddress adr, final int prt,
+        final String user, final URL priv) throws IOException {
+        this(
+            adr.getCanonicalHostName(), prt, user,
+            new UncheckedText(new TextOf(priv)).asString()
+        );
+    }
+
+    /**
+     * Constructor.
+     * @param adr IP address
+     * @param prt Port of server
+     * @param user Login
+     * @param priv Private SSH key
+     * @throws UnknownHostException If fails
+     * @checkstyle ParameterNumberCheck (6 lines)
      */
     public Ssh(final String adr, final int prt,
         final String user, final String priv) throws UnknownHostException {
@@ -132,7 +190,6 @@ public final class Ssh extends AbstractSshShell {
      * @param arg Argument to escape
      * @return Escaped
      */
-    @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
     public static String escape(final String arg) {
         return String.format("'%s'", arg.replace("'", "'\\''"));
     }
@@ -173,9 +230,8 @@ public final class Ssh extends AbstractSshShell {
             }
             Logger.debug(
                 this,
-                "Opening SSH session to %s@%s:%s (%d bytes in RSA key)...",
-                this.getLogin(), this.getAddr(), this.getPort(),
-                file.length()
+                "Opening SSH session to %s@%s:%s",
+                this.getLogin(), this.getAddr(), this.getPort()
             );
             return this.session(jsch);
         } catch (final JSchException ex) {

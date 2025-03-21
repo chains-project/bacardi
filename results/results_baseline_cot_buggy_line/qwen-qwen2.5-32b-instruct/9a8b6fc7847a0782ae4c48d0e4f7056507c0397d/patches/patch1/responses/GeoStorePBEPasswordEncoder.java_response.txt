@@ -27,13 +27,15 @@ import static it.geosolutions.geostore.core.security.password.SecurityUtils.toCh
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Base64;
-import org.jasypt.encryption.pbe.StandardPBEByteEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
+import org.jasypt.encryption.pbe.StandardPBEByteEncryptor;
 import org.jasypt.spring.security.PBEStringEncryptor;
+import org.jasypt.spring.security.PBEByteEncryptor;
 
 import it.geosolutions.geostore.core.security.password.CharArrayPasswordEncoder;
-import it.geosolutions.geostore.core.security.password.PasswordEncoder;
 import it.geosolutions.geostore.core.security.password.PasswordEncodingType;
+import it.geosolutions.geostore.core.security.password.KeyStoreProviderImpl;
+import it.geosolutions.geostore.core.security.password.KeyStoreProvider;
 
 /**
  * Password Encoder using symmetric encryption
@@ -90,30 +92,6 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 	}
 
 	@Override
-	protected PasswordEncoder createStringEncoder() {
-		byte[] password = lookupPasswordFromKeyStore();
-
-		char[] chars = toChars(password);
-		try {
-			stringEncrypter = new StandardPBEStringEncryptor();
-			stringEncrypter.setPasswordCharArray(chars);
-
-			if (getProviderName() != null && !getProviderName().isEmpty()) {
-				stringEncrypter.setProviderName(getProviderName());
-			}
-			stringEncrypter.setAlgorithm(getAlgorithm());
-
-			PBEStringEncryptor encoder = new PBEStringEncryptor();
-			encoder.setPBEStringEncryptor(stringEncrypter);
-
-			return encoder;
-		} finally {
-			scramble(password);
-			scramble(chars);
-		}
-	}
-
-	@Override
 	protected CharArrayPasswordEncoder createCharEncoder() {
 		byte[] password = lookupPasswordFromKeyStore();
 		char[] chars = toChars(password);
@@ -130,7 +108,7 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			@Override
 			public boolean isPasswordValid(String encPass, char[] rawPass,
 					Object salt) {
-				byte[] decoded = Base64.getDecoder().decode(removePrefix(encPass).getBytes());
+				byte[] decoded = Base64.getDecoder().decode(encPass.getBytes());
 				byte[] decrypted = byteEncrypter.decrypt(decoded);
 
 				char[] chars = toChars(decrypted);
@@ -153,6 +131,49 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 				}
 			}
 		};
+	}
+
+	@Override
+	protected CharArrayPasswordEncoder createStringEncoder() {
+		byte[] password = lookupPasswordFromKeyStore();
+
+		char[] chars = toChars(password);
+		try {
+			stringEncrypter = new StandardPBEStringEncryptor();
+			stringEncrypter.setPasswordCharArray(chars);
+
+			if (getProviderName() != null && !getProviderName().isEmpty()) {
+				stringEncrypter.setProviderName(getProviderName());
+			}
+			stringEncrypter.setAlgorithm(getAlgorithm());
+
+			return new CharArrayPasswordEncoder() {
+				@Override
+				public boolean isPasswordValid(String encPass, char[] rawPass,
+						Object salt) {
+					String decrypted = stringEncrypter.decrypt(encPass);
+					char[] chars = toChars(decrypted.getBytes());
+					try {
+						return Arrays.equals(chars, rawPass);
+					} finally {
+						scramble(chars);
+					}
+				}
+
+				@Override
+				public String encodePassword(char[] rawPass, Object salt) {
+					byte[] bytes = toBytes(rawPass);
+					try {
+						return stringEncrypter.encrypt(new String(bytes));
+					} finally {
+						scramble(bytes);
+					}
+				}
+			};
+		} finally {
+			scramble(password);
+			scramble(chars);
+		}
 	}
 
 	byte[] lookupPasswordFromKeyStore() {
@@ -179,17 +200,18 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 	public String decode(String encPass) throws UnsupportedOperationException {
 		if (stringEncrypter == null) {
 			// not initialized
-			getStringEncoder();
+			createStringEncoder();
 		}
 
 		return stringEncrypter.decrypt(removePrefix(encPass));
 	}
 
+	@Override
 	public char[] decodeToCharArray(String encPass)
 			throws UnsupportedOperationException {
 		if (byteEncrypter == null) {
 			// not initialized
-			getCharEncoder();
+			createCharEncoder();
 		}
 
 		byte[] decoded = Base64.getDecoder().decode(removePrefix(encPass).getBytes());

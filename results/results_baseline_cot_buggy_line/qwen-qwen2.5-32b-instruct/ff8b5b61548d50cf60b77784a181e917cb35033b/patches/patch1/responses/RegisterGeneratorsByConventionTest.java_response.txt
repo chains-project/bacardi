@@ -14,12 +14,11 @@ import com.pholser.junit.quickcheck.internal.generator.conventiontestclasses.Gen
 import com.pholser.junit.quickcheck.internal.generator.conventiontestclasses.NotAGenerator;
 import com.pholser.junit.quickcheck.random.SourceOfRandomness;
 import org.junit.Before;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
-@ExtendWith(MockitoExtension.class)
 public class RegisterGeneratorsByConventionTest {
     private GeneratorRepository repo;
     @Mock private SourceOfRandomness random;

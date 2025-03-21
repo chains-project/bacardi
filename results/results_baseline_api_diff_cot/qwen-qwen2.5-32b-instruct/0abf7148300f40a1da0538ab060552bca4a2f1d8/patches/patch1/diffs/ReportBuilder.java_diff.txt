@@ -1,13 +1,10 @@
 34d33
 < import net.sf.jasperreports.engine.JRLineBox;
-47a47,48
-> import net.sf.jasperreports.engine.base.JRBasePen;
-> import net.sf.jasperreports.engine.JRPen;
-55a57
+55a55
 > import xdev.tableexport.export.ExportException;
-59d60
+59d58
 < 
-156,213d156
+156,255d154
 <         /**
 <          * 
 <          * @return
@@ -66,23 +63,66 @@
 <         }
 <         
 <         
-330,333d272
+<         private void createTemplateFields(final JasperDesign jasperDesign) throws ExportException
+<         {
+<                 JRDesignField field;
+<                 
+<                 for(final TemplateColumn col : this.config.getColumns())
+<                 {
+<                         field = new JRDesignField();
+<                         field.setName(col.getContentColumn().getFieldName());
+<                         this.chooseValueClass(col,field);
+<                         
+<                         try
+<                         {
+<                                 jasperDesign.addField(field);
+<                                 this.fieldSet.add(field);
+<                         }
+<                         catch(final JRException e)
+<                         {
+<                                 throw new ExportException("error during add the field "
+<                                                 + col.getContentColumn().getFieldName(),e);
+<                         }
+<                 }
+<                 
+<         }
+< 
+<         
+<         private JRDesignField chooseValueClass(final TemplateColumn col, final JRDesignField field)
+<         {
+<                 final Class<?> valueClass = col.getContentColumn().getColumnValueClass();
+<                 
+<                 if(valueClass.isAssignableFrom(byte[].class) || valueClass.isAssignableFrom(XdevBlob.class) || valueClass.isAssignableFrom(XdevClob.class))
+<                 {
+<                         field.setValueClass(String.class);
+<                 }
+<                 else
+<                 {
+<                         field.setValueClass(valueClass);
+<                 }
+<                 
+<                 return field;
+<         }
+<         
+<         
+330,333d228
 <                         if(this.config.isBlankWhenNullValue())
 <                         {
 <                                 textField.setBlankWhenNull(true);
 <                         }
-369,371c308,311
-<                 textField.getLineBox().getPen().setLineWidth(border.getLineWidth());
-<                 textField.getLineBox().getPen().setLineColor(border.getLineColor());
-<                 textField.getLineBox().getPen().setLineStyle(border.getLineStyle().getLineStyleEnum());
+348,350c243,245
+<                 txtField.setFontSize(Float.valueOf(f.getSize()));
+<                 txtField.setBold(Boolean.valueOf(f.isBold()));
+<                 txtField.setItalic(Boolean.valueOf(f.isItalic()));
 ---
->                 JRPen pen = textField.getLineBox().getPen();
->                 pen.setLineWidth((float) border.getLineWidth());
->                 pen.setLineColor(border.getLineColor());
->                 pen.setLineStyle(border.getLineStyle().getLineStyleEnum());
-397,398c337,338
-<          * Assemble and compile a {@link JasperReport} based on the information of
+>                 txtField.setFontSize(f.getSize());
+>                 txtField.setBold(f.isBold());
+>                 txtField.setItalic(f.isItalic());
+369c264
+<                 textField.getLineBox().getPen().setLineWidth(border.getLineWidth());
+---
+>                 textField.getLineBox().getPen().setLineWidth((float)border.getLineWidth());
+398c293
 <          * the {@link TemplateConfig} object.
 ---
->          * Assemble and compile a {@link JasperReport} based on the information of the
->          * {@link TemplateConfig}.
+>          * the {@link TemplateConfig}.

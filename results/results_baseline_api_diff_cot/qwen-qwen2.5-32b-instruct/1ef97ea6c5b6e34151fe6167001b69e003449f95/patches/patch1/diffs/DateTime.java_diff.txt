@@ -1,8 +1,0 @@
-43d42
-<   @Override
-45c44,46
-<     return new Timestamp(super.between(from, to).getTime());
----
->     // The method between(Date, Date) has been removed in the new version of the dependency.
->     // We need to convert the Date parameters to Timestamp and use the new method signature.
->     return new Timestamp(super.between(new Timestamp(from.getTime()), new Timestamp(to.getTime())).getTime());

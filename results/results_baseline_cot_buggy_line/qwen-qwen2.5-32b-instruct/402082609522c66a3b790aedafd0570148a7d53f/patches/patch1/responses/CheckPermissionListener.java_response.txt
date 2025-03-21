@@ -3,7 +3,6 @@ package com.github.games647.changeskin.sponge.bungee;
 import com.github.games647.changeskin.core.message.NamespaceKey;
 import com.github.games647.changeskin.core.message.CheckPermMessage;
 import com.github.games647.changeskin.core.message.PermResultMessage;
-import com.github.games647.changeskin.core.model.skin.SkinModel;
 import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
@@ -14,30 +13,33 @@ import java.util.UUID;
 
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.network.ChannelManager;
-import org.spongepowered.api.network.Channel;
-import org.spongepowered.api.network.packet.PacketListener;
-import org.spongepowered.api.network.RemoteConnection;
+import org.spongepowered.api.network.ChannelBinding;
+import org.spongepowered.api.network.ChannelBinding.ChannelReader;
+import org.spongepowered.api.network.ChannelBinding.ChannelWriter;
+import org.spongepowered.api.network.ChannelId;
+import org.spongepowered.api.network.ChannelRegistrar;
 
 import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
 import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 
-public class CheckPermissionListener implements PacketListener {
+public class CheckPermissionListener implements ChannelReader<ChannelBuf> {
 
     private final ChangeSkinSponge plugin;
-    private final Channel permissionsResultChannel;
+    private final ChannelWriter<ChannelBuf> permissionsResultChannel;
 
     @Inject
-    CheckPermissionListener(ChangeSkinSponge plugin, ChannelManager channelManager) {
+    CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
         this.plugin = plugin;
 
         String combinedName = new NamespaceKey(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL).getCombinedName();
-        permissionsResultChannel = channelManager.getOrCreateChannel(combinedName);
+        ChannelId channelId = ChannelId.of(combinedName);
+        permissionsResultChannel = channelRegistrar.registerOutgoing(channelId, ChannelBuf.class);
     }
 
     @Override
-    public void handlePayload(byte[] data, RemoteConnection connection, Type side) {
-        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data);
+    public void handle(ChannelBuf data, RemoteConnection connection) {
+
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
         CheckPermMessage checkMessage = new CheckPermMessage();
         checkMessage.readFrom(dataInput);
 
@@ -78,6 +80,6 @@ public class CheckPermissionListener implements PacketListener {
     private void sendResultMessage(Player receiver, PermResultMessage resultMessage) {
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
         resultMessage.writeTo(dataOutput);
-        permissionsResultChannel.sendTo(receiver, dataOutput.toByteArray());
+        permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
     }
 }

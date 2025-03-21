@@ -1,56 +1,38 @@
-58c58,59
+1,18d0
+< /*
+<  * Copyright (C) 2017 Premium Minds.
+<  *
+<  * This file is part of billy GIN.
+<  *
+<  * billy GIN is free software: you can redistribute it and/or modify it under
+<  * the terms of the GNU Lesser General Public License as published by the Free
+<  * Software Foundation, either version 3 of the License, or (at your option) any
+<  * later version.
+<  *
+<  * billy GIN is distributed in the hope that it will be useful, but WITHOUT ANY
+<  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+<  * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+<  * details.
+<  *
+<  * You should have received a copy of the GNU Lesser General Public License
+<  * along with billy GIN. If not, see <http://www.gnu.org/licenses/>.
+<  */
+54,58d35
+< import org.apache.fop.apps.FOPException;
+< import org.apache.fop.apps.FOUserAgent;
+< import org.apache.fop.apps.Fop;
+< import org.apache.fop.apps.FopFactory;
 < import org.apache.xmlgraphics.util.MimeConstants;
----
-> import org.apache.fop.apps.FopFactoryBuilder;
-> import org.apache.fop.render.pdf.PDFRendererConfig;
-112c113,116
-<         StreamSource transformSource = new StreamSource(templateStream);
----
->         Source source = this.mapParamsToSource(documentParams);
-> 
->         // Create FopFactory instance with a builder
->         FopFactory fopFactory = FopFactoryBuilder.buildFopFactory();
-114,115d117
+114,115d90
 <         // create an instance of fop factory
 <         FopFactory fopFactory = FopFactory.newInstance();
-118c120,132
-<         // to store output
+117c92
+<         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
 ---
->         // the XML file from which we take the name
->         Transformer xslfoTransformer = this.getTransformer(new StreamSource(templateStream));
-> 
->         // Construct fop with desired output format
->         Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, outStream);
-> 
->         // Resulting SAX events (the generated FO)
->         // must be piped through to FOP
->         Result res = new SAXResult(fop.getDefaultHandler());
-> 
->         // Start XSLT transformation and FOP processing
->         // everything will happen here..
->         xslfoTransformer.transform(source, res);
-133,152c147
-<             // the XML file from which we take the name
-<             Source source = this.mapParamsToSource(documentParams);
-< 
-<             Transformer xslfoTransformer = this.getTransformer(transformSource);
-< 
-<             // Construct fop with desired output format
+>         FOUserAgent foUserAgent = FopFactory.newInstance(new File("fop.xconf")).newFOUserAgent();
+139c114
 <             Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, outStream);
-< 
-<             // Resulting SAX events (the generated FO)
-<             // must be piped through to FOP
-<             Result res = new SAXResult(fop.getDefaultHandler());
-< 
-<             // Start XSLT transformation and FOP processing
-<             // everything will happen here..
-<             xslfoTransformer.transform(source, res);
-<         } catch (FOPException e) {
-<             throw new ExportServiceException("Error using FOP to open the template", e);
-<         } catch (TransformerException e) {
-<             throw new ExportServiceException("Error generating pdf from template and data source", e);
-<         } catch (IOException | WriterException e) {
 ---
->         } catch (WriterException | IOException e) {
-208d202
+>             Fop fop = FopFactory.newInstance(new File("fop.xconf")).newFop(MimeConstants.MIME_PDF, foUserAgent, outStream);
+208d182
 < 

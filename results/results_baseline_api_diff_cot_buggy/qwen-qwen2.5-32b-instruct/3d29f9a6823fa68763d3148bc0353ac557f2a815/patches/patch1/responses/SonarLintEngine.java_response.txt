@@ -40,7 +40,6 @@ import org.sonarsource.sonarlint.core.commons.progress.ClientProgressMonitor;
 import org.sonarsource.sonarlint.core.commons.progress.ProgressMonitor;
 import org.sonarsource.sonarlint.core.plugin.commons.LoadedPlugins;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoadResult;
-import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInfo;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInstancesLoader;
 import org.sonarsource.sonarlint.core.rule.extractor.SonarLintRuleDefinition;
@@ -140,7 +139,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                 instancesLoader.instantiatePluginClasses(allPlugins);
 
         return new LoadedPluginsThatDoesNotCloseLoader(
-                pluginInstancesByKeys, pluginInstancesLoader);
+                pluginInstancesByKeys, new PluginInstancesLoader());
     }
 
     private static Collection<PluginInfo> getAllPlugins(
@@ -156,9 +155,9 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
         return AnalysisEngineConfiguration.builder()
-                .setLanguages(globalConfig.getEnabledLanguages())
+                .addEnabledLanguages(globalConfig.getEnabledLanguages().toArray(new Language[0]))
                 .setClientPid(globalConfig.getClientPid())
-                .setExtraProperties(globalConfig.extraProperties())
+                .putAllExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())
                 .setModulesProvider(globalConfig.getModulesProvider())
                 .build();
@@ -180,6 +179,11 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
      */
     public void recreateAnalysisEngine() {
         this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, logOutput);
+    }
+
+    @Override
+    public AnalysisEngine getAnalysisEngine() {
+        return analysisEngine;
     }
 
     public AnalysisResults analyze(

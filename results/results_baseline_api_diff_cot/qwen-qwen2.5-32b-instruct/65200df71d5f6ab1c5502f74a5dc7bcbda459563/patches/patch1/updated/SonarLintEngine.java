@@ -37,10 +37,14 @@ import org.sonarsource.sonarlint.core.commons.Language;
 import org.sonarsource.sonarlint.core.commons.RuleKey;
 import org.sonarsource.sonarlint.core.commons.log.ClientLogOutput;
 import org.sonarsource.sonarlint.core.commons.progress.ClientProgressMonitor;
+import org.sonarsource.sonarlint.core.commons.progress.ProgressMonitor;
 import org.sonarsource.sonarlint.core.plugin.commons.LoadedPlugins;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoadResult;
+import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader;
+import org.sonarsource.sonarlint.core.plugin.commons.Configuration;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInfo;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInstancesLoader;
+import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginRequirementsCheckResult;
 import org.sonarsource.sonarlint.core.rule.extractor.SonarLintRuleDefinition;
 import sorald.FileUtils;
 import sorald.util.ConfigLoader;
@@ -61,8 +65,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     // The only instance of this class
     private static SonarLintEngine theOnlyInstance;
 
-    // We need to reinitialise the analysis engine as it is stopped after each analysis executed by {@link
-    // SonarStaticAnalyzer}.
+    // We need to reinitialise it before starting analysis of any source files on any rules.
     private AnalysisEngine analysisEngine;
 
     private SonarLintEngine() {
@@ -146,7 +149,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
             Map<String, PluginRequirementsCheckResult> pluginCheckResultByKeys) {
         return pluginCheckResultByKeys.values().stream()
                 .map(PluginRequirementsCheckResult::getPlugin)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     private static Map<String, SonarLintRuleDefinition> computeAllRulesDefinitionsByKey() {
@@ -215,7 +218,6 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                                                                     i,
                                                                     allRulesDefinitionsByKey.get(
                                                                             i.getRuleKey()))),
-                                            logOutput),
                                     new ProgressMonitor(monitor))
                             .get();
             return analysisResults == null ? new AnalysisResults() : analysisResults;

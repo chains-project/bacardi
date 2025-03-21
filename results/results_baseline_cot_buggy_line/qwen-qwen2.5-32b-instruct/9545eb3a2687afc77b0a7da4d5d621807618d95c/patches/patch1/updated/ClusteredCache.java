@@ -3,9 +3,9 @@ package org.jivesoftware.openfire.plugin.util.cache;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.IMap;
-import com.hazelcast.map.LocalMapStats;
-import com.hazelcast.map.impl.MapEvent;
-import com.hazelcast.map.impl.MapListener;
+import com.hazelcast.core.MapEvent;
+import com.hazelcast.map.impl.MapEventImpl;
+import com.hazelcast.monitor.LocalMapStats;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusteredCacheEntryListener;
 import org.jivesoftware.openfire.cluster.NodeID;
@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class ClusteredCache<K extends Serializable, V extends Serializable> implements Cache<K, V> {
 
@@ -42,11 +43,10 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
         logger = LoggerFactory.getLogger(ClusteredCache.class.getName() + "[cache: "+name+"]");
     }
 
-    void addEntryListener(final MapListener listener) {
+    void addEntryListener(final EntryListener<K, V> listener) {
         listeners.add(map.addEntryListener(listener, false));
     }
 
-    @Override
     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode) {
         final EntryListener<K, V> listener = new EntryListener<K, V>() {
             @Override
@@ -110,24 +110,20 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
         return listenerId;
     }
 
-    @Override
     public void removeClusteredCacheEntryListener(@Nonnull final String listenerId) {
         logger.debug("Removing clustered cache entry listener: '{}'", listenerId);
         map.removeEntryListener(listenerId);
         listeners.remove(listenerId);
     }
 
-    @Override
     public String getName() {
         return name;
     }
 
-    @Override
     public void setName(final String name) {
         this.name = name;
     }
 
-    @Override
     public V put(final K key, final V object) {
         if (object == null) { return null; }
         checkForPluginClassLoader(key);
@@ -135,58 +131,47 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
         return map.put(key, object);
     }
 
-    @Override
     public V get(final Object key) {
         numberOfGets++;
         return map.get(key);
     }
 
-    @Override
     public V remove(final Object key) {
         return map.remove(key);
     }
 
-    @Override
     public void clear() {
         map.clear();
     }
 
-    @Override
     public int size() {
         final LocalMapStats stats = map.getLocalMapStats();
         return (int) (stats.getOwnedEntryCount() + stats.getBackupEntryCount());
     }
 
-    @Override
     public boolean containsKey(final Object key) {
         return map.containsKey(key);
     }
 
-    @Override
     public boolean containsValue(final Object value) {
         return map.containsValue(value);
     }
 
-    @Override
     public Set<Map.Entry<K, V>> entrySet() {
         return map.entrySet();
     }
 
-    @Override
     public boolean isEmpty() {
         return map.isEmpty();
     }
 
-    @Override
     public Set<K> keySet() {
         return map.keySet();
     }
 
-    @Override
     public void putAll(final Map<? extends K, ? extends V> entries) {
         map.putAll(entries);
 
-        // Instances are likely all loaded by the same class loader. For resource usage optimization, let's test just one, not all.
         entries.entrySet().stream().findAny().ifPresent(
             e -> {
                 checkForPluginClassLoader(e.getKey());
@@ -195,41 +180,46 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
         );
     }
 
-    @Override
     public Collection<V> values() {
         return map.values();
     }
 
-    @Override
     public long getCacheHits() {
         return map.getLocalMapStats().getHits();
     }
 
-    @Override
     public long getCacheMisses() {
         final long hits = map.getLocalMapStats().getHits();
         return numberOfGets > hits ? numberOfGets - hits : 0;
     }
 
-    @Override
     public int getCacheSize() {
         return (int) getLongCacheSize();
     }
 
-    @Override
     public long getLongCacheSize() {
         final LocalMapStats stats = map.getLocalMapStats();
-        return stats.getOwnedEntryCount() + stats.getBackupEntryCount();
+        return stats.getOwnedEntryMemoryCost() + stats.getBackupEntryMemoryCost();
     }
 
-    @Override
     public long getMaxCacheSize() {
         return CacheFactory.getMaxCacheSize(getName());
     }
 
-    @Override
+    public void setMaxCacheSize(int i) {
+        setMaxCacheSize((long) i);
+    }
+
     public void setMaxCacheSize(final long maxSize) {
         CacheFactory.setMaxSizeProperty(getName(), maxSize);
+    }
+
+    public long getMaxLifetime() {
+        return CacheFactory.getMaxCacheLifetime(getName());
+    }
+
+    public void setMaxLifetime(final long maxLifetime) {
+        CacheFactory.setMaxLifetimeProperty(getName(), maxLifetime);
     }
 
     void destroy() {
@@ -254,11 +244,18 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
         return result;
     }
 
+    void unlock(final K key) {
+        try {
+            map.unlock(key);
+        } catch (final IllegalMonitorStateException e) {
+            logger.error("Failed to release cluster lock", e);
+        }
+    }
+
     protected void checkForPluginClassLoader(final Object o) {
         if (o != null && o.getClass().getClassLoader() instanceof PluginClassLoader
             && lastPluginClassLoaderWarning.isBefore(Instant.now().minus(pluginClassLoaderWarningSupression)) )
         {
-            // Try to determine what plugin class loader loaded the instance.
             String pluginName = null;
             try {
                 final Collection<Plugin> plugins = XMPPServer.getInstance().getPluginManager().getPlugins();

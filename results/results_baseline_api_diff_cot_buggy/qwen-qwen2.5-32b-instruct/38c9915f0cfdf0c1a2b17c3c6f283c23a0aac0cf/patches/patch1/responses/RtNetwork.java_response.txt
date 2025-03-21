@@ -1,81 +1,11 @@
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2018-2023 Yegor Bugayenko
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-package io.zold.api;
+<repair_strategy>
+1. The error is caused by the removal of the `IoCheckedScalar` class in the new version of the `org.cactoos.scalar` package.
+2. The old API used `IoCheckedScalar` to handle exceptions in a functional way, but this class is no longer available.
+3. The client code needs to be updated to handle exceptions in a different way, possibly by using a try-catch block or another utility class from the updated dependency.
+4. The fix should not change the function signatures of the methods in the `RtNetwork` class.
+5. The minimal set of changes needed is to replace the usage of `IoCheckedScalar` with a try-catch block or another utility class that can handle exceptions.
+6. The proposed changes should not affect other parts of the code, as the exception handling is localized to the `pull` method.
+7. The changes will result in a complete and compilable class.
+8. Additional imports may be needed if a new utility class is used.
+</repair_strategy>
 
-import java.io.IOException;
-import java.util.Iterator;
-import org.cactoos.iterable.Mapped;
-import org.cactoos.iterable.Sorted;
-import org.cactoos.scalar.Reduced;
-import org.cactoos.scalar.Tryed;
-
-/**
- * Network implementation.
- *
- * @since 0.1
- * @todo #5:30min We must figure out how to 'load' some network. Loading the
- *  network will be loading a local JSON file that contains data on all
- *  remote nodes that we know about; we must have a pre configured set of
- *  remote nodes built in too. See whitepaper for details.
- */
-public final class RtNetwork implements Network {
-
-    /**
-     * {@link Remote} nodes.
-     */
-    private final Iterable<Remote> nodes;
-
-    /**
-     * Constructor.
-     * @param remotes Remotes of the network
-     */
-    RtNetwork(final Iterable<Remote> remotes) {
-        this.nodes =  remotes;
-    }
-
-    @Override
-    public void push(final Wallet wallet) {
-        this.nodes.forEach(
-            remote -> remote.push(wallet)
-        );
-    }
-
-    @Override
-    public Wallet pull(final long id) throws IOException {
-        return new Tryed<>(
-            () -> new Reduced<>(
-                Wallet::merge,
-                new Mapped<>(
-                    c -> c::wallet,
-                    new Sorted<>(new Copies(id, this))
-                )
-            )
-        ).value();
-    }
-
-    @Override
-    public Iterator<Remote> iterator() {
-        return this.nodes.iterator();
-    }
-}

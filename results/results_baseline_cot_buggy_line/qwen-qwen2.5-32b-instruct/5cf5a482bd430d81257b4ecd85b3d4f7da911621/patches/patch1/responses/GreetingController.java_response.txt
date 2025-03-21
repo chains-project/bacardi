@@ -1,68 +1,8 @@
-package com.example.web;
-
-import java.util.logging.Logger;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import jakarta.mvc.Controller;
-import jakarta.mvc.Models;
-import jakarta.mvc.UriRef;
-import jakarta.mvc.binding.BindingResult;
-import jakarta.mvc.binding.MvcBinding;
-import jakarta.mvc.binding.ParamError;
-import jakarta.mvc.security.CsrfProtected;
-import javax.validation.constraints.NotBlank;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-
-/**
- *
- * @author hantsy
- */
-@Path("greeting")
-@Controller
-@RequestScoped
-public class GreetingController {
-
-    @Inject
-    BindingResult bindingResult;
-
-    @Inject
-    Models models;
-
-    @Inject
-    AlertMessage flashMessage;
-
-    @Inject
-    Logger log;
-
-    @GET
-    public String get() {
-        return "greeting.xhtml";
-    }
-
-    @POST
-    @UriRef("greeting-post")
-    public String post(
-            @FormParam("greeting")
-            @MvcBinding
-            @NotBlank String greeting) {
-        if (bindingResult.isFailed()) {
-            AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            bindingResult.getAllErrors()
-                    .stream()
-                    .forEach((ParamError t) -> {
-                        alert.addError(t.getParamName(), "", t.getMessage());
-                    });
-            models.put("errors", alert);
-            log.info("mvc binding failed.");
-            return "greeting.xhtml";
-        }
-
-        log.info("redirect to greeting page.");
-        flashMessage.notify(AlertMessage.Type.success, "Message:" + greeting);
-        return "redirect:greeting";
-    }
-
-}
+<repair_strategy>
+1. The javax.mvc.* package has been deprecated and removed in the newer version of the dependency.
+2. The new API uses jakarta.mvc.* package instead.
+3. Update all javax.mvc.* imports to jakarta.mvc.*.
+4. Ensure that the class and methods are compatible with the new API.
+5. No function signatures are changed.
+6. Ensure the class compiles with the new imports.
+</repair_strategy>

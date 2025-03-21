@@ -1,17 +1,19 @@
 package org.jivesoftware.openfire.plugin.util.cache;
 
-import com.hazelcast.core.api.Cluster;
-import com.hazelcast.core.api.Member;
-import com.hazelcast.core.api.MemberAttributeEvent;
-import com.hazelcast.core.api.MembershipEvent;
-import com.hazelcast.core.api.MembershipListener;
-import com.hazelcast.core.api.LifecycleEvent;
-import com.hazelcast.core.api.LifecycleEvent.LifecycleState;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.MembershipEvent;
+import com.hazelcast.core.MembershipListener;
+import com.hazelcast.core.Member;
+import com.hazelcast.core.MemberAttributeEvent;
+import com.hazelcast.core.LifecycleEvent;
+import com.hazelcast.core.LifecycleListener;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterManager;
 import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
 import org.jivesoftware.openfire.cluster.NodeID;
 import org.jivesoftware.openfire.muc.cluster.NewClusterMemberJoinedTask;
+import org.jivesoftware.openfire.plugin.util.cluster.HazelcastClusterNodeInfo;
 import org.jivesoftware.util.cache.Cache;
 import org.jivesoftware.util.cache.CacheFactory;
 import org.jivesoftware.util.cache.CacheWrapper;
@@ -38,15 +40,23 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
 
     private boolean seniorClusterMember = false;
 
-    private final Map<Cache<?,?>, EntryListener> entryListeners = new HashMap<>();
-
-    private final Cluster cluster;
+    private final Map<Cache<?, ?>, EntryListener> entryListeners = new HashMap<>();
+    
+    private final HazelcastInstance cluster;
     private final Map<NodeID, ClusterNodeInfo> clusterNodesInfo = new ConcurrentHashMap<>();
-
+    
     /**
-     * Constructor for ClusterListener.
+     * Flag that indicates if the listener has done all clean up work when noticed that the
+     * cluster has been stopped.
      */
-    public ClusterListener(final Cluster cluster) {
+    private boolean done = true;
+    /**
+     * Flag that indicates if we've joined a cluster or not
+     */
+    private boolean clusterMember = false;
+    private boolean isSenior;
+
+    ClusterListener(final HazelcastInstance cluster) {
 
     {
         this.cluster = cluster;
@@ -56,38 +66,63 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         }
     }
 
-    private void addEntryListener(final Cache<?, ?> cache, final EntryListener listener) {
-        if (cache instanceof CacheWrapper) {
-            final Cache wrapped = ((CacheWrapper)cache).getWrappedCache();
-            if (wrapped instanceof ClusteredCache) {
-                ((ClusteredCache)wrapped).addEntryListener(listener);
-                // Keep track of the listener that we added to the cache
-                entryListeners.put(cache, listener);
+    @Override
+    public void memberAdded(final MembershipEvent event) {
+        logger.info("Received a Hazelcast memberAdded event {}", event);
+
+        final boolean wasSenior = isSenior;
+        isSenior = isSeniorClusterMember();
+        // local member only
+        final NodeID nodeID = ClusteredCacheFactory.getNodeID(event.getMember());
+
+        if (event.getMember().localMember()) {
+            joinCluster();
+
+        } else {
+            if (wasSenior && !isSeniorClusterMember()) {
+                seniorClusterMember = true;
+                ClusterManager.fireMarkedAsSeniorClusterMember();
             }
         }
+        clusterNodesInfo.put(nodeID,
+                new HazelcastClusterNodeInfo(event.getMember(), cluster.getClusterTime()));
     }
 
-    @SuppressWarnings("WeakerAccess")
-    public List<ClusterNodeInfo> getClusterNodesInfo() {
-        return new ArrayList<>(clusterNodesInfo.values());
-    }
-
-    public void stateChanged(final LifecycleEvent event) {
-        if (event.getState().equals(LifecycleState.SHUTDOWN)) {
-            leaveCluster();
-        } else if (event.getState().equals(LifecycleState.STARTED)) {
-            joinCluster();
+    /**
+     * Blocks the current thread until the cluster cache is guaranteed to support clustering. This is especially useful
+     * for executing cluster tasks immediately after joining. If this wait is not performed, the cache factory may still
+     * be using the 'default' strategy instead of the 'hazelcast' strategy, which leads to cluster tasks being silently
+     * discarded.
+     *
+     * The method will keep trying this for 10 minutes. After that, the thread is released regardless of the result.
+     *
+     * @return Boolean indicating whether the clustered cache was actually observed to be installed.
+     */
+    private boolean waitForClusterCacheToBeInstalled() {
+        boolean failed = false;
+        if (!ClusteredCacheFactory.PLUGIN_NAME.equals(CacheFactory.getPluginName())) {
+            logger.debug("This node now joined a cluster, but the cache factory has not been swapped to '{}' yet. Waiting for that to happen.", ClusteredCacheFactory.PLUGIN_NAME);
+            LocalTime deadLine = LocalTime.now().plusMinutes(10L);
+            while (!ClusteredCacheFactory.PLUGIN_NAME.equals(CacheFactory.getPluginName()) && deadLine.isAfter(LocalTime.now())) {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    logger.trace("Thread was interrupted while waiting for cache strategy to change.");
+                    failed = true;
+                    break;
+                }
+            }
+            if (!deadLine.isAfter(LocalTime.now())) {
+                failed = true;
+                logger.warn("Cache factory was not swapped to '{}', but still remains '{}' after a 10 minute wait. Cluster join is not guaranteed to have completed.", ClusteredCacheFactory.PLUGIN_NAME, CacheFactory.getPluginName());
+            }
+            logger.debug("Cache factory has been swapped to '{}'. Cluster join is considered complete.", ClusteredCacheFactory.PLUGIN_NAME);
         }
+
+        return !failed;
     }
 
-    public void memberAttributeChanged(final MemberAttributeEvent event) {
-        logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
-        isSenior = isSeniorClusterMember();
-        final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
-        clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(event.getMember()),
-                new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
-    }
-
+    @Override
     public void memberRemoved(final MembershipEvent event) {
         logger.info("Received a Hazelcast memberRemoved event {}", event);
 
@@ -116,106 +151,16 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         clusterNodesInfo.remove(nodeID);
     }
 
-    private void joinCluster() {
-        if (!isDone()) { // already joined
-            return;
-        }
-
-        // Trigger events
-        clusterMember = true;
-        seniorClusterMember = isSeniorClusterMember();
-
-        ClusterManager.fireJoinedCluster(false);
-
-        if (seniorClusterMember) {
-            ClusterManager.fireMarkedAsSeniorClusterMember();
-        }
-
-        // Let the other nodes know that we joined the cluster
-        logger.debug("Done joining the cluster. Now proceed informing other nodes that we joined the cluster.");
-        CacheFactory.doClusterTask(new NewClusterMemberJoinedTask());
-
-        logger.info("Joined cluster. XMPPServer node={}, Hazelcast UUID={}, seniorClusterMember={}",
-                new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), seniorClusterMember});
-        done = false;
-    }
-
-    private boolean isSeniorClusterMember() {
-        // first cluster member is the oldest
-        final Iterator<Member> members = cluster.getMembers().iterator();
-        return members.next().getUuid().equals(cluster.getLocalMember().getUuid());
-    }
-
-    private synchronized void leaveCluster() {
-        if (isDone()) { // not a cluster member
-            return;
-        }
-        clusterMember = false;
-        final boolean wasSeniorClusterMember = seniorClusterMember;
-        seniorClusterMember = false;
-
-        // Trigger event. Wait until the listeners have processed the event. Caches will be populated
-        // again with local content.
-        ClusterManager.fireLeftCluster();
-
-        if (!XMPPServer.getInstance().isShuttingDown()) {
-            // Remove traces of directed presences sent from local entities to handlers that no longer exist.
-            // At this point c2s sessions are gone from the routing table so we can identify expired sessions
-            XMPPServer.getInstance().getPresenceUpdateHandler().removedExpiredPresences();
-        }
-        logger.info("Left cluster. XMPPServer node={}, Hazelcast UUID={}, wasSeniorClusterMember={}",
-                new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), wasSeniorClusterMember});
-        done = true;
-    }
-
-    public void memberAdded(final MembershipEvent event) {
-        logger.info("Received a Hazelcast memberAdded event {}", event);
-
-        final boolean wasSenior = isSeniorClusterMember();
+    @Override
+    public void memberAttributeChanged(final MemberAttributeEvent event) {
+        logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
         isSenior = isSeniorClusterMember();
-        // Local member only
-        final NodeID nodeID = ClusteredCacheFactory.getNodeID(event.getMember());
-        if (event.getMember().localMember()) { // We left and re-joined the cluster
-            joinCluster();
-        } else {
-            if (!wasSenior && isSenior) {
-                seniorClusterMember = true;
-                ClusterManager.fireMarkedAsSeniorClusterMember();
-            }
-        }
-        clusterNodesInfo.put(nodeID,
-                new HazelcastClusterNodeInfo(event.getMember(), cluster.getClusterTime()));
+        final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
+        clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(event.getMember()),
+                new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
     }
 
-    private boolean isDone() {
-        return done;
-    }
-
-    private boolean waitForClusterCacheToBeInstalled() {
-        boolean failed = false;
-        if (!ClusteredCacheFactory.PLUGIN_NAME.equals(CacheFactory.getPluginName())) {
-            logger.debug("This node now joined a cluster, but the cache factory has not been swapped to '{}' yet.", ClusteredCacheFactory.PLUGIN_NAME);
-            LocalTime deadLine = LocalTime.now().plusMinutes(10L);
-            while (!ClusteredCacheFactory.PLUGIN_NAME.equals(CacheFactory.getPluginName()) && deadLine.isAfter(LocalTime.now())) {
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {
-                    logger.trace("Thread was interrupted while waiting for cache strategy to change.");
-                    failed = true;
-                    break;
-                }
-            }
-            if (!deadLine.isAfter(LocalTime.now())) {
-                failed = true;
-                logger.warn("Cache factory was not swapped to '{}', but still remains '{}' after a 10 minute wait.", ClusteredCacheFactory.PLUGIN_NAME, CacheFactory.getPluginName());
-            }
-            logger.debug("Cache factory has been swapped to '{}'. Cluster join is considered complete.", ClusteredCacheFactory.PLUGIN_NAME);
-        }
-
-        return !failed;
-    }
-
-    public boolean isClusterMember() {
+    boolean isClusterMember() {
         return clusterMember;
     }
 }

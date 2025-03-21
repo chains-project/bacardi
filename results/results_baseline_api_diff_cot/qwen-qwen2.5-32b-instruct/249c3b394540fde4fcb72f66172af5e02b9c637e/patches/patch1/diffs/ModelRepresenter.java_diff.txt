@@ -1,48 +1,52 @@
-16a17
+1,7d0
+< /**
+<  * Copyright (c) 2012 to original author or authors
+<  * All rights reserved. This program and the accompanying materials
+<  * are made available under the terms of the Eclipse Public License v1.0
+<  * which accompanies this distribution, and is available at
+<  * http://www.eclipse.org/legal/epl-v10.html
+<  */
+16a10
 > import org.yaml.snakeyaml.introspector.BeanAccess;
-17a19
+17a12
 > import org.yaml.snakeyaml.introspector.PropertyUtils;
-94d95
+29,35d23
+< /**
+<  * YAML model representer.
+<  *
+<  * @author jvanzyl
+<  * @author bentmann
+<  * @since 0.7
+<  */
+94d81
 < 
-107a109
+107a95
 > 
-122,131d123
-<           boolean isList = singularName != null;
-<           if (isList) { // check for eventual list construction
-<             for (int j = 0, grandChildCount = child.getChildCount(); j < grandChildCount; j++) {
-<               String grandChildName = child.getChild(j).getName();
-<               isList &= grandChildName.equals(singularName);
-<             }
-<           }
-<           if (isList) {
-<             childValue = toList(child, singularName);
-<           } else {
-134d125
-<         }
-144,165d134
-< 
-<     private List<Object> toList(Xpp3Dom node, String childName) {
-<       List<Object> list = new ArrayList<>();
-< 
-<       int n = node.getChildCount();
-<       for (int i = 0; i < n; i++) {
-<         Xpp3Dom child = node.getChild(i);
-< 
-<         if (!childName.equals(child.getName())) {
-<           throw new YAMLException(format("child name: '%s' does not match expected name: '%s' at node %s",
-<               child.getName(), childName, node));
-<         }
-< 
-<         Object childValue = child.getValue();
-<         if (childValue == null) {
-<           childValue = toMap(child);
-<         }
-<         list.add(childValue);
-<       }
-< 
-<       return list;
-<     }
-214,219c183
+168,170c156
+<   // Model elements order {
+<   //TODO move to polyglot-common, or to org.apache.maven:maven-model
+<   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
+---
+>   private static List<String> ORDER_MODEL = new ArrayList<>(Arrays.asList(
+204c190
+<   private static List<String> ORDER_DEVELOPER = new ArrayList<String>(Arrays.asList(
+---
+>   private static List<String> ORDER_DEVELOPER = new ArrayList<>(Arrays.asList(
+206c192
+<   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<String>(Arrays.asList(
+---
+>   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<>(Arrays.asList(
+208c194
+<   private static List<String> ORDER_DEPENDENCY = new ArrayList<String>(Arrays.asList(
+---
+>   private static List<String> ORDER_DEPENDENCY = new ArrayList<>(Arrays.asList(
+210c196
+<   private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
+---
+>   private static List<String> ORDER_PLUGIN = new ArrayList<>(Arrays.asList(
+212d197
+<   //}
+214,219c199,200
 <   /*
 <    * Change the default order. Important data goes first.
 <    */
@@ -51,16 +55,17 @@
 <           throws IntrospectionException {
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) {
-231c195
+>     try {
+231c212,215
 <       return super.getProperties(type);
 ---
->       return PropertyUtils.getProperties(type, BeanAccess.FIELD);
-235,238c199,201
-<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
-<           throws IntrospectionException {
+>         return PropertyUtils.getProperties(type, BeanAccess.FIELD);
+>       }
+>     } catch (IntrospectionException e) {
+>       throw new RuntimeException(e);
+237,238c221,222
 <       Set<Property> standard = super.getProperties(type);
 <       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
 ---
->   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
 >     Set<Property> standard = PropertyUtils.getProperties(type, BeanAccess.FIELD);
 >     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));

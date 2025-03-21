@@ -2,6 +2,7 @@ package com.wire.lithium;
 
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.health.HealthCheck;
+import com.codahale.metrics.jmx.JmxReporter;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.wire.lithium.healthchecks.Alice2Bob;
 import com.wire.lithium.healthchecks.CryptoHealthCheck;
@@ -31,6 +32,7 @@ import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.dropwizard.setup.AdminEnvironment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.flywaydb.core.Flyway;
@@ -130,7 +132,15 @@ public abstract class Server<Config extends Configuration> extends Application<C
         initTelemetry();
 
         if (config.healthchecks) {
-            runHealthChecks();
+            Logger.info("Running health checks...");
+            final SortedMap<String, HealthCheck.Result> results = env.healthChecks().runHealthChecks();
+            for (String name : results.keySet()) {
+                final HealthCheck.Result result = results.get(name);
+                if (!result.isHealthy()) {
+                    Logger.error("%s failed with: %s", name, result.getMessage());
+                    throw new RuntimeException(result.getError());
+                }
+            }
         }
 
         onRun(config, env);
@@ -147,6 +157,7 @@ public abstract class Server<Config extends Configuration> extends Application<C
     protected ClientRepo createClientRepo() {
         StorageFactory storageFactory = getStorageFactory();
         CryptoFactory cryptoFactory = getCryptoFactory();
+
         return new ClientRepo(getClient(), cryptoFactory, storageFactory);
     }
 
@@ -171,7 +182,23 @@ public abstract class Server<Config extends Configuration> extends Application<C
         }
     }
 
-    protected void addResources() {
+    public StorageFactory getStorageFactory() {
+        if (config.database.getDriverClass().equalsIgnoreCase("fs")) {
+            return botId -> new FileState(config.database.getUrl(), botId);
+        }
+
+        return botId -> new JdbiState(botId, new JdbiStorage(getJdbi()));
+    }
+
+    public CryptoFactory getCryptoFactory() {
+        if (config.database.getDriverClass().equalsIgnoreCase("fs")) {
+            return (botId) -> new CryptoFile(config.database.getUrl(), botId);
+        }
+
+        return (botId) -> new CryptoDatabase(botId, new JdbiStorage(getJdbi()));
+    }
+
+    private void addResources() {
         /* --- Wire Common --- */
         addResource(new VersionResource()); // add version endpoint
         addResource(new StatusResource()); // empty status for k8s
@@ -216,19 +243,17 @@ public abstract class Server<Config extends Configuration> extends Application<C
 
         environment.healthChecks().register("Storage", new StorageHealthCheck(storageFactory));
         environment.healthChecks().register("Crypto", new CryptoHealthCheck(cryptoFactory));
-        environment.healthChecks().register("Alice2Bob", new Alice2Bob(cryptoFactory);
-        environment.healthChecks().register("Outbound", new Outbound(getClient());
+        environment.healthChecks().register("Alice2Bob", new Alice2Bob(cryptoFactory));
+        environment.healthChecks().register("Outbound", new Outbound(getClient()));
 
         environment.metrics().register("logger.errors", (Gauge<Integer>) Logger::getErrorCount);
         environment.metrics().register("logger.warnings", (Gauge<Integer>) Logger::getWarningCount);
 
-        // JmxReporter is not part of the Dropwizard core and might need to be imported from a different package.
-        // Ensure the correct package is used based on the new dependency version.
-        // JmxReporter jmxReporter = JmxReporter.forRegistry(environment.metrics())
-        //        .convertRatesTo(TimeUnit.SECONDS)
-        //        .convertDurationsTo(TimeUnit.MILLISECONDS)
-        //        .build();
-        // jmxReporter.start();
+        JmxReporter jmxReporter = JmxReporter.forRegistry(environment.metrics())
+                .convertRatesTo(TimeUnit.SECONDS)
+                .convertDurationsTo(TimeUnit.MILLISECONDS)
+                .build();
+        jmxReporter.start();
     }
 
     private void runHealthChecks() {

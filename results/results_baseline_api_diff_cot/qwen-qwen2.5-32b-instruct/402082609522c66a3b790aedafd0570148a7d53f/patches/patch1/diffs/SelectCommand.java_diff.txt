@@ -1,0 +1,38 @@
+10,12c10,14
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.Command;
+> import org.spongepowered.api.command.CommandCompletion;
+> import org.spongepowered.api.command.CommandMapping;
+> import org.spongepowered.api.command.CommandParameter;
+> import org.spongepowered.api.command.CommandSpec;
+14a17,18
+> import org.spongepowered.api.text.Text;
+> import org.spongepowered.api.text.serializer.TextSerializers;
+16,17c20
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import java.util.Optional;
+19c22
+< public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> import static org.spongepowered.api.command.parameter.Parameter.string;
+20a24,26
+> public class SelectCommand implements Command {
+> 
+> {
+30c36
+<         if (!(src instanceof Player)) {
+---
+>         if (!(src instanceof Player)) || !args.getOne("skinName").isPresent()) {
+35c41
+<         String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
+---
+>         String skinName = args.getOne("skinName").get().toLowerCase().replace("skin-", "");
+52c58
+<                 .arguments(string(of("skinName")))
+---
+>                 .arguments(string(TextSerializers.FORMATTING_CODE.deserialize("<CommandParameter>("skinName")))

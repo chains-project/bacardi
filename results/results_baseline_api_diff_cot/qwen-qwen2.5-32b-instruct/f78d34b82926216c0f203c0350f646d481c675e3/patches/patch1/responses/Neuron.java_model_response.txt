@@ -3,7 +3,7 @@ package ml.peya.plugins.Learn;
 
 import java.util.ArrayList;
 
-import static tokyo.peya.lib.LearnMath.sigmoid;
+import tokyo.peya.lib.LearnMath;
 
 /**
  * 重みを突っ込む器。
@@ -48,7 +48,7 @@ public class Neuron
     public void input(ArrayList<Input> inputData)
     {
         inputData.parallelStream().forEachOrdered(input -> input(input.getWeightingValue()));
-        setValue(sigmoid(sum));
+        setValue(LearnMath.sigmoid(sum));
     }
 
     /**
@@ -62,5 +62,3 @@ public class Neuron
     }
 }
 ```
-
-The provided solution addresses the dependency update by changing the import statement for the `sigmoid` method from `develop.p2p.lib.LearnMath.sigmoid` to `tokyo.peya.lib.LearnMath.sigmoid`. This change is necessary because the old package `develop.p2p.lib.LearnMath` has been removed, and the new package `tokyo.peya.lib.LearnMath` has been introduced with the `sigmoid` method. The rest of the class remains unchanged to ensure that the functionality is preserved.

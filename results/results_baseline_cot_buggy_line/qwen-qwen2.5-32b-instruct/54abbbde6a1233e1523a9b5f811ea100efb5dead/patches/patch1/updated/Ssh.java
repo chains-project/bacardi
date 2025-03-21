@@ -1,6 +1,7 @@
 package com.jcabi.ssh;
 
 import com.jcabi.aspects.RetryOnFailure;
+import com.jcabi.aspects.Tv;
 import com.jcabi.log.Logger;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
@@ -14,9 +15,12 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.cactoos.io.TeeInput;
+import org.cactoos.scalar.LengthOf;
+import org.cactoos.TextOf;
+import org.cactoos.UncheckedText;
 
 /**
  * Single SSH Channel.
@@ -42,13 +46,11 @@ import lombok.ToString;
  *
  * @since 1.0
  * @see <a href="http://www.yegor256.com/2014/09/02/java-ssh-client.html">article by Yegor Bugayenko</a>
- * @todo #30:30min Refactor this class into smaller ones to avoid null
- *  checking of passphrase. There should probably be separate classes for
- *  encrypted/unencrypted private key.
+ * @checkstyle ParameterNumberCheck (6 lines)
  */
 @ToString
 @EqualsAndHashCode(of = "key", callSuper = true)
-@SuppressWarnings("PMD.TooManyMethods")
+@SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public final class Ssh extends AbstractSshShell {
 
     /**
@@ -157,7 +159,7 @@ public final class Ssh extends AbstractSshShell {
      * @param prt Port of server
      * @param user Login
      * @param priv Private SSH key
-     * @throws UnknownHostException when host is unknown.
+     * @throws UnknownHostException If fails
      * @checkstyle ParameterNumberCheck (6 lines)
      */
     public Ssh(final String adr, final int prt,
@@ -172,7 +174,7 @@ public final class Ssh extends AbstractSshShell {
      * @param user Login
      * @param priv Private SSH key
      * @param passphrs Pass phrase for encrypted priv. key
-     * @throws UnknownHostException If fails
+     * @throws UnknownHostException when host is unknown.
      */
     public Ssh(final String adr, final int prt,
         final String user, final String priv,
@@ -209,13 +211,12 @@ public final class Ssh extends AbstractSshShell {
             new Unchecked<>(
                 new LengthOf(
                     new TeeInput(
-                        this.key.replaceAll("\r", "")
+                        (this.key.replaceAll("\r", "")
                             .replaceAll("\n\\s+|\n{2,}", "\n")
-                            .trim(),
+                            .trim()),
                         file
                     )
-                )
-            ).value();
+                ).value();
             jsch.setHostKeyRepository(new EasyRepo());
             if (this.passphrase == null) {
                 jsch.addIdentity(file.getAbsolutePath());
@@ -229,9 +230,8 @@ public final class Ssh extends AbstractSshShell {
             }
             Logger.debug(
                 this,
-                "Opening SSH session to %s@%s:%s (%d bytes in RSA key)...",
-                this.getLogin(), this.getAddr(), this.getPort(),
-                file.length()
+                "Opening SSH session to %s@%s:%s",
+                this.getLogin(), this.getAddr(), this.getPort()
             );
             return this.session(jsch);
         } catch (final JSchException ex) {

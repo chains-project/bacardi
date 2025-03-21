@@ -9,8 +9,8 @@ import java.util.UUID;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.source.CommandSource;
-import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.tab.TabListEntry;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -79,8 +79,8 @@ public class SkinApplier extends SharedApplier {
         sendUpdateSelf();
 
         //triggers an update for others player to see the new skin
-        receiver.offer(Keys.VANISH, true);
-        receiver.offer(Keys.VANISH, false);
+        receiver.offer(Sponge.getDataManager().getRegistry().getValue(Keys.VANISH).get(), true);
+        receiver.offer(Sponge.getDataManager().getRegistry().getValue(Keys.VANISH).get(), false);
     }
 
     private void sendUpdateSelf() {
@@ -94,7 +94,7 @@ public class SkinApplier extends SharedApplier {
                 .build());
 
         Location<World> oldLocation = receiver.getLocation();
-        double[] rotation = {receiver.getRotation().getX(), receiver.getRotation().getY()};
+        Vector3d rotation = receiver.getRotation();
         World receiverWorld = receiver.getWorld();
         Sponge.getServer().getWorlds()
                 .stream()
@@ -102,7 +102,7 @@ public class SkinApplier extends SharedApplier {
                 .findFirst()
                 .ifPresent(world -> {
                     receiver.setLocation(world.getSpawnLocation());
-                    receiver.setLocationAndRotation(oldLocation, rotation[0], rotation[1]);
+                    receiver.setLocationAndRotation(oldLocation, rotation);
                 });
     }
 }

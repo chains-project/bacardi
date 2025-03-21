@@ -1,25 +1,9 @@
 ```java
-/**
- * Copyright 2019 Pinterest, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *    http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.pinterest.singer.utils;
 
 import com.pinterest.singer.thrift.LogFile;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.thrift.TBase;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TIOStreamTransport;
@@ -135,5 +119,3 @@ public final class SimpleThriftLogger<T extends TBase> implements Closeable {
   }
 }
 ```
-
-The fix involves updating the import statement for `TFramedTransport` to `org.apache.thrift.transport.layered.TFramedTransport` and ensuring that the `ByteOffsetTFramedTransport` class extends the new `TFramedTransport` class from the `org.apache.thrift.transport.layered` package. The constructor and method signatures in `ByteOffsetTFramedTransport` were adjusted to match the new `TFramedTransport` class. The rest of the class remains unchanged to ensure that the fix is minimal and only addresses the dependency update issue.

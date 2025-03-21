@@ -15,57 +15,76 @@
 <  * limitations under the License.
 <  */
 < 
-23,25c7
+23,25c7,9
 < import com.google.api.services.translate.model.DetectionsResourceItems;
 < import com.google.api.services.translate.model.LanguagesResource;
 < import com.google.api.services.translate.model.TranslationsResource;
 ---
-> import com.google.api.services.translate.Translate;
-43c25
+> import com.google.api.services.translate.model.DetectionsResource;
+> import com.google.api.services.translate.model.LanguagesResourceList;
+> import com.google.api.services.translate.model.TranslationsResourceList;
+43c27
 <   private static final Function<List<DetectionsResourceItems>, Detection>
 ---
->   private static final Function<List<Translate.DetectionsResource.Detections>, Detection>
-45c27
+>   private static final Function<List<DetectionsResource.Detections>, Detection>
+45c29
 <           new Function<List<DetectionsResourceItems>, Detection>() {
 ---
->           new Function<List<Translate.DetectionsResource.Detections>, Detection>() {
-47c29
+>           new Function<List<DetectionsResource.Detections>, Detection>() {
+47c31
 <             public Detection apply(List<DetectionsResourceItems> detectionPb) {
 ---
->             public Detection apply(List<Translate.DetectionsResource.Detections> detectionPb) {
-62c44
+>             public Detection apply(List<DetectionsResource.Detections> detectionPb) {
+62c46
 <               new Callable<List<LanguagesResource>>() {
 ---
->               new Callable<List<Translate.LanguagesResource>>() {
-64c46
+>               new Callable<LanguagesResourceList>() {
+64c48
 <                 public List<LanguagesResource> call() {
 ---
->                 public List<Translate.LanguagesResource> call() {
-80c62
+>                 public LanguagesResourceList call() {
+80c64
 <       List<List<DetectionsResourceItems>> detectionsPb =
 ---
->       List<List<Translate.DetectionsResource.Detections>> detectionsPb =
-82c64
+>       List<DetectionsResource> detectionsPb =
+82c66
 <               new Callable<List<List<DetectionsResourceItems>>>() {
 ---
->               new Callable<List<List<Translate.DetectionsResource.Detections>>>() {
-84c66
+>               new Callable<List<DetectionsResource>>() {
+84c68
 <                 public List<List<DetectionsResourceItems>> call() {
 ---
->                 public List<List<Translate.DetectionsResource.Detections>> call() {
-91c73
+>                 public List<DetectionsResource> call() {
+91c75
 <       Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
 ---
->       Iterator<List<Translate.DetectionsResource.Detections>> detectionIterator = detectionsPb.iterator();
-94c76
+>       Iterator<DetectionsResource> detectionIterator = detectionsPb.iterator();
+94c78
 <         List<DetectionsResourceItems> detectionPb = detectionIterator.next();
 ---
->         List<Translate.DetectionsResource.Detections> detectionPb = detectionIterator.next();
-121c103
+>         DetectionsResource detectionPb = detectionIterator.next();
+97,98c81,89
+<             detectionPb != null && !detectionPb.isEmpty(), "No detection found for text: %s", text);
+<         checkState(detectionPb.size() == 1, "Multiple detections found for text: %s", text);
+---
+>             detectionPb != null && !detectionPb.getDetections().isEmpty(),
+>             "No detection found for text: %s",
+>             text);
+>         checkState(detectionPb.getDetections().size() == 1, "Multiple detections found for text: %s", text);
+>       }
+>       return Lists.transform(detectionsPb, new Function<DetectionsResource, Detection>() {
+>         @Override
+>         public Detection apply(DetectionsResource input) {
+>           return DETECTION_FROM_PB_FUNCTION.apply(input.getDetections());
+100c91
+<       return Lists.transform(detectionsPb, DETECTION_FROM_PB_FUNCTION);
+---
+>       });
+121c112
 <               new Callable<List<TranslationsResource>>() {
 ---
->               new Callable<List<Translate.TranslationsResource>>() {
-123c105
+>               new Callable<TranslationsResourceList>() {
+123c114
 <                 public List<TranslationsResource> call() {
 ---
->                 public List<Translate.TranslationsResource> call() {
+>                 public TranslationsResourceList call() {

@@ -6,10 +6,9 @@ import liquibase.ext.mssql.statement.AddPrimaryKeyStatementMSSQL;
 import liquibase.sql.Sql;
 import liquibase.sql.UnparsedSql;
 import liquibase.sqlgenerator.SqlGeneratorChain;
-import liquibase.sqlgenerator.core.AddPrimaryKeyGenerator;
 import liquibase.statement.core.AddPrimaryKeyStatement;
 import liquibase.structure.core.Index;
-import liquibase.repackaged.org.apache.commons.lang3.StringUtils;
+import liquibase.util.StringUtil;
 
 public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
   @Override
@@ -17,17 +16,6 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
     return 15;
   }
 
-  /**
-   * Conditionally executes to extension's custom Primary Key SQL generation process if statement is the
-   * AddPrimaryKeyStatementMSSQL implementation and the custom attribute (fillFactor) is set.
-   *
-   * Otherwise, defers to default liquibase implementation.
-   *
-   * @param statement
-   * @param database
-   * @param sqlGeneratorChain
-   * @return
-   */
   @Override
   public Sql[] generateSql(AddPrimaryKeyStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
     if (statement instanceof AddPrimaryKeyStatementMSSQL && ((AddPrimaryKeyStatementMSSQL) statement).getFillFactor() != null) {
@@ -37,18 +25,6 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
     return super.generateSql(statement, database, sqlGeneratorChain);
   }
 
-  /**
-   * The extension's implementation is essentially a copy/paste of the default implementation, with the following changes:
-   *
-   * 1) Removed other database platform specific logic other than MSSQL (purely to simplify)
-   *
-   * 2) Added support for setting fillFactor
-   *
-   * @param statement
-   * @param database
-   * @param sqlGeneratorChain
-   * @return
-   */
   private Sql[] generateMSSQLSql(AddPrimaryKeyStatementMSSQL statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
     String sql;
     if (statement.getConstraintName() == null) {
@@ -61,10 +37,9 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
       sql += " (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
     }
 
-    // the only new feature being added is support for fillFactor
     sql += " WITH (FILLFACTOR = " + statement.getFillFactor() + ")";
 
-    if (StringUtils.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
+    if (StringUtil.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
       sql += " ON "+statement.getTablespace();
     }
 
@@ -81,5 +56,4 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
   public boolean supports(AddPrimaryKeyStatement statement, Database database) {
     return database instanceof MSSQLDatabase;
   }
-
 }

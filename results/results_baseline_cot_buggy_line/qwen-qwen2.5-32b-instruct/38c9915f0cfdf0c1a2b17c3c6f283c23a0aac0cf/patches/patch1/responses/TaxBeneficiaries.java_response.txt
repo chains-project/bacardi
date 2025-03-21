@@ -4,6 +4,7 @@ import java.util.Comparator;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.IterableEnvelope;
 import org.cactoos.iterable.Sorted;
+import org.cactoos.scalar.SizeOf;
 
 /**
  * {@link Remote} nodes that should receive taxes.
@@ -21,7 +22,7 @@ public final class TaxBeneficiaries extends IterableEnvelope<Remote> {
         super(() -> new Sorted<>(
             Comparator.comparing(Remote::score),
             new Filtered<>(
-                n -> n.score().suffixes().size() >= 16,
+                n -> new SizeOf(n.score().suffixes()).intValue() >= 16,
                 nodes
             )
         ));

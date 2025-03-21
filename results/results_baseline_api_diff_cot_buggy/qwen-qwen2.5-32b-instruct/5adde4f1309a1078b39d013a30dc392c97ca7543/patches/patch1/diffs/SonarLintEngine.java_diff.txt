@@ -1,32 +1,30 @@
-37d36
+36,37d35
+< import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisConfiguration;
 < import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneGlobalConfiguration;
-39d37
-< import org.sonarsource.sonarlint.core.commons.RuleKey;
-46d43
+45,46d42
+< import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader;
 < import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader.Configuration;
-49d45
+49d44
 < import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginRequirementsCheckResult;
-67c63
+67c62
 <     // The only instance of this singleton class
 ---
 >     // The only instance of this class
-77c73
+77c72
 <         this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, null);
 ---
 >         this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, logOutput);
-147c143
-<                 pluginInstancesByKeys, new PluginInstancesLoader());
+154c149
+<                 .collect(toList());
 ---
->                 pluginInstancesByKeys, pluginInstancesLoader);
-163c159
+>                 .collect(Collectors.toList());
+163c158
 <                 .addEnabledLanguages(globalConfig.getEnabledLanguages())
 ---
->                 .setLanguages(globalConfig.getEnabledLanguages())
-189,193d184
-<     @Override
-<     public AnalysisEngine getAnalysisEngine() {
-<         return analysisEngine;
-<     }
-< 
-223d213
+>                 .addEnabledLanguages(globalConfig.getEnabledLanguages().toArray(new Language[0]))
+165c160
+<                 .setExtraProperties(globalConfig.extraProperties())
+---
+>                 .putAllExtraProperties(globalConfig.extraProperties())
+223d217
 <                                             logOutput),

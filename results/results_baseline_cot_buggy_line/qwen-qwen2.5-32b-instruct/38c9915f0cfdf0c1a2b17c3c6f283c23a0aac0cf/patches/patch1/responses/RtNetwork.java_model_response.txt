@@ -1,21 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the class `IoCheckedScalar` cannot be found in the package `org.cactoos.scalar`.
-   - This suggests that the class `IoCheckedScalar` has been removed or renamed in the updated version of the `cactoos` dependency.
-
-2. Review the client code:
-   - The problematic import statement is `import org.cactoos.scalar.IoCheckedScalar;`.
-   - The class `IoCheckedScalar` is used in the `pull` method to handle an `IOException` that might be thrown during the execution of the `Reduced` operation.
-
-3. Consider potential fixes:
-   - The class `IoCheckedScalar` might have been replaced by another class in the updated version of the `cactoos` library.
-   - We need to find the equivalent class or method in the updated version of the library that can handle the `IOException` similarly.
-
-4. Plan the necessary changes:
-   - Replace the `IoCheckedScalar` with the appropriate class or method from the updated `cactoos` library.
-   - Ensure that the replacement class or method can handle the `IOException` in a similar manner.
-</code_analysis>
-
 ```java
 package io.zold.api;
 
@@ -23,8 +5,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Sorted;
-import org.cactoos.scalar.OnException;
 import org.cactoos.scalar.Reduced;
+import org.cactoos.scalar.IoCheckedScalar;
 
 /**
  * Network implementation.
@@ -59,8 +41,7 @@ public final class RtNetwork implements Network {
 
     @Override
     public Wallet pull(final long id) throws IOException {
-        return new OnException<>(
-            Wallet::zero,
+        return new IoCheckedScalar<>(
             new Reduced<>(
                 Wallet::merge,
                 new Mapped<>(
@@ -78,4 +59,4 @@ public final class RtNetwork implements Network {
 }
 ```
 
-In the provided solution, `IoCheckedScalar` has been replaced with `OnException` from the `cactoos` library, which is used to handle exceptions. The `OnException` constructor takes a fallback function and a scalar, and it returns the value of the scalar unless an exception is thrown, in which case it returns the fallback value. In this case, `Wallet::zero` is used as the fallback value, assuming `Wallet.zero()` is a method that returns a default `Wallet` instance. Adjust the fallback value according to the actual implementation in your project.
+Note: The code provided assumes that the `IoCheckedScalar` class is available in the `org.cactoos.scalar` package in the newer version of the dependency. If the class has been moved or renamed, the import statement should be updated accordingly.

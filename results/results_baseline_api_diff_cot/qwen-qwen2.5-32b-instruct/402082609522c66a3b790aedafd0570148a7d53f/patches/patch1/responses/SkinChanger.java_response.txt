@@ -4,16 +4,14 @@ import com.github.games647.changeskin.core.model.auth.Account;
 import com.github.games647.changeskin.core.shared.task.SharedSkinChanger;
 import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.world.World;
-import org.spongepowered.api.entity.living.player.Player;
 
 public class SkinChanger extends SharedSkinChanger {
 
-    private final Player invoker;
+    private final Object invoker;
 
-    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, Player invoker) {
+    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, Object invoker) {
         super(plugin.getCore(), owner, url, oldSkinUrl);
 
         this.invoker = invoker;
@@ -21,6 +19,7 @@ public class SkinChanger extends SharedSkinChanger {
 
     @Override
     protected void sendMessageInvoker(String localeMessage) {
-        invoker.sendMessage(Text.of(TextColors.RED, localeMessage));
+        // Assuming invoker has a sendMessage method that accepts a Text object
+        ((Object) invoker).sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(localeMessage));
     }
 }

@@ -4,8 +4,6 @@ import com.hazelcast.cluster.Cluster;
 import com.hazelcast.cluster.Member;
 import com.hazelcast.cluster.MembershipEvent;
 import com.hazelcast.cluster.MembershipListener;
-import com.hazelcast.cluster.MemberAttributeEvent;
-import com.hazelcast.cluster.MemberAttributeEvent.MemberAttributeOperationType;
 import com.hazelcast.cluster.LifecycleEvent;
 import com.hazelcast.cluster.LifecycleListener;
 import com.hazelcast.cluster.LifecycleState;
@@ -19,7 +17,7 @@ import org.jivesoftware.util.cache.Cache;
 import org.jivesoftware.util.cache.CacheFactory;
 import org.jivesoftware.util.cache.CacheWrapper;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.LoggerFactoryFactory;
 
 import java.time.Duration;
 import java.time.LocalTime;
@@ -41,7 +39,7 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
 
     private boolean seniorClusterMember = false;
 
-    private final Map<Cache<?, ?>, EntryListener> entryListeners = new HashMap<>();
+    private final Map<Cache<?,?>, EntryListener> entryListeners = new HashMap<>();
 
     private final Cluster cluster;
     private final Map<NodeID, ClusterNodeInfo> clusterNodesInfo = new ConcurrentHashMap<>();
@@ -79,7 +77,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private boolean isDone() {
         return done;
     }
@@ -102,18 +99,18 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         waitForClusterCacheToBeInstalled();
 
         // Let the other nodes know that we joined the cluster
-        logger.debug("Done joining the cluster. Now proceed informing other nodes that we joined the cluster.");
+        logger.info("Done joining the cluster. Now proceed informing other nodes that we joined the cluster.");
         CacheFactory.doClusterTask(new NewClusterMemberJoinedTask());
 
         logger.info("Joined cluster. XMPPServer node={}, Hazelcast UUID={}, seniorClusterMember={}",
-                new Object[]{ClusteredCacheFactory.nodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), seniorClusterMember});
+                new Object[]{ClusteredCacheFactory.nodeID(cluster.getLocalMember()), cluster.localMember().getUuid(), seniorClusterMember});
         done = false;
     }
 
     boolean isSeniorClusterMember() {
         // first cluster member is the oldest
         final Iterator<Member> members = cluster.getMembers().iterator();
-        return members.next().getUuid().equals(cluster.getLocalMember().getUuid());
+        return members.next().getUuid().equals(cluster.localMember().getUuid());
     }
 
     private synchronized void leaveCluster() {
@@ -131,10 +128,10 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         if (!XMPPServer.getInstance().isShuttingDown()) {
             // Remove traces of directed presences sent from local entities to handlers that no longer exist
             // At this point c2s sessions are gone from the routing table so we can identify expired sessions
-            XMPPServer.instance().getPresenceUpdateHandler().removedExpiredPresences();
+            XMPPServer.getInstance().getPresenceUpdateHandler().removedExpiredPresences();
         }
         logger.info("Left cluster. XMPPServer node={}, Hazelcast UUID={}, wasSeniorClusterMember={}",
-                new Object[]{ClusteredCacheFactory.nodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), wasSeniorClusterMember});
+                new Object[]{ClusteredCacheFactory.nodeID(cluster.localMember()), cluster.localMember().getUuid(), wasSeniorClusterMember});
         done = true;
     }
 
@@ -164,7 +161,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
 
                 // The following line was intended to wait until all local handling finishes before informing other
                 // nodes. However that proved to be insufficient. Hence the 30 second default wait in the lines above.
-                // TODO Instead of the 30 second wait, we should look (and then wait) for some trigger or event that signifies that local handling has completed and caches have stabilized.
                 waitForClusterCacheToBeInstalled();
 
                 // Let the other nodes know that we joined the cluster
@@ -213,10 +209,9 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
     public void memberRemoved(final MembershipEvent event) {
         logger.info("Received a Hazelcast memberRemoved event {}", event);
 
-        final boolean wasSenior = isSenior;
         isSenior = isSeniorClusterMember();
-        // local member only
         final NodeID nodeID = ClusteredCacheFactory.nodeID(event.getMember());
+
         if (event.getMember().localMember()) {
             logger.info("Leaving cluster: " + nodeID);
             // This node may have realized that it got kicked out of the cluster
@@ -232,7 +227,7 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
 
             // Remove traces of directed presences sent from local entities to handlers that no longer exist.
             // At this point c2s sessions are gone from the routing table so we can identify expired sessions
-            XMPPServer.instance().getPresenceUpdateHandler().removedExpiredPresences();
+            XMPPServer.getInstance().getPresenceUpdateHandler().removedExpiredPresences();
         }
         // Delete nodeID instance (release from memory)
         NodeID.deleteInstance(nodeID.toByteArray());

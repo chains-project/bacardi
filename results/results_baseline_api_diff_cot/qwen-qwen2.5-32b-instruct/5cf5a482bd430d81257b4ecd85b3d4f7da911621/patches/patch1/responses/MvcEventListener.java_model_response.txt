@@ -23,7 +23,7 @@ public class MvcEventListener {
     }
 
     private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
-        LOGGER.info(() -> "View engine: " + event.getEngine());
+        LOGGER.info(() -> "View engine: " + event.getEngine().getClass().getName());
     }
 
     private void onAfterControllerEvent(@Observes AfterControllerEvent event) {
@@ -31,7 +31,7 @@ public class MvcEventListener {
     }
 
     private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
-        LOGGER.info(() -> "AfterProcessViewEvent:: " + event.getEngine());
+        LOGGER.info(() -> "AfterProcessViewEvent:: " + event);
     }
     
     private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
@@ -44,5 +44,3 @@ public class MvcEventListener {
     }
 }
 ```
-
-In this solution, the package `javax.mvc.event` has been replaced with `jakarta.mvc.event` to reflect the changes in the dependency. Additionally, the method `getEngine()` is now correctly referenced from the `jakarta.mvc.event.BeforeProcessViewEvent` and `jakarta.mvc.event.AfterProcessViewEvent` interfaces. This ensures that the client code is compatible with the updated dependency and should compile without errors.

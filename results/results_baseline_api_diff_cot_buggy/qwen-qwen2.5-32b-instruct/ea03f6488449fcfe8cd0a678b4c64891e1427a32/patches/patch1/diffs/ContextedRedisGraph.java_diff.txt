@@ -1,107 +1,147 @@
-12d11
-< import redis.clients.jedis.Client;
-13a13,15
-> import redis.clients.jedis.JedisClientConfig;
-> import redis.clients.jedis.JedisCluster;
-> import redis.clients.jedis.JedisClusterConnectionHandler;
-39c41
-<     protected Jedis getConnection() {
+10c10,11
+< import com.redislabs.redisgraph.impl.resultset.ResultSetImpl;
 ---
->     public Jedis getConnection() {
-92a95
->         Object response;
-94,101c97,100
-<             @SuppressWarnings("unchecked")
-<             List<Object> rawResponse = (List<Object>) conn.sendBlockingCommand(RedisGraphCommand.QUERY,
-<                     graphId, preparedQuery, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING, Long.toString(timeout));
-<             return new ResultSetImpl(rawResponse, this, caches.getGraphCache(graphId));
+> import com.redislabs.redisgraph.impl.transaction.RedisGraphTransaction;
+> import com.redislabs.redisgraph.impl.transaction.RedisGraphPipeline;
+12d12
+< import redis.clients.jedis.Client;
+14,15c14,18
+< import redis.clients.jedis.exceptions.JedisDataException;
+< import redis.clients.jedis.util.SafeEncoder;
+---
+> import redis.clients.jedis.JedisException;
+> import redis.clients.jedis.Pipeline;
+> import redis.clients.jedis.Transaction;
+> 
+> import com.redislabs.redisgraph.impl.resultset.ResultSetImpl;
+17,20d19
+< /**
+<  * An implementation of RedisGraphContext. Allows sending RedisGraph and some Redis commands,
+<  * within a specific connection context
+<  */
+26,29d24
+<     /**
+<      * Generates a new instance with a specific Jedis connection
+<      * @param connectionContext
+<      */
+34,37d28
+<     /**
+<      * Overrides the abstract method. Return the instance only connection
+<      * @return
+<      */
+43,48d33
+<     /**
+<      * Sends the query over the instance only connection
+<      * @param graphId graph to be queried
+<      * @param preparedQuery prepared query
+<      * @return Result set with the query answer
+<      */
+58c43
+<         } catch (JedisDataException j) {
+---
+>         } catch (JedisException j) {
+63,68d47
+<     /**
+<      * Sends the read-only query over the instance only connection
+<      * @param graphId graph to be queried
+<      * @param preparedQuery prepared query
+<      * @return Result set with the query answer
+<      */
+78c57
+<         } catch (JedisDataException de) {
+---
+>         } catch (JedisException de) {
+83,89d61
+<     /**
+<      * Sends the query over the instance only connection
+<      * @param graphId graph to be queried
+<      * @param timeout
+<      * @param preparedQuery prepared query
+<      * @return Result set with the query answer
+<      */
+98,101c70,72
 <         } catch (JRedisGraphException rt) {
 <             throw rt;
 <         } catch (JedisDataException j) {
 <             throw new JRedisGraphException(j);
 ---
->             response = conn.sendCommand(RedisGraphCommand.QUERY, graphId, preparedQuery, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING, Long.toString(timeout));
 >         } catch (Exception e) {
 >             conn.close();
 >             throw e;
-102a102,104
->         //clear local state
->         caches.removeGraphCache(graphId);
->         return SafeEncoder.encode((byte[]) response);
-106,110c108,110
+105,111d75
+<     /**
 <      * Sends the read-only query over the instance only connection
 <      * @param graphId graph to be queried
 <      * @param timeout
 <      * @param preparedQuery prepared query
 <      * @return Result set with the query answer
----
->      * Deletes the entire graph
->      * @param graphId graph to delete
->      * @return delete running time statistics
-113c113
-<     protected ResultSet sendReadOnlyQuery(String graphId, String preparedQuery, long timeout) {
----
->     public String deleteGraph(String graphId) {
-114a115
->         Object response;
-116,123c117,120
-<             @SuppressWarnings("unchecked")
-<             List<Object> rawResponse = (List<Object>) conn.sendBlockingCommand(RedisGraphCommand.RO_QUERY,
-<                     graphId, preparedQuery, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING, Long.toString(timeout));
-<             return new ResultSetImpl(rawResponse, this, caches.getGraphCache(graphId));
-<         } catch (JRedisGraphException ge) {
-<             throw ge;
+<      */
+122c86
 <         } catch (JedisDataException de) {
-<             throw new JRedisGraphException(de);
 ---
->             response = conn.sendCommand(RedisGraphCommand.DELETE, graphId);
->         } catch (Exception e) {
->             conn.close();
->             throw e;
-124a122,124
->         //clear local state
->         caches.removeGraphCache(graphId);
->         return SafeEncoder.encode((byte[]) response);
-128c128
+>         } catch (JedisException de) {
+127,129d90
+<     /**
 <      * @return Returns the instance Jedis connection.
----
->      * closes the Jedis connection
-131,132c131,137
+<      */
+131,132c92,98
 <     public Jedis getConnectionContext() {
 <         return this.connectionContext;
 ---
->     public void close() {
->         this.connectionContext.close();
+>     public String watch(String... keys) {
+>         return this.getConnection().watch(keys);
 >     }
 > 
 >     @Override
->     public void setRedisGraphCaches(RedisGraphCaches caches) {
->         this.caches = caches;
-139d143
-<     @Override
-142,145c146,148
+>     public String unwatch() {
+>         return this.getConnection().unwatch();
+135,138d100
+<     /**
+<      * Creates a new RedisGraphTransaction transactional object
+<      * @return new RedisGraphTransaction
+<      */
+142,145c104,105
 <         Client client = jedis.getClient();
 <         client.multi();
 <         client.getOne();
 <         RedisGraphTransaction transaction = new RedisGraphTransaction(client, this);
 ---
->         // Assuming Jedis now does not expose Client directly, and transaction handling is done differently
->         // Placeholder for transaction handling logic
->         RedisGraphTransaction transaction = new RedisGraphTransaction(jedis, this);
-154d156
-<     @Override
-157,158c159,161
+>         Pipeline pipeline = jedis.pipelined();
+>         RedisGraphTransaction transaction = new RedisGraphTransaction(pipeline, this);
+150,153d109
+<     /**
+<      * Creates a new RedisGraphPipeline pipeline object
+<      * @return new RedisGraphPipeline
+<      */
+157,160c113,116
 <         Client client = jedis.getClient();
 <         RedisGraphPipeline pipeline = new RedisGraphPipeline(client, this);
+<         pipeline.setRedisGraphCaches(caches);
+<         return pipeline;
 ---
->         // Assuming Jedis now does not expose Client directly, and pipeline handling is done differently
->         // Placeholder for pipeline handling logic
->         RedisGraphPipeline pipeline = new RedisGraphPipeline(jedis, this);
-168d170
+>         Pipeline pipeline = jedis.pipelined();
+>         RedisGraphPipeline pipelineObj = new RedisGraphPipeline(pipeline, this);
+>         pipelineObj.setRedisGraphCaches(caches);
+>         return pipelineObj;
+163,204d118
+<     /**
+<      * Perfrom watch over given Redis keys
+<      * @param keys
+<      * @return "OK"
+<      */
 <     @Override
-177d178
+<     public String watch(String... keys) {
+<         return this.getConnection().watch(keys);
+<     }
+< 
+<     /**
+<      * Removes watch from all keys
+<      * @return
+<      */
 <     @Override
-181,215d181
+<     public String unwatch() {
+<         return this.getConnection().unwatch();
+<     }
 < 
 <     /**
 <      * Deletes the entire graph
@@ -126,14 +166,5 @@
 <     /**
 <      * closes the Jedis connection
 <      */
-<     @Override
-<     public void close() {
-<         this.connectionContext.close();
-< 
-<     }
-< 
-<     @Override
-<     public void setRedisGraphCaches(RedisGraphCaches caches) {
-<         this.caches = caches;
-<     }
+208d121
 < 

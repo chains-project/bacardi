@@ -1,4 +1,4 @@
-1,16d0
+1,78c1,10
 < /*
 <  * Copyright 2016 Google LLC
 <  *
@@ -15,19 +15,77 @@
 <  * limitations under the License.
 <  */
 < 
-19,21d2
+< package com.google.cloud.translate.spi.v2;
+< 
 < import com.google.api.services.translate.model.DetectionsResourceItems;
 < import com.google.api.services.translate.model.LanguagesResource;
 < import com.google.api.services.translate.model.TranslationsResource;
-59c40
+< import com.google.cloud.ServiceRpc;
+< import java.util.List;
+< import java.util.Map;
+< 
+< public interface TranslateRpc extends ServiceRpc {
+< 
+<   enum Option {
+<     SOURCE_LANGUAGE("source"),
+<     TARGET_LANGUAGE("target"),
+<     MODEL("model"),
+<     FORMAT("format");
+< 
+<     private final String value;
+< 
+<     Option(String value) {
+<       this.value = value;
+<     }
+< 
+<     public String value() {
+<       return value;
+<     }
+< 
+<     @SuppressWarnings("unchecked")
+<     <T> T get(Map<Option, ?> options) {
+<       return (T) options.get(this);
+<     }
+< 
+<     String getString(Map<Option, ?> options) {
+<       return get(options);
+<     }
+<   }
+< 
+<   /**
+<    * Returns a list of the languages supported by Google Translation.
+<    *
+<    * @param optionMap options to listing language translations
+<    */
 <   List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap);
----
->   List<Map<String, Object>> listSupportedLanguages(Map<Option, ?> optionMap);
-67c48
+< 
+<   /**
+<    * Detects the language of the provided texts.
+<    *
+<    * @param texts the texts to translate
+<    * @return a list of lists of detections, one list of detections for each provided text, in order
+<    */
 <   List<List<DetectionsResourceItems>> detect(List<String> texts);
----
->   List<List<Map<String, Object>>> detect(List<String> texts);
-77c58
+< 
+<   /**
+<    * Translates the provided texts.
+<    *
+<    * @param texts the texts to translate
+<    * @param optionMap options to text translation
+<    * @return a list of resources containing translation information, in the same order of the
+<    *     provided texts
+<    */
 <   List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap);
+< }
 ---
->   List<Map<String, Object>> translate(List<String> texts, Map<Option, ?> optionMap);
+> <repair_strategy>
+> 1. The errors indicate that the classes `DetectionsResourceItems`, `LanguagesResource`, and `TranslationsResource` are not found, suggesting that the API has changed and these classes are no longer available or have been moved.
+> 2. The package `com.google.api.services.translate.model` does not exist, indicating a change in the package structure.
+> 3. The fix will involve replacing the missing classes with their equivalents in the new API version, if available, or creating placeholder classes if the new API does not provide direct replacements.
+> 4. The fix will also involve updating the import statements to reflect the new package structure.
+> 5. The minimal changes will be made to the client code to ensure it compiles and adheres to the new API version.
+> 6. The changes will not affect the function signatures, ensuring that the interface remains compatible with the rest of the codebase.
+> 7. The changes will result in a compilable class.
+> 8. Additional imports will be added if necessary.
+> </repair_strategy>
+\ No newline at end of file

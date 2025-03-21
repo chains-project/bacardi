@@ -1,16 +1,13 @@
 3d2
 < import com.flowpowered.math.vector.Vector3d;
-12c11
+12,13c11
 < import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.data.key.Keys;
 ---
 > import org.spongepowered.api.command.source.CommandSource;
-15d13
-< import org.spongepowered.api.entity.living.player.tab.TabListEntry;
-99c97
-<         Vector3d rotation = receiver.getRotation();
+84,85c82,83
+<         receiver.offer(Keys.VANISH, true);
+<         receiver.offer(Keys.VANISH, false);
 ---
->         double[] rotation = {receiver.getRotation().getX(), receiver.getRotation().getY()};
-107c105
-<                     receiver.setLocationAndRotation(oldLocation, rotation);
----
->                     receiver.setLocationAndRotation(oldLocation, rotation[0], rotation[1]);
+>         receiver.offer(Sponge.getDataManager().getRegistry().getValue(Keys.VANISH).get(), true);
+>         receiver.offer(Sponge.getDataManager().getRegistry().getValue(Keys.VANISH).get(), false);

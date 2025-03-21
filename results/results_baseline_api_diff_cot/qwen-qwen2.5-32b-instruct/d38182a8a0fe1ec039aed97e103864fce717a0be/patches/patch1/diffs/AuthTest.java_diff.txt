@@ -2,11 +2,13 @@
 < import com.artipie.http.rq.RequestLine;
 < import com.artipie.http.rq.RqMethod;
 < import com.artipie.http.rs.RsStatus;
-52c49
+41d37
+< import org.junit.jupiter.params.provider.MethodSource;
+52c48
 < @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 ---
 > @SuppressWarnings("PMD.UnusedPrivateMethod")
-69c66,70
+69c65,69
 <             method.slice("whatever").response(line.toString(), Headers.EMPTY, Content.EMPTY),
 ---
 >             method.slice("whatever").response(
@@ -14,7 +16,90 @@
 >                 Headers.EMPTY,
 >                 Content.EMPTY
 >             ),
-194,211c195,206
+80c80
+<                 method.headers(new TestAuthentication.User("chuck", "letmein")),
+---
+>                 method.headers(TestAuthentication.User.of("chuck", "letmein")),
+97c97
+<                 method.headers(TestAuthentication.BOB),
+---
+>                 method.headers(TestAuthentication.User.of(TestAuthentication.BOB)),
+113c113
+<             basic.headers(TestAuthentication.ALICE),
+---
+>             basic.headers(TestAuthentication.User.of(TestAuthentication.ALICE)),
+119c119
+<                 basic.headers(TestAuthentication.ALICE),
+---
+>                 basic.headers(TestAuthentication.User.of(TestAuthentication.ALICE)),
+126,191d125
+<     @Test
+<     void shouldOverwriteManifestIfAllowed() {
+<         final Basic basic = new Basic(this.docker);
+<         final String path = "/v2/my-alpine/manifests/abc";
+<         final String line = new RequestLine(RqMethod.PUT, path).toString();
+<         final String action = "repository:my-alpine:overwrite";
+<         final Flowable<ByteBuffer> manifest = this.manifest();
+<         MatcherAssert.assertThat(
+<             "Manifest was created for the first time",
+<             basic.slice(action).response(
+<                 line,
+<                 basic.headers(TestAuthentication.ALICE),
+<                 manifest
+<             ),
+<             new ResponseMatcher(
+<                 RsStatus.CREATED,
+<                 new Header("Location", path),
+<                 new Header("Content-Length", "0"),
+<                 new Header(
+<                     "Docker-Content-Digest",
+<                     "sha256:ef0ff2adcc3c944a63f7cafb386abc9a1d95528966085685ae9fab2a1c0bedbf"
+<                 )
+<             )
+<         );
+<         MatcherAssert.assertThat(
+<             "Manifest was overwritten",
+<             basic.slice(action).response(
+<                 line,
+<                 basic.headers(TestAuthentication.ALICE),
+<                 manifest
+<             ),
+<             new ResponseMatcher(
+<                 RsStatus.CREATED,
+<                 new Header("Location", path),
+<                 new Header("Content-Length", "0"),
+<                 new Header(
+<                     "Docker-Content-Digest",
+<                     "sha256:ef0ff2adcc3c944a63f7cafb386abc9a1d95528966085685ae9fab2a1c0bedbf"
+<                 )
+<             )
+<         );
+<     }
+< 
+<     @ParameterizedTest
+<     @MethodSource("setups")
+<     void shouldNotReturnUnauthorizedOrForbiddenWhenUserHasPermissions(
+<         final Method method,
+<         final RequestLine line,
+<         final String action
+<     ) {
+<         final Response response = method.slice(action).response(
+<             line.toString(),
+<             method.headers(TestAuthentication.ALICE),
+<             Content.EMPTY
+<         );
+<         MatcherAssert.assertThat(
+<             response,
+<             new AllOf<>(
+<                 Arrays.asList(
+<                     new IsNot<>(new RsHasStatus(RsStatus.FORBIDDEN)),
+<                     new IsNot<>(new RsHasStatus(RsStatus.UNAUTHORIZED))
+<                 )
+<             )
+<         );
+<     }
+< 
+194,214d127
 <         return Stream.of(new Basic(), new Bearer()).flatMap(AuthTest::setups);
 <     }
 < 
@@ -33,24 +118,60 @@
 <             config.digest().string()
 <         ).getBytes();
 <         return Flowable.just(ByteBuffer.wrap(data));
+<     }
+< 
+<     private static Stream<Arguments> setups(final Method method) {
+217c130
+<                 method,
 ---
->         return Stream.of(
->             Arguments.of(
 >                 new Basic(),
->                 new RequestLine(RqMethod.GET, "/v2/"),
->                 "registry:base:*"
->             ),
->             Arguments.of(
->                 new Bearer(),
->                 new RequestLine(RqMethod.GET, "/v2/"),
->                 "registry:base:*"
->             )
->         );
-253c248
+222,279c135,137
+<                 method,
+<                 new RequestLine(RqMethod.HEAD, "/v2/my-alpine/manifests/1"),
+<                 "repository:my-alpine:pull"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.GET, "/v2/my-alpine/manifests/2"),
+<                 "repository:my-alpine:pull"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.PUT, "/v2/my-alpine/manifests/latest"),
+<                 "repository:my-alpine:push"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.PUT, "/v2/my-alpine/manifests/latest"),
+<                 "repository:my-alpine:overwrite"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.GET, "/v2/my-alpine/tags/list"),
+<                 "repository:my-alpine:pull"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.HEAD, "/v2/my-alpine/blobs/sha256:123"),
+<                 "repository:my-alpine:pull"
+<             ),
+<             Arguments.of(
+<                 method,
 <                 new RequestLine(RqMethod.GET, "/v2/my-alpine/blobs/sha256:012345"),
----
->                 new RequestLine(RqMethod.GET, "/v2/my-alpine/blobs/sha256:012233"),
-268,277d262
+<                 "repository:my-alpine:pull"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.POST, "/v2/my-alpine/blobs/uploads/"),
+<                 "repository:my-alpine:push"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.PATCH, "/v2/my-alpine/blobs/uploads/123"),
+<                 "repository:my-alpine:push"
+<             ),
+<             Arguments.of(
+<                 method,
 <                 new RequestLine(RqMethod.PUT, "/v2/my-alpine/blobs/uploads/12345"),
 <                 "repository:my-alpine:push"
 <             ),
@@ -61,31 +182,16 @@
 <             ),
 <             Arguments.of(
 <                 method,
-284,288d268
-<     /**
-<      * Authentication method.
-<      *
-<      * @since 0.8
-<      */
-297,301d276
-<     /**
-<      * Basic authentication method.
-<      *
-<      * @since 0.8
-<      */
-304,306d278
-<         /**
-<          * Docker repo.
-<          */
-337,341d308
-<     /**
-<      * Bearer authentication method.
-<      *
-<      * @since 0.8
-<      */
-351c318
+<                 new RequestLine(RqMethod.GET, "/v2/_catalog"),
+<                 "registry:catalog:*"
+---
+>                 new Bearer(),
+>                 new RequestLine(RqMethod.GET, "/v2/"),
+>                 "registry:base:*"
+351c209,210
 <                         Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
 ---
->                         TestAuthentication.USERS.stream()
-353d319
+>                         TestAuthentication.User.of(TestAuthentication.ALICE, TestAuthentication.BOB)
+>                             .stream()
+353d211
 <                             .map(user -> new Authentication.User(user.name()))

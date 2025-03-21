@@ -6,9 +6,8 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
-import jakarta.mvc.binding.MvcBinding;
 import jakarta.mvc.security.CsrfProtected;
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -44,13 +43,14 @@ public class CsrfController {
     @CsrfProtected
     public String post(
             @FormParam("greeting")
-            @MvcBinding
+            @jakarta.mvc.binding.MvcBinding
             @NotBlank String greeting) {
         if (bindingResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
             bindingResult.getAllErrors()
-                    .forEach((paramError) -> {
-                        alert.addError(paramError.getParamName(), "", paramError.getMessage());
+                    .stream()
+                    .forEach((jakarta.mvc.binding.ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
                     });
             models.put("errors", alert);
             log.info("mvc binding failed.");
@@ -64,12 +64,3 @@ public class CsrfController {
 
 }
 ```
-
-In the provided solution, the following changes were made to address the breaking dependency update:
-
-1. Updated the import statements to reflect the new package names for the updated dependency, such as `jakarta.mvc.Controller`, `jakarta.mvc.Models`, `jakarta.mvc.binding.MvcBinding`, and `jakarta.mvc.security.CsrfProtected`.
-2. Replaced the old `javax.mvc.binding.BindingResult` with `jakarta.mvc.binding.BindingResult` and adjusted the method calls to match the new API.
-3. Adjusted the `getAllErrors()` method to use the new `forEach` method, assuming that the new API provides a similar method to iterate over errors.
-4. Updated the `AlertMessage` and `log` usage to ensure compatibility with the new API, assuming that these classes or interfaces have not changed significantly.
-
-This solution ensures that the class is compilable and adheres to the constraints provided.

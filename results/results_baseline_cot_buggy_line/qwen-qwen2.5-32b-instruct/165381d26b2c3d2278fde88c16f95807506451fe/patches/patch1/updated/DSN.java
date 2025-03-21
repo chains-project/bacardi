@@ -4,7 +4,9 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import com.github.javaparser.printer.configuration.DefaultPrettyPrinterConfiguration;
 import org.btrplace.safeplace.spec.Constraint;
 import org.btrplace.safeplace.spec.SpecScanner;
 import org.btrplace.safeplace.testing.Bench;
@@ -30,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class DSN {
 
@@ -38,15 +41,17 @@ public class DSN {
     public TestScanner newScanner() throws Exception {
         SpecScanner specScanner = new SpecScanner();
         List<Constraint> l = specScanner.scan();
-        System.out.println(l.stream().map(Constraint::pretty).collect(Collectors.joining("\n")));
+        Bench.mode = Bench.Mode.REPLAY;
         return new TestScanner(l);
     }
 
-    // ... (rest of the class remains unchanged)
+    // ... (rest of the methods remain unchanged)
 
     private static class UnitTestsVisitor extends VoidVisitorAdapter<Void> {
 
         private final List<Integer> l;
+
+        private final DefaultPrettyPrinterConfiguration noComments = new DefaultPrettyPrinterConfiguration().setPrintComments(false);
 
         UnitTestsVisitor(List<Integer> numbers) {
             this.l = numbers;
@@ -54,7 +59,7 @@ public class DSN {
 
         @Override
         public void visit(MethodDeclaration n, Void arg) {
-            if (n.toString().contains("solve")) {
+            if (n.toString(noComments).contains("solve")) {
                 n.getRange().ifPresent(r -> l.add(r.end.line - r.begin.line));
             }
             super.visit(n, arg);

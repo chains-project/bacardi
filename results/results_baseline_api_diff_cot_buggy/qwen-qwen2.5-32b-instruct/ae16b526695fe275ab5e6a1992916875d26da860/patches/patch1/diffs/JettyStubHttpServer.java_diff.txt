@@ -12,22 +12,28 @@
 >     private final ServerConnector httpConnector;
 30d28
 < 
-33,34c31,33
+33,36c31,33
 <         this.server.setSendServerVersion(false);
 <         this.server.setSendDateHeader(true);
----
->         HttpConfiguration httpConfig = new HttpConfiguration();
->         httpConfig.setSendServerVersion(false);
->         httpConfig.setSendDateHeader(true);
-36c35
+<         
 <         this.httpConnector = new SelectChannelConnector();
 ---
->         this.httpConnector = new ServerConnector(server, httpConfig);
-41d39
+>         HttpConfiguration httpConfig = new HttpConfiguration();
+>         httpConfig.setSendDateHeader(true);
+>         this.httpConnector = new ServerConnector(server, new org.eclipse.jetty.server.ServerConnector.ServerConnectionFactory(httpConfig));
+41d37
 < 
-52d49
+45d40
+<     @Override
+52d46
 < 
-63d59
+56d49
+<     @Override
+63d55
 < 
-74d69
+67d58
+<     @Override
+74d64
 < 
+78d67
+<     @Override

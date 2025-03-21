@@ -1,27 +1,8 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the package `net.lingala.zip4j.core` does not exist, which suggests that the `zip4j` library has been updated and the package structure has changed.
-
-2. Review the client code:
-   - The problematic import statement is `import net.lingala.zip4j.core.ZipFile;`.
-   - The class `ZipFile` is used in the `unpack` method to extract files from a zip archive.
-
-3. Consider potential fixes that adhere to the following constraints:
-   - The `zip4j` library might have changed its package structure in the newer version.
-   - The `ZipFile` class might now be located in a different package.
-
-4. Plan the necessary changes to fix the issue:
-   - Update the import statement to reflect the new package structure of the `zip4j` library.
-   - Ensure that the `ZipFile` class is still available and can be used in the same way as before.
-</code_analysis>
-
-To fix the issue, the import statement needs to be updated to reflect the new package structure of the `zip4j` library. Assuming the new package structure is `net.lingala.zip4j`, the import statement should be updated accordingly. Here is the fixed class:
-
 ```java
 package io.qameta.allure.maven;
 
-import net.lingala.zip4j.ZipFile; // Updated import statement
-import net.lingala.zip4j.exception.ZipException; // Updated import statement
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteWatchdog;
@@ -175,6 +156,7 @@ public class AllureCommandline {
                 unpack(resolved.next().getArtifact().getFile());
             } else {
                 throw new IOException("No allure commandline artifact found.");
+
             }
         } catch (DependencyResolverException e) {
             throw new IOException("Cannot resolve allure commandline dependencies.", e);
@@ -219,7 +201,7 @@ public class AllureCommandline {
 
     private void unpack(final File file) throws IOException {
         try {
-            final ZipFile zipFile = new ZipFile(file); // Use the updated ZipFile class
+            final ZipFile zipFile = new ZipFile(file);
             zipFile.extractAll(getInstallationDirectory().toAbsolutePath().toString());
         } catch (ZipException e) {
             throw new IOException(e);
@@ -244,5 +226,3 @@ public class AllureCommandline {
     }
 }
 ```
-
-In this fix, the import statement for `ZipFile` and `ZipException` has been updated to reflect the new package structure of the `zip4j` library. The rest of the class remains unchanged, ensuring that the functionality is preserved while resolving the compilation error.

@@ -24,7 +24,7 @@ import org.jgrapht.alg.spanning.PrimMinimumSpanningTree;
 import org.jgrapht.graph.SimpleGraph;
 import org.tinfour.common.IIncrementalTin;
 import org.tinspin.index.kdtree.KDTree;
-import org.tinspin.index.kdtree.NearestNeighbourResult;
+import org.tinspin.index.kdtree.NNResult;
 
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
@@ -61,7 +61,7 @@ public final class PGS_PointSet {
      * 
      * @param points            list of points to filter
      * @param distanceTolerance a point that is within this distance of a previously
-     *                         included point is not included in the output
+     *                        included point is not included in the output
      * @return
      */
     public static List<PVector> prunePointsWithinDistance(List<PVector> points, double distanceTolerance) {
@@ -69,7 +69,7 @@ public final class PGS_PointSet {
         final List<PVector> newPoints = new ArrayList<>();
         for (PVector p : points) {
             final double[] coords = new double[] { p.x, p.y };
-            if (tree.size() == 0 || tree.nearestNeighbour(coords).getDistance() > distanceTolerance) {
+            if (tree.size() == 0 || tree.query1NN(coords).getDistance() > distanceTolerance) {
                 tree.insert(coords, p);
                 newPoints.add(p);
             }

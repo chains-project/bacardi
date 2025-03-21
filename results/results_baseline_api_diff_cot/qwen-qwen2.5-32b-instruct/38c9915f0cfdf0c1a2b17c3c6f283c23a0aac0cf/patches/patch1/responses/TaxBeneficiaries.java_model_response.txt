@@ -47,12 +47,10 @@ public final class TaxBeneficiaries extends IterableEnvelope<Remote> {
             Comparator.comparing(Remote::score),
             new Filtered<>(
                 // @checkstyle MagicNumberCheck (1 line)
-                n -> new LengthOf(n.score().suffixes()).intValue() >= 16,
+                n -> new LengthOf<>(n.score().suffixes()).intValue() >= 16,
                 nodes
             )
         ));
     }
 }
 ```
-
-In the provided solution, the import statement for `LengthOf` has been updated to `org.cactoos.scalar.LengthOf` to reflect the changes in the dependency's API. This ensures that the class `TaxBeneficiaries` is compatible with the new version of the dependency and should compile without errors.

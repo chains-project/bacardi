@@ -13,29 +13,30 @@ import java.util.Map;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.HttpHeaders;
 import lombok.EqualsAndHashCode;
-import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.IsEqual;
-import org.hamcrest.core.IsNot;
 import org.hamcrest.core.StringContains;
+import org.hamcrest.core.IsAnything;
+import org.hamcrest.core.IsNot;
+import org.hamcrest.core.IsCollectionContaining;
 
 /**
  * REST response.
  *
  * <p>This response decorator is able to make basic assertions on
- * HTTP response and manipulate with it afterwards, for example:
+ * HTTP response and manipulate with it afterwords, for example:
  *
  * <pre> String name = new JdkRequest("http://my.example.com")
  *   .fetch()
  *   .as(RestResponse.class)
  *   .assertStatus(200)
  *   .assertBody(new StringContains("hello, world!"))
- *   .assertHeader("Content-Type", new IsEqual<>(Collections.singletonList("text/plain")))
+ *   .assertHeader("Content-Type", new IsCollectionContaining<>(new IsEqual<>("text/plain")))
  *   .jump(URI.create("/users"))
  *   .fetch();</pre>
  *
- * <p>The method {@link #jump(URI)} creates a new instance of class
+ * <p>Method {@link #jump(URI)} creates a new instance of class
  * {@link Request} with all cookies transferred from the current one.
  *
  * <p>The class is immutable and thread-safe.
@@ -62,9 +63,7 @@ public final class RestResponse extends AbstractResponse {
      */
     public RestResponse assertThat(final Matcher<Response> matcher) {
         MatcherAssert.assertThat(
-            String.format(
-                "HTTP response is not valid: %s", this
-            ),
+            String.format("HTTP response is not valid: %s", this),
             this,
             matcher
         );
@@ -93,9 +92,9 @@ public final class RestResponse extends AbstractResponse {
     }
 
     /**
-     * Verifies HTTP response status code against the provided matcher,
-     * and throws {@link AssertionError} in case of mismatch.
-     * @param matcher Matcher to validate status code
+     * Verifies HTTP response status code against the provided matcher, and throws
+     * {@link AssertionError} in case of mismatch.
+     * @param matcher The matcher to use
      * @return This object
      */
     public RestResponse assertStatus(final Matcher<Integer> matcher) {
@@ -104,7 +103,8 @@ public final class RestResponse extends AbstractResponse {
                 "HTTP response status is not the one expected:%n%s",
                 this
             ),
-            this.status(), matcher
+            this.status(),
+            matcher
         );
         return this;
     }
@@ -121,7 +121,8 @@ public final class RestResponse extends AbstractResponse {
                 "HTTP response body content is not valid:%n%s",
                 this
             ),
-            this.body(), matcher
+            this.body(),
+            matcher
         );
         return this;
     }
@@ -148,7 +149,7 @@ public final class RestResponse extends AbstractResponse {
      * Verifies HTTP header against provided matcher, and throws
      * {@link AssertionError} in case of mismatch.
      *
-     * <p>The iterator for the matcher will always be a real object and never
+     * <p>The iterator for the matcher will always be a real object an never
      * {@code NULL}, even if such a header is absent in the response. If the
      * header is absent the iterable will be empty.
      *
@@ -169,7 +170,8 @@ public final class RestResponse extends AbstractResponse {
                 "HTTP header '%s' is not valid:%n%s",
                 name, this
             ),
-            values, matcher
+            values,
+            matcher
         );
         return this;
     }
@@ -183,7 +185,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, new IsEqual<>(Collections.singletonList(value)));
+        return this.assertHeader(name, new IsCollectionContaining<>(new IsEqual<>(value)));
     }
 
     /**
@@ -199,11 +201,11 @@ public final class RestResponse extends AbstractResponse {
         final Map<String, List<String>> headers = this.headers();
         if (headers.containsKey(HttpHeaders.SET_COOKIE)) {
             for (final String header : headers.get(HttpHeaders.SET_COOKIE)) {
-                for (final HttpCookie cookie : HttpCookie.parse(header)) {
+                for (final HttpCookie candidate : HttpCookie.parse(header)) {
                     req = req.header(
                         HttpHeaders.COOKIE,
                         String.format(
-                            "%s=%s", cookie.getName(), cookie.getValue()
+                            "%s=%s", candidate.getName(), candidate.getValue()
                         )
                     );
                 }
@@ -219,7 +221,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            new IsNot<>(new IsEqual<>(Collections.emptyList()))
+            new IsNot<>(new IsCollectionContaining<>(new IsAnything<>()))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -236,8 +238,7 @@ public final class RestResponse extends AbstractResponse {
         final Map<String, List<String>> headers = this.headers();
         MatcherAssert.assertThat(
             "cookies should be set in HTTP header",
-            headers.containsKey(HttpHeaders.SET_COOKIE),
-            new IsEqual<>(true)
+            headers.containsKey(HttpHeaders.SET_COOKIE)
         );
         final List<String> cookies = headers.get(HttpHeaders.SET_COOKIE);
         final Iterator<String> iterator = cookies.iterator();
@@ -258,7 +259,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            new IsEqual<>(null)
+            new IsEqual<>(cookie)
         );
         assert cookie != null;
         return cookie;

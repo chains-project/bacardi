@@ -9,6 +9,8 @@ import com.pubnub.api.callbacks.SubscribeCallback;
 import com.pubnub.api.enums.PNStatusCategory;
 import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
+import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
+import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -38,7 +40,7 @@ public class PubnubStreamingService {
 
   public Completable connect() {
     return Completable.create(
-        completable -> {
+        e -> {
           pubnub.addListener(
               new SubscribeCallback() {
                 @Override
@@ -82,8 +84,13 @@ public class PubnubStreamingService {
                 public void signal(PubNub pubnub, PNSignalResult pnSignalResult) {
                   LOG.debug("PubNub signal: {}", pnSignalResult.toString());
                 }
+
+                @Override
+                public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
+                  LOG.debug("PubNub file: {}", pnFileEventResult.toString());
+                }
               });
-          completable.onComplete();
+          e.onComplete();
         });
   }
 

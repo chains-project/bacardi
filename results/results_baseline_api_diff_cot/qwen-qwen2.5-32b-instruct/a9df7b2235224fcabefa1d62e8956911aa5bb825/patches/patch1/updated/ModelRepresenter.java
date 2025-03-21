@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2012 to original author or authors
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
 package org.sonatype.maven.polyglot.yaml;
 
 import org.apache.maven.model.Contributor;
@@ -14,26 +7,20 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.yaml.snakeyaml.error.YAMLException;
+import org.yaml.snakeyaml.introspector.BeanAccess;
 import org.yaml.snakeyaml.introspector.Property;
+import org.yaml.snakeyaml.introspector.PropertyUtils;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
-import org.yaml.snakeyaml.introspector.PropertyUtils;
 
 import java.beans.IntrospectionException;
 import java.util.*;
 
 import static java.lang.String.format;
 
-/**
- * YAML model representer.
- *
- * @author jvanzyl
- * @author bentmann
- * @since 0.7
- */
 class ModelRepresenter extends Representer {
   public ModelRepresenter() {
     this.representers.put(Xpp3Dom.class, new RepresentXpp3Dom());
@@ -46,7 +33,7 @@ class ModelRepresenter extends Representer {
   }
 
   protected NodeTuple representJavaBeanProperty(Object javaBean, Property property,
-                                                 Object propertyValue, Tag customTag) {
+                                                Object propertyValue, Tag customTag) {
     if (property != null && property.getName().equals("pomFile")) {
       // "pomFile" is not a part of POM http://maven.apache.org/xsd/maven-4.0.0.xsd
       return null;
@@ -106,23 +93,32 @@ class ModelRepresenter extends Representer {
       for (int i = 0; i < n; i++) {
         Xpp3Dom child = node.getChild(i);
 
-        String childName = child.getName();
-
         String singularName = null;
-        int childNameLength = childName.length();
-        if ("reportPlugins".equals(childName)) {
+        int childNameLength = child.getName().length();
+        if ("reportPlugins".equals(child.getName())) {
           singularName = "plugin";
-        } else if (childNameLength > 3 && childName.endsWith("ies")) {
-          singularName = childName.substring(0, childNameLength - 3);
-        } else if (childNameLength > 1 && childName.endsWith("s")) {
-          singularName = childName.substring(0, childNameLength - 1);
+        } else if (childNameLength > 3 && child.getName().endsWith("ies")) {
+          singularName = child.getName().substring(0, childNameLength - 3);
+        } else if (childNameLength > 1 && child.getName().endsWith("s")) {
+          singularName = child.getName().substring(0, childNameLength - 1);
         }
 
         Object childValue = child.getValue();
         if (childValue == null) {
-          childValue = toMap(child);
+          boolean isList = singularName != null;
+          if (isList) { // check for eventual list construction
+            for (int j = 0, grandChildCount = child.getChildCount(); j < grandChildCount; j++) {
+              String grandChildName = child.getChild(j).getName();
+              isList &= grandChildName.equals(singularName);
+            }
+          }
+          if (isList) {
+            childValue = toList(child, singularName);
+          } else {
+            childValue = toMap(child);
+          }
         }
-        map.put(childName, childValue);
+        map.put(child.getName(), childValue);
       }
 
       for (String attrName : node.getAttributeNames()) {
@@ -131,11 +127,32 @@ class ModelRepresenter extends Representer {
 
       return map;
     }
+
+    private List<Object> toList(Xpp3Dom node, String childName) {
+      List<Object> list = new ArrayList<>();
+
+      int n = node.getChildCount();
+      for (int i = 0; i < n; i++) {
+        Xpp3Dom child = node.getChild(i);
+
+        if (!childName.equals(child.getName())) {
+          throw new YAMLException(format("child name: '%s' does not match expected name: '%s' at node %s",
+              child.getName(), childName, node));
+        }
+
+        Object childValue = child.getValue();
+        if (childValue == null) {
+          childValue = toMap(child);
+        }
+        list.add(childValue);
+      }
+
+      return list;
+    }
   }
 
   // Model elements order {
-  //TODO move to polyglot-common, or to org.apache.maven:maven-model
-  private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
+  private static List<String> ORDER_MODEL = new ArrayList<>(Arrays.asList(
           "modelEncoding",
           "modelVersion",
           "parent",
@@ -169,34 +186,39 @@ class ModelRepresenter extends Representer {
           "profiles",
           "reporting"
   ));
-  private static List<String> ORDER_DEVELOPER = new ArrayList<String>(Arrays.asList(
+  private static List<String> ORDER_DEVELOPER = new ArrayList<>(Arrays.asList(
           "name", "id", "email"));
-  private static List<String> ORDER_CONTRIBUTOR = new ArrayList<String>(Arrays.asList(
+  private static List<String> ORDER_CONTRIBUTOR = new ArrayList<>(Arrays.asList(
           "name", "id", "email"));
-  private static List<String> ORDER_DEPENDENCY = new ArrayList<String>(Arrays.asList(
+  private static List<String> ORDER_DEPENDENCY = new ArrayList<>(Arrays.asList(
           "groupId", "artifactId", "version", "type", "classifier", "scope"));
-  private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
+  private static List<String> ORDER_PLUGIN = new ArrayList<>(Arrays.asList(
           "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
   //}
 
   protected Set<Property> getProperties(Class<? extends Object> type) {
-    if (type.isAssignableFrom(Model.class)) {
-      return sortTypeWithOrder(type, ORDER_MODEL);
-    } else if (type.isAssignableFrom(Developer.class)) {
-      return sortTypeWithOrder(type, ORDER_DEVELOPER);
-    } else if (type.isAssignableFrom(Contributor.class)) {
-      return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-    } else if (type.isAssignableFrom(Dependency.class)) {
-      return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-    } else if (type.isAssignableFrom(Plugin.class)) {
-      return sortTypeWithOrder(type, ORDER_PLUGIN);
-    } else {
-      return PropertyUtils.getProperties(type);
+    try {
+      if (type.isAssignableFrom(Model.class)) {
+        return sortTypeWithOrder(type, ORDER_MODEL);
+      } else if (type.isAssignableFrom(Developer.class)) {
+        return sortTypeWithOrder(type, ORDER_DEVELOPER);
+      } else if (type.isAssignableFrom(Contributor.class)) {
+        return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
+      } else if (type.isAssignableFrom(Dependency.class)) {
+        return sortTypeWithOrder(type, ORDER_DEPENDENCY);
+      } else if (type.isAssignableFrom(Plugin.class)) {
+        return sortTypeWithOrder(type, ORDER_PLUGIN);
+      } else {
+        return PropertyUtils.getProperties(type, BeanAccess.FIELD);
+      }
+    } catch (IntrospectionException e) {
+      throw new RuntimeException(e);
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
-    Set<Property> standard = PropertyUtils.getProperties(type);
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+          throws IntrospectionException {
+    Set<Property> standard = PropertyUtils.getProperties(type, BeanAccess.FIELD);
     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));
     sorted.addAll(standard);
     return sorted;
@@ -227,7 +249,7 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0; // compare further
+      return 0;// compare further
     }
   }
 }

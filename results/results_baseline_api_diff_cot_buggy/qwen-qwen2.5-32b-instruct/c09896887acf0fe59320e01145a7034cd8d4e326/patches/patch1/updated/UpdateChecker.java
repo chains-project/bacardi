@@ -13,23 +13,18 @@ import java.util.regex.Pattern;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.maven.artifact.versioning.ComparableVersion;
-import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GHCompareResult;
 import org.kohsuke.github.GitHub;
-import org.kohsuke.github.GitHubComparison;
+import org.kohsuke.github.GitHubComparisonStatus;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-/**
- * Looks for updates (incremental or otherwise) to a specific artifact.
- */
 public final class UpdateChecker {
 
     private final Log log;
     private final List<String> repos;
-    /** keys are {@code groupId:artifactId:currentVersion:branch} */
     private final Map<String, VersionAndRepo> cache = new HashMap<>();
-
     private final Map<String, String> groupIdCache = new HashMap<>();
 
     public UpdateChecker(Log log, List<String> repos) {
@@ -43,9 +38,6 @@ public final class UpdateChecker {
             log.info("Group ID Cache hit on artifact ID: " + artifactId);
             return groupIdCache.get(cacheKey);
         }
-
-        //TODO: implement to support non-Incremental formats
-        // Needs to load UC JSON and query it like https://github.com/jenkinsci/docker/pull/668
         return null;
     }
 
@@ -60,13 +52,7 @@ public final class UpdateChecker {
         return result;
     }
 
-    /**
-     * Look for all known versions of a given artifact.
-     * @param repos a set of repository URLs to check
-     * @return a possibly empty set of versions, sorted descending
-     */
     private SortedSet<VersionAndRepo> loadVersions(String groupId, String artifactId) throws Exception {
-        // TODO consider using official Aether APIs here (could make use of local cache)
         SortedSet<VersionAndRepo> r = new TreeSet<>();
         for (String repo : repos) {
             String mavenMetadataURL = repo + groupId.replace('.', '/') + '/' + artifactId + "/maven-metadata.xml";
@@ -74,29 +60,35 @@ public final class UpdateChecker {
             try {
                 doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mavenMetadataURL);
             } catch (FileNotFoundException x) {
-                continue; // not even defined in this repo, fine
+                continue;
             }
             Element versionsE = theElement(doc, "versions", mavenMetadataURL);
             NodeList versionEs = versionsE.getElementsByTagName("version");
             for (int i = 0; i < versionEs.getLength(); i++) {
-                // Not bothering to exclude timestamped snapshots for now, since we are working with release repositories anyway.
                 r.add(new VersionAndRepo(groupId, artifactId, new ComparableVersion(versionEs.item(i).getTextContent()), repo));
             }
         }
         return r;
     }
 
-    /**
-     * Parses {@code /project/scm/url} and {@code /project/scm/tag} out of a POM, if mapped to a commit.
-     */
+    private static class GitHubCommit {
+        final String owner;
+        final String repo;
+        final String hash;
+        GitHubCommit(String owner, String repo, String hash) {
+            this.owner = owner;
+            this.repo = repo;
+            this.hash = hash;
+        }
+        @Override public String toString() {
+            return "https://github.com/" + owner + '/' + repo + "/commit/" + hash;
+        }
+    }
+
     private static @CheckForNull GitHubCommit loadGitHubCommit(VersionAndRepo vnr) throws Exception {
         String pom = vnr.fullURL("pom");
         Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(pom);
-        NodeList scmEs = doc.getElementsByTagName("scm");
-        if (scmEs.getLength() != 1) {
-            return null;
-        }
-        Element scmE = (Element) scmEs.item(0);
+        Element scmE = theElement(doc, "scm", pom);
         Element urlE = theElement(scmE, "url", pom);
         String url = urlE.getTextContent();
         Matcher m = Pattern.compile("https?://github[.]com/([^/]+)/([^/]+?)([.]git)?(/.*)?").matcher(url);
@@ -113,25 +105,14 @@ public final class UpdateChecker {
         return new GitHubCommit(groupId, artifactId, tag);
     }
 
-    /**
-     * Checks whether a commit is an ancestor of a given branch head.
-     * {@code curl -s -u … https://api.github.com/repos/<owner>/<repo>/compare/<branch>...<hash> | jq -r .status}
-     * will return {@code identical} or {@code behind} if so, else {@code diverged} or {@code ahead}.
-     * @param branch may be {@code master} or {@code forker:branch}
-     * @see <a href="https://developer.github.com/v3/repos/commits/#compare-two-commits">Compare two commits</a>
-     * @see <a href="https://stackoverflow.com/a/23970412/12916">Discussion</a>
-     */
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
-            GitHubComparison comparison = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).compare(branch, ghc.hash);
-            return comparison.getStatus() == GitHubComparison.Status.BEHIND || comparison.getStatus() == GitHubComparison.Status.IDENTICAL;
+            GHCompareResult compareResult = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).compare(branch, ghc.hash);
+            GitHubComparisonStatus status = compareResult.getStatus();
+            return status == GitHubComparisonStatus.BEHIND || status == GitHubComparisonStatus.IDENTICAL;
         } catch (FileNotFoundException x) {
-            // For example, that branch does not exist in this repository.
             return false;
         }
-        // TODO check behavior when the comparison is huge (too many commits or too large diff)
-        // and perhaps fall back to cloning into a temp dir and pulling all PR refs https://gist.github.com/piscisaureus/3342247
-        // Currently https://developer.github.com/v4/object/commit/ does no better than this.
     }
 
     private static Element theElement(Document doc, String tagName, String url) throws Exception {
@@ -164,37 +145,29 @@ public final class UpdateChecker {
         }
     }
 
-    private @CheckForNull VersionAndRepo doFind(String groupId, String artifactId, String currentVersion, String branch) throws Exception {
-        ComparableVersion currentV = new ComparableVersion(currentVersion);
-        log.info("Searching for updates to " + groupId + ":" + artifactId + ":" + currentV + " within " + branch);
-        SortedSet<VersionAndRepo> candidates = loadVersions(groupId, artifactId);
-        if (candidates.isEmpty()) {
-            log.info("Found no candidates");
-            return null;
+    public static final class VersionAndRepo implements Comparable<VersionAndRepo> {
+        public final String groupId;
+        public final String artifactId;
+        public final ComparableVersion version;
+        public final String repo;
+        VersionAndRepo(String groupId, String artifactId, ComparableVersion version, String repo) {
+            this.groupId = groupId;
+            this.artifactId = artifactId;
+            this.version = version;
+            this.repo = repo;
         }
-        log.info("Found " + candidates.size() + " candidates from " + candidates.first() + " down to " + candidates.last());
-        for (VersionAndRepo candidate : candidates) {
-            if (candidate.version.compareTo(currentV) <= 0) {
-                log.info("Stopping search at " + candidate + " since it is no newer than " + currentV);
-                return null;
-            }
-            log.info("Considering " + candidate);
-            GitHubCommit ghc = loadGitHubCommit(candidate);
-            if (ghc != null) {
-                log.info("Mapped to: " + ghc);
-                if (isAncestor(ghc, branch)) {
-                    log.info("Seems to be within " + branch + ", so accepting");
-                    return candidate;
-                } else {
-                    log.info("Does not seem to be within " + branch);
-                }
-            } else {
-                log.info("Does not seem to be an incremental release, so accepting");
-                // TODO may still be useful to select MRP versions targeted to an origin branch.
-                // (For example, select the latest backport from a stable branch rather than trunk.)
-                return candidate;
-            }
+        public int compareTo(VersionAndRepo o) {
+            assert o.groupId.equals(groupId) && o.artifactId.equals(artifactId);
+            return o.version.compareTo(version);
         }
-        return null;
+        public String baseURL() {
+            return repo + groupId.replace('.', '/') + '/' + artifactId + '/' + version + '/';
+        }
+        public String fullURL(String type) {
+            return baseURL() + artifactId + '-' + version + '.' + type;
+        }
+        @Override public String toString() {
+            return baseURL();
+        }
     }
 }

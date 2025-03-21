@@ -14,16 +14,17 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.network.ChannelBuf;
 import org.spongepowered.api.network.message.MessageHandler;
+import org.spongepowered.api.network.message.MessageHandlerRegistration;
 import org.spongepowered.api.network.RemoteConnection;
 import org.spongepowered.api.scheduler.Task;
 
-public class UpdateSkinListener implements MessageHandler {
+public class UpdateSkinListener implements MessageHandler<ChannelBuf> {
 
     @Inject
     private ChangeSkinSponge plugin;
 
-    // Removed @Override as RawDataListener is no longer available
-    public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+    @Override
+    public void handleMessage(ChannelBuf data, RemoteConnection connection) {
         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
         SkinUpdateMessage updateMessage = new SkinUpdateMessage();
         updateMessage.readFrom(dataInput);

@@ -3,12 +3,10 @@ package com.example.web;
 import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import jakarta.mvc.Controller;
-import jakarta.mvc.Models;
-import jakarta.mvc.binding.BindingResult;
-import jakarta.mvc.binding.MvcBinding;
-import jakarta.mvc.binding.ParamError;
-import jakarta.mvc.security.CsrfProtected;
+import javax.mvc.annotation.Controller;
+import javax.mvc.binding.BindingResult;
+import javax.mvc.binding.MvcBinding;
+import javax.mvc.binding.ParamError;
 import javax.validation.constraints.NotBlank;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -28,7 +26,7 @@ public class CsrfController {
     BindingResult bindingResult;
 
     @Inject
-    Models models;
+    javax.mvc.annotation.Models models;
 
     @Inject
     AlertMessage flashMessage;
@@ -42,7 +40,6 @@ public class CsrfController {
     }
 
     @POST
-    @CsrfProtected
     public String post(
             @FormParam("greeting")
             @MvcBinding

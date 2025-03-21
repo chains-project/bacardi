@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2012 to original author or authors
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
 package org.sonatype.maven.polyglot.yaml;
 
 import org.apache.maven.model.Contributor;
@@ -28,13 +21,6 @@ import java.util.*;
 
 import static java.lang.String.format;
 
-/**
- * YAML model representer.
- *
- * @author jvanzyl
- * @author bentmann
- * @since 0.7
- */
 class ModelRepresenter extends Representer {
   public ModelRepresenter() {
     super(new DumperOptions());
@@ -48,7 +34,7 @@ class ModelRepresenter extends Representer {
   }
 
   protected NodeTuple representJavaBeanProperty(Object javaBean, Property property,
-                                                  Object propertyValue, Tag customTag) {
+                                                Object propertyValue, Tag customTag) {
     if (property != null && property.getName().equals("pomFile")) {
       // "pomFile" is not a part of POM http://maven.apache.org/xsd/maven-4.0.0.xsd
       return null;
@@ -107,7 +93,6 @@ class ModelRepresenter extends Representer {
       int n = node.getChildCount();
       for (int i = 0; i < n; i++) {
         Xpp3Dom child = node.getChild(i);
-
         String childName = child.getName();
 
         String singularName = null;
@@ -136,8 +121,7 @@ class ModelRepresenter extends Representer {
   }
 
   // Model elements order {
-  //TODO move to polyglot-common, or to org.apache.maven:maven-model
-  private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
+  private static List<String> ORDER_MODEL = new ArrayList<>(Arrays.asList(
           "modelEncoding",
           "modelVersion",
           "parent",
@@ -171,36 +155,39 @@ class ModelRepresenter extends Representer {
           "profiles",
           "reporting"
   ));
-  private static List<String> ORDER_DEVELOPER = new ArrayList<String>(Arrays.asList(
+  private static List<String> ORDER_DEVELOPER = new ArrayList<>(Arrays.asList(
           "name", "id", "email"));
-  private static List<String> ORDER_CONTRIBUTOR = new ArrayList<String>(Arrays.asList(
+  private static List<String> ORDER_CONTRIBUTOR = new ArrayList<>(Arrays.asList(
           "name", "id", "email"));
-  private static List<String> ORDER_DEPENDENCY = new ArrayList<String>(Arrays.asList(
+  private static List<String> ORDER_DEPENDENCY = new ArrayList<>(Arrays.asList(
           "groupId", "artifactId", "version", "type", "classifier", "scope"));
-  private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
+  private static List<String> ORDER_PLUGIN = new ArrayList<>(Arrays.asList(
           "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
   //}
 
-  protected Set<Property> getProperties(Class<? extends Object> type) throws IntrospectionException {
-    if (type.isAssignableFrom(Model.class)) {
-      return sortTypeWithOrder(type, ORDER_MODEL);
-    } else if (type.isAssignableFrom(Developer.class)) {
-      return sortTypeWithOrder(type, ORDER_DEVELOPER);
-    } else if (type.isAssignableFrom(Contributor.class)) {
-      return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-    } else if (type.isAssignableFrom(Dependency.class)) {
-      return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-    } else if (type.isAssignableFrom(Plugin.class)) {
-      return sortTypeWithOrder(type, ORDER_PLUGIN);
-    } else {
-      return super.getProperties(type);
+  protected Set<Property> getProperties(Class<? extends Object> type) {
+    try {
+      if (type.isAssignableFrom(Model.class)) {
+        return sortTypeWithOrder(type, ORDER_MODEL);
+      } else if (type.isAssignableFrom(Developer.class)) {
+        return sortTypeWithOrder(type, ORDER_DEVELOPER);
+      } else if (type.isAssignableFrom(Contributor.class)) {
+        return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
+      } else if (type.isAssignableFrom(Dependency.class)) {
+        return sortTypeWithOrder(type, ORDER_DEPENDENCY);
+      } else if (type.isAssignableFrom(Plugin.class)) {
+        return sortTypeWithOrder(type, ORDER_PLUGIN);
+      } else {
+        return super.getProperties(type, BeanAccess.FIELD);
+      }
+    } catch (IntrospectionException e) {
+      throw new RuntimeException(e);
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
-          throws IntrospectionException {
-    Set<Property> standard = PropertyUtils.getProperties(type, BeanAccess.FIELD);
-    Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+    Set<Property> standard = super.getProperties(type, BeanAccess.FIELD);
+    Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));
     sorted.addAll(standard);
     return sorted;
   }
@@ -213,14 +200,12 @@ class ModelRepresenter extends Representer {
     }
 
     public int compare(Property o1, Property o2) {
-      // important go first
       for (String name : names) {
         int c = compareByName(o1, o2, name);
         if (c != 0) {
           return c;
         }
       }
-      // all the rest
       return o1.compareTo(o2);
     }
 
@@ -230,7 +215,7 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0;// compare further
+      return 0;
     }
   }
 }

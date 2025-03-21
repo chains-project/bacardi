@@ -1,6 +1,6 @@
 package ml.peya.plugins.Objects;
 
-import tokyo.peya.lib.WaveCreator; // Updated import for the new WaveCreator class
+import tokyo.peya.lib.WaveCreator;
 import ml.peya.plugins.PeyangSuperbAntiCheat;
 import ml.peya.plugins.Variables;
 import org.bukkit.Location;
@@ -137,12 +137,12 @@ public class Decorations
      *
      * @param center   真ん中の位置
      * @param count    カウント！
-     * @param radius   半径
+     * @param radius   はんけー
      */
-    private static void circle(Location center, int count, double radius)
+    public static void circle(Location center, int count, double radius)
     {
         Location n = new Location(
-            (center.getWorld(),
+            center.getWorld(),
             particle_x(count, radius) + center.getX(),
             center.getY(),
             particle_z(count, radius) + center.getZ()
@@ -157,13 +157,13 @@ public class Decorations
      *
      * @param center   真ん中の位置
      * @param count    カウント！
-     * @param radius   半径
+     * @param radius   はんけー
      * @param particle ぱーてぃくる
      */
-    private static void circle(Location center, int count, double radius, Particle particle)
+    public static void circle(Location center, int count, double radius, Particle particle)
     {
         Location n = new Location(
-            (center.getWorld(),
+            center.getWorld(),
             particle_x(count, radius) + center.getX(),
             center.getY(),
             particle_z(count, radius) + center.getZ()
@@ -176,25 +176,41 @@ public class Decorations
     /**
      * まほーじん！！
      *
-     * @param player 被験者
+     * @param player 餌食
      * @param sec    秒数
      */
     public static void magic(Player player, int sec)
     {
-        final double[] time = {0.0};
-        final double radius = 2.5;
+        final int[] count = {0};
+        WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1);
 
         BukkitRunnable runnable = new BukkitRunnable()
         {
             @Override
             public void run()
             {
-                Location c = player.getLocation().clone();
-                Location X = new Location(c.getWorld(), particle_x(time[0], radius) + c.getX(), 5.0 + c.getY(), particle_z(time[0], radius) + c.getZ());
+                for (double i = 0; i < Math.PI * 2; i++)
+                {
+                    Location center = player.getLocation().clone();
+                    circle(center.clone().add(0, 0.9, 0), count[0], 3, Particle.CRIT);
 
-                for (int i = 0; i < 10; i++)
-                    line(c, X, Particle.TOWN_AURA);
-                time[0] += Math.E;
+                    circle(center.add(0, 0.7, 0), count[0], 2.7, Particle.ENCHANTMENT_TABLE);
+
+                    circle(center.clone().add(0, wave.get(0.01, false), 0), count[0], wave.getStatic());
+
+                    circle(center.clone().add(3.2, 0.7, 3.2), count[0], 1.5);
+                    circle(center.clone().add(-3.2, 0.7, -3.2), count[0], 1.5);
+                    circle(center.clone().add(-3.2, 0.7, 3.2), count[0], 1.5);
+                    circle(center.clone().add(3.2, 0.7, -3.2), count[0], 1.5);
+
+                    count[0]++;
+                }
+
+                Location center = player.getLocation();
+
+                line(center.clone().add(3, 0.7, 0), center.clone().add(-1.5, 0.7, 2.3));
+                line(center.clone().add(-1.5, 0.7, 2.3), center.clone().add(-1.5, 0.7, -2.3)); //三角
+                line(center.clone().add(3, 0.7, 0), center.clone().add(1.5, 0.7, 2.3));
             }
         };
 
@@ -248,75 +264,4 @@ public class Decorations
             laser(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20));
     }
 
-    /**
-     * まほーじん！！
-     *
-     * @param player 被験者
-     * @param sec    秒数
-     */
-    public static void magic(Player player, int sec)
-    {
-        final int[] count = {0};
-        WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1); // Updated WaveCreator instantiation
-
-        BukkitRunnable runnable = new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                Location c = player.getLocation().clone();
-                Location X = new Location(c.getWorld(), particle_x(count[0], 3), 5.0 + c.getY(), particle_z(count[0], 3));
-
-                for (int i = 0; i < 10; i++)
-                    line(c, X, Particle.TOWN_AURA);
-                count[0]++;
-            }
-        };
-
-        runnable.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0L, 1L);
-        new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                runnable.cancel();
-            }
-        }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), sec);
-    }
-
-    /**
-     * まほーじん！！
-     *
-     * @param player 被験者
-     * @param sec    秒数
-     */
-    public static void laser(Player player, int sec)
-    {
-        final double[] time = {0.0};
-        final double radius = 2.5;
-
-        BukkitRunnable runnable = new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                Location c = player.getLocation().clone();
-                Location X = new Location(c.getWorld(), particle_x(time[0], radius) + c.getX(), 5.0 + c.getY(), particle_z(time[0], radius) + c.getZ());
-
-                for (int i = 0; i < 10; i++)
-                    line(c, X, Particle.TOWN_AURA);
-                time[0] += Math.E;
-            }
-        };
-
-        runnable.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0L, 1L);
-        new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                runnable.cancel();
-            }
-        }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), sec);
-    }
 }

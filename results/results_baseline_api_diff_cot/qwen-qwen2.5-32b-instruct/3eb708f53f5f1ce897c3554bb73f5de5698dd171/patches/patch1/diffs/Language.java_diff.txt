@@ -1,21 +1,21 @@
-19c19,20
+19d18
 < import com.google.api.services.translate.model.LanguagesResource;
----
-> import com.google.cloud.translate.v3.LocationName;
-> import com.google.cloud.translate.v3.TranslateProto;
-36,37c37,38
+36,37c35,36
 <   static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
 <       new Function<LanguagesResource, Language>() {
 ---
->   static final Function<TranslateProto.Languages, Language> FROM_PB_FUNCTION =
->       new Function<TranslateProto.Languages, Language>() {
-39c40
+>   static final Function<String, Language> FROM_PB_FUNCTION =
+>       new Function<String, Language>() {
+39c38,39
 <         public Language apply(LanguagesResource languagePb) {
 ---
->         public Language apply(TranslateProto.Languages languagePb) {
-84,85c85,86
+>         public Language apply(String languagePb) {
+>           // Assuming the new API returns a string directly with the language code
+84,85c84,87
 <   static Language fromPb(LanguagesResource languagePb) {
 <     return new Language(languagePb.getLanguage(), languagePb.getName());
 ---
->   static Language fromPb(TranslateProto.Languages languagePb) {
->     return new Language(languagePb.getCode(), languagePb.getName());
+>   static Language fromPb(String languagePb) {
+>     // Assuming the new API returns a string directly with the language code
+>     // and the name is derived from the code or another source
+>     return new Language(languagePb, "Unknown Name"); // Placeholder for name retrieval logic

@@ -1,3 +1,7 @@
+65c65
+<         @SuppressWarnings("unused")
+---
+>         @SuppressWarnings("serial")
 93c93
 <                                 configuration.getNetworkName());
 ---
@@ -6,24 +10,88 @@
 <         @Bean(initMethod = "migrate")
 ---
 >         @Bean
-108,112c108,114
+105,112c105,109
+<                 final Properties prop = new Properties();
+<                 prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+< 
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
 <                 flyway.setLocations(prop.getProperty("flyway.locations"));
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 ---
->                 Flyway flyway = Flyway.configure()
+>                 final Flyway flyway = Flyway.configure()
 >                                 .dataSource(this.dataSource())
 >                                 .locations(prop.getProperty("flyway.locations"))
->                                 .classLoader(NisAppConfig.class.getClassLoader())
 >                                 .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
 >                                 .load();
-> 
-117d118
+117c114,118
 <         @DependsOn("flyway")
-284a286,392
+---
+>         public HibernateTransactionManager transactionManager() throws IOException {
+>                 return new HibernateTransactionManager(this.sessionFactory());
+>         }
 > 
+>         @Bean
+122a124,161
+>         public NisMain nisMain() {
+>                 // initialize network info
+>                 NetworkInfos.setDefault(this.nisConfiguration().getNetworkInfo());
+> 
+>                 // initialize other globals
+>                 final NamespaceCacheLookupAdapters adapters = new NamespaceCacheLookupAdapters(this.namespaceCache());
+>                 if (this.nisConfiguration().ignoreFees()) {
+>                         NemGlobals.setTransactionFeeCalculator(new ZeroTransactionFeeCalculator());
+>                 } else {
+>                         NemGlobals.setTransactionFeeCalculator(new DefaultTransactionFeeCalculator(adapters.asMosaicFeeInformationLookup(),
+>                                         () -> this.blockChainLastBlockLayer.getLastBlockHeight().next(), new BlockHeight[]{
+>                                                         new BlockHeight(BlockMarkerConstants.FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24)),
+>                                                         new BlockHeight(
+>                                                                         BlockMarkerConstants.SECOND_FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24))
+>                                         }));
+>                 }
+> 
+>                 NemGlobals.setBlockChainConfiguration(this.nisConfiguration().getBlockChainConfiguration());
+>                 NemStateGlobals.setWeightedBalancesSupplier(this.weighedBalancesSupplier());
+> 
+>                 return new NisMain(this.blockDao, this.nisCache(), this.networkHostBootstrapper(), this.nisModelToDbModelMapper(),
+>                                 this.nisConfiguration(), this.blockAnalyzer(), System::exit);
+>         }
+> 
+>         @SuppressWarnings("serial")
+>         private Supplier<WeightedBalances> weighedBalancesSupplier() {
+>                 final Map<BlockChainFeature, Supplier<Supplier<WeightedBalances>>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<WeightedBalances>>>() {
+>                         {
+>                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
+>                                 this.put(BlockChainFeature.WB_IMMEDIATE_VEST, () -> AlwaysVestedBalances::new);
+>                         }
+>                 };
+> 
+>                 return BlockChainFeatureDependentFactory.createObject(this.nisConfiguration().getBlockChainConfiguration(),
+>                                 "weighted balance scheme", featureSupplierMap);
+>         }
+> 
+>         @Bean
+329a369,432
+>                                 this.put(BlockChainFeature.WB_IMMEDIATE_VEST, () -> AlwaysVestedBalances::new);
+>                         }
+>                 };
+> 
+>                 return BlockChainFeatureDependentFactory.createObject(this.nisConfiguration().getBlockChainConfiguration(),
+>                                 "weighted balance scheme", featureSupplierMap);
+>         }
+> 
+>         @Bean
+>         public Supplier<BlockHeight> lastBlockHeight() {
+>                 return this.blockChainLastBlockLayer::getLastBlockHeight;
+>         }
+> 
+>         @Bean
+>         public UnconfirmedTransactions unconfirmedTransactions() {
+>                 final BlockChainConfiguration blockChainConfiguration = this.nisConfiguration().getBlockChainConfiguration();
+>                 final UnconfirmedStateFactory unconfirmedStateFactory = new UnconfirmedStateFactory(this.transactionValidatorFactory(),
+>                                 this.blockTransactionObserverFactory()::createExecuteCommitObserver, this.timeProvider(), this.lastBlockHeight(),
+>                                 blockChainConfiguration.getMaxTransactionsPerBlock(), this.nisConfiguration().getForkConfiguration());
 >                 final UnconfirmedTransactions unconfirmedTransactions = new DefaultUnconfirmedTransactions(unconfirmedStateFactory,
 >                                 this.nisCache());
 >                 return new SynchronizedUnconfirmedTransactions(unconfirmedTransactions);
@@ -64,112 +132,8 @@
 >                                 this.nisConfiguration(), this.blockAnalyzer(), System::exit);
 >         }
 > 
->         @Bean
 >         @SuppressWarnings("serial")
->         public Supplier<WeightedBalances> weighedBalancesSupplier() {
+>         private Supplier<WeightedBalances> weighedBalancesSupplier() {
 >                 final Map<BlockChainFeature, Supplier<Supplier<WeightedBalances>>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<WeightedBalances>>>() {
 >                         {
 >                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
->                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
->                         }
->                 };
-> 
->                 return BlockChainFeatureDependentFactory.createObject(this.nisConfiguration().getBlockChainConfiguration(),
->                                 "weighted balance scheme", featureSupplierMap);
->         }
-> 
->         @Bean
->         public NisConfiguration nisConfiguration() {
->                 return new NisConfiguration();
->         }
-> 
->         @Bean
->         public TimeProvider timeProvider() {
->                 return CommonStarter.TIME_PROVIDER;
->         }
-> 
->         @Bean
->         public TrustProvider trustProvider() {
->                 return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), 30), 15 * 60, this.timeProvider());
->         }
-> 
->         @Bean
->         public NisMain nisMain() {
->                 // initialize network info
->                 NetworkInfos.setDefault(this.nisConfiguration().getNetworkInfo());
-> 
->                 // initialize other globals
->                 final NamespaceCacheLookupAdapters adapters = new NamespaceCacheLookupAdapters(this.namespaceCache());
->                 if (this.nisConfiguration().ignoreFees()) {
->                         NemGlobals.setTransactionFeeCalculator(new ZeroTransactionFeeCalculator());
->                 } else {
->                         NemGlobals.setTransactionFeeCalculator(new DefaultTransactionFeeCalculator(adapters.asMosaicFeeInformationLookup(),
->                                         () -> this.blockChainLastBlockLayer.getLastBlockHeight().next(), new BlockHeight[]{
->                                                         new BlockHeight(BlockMarkerConstants.FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24)),
->                                                         new BlockHeight(
->                                                                         BlockMarkerConstants.SECOND_FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24))
->                                         }));
->                 }
-> 
->                 NemGlobals.setBlockChainConfiguration(this.nisConfiguration().getBlockChainConfiguration());
->                 NemStateGlobals.setWeightedBalancesSupplier(this.weighedBalancesSupplier());
-> 
->                 return new NisMain(this.blockDao, this.nisCache(), this.networkHostBootstrapper(), this.nisModelToDbModelMapper(),
->                                 this.nisConfiguration(), this.blockAnalyzer(), System::exit);
->         }
-> 
->         @Bean
->         public Supplier<BlockHeight> lastBlockHeight() {
->                 return this.blockChainLastBlockLayer::getLastBlockHeight;
->         }
-> 
->         @Bean
->         public UnconfirmedTransactions unconfirmedTransactions() {
->                 final BlockChainConfiguration blockChainConfiguration = this.nisConfiguration().getBlockChainConfiguration();
->                 final UnconfirmedStateFactory unconfirmedStateFactory = new UnconfirmedStateFactory(this.transactionValidatorFactory(),
->                                 this.blockTransactionObserverFactory()::createExecuteCommitObserver, this.timeProvider(), this.lastBlockHeight(),
->                                 blockChainConfiguration.getMaxTransactionsPerBlock(), this.nisConfiguration().getForkConfiguration());
-> 
-324a433
->         @Bean
-326c435
-<         private Supplier<WeightedBalances> weighedBalancesSupplier() {
----
->         public Supplier<WeightedBalances> weighedBalancesSupplier() {
-382,415c491
-<                 final int LOW_COMMUNICATION_NODE_WEIGHT = 30;
-<                 final int TRUST_CACHE_TIME = 15 * 60;
-<                 return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME,
-<                                 this.timeProvider());
-<         }
-< 
-<         @Bean
-<         public NemConfigurationPolicy configurationPolicy() {
-<                 return new NisConfigurationPolicy();
-<         }
-< 
-<         @Bean
-<         public ChainServices chainServices() {
-<                 return new DefaultChainServices(this.blockChainLastBlockLayer, this.httpConnectorPool());
-<         }
-< 
-<         @Bean
-<         public CommonStarter commonStarter() {
-<                 return CommonStarter.INSTANCE;
-<         }
-< 
-<         @Bean
-<         public ValidationState validationState() {
-<                 return NisCacheUtils.createValidationState(this.nisCache());
-<         }
-< 
-<         @Bean
-<         public LocalHostDetector localHostDetector() {
-<                 return new LocalHostDetector(this.nisConfiguration().getAdditionalLocalIps());
-<         }
-< 
-<         @Bean
-<         public NodeCompatibilityChecker nodeCompatibilityChecker() {
-<                 return new DefaultNodeCompatibilityChecker();
----
->                 return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), 30), 15 * 60, this.timeProvider());

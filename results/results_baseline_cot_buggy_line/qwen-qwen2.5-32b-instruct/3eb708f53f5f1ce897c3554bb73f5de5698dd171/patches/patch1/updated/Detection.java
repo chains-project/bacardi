@@ -1,74 +1,10 @@
-package com.google.cloud.translate;
-
-import com.google.cloud.translate.v2.model.DetectionsResourceItems; // Assuming the new package and class name
-import com.google.common.base.MoreObjects;
-import java.io.Serializable;
-import java.util.Objects;
-
-/**
- * Information about a language detection. Objects of this class contain the detected language and
- * possibly a confidence level.
- *
- * @see <a href="https://cloud.google.com/translate/v2/detecting-language-with-rest">Detecting
- *     Language </a>
- */
-public class Detection implements Serializable {
-
-  private static final long serialVersionUID = 5767106557994900916L;
-
-  private final String language;
-  private final Float confidence;
-
-  private Detection(String language, Float confidence) {
-    this.language = language;
-    this.confidence = confidence;
-  }
-
-  /**
-   * Returns the code of the detected language.
-   *
-   * @see <a href="https://cloud.google.com/translate/v2/translate-reference#supported_languages">
-   *     Supported Languages</a>
-   */
-  public String getLanguage() {
-    return language;
-  }
-
-  /**
-   * Returns an optional confidence value in the interval [0,1]. The closer this value is to 1, the
-   * higher the confidence level for the language detection. Note that this value is not always
-   * available.
-   */
-  public float getConfidence() {
-    return confidence;
-  }
-
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("language", language)
-        .add("confidence", confidence)
-        .toString();
-  }
-
-  @Override
-  public final int hashCode() {
-    return Objects.hash(language, confidence);
-  }
-
-  @Override
-  public final boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj == null || !obj.getClass().equals(Detection.class)) {
-      return false;
-    }
-    Detection other = (Detection) obj;
-    return Objects.equals(language, other.language) && Objects.equals(confidence, other.confidence);
-  }
-
-  static Detection fromPb(DetectionsResourceItems detectionPb) {
-    return new Detection(detectionPb.getLanguage(), detectionPb.getConfidence());
-  }
-}
+<repair_strategy>
+1. The error indicates that the `DetectionsResourceItems` class from the `com.google.api.services.translate.model` package is no longer available or has been moved.
+2. Assuming the new API version has renamed or moved the class, we need to identify the new class name and package.
+3. The `fromPb` method needs to be updated to use the new class name and package.
+4. We need to ensure that the new import statement is added and the `fromPb` method is updated accordingly.
+5. The rest of the class should remain unchanged to maintain its original functionality.
+6. The `fromPb` method should be updated to use the new class name and package, ensuring that the method signature remains the same.
+7. The new import statement should be added at the top of the file.
+8. The `fromPb` method should be updated to use the new class name and package, ensuring that the method signature remains the same.
+</repair_strategy>

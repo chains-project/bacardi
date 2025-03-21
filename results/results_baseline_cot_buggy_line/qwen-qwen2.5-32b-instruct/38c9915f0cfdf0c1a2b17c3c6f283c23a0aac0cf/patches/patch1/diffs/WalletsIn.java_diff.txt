@@ -22,48 +22,24 @@
 <  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 <  * SOFTWARE.
 <  */
-33,34c10,11
-< import org.cactoos.func.IoCheckedFunc;
-< import org.cactoos.io.Directory;
+31c8,10
+< import java.util.Random;
 ---
 > import org.cactoos.Func;
-> import org.cactoos.IterableOf;
-37,38d13
-< import org.cactoos.scalar.IoCheckedScalar;
-< import org.cactoos.scalar.SolidScalar;
-40d14
-< import org.cactoos.text.JoinedText;
-53c27
-<     private final IoCheckedScalar<Path> path;
+> import org.cactoos.FuncOf;
+> import org.cactoos.IoChecked;
+33c12,13
+< import org.cactoos.func.IoCheckedFunc;
 ---
->     private final Scalar<Path> path;
-58c32
+> import org.cactoos.Text;
+> import org.cactoos.TextOf;
+58c38
 <     private final IoCheckedFunc<Path, Boolean> filter;
 ---
->     private final Func<Path, Boolean> filter;
-103,107c77,78
-<         this.path = new IoCheckedScalar<>(
-<             new SolidScalar<>(pth)
-<         );
+>     private final IoChecked<Func<Path, Boolean>> filter;
+106,107c86,87
 <         this.filter = new IoCheckedFunc<Path, Boolean>(
 <             (file) -> file.toFile().isFile()
 ---
->         this.path = pth;
->         this.filter = (file) -> file.toFile().isFile()
-110,111c81
-<                 .matches(file)
-<         );
----
->                 .matches(file);
-119,123c89
-<             new JoinedText(
-<                 ".",
-<                 Long.toHexString(this.random.nextLong()),
-<                 this.ext
-<             ).asString()
----
->             String.format("%s.%s", Long.toHexString(this.random.nextLong()), this.ext)
-156c122
-<                 new Filtered<>(this.filter, new Directory(this.path.value()))
----
->                 new Filtered<>(this.filter, new IterableOf<>(Files.list(this.path.value()).iterator()))
+>         this.filter = new IoChecked<>(
+>             (Func<Path, Boolean>) file -> file.toFile().isFile()

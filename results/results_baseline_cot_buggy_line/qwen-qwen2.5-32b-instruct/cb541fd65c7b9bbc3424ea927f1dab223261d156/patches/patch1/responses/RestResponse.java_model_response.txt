@@ -1,21 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the `Matchers` class cannot be found in the `org.hamcrest` package.
-   - This suggests that the `hamcrest` library, which contains the `Matchers` class, might have been updated or replaced with a different version that does not include this class anymore.
-
-2. Review the client code:
-   - The `Matchers` class is used in several methods for assertions.
-   - The `Matchers` class is imported at the top of the file, which is causing the compilation error.
-
-3. Consider potential fixes:
-   - The `Matchers` class is part of the `hamcrest-library` artifact. If the dependency update removed this class, it might be necessary to either revert to a version of `hamcrest` that includes `Matchers` or find an alternative way to perform the assertions.
-   - Alternatively, if the `hamcrest` library has been replaced with a newer version that uses a different package structure, the import statement needs to be updated to reflect the new location of the `Matchers` class.
-
-4. Plan the necessary changes:
-   - If the `Matchers` class is still available in a different package, update the import statement to the correct package.
-   - If the `Matchers` class is no longer available, consider using `org.hamcrest.CoreMatchers` as a replacement, which contains similar static methods for creating matchers.
-</code_analysis>
-
 ```java
 package com.jcabi.http.response;
 
@@ -32,9 +14,11 @@ import java.util.Map;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.HttpHeaders;
 import lombok.EqualsAndHashCode;
-import org.hamcrest.CoreMatchers;
+import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.IsEqual;
+import org.hamcrest.core.StringContains;
 
 /**
  * REST response.
@@ -46,10 +30,13 @@ import org.hamcrest.MatcherAssert;
  *   .fetch()
  *   .as(RestResponse.class)
  *   .assertStatus(200)
- *   .assertBody(CoreMatchers.containsString("hello, world!"))
- *   .assertHeader("Content-Type", CoreMatchers.hasItems("text/plain"))
+ *   .assertBody(new StringContains("hello, world!"))
+ *   .assertHeader("Content-Type", new IsEqual<>(Collections.singletonList("text/plain")))
  *   .jump(URI.create("/users"))
  *   .fetch();</pre>
+ *
+ * <p>Method {@link #jump(URI)} creates a new instance of class
+ * {@link Request} with all cookies transferred from the current one.
  *
  * <p>The class is immutable and thread-safe.
  *
@@ -75,9 +62,7 @@ public final class RestResponse extends AbstractResponse {
      */
     public RestResponse assertThat(final Matcher<Response> matcher) {
         MatcherAssert.assertThat(
-            String.format(
-                "HTTP response is not valid: %s", this
-            ),
+            String.format("HTTP response is not valid: %s", this),
             this,
             matcher
         );
@@ -99,8 +84,7 @@ public final class RestResponse extends AbstractResponse {
                 "HTTP response status is not equal to %d:%n%s",
                 status, this
             ),
-            this,
-            new RestResponse.StatusMatch(message, status)
+            this.status(), new IsEqual<>(status)
         );
         return this;
     }
@@ -160,7 +144,7 @@ public final class RestResponse extends AbstractResponse {
      * Verifies HTTP header against provided matcher, and throws
      * {@link AssertionError} in case of mismatch.
      *
-     * <p>The iterator for the matcher will always be a real object and never
+     * <p>The iterator for the matcher will always be a real object an never
      * {@code NULL}, even if such a header is absent in the response. If the
      * header is absent the iterable will be empty.
      *
@@ -195,7 +179,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, CoreMatchers.hasItems(value));
+        return this.assertHeader(name, new IsEqual<>(Collections.singletonList(value)));
     }
 
     /**
@@ -213,10 +197,10 @@ public final class RestResponse extends AbstractResponse {
             for (final String header : headers.get(HttpHeaders.SET_COOKIE)) {
                 for (final HttpCookie cookie : HttpCookie.parse(header)) {
                     req = req.header(
-                        (HttpHeaders.COOKIE,
-                         String.format(
-                             "%s=%s", cookie.getName(), cookie.getValue()
-                         )
+                        HttpHeaders.COOKIE,
+                        String.format(
+                            "%s=%s", cookie.getName(), cookie.getValue()
+                        )
                     );
                 }
             }
@@ -231,7 +215,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            CoreMatchers.not(CoreMatchers.emptyIterable())
+            new IsEqual<>(Collections.singletonList("http://example.com"))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -269,7 +253,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            CoreMatchers.notNullValue()
+            new IsEqual<>(null)
         );
         assert cookie != null;
         return cookie;
@@ -319,5 +303,3 @@ public final class RestResponse extends AbstractResponse {
     }
 }
 ```
-
-In the provided solution, the `Matchers` import has been replaced with `CoreMatchers` from the `org.hamcrest` package, which provides similar functionality. This change should resolve the compilation error caused by the missing `Matchers` class.

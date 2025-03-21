@@ -1,21 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error messages indicate that the methods `init`, `doEncode`, and `close` in the `LogMessageEncoder` class are incorrectly marked with `@Override` because they do not override methods from a supertype.
-   - The error also mentions that `LogMessageEncoder` does not implement the `footerBytes` method from `EncoderBase`, which is now required by the updated dependency.
-
-2. Review the client code:
-   - The `LogMessageEncoder` class extends `EncoderBase<LogMessage>` and implements methods `init`, `doEncode`, and `close`.
-   - The `EncoderBase` class in the updated dependency now requires the `footerBytes` method to be implemented.
-
-3. Consider potential fixes:
-   - Remove the `@Override` annotations from the `init`, `doEncode`, and `close` methods since they do not override methods from the supertype.
-   - Implement the `footerBytes` method in the `LogMessageEncoder` class.
-
-4. Plan the necessary changes:
-   - Remove the `@Override` annotations from the `init`, `doEncode`, and `close` methods.
-   - Add the `footerBytes` method to the `LogMessageEncoder` class.
-</code_analysis>
-
 ```java
 package com.pinterest.singer.client.logback;
 
@@ -58,31 +40,42 @@ public class AppenderUtils {
     private TProtocol protocol;
     private OutputStream os;
 
+    @Override
     public void init(OutputStream os) {
       this.os = os;
-      // Use the TFlushingFastFramedTransport to be compatible with singer_thrift log.
+      // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
+      // log.
       final int bufferCapacity = 10;
       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
           bufferCapacity);
       protocol = new TBinaryProtocol(framedTransport);
     }
 
-    public void doEncode(LogMessage logMessage) throws IOException {
+    @Override
+    public byte[] encode(LogMessage logMessage) throws IOException {
       try {
+        TTransport transport = new TFastFramedTransport(new TIOStreamTransport(os));
+        TProtocol protocol = new TBinaryProtocol(transport);
         logMessage.write(protocol);
-        framedTransport.flush();
+        transport.flush();
+        return transport.getBuffer().array();
       } catch (TException e) {
         throw new IOException(e);
       }
     }
 
+    @Override
     public void close() throws IOException {
       framedTransport.close();
     }
 
     @Override
-    public byte[] footerBytes() {
-      // Implement the footerBytes method as required by the updated dependency.
+    public byte[] getHeaderBytes() {
+      return new byte[0];
+    }
+
+    @Override
+    public byte[] getFooterBytes() {
       return new byte[0];
     }
   }
@@ -135,5 +128,3 @@ public class AppenderUtils {
   }
 }
 ```
-
-This solution removes the `@Override` annotations from the `init`, `doEncode`, and `close` methods, as they do not override methods from a supertype. It also implements the `footerBytes` method to comply with the updated dependency requirements.

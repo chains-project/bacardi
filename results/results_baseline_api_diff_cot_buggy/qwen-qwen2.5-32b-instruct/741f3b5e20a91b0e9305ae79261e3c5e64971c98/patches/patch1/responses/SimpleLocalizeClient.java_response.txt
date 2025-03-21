@@ -1,7 +1,7 @@
 package io.simplelocalize.cli.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import io.simplelocalize.cli.client.dto.DownloadRequest;
@@ -78,11 +78,11 @@ public class SimpleLocalizeClient
   {
     log.info("Preparing files to download");
     URI downloadUri = uriFactory.buildDownloadUri(downloadRequest);
-    HttpRequest httpRequest = httpRequestFactory.createGetRequest(downloadUri).build();
+    HttpRequest httpRequest = httpRequestFactory.createGetRequest(downloadUri).build());
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
     throwOnError(httpResponse);
     String body = httpResponse.body();
-    ExportResponse exportResponse = objectMapper.readValue(body, new TypeReference<ExportResponse>() {});
+    ExportResponse exportResponse = objectMapper.readValue(body, objectMapper.getTypeFactory().constructType(ExportResponse.class));
     return exportResponse.getFiles();
   }
 
@@ -121,9 +121,9 @@ public class SimpleLocalizeClient
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
     throwOnError(httpResponse);
     String json = httpResponse.body();
-    Boolean passed = JsonPath.read(json, "$.data.passed");
-    String message = JsonPath.read(json, "$.data.message");
-    int status = JsonPath.read(json, "$.data.status");
+    Boolean passed = JsonPath.parse(json).read("$.data.passed");
+    String message = JsonPath.parse(json).read("$.data.message");
+    int status = JsonPath.parse(json).read("$.data.status");
     log.info("Gate result: {} (status: {}, message: {})", passed, status, message);
     return status;
   }
@@ -132,8 +132,12 @@ public class SimpleLocalizeClient
   {
     if (httpResponse.statusCode() != 200)
     {
-      com.fasterxml.jackson.databind.JsonNode jsonNode = objectMapper.readTree(httpResponse.body().toString());
-      String message = JsonPath.read(jsonNode, ERROR_MESSAGE_PATH);
+      com.jayway.jsonpath.Configuration parseContext = com.jayway.jsonpath.Configuration
+              .defaultConfiguration()
+              .addOptions(Option.SUPPRESS_EXCEPTIONS);
+
+      Object responseBody = httpResponse.body();
+      String message = JsonPath.using(parseContext).parse(safeCastHttpBodyToString(responseBody)).read(ERROR_MESSAGE_PATH);
       if (message == null)
       {
         message = "Unknown error, HTTP Status: " + httpResponse.statusCode();

@@ -15,11 +15,29 @@
 <  * limitations under the License.
 <  */
 < 
-24c8
+24c8,10
 < import com.hazelcast.core.Member;
 ---
-> import com.hazelcast.core.ClusterMember; // Updated import statement
-41c25
-<     public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
+> import com.hazelcast.core.HazelcastInstance;
+> import com.hazelcast.core.MemberSelector;
+> import com.hazelcast.core.HazelcastInstanceAware;
+32c18
+< public class HazelcastClusterNodeInfo implements ClusterNodeInfo {
 ---
->     public HazelcastClusterNodeInfo(final ClusterMember member, final long joinedTime) { // Updated parameter type
+> public class HazelcastClusterNodeInfo implements ClusterNodeInfo, HazelcastInstanceAware {
+39a26
+>     private HazelcastInstance hazelcastInstance;
+41,43c28,30
+<     public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
+<         this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";
+<         this.nodeID = ClusteredCacheFactory.getNodeID(member);
+---
+>     public HazelcastClusterNodeInfo(final MemberSelector member, final long joinedTime) {
+>         this.hostname = member.select(hazelcastInstance).get().getAttributes().get(HOST_NAME_ATTRIBUTE) + " (" + member.select(hazelcastInstance).get().getAddress().getHost() + ")";
+>         this.nodeID = ClusteredCacheFactory.getNodeID(member.select(hazelcastInstance).get());
+62a50,54
+> 
+>     @Override
+>     public void setHazelcastInstance(HazelcastInstance hazelcastInstance) {
+>         this.hazelcastInstance = hazelcastInstance;
+>     }

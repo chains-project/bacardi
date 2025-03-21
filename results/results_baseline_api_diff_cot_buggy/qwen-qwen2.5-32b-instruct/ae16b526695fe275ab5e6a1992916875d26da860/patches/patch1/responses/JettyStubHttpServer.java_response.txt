@@ -29,10 +29,8 @@ public class JettyStubHttpServer implements StubHttpServer {
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
         HttpConfiguration httpConfig = new HttpConfiguration();
-        httpConfig.setSendServerVersion(false);
         httpConfig.setSendDateHeader(true);
-
-        this.httpConnector = new ServerConnector(server, httpConfig);
+        this.httpConnector = new ServerConnector(server, new org.eclipse.jetty.server.ServerConnector.ServerConnectionFactory(httpConfig));
         this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);
     }
@@ -40,7 +38,6 @@ public class JettyStubHttpServer implements StubHttpServer {
     /**
      * {@inheritDoc}
      */
-    @Override
     public void registerRequestManager(final RequestManager ruleProvider) {
         Validate.notNull(ruleProvider, "ruleProvider cannot be null");
 
@@ -50,7 +47,6 @@ public class JettyStubHttpServer implements StubHttpServer {
     /**
      * {@inheritDoc}
      */
-    @Override
     public void start() throws Exception {
         logger.debug("starting jetty");
         server.start();
@@ -60,7 +56,6 @@ public class JettyStubHttpServer implements StubHttpServer {
     /**
      * {@inheritDoc}
      */
-    @Override
     public void stop() throws Exception {
         logger.debug("stopping jetty");
         server.stop();
@@ -70,7 +65,6 @@ public class JettyStubHttpServer implements StubHttpServer {
     /**
      * {@inheritDoc}
      */
-    @Override
     public int getPort() {
         return httpConnector.getLocalPort();
     }

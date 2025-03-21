@@ -53,7 +53,6 @@ import java.util.function.*;
 @EnableTransactionManagement
 public class NisAppConfig {
 
-{
 	@Autowired
 	private AccountDao accountDao;
 
@@ -102,7 +101,7 @@ public class NisAppConfig {
 		return dataSource;
 	}
 
-	@Bean
+	@Bean(initMethod = "migrate")
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
@@ -117,7 +116,6 @@ public class NisAppConfig {
 	}
 
 	@Bean
-	@DependsOn("flyway")
 	public SessionFactory sessionFactory() throws IOException {
 		return SessionFactoryLoader.load(this.dataSource());
 	}
@@ -129,8 +127,8 @@ public class NisAppConfig {
 
 	@Bean
 	public BlockChainServices blockChainServices() {
-		return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
-				this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+		return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
+				this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
 	}
 
 	@Bean
@@ -197,8 +195,6 @@ public class NisAppConfig {
 	}
 
 	// endregion
-
-	// region harvester
 
 	@Bean
 	public Harvester harvester() {
@@ -419,6 +415,11 @@ public class NisAppConfig {
 	@Bean
 	public LocalHostDetector localHostDetector() {
 		return new LocalHostDetector(this.nisConfiguration().getAdditionalLocalIps());
+	}
+
+	@Bean
+	public NodeCompatibilityChecker nodeCompatibilityChecker() {
+		return new DefaultNodeCompatibilityChecker();
 	}
 
 	@Bean

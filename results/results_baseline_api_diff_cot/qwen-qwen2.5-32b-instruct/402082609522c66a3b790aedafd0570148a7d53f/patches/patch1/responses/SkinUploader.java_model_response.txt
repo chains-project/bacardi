@@ -12,9 +12,9 @@ import org.spongepowered.api.scheduler.Task;
 public class SkinUploader extends SharedUploader {
 
     private final ChangeSkinSponge plugin;
-    private final Object invoker; // Assuming CommandSource was replaced with a more generic type or removed
+    private final Object invoker; // Assuming CommandSource is replaced with a more generic type
 
-    public SkinUploader(ChangeSkinSponge plugin, Object invoker, Account owner, String url) {
+    public SkinUploader(ChangeSkinSponge plugin, Object invoker, Account owner, String url) { // Adjusted parameter type
         super(plugin.getCore(), owner, url);
 
         this.plugin = plugin;
@@ -23,8 +23,7 @@ public class SkinUploader extends SharedUploader {
 
     @Override
     public void sendMessageInvoker(String key) {
-        // Assuming sendMessage now accepts a more generic type or the method signature has changed
-        plugin.sendMessage(invoker, key);
+        plugin.sendMessage(invoker, key); // Assuming sendMessage is compatible with the new type
     }
 
     @Override
@@ -34,5 +33,3 @@ public class SkinUploader extends SharedUploader {
     }
 }
 ```
-
-In this solution, I've replaced `CommandSource` with `Object` to reflect the removal of the `CommandSource` class from the API. This is a placeholder to indicate that the type of `invoker` has changed. The `sendMessage` method call is kept as is, assuming that the method signature has been adjusted to accept a more generic type or the method has been updated to not require `CommandSource`. If the method signature has changed, further adjustments would be necessary based on the new API documentation.

@@ -1,34 +1,11 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `CommandSpec` cannot be found, and the package `org.spongepowered.api.command.spec` does not exist.
-   - This suggests that the `CommandSpec` class has been removed or moved in the updated version of the Sponge API dependency.
-
-2. Review the client code:
-   - The client code imports `org.spongepowered.api.command.spec.CommandSpec` and uses it in the `ChangeSkinCommand` interface.
-   - The method `CommandSpec buildSpec()` is defined in the interface, which is now causing a compilation error due to the missing `CommandSpec` class.
-
-3. Consider potential fixes:
-   - Since the `CommandSpec` class is no longer available, we need to find an alternative or update the import to match the new structure of the Sponge API.
-   - If the `CommandSpec` class has been replaced by another class or moved to a different package, we need to update the import statement accordingly.
-
-4. Plan the necessary changes:
-   - If the `CommandSpec` class has been replaced by another class, we need to update the return type of the `buildSpec` method and the import statement.
-   - If the `CommandSpec` class has been moved to a different package, we need to update the import statement to the new package.
-   - If the `CommandSpec` class has been removed and there is no direct replacement, we need to refactor the code to use the new API structure.
-</code_analysis>
-
-Since the exact replacement or new structure of the Sponge API is not provided, I will assume that the `CommandSpec` class has been moved to a different package. If the new package is `org.spongepowered.api.command.args`, the following fix can be applied:
-
 ```java
 package com.github.games647.changeskin.sponge.command;
 
-import org.spongepowered.api.command.args.CommandElement;
+import org.checkerframework.checker.units.qual.A;
 
 @FunctionalInterface
 public interface ChangeSkinCommand {
 
-    CommandElement buildSpec();
+    A buildSpec();
 }
 ```
-
-If the `CommandSpec` class has been replaced by another class, the import and return type of the `buildSpec` method should be updated to reflect the new class. If the exact replacement is known, please provide the new class name for a more accurate fix.

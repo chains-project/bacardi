@@ -15,7 +15,6 @@ import org.sonatype.maven.polyglot.io.ModelReaderSupport;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.representer.Representer;
-import org.yaml.snakeyaml.resolver.ModelResolver;
 
 import java.io.IOException;
 import java.io.Reader;

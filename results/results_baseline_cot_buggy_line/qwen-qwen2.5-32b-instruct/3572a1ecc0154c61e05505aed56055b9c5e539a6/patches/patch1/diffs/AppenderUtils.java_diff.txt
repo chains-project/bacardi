@@ -20,17 +20,41 @@
 < import org.apache.thrift.transport.TFastFramedTransport;
 ---
 > import org.apache.thrift.transport.TFramedTransport;
-60,61c44
+38,40d21
+< /**
+<  * Utils to create logback appenders
+<  */
+48,50d28
+<   /**
+<    * Encoder for LogMessage objects.
+<    */
+57d34
+<     @Override
+60,61d36
 <       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
 <       // log.
----
->       // Use the TFramedTransport to be compatible with the updated Thrift library.
-63,64c46
+63,64c38
 <       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
 <           bufferCapacity);
 ---
->       framedTransport = new TFramedTransport(new TIOStreamTransport(os));
-73c55
+>       framedTransport = new TFramedTransport(new TIOStreamTransport(os), bufferCapacity);
+68d41
+<     @Override
+73c46
 <       } catch (TException e) {
 ---
 >       } catch (Exception e) {
+78d50
+<     @Override
+84,92d55
+<   /**
+<    * Create the basic thrift appender which logs to a file
+<    * and rolls the file when it exceeds a certain size.
+<    *
+<    * @param basePath base directory the files are under.
+<    * @param topic the topic name for the current appender.
+<    * @param rotateThresholdKBytes threshold in kilobytes to rotate after.
+<    * @param context the logback context.
+<    */
+115d77
+<     // Also impose a max size per file policy.

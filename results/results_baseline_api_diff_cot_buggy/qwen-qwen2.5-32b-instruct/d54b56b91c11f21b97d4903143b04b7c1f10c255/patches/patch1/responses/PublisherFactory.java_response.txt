@@ -1,24 +1,11 @@
-/*
- * Copyright 2020 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package com.google.pubsublite.kafka.sink;
+<repair_strategy>
+1. The class `PublishMetadata` has been removed in the new version of the dependency.
+2. The method `newPublisher` uses `PublishMetadata` as a type parameter, which is no longer available.
+3. The client code needs to be updated to use a different type parameter that is compatible with the new version of the dependency.
+4. The function signature of `newPublisher` cannot be changed.
+5. The minimal change would be to replace `PublishMetadata` with a compatible type from the new dependency version.
+6. The change should not affect other parts of the code.
+7. Ensure the class is compilable.
+8. No additional imports are needed if a compatible type is found within the same package.
+</repair_strategy>
 
-import com.google.cloud.pubsublite.internal.Publisher;
-import java.util.Map;
-
-interface PublisherFactory {
-
-  Publisher<Void> newPublisher(Map<String, String> params);
-}

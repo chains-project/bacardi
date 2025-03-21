@@ -14,26 +14,20 @@
 <  * See the License for the specific language governing permissions and
 <  * limitations under the License.
 <  */
-21,23c6,8
-< import com.hazelcast.core.MapEvent;
+22c7
 < import com.hazelcast.map.listener.MapListener;
-< import com.hazelcast.monitor.LocalMapStats;
 ---
-> import com.hazelcast.map.LocalMapStats;
-> import com.hazelcast.map.impl.MapEvent;
-> import com.hazelcast.map.impl.MapListener;
-43d27
-< import java.util.concurrent.TimeUnit;
-45,48d28
+> import com.hazelcast.map.impl.MapEventImpl;
+45,48d29
 < /**
 <  * Clustered implementation of the Cache interface using Hazelcast.
 <  *
 <  */
-55,57d34
+55,57d35
 <     /**
 <      * The map is used for distributed operations such as get, put, etc.
 <      */
-62,73d38
+62,73d39
 <     /**
 <      * Used to limit the amount of duplicate warnings logged.
 <      */
@@ -46,7 +40,12 @@
 <      * @param name a name for the cache, which should be unique per vm.
 <      * @param cache the cache implementation
 <      */
-85,86c50
+80c46
+<     void addEntryListener(final MapListener listener) {
+---
+>     void addEntryListener(final EntryListener<K, V> listener) {
+84,86c50
+<     @Override
 <     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode)
 <     {
 ---
@@ -55,36 +54,57 @@
 <                     logger.trace("Processing map evicted event of node '{}'", eventNodeId);
 ---
 >                     logger.trace("Processing map evicted event of node '{}' for key '{}'", eventNodeId, event.getKey());
-258c222
-<         return stats.getOwnedEntryMemoryCost() + stats.getBackupEntryMemoryCost();
----
->         return stats.getOwnedEntryCount() + stats.getBackupEntryCount();
-267,271d230
-<     public void setMaxCacheSize(int i) {
-<         setMaxCacheSize((long) i);
-<     }
-< 
+149d112
 <     @Override
-276,285d234
+156d118
 <     @Override
-<     public long getMaxLifetime() {
-<         return CacheFactory.getMaxCacheLifetime(getName());
-<     }
-< 
+161d122
 <     @Override
-<     public void setMaxLifetime(final long maxLifetime) {
-<         CacheFactory.setMaxLifetimeProperty(getName(), maxLifetime);
-<     }
-< 
-308,324d256
-<     void unlock(final K key) {
-<         try {
-<             map.unlock(key);
-<         } catch (final IllegalMonitorStateException e) {
-<             logger.error("Failed to release cluster lock", e);
-<         }
-<     }
-< 
+166d126
+<     @Override
+174d133
+<     @Override
+180d138
+<     @Override
+185d142
+<     @Override
+190d146
+<     @Override
+196d151
+<     @Override
+201d155
+<     @Override
+206d159
+<     @Override
+211d163
+<     @Override
+216d167
+<     @Override
+221d171
+<     @Override
+225d174
+<         // Instances are likely all loaded by the same class loader. For resource usage optimization, let's test just one, not all.
+234d182
+<     @Override
+239d186
+<     @Override
+244d190
+<     @Override
+250d195
+<     @Override
+255d199
+<     @Override
+261d204
+<     @Override
+266d208
+<     @Override
+271d212
+<     @Override
+276d216
+<     @Override
+281d220
+<     @Override
+316,324d254
 <     /**
 <      * Clustered caches should not contain instances of classes that are provided by Openfire plugins. These will cause
 <      * issues related to class loading when the providing plugin is reloaded. This method verifies if an instance is
@@ -94,7 +114,5 @@
 <      * @param o the instance for which to verify the class loader
 <      * @see <a href="https://github.com/igniterealtime/openfire-hazelcast-plugin/issues/74">Issue #74: Warn against usage of plugin-provided classes in Hazelcast</a>
 <      */
-329c261
+329d258
 <             // Try to determine what plugin loaded the offending class.
----
->             // Try to determine what plugin class loader loaded the instance.

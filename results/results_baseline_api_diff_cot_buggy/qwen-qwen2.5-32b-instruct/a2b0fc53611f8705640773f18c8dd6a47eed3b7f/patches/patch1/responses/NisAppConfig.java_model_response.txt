@@ -107,25 +107,15 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final ClassicConfiguration config = new ClassicConfiguration();
+		ClassicConfiguration config = new ClassicConfiguration();
 		config.setDataSource(this.dataSource());
-		config.setLocations(prop.getProperty("flyway.locations").split(","));
-		config.setClassLoader(NisAppConfig.class.getClassLoader());
+		config.setLocations(new String[]{prop.getProperty("flyway.locations")});
 		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		return new Flyway(config);
-	}
-
-	@Bean(initMethod = "migrate")
-	public Flyway flyway() throws IOException {
-		final Properties prop = new Properties();
-		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
-
-		final ClassicConfiguration config = new ClassicConfiguration();
-		config.setDataSource(this.dataSource());
-		config.setLocations(prop.getProperty("flyway.locations").split(","));
 		config.setClassLoader(NisAppConfig.class.getClassLoader());
-		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		return new Flyway(config);
+
+		Flyway flyway = new Flyway(config);
+		flyway.migrate();
+		return flyway;
 	}
 
 	@Bean
@@ -209,8 +199,6 @@ public class NisAppConfig {
 	}
 
 	// endregion
-
-	// region harvester
 
 	@Bean
 	public Harvester harvester() {

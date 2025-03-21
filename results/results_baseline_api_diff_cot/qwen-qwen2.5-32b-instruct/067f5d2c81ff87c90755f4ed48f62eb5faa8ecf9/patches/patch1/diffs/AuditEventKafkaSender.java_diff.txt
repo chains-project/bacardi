@@ -15,31 +15,17 @@
 <  * limitations under the License.
 <  */
 < 
-20d3
-< import com.pinterest.singer.loggingaudit.thrift.LoggingAuditHeaders;
-21a5
-> import com.pinterest.singer.loggingaudit.thrift.LoggingAuditHeaders;
-48c32,36
+33a18
+> import org.apache.thrift.protocol.TCompactProtocol;
+45d29
+< import java.util.concurrent.atomic.AtomicBoolean;
+47,51d30
+< /**
 <  *  LoggingAuditEventSender implementations that dequeue LoggingAuditEvent and send it to Kafka.
----
->  * Copyright 2019 Pinterest, Inc.
->  *
->  * Licensed under the Apache License, Version 2.0 (the "License");
->  * you may not use this file except in compliance with the License.
->  * You may obtain a copy of the License at
-50c38,44
+<  *
 <  *  Each instance of this class should be executed in its own thread.
----
->  *    http://www.apache.org/licenses/LICENSE-2.0
->  *
->  * Unless required by applicable law or agreed to in writing, software
->  * distributed under the License is distributed on an "AS IS" BASIS,
->  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
->  * See the License for the specific language governing permissions and
->  * limitations under the License.
-51a46
-> 
-60,115c55,59
+<  */
+60,87c39,43
 <   /**
 <    *  When sender send audit events to Kafka,  it chooses a random partition and if it fails, it
 <    *  will choose another GOOD partition, this retry will happen at most numOfPartitionsToTrySending
@@ -68,7 +54,13 @@
 <    *  when gracefully shutting down the Sender, this field specifies maximum time for main thread
 <    *  to wait, in order to let the sender send out audit events left in the queue if there are any.
 <    */
-<   private int stopGracePeriodInSeconds = 300;
+---
+>   private String topic;
+>   private LinkedBlockingDeque<LoggingAuditEvent> queue;
+>   private LoggingAuditStage stage;
+>   private String host;
+>   private String name;
+89,115d44
 < 
 < 
 <   /**
@@ -96,23 +88,19 @@
 <   /**
 <    * KafkaProducer instance to send audit events
 <    */
----
->   private String topic;
->   private LinkedBlockingDeque<LoggingAuditEvent> queue;
->   private LoggingAuditStage stage;
->   private String host;
->   private String name;
-117,120d60
+117,125c46
 < 
 <   /**
 <    * Serialize key and value to byte[]
 <    */
-122,125d61
+<   private TSerializer serializer = new TSerializer();
 < 
 <   /**
 <    *  flag to control the start and stop of the executing thread.
 <    */
-127,145d62
+---
+>   private TSerializer serializer = new TSerializer(new TCompactProtocol.Factory());
+127,145d47
 < 
 <   /**
 <    *  topic to store the audit events
@@ -132,18 +120,18 @@
 <   /**
 <    *  List of PartitionInfo
 <    */
-147,150d63
+147,150d48
 < 
 <   /**
 <    *  last time when partition list was refreshed. we want to refresh partition list every 5 mins.
 <    */
-152,156d64
+152,156d49
 < 
 <   /**
 <    *  If sending out to one partition fails, this partition is added to set;
 <    *  If sending out to one partition succeeds, this partition is removed if it was added before.
 <    */
-158,165d65
+158,165d50
 < 
 <   /**
 <    * For each event (identified by LoggingAuditHeaders, key of the map), track the number of tries
@@ -152,7 +140,7 @@
 <    * this map is removed.
 <    */
 < 
-167,173d66
+167,173d51
 < 
 <   /**
 <    *  currentPartitionId specifies the partition of audit_event topic used to receive audit events.
@@ -160,9 +148,7 @@
 <    *  the number of TCP connections from audit client to the Kafka Cluster hosting the audit_event
 <    *  topic.
 <    */
-174a68
->   private int stopGracePeriodInSeconds = 300;
-188,196d81
+188,196d65
 < 
 <   public KafkaProducer<byte[], byte[]> getKafkaProducer() {
 <     return kafkaProducer;
@@ -172,38 +158,30 @@
 <     this.kafkaProducer = kafkaProducer;
 <   }
 < 
-198d82
+198d66
 <     // refresh every 30 seconds
-205,206c89,90
+205,206c73
 <         OpenTsdbMetricConverter.incr(
 <             LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_PARTITIONS_REFRESH_COUNT, 1,
 ---
->         OpenTsdbMetricConverter
->             .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_PARTITIONS_REFRESH_COUNT, 1,
-209,211c93,95
+>         OpenTsdbMetricConverter.incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_PARTITIONS_REFRESH_COUNT, 1,
+209,210c76
 <         OpenTsdbMetricConverter.incr(
 <             LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_PARTITIONS_REFRESH_ERROR, 1,
-<                 "host=" + host, "stage=" + stage.toString());
 ---
->         OpenTsdbMetricConverter
->             .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_PARTITIONS_REFRESH_ERROR, 1,
->                 "host=" + host, "stage=" + stage.toString(), "topic=" + topic);
-231,233c115,116
-<           currentPartitionId = randomPartition;
+>         OpenTsdbMetricConverter.incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_PARTITIONS_REFRESH_ERROR, 1,
+232,233c98
 <           OpenTsdbMetricConverter.incr(
 <               LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_CURRENT_PARTITION_RESET, 1,
 ---
->           OpenTsdbMetricConverter
->               .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_CURRENT_PARTITION_RESET, 1,
-234a118
->           currentPartitionId = randomPartition;
-240,242c124
+>           OpenTsdbMetricConverter.incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_CURRENT_PARTITION_RESET, 1,
+240,242c105
 <       LOG.warn("After {} trials, set current partition to {}",
 <           MAX_RETRIES_FOR_SELECTION_RANDOM_PARTITION, currentPartitionId);
 < 
 ---
 >       LOG.warn("After {} trials, set current partition to {}", MAX_RETRIES_FOR_SELECTION_RANDOM_PARTITION, currentPartitionId);
-246,252d127
+246,252d108
 <   /**
 <    *  Sender dequeues LoggingAuditEvents and sends them to Kafka cluster. If send to one partition
 <    *  fails, it will choose another partition. For each event, it will try at most
@@ -211,67 +189,101 @@
 <    *  used to track the queue size and usuage, number of events sent out to Kafka successfully, and
 <    *  the number of events dropped.
 <    */
-285,286c160,161
-<         OpenTsdbMetricConverter.incr(
-<             LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_DEQUEUE_INTERRUPTED_EXCEPTION, 1,
+275,276c131
+<             OpenTsdbMetricConverter
+<                 .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_SERIALIZATION_EXCEPTION, 1,
 ---
->         OpenTsdbMetricConverter
->             .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_DEQUEUE_INTERRUPTED_EXCEPTION, 1,
-291,292c166,168
-<         OpenTsdbMetricConverter.incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_EXCEPTION, 1,
+>             OpenTsdbMetricConverter.incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_SERIALIZATION_EXCEPTION, 1,
+292,293c147
 <             "host=" + host, "stage=" + stage.toString());
+<         break;
 ---
->         OpenTsdbMetricConverter
->             .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_EXCEPTION, 1,
->                 "host=" + host, "stage=" + stage.toString(), "topic=" + topic);
-298d173
+>             "host=" + host, "stage=" + stage.toString(), "topic=" + topic);
+298d151
 < 
-310d184
+310d162
 <       // if exception thrown (i.e. the send failed), the partition is added to badPartitions.
-314,315c188
+312,319c164,166
+<       OpenTsdbMetricConverter
+<           .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_PARTITION_ERROR, 1,
 <               "host=" + host, "stage=" + stage.toString(), "topic=" + topic,
 <               "partition=" + this.partition);
----
->               "host=" + host, "stage=" + stage.toString(), "topic=" + topic);
-317,319d189
+< 
 <       // retry the failed event by inserting it at the beginning of the deque.
 <       // If number of tries reaches 3, meaning that 3 partitions have been tried sending to but
 <       // still failed, this event is dropped.
-345,346c215
-<           LOG.debug("Failed to enqueue LoggingAuditEvent at head of the queue when executing "
-<               + "producer send callback. Drop this event.");
 ---
->           LOG.debug("Failed to enqueue LoggingAuditEvent at head of the queue in callback. Drop this event.");
-350,353c219
+>       OpenTsdbMetricConverter.incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_PARTITION_ERROR, 1,
+>           "host=" + host, "stage=" + stage.toString(), "topic=" + topic);
+> 
+324,327c171,172
+<         OpenTsdbMetricConverter
+<             .gauge(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_EVENTS_RETRIED,
+<                 eventTriedCount.size(), "host=" + host, "stage=" + stage.toString(),
+<                 "topic=" + topic);
+---
+>         OpenTsdbMetricConverter.gauge(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_EVENTS_RETRIED,
+>             eventTriedCount.size(), "host=" + host, "stage=" + stage.toString(), "topic=" + topic);
+330,333c175,176
+<           OpenTsdbMetricConverter
+<               .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_EVENTS_DROPPED, 1,
+<                   "host=" + host, "stage=" + stage.toString(),
+<                   "logName=" + event.getLoggingAuditHeaders().getLogName());
+---
+>         OpenTsdbMetricConverter.incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_EVENTS_DROPPED, 1,
+>             "host=" + host, "stage=" + stage.toString(), "logName=" + event.getLoggingAuditHeaders().getLogName());
+349,353c192,194
+<       } catch (InterruptedException ex) {
 <         LOG.debug(
 <             "Enqueuing LoggingAuditEvent at head of the queue was interrupted in callback. "
 <                 + "Drop this event");
 <         eventTriedCount.remove(event.getLoggingAuditHeaders());
 ---
->         LOG.warn("[{}] got interrupted while enqueuing LoggingAuditEvent in callback. Drop this event", Thread.currentThread().getName(), ex);
-366,367d231
+>       } catch (InterruptedException e) {
+>         LOG.warn("[{}] got interrupted while waiting for [{}] to send out LoggingAuditEvents left "
+>             + "in the queue.", Thread.currentThread().getName(), name, e);
+361,362c202
+<           OpenTsdbMetricConverter
+<               .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_EVENTS_ACKED, 1,
+---
+>           OpenTsdbMetricConverter.incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_EVENTS_ACKED, 1,
+366,367d205
 <           // if send is successful, remove the event from the map eventTriedCount if it was added
 <           // LoggingAuditHeaders can uniquely identify an event.
-369d232
+369d206
 <           // if send out successfully, remove the partition from the badPartitions if it was added.
-375c238
+375,377c212,213
 <         LOG.warn("Exception throws in the callback. Drop this event {}", event, t);
+<         OpenTsdbMetricConverter
+<             .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_CALLBACK_EXCEPTION, 1,
 ---
 >         LOG.warn("Exception is thrown in the callback. Drop this event {}", event, t);
-383,386c246
+>         OpenTsdbMetricConverter.incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_CALLBACK_EXCEPTION, 1,
+383,386c219
 <   /**
 <    *  start the executing thread and let the Sender run.
 <    */
 <   public synchronized void start() {
 ---
 >   public void start() {
-398,402c258
+392,393c225
+<       LOG.warn(
+<           "[{}] created and started [{}] to let it dequeue LoggingAuditEvents and send to Kafka.",
+---
+>       LOG.warn("[{}] created and started [{}] to let it dequeue LoggingAuditEvents and send to Kafka.",
+398,406c230,232
 <   /**
 <    *  reserve some time (by default 30 seconds at most)to let AuditEventKafkaSender to send out
 <    *  LoggingAuditEvent in the queue and gracefully stop AuditEventKafkaSender.
 <    */
 <   public synchronized void stop() {
+<     LOG.warn(
+<         "[{}] waits up to {} seconds to let [{}] send out LoggingAuditEvents left in the queue if"
+<             + " any.",
+<         Thread.currentThread().getName(), stopGracePeriodInSeconds, name);
 ---
 >   public void stop() {
-433d288
+>     LOG.warn("[{}] waits up to {} seconds to let [{}] send out LoggingAuditEvents left in the queue if"
+>         + " any.", Thread.currentThread().getName(), stopGracePeriodInSeconds, name);
+433d258
 < 

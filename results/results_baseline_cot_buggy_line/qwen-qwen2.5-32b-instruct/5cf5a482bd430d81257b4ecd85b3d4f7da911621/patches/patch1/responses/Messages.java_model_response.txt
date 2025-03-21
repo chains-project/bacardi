@@ -1,59 +1,21 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the class `MvcContext` cannot be found, which suggests that the class `MvcContext` is no longer available in the updated dependency.
-   - The error occurs at line 23, where `MvcContext` is declared as a private field.
-
-2. Review the client code:
-   - The `MvcContext` class is used to get the locale of the current request.
-   - The `MvcContext` class is part of the `javax.mvc` package, which might have been updated or removed in the newer version of the dependency.
-
-3. Consider potential fixes:
-   - Since `MvcContext` is no longer available, we need to find an alternative way to get the locale of the current request.
-   - The `javax.mvc` package might have been replaced by a different package or the functionality might be available in a different class.
-
-4. Plan the necessary changes:
-   - Replace the usage of `MvcContext` with an alternative method to get the locale.
-   - Update the import statements to reflect the changes in the dependency.
-</code_analysis>
-
-Based on the analysis, the following patch is proposed to fix the issue:
-
 ```java
-import java.util.Locale;
 import java.util.ResourceBundle;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import jakarta.mvc.annotation.Controller;
-import jakarta.mvc.annotation.InitParam;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.mvc.MvcContext;
 
-/**
- * Provides I18n messages for the UI per request. To get the correct locale, the method {@link HttpServletRequest#getLocale()}
- * is used.
- *
- * @author Tobias Erdle
- */
 @RequestScoped
 @Named("msg")
-@Controller
 public class Messages {
 
     private static final String BASE_NAME = "messages";
 
     @Inject
-    private HttpServletRequest request;
+    private MvcContext mvcContext;
 
-    /**
-     * Get the assigned message to some key based on the {@link java.util.Locale} of the current request.
-     *
-     * @param key the message key to use
-     * @return the correct translation assigned to the key for the request locale, a fallback translation or a
-     * placeholder for unknown keys.
-     */
     public final String get(final String key) {
-        final Locale locale = request.getLocale();
-        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, locale);
+        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
 
         return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);
     }
@@ -63,5 +25,3 @@ public class Messages {
     }
 }
 ```
-
-In this patch, the `MvcContext` class is replaced with `HttpServletRequest` to get the locale of the current request. The `@Controller` annotation is added to the class to indicate that this class is a controller in the MVC framework. The `HttpServletRequest` is injected to replace the functionality of `MvcContext`. This approach ensures that the code remains functional and adheres to the constraints provided.

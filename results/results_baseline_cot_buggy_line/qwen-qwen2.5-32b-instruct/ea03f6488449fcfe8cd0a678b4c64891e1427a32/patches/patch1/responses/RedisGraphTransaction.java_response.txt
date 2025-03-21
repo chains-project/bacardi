@@ -1,7 +1,8 @@
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
-
+import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.Closeable;
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,8 @@ import java.util.Map;
 /**
  * An interface which aligned to Jedis transactional interface
  */
-public interface RedisGraphTransaction extends Closeable {
+public interface RedisGraphTransaction extends
+        Pipeline, Closeable {
 
     /**
      * Execute a Cypher query.
@@ -37,14 +39,22 @@ public interface RedisGraphTransaction extends Closeable {
     Response<ResultSet> query(String graphId, String query, long timeout);
 
     /**
-     * Executes a cypher read-only query with parameters and timeout.
+     * Executes a cypher read-only query with parameters.
      * @param graphId a graph to perform the query on.
      * @param query Cypher query.
      * @param params parameters map.
-     * @param timeout
-     * @return  a response which builds result set with the query answer.
+     * @return  a response which builds the result set with the query answer.
      */
-    Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params, long timeout);
+    Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params);
+
+    /**
+     * Executes a cypher query with parameters.
+     * @param graphId a graph to perform the query on.
+     * @param query Cypher query.
+     * @param params parameters map.
+     * @return  a response which builds the result set with the query answer.
+     */
+    Response<ResultSet> query(String graphId, String query, Map<String, Object> params);
 
     /**
      * Invokes stored procedures without arguments
@@ -53,6 +63,15 @@ public interface RedisGraphTransaction extends Closeable {
      * @return a response which builds result set with the procedure data
      */
     Response<ResultSet> callProcedure(String graphId, String procedure);
+
+    /**
+     * Invokes stored procedure with arguments
+     * @param graphId a graph to perform the query on
+     * @param procedure procedure name to invoke
+     * @param args procedure arguments
+     * @return a response which builds result set with the procedure data
+     */
+    Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args);
 
     /**
      * Invoke a stored procedure

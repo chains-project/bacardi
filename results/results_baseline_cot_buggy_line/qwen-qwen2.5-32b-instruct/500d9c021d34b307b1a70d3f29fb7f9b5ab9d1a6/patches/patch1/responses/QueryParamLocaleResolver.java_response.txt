@@ -9,7 +9,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import jakarta.mvc.locale.LocaleResolver;
 import jakarta.mvc.locale.LocaleResolverContext;
-import jakarta.ws.rs.core.UriInfo;
+import javax.ws.rs.core.UriInfo;
 
 /**
  * Resolver to get the {@link Locale} to use from the requests query param <i>lang</i>.

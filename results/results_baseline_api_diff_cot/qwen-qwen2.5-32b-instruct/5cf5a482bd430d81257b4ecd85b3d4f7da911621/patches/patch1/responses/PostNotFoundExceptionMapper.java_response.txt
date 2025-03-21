@@ -1,38 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package com.example.config;
-
-import com.example.domain.TaskNotFoundException;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.inject.Inject;
-import jakarta.mvc.Models; // Updated import for the new Models interface
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
-
-/**
- *
- * @author hantsy
- */
-@Provider
-public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFoundException> {
-
-    @Inject Logger log;
-    //private static Logger log = Logger.getLogger(PostNotFoundExceptionMapper.class.getName());
-
-    @Inject
-    Models models;
-
-    @Override
-    public Response toResponse(TaskNotFoundException exception) {
-        log.log(Level.INFO, "handling exception : PostNotFoundException");
-        models.put("error", exception.getMessage());
-        return Response.status(Response.Status.NOT_FOUND).entity("error.xhtml").build();
-    }
-
-}
+<repair_strategy>
+ 1. The class javax.mvc.Models has been removed and replaced by jakarta.mvc.Models.
+ 2. No changes in method signatures, return types, or parameter lists are noted.
+ 3. The client code needs to update the import statement for Models.
+ 4. The function signature of toResponse should remain unchanged.
+ 5. The minimal set of changes needed is to update the import statement for Models.
+ 6. No side effects are expected from this change.
+ 7. The class will be fully compilable after the import statement is updated.
+ 8. The import statement for Models needs to be updated to jakarta.mvc.Models.
+</repair_strategy>

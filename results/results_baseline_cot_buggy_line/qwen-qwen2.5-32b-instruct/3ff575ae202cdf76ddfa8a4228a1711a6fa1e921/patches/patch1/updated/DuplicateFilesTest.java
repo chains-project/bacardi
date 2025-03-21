@@ -14,6 +14,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.codehaus.plexus.PlexusTestCase;
 import org.codehaus.plexus.archiver.tar.TarArchiver;
 import org.codehaus.plexus.archiver.tar.TarLongFileMode;
+import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 
 /**
@@ -33,7 +34,7 @@ public class DuplicateFilesTest
         throws Exception
     {
         super.setUp();
-        // getLoggerManager().setThreshold( Logger.LEVEL_DEBUG ); // Removed due to method not found in updated dependency
+        // getLoggerManager().setThreshold( Logger.LEVEL_DEBUG );
     }
 
     public void testZipArchiver()

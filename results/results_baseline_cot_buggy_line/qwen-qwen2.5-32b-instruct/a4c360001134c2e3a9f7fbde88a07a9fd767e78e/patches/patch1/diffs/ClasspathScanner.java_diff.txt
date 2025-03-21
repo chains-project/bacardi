@@ -4,11 +4,15 @@
 <  *  Licensed under the Apache License, Version 2.0
 <  *  See LICENSE.txt in the project root for license information.
 <  *----------------------------------------------------------------*/
-64c59
+25,27d19
+< /**
+<  * Scans the current Classpath and passes to all the scanners passed.
+<  */
+64c56
 <             return new FilterBuilder().include(".+\\.class").apply(s);
 ---
->             return new FilterBuilder().include(".+\\.class").asMatchPredicate().test(s);
-69c64
+>             return new FilterBuilder().includePackagePattern(".+\\.class").apply(s);
+69c61
 <             if (new FilterBuilder().include(regex).apply(s)) {
 ---
->             if (new FilterBuilder().include(regex).asMatchPredicate().test(s)) {
+>             if (new FilterBuilder().includePackagePattern(regex).apply(s)) {

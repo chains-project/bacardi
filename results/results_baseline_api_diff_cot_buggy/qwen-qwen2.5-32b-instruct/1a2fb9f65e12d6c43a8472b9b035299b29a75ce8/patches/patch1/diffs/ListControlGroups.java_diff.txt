@@ -1,4 +1,23 @@
-37,43c37,43
+1,18d0
+< /**
+<  * Copyright (C) 2014 Premium Minds.
+<  *
+<  * This file is part of wicket-crudifier.
+<  *
+<  * wicket-crudifier is free software: you can redistribute it and/or modify it under
+<  * the terms of the GNU Lesser General Public License as published by the Free
+<  * Software Foundation, either version 3 of the License, or (at your option) any
+<  * later version.
+<  *
+<  * wicket-crudifier is distributed in the hope that it will be useful, but WITHOUT ANY
+<  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+<  * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+<  * details.
+<  *
+<  * You should have received a copy of the GNU Lesser General Public License
+<  * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
+<  */
+37,48c19,25
 < import javax.validation.Validator;
 < import javax.validation.constraints.NotBlank;
 < import javax.validation.constraints.NotEmpty;
@@ -6,68 +25,110 @@
 < import javax.validation.metadata.BeanDescriptor;
 < import javax.validation.metadata.ConstraintDescriptor;
 < import javax.validation.metadata.ElementDescriptor;
+< 
+< import com.premiumminds.webapp.wicket.validators.HibernateValidatorProperty;
+< import com.premiumminds.wicket.crudifier.IObjectRenderer;
+< import com.premiumminds.wicket.crudifier.form.CrudifierEntitySettings;
+< import com.premiumminds.wicket.crudifier.form.EntityProvider;
 ---
-> import jakarta.validation.Validator;
 > import jakarta.validation.constraints.NotBlank;
 > import jakarta.validation.constraints.NotEmpty;
 > import jakarta.validation.constraints.NotNull;
 > import jakarta.validation.metadata.BeanDescriptor;
 > import jakarta.validation.metadata.ConstraintDescriptor;
 > import jakarta.validation.metadata.ElementDescriptor;
-61c61
+> import jakarta.validation.Validator;
+51d27
+< import org.apache.wicket.markup.html.panel.Panel;
+61c37
 <         private Map<Class<?>, ControlGroupProvider<?>> controlGroupProviders = new HashMap<Class<?>, ControlGroupProvider<?>>();
 ---
 >         private Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> controlGroupProviders = new HashMap<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>>();
-64c64
+64c40
 <         private final Map<Class<?>, Class<? extends AbstractControlGroup>> typesControlGroups = new HashMap<Class<?>, Class<? extends AbstractControlGroup>>();
 ---
 >         private Map<Class<?>, Class<? extends AbstractControlGroup>> typesControlGroups = new HashMap<Class<?>, Class<? extends AbstractControlGroup>>();
-119,120d118
-<                 Set<String> properties = getPropertiesByOrder(modelClass);
+87,105d62
+<                 typesControlGroups.put(Set.class, CollectionControlGroup.class);
 < 
-144a143
->                         );
-153c152
-<                                         Class<? extends Panel> typesControlGroup = getControlGroupByType(objectProperty.type);
+<                 objectProperties = new ArrayList<ObjectProperties>();
+<                 this.entitySettings = entitySettings;
+<                 this.renderers = renderers;
+<         }
+< 
+<         private Set<String> getPropertiesByOrder(Class<?> modelClass) {
+<                 Set<String> properties = new LinkedHashSet<String>();
+< 
+<                 for(String property : entitySettings.getOrderOfFields()){
+<                         if(!entitySettings.getHiddenFields().contains(property))
+<                                 properties.add(property);
+<                 }
+<                 for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
+<                         if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
+<                            !properties.contains(descriptor.getName()) &&
+<                            !descriptor.getName().equals("class"))
+<                                 properties.add(descriptor.getName());
+108c65,67
+<                 return properties;
 ---
->                                         Class<? extends AbstractControlGroup> typesControlGroup = getControlGroupByType(objectProperty.type);
-164,165d162
+>         @SuppressWarnings("rawtypes")
+>         public Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap(){
+>                 return typesControlGroups;
+111,112d69
+<         protected abstract EntityProvider<?> getEntityProvider(String name);
 < 
+144a102
+>                         );
+165d122
 < 
-210,213c207,209
+210,212c167,169
 <         @SuppressWarnings("unchecked")
 <         public IModel<T> getModel(){
 <                 return (IModel<T>) getDefaultModel();
-<         }
 ---
 >         @SuppressWarnings("rawtypes")
->         private Set<String> getPropertiesByOrder(Class<?> modelClass) {
->                 Set<String> properties = new LinkedHashSet<String>();
-215,216c211,213
+>         public Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> getControlGroupProviders(){
+>                 return this.controlGroupProviders;
+215,216c172,183
 <         public Component getResourceBase(){
 <                 return this;
 ---
+>         private Set<String> getPropertiesByOrder(Class<?> modelClass) {
+>                 Set<String> properties = new LinkedHashSet<String>();
+> 
 >                 for(String property : entitySettings.getOrderOfFields()){
 >                         if(!entitySettings.getHiddenFields().contains(property))
 >                                 properties.add(property);
-218,220c215,219
-< 
-<         public Map<String, AbstractControlGroup<?>> getFieldsControlGroup(){
-<                 return Collections.unmodifiableMap(fieldComponents);
----
+>                 }
 >                 for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
 >                         if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
 >                            !properties.contains(descriptor.getName()) &&
 >                            !descriptor.getName().equals("class"))
 >                                 properties.add(descriptor.getName());
-223,228c222
-<         @SuppressWarnings("rawtypes")
+219,220c186
+<         public Map<String, AbstractControlGroup<?>> getFieldsControlGroup(){
+<                 return Collections.unmodifiableMap(fieldComponents);
+---
+>                 return properties;
+222a189,190
+>         protected abstract EntityProvider<?> getEntityProvider(String name);
+> 
+224,228c192,193
 <         private Class<? extends AbstractControlGroup> getControlGroupByType(Class<?> type){
 <                 for(Class<?> mapType : typesControlGroups.keySet()){
 <                         if(type.isAssignableFrom(mapType)) return typesControlGroups.get(mapType);
 <                 }
 <                 return null;
 ---
->                 return properties;
-230a225
->         @SuppressWarnings("rawtypes")
+>         public Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap(){
+>                 return typesControlGroups;
+244,252d208
+<         }
+< 
+<         @SuppressWarnings("rawtypes")
+<         public Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap(){
+<                 return typesControlGroups;
+<         }
+<         
+<         public Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> getControlGroupProviders(){
+<                 return this.controlGroupProviders;
