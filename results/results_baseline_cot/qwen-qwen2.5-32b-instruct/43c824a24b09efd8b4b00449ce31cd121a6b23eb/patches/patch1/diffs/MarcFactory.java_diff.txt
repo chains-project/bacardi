@@ -1,84 +1,43 @@
-3,4c3
-< import de.gwdg.metadataqa.api.json.JsonBranch;
-< import de.gwdg.metadataqa.api.model.pathcache.JsonPathCache;
----
-> import de.gwdg.metadataqa.api.json.JsonPathCache;
-67,96c66,82
-<     for (JsonBranch branch : schema.getPaths()) {
-<       if (branch.getParent() != null)
-<         continue;
-<       switch (branch.getLabel()) {
-<         case "leader":
-<           marcRecord.setLeader(new Leader(extractFirst(cache, branch)));
-<           break;
-<         case "001":
-<           marcRecord.setControl001(new Control001(extractFirst(cache, branch)));
-<           break;
-<         case "003":
-<           marcRecord.setControl003(new Control003(extractFirst(cache, branch)));
-<           break;
-<         case "005":
-<           marcRecord.setControl005(new Control005(extractFirst(cache, branch), marcRecord));
-<           break;
-<         case "006":
-<           marcRecord.setControl006(
-<             new Control006(extractFirst(cache, branch), marcRecord));
-<           break;
-<         case "007":
-<           marcRecord.setControl007(
-<             new Control007(extractFirst(cache, branch), marcRecord));
-<           break;
-<         case "008":
-<           marcRecord.setControl008(
+93c93
 <             new Control008(extractFirst(cache, branch), marcRecord));
-<           break;
-<         default:
-<           JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());
 ---
->     for (String path : schema.getPaths()) {
->       if (path != null && path.startsWith("leader")) {
->         marcRecord.setLeader(new Leader(extractFirst(cache, path)));
->       } else if (path != null && path.startsWith("001")) {
->         marcRecord.setControl001(new Control001(extractFirst(cache, path)));
->       } else if (path != null && path.startsWith("003")) {
->         marcRecord.setControl003(new Control003(extractFirst(cache, path)));
->       } else if (path != null && path.startsWith("005")) {
->         marcRecord.setControl005(new Control005(extractFirst(cache, path), marcRecord));
->       } else if (path != null && path.startsWith("006")) {
->         marcRecord.setControl006(new Control006(extractFirst(cache, path), marcRecord));
->       } else if (path != null && path.startsWith("007")) {
->         marcRecord.setControl007(new Control007(extractFirst(cache, path), marcRecord);
->       } else if (path != null && path.startsWith("008")) {
->         marcRecord.setControl008(new Control008(extractFirst(cache, path), marcRecord);
->       } else {
->         JSONArray fieldInstances = (JSONArray) cache.getFragment(path);
-104c90
-<               marcRecord.addUnhandledTags(branch.getLabel());
----
->             marcRecord.addUnhandledTags(path);
-107d92
-<           break;
-259c244
+>             new Control008(extractFirst(cache, branch), marcRecord);
+259c259
 <               definition,
 ---
 >               (definition,
-292c277
+292c292
 <         definition,
 ---
->               (definition,
-313,314c298,299
-<   private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
-<     List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
----
->   private static List<String> extractList(JsonPathCache cache, String path) {
->     List<XmlFieldInstance> instances = cache.get(path);
-322,323c307,308
-<   private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
-<     List<String> list = extractList(cache, branch);
----
->   private static String extractFirst(JsonPathCache cache, String path) {
->     List<String> list = extractList(cache, path);
-384c369
+>         (definition,
+384c384
 <             line.getTag(), line.getInd1().charAt(0), line.getInd2().charAt(0)
 ---
 >             (line.getTag(), line.getInd1().charAt(0), line.getInd2().charAt(0)
+391c391
+<                 "parse error in record #%s) tag %s: '%s'",
+---
+>                 ("parse error in record #%s) tag %s: '%s'",
+393c393,394
+<               ));
+---
+>                 )
+>               );
+422c423
+<                 "parse error in record #%s) tag %s: '%s'",
+---
+>                 ("parse error in record #%s) tag %s: '%s'",
+424c425,426
+<               ));
+---
+>                 )
+>               );
+453c455
+<                 "parse error in record #%s) tag %s: '%s'",
+---
+>                 ("parse error in record #%s) tag %s: '%s'",
+455c457,458
+<               ));
+---
+>                 )
+>               );

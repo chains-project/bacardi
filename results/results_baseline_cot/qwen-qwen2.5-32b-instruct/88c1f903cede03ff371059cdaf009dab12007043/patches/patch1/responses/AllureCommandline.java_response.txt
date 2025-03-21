@@ -1,6 +1,6 @@
 package io.qameta.allure.maven;
 
-import net.lingala.zip4j.ZipFile; // Updated import statement
+import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
@@ -155,6 +155,7 @@ public class AllureCommandline {
                 unpack(resolved.next().getArtifact().getFile());
             } else {
                 throw new IOException("No allure commandline artifact found.");
+
             }
         } catch (DependencyResolverException e) {
             throw new IOException("Cannot resolve allure commandline dependencies.", e);
@@ -199,7 +200,7 @@ public class AllureCommandline {
 
     private void unpack(final File file) throws IOException {
         try {
-            final ZipFile zipFile = new ZipFile(file); // Updated ZipFile usage
+            final ZipFile zipFile = new ZipFile(file);
             zipFile.extractAll(getInstallationDirectory().toAbsolutePath().toString());
         } catch (ZipException e) {
             throw new IOException(e);

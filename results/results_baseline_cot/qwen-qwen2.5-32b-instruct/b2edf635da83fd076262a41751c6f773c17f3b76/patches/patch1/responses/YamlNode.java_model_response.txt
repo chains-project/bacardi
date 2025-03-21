@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates an incompatibility between the `Class<YamlNode>` and `LoaderOptions` types.
-   - The error occurs at line 114, where the `Yaml` constructor is being called with a `Constructor` instance.
-   - The issue is likely due to a change in the `snakeyaml` library, where the `Constructor` class now requires a `LoaderOptions` object instead of a `Class` object.
-
-2. Review the client code:
-   - The problematic area is the instantiation of the `Yaml` object with a `Constructor` that takes a `Class<YamlNode>` as an argument.
-   - The `Constructor` class in the newer version of `snakeyaml` requires a `LoaderOptions` object, which is not provided in the current code.
-
-3. Consider potential fixes:
-   - The fix should involve creating a `LoaderOptions` object and passing it to the `Constructor` along with the `Class<YamlNode>` object.
-   - Ensure that the `LoaderOptions` is correctly configured to maintain the expected behavior of the `Constructor`.
-
-4. Plan the necessary changes:
-   - Create a `LoaderOptions` instance and pass it to the `Constructor` along with the `Class<YamlNode>` object.
-   - Ensure that the `LoaderOptions` is properly configured to avoid any unintended behavior.
-</code_analysis>
-
 ```java
 package org.jclouds.byon.domain;
 
@@ -29,8 +10,8 @@ import java.util.Map;
 import org.jclouds.byon.Node;
 import org.jclouds.util.Closeables2;
 import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.constructor.Constructor;
 
 import com.google.common.base.Charsets;
@@ -89,8 +70,7 @@ public class YamlNode {
          InputStream in = null;
          try {
             in = byteSource.openStream();
-            LoaderOptions options = new LoaderOptions();
-            return (YamlNode) new Yaml(new Constructor(YamlNode.class, options)).load(in);
+            return (YamlNode) new Yaml(new Constructor(YamlNode.class), new LoaderOptions()).load(in);
          } catch (IOException ioe) {
             throw Throwables.propagate(ioe);
          } finally {
@@ -186,7 +166,6 @@ public class YamlNode {
          return yaml;
       }
    };
+
 }
 ```
-
-This fix addresses the error by creating a `LoaderOptions` instance and passing it to the `Constructor` when creating the `Yaml` object. This change is necessary due to the updated `snakeyaml` library, which now requires `LoaderOptions` to be passed to the `Constructor`. The rest of the class remains unchanged to ensure that the behavior of the `YamlNode` class is preserved.

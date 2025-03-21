@@ -2,6 +2,7 @@ package com.feedzai.commons.sql.abstraction.engine.impl.mysql;
 
 import com.feedzai.commons.sql.abstraction.engine.handler.QueryExceptionHandler;
 
+import java.sql.SQLTimeoutException;
 import java.sql.SQLException;
 
 /**
@@ -19,10 +20,7 @@ public class MySqlQueryExceptionHandler extends QueryExceptionHandler {
 
     @Override
     public boolean isTimeoutException(final SQLException exception) {
-        // Check if the SQL state indicates a timeout exception
-        return "08001".equals(exception.getSQLState()) || "08006".equals(exception.getSQLState())
-                || "08S01".equals(exception.getSQLState()) || "08S02".equals(exception.getSQLState())
-                || super.isTimeoutException(exception);
+        return exception instanceof SQLTimeoutException || super.isTimeoutException(exception);
     }
 
     @Override

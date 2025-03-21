@@ -1,13 +1,3 @@
-<code_analysis>
-1. The error message indicates that the method `getInstance()` cannot be found in the class `org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy`. This suggests that the method `getInstance()` has been removed or deprecated in the newer version of the `jaxb2-basics-runtime` dependency.
-
-2. The client code is trying to use `JAXBToStringStrategy.getInstance()` to get an instance of `JAXBToStringStrategy`. This method is used in the `toString()` method to create a string representation of the `SpecialRegimes` object.
-
-3. To fix this issue, we need to either find an alternative method to obtain an instance of `JAXBToStringStrategy` or directly instantiate the class if it is now possible. Since the method `getInstance()` is not available, we will directly instantiate `JAXBToStringStrategy`.
-
-4. The necessary changes include removing the call to `getInstance()` and directly creating an instance of `JAXBToStringStrategy`. This change should not affect the functionality of the class, as the `toString()` method will still work as intended.
-</code_analysis>
-
 ```java
 package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
 
@@ -26,7 +16,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "cashVATSchemeIndicator",
     "thirdPartiesBillingIndicator"
 })
-public class SpecialRegimes implements ToString2 {
+public class SpecialRegimes implements ToString2
+{
 
     @XmlElement(name = "SelfBillingIndicator")
     protected int selfBillingIndicator;
@@ -94,7 +85,6 @@ public class SpecialRegimes implements ToString2 {
         }
         return buffer;
     }
+
 }
 ```
-
-In this fix, the `toString()` method now directly creates an instance of `JAXBToStringStrategy` instead of calling `getInstance()`. This should resolve the compilation error caused by the dependency update.

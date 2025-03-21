@@ -11,26 +11,6 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
-/**
- * <p>Java class for OrderReferences complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType name="OrderReferences"&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}OriginatingON" minOccurs="0"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}OrderDate" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
- */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "OrderReferences", propOrder = {
     "originatingON",
@@ -45,57 +25,25 @@ public class OrderReferences implements ToString2
     @XmlSchemaType(name = "date")
     protected XMLGregorianCalendar orderDate;
 
-    /**
-     * Gets the value of the originatingON property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
     public String getOriginatingON() {
         return originatingON;
     }
 
-    /**
-     * Sets the value of the originatingON property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setOriginatingON(String value) {
         this.originatingON = value;
     }
 
-    /**
-     * Gets the value of the orderDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
     public XMLGregorianCalendar getOrderDate() {
         return orderDate;
     }
 
-    /**
-     * Sets the value of the orderDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
     public void setOrderDate(XMLGregorianCalendar value) {
         this.orderDate = value;
     }
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new JAXBToStringStrategy(); // Direct instantiation instead of getInstance()
+        final JAXBToStringStrategy strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -123,4 +71,5 @@ public class OrderReferences implements ToString2
         }
         return buffer;
     }
+
 }

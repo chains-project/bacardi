@@ -17,19 +17,12 @@
 <  * You should have received a copy of the GNU Lesser General Public License
 <  * along with billy GIN. If not, see <http://www.gnu.org/licenses/>.
 <  */
-58c40,41
-< import org.apache.xmlgraphics.util.MimeConstants;
----
+57a40
 > import org.apache.fop.apps.FopFactoryBuilder;
-> import org.apache.fop.apps.FopFactoryConfig;
-115c98
+115c98,99
 <         FopFactory fopFactory = FopFactory.newInstance();
 ---
->         FopFactory fopFactory = FopFactory.newInstance(new FopFactoryConfig());
-141,142c124
-<             // Resulting SAX events (the generated FO)
-<             // must be piped through to FOP
----
->             // Resulting SAX events (the generated FO) must be piped through to FOP
-208d189
+>         FopFactoryBuilder builder = new FopFactoryBuilder(new File("."));
+>         FopFactory fopFactory = builder.build();
+208d191
 < 

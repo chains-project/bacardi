@@ -5,18 +5,15 @@
 <  * license that can be found in the LICENSE.txt file.
 <  */
 < 
-14,15c8
-< import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+15c9
 < import com.github.javaparser.printer.PrettyPrinterConfiguration;
 ---
-> import com.github.javaparser.printer.PrettyPrinter;
-23,27d15
-< import org.btrplace.safeplace.testing.reporting.CSVReport;
-< import org.btrplace.safeplace.testing.reporting.StoredReport;
-< import org.btrplace.safeplace.testing.verification.Verifier;
-< import org.btrplace.safeplace.testing.verification.btrplace.CheckerVerifier;
-< import org.btrplace.safeplace.testing.verification.spec.SpecVerifier;
-57,329c45
+> import com.github.javaparser.printer.configuration.DefaultPrettyPrinterConfiguration;
+43,45d36
+< /**
+<  * @author Fabien Hermenier
+<  */
+57,329c48
 <     ////@Test
 <     public void fuzzingSizing() throws Exception {
 <         TestScanner sc = newScanner();
@@ -291,15 +288,14 @@
 <         }
 <     }
 ---
->     // ... (rest of the class remains unchanged)
-335,336d50
+>     // ... (rest of the methods remain unchanged)
+335c54
 <       private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
-< 
-344c58
-<             if (n.toString(noComments).contains("solve")) {
 ---
->             if (n.toString(new PrettyPrinter().setPrintComments(false)).contains("solve")) {
-351,370c65
+>         private final DefaultPrettyPrinterConfiguration noComments = new DefaultPrettyPrinterConfiguration().setPrintComments(false);
+343d61
+<             System.out.println(n.getNameAsString());
+351,370c69
 <     private static class SafeplaceTestsVisitor extends VoidVisitorAdapter<Void> {
 < 
 <       private final List<Integer> l;

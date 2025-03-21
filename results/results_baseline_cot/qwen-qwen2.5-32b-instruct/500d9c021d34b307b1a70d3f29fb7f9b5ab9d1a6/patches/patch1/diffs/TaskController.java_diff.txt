@@ -1,62 +1,10 @@
-12,30c12,28
-< import javax.mvc.Controller;
-< import javax.mvc.Models;
-< import javax.mvc.View;
-< import javax.mvc.binding.BindingResult;
-< import javax.mvc.binding.ParamError;
-< import javax.mvc.security.CsrfProtected;
-< import javax.validation.Valid;
-< import javax.validation.constraints.NotNull;
-< import javax.ws.rs.BeanParam;
-< import javax.ws.rs.DELETE;
-< import javax.ws.rs.FormParam;
-< import javax.ws.rs.GET;
-< import javax.ws.rs.POST;
-< import javax.ws.rs.PUT;
-< import javax.ws.rs.Path;
-< import javax.ws.rs.PathParam;
-< import javax.ws.rs.core.Response;
-< import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-< import org.eclipse.krazo.engine.Viewable;
----
-> import jakarta.mvc.Controller;
-> import jakarta.mvc.Models;
-> import jakarta.mvc.binding.BindingResult;
-> import jakarta.mvc.binding.ParamError;
-> import jakarta.mvc.security.CsrfProtected;
-> import jakarta.validation.Valid;
-> import jakarta.validation.constraints.NotNull;
-> import jakarta.ws.rs.BeanParam;
-> import jakarta.ws.rs.DELETE;
-> import jakarta.ws.rs.FormParam;
-> import jakarta.ws.rs.GET;
-> import jakarta.ws.rs.POST;
-> import jakarta.ws.rs.PUT;
-> import jakarta.ws.rs.Path;
-> import jakarta.ws.rs.PathParam;
-> import jakarta.ws.rs.core.Response;
-> import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
-53d50
-<     @View("tasks.xhtml")
-71c68
-<     public Viewable taskDetails(@PathParam("id") @NotNull Long id) {
----
->     public String taskDetails(@PathParam("id") @NotNull Long id) {
-76c73
-<         return new Viewable("details.xhtml");
----
->         return "details.xhtml";
-90d86
+90d89
 <     //@ValidateOnExecution(type = ExecutableType.NONE)
-119c115
-<     public Viewable edit(@PathParam("id") Long id) {
+126,127c125,126
+<         form.setName(task.getName());
+<         form.setDescription(task.getDescription());
 ---
->     public String edit(@PathParam("id") Long id) {
-129c125
-<         return new Viewable("edit.xhtml");
----
->         return "edit.xhtml";
-164c160
+>         form.setName = task.getName();
+>         form.description = task.getDescription();
+164d162
 <     //@CsrfProtected
----
->     @CsrfProtected

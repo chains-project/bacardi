@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates an incompatibility between the `Constructor` class and the `LoaderOptions` class from the SnakeYAML library.
-   - The error occurs at line 83, where the `Constructor` is being instantiated with a `Config` class.
-   - The issue is likely due to a change in the SnakeYAML library where the `Constructor` now requires a `LoaderOptions` object.
-
-2. Review the client code:
-   - The problematic area is the instantiation of the `Constructor` with the `Config` class.
-   - The `Constructor` is used to parse the YAML file into the `Config` object.
-
-3. Consider potential fixes:
-   - The `Constructor` now requires a `LoaderOptions` object, which needs to be created and passed to the `Constructor`.
-   - Ensure that the `LoaderOptions` is correctly configured to handle the `Config` class.
-
-4. Plan the necessary changes:
-   - Create a `LoaderOptions` object and pass it to the `Constructor`.
-   - Ensure that the `LoaderOptions` is configured to handle the `Config` class.
-</code_analysis>
-
 ```java
 package org.jclouds.byon.functions;
 
@@ -33,7 +14,6 @@ import javax.inject.Singleton;
 
 import org.jclouds.byon.Node;
 import org.jclouds.byon.domain.YamlNode;
-import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -85,8 +65,7 @@ public class NodesFromYamlStream implements Function<ByteSource, LoadingCache<St
    @Override
    public LoadingCache<String, Node> apply(ByteSource source) {
 
-      LoaderOptions options = new LoaderOptions();
-      Constructor constructor = new Constructor(Config.class, options);
+      Constructor constructor = new Constructor(Config.class);
 
       TypeDescription nodeDesc = new TypeDescription(YamlNode.class);
       nodeDesc.putListPropertyType("tags", String.class);
@@ -100,7 +79,7 @@ public class NodesFromYamlStream implements Function<ByteSource, LoadingCache<St
       InputStream in = null;
       try {
          in = source.openStream();
-         config = (Config) yaml.load(in);
+         config = yaml.loadAs(in, Config.class);
       } catch (IOException ioe) {
          throw propagate(ioe);
       } finally {
@@ -122,5 +101,3 @@ public class NodesFromYamlStream implements Function<ByteSource, LoadingCache<St
    }
 }
 ```
-
-This fix addresses the issue by creating a `LoaderOptions` object and passing it to the `Constructor` to resolve the type incompatibility introduced by the dependency update.

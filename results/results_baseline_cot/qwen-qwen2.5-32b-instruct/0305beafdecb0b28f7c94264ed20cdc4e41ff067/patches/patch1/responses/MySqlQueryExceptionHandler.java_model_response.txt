@@ -1,28 +1,9 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `MySQLTimeoutException` cannot be found and the package `com.mysql.jdbc.exceptions` does not exist.
-   - This suggests that the dependency update has removed or renamed the `MySQLTimeoutException` class and the package `com.mysql.jdbc.exceptions`.
-
-2. Review the client code:
-   - The problematic areas are in the `isTimeoutException` method and the import statement for `MySQLTimeoutException`.
-   - The `MySQLTimeoutException` class is used to check if a `SQLException` is a timeout exception.
-
-3. Consider potential fixes:
-   - The `MySQLTimeoutException` class is no longer available, so we need to find an alternative way to check for timeout exceptions.
-   - The `SQLException` class itself can be used to check for timeout exceptions by examining the SQL state or error code.
-   - The import statement for `MySQLTimeoutException` needs to be removed or replaced with a valid import.
-
-4. Plan the necessary changes:
-   - Remove the import statement for `MySQLTimeoutException`.
-   - Modify the `isTimeoutException` method to check for timeout exceptions using the `SQLException` class.
-   - Ensure the `isUniqueConstraintViolationException` method remains unchanged as it does not rely on the removed class.
-</code_analysis>
-
 ```java
 package com.feedzai.commons.sql.abstraction.engine.impl.mysql;
 
 import com.feedzai.commons.sql.abstraction.engine.handler.QueryExceptionHandler;
 
+import java.sql.SQLTimeoutException;
 import java.sql.SQLException;
 
 /**
@@ -40,10 +21,7 @@ public class MySqlQueryExceptionHandler extends QueryExceptionHandler {
 
     @Override
     public boolean isTimeoutException(final SQLException exception) {
-        // Check if the SQL state indicates a timeout exception
-        return "08001".equals(exception.getSQLState()) || "08006".equals(exception.getSQLState())
-                || "08S01".equals(exception.getSQLState()) || "08S02".equals(exception.getSQLState())
-                || super.isTimeoutException(exception);
+        return exception instanceof SQLTimeoutException || super.isTimeoutException(exception);
     }
 
     @Override
@@ -53,5 +31,3 @@ public class MySqlQueryExceptionHandler extends QueryExceptionHandler {
     }
 }
 ```
-
-This fix removes the dependency on the `MySQLTimeoutException` class and uses the SQL state to identify timeout exceptions, which is a more general approach that should work across different MySQL driver versions.

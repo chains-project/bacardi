@@ -1,7 +1,26 @@
+//
+// Wire
+// Copyright (C) 2016 Wire Swiss GmbH
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see http://www.gnu.org/licenses/.
+//
+
 package com.wire.lithium;
 
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.health.HealthCheck;
+import com.codahale.metrics.jmx.JmxReporter;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.wire.lithium.healthchecks.Alice2Bob;
 import com.wire.lithium.healthchecks.CryptoHealthCheck;
@@ -10,7 +29,6 @@ import com.wire.lithium.healthchecks.StorageHealthCheck;
 import com.wire.lithium.server.filters.AuthenticationFeature;
 import com.wire.lithium.server.monitoring.RequestMdcFactoryFilter;
 import com.wire.lithium.server.monitoring.StatusResource;
-import com.wire.lithium.server.monitoring.VersionResource;
 import com.wire.lithium.server.resources.BotsResource;
 import com.wire.lithium.server.resources.MessageResource;
 import com.wire.lithium.server.tasks.AvailablePrekeysTask;
@@ -31,6 +49,7 @@ import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.dropwizard.setup.AdminEnvironment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.flywaydb.core.Flyway;
@@ -106,7 +125,7 @@ public abstract class Server<Config extends Configuration> extends Application<C
     }
 
     @Override
-    public void run(final Config config, Environment env) {
+    public void run(final Config config, Environment env) throws Exception {
         this.config = config;
         this.environment = env;
 
@@ -172,7 +191,23 @@ public abstract class Server<Config extends Configuration> extends Application<C
         }
     }
 
-    protected void addResources() {
+    public StorageFactory getStorageFactory() {
+        if (config.database.getDriverClass().equalsIgnoreCase("fs")) {
+            return botId -> new FileState(config.database.getUrl(), botId);
+        }
+
+        return botId -> new JdbiState(botId, getJdbi());
+    }
+
+    public CryptoFactory getCryptoFactory() {
+        if (config.database.getDriverClass().equalsIgnoreCase("fs")) {
+            return (botId) -> new CryptoFile(config.database.getUrl(), botId);
+        }
+
+        return (botId) -> new CryptoDatabase(botId, new JdbiStorage(getJdbi()));
+    }
+
+    private void addResources() {
         /* --- Wire Common --- */
         addResource(new VersionResource()); // add version endpoint
         addResource(new StatusResource()); // empty status for k8s
@@ -182,8 +217,9 @@ public abstract class Server<Config extends Configuration> extends Application<C
         botResource();
         messageResource();
 
-        addTask(new ConversationTask(getRepo()));
-        addTask(new AvailablePrekeysTask(getRepo()));
+        AdminEnvironment admin = environment.admin();
+        admin.addTask(new ConversationTask(getRepo()));
+        admin.addTask(new AvailablePrekeysTask(getRepo()));
     }
 
     protected void messageResource() {
@@ -220,8 +256,11 @@ public abstract class Server<Config extends Configuration> extends Application<C
         environment.healthChecks().register("Alice2Bob", new Alice2Bob(cryptoFactory));
         environment.healthChecks().register("Outbound", new Outbound(getClient()));
 
-        environment.metrics().register("logger.errors", (Gauge<Integer>) Logger::getErrorCount);
-        environment.metrics().register("logger.warnings", (Gauge<Integer>) Logger::getWarningCount);
+        JmxReporter jmxReporter = JmxReporter.forRegistry(environment.metrics())
+                .convertRatesTo(TimeUnit.SECONDS)
+                .convertDurationsTo(TimeUnit.MILLISECONDS)
+                .build();
+        jmxReporter.start();
     }
 
     private void runHealthChecks() {

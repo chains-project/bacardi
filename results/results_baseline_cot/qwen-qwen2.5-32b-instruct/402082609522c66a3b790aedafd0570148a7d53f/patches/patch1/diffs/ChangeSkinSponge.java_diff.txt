@@ -1,0 +1,49 @@
+20a21
+> import org.spongepowered.api.Game;
+28c29
+< import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+---
+> import org.spongepowered.api.event.game.state.GameStartingServerEvent;
+30,31c31,32
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelRegistrar;
+---
+> import org.spongepowered.api.network.ChannelBinding;
+> import org.spongepowered.api.network.ChannelBinding.ChannelRegistrar;
+37d37
+< import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
+40c40
+< @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+---
+> @Plugin(id = PomData.ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+53d52
+<     //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
+62c61
+<     public void onPreInit(GamePreInitializationEvent preInitEvent) {
+---
+>     public void onPreInit(GameStartingServerEvent preInitEvent) {
+83c82,83
+<         cmdManager.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+---
+>         cmdManager.register(this, injector.getInstance(SetCommand.class)
+>                 .buildSpec(), "changeskin", "setskin", "skin");
+90c90
+<         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
+---
+>         ChannelRegistrar channelReg = Sponge.getGame().getEventManager().getChannelRegistrar();
+93,94c93,94
+<         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
+<         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
+---
+>         ChannelRegistrar.RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
+>         ChannelRegistrar.RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
+108d107
+<     @Override
+126d124
+<     @Override
+131d128
+<     @Override
+136d132
+<     @Override
+141d136
+<     @Override

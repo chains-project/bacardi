@@ -1,6 +1,8 @@
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
+import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.BinaryJedis;
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +65,15 @@ public interface RedisGraphTransaction extends Closeable {
     Response<ResultSet> callProcedure(String graphId, String procedure);
 
     /**
+     * Invokes stored procedure with arguments
+     * @param graphId a graph to perform the query on
+     * @param procedure procedure name to invoke
+     * @param args procedure arguments
+     * @return a response which builds result set with the procedure data
+     */
+    Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args);
+
+    /**
      * Invoke a stored procedure
      * @param graphId a graph to perform the query on
      * @param procedure - procedure to execute
@@ -70,7 +81,7 @@ public interface RedisGraphTransaction extends Closeable {
      * @param kwargs - procedure output arguments
      * @return a response which builds result set with the procedure data
      */
-    Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args, Map<String, List<String>> kwargs);
+    Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args  , Map<String, List<String>> kwargs);
 
     /**
      * Deletes the entire graph

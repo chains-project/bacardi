@@ -1,11 +1,3 @@
-<code_analysis>
-The error message indicates that the method `addEnabledLanguages` is not found in the `AnalysisEngineConfiguration.Builder` class. This suggests that the method signature has changed or been removed in the updated dependency. The method `addEnabledLanguages` is used in the `buildAnalysisEngineConfiguration` method. We need to find the correct method to use in the updated dependency version. 
-
-Given the context, it seems that the `addEnabledLanguages` method has been replaced or removed. We need to find the correct method to add enabled languages in the new version of the dependency. If the method is no longer available, we might need to use a different approach to configure the `AnalysisEngineConfiguration`.
-
-Let's assume that the new version of the dependency uses a different method or approach to configure the enabled languages. We will need to update the `buildAnalysisEngineConfiguration` method accordingly.
-</code_analysis>
-
 ```java
 package sorald.sonar;
 
@@ -50,7 +42,6 @@ import org.sonarsource.sonarlint.core.commons.progress.ProgressMonitor;
 import org.sonarsource.sonarlint.core.plugin.commons.LoadedPlugins;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoadResult;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader;
-import org.sonarsource.sonarlint.core.plugin.commons.Configuration;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInfo;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInstancesLoader;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginRequirementsCheckResult;
@@ -61,6 +52,7 @@ import sorald.util.ConfigLoader;
 public final class SonarLintEngine extends AbstractSonarLintEngine {
 
     // The order of these initialisations is important as each field is dependent upon the previous
+    // one.
     private static final String SONAR_JAVA_PLUGIN_JAR_NAME = "sonar-java-plugin.jar";
     private static final Path sonarJavaPlugin = getOrDownloadSonarJavaPlugin().getPath();
     private static final StandaloneGlobalConfiguration globalConfig = buildGlobalConfig();
@@ -150,7 +142,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                 instancesLoader.instantiatePluginClasses(allPlugins);
 
         return new LoadedPluginsThatDoesNotCloseLoader(
-                (Map<String, Plugin>) pluginInstancesByKeys, instancesLoader);
+                pluginInstancesByKeys, new PluginInstancesLoader());
     }
 
     private static Collection<PluginInfo> getAllPlugins(
@@ -166,7 +158,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
         return AnalysisEngineConfiguration.builder()
-                .setLanguages(globalConfig.getEnabledLanguages())
+                .addEnabledLanguages(globalConfig.getEnabledLanguages())
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())
@@ -294,5 +286,3 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     }
 }
 ```
-
-In the provided solution, the `addEnabledLanguages` method has been replaced with `setLanguages` in the `buildAnalysisEngineConfiguration` method. This is based on the assumption that the new version of the dependency uses `setLanguages` instead of `addEnabledLanguages`. If this is not the case, the appropriate method should be used based on the updated dependency documentation.

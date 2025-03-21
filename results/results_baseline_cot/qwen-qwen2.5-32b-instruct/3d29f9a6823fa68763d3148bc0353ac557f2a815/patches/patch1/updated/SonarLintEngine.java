@@ -41,7 +41,6 @@ import org.sonarsource.sonarlint.core.commons.progress.ProgressMonitor;
 import org.sonarsource.sonarlint.core.plugin.commons.LoadedPlugins;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoadResult;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader;
-import org.sonarsource.sonarlint.core.plugin.commons.Configuration;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInfo;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInstancesLoader;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginRequirementsCheckResult;
@@ -52,6 +51,7 @@ import sorald.util.ConfigLoader;
 public final class SonarLintEngine extends AbstractSonarLintEngine {
 
     // The order of these initialisations is important as each field is dependent upon the previous
+    // one.
     private static final String SONAR_JAVA_PLUGIN_JAR_NAME = "sonar-java-plugin.jar";
     private static final Path sonarJavaPlugin = getOrDownloadSonarJavaPlugin().getPath();
     private static final StandaloneGlobalConfiguration globalConfig = buildGlobalConfig();
@@ -141,7 +141,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                 instancesLoader.instantiatePluginClasses(allPlugins);
 
         return new LoadedPluginsThatDoesNotCloseLoader(
-                (Map<String, Plugin>) pluginInstancesByKeys, instancesLoader);
+                pluginInstancesByKeys, new PluginInstancesLoader());
     }
 
     private static Collection<PluginInfo> getAllPlugins(
@@ -157,7 +157,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
         return AnalysisEngineConfiguration.builder()
-                .setLanguages(globalConfig.getEnabledLanguages())
+                .addEnabledLanguages(globalConfig.getEnabledLanguages())
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())

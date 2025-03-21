@@ -1,6 +1,7 @@
 package com.jcabi.ssh;
 
 import com.jcabi.aspects.RetryOnFailure;
+import com.jcabi.aspects.Tv;
 import com.jcabi.log.Logger;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
@@ -47,12 +48,11 @@ import org.cactoos.text.UncheckedText;
  * @since 1.0
  * @see <a href="http://www.yegor256.com/2014/09/02/java-ssh-client.html">article by Yegor Bugayenko</a>
  * @todo #30:30min Refactor this class into smaller ones to avoid null
- *  checking of passphrase. There should probably be separate classes for
- *  encrypted/unencrypted priv. key.
+ *  checking of passphrase.
  */
 @ToString
 @EqualsAndHashCode(of = "key", callSuper = true)
-@SuppressWarnings("PMD.TooManyMethods")
+@SuppressWarnings("PMD.ProhibitPublicStaticMethods")
 public final class Ssh extends AbstractSshShell {
 
     /**
@@ -93,7 +93,7 @@ public final class Ssh extends AbstractSshShell {
      */
     public Ssh(final InetAddress adr, final String user, final URL priv)
         throws IOException {
-        this(adr.getCanonicalHostName(), Ssh.PORT, user, priv);
+        this(adr, Ssh.PORT, user, priv);
     }
 
     /**
@@ -114,7 +114,7 @@ public final class Ssh extends AbstractSshShell {
      * @param adr IP address
      * @param user Login
      * @param priv Private SSH key
-     * @throws UnknownHostException If fails
+     * @throws UnknownHostException when host is unknown.
      * @since 1.4
      */
     public Ssh(final InetAddress adr, final String user, final String priv)
@@ -193,7 +193,6 @@ public final class Ssh extends AbstractSshShell {
      * @param arg Argument to escape
      * @return Escaped
      */
-    @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
     public static String escape(final String arg) {
         return String.format("'%s'", arg.replace("'", "'\\''"));
     }
@@ -234,9 +233,8 @@ public final class Ssh extends AbstractSshShell {
             }
             Logger.debug(
                 this,
-                "Opening SSH session to %s@%s:%s (%d bytes in RSA key)...",
-                this.getLogin(), this.getAddr(), this.getPort(),
-                file.length()
+                "Opening SSH session to %s@%s:%s",
+                this.getLogin(), this.getAddr(), this.getPort()
             );
             return this.session(jsch);
         } catch (final JSchException ex) {
@@ -254,12 +252,12 @@ public final class Ssh extends AbstractSshShell {
      */
     private Session session(final JSch sch) throws JSchException {
         final Session session = sch.getSession(
-            (this.getLogin(), this.getAddr(), this.getPort()
+            this.getLogin(), this.getAddr(), this.getPort()
         );
         session.setConfig("StrictHostKeyChecking", "no");
         session.setTimeout((int) TimeUnit.SECONDS.toMillis(10L));
         session.setServerAliveInterval((int) TimeUnit.SECONDS.toMillis(1L));
-        session.setServerAliveCountMax(1000000); // Replaced Tv.MILLION with a direct value
+        session.setServerAliveCountMax(1000000);
         session.connect((int) TimeUnit.SECONDS.toMillis(10L));
         Logger.debug(
             this,

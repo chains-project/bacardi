@@ -110,11 +110,11 @@ public class Decorations
     /**
      * 線を引くよ！
      *
-     * @param path    開始位置
-     * @param to      終了位置
-     * @param particle パーティクル
+     * @param path 開始位置
+     * @param to   終了位置
+     * @param p    パーティクル
      */
-    public static void line(Location path, Location to, Particle particle)
+    public static void line(Location path, Location to, Particle p)
     {
         double distance = path.distance(to);
 
@@ -126,9 +126,29 @@ public class Decorations
         for (double d = 0; distance > d; )
         {
             vP.add(line);
-            particle(vP.toLocation(path.getWorld()), 1, particle);
+            particle(vP.toLocation(path.getWorld()), 1, p);
             d += 0.2;
         }
+    }
+
+    /**
+     * えん
+     *
+     * @param center   真ん中の位置
+     * @param count    カウント！
+     * @param radius   はんけー
+     */
+    public static void circle(Location center, int count, double radius)
+    {
+        Location n = new Location(
+            center.getWorld(),
+            particle_x(count, radius) + center.getX(),
+            center.getY(),
+            particle_z(count, radius) + center.getZ()
+        );
+
+        particle(n);
+
     }
 
     /**
@@ -142,58 +162,49 @@ public class Decorations
     public static void circle(Location center, int count, double radius, Particle particle)
     {
         Location n = new Location(
-            (
-                center.getWorld(),
-                particle_x(count, radius) + center.getX(),
-                center.getY(),
-                particle_z(count, radius) + center.getZ()
-            );
+            center.getWorld(),
+            particle_x(count, radius) + center.getX(),
+            center.getY(),
+            particle_z(count, radius) + center.getZ()
+        );
 
         particle(n, 5, particle);
 
     }
 
     /**
-     * えん
+     * マジック
      *
-     * @param center   真ん中の位置
-     * @param count    カウント！
-     * @param radius   はんけー
+     * @param player  餌食
+     * @param seconds 秒数
      */
-    public static void circle(Location center, int count, double radius)
+    public static void magic(Player player, int seconds)
     {
-        Location n = new Location(
-            (
-                center.getWorld(),
-                particle_x(count, radius) + center.getX(),
-                center.getY(),
-                particle_z(count, radius) + center.getZ()
-            );
+        final int[] count = {0};
 
-        particle(n, 5);
-
-    }
-
-    /**
-     * まほーじん！！
-     *
-     * @param player 餌食
-     * @param sec    秒数
-     */
-    public static void magic(Player player, int sec)
-    {
-        final double[] time = {0.0};
         BukkitRunnable runnable = new BukkitRunnable()
         {
             @Override
             public void run()
             {
-                Location c = player.getLocation().clone();
-                Location X = new Location(c.getWorld(), particle_x(time[0], 2.5) + c.getX(), 5.0 + c.getY(), particle_z(time[0], 2.5) + c.getZ());
+                for (double i = 0; i < Math.PI * 2; i++)
+                {
+                    Location center = player.getLocation().clone();
 
-                for (int i = 0; i < 10; i++)
-                    line(c, X, Particle.TOWN_AURA);
-                time[0] += Math.E;
+                    circle(center.clone().add(0, 0.9, 0), count[0], 3, Particle.CRIT);
+
+                    circle(center.add(0, 0.7, 0), count[0], 2.7, Particle.ENCHANTMENT_TABLE);
+
+                    circle(center.clone().add(0, 1.5, 0), count[0], 5, Particle.SPELL_WITCH);
+
+                    count[0]++;
+                }
+
+                Location center = player.getLocation();
+
+                line(center.clone().add(3, 0.7, 0), center.clone().add(-1.5, 0.7, 2.3));
+                line(center.clone().add(-1.5, 0.7, 2.3), center.clone().add(-1.5, 0.7, -2.3)); //三角
+                line(center.clone().add(-1.5, 0.7, -2.3), center.clone().add(3, 0.7, 0));
             }
         };
 
@@ -205,7 +216,7 @@ public class Decorations
             {
                 runnable.cancel();
             }
-        }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), sec);
+        }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), seconds);
     }
 
     /**
@@ -247,40 +258,4 @@ public class Decorations
             laser(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20));
     }
 
-    /**
-     * ガーディアンビーム
-     *
-     * @param player 被験者
-     * @param sec    秒数
-     */
-    public static void laser(Player player, int sec)
-    {
-
-        final double[] time = {0.0};
-        final double radius = 2.5;
-
-        BukkitRunnable runnable = new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                Location c = player.getLocation().clone();
-                Location X = new Location(c.getWorld(), particle_x(time[0], radius) + c.getX(), 5.0 + c.getY(), particle_z(time[0], radius) + c.getZ());
-
-                for (int i = 0; i < 10; i++)
-                    line(c, X, Particle.TOWN_AURA);
-                time[0] += Math.E;
-            }
-        };
-
-        runnable.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0L, 1L);
-        new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                runnable.cancel();
-            }
-        }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), sec);
-    }
 }

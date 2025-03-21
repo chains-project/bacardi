@@ -1,25 +1,7 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the package `net.lingala.zip4j.core` does not exist.
-   - This suggests that the `zip4j` library has been updated, and the package structure has changed.
-
-2. Review the client code:
-   - The class `AllureCommandline` uses `ZipFile` from the `net.lingala.zip4j.core` package.
-   - The `unpack` method uses `ZipFile` to extract files from a zip archive.
-
-3. Consider potential fixes:
-   - The `zip4j` library might have changed its package structure or class names.
-   - The `ZipFile` class might have moved to a different package or been renamed.
-
-4. Plan the necessary changes:
-   - Update the import statement to reflect the new package structure of `zip4j`.
-   - Ensure that the `ZipFile` class is correctly referenced.
-</code_analysis>
-
 ```java
 package io.qameta.allure.maven;
 
-import net.lingala.zip4j.ZipFile; // Updated import statement
+import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
@@ -174,6 +156,7 @@ public class AllureCommandline {
                 unpack(resolved.next().getArtifact().getFile());
             } else {
                 throw new IOException("No allure commandline artifact found.");
+
             }
         } catch (DependencyResolverException e) {
             throw new IOException("Cannot resolve allure commandline dependencies.", e);
@@ -218,7 +201,7 @@ public class AllureCommandline {
 
     private void unpack(final File file) throws IOException {
         try {
-            final ZipFile zipFile = new ZipFile(file); // Updated ZipFile usage
+            final ZipFile zipFile = new ZipFile(file);
             zipFile.extractAll(getInstallationDirectory().toAbsolutePath().toString());
         } catch (ZipException e) {
             throw new IOException(e);
@@ -243,5 +226,3 @@ public class AllureCommandline {
     }
 }
 ```
-
-The fix involves updating the import statement for `ZipFile` to reflect the new package structure in the updated `zip4j` library. The rest of the class remains unchanged, ensuring that the code compiles and functions as intended with the updated dependency.

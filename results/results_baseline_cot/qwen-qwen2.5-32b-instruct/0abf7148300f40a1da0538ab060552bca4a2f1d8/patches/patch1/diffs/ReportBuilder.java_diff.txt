@@ -2,74 +2,44 @@
 > import xdev.tableexport.export.ExportException;
 59d59
 < 
-75d74
-<         
-81d79
-<         
-91d88
-<         
-101d97
-<         
-121d116
-<         
-155,159d149
-<         
+156,159d155
 <         /**
 <          * 
 <          * @return
 <          */
-162d151
-<                 
-173c162
+169,171c165,166
+<                         final Font font = style.getFont();
+<                         lbl.setFont(font);
+<                         //get the normal height of the label
+---
+>                         final Font f = style.getFont();
+>                         lbl.setFont(f);
+173c168
 <                         //add the column border width
 ---
 >                         //Add border width
-189d177
-<                 
-213d200
-<         
-238d224
-<         
-255d240
-<         
-295d279
-<                                         
-303d286
-<                                         // Build label and set x / y
-326,327d308
-<                         textField.setExpression(this.buildExpression(contentColumn));
-<                         
-352,357d332
-<                 
-<                 
-<                 if(!style.getBackground().equals(Color.WHITE))
-<                 {
-<                         txtField.setMode(ModeEnum.OPAQUE);
-<                 }
-360d334
-<         
-379,383c353,356
-<                 
-<                 lineBox.setTopPadding(colPadding.getTopWidth());
-<                 lineBox.setRightPadding(colPadding.getRightWidth());
-<                 lineBox.setLeftPadding(colPadding.getLeftWidth());
-<                 lineBox.setBottomPadding(colPadding.getBottomWidth());
+196,197c191,192
+<                         final Font font = style.getFont();
+<                         lbl.setFont(font);
 ---
->                 lineBox.setTopPadding(Float.valueOf(colPadding.getTopWidth()));
->                 lineBox.setRightPadding(Float.valueOf(colPadding.getRightWidth()));
->                 lineBox.setLeftPadding(Float.valueOf(colPadding.getLeftWidth()));
->                 lineBox.setBottomPadding(Float.valueOf(colPadding.getBottomWidth()));
-386d358
-<         
-394d365
-<         
-397,401c368
+>                         final Font f = style.getFont();
+>                         lbl.setFont(f);
+330,333d324
+<                         if(this.config.isBlankWhenNullValue())
+<                         {
+<                                 textField.setBlankWhenNull(true);
+<                         }
+348,350c339,341
+<                 txtField.setFontSize(Float.valueOf(f.getSize()));
+<                 txtField.setBold(Boolean.valueOf(f.isBold()));
+<                 txtField.setItalic(Boolean.valueOf(f.isItalic()));
+---
+>                 txtField.setFontSize(f.getSize());
+>                 txtField.setBold(f.isBold());
+>                 txtField.setItalic(f.isItalic());
+397,398c388,389
 <          * Assemble and compile a {@link JasperReport} based on the information of
 <          * the {@link TemplateConfig} object.
-<          * 
-<          * @return the compiled {@link JasperReport}
-<          * @throws ExportException
 ---
->          * @return
-428d394
-<         
+>          * Assemble and compile a {@link JasperReport} based on the information of the
+>          * {@link TemplateConfig}.

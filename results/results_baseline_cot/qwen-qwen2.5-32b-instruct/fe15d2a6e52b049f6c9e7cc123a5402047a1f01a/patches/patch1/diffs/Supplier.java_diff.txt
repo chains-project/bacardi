@@ -19,18 +19,18 @@
 <  *   &lt;complexContent&gt;
 <  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
 <  *       &lt;sequence&gt;
-<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SupplierID"/&gt;
-<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}AccountID"/&gt;
-<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SupplierTaxID"/&gt;
-<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CompanyName"/&gt;
-<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Contact" minOccurs="0"/&gt;
-<  *         &lt;element name="BillingAddress" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SupplierAddressStructure"/&gt;
-<  *         &lt;element name="ShipFromAddress" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SupplierAddressStructure" maxOccurs="unbounded" minOccurs="0"/&gt;
-<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Telephone" minOccurs="0"/&gt;
-<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Fax" minOccurs="0"/&gt;
-<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Email" minOccurs="0"/&gt;
-<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Website" minOccurs="0"/&gt;
-<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SelfBillingIndicator"/&gt;
+<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierID"/&gt;
+<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}AccountID"/&gt;
+<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierTaxID"/&gt;
+<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CompanyName"/&gt;
+<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Contact" minOccurs="0"/&gt;
+<  *         &lt;element name="BillingAddress" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierAddressStructure"/&gt;
+<  *         &lt;element name="ShipFromAddress" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierAddressStructure" maxOccurs="unbounded" minOccurs="0"/&gt;
+<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Telephone" minOccurs="0"/&gt;
+<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Fax" minOccurs="0"/&gt;
+<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Email" minOccurs="0"/&gt;
+<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Website" minOccurs="0"/&gt;
+<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SelfBillingIndicator"/&gt;
 <  *       &lt;/sequence&gt;
 <  *     &lt;/restriction&gt;
 <  *   &lt;/complexContent&gt;
@@ -44,7 +44,7 @@
 < {
 ---
 > public class Supplier implements ToString2 {
-98,105c58,59
+98,381c58
 <     /**
 <      * Gets the value of the supplierID property.
 <      * 
@@ -53,10 +53,10 @@
 <      *     {@link String }
 <      *     
 <      */
----
->     private static final ToStringStrategy2 STRATEGY = new JAXBToStringStrategy();
-> 
-110,117d63
+<     public String getSupplierID() {
+<         return supplierID;
+<     }
+< 
 <     /**
 <      * Sets the value of the supplierID property.
 <      * 
@@ -65,7 +65,10 @@
 <      *     {@link String }
 <      *     
 <      */
-122,129d67
+<     public void setSupplierID(String value) {
+<         this.supplierID = value;
+<     }
+< 
 <     /**
 <      * Gets the value of the accountID property.
 <      * 
@@ -74,7 +77,10 @@
 <      *     {@link String }
 <      *     
 <      */
-134,141d71
+<     public String getAccountID() {
+<         return accountID;
+<     }
+< 
 <     /**
 <      * Sets the value of the accountID property.
 <      * 
@@ -83,7 +89,10 @@
 <      *     {@link String }
 <      *     
 <      */
-146,153d75
+<     public void setAccountID(String value) {
+<         this.accountID = value;
+<     }
+< 
 <     /**
 <      * Gets the value of the supplierTaxID property.
 <      * 
@@ -92,7 +101,10 @@
 <      *     {@link String }
 <      *     
 <      */
-158,165d79
+<     public String getSupplierTaxID() {
+<         return supplierTaxID;
+<     }
+< 
 <     /**
 <      * Sets the value of the supplierTaxID property.
 <      * 
@@ -101,7 +113,10 @@
 <      *     {@link String }
 <      *     
 <      */
-170,177d83
+<     public void setSupplierTaxID(String value) {
+<         this.supplierTaxID = value;
+<     }
+< 
 <     /**
 <      * Gets the value of the companyName property.
 <      * 
@@ -110,7 +125,10 @@
 <      *     {@link String }
 <      *     
 <      */
-182,189d87
+<     public String getCompanyName() {
+<         return companyName;
+<     }
+< 
 <     /**
 <      * Sets the value of the companyName property.
 <      * 
@@ -119,7 +137,10 @@
 <      *     {@link String }
 <      *     
 <      */
-194,201d91
+<     public void setCompanyName(String value) {
+<         this.companyName = value;
+<     }
+< 
 <     /**
 <      * Gets the value of the contact property.
 <      * 
@@ -128,7 +149,10 @@
 <      *     {@link String }
 <      *     
 <      */
-206,213d95
+<     public String getContact() {
+<         return contact;
+<     }
+< 
 <     /**
 <      * Sets the value of the contact property.
 <      * 
@@ -137,7 +161,10 @@
 <      *     {@link String }
 <      *     
 <      */
-218,225d99
+<     public void setContact(String value) {
+<         this.contact = value;
+<     }
+< 
 <     /**
 <      * Gets the value of the billingAddress property.
 <      * 
@@ -146,7 +173,10 @@
 <      *     {@link SupplierAddressStructure }
 <      *     
 <      */
-230,237d103
+<     public SupplierAddressStructure getBillingAddress() {
+<         return billingAddress;
+<     }
+< 
 <     /**
 <      * Sets the value of the billingAddress property.
 <      * 
@@ -155,7 +185,10 @@
 <      *     {@link SupplierAddressStructure }
 <      *     
 <      */
-242,263d107
+<     public void setBillingAddress(SupplierAddressStructure value) {
+<         this.billingAddress = value;
+<     }
+< 
 <     /**
 <      * Gets the value of the shipFromAddress property.
 <      * 
@@ -178,11 +211,13 @@
 <      * 
 <      * 
 <      */
-266c110
+<     public List<SupplierAddressStructure> getShipFromAddress() {
+<         if (shipFromAddress == null) {
 <             shipFromAddress = new ArrayList<SupplierAddressStructure>();
----
->             shipFromAddress = new ArrayList<>();
-271,278d114
+<         }
+<         return this.shipFromAddress;
+<     }
+< 
 <     /**
 <      * Gets the value of the telephone property.
 <      * 
@@ -191,7 +226,10 @@
 <      *     {@link String }
 <      *     
 <      */
-283,290d118
+<     public String getTelephone() {
+<         return telephone;
+<     }
+< 
 <     /**
 <      * Sets the value of the telephone property.
 <      * 
@@ -200,7 +238,10 @@
 <      *     {@link String }
 <      *     
 <      */
-295,302d122
+<     public void setTelephone(String value) {
+<         this.telephone = value;
+<     }
+< 
 <     /**
 <      * Gets the value of the fax property.
 <      * 
@@ -209,7 +250,10 @@
 <      *     {@link String }
 <      *     
 <      */
-307,314d126
+<     public String getFax() {
+<         return fax;
+<     }
+< 
 <     /**
 <      * Sets the value of the fax property.
 <      * 
@@ -218,7 +262,10 @@
 <      *     {@link String }
 <      *     
 <      */
-319,326d130
+<     public void setFax(String value) {
+<         this.fax = value;
+<     }
+< 
 <     /**
 <      * Gets the value of the email property.
 <      * 
@@ -227,7 +274,10 @@
 <      *     {@link String }
 <      *     
 <      */
-331,338d134
+<     public String getEmail() {
+<         return email;
+<     }
+< 
 <     /**
 <      * Sets the value of the email property.
 <      * 
@@ -236,7 +286,10 @@
 <      *     {@link String }
 <      *     
 <      */
-343,350d138
+<     public void setEmail(String value) {
+<         this.email = value;
+<     }
+< 
 <     /**
 <      * Gets the value of the website property.
 <      * 
@@ -245,7 +298,10 @@
 <      *     {@link String }
 <      *     
 <      */
-355,362d142
+<     public String getWebsite() {
+<         return website;
+<     }
+< 
 <     /**
 <      * Sets the value of the website property.
 <      * 
@@ -254,37 +310,62 @@
 <      *     {@link String }
 <      *     
 <      */
-367,370d146
+<     public void setWebsite(String value) {
+<         this.website = value;
+<     }
+< 
 <     /**
 <      * Gets the value of the selfBillingIndicator property.
 <      * 
 <      */
-375,378d150
+<     public int getSelfBillingIndicator() {
+<         return selfBillingIndicator;
+<     }
+< 
 <     /**
 <      * Sets the value of the selfBillingIndicator property.
 <      * 
 <      */
-385d156
-<         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
-387c158
-<         append(null, buffer, strategy);
+<     public void setSelfBillingIndicator(int value) {
+<         this.selfBillingIndicator = value;
+<     }
 ---
->         append(null, buffer, STRATEGY);
-391d161
-<     @Override
-399d168
-<     @Override
-417c186
+>     // ... (rest of the getters and setters)
+385c62
+<         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+---
+>         final JAXBToStringStrategy strategy = new JAXBToStringStrategy();
+417,419c94,96
 <             String theCompanyName;
+<             theCompanyName = this.getCompanyName();
+<             strategy.appendField(locator, this, "companyName", buffer, theCompanyName, (this.companyName!= null));
 ---
 >             String theCompanyNameName;
-449c218
+>             theCompanyNameName = this.getCompanyNameName();
+>             strategy.appendField(locator, this, "companyName", buffer, theCompanyNameName, (this.companyName != null);
+424c101
+<             strategy.appendField(locator, this, "contact", buffer, theContact, (this.contact!= null));
+---
+>             strategy.appendField(locator, this, "contact", buffer, theContact, (this.contact != null);
+429c106
+<             strategy.appendField(locator, this, "billingAddress", buffer, theBillingAddress, (this.billingAddress!= null));
+---
+>             strategy.appendField(locator, this, "billingAddress", buffer, theBillingAddress, (this.billingAddress != null);
+439c116
+<             strategy.appendField(locator, this, "telephone", buffer, theTelephone, (this.telephone!= null));
+---
+>             strategy.appendField(locator, this, "telephone", buffer, theTelephone, (this.telephone != null);
+444c121
+<             strategy.appendField(locator, this, "fax", buffer, theFax, (this.fax!= null));
+---
+>             strategy.appendField(locator, this, "fax", buffer, theFax, (this.fax != null);
+449c126
 <             strategy.appendField(locator, this, "email", buffer, theEmail, (this.email!= null));
 ---
 >             strategy.appendField(locator, this, "email", buffer, theEmail, (this.email != null);
-454c223
+454c131
 <             strategy.appendField(locator, this, "website", buffer, theWebsite, (this.website!= null));
 ---
 >             strategy.appendField(locator, this, "website", buffer, theWebsite, (this.website != null);
-463d231
+463d139
 < 

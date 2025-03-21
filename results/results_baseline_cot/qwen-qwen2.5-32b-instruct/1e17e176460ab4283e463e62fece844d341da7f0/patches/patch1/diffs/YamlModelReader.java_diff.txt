@@ -8,9 +8,11 @@
 <  */
 16a10
 > import org.yaml.snakeyaml.constructor.Constructor;
-37c31,33
+36,37c30,33
+<     ModelConstructor constructor = new ModelConstructor();
 <     yaml = new Yaml(constructor, new Representer(), new DumperOptions(), new ModelResolver());
 ---
->     Representer representer = new Representer(); // Assuming Representer still has a no-arg constructor
+>     Constructor constructor = new ModelConstructor();
+>     Representer representer = new Representer();
 >     DumperOptions options = new DumperOptions();
->     yaml = new Yaml(constructor, representer, options, new ModelResolver());
+>     yaml = new Yaml(constructor, representer, options);

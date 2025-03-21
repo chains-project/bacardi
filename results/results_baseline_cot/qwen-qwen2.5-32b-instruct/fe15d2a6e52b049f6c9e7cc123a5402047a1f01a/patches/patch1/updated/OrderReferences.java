@@ -1,4 +1,4 @@
-package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_02_01.schema;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -16,7 +16,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "originatingON",
     "orderDate"
 })
-public class OrderReferences implements ToString2 {
+public class OrderReferences implements ToString2
+{
 
     @XmlElement(name = "OriginatingON")
     protected String originatingON;
@@ -42,7 +43,7 @@ public class OrderReferences implements ToString2 {
 
     @Override
     public String toString() {
-        final JAXBToStringStrategy strategy = new JAXBToStringStrategy(); // Direct instantiation
+        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -61,13 +62,14 @@ public class OrderReferences implements ToString2 {
         {
             String theOriginatingON;
             theOriginatingON = this.getOriginatingON();
-            strategy.appendField(locator, this, "originatingON", buffer, theOriginatingON, (this.originatingON != null));
+            strategy.appendField(locator, this, "originatingON", buffer, theOriginatingON, (this.originatingON!= null));
         }
         {
             XMLGregorianCalendar theOrderDate;
             theOrderDate = this.getOrderDate();
-            strategy.appendField(locator, this, "orderDate", buffer, theOrderDate, (this.orderDate != null));
+            strategy.appendField(locator, this, "orderDate", buffer, theOrderDate, (this.orderDate!= null));
         }
         return buffer;
     }
+
 }

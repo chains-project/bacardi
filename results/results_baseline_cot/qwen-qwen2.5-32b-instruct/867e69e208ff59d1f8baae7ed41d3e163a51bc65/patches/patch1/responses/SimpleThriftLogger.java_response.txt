@@ -6,6 +6,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
@@ -17,54 +18,26 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 
-/**
- * Thrift Logger which is used to log thrift log messages into a log file.
- *
- * This class is used by unit test and ThriftLogGenerator to write log messages to thrift log
- * file. It provides APIs for client to control the flush behavior and log file rotation.
- */
-@SuppressWarnings("rawtypes")
-public final class SimpleThriftLogger<T extends TBase> implements Closeable {
+public final class SimpleThriftLogger<T extends TBase<?, ?>> implements Closeable {
 
-  private static final class ByteOffsetTTransport extends TTransport {
+  private static final class ByteOffsetTFramedTransport extends TFramedTransport {
 
-    private final TTransport transport;
     private long byteOffset;
 
-    public ByteOffsetTTransport(TTransport transport) {
-      this.transport = transport;
+    public ByteOffsetTFramedTransport(TTransport transport) {
+      super(transport);
       byteOffset = 0;
     }
 
     @Override
-    public boolean isOpen() {
-      return transport.isOpen();
-    }
-
-    @Override
-    public void open() throws TTransportException {
-      transport.open();
-    }
-
-    @Override
-    public void close() {
-      transport.close();
-    }
-
-    @Override
-    public int read(byte[] buf, int off, int len) throws TTransportException {
-      return transport.read(buf, off, len);
-    }
-
-    @Override
     public void write(byte[] buf, int off, int len) throws TTransportException {
-      transport.write(buf, off, len);
+      super.write(buf, off, len);
       byteOffset += len;
     }
 
     @Override
     public void flush() throws TTransportException {
-      transport.flush();
+      super.flush();
       // Add 4 bytes for the frame size.
       byteOffset += 4;
     }
@@ -77,31 +50,22 @@ public final class SimpleThriftLogger<T extends TBase> implements Closeable {
   private final String fileName;
 
   private BufferedOutputStream bufferedOutputStream;
-  private ByteOffsetTTransport transport;
+  private ByteOffsetTFramedTransport transport;
   private TProtocol protocol;
 
   public SimpleThriftLogger(String filename) throws Exception {
     this.fileName = filename;
     bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(fileName, true));
-    transport = new ByteOffsetTTransport(new TIOStreamTransport(bufferedOutputStream));
+    transport = new ByteOffsetTFramedTransport(new TIOStreamTransport(bufferedOutputStream));
     protocol = new TBinaryProtocol(transport);
   }
 
-  /**
-   * Write a thrift message to log file.
-   * @param message to be written
-   * @throws Exception on write error.
-   */
   public void logThrift(T message) throws Exception {
     message.write(protocol);
     // Flush to make sure one message per frame.
     transport.flush();
   }
 
-  /**
-   * Simple implementation of log file rotation.
-   * @throws java.io.IOException
-   */
   public void rotate() throws IOException {
     close();
 
@@ -117,7 +81,7 @@ public final class SimpleThriftLogger<T extends TBase> implements Closeable {
     }
     FileUtils.moveFile(new File(fileName), new File(fileName + ".1"));
     bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(fileName, true));
-    transport = new ByteOffsetTTransport(new TIOStreamTransport(bufferedOutputStream));
+    transport = new ByteOffsetTFramedTransport(new TIOStreamTransport(bufferedOutputStream));
     protocol = new TBinaryProtocol(transport);
   }
 

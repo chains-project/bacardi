@@ -6,30 +6,65 @@
 <  * which accompanies this distribution, and is available at
 <  * http://www.eclipse.org/legal/epl-v10.html
 <  */
-43c36,37
+25,32d17
+< /**
+<  * YAML model constructor.
+<  *
+<  * @author jvanzyl
+<  * @author bentmann
+<  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
+<  * @since 0.7
+<  */
+37,39d21
+<   /**
+<    * It maps the runtime class to its Construct implementation.
+<    */
+43c25
 <     super(Model.class);
 ---
 >     super();
->     setRootNodeClass(Model.class);
-126,127c120
+126,130d107
 <     desc = new TypeDescription(MailingList.class);
 <     desc.putListPropertyType("otherArchives", String.class);
----
->     desc = new TypeDescription(DistributionManagement.class);
-130,135c123,127
+<     addTypeDescription(desc);
+< 
 <     // Simple types
-<     addTypeDescription(new TypeDescription(DistributionManagement.class));
-<     addTypeDescription(new TypeDescription(Scm.class));
-<     addTypeDescription(new TypeDescription(IssueManagement.class));
-<     addTypeDescription(new TypeDescription(Parent.class));
-<     addTypeDescription(new TypeDescription(Organization.class));
----
->     desc = new TypeDescription(Scm.class);
->     addTypeDescription(desc);
-> 
->     desc = new TypeDescription(IssueManagement.class);
->     addTypeDescription(desc);
-168c160
+141d117
+<       //construct compact form from scalar
+163d138
+<         // lists need the insertion of intermediate XML DOM nodes which hold the actual values
+167,169c142,143
+<           //noinspection unchecked
 <           child = toDom(child, (Map) entryValue);
+<         } else { // if not a list or map then copy the string value
 ---
 >           toDom(child, (Map) entryValue);
+>         } else {
+182d155
+<       // deal with YAML explicit pairs which are mapped to Object[] by SnakeYAML
+188,189c161
+<           if (pair[1] != null && pair[1] instanceof Map)
+<             //noinspection unchecked
+---
+>           if (pair[1] instanceof Map)
+195c167
+<       } else { // automagically determine the node's child key using the collection node's name
+---
+>       } else {
+213d184
+<             //noinspection unchecked
+246,247c217,218
+<       List<Class> specialCases = Arrays.<Class>asList(Dependency.class, Model.class, Plugin.class, ReportPlugin.class);
+<       List<Class> configurationContainers = Arrays.<Class>asList(Plugin.class, PluginExecution.class,
+---
+>       List<Class> specialCases = Arrays.asList(Dependency.class, Model.class, Plugin.class, ReportPlugin.class);
+>       List<Class> configurationContainers = Arrays.asList(Plugin.class, PluginExecution.class,
+282d252
+<       // create JavaBean
+287,292d256
+<   /**
+<    * Dirty hack - remove 'id' if it is present.
+<    *
+<    * @param node - the node to remove the coordinate from
+<    * @return removed coordinate if it was removed
+<    */

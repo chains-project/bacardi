@@ -15,16 +15,13 @@ import com.artipie.http.Headers;
 import com.artipie.http.Response;
 import com.artipie.http.Slice;
 import com.artipie.http.auth.Authentication;
-import com.artipie.http.auth.AuthUser; // Ensure correct import for AuthUser
+import com.artipie.http.auth.BasicAuthScheme;
 import com.artipie.http.auth.BearerAuthScheme;
 import com.artipie.http.auth.Permissions;
 import com.artipie.http.headers.Authorization;
 import com.artipie.http.headers.Header;
 import com.artipie.http.hm.ResponseMatcher;
 import com.artipie.http.hm.RsHasStatus;
-import com.artipie.http.rq.RequestLine;
-import com.artipie.http.rq.RqMethod;
-import com.artipie.http.rs.RsStatus;
 import io.reactivex.Flowable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -38,7 +35,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Tests for {@link DockerSlice}.
@@ -66,11 +62,7 @@ public final class AuthTest {
     @MethodSource("setups")
     void shouldReturnUnauthorizedWhenNoAuth(final Method method, final RequestLine line) {
         MatcherAssert.assertThat(
-            method.slice("whatever").response(
-                line.toString(),
-                Headers.EMPTY,
-                Content.EMPTY
-            ),
+            method.slice("whatever").response(line.toString(), Headers.EMPTY, Content.EMPTY),
             new IsUnauthorizedResponse()
         );
     }
@@ -81,7 +73,7 @@ public final class AuthTest {
         MatcherAssert.assertThat(
             method.slice("whatever").response(
                 line.toString(),
-                method.headers(TestAuthentication.User.of("chuck", "letmein")),
+                method.headers(TestAuthentication.BOB),
                 Content.EMPTY
             ),
             new IsUnauthorizedResponse()
@@ -193,10 +185,68 @@ public final class AuthTest {
         );
     }
 
-    private static Stream<Arguments> setups() {
-        return Stream.of(new Basic(), new Bearer()).flatMap(AuthTest::setups);
+    /**
+     * Create manifest content.
+     *
+     * @return Manifest content.
+     */
+    private Flowable<ByteBuffer> manifest() {
+        final byte[] content = "config".getBytes();
+        final Blob config = this.docker.repo(new RepoName.Valid("my-alpine")).layers()
+            .put(new TrustedBlobSource(content))
+            .toCompletableFuture().join();
+        final byte[] data = String.format(
+            "{\"config\":{\"digest\":\"%s\"},\"layers\":[],\"mediaType\":\"my-type\"}",
+            config.digest().string()
+        ).getBytes();
+        return Flowable.just(ByteBuffer.wrap(data));
     }
 
+    private static Stream<Arguments> setups() {
+        return Stream.of(
+            Arguments.of(
+                new Basic(this.docker),
+                new RequestLine(RqMethod.GET, "/v2/"),
+                "registry:base:*"
+            ),
+            Arguments.of(
+                new Basic(this.docker),
+                new RequestLine(RqMethod.HEAD, "/v2/my-alpine/manifests/1"),
+                "repository:my-alpine:pull"
+            ),
+            Arguments.of(
+                new Basic(this.docker),
+                new RequestLine(RqMethod.GET, "/v2/my-alpine/manifests/2"),
+                "repository:my-alpine:pull"
+            ),
+            Arguments.of(
+                new Basic(this.docker),
+                new RequestLine(RqMethod.PUT, "/v2/my-alpine/manifests/latest"),
+                "repository:my-alpine:push"
+            ),
+            Arguments.of(
+                new Basic(this.docker),
+                new RequestLine(RqMethod.PUT, "/v2/my-alpine/manifests/latest"),
+                "repository:my-alpine:overwrite"
+            ),
+            Arguments.of(
+                new Basic(this.docker),
+                new RequestLine(RqMethod.GET, "/v2/my-alpine/blobs/sha256:123"),
+                "repository:my-alpine:pull"
+            ),
+            Arguments.of(
+                new Basic(this.docker),
+                new RequestLine(RqMethod.GET, "/v2/_catalog"),
+                "registry:catalog:*"
+            )
+        );
+    }
+
+    /**
+     * Authentication method.
+     *
+     * @since 0.8
+     */
     private interface Method {
 
         Slice slice(String action);
@@ -205,8 +255,16 @@ public final class AuthTest {
 
     }
 
+    /**
+     * Basic authentication method.
+     *
+     * @since 0.8
+     */
     private static final class Basic implements Method {
 
+        /**
+         * Docker repo.
+         */
         private final Docker docker;
 
         private Basic(final Docker docker) {
@@ -228,7 +286,9 @@ public final class AuthTest {
 
         @Override
         public Headers headers(final TestAuthentication.User user) {
-            return user.headers();
+            return new Headers.From(
+                new Authorization.Basic(user.name(), user.password())
+            );
         }
 
         @Override
@@ -237,6 +297,11 @@ public final class AuthTest {
         }
     }
 
+    /**
+     * Bearer authentication method.
+     *
+     * @since 0.8
+     */
     private static final class Bearer implements Method {
 
         @Override
@@ -248,7 +313,6 @@ public final class AuthTest {
                     token -> CompletableFuture.completedFuture(
                         Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
                             .filter(user -> token.equals(token(user)))
-                            .map(user -> new AuthUser(user.name())) // Change from User to AuthUser
                             .findFirst()
                     ),
                     ""

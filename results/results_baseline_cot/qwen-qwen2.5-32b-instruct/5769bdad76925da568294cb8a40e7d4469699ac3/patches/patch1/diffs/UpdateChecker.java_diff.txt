@@ -23,7 +23,14 @@
 <  * THE SOFTWARE.
 <  */
 < 
-63,99d38
+40c16,17
+< import org.kohsuke.github.GHCompare;
+---
+> import org.kohsuke.github.GHCommit;
+> import org.kohsuke.github.GHRepository;
+41a19
+> import org.kohsuke.github.GitHubComparison;
+63,99d40
 <     @FunctionalInterface
 <     public interface Log {
 <         void info(String message);
@@ -61,7 +68,10 @@
 <         }
 <     }
 < 
-126,168d64
+123,161d63
+<     private @CheckForNull VersionAndRepo doFind(String groupId, String artifactId, String currentVersion, String branch) throws Exception {
+<         ComparableVersion currentV = new ComparableVersion(currentVersion);
+<         log.info("Searching for updates to " + groupId + ":" + artifactId + ":" + currentV + " within " + branch);
 <         SortedSet<VersionAndRepo> candidates = loadVersions(groupId, artifactId);
 <         if (candidates.isEmpty()) {
 <             log.info("Found no candidates");
@@ -98,25 +108,25 @@
 <         return null;
 <     }
 < 
-<     /**
-<      * Look for all known versions of a given artifact.
-<      * @param repos a set of repository URLs to check
-<      * @return a possibly empty set of versions, sorted descending
-<      */
-<     private SortedSet<VersionAndRepo> loadVersions(String groupId, String artifactId) throws Exception {
-<         // TODO consider using official Aether APIs here (could make use of local cache)
-210c106
-<             return null;
----
->             throw new Exception("Could not find <scm> in " + pom);
-231,232d126
-<      * {@code curl -s -u … https://api.github.com/repos/<owner>/<repo>/compare/<branch>...<hash> | jq -r .status}
-<      * will return {@code identical} or {@code behind} if so, else {@code diverged} or {@code ahead}.
-239,240c133,134
+188,201d89
+<     private static final class GitHubCommit {
+<         final String owner;
+<         final String repo;
+<         final String hash;
+<         GitHubCommit(String owner, String repo, String hash) {
+<             this.owner = owner;
+<             this.repo = repo;
+<             this.hash = hash;
+<         }
+<         @Override public String toString() {
+<             return "https://github.com/" + owner + '/' + repo + "/commit/" + hash;
+<         }
+<     }
+< 
+239,240c127,129
 <             GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
 <             return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
 ---
->             GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
->             return compare.getStatus() == GHCompare.Status.identical || compare.getStatus() == GHCompare.Status.behind;
-279d172
-< 
+>             GHRepository repo = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo);
+>             GitHubComparison comparison = repo.compare(ghc.hash, branch);
+>             return comparison.getStatus() == GitHubComparison.Status.BEHIND || comparison.getStatus() == GitHubComparison.Status.EQUAL;

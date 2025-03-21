@@ -5,6 +5,7 @@ import java.util.Iterator;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Sorted;
 import org.cactoos.scalar.Reduced;
+import org.cactoos.scalar.IoCheckedScalar;
 
 /**
  * Network implementation.
@@ -39,17 +40,15 @@ public final class RtNetwork implements Network {
 
     @Override
     public Wallet pull(final long id) throws IOException {
-        try {
-            return new Reduced<>(
+        return new IoCheckedScalar<Wallet>(
+            new Reduced<>(
                 Wallet::merge,
                 new Mapped<>(
                     c -> c::wallet,
                     new Sorted<>(new Copies(id, this))
                 )
-            ).value();
-        } catch (final Exception ex) {
-            throw new IOException("Failed to pull wallet", ex);
-        }
+            )
+        ).value();
     }
 
     @Override

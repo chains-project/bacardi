@@ -7,12 +7,16 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Random;
 import org.cactoos.Scalar;
-import org.cactoos.func.IoCheckedFunc;
-import org.cactoos.io.Directory;
+import org.cactoos.Func;
+import org.cactoos.Text;
+import org.cactoos.TextOf;
+import org.cactoos.io.DirectoryAsFiles;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.Mapped;
-import org.cactoos.scalar.ScalarOf;
-import org.cactoos.text.Concatenated;
+import org.cactoos.scalar.IoCheckedScalar;
+import org.cactoos.scalar.SolidScalar;
+import org.cactoos.text.FormattedText;
+import org.cactoos.text.JoinedText;
 import org.cactoos.text.UncheckedText;
 
 /**
@@ -25,12 +29,12 @@ public final class WalletsIn implements Wallets {
     /**
      * Path containing wallets.
      */
-    private final Scalar<Path> path;
+    private final IoCheckedScalar<Path> path;
 
     /**
      * Filter for matching file extensions.
      */
-    private final IoCheckedFunc<Path, Boolean> filter;
+    private final Func<Path, Boolean> filter;
 
     /**
      * Wallets file extension.
@@ -75,13 +79,13 @@ public final class WalletsIn implements Wallets {
      */
     public WalletsIn(final Scalar<Path> pth, final String ext,
         final Random random) {
-        this.path = new ScalarOf<>(pth);
-        this.filter = new IoCheckedFunc<Path, Boolean>(
-            (file) -> file.toFile().isFile()
-                && FileSystems.getDefault()
-                .getPathMatcher(String.format("glob:**.%s", ext))
-                .matches(file)
+        this.path = new IoCheckedScalar<>(
+            new SolidScalar<>(pth)
         );
+        this.filter = (file) -> file.toFile().isFile()
+            && FileSystems.getDefault()
+            .getPathMatcher(String.format("glob:**.%s", ext))
+            .matches(file);
         this.ext = ext;
         this.random = random;
     }
@@ -89,18 +93,19 @@ public final class WalletsIn implements Wallets {
     @Override
     public Wallet create() throws IOException {
         final Path wpth = this.path.value().resolve(
-            new Concatenated(
-                Long.toHexString(this.random.nextLong()),
+            new JoinedText(
                 ".",
+                Long.toHexString(this.random.nextLong()),
                 this.ext
             ).asString()
         );
         if (wpth.toFile().exists()) {
             throw new IOException(
                 new UncheckedText(
-                    new Concatenated(
-                        "Wallet in path ", wpth.toUri().getPath(), " already exists"
-                    ).asString()
+                    new FormattedText(
+                        "Wallet in path %s already exists",
+                        wpth.toUri().getPath()
+                    )
                 ).asString()
             );
         }
@@ -125,7 +130,7 @@ public final class WalletsIn implements Wallets {
         try {
             return new Mapped<Path, Wallet>(
                 (pth) -> new Wallet.File(pth),
-                new Filtered<>(this.filter, new Directory(this.path.value()))
+                new Filtered<>(this.filter, new DirectoryAsFiles(this.path.value()))
             ).iterator();
         } catch (final IOException ex) {
             throw new IllegalStateException(ex);

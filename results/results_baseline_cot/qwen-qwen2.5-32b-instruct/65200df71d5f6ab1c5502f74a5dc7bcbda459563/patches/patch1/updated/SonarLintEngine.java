@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.Plugin;
@@ -31,8 +33,6 @@ import org.sonarsource.sonarlint.core.client.api.common.PluginDetails;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.DefaultClientIssue;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.IssueListener;
 import org.sonarsource.sonarlint.core.client.api.exceptions.SonarLintWrappedException;
-import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisConfiguration;
-import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneGlobalConfiguration;
 import org.sonarsource.sonarlint.core.commons.Language;
 import org.sonarsource.sonarlint.core.commons.RuleKey;
 import org.sonarsource.sonarlint.core.commons.log.ClientLogOutput;
@@ -141,7 +141,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                 instancesLoader.instantiatePluginClasses(allPlugins);
 
         return new LoadedPluginsThatDoesNotCloseLoader(
-                (pluginInstancesByKeys, new PluginInstancesLoader());
+                pluginInstancesByKeys, new PluginInstancesLoader());
     }
 
     private static Collection<PluginInfo> getAllPlugins(
@@ -157,7 +157,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
         return AnalysisEngineConfiguration.builder()
-                .addEnabledLanguage(Language.JAVA) // Changed from addEnabledLanguages to addEnabledLanguage
+                .addEnabledLanguages(globalConfig.getEnabledLanguages())
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())

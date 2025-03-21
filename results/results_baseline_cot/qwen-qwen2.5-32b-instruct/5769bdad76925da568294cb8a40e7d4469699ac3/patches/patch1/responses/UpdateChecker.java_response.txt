@@ -13,8 +13,10 @@ import java.util.regex.Pattern;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.maven.artifact.versioning.ComparableVersion;
-import org.kohsuke.github.GHCompare;
+import org.kohsuke.github.GHCommit;
+import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
+import org.kohsuke.github.GitHubComparison;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -59,9 +61,13 @@ public final class UpdateChecker {
         return result;
     }
 
-    private @CheckForNull VersionAndRepo doFind(String groupId, String artifactId, String currentVersion, String branch) throws Exception {
-        ComparableVersion currentV = new ComparableVersion(currentVersion);
-        log.info("Searching for updates to " + groupId + ":" + artifactId + ":" + currentV + " within " + branch);
+    /**
+     * Look for all known versions of a given artifact.
+     * @param repos a set of repository URLs to check
+     * @return a possibly empty set of versions, sorted descending
+     */
+    private SortedSet<VersionAndRepo> loadVersions(String groupId, String artifactId) throws Exception {
+        // TODO consider using official Aether APIs here (could make use of local cache)
         SortedSet<VersionAndRepo> r = new TreeSet<>();
         for (String repo : repos) {
             String mavenMetadataURL = repo + groupId.replace('.', '/') + '/' + artifactId + "/maven-metadata.xml";
@@ -81,20 +87,6 @@ public final class UpdateChecker {
         return r;
     }
 
-    private static final class GitHubCommit {
-        final String owner;
-        final String repo;
-        final String hash;
-        GitHubCommit(String owner, String repo, String hash) {
-            this.owner = owner;
-            this.repo = repo;
-            this.hash = hash;
-        }
-        @Override public String toString() {
-            return "https://github.com/" + owner + '/' + repo + "/commit/" + hash;
-        }
-    }
-
     /**
      * Parses {@code /project/scm/url} and {@code /project/scm/tag} out of a POM, if mapped to a commit.
      */
@@ -103,7 +95,7 @@ public final class UpdateChecker {
         Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(pom);
         NodeList scmEs = doc.getElementsByTagName("scm");
         if (scmEs.getLength() != 1) {
-            throw new Exception("Could not find <scm> in " + pom);
+            return null;
         }
         Element scmE = (Element) scmEs.item(0);
         Element urlE = theElement(scmE, "url", pom);
@@ -124,14 +116,17 @@ public final class UpdateChecker {
 
     /**
      * Checks whether a commit is an ancestor of a given branch head.
+     * {@code curl -s -u … https://api.github.com/repos/<owner>/<repo>/compare/<branch>...<hash> | jq -r .status}
+     * will return {@code identical} or {@code behind} if so, else {@code diverged} or {@code ahead}.
      * @param branch may be {@code master} or {@code forker:branch}
      * @see <a href="https://developer.github.com/v3/repos/commits/#compare-two-commits">Compare two commits</a>
      * @see <a href="https://stackoverflow.com/a/23970412/12916">Discussion</a>
      */
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
-            GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
-            return compare.getStatus() == GHCompare.Status.identical || compare.getStatus() == GHCompare.Status.behind;
+            GHRepository repo = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo);
+            GitHubComparison comparison = repo.compare(ghc.hash, branch);
+            return comparison.getStatus() == GitHubComparison.Status.BEHIND || comparison.getStatus() == GitHubComparison.Status.EQUAL;
         } catch (FileNotFoundException x) {
             // For example, that branch does not exist in this repository.
             return false;
@@ -170,4 +165,5 @@ public final class UpdateChecker {
             System.err.println("Nothing found.");
         }
     }
+
 }

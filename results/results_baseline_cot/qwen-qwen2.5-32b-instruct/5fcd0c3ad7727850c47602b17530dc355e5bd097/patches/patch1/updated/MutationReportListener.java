@@ -1,6 +1,5 @@
 package org.pitest.elements;
 
-import org.pitest.classinfo.ClassName;
 import org.pitest.coverage.CoverageDatabase;
 import org.pitest.mutationtest.ClassMutationResults;
 import org.pitest.mutationtest.MutationResultListener;
@@ -24,7 +23,7 @@ public class MutationReportListener implements MutationResultListener {
 
   private final JsonParser jsonParser;
 
-  private final CoverageDatabase coverage;
+  private final CoverageDatabase  coverage;
   private final PackageSummaryMap packageSummaryData = new PackageSummaryMap();
 
   private static final String HTML_PAGE = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n"
@@ -87,7 +86,7 @@ public class MutationReportListener implements MutationResultListener {
       e.printStackTrace();
     }
   }
-
+  
   private void createMutationTestingElementsJs() {
     final Writer writer = this.outputStrategy
       .createWriterForFile("html2" + File.separatorChar + "mutation-test-elements.js");
@@ -102,10 +101,8 @@ public class MutationReportListener implements MutationResultListener {
 
   private MutationTestSummaryData createSummaryData(
       final CoverageDatabase coverage, final ClassMutationResults data) {
-    // Assuming the new method signature is `getClassInfo(String className)` and returns a `ClassInfo` object.
-    // Adjust the method call based on the actual new method signature.
     return new MutationTestSummaryData(data.getFileName(),
-        data.getMutations(), coverage.getClassInfo(data.getMutatedClass().getClassName()));
+        data.getMutations(), coverage.getClassInfo(data.getMutatedClass()));
   }
 
   private void updatePackageSummary(

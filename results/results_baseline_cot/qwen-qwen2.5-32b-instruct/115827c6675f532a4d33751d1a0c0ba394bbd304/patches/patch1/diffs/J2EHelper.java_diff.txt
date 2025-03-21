@@ -1,13 +1,6 @@
-6c6
-< import javax.servlet.FilterRegistration;
----
+5a6
 > import javax.servlet.Filter;
-76,80c76,77
-<         final FilterRegistration.Dynamic filterRegistration = environment
+77c78
 <                 .servlets().addFilter(filter.getClass().getName(), filter);
-< 
-<         filterRegistration.addMappingForUrlPatterns(
-<                 EnumSet.of(DispatcherType.REQUEST), true, mapping);
 ---
->         environment.servlets().addFilter(filter.getClass().getName(), (Filter) filter)
->                 .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, mapping);
+>                 .servlets().addFilter(filter.getClass().getName(), (Filter) filter);

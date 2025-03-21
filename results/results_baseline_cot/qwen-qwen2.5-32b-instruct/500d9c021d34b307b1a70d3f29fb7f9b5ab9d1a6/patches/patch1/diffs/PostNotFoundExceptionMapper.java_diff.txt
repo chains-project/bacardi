@@ -4,31 +4,17 @@
 <  * To change this template file, choose Tools | Templates
 <  * and open the template in the editor.
 <  */
-13c8,9
+13c8
 < import javax.mvc.Models;
 ---
-> import javax.servlet.http.HttpServletRequest;
-> import javax.ws.rs.core.Context;
-18,21d13
+> import javax.mvc.binding.Models;
+18,21d12
 < /**
 <  *
 <  * @author hantsy
 <  */
-25,27d16
+25c16,17
 <     @Inject Logger log;
-<     //private static Logger log = Logger.getLogger(PostNotFoundExceptionMapper.class.getName());
-< 
-29c18,21
-<     Models models;
 ---
+>     @Inject
 >     Logger log;
-> 
->     @Context
->     HttpServletRequest request;
-34c26,27
-<         models.put("error", exception.getMessage());
----
->         // Use request attribute to store the error message
->         request.setAttribute("error", exception.getMessage());
-37d29
-< 

@@ -1,16 +1,16 @@
 package com.example.web;
 
 import java.util.logging.Logger;
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
-import jakarta.mvc.Controller;
-import jakarta.mvc.Models;
-import jakarta.mvc.security.CsrfProtected;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.ws.rs.FormParam;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.mvc.annotation.Controller;
+import javax.mvc.annotation.Models;
+import javax.mvc.annotation.UriRef;
+import javax.validation.constraints.NotBlank;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
 
 /**
  *
@@ -20,6 +20,9 @@ import jakarta.ws.rs.Path;
 @Controller
 @RequestScoped
 public class GreetingController {
+
+    @Inject
+    javax.mvc.binding.BindingResult bindingResult;
 
     @Inject
     Models models;
@@ -36,16 +39,19 @@ public class GreetingController {
     }
 
     @POST
-    @CsrfProtected
+    @UriRef("greeting-post")
     public String post(
             @FormParam("greeting")
             @NotBlank String greeting) {
-        // Assuming BindingResult is no longer available, we directly check the greeting for validation.
-        if (greeting == null || greeting.trim().isEmpty()) {
+        if (bindingResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            alert.addError("greeting", "", "Greeting cannot be blank");
+            bindingResult.getAllErrors()
+                    .stream()
+                    .forEach((javax.mvc.binding.ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
             models.put("errors", alert);
-            log.info("Validation failed.");
+            log.info("mvc binding failed.");
             return "greeting.xhtml";
         }
 

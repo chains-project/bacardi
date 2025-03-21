@@ -1,6 +1,36 @@
+/**
+ * Copyright (c) 2012-2022, jcabi.com
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met: 1) Redistributions of source code must retain the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer. 2) Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3) Neither the name of the jcabi.com nor
+ * the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
+ * permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+ * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+ * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.jcabi.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.jcabi.aspects.Tv;
 import com.jcabi.log.Logger;
 import com.jcabi.s3.cached.CdRegion;
 import com.jcabi.s3.retry.ReRegion;
@@ -11,7 +41,7 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
 /**
- * Rule that creates and drops an AWS bucket.
+ * Rule that creates and drops an AWS subj.
  *
  * @author Yegor Bugayenko (yegor256@gmail.com)
  * @version $Id: 49d563c1e0af9dae0fbd7d9a97be7c07e52e6612 $
@@ -38,6 +68,7 @@ final class BucketRule implements TestRule {
 
     @Override
     public Statement apply(final Statement stmt, final Description desc) {
+        // @checkstyle IllegalThrows (10 lines)
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
@@ -67,7 +98,7 @@ final class BucketRule implements TestRule {
     }
 
     /**
-     * Create S3 bucket.
+     * Create S3 subj.
      * @throws Exception If fails
      */
     private void create() throws Exception {
@@ -78,7 +109,8 @@ final class BucketRule implements TestRule {
         );
         final String name = String.format(
             "%s.s3.jcabi.com",
-            RandomStringUtils.randomAlphabetic(5).toLowerCase(Locale.ENGLISH)
+            RandomStringUtils.randomAlphabetic(5)
+                .toLowerCase(Locale.ENGLISH)
         );
         this.subj = region.bucket(name);
         final AmazonS3 aws = this.subj.region().aws();
@@ -87,7 +119,7 @@ final class BucketRule implements TestRule {
     }
 
     /**
-     * Drop S3 bucket.
+     * Drop S3 subj.
      * @throws Exception If fails
      */
     private void drop() throws Exception {

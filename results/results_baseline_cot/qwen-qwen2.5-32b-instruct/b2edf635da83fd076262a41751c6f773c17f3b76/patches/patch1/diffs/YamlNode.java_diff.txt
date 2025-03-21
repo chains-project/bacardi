@@ -15,7 +15,7 @@
 <  * See the License for the specific language governing permissions and
 <  * limitations under the License.
 <  */
-27a12
+28a13
 > import org.yaml.snakeyaml.LoaderOptions;
 41,67d25
 < /**
@@ -45,10 +45,7 @@
 <  *       sudo_password: password
 <  * </pre>
 <  */
-114c72,73
+114c72
 <             return (YamlNode) new Yaml(new Constructor(YamlNode.class)).load(in);
 ---
->             LoaderOptions options = new LoaderOptions();
->             return (YamlNode) new Yaml(new Constructor(YamlNode.class, options)).load(in);
-210d168
-< 
+>             return (YamlNode) new Yaml(new Constructor(YamlNode.class), new LoaderOptions()).load(in);

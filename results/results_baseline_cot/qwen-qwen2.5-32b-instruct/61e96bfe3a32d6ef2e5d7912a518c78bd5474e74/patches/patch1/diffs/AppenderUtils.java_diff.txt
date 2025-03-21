@@ -14,21 +14,42 @@
 <  * See the License for the specific language governing permissions and
 <  * limitations under the License.
 <  */
-57d41
-<     @Override
-60,61c44
+38,40d22
+< /**
+<  * Utils to create logback appenders
+<  */
+48,50d29
+<   /**
+<    * Encoder for LogMessage objects.
+<    */
+60,61d38
 <       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
 <       // log.
+63,64c40
+<       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
+<           bufferCapacity);
 ---
->       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift log.
-68d50
-<     @Override
-78d59
-<     @Override
-81a63,68
+>       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);
+81a58,67
+> 
+>     @Override
+>     public byte[] headerBytes() {
+>       return new byte[0];
+>     }
 > 
 >     @Override
 >     public byte[] footerBytes() {
->       // Implement the footerBytes method as required by the new EncoderBase
 >       return new byte[0];
 >     }
+84,92d69
+<   /**
+<    * Create the basic thrift appender which logs to a file
+<    * and rolls the file when it exceeds a certain size.
+<    *
+<    * @param basePath base directory the files are under.
+<    * @param topic the topic name for the current appender.
+<    * @param rotateThresholdKBytes threshold in kilobytes to rotate after.
+<    * @param context the logback context.
+<    */
+115d91
+<     // Also impose a max size per file policy.

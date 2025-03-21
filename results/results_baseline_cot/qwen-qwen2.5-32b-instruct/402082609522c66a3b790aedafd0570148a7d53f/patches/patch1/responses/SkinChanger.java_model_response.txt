@@ -1,0 +1,40 @@
+```java
+<repair_strategy>
+1. The error messages indicate that the `CommandSource` class and the `org.spongepowered.api.text.serializer` package are not found, suggesting that the API has changed.
+2. The `CommandSource` class might have been moved or renamed in the new version of the Sponge API.
+3. The `org.spongepowered.api.text.serializer` package might have been removed or replaced with a new package.
+4. The fix should update the imports and class references to match the new API version.
+5. The minimal changes would be to update the import statements and class references.
+6. The changes should not affect the functionality of the class.
+7. Ensure that the class compiles with the new imports and references.
+8. The new import for `CommandSource` and `TextSerializers` should be identified and used.
+</repair_strategy>
+
+```java
+package com.github.games647.changeskin.sponge.task;
+
+import com.github.games647.changeskin.core.model.auth.Account;
+import com.github.games647.changeskin.core.shared.task.SharedSkinChanger;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import org.spongepowered.api.command.source.CommandSource;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.serializer.TextSerializers;
+
+public class SkinChanger extends SharedSkinChanger {
+
+    private final CommandSource invoker;
+
+    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker) {
+        super(plugin.getCore(), owner, url, oldSkinUrl);
+
+        this.invoker = invoker;
+    }
+
+    @Override
+    protected void sendMessageInvoker(String localeMessage) {
+        invoker.sendMessage(TextSerializers.FORMATTING_CODE.deserialize(localeMessage));
+    }
+}
+```

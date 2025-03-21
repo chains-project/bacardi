@@ -1,26 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `PublishMetadata` cannot be found in the package `com.google.cloud.pubsublite`.
-   - The errors occur at lines 22 and 43 of the `PubSubLiteSinkTask.java` file.
-   - This suggests that the `PublishMetadata` class has been removed or moved in the updated dependency version.
-
-2. Review the client code:
-   - The `publisher` variable is of type `Publisher<PublishMetadata>`, which is causing the compilation error.
-   - The `publisher.publish(message.build());` line also references `PublishMetadata`.
-
-3. Consider potential fixes:
-   - Since `PublishMetadata` is not found, we need to determine if it was replaced by another class or if the method signatures have changed.
-   - If `PublishMetadata` was removed and replaced, we need to find the new class or method that should be used instead.
-   - If the method signatures have changed, we need to adjust the code to match the new method signatures.
-
-4. Plan the necessary changes:
-   - If `PublishMetadata` was replaced by another class, we need to update the type of `publisher` and the `publish` method call.
-   - If the method signatures have changed, we need to adjust the parameters passed to the `publish` method.
-   - We need to ensure that the new class or method is correctly imported.
-</code_analysis>
-
-Based on the analysis, the following patch is proposed to fix the issue. This assumes that `PublishMetadata` was replaced by a new class or method in the updated dependency. Since the exact replacement is not specified, I will assume that the new class is `PublishInfo` and that the method signatures have not changed significantly.
-
 ```java
 package com.google.pubsublite.kafka.sink;
 
@@ -28,8 +5,9 @@ import static com.google.pubsublite.kafka.sink.Schemas.encodeToBytes;
 
 import com.google.api.core.ApiService.State;
 import com.google.cloud.pubsublite.Message;
-import com.google.cloud.pubsublite.PublishInfo; // Assuming PublishMetadata was replaced by PublishInfo
-import com.google.cloud.pubsublite.internal.Publisher;
+import com.google.cloud.pubsublite.Publisher;
+import com.google.cloud.pubsublite.internal.Publisher.PublisherBuilder;
+import com.google.cloud.pubsublite.proto.PubSubMessage;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.protobuf.ByteString;
@@ -49,7 +27,7 @@ import org.apache.kafka.connect.sink.SinkTask;
 public class PubSubLiteSinkTask extends SinkTask {
 
   private final PublisherFactory factory;
-  private @Nullable Publisher<PublishInfo> publisher; // Change type from PublishMetadata to PublishInfo
+  private @Nullable Publisher<PubSubMessage> publisher;
 
   @VisibleForTesting
   PubSubLiteSinkTask(PublisherFactory factory) {
@@ -116,7 +94,7 @@ public class PubSubLiteSinkTask extends SinkTask {
         message.setEventTime(Timestamps.fromMillis(record.timestamp()));
       }
       message.setAttributes(attributes.build());
-      publisher.publish(message.build()); // Assuming the publish method signature remains the same
+      publisher.publish(message.build());
     }
   }
 
@@ -157,5 +135,3 @@ public class PubSubLiteSinkTask extends SinkTask {
   }
 }
 ```
-
-This patch assumes that `PublishMetadata` was replaced by `PublishInfo` and that the `Publisher` class still has a `publish` method that accepts a `Message` object. If the actual replacement class or method signature is different, the patch would need to be adjusted accordingly.

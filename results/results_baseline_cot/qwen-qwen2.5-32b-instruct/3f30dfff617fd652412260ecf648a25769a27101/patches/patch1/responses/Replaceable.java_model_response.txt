@@ -1,29 +1,13 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the `javax.interceptor.InterceptorBinding` class cannot be found, and the `javax.interceptor` package does not exist.
-   - This suggests that the dependency that provided the `javax.interceptor` package has been updated or removed, and the new version no longer includes this package.
-
-2. Review the client code:
-   - The `Replaceable` annotation uses the `@InterceptorBinding` annotation from the `javax.interceptor` package.
-   - The `javax.interceptor` package is no longer available in the updated dependency, leading to the compilation errors.
-
-3. Consider potential fixes:
-   - Since the `javax.interceptor` package is no longer available, the `@InterceptorBinding` annotation cannot be used.
-   - The `@InterceptorBinding` annotation is used to mark the `Replaceable` annotation as an interceptor binding type. If the `javax.interceptor` package is no longer available, the `@InterceptorBinding` annotation should be removed.
-   - Ensure that the removal of `@InterceptorBinding` does not affect the functionality of the `Replaceable` annotation.
-
-4. Plan the necessary changes:
-   - Remove the `@InterceptorBinding` annotation from the `Replaceable` annotation.
-   - Remove the import statement for `javax.interceptor.InterceptorBinding`.
-   - Ensure that the `Replaceable` annotation still serves its intended purpose without the `@InterceptorBinding` annotation.
-</code_analysis>
-
 ```java
 package de.hilling.junit.cdi.scope;
 
 import org.immutables.value.Value;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Marker interface used internally by the {@link de.hilling.junit.cdi.scope.TestScopeExtension} to

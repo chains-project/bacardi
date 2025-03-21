@@ -1,16 +1,3 @@
-<code_analysis>
-The error messages indicate that the classes and packages related to `javax.mvc.locale` are not found, which suggests that the dependency related to this package has been updated or removed. The `javax.mvc.locale.LocaleResolver` and `javax.mvc.locale.LocaleResolverContext` classes are not available in the current environment, likely due to a change in the dependency version.
-
-Given the context, it seems that the `javax.mvc` package has been replaced or deprecated in favor of a new package or version. To resolve the issue, we need to identify the correct package or class that replaces the old ones and update the imports and class references accordingly.
-
-Since the `javax.mvc` package is not found, we need to find the equivalent classes in the new version of the dependency. Assuming the new version uses the `jakarta.mvc` package (as is common in recent updates from Java EE to Jakarta EE), we can update the imports and class references to use the new package.
-
-The following changes are proposed:
-- Replace `javax.mvc.locale.LocaleResolver` with `jakarta.mvc.locale.LocaleResolver`.
-- Replace `javax.mvc.locale.LocaleResolverContext` with `jakarta.mvc.locale.LocaleResolverContext`.
-- Ensure the correct imports are used for the new package.
-</code_analysis>
-
 ```java
 package com.example.web;
 // https://www.mvc-spec.org/learn/cookbook/custom_localeresolver_en.html
@@ -23,6 +10,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import jakarta.mvc.locale.LocaleResolver;
 import jakarta.mvc.locale.LocaleResolverContext;
+import javax.ws.rs.core.UriInfo;
 
 /**
  * Resolver to get the {@link Locale} to use from the requests query param <i>lang</i>.
@@ -60,5 +48,3 @@ public class QueryParamLocaleResolver implements LocaleResolver {
     }
 }
 ```
-
-This solution assumes that the `javax.mvc` package has been replaced by `jakarta.mvc` in the updated dependency. If the actual replacement package is different, the imports and class references should be updated accordingly.

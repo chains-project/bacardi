@@ -28,33 +28,41 @@
 <  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 <  * OF THE POSSIBILITY OF SUCH DAMAGE.
 <  */
-33d3
-< import com.jcabi.aspects.Tv;
-47d16
+47d17
 < import java.util.concurrent.TimeUnit;
-82c51
+81,82c51
+<  *  checking of passphrase. There should probably be separate classes for
 <  *  encrypted/unencrypted private key.
 ---
->  *  encrypted/unencrypted priv. key.
-127c96
-<         this(adr, Ssh.PORT, user, priv);
+>  *  checking of passphrase.
+86c55
+< @SuppressWarnings("PMD.TooManyMethods")
 ---
->         this(adr.getCanonicalHostName(), Ssh.PORT, user, priv);
-233d201
+> @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
+148c117
+<      * @throws UnknownHostException If fails
+---
+>      * @throws UnknownHostException when host is unknown.
+227d195
+<     @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
+233d200
 <     @Override
-235c203
+235c202
 <         attempts = Tv.SEVEN,
 ---
 >         attempts = 7,
-289c257
-<             this.getLogin(), this.getAddr(), this.getPort()
+269,271c236,237
+<                 "Opening SSH session to %s@%s:%s (%d bytes in RSA key)...",
+<                 this.getLogin(), this.getAddr(), this.getPort(),
+<                 file.length()
 ---
->             (this.getLogin(), this.getAddr(), this.getPort()
-292c260
+>                 "Opening SSH session to %s@%s:%s",
+>                 this.getLogin(), this.getAddr(), this.getPort()
+292c258
 <         session.setTimeout((int) TimeUnit.MINUTES.toMillis(1L));
 ---
 >         session.setTimeout((int) TimeUnit.SECONDS.toMillis(10L));
-294c262
+294c260
 <         session.setServerAliveCountMax(Tv.MILLION);
 ---
->         session.setServerAliveCountMax(1000000); // Replaced Tv.MILLION with a direct value
+>         session.setServerAliveCountMax(1000000);

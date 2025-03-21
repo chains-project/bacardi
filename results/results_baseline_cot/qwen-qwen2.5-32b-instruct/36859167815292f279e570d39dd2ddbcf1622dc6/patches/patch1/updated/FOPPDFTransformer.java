@@ -38,7 +38,7 @@ import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.FopFactoryBuilder;
-import org.apache.fop.apps.FopFactoryConfig;
+import org.apache.xmlgraphics.util.MimeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,7 +95,8 @@ public abstract class FOPPDFTransformer {
         StreamSource transformSource = new StreamSource(templateStream);
 
         // create an instance of fop factory
-        FopFactory fopFactory = FopFactory.newInstance(new FopFactoryConfig());
+        FopFactoryBuilder builder = new FopFactoryBuilder(new File("."));
+        FopFactory fopFactory = builder.build();
         // a user agent is needed for transformation
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
         // to store output
@@ -121,7 +122,8 @@ public abstract class FOPPDFTransformer {
             // Construct fop with desired output format
             Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, outStream);
 
-            // Resulting SAX events (the generated FO) must be piped through to FOP
+            // Resulting SAX events (the generated FO)
+            // must be piped through to FOP
             Result res = new SAXResult(fop.getDefaultHandler());
 
             // Start XSLT transformation and FOP processing

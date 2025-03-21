@@ -16,8 +16,11 @@ import com.pholser.junit.quickcheck.random.SourceOfRandomness;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.Arrays;
+
+@RunWith(MockitoJUnitRunner.class)
 public class RegisterGeneratorsByConventionTest {
     private GeneratorRepository repo;
     @Mock private SourceOfRandomness random;
@@ -25,7 +28,6 @@ public class RegisterGeneratorsByConventionTest {
 
     @Before
     public void setupRepository() {
-        MockitoAnnotations.initMocks(this);
         repo = new GeneratorRepository(random);
     }
 

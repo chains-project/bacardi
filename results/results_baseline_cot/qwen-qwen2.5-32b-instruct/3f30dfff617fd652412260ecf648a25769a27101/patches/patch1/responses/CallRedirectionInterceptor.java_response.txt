@@ -7,15 +7,12 @@ import javax.annotation.Priority;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.Interceptor;
-import javax.interceptor.InvocationContext;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+@Replaceable
 @Dependent
-@Interceptor
 @Priority(0)
 public class CallRedirectionInterceptor implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -23,7 +20,6 @@ public class CallRedirectionInterceptor implements Serializable {
     @Inject
     private Instance<InvocationTargetManager> invocationTargetManager;
 
-    @AroundInvoke
     public Object invokeMockableBean(InvocationContext ctx) throws Throwable {
         Class<?> javaClass = ReflectionsUtils.getOriginalClass(ctx.getTarget().getClass());
         if (invocationTargetManager.get().isAlternativeEnabled(javaClass)) {

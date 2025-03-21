@@ -1,72 +1,50 @@
-18c18
-< import com.artipie.http.auth.BasicAuthScheme;
----
-> import com.artipie.http.auth.AuthUser; // Ensure correct import for AuthUser
-69c69,73
-<             method.slice("whatever").response(line.toString(), Headers.EMPTY, Content.EMPTY),
----
->             method.slice("whatever").response(
->                 line.toString(),
->                 Headers.EMPTY,
->                 Content.EMPTY
->             ),
-80c84
+25,27d24
+< import com.artipie.http.rq.RequestLine;
+< import com.artipie.http.rq.RqMethod;
+< import com.artipie.http.rs.RsStatus;
+41d37
+< import org.junit.jupiter.params.provider.MethodSource;
+80c76
 <                 method.headers(new TestAuthentication.User("chuck", "letmein")),
 ---
->                 method.headers(TestAuthentication.User.of("chuck", "letmein")),
-192d195
+>                 method.headers(TestAuthentication.BOB),
+192,196d187
 <     @SuppressWarnings("PMD.UnusedPrivateMethod")
-197,288d199
-<     /**
-<      * Create manifest content.
-<      *
-<      * @return Manifest content.
-<      */
-<     private Flowable<ByteBuffer> manifest() {
-<         final byte[] content = "config".getBytes();
-<         final Blob config = this.docker.repo(new RepoName.Valid("my-alpine")).layers()
-<             .put(new TrustedBlobSource(content))
-<             .toCompletableFuture().join();
-<         final byte[] data = String.format(
-<             "{\"config\":{\"digest\":\"%s\"},\"layers\":[],\"mediaType\":\"my-type\"}",
-<             config.digest().string()
-<         ).getBytes();
-<         return Flowable.just(ByteBuffer.wrap(data));
+<     private static Stream<Arguments> setups() {
+<         return Stream.of(new Basic(), new Bearer()).flatMap(AuthTest::setups);
 <     }
 < 
+214c205
 <     private static Stream<Arguments> setups(final Method method) {
-<         return Stream.of(
-<             Arguments.of(
+---
+>     private static Stream<Arguments> setups() {
+217c208
 <                 method,
-<                 new RequestLine(RqMethod.GET, "/v2/"),
-<                 "registry:base:*"
-<             ),
-<             Arguments.of(
+---
+>                 new Basic(this.docker),
+222c213
 <                 method,
-<                 new RequestLine(RqMethod.HEAD, "/v2/my-alpine/manifests/1"),
-<                 "repository:my-alpine:pull"
-<             ),
-<             Arguments.of(
+---
+>                 new Basic(this.docker),
+227c218
 <                 method,
-<                 new RequestLine(RqMethod.GET, "/v2/my-alpine/manifests/2"),
-<                 "repository:my-alpine:pull"
-<             ),
-<             Arguments.of(
+---
+>                 new Basic(this.docker),
+232c223
 <                 method,
-<                 new RequestLine(RqMethod.PUT, "/v2/my-alpine/manifests/latest"),
-<                 "repository:my-alpine:push"
-<             ),
-<             Arguments.of(
+---
+>                 new Basic(this.docker),
+237c228
 <                 method,
-<                 new RequestLine(RqMethod.PUT, "/v2/my-alpine/manifests/latest"),
-<                 "repository:my-alpine:overwrite"
-<             ),
-<             Arguments.of(
+---
+>                 new Basic(this.docker),
+242,243c233,234
 <                 method,
 <                 new RequestLine(RqMethod.GET, "/v2/my-alpine/tags/list"),
-<                 "repository:my-alpine:pull"
-<             ),
-<             Arguments.of(
+---
+>                 new Basic(this.docker),
+>                 new RequestLine(RqMethod.GET, "/v2/my-alpine/blobs/sha256:123"),
+247,277c238
 <                 method,
 <                 new RequestLine(RqMethod.HEAD, "/v2/my-alpine/blobs/sha256:123"),
 <                 "repository:my-alpine:pull"
@@ -98,34 +76,13 @@
 <             ),
 <             Arguments.of(
 <                 method,
-<                 new RequestLine(RqMethod.GET, "/v2/_catalog"),
-<                 "registry:catalog:*"
-<             )
-<         );
-<     }
-< 
-<     /**
-<      * Authentication method.
-<      *
-<      * @since 0.8
-<      */
-297,301d207
-<     /**
-<      * Basic authentication method.
-<      *
-<      * @since 0.8
-<      */
-304,306d209
-<         /**
-<          * Docker repo.
-<          */
-337,341d239
-<     /**
-<      * Bearer authentication method.
-<      *
-<      * @since 0.8
-<      */
-353c251
-<                             .map(user -> new Authentication.User(user.name()))
 ---
->                             .map(user -> new AuthUser(user.name())) // Change from User to AuthUser
+>                 new Basic(this.docker),
+328c289,291
+<             return user.headers();
+---
+>             return new Headers.From(
+>                 new Authorization.Basic(user.name(), user.password())
+>             );
+353d315
+<                             .map(user -> new Authentication.User(user.name()))

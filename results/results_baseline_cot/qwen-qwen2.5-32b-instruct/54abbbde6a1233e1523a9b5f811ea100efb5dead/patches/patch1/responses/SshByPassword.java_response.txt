@@ -3,7 +3,7 @@ package com.jcabi.ssh;
 import com.jcabi.aspects.RetryOnFailure;
 import com.jcabi.log.Logger;
 import com.jcraft.jsch.JSch;
-import com.jcabi.ssh.JSch.JSchException;
+import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -63,9 +63,9 @@ public final class SshByPassword extends AbstractSshShell {
             );
             session.setConfig("StrictHostKeyChecking", "no");
             session.setPassword(this.password);
-            session.setServerAliveInterval(10000); // 10 seconds
-            session.setServerAliveCountMax(1000000); // 1 million
-            session.connect(10000); // 10 seconds
+            session.setServerAliveInterval(10000);
+            session.setServerAliveCountMax(1000000);
+            session.connect(10000);
             return session;
         } catch (final JSchException ex) {
             throw new IOException(ex);

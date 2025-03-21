@@ -14,7 +14,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "reference",
     "reason"
 })
-public class References implements ToString2 {
+public class References implements ToString2
+{
 
     @XmlElement(name = "Reference")
     protected String reference;
@@ -39,7 +40,7 @@ public class References implements ToString2 {
 
     @Override
     public String toString() {
-        final JAXBToStringStrategy strategy = new JAXBToStringStrategy(); // Direct instantiation
+        final JAXBToStringStrategy strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -58,13 +59,14 @@ public class References implements ToString2 {
         {
             String theReference;
             theReference = this.getReference();
-            strategy.appendField(locator, this, "reference", buffer, theReference, (this.reference != null));
+            strategy.appendField(locator, this, "reference", buffer, theReference, (this.reference!= null));
         }
         {
             String theReason;
             theReason = this.getReason();
-            strategy.appendField(locator, this, "reason", buffer, theReason, (this.reason != null));
+            strategy.appendField(locator, this, "reason", buffer, theReason, (this.reason!= null));
         }
         return buffer;
     }
+
 }

@@ -1,13 +1,3 @@
-<code_analysis>
-The error messages indicate that the class `PrettyPrinterConfiguration` cannot be found in the package `com.github.javaparser.printer`. This suggests that the `PrettyPrinterConfiguration` class has been removed or moved in the updated version of the JavaParser dependency. The class is referenced in two places in the `DSN` class: in the import statement and in the `UnitTestsVisitor` inner class.
-
-To resolve this issue, we need to remove the import statement for `PrettyPrinterConfiguration` and update the `UnitTestsVisitor` class to no longer use `PrettyPrinterConfiguration`. Since the `PrettyPrinterConfiguration` is used to configure the printer to not print comments, we can achieve the same effect using the `PrettyPrinter` class directly with the `printComments` option set to `false`.
-
-Here are the specific modifications required:
-- Remove the import statement for `PrettyPrinterConfiguration`.
-- Update the `UnitTestsVisitor` class to use `PrettyPrinter` with the `printComments` option set to `false`.
-</code_analysis>
-
 ```java
 package org.btrplace.safeplace;
 
@@ -16,7 +6,8 @@ import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
-import com.github.javaparser.printer.PrettyPrinter;
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import com.github.javaparser.printer.configuration.DefaultPrettyPrinterConfiguration;
 import org.btrplace.safeplace.spec.Constraint;
 import org.btrplace.safeplace.spec.SpecScanner;
 import org.btrplace.safeplace.testing.Bench;
@@ -24,6 +15,11 @@ import org.btrplace.safeplace.testing.Result;
 import org.btrplace.safeplace.testing.TestCampaign;
 import org.btrplace.safeplace.testing.TestScanner;
 import org.btrplace.safeplace.testing.fuzzer.Restriction;
+import org.btrplace.safeplace.testing.reporting.CSVReport;
+import org.btrplace.safeplace.testing.reporting.StoredReport;
+import org.btrplace.safeplace.testing.verification.Verifier;
+import org.btrplace.safeplace.testing.verification.btrplace.CheckerVerifier;
+import org.btrplace.safeplace.testing.verification.spec.SpecVerifier;
 import org.testng.Assert;
 
 import java.io.InputStream;
@@ -39,9 +35,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-/**
- * @author Fabien Hermenier
- */
 public class DSN {
 
     public static String root = "xp-dsn";
@@ -53,11 +46,13 @@ public class DSN {
         return new TestScanner(l);
     }
 
-    // ... (rest of the class remains unchanged)
+    // ... (rest of the methods remain unchanged)
 
     private static class UnitTestsVisitor extends VoidVisitorAdapter<Void> {
 
         private final List<Integer> l;
+
+        private final DefaultPrettyPrinterConfiguration noComments = new DefaultPrettyPrinterConfiguration().setPrintComments(false);
 
         UnitTestsVisitor(List<Integer> numbers) {
             this.l = numbers;
@@ -65,8 +60,7 @@ public class DSN {
 
         @Override
         public void visit(MethodDeclaration n, Void arg) {
-            System.out.println(n.getNameAsString());
-            if (n.toString(new PrettyPrinter().setPrintComments(false)).contains("solve")) {
+            if (n.toString(noComments).contains("solve")) {
                 n.getRange().ifPresent(r -> l.add(r.end.line - r.begin.line));
             }
             super.visit(n, arg);
@@ -76,5 +70,3 @@ public class DSN {
     // ... (rest of the class remains unchanged)
 }
 ```
-
-In this solution, the `PrettyPrinterConfiguration` import is removed, and the `UnitTestsVisitor` class is updated to use `PrettyPrinter` with the `setPrintComments(false)` method to achieve the same effect as before. This should resolve the compilation errors related to the missing `PrettyPrinterConfiguration` class.

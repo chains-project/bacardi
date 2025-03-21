@@ -1,17 +1,6 @@
-<code_analysis>
-1. The error message indicates that the method `getClassInfo` cannot be found in the `CoverageDatabase` class. This suggests that the method signature has changed or been removed in the updated version of the `CoverageDatabase` dependency.
-
-2. In the client code, the method `getClassInfo` is called with a `Set<ClassName>` parameter in the `createSummaryData` method. This method is no longer available in the updated version of the `CoverageDatabase` class.
-
-3. To fix this issue, we need to find an alternative method or approach to retrieve the class information that is compatible with the updated `CoverageDatabase` class. If the method has been renamed or its signature has changed, we need to adjust the call accordingly.
-
-4. The necessary changes include updating the call to `getClassInfo` to use the correct method or approach provided by the updated `CoverageDatabase` class. If the method is no longer available, we need to find an alternative way to get the required information.
-</code_analysis>
-
 ```java
 package org.pitest.elements;
 
-import org.pitest.classinfo.ClassName;
 import org.pitest.coverage.CoverageDatabase;
 import org.pitest.mutationtest.ClassMutationResults;
 import org.pitest.mutationtest.MutationResultListener;
@@ -35,7 +24,7 @@ public class MutationReportListener implements MutationResultListener {
 
   private final JsonParser jsonParser;
 
-  private final CoverageDatabase coverage;
+  private final CoverageDatabase  coverage;
   private final PackageSummaryMap packageSummaryData = new PackageSummaryMap();
 
   private static final String HTML_PAGE = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n"
@@ -98,7 +87,7 @@ public class MutationReportListener implements MutationResultListener {
       e.printStackTrace();
     }
   }
-
+  
   private void createMutationTestingElementsJs() {
     final Writer writer = this.outputStrategy
       .createWriterForFile("html2" + File.separatorChar + "mutation-test-elements.js");
@@ -113,10 +102,8 @@ public class MutationReportListener implements MutationResultListener {
 
   private MutationTestSummaryData createSummaryData(
       final CoverageDatabase coverage, final ClassMutationResults data) {
-    // Assuming the new method signature is `getClassInfo(String className)` and returns a `ClassInfo` object.
-    // Adjust the method call based on the actual new method signature.
     return new MutationTestSummaryData(data.getFileName(),
-        data.getMutations(), coverage.getClassInfo(data.getMutatedClass().getClassName()));
+        data.getMutations(), coverage.getClassInfo(data.getMutatedClass()));
   }
 
   private void updatePackageSummary(
@@ -150,5 +137,3 @@ public class MutationReportListener implements MutationResultListener {
   }
 }
 ```
-
-In the provided solution, I've assumed that the `getClassInfo` method has been replaced with a new method that takes a `String` representing the class name and returns a `ClassInfo` object. Adjust the method call in `createSummaryData` based on the actual new method signature provided by the updated `CoverageDatabase` class. If the method has been removed entirely, you may need to find an alternative way to retrieve the class information.

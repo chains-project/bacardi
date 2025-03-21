@@ -1,4 +1,23 @@
-8c8
+8,9c8,10
 < import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.entity.living.player.Player;
 ---
-> import org.spongepowered.api.command.source.CommandSource; // Updated import statement
+> import org.spongepowered.api.text.Text;
+> import org.spongepowered.api.text.channel.MessageChannel;
+> import org.spongepowered.api.text.channel.MessageReceiver;
+14c15
+<     private final CommandSource invoker;
+---
+>     private final MessageReceiver invoker;
+18c19
+<     public NameResolver(ChangeSkinSponge plugin, CommandSource invoker, String targetName, Player receiver
+---
+>     public NameResolver(ChangeSkinSponge plugin, MessageReceiver invoker, String targetName, Player receiver
+30c31
+<         plugin.sendMessage(invoker, id);
+---
+>         plugin.sendMessage((CommandSource) invoker, id);
+42c43
+<         new SkinDownloader(plugin, invoker, receiver, uuid, keepSkin).run();
+---
+>         new SkinDownloader(plugin, (CommandSource) invoker, receiver, uuid, keepSkin).run();

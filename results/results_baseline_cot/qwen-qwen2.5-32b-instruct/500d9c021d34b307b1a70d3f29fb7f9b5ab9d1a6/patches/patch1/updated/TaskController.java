@@ -9,23 +9,25 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import jakarta.mvc.Controller;
-import jakarta.mvc.Models;
-import jakarta.mvc.binding.BindingResult;
-import jakarta.mvc.binding.ParamError;
-import jakarta.mvc.security.CsrfProtected;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.FormParam;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.core.Response;
-import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
+import javax.mvc.Controller;
+import javax.mvc.Models;
+import javax.mvc.View;
+import javax.mvc.binding.BindingResult;
+import javax.mvc.binding.ParamError;
+import javax.mvc.security.CsrfProtected;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Response;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import org.eclipse.krazo.engine.Viewable;
 
 @Path("tasks")
 @Controller
@@ -48,6 +50,7 @@ public class TaskController {
     AlertMessage flashMessage;
 
     @GET
+    @View("tasks.xhtml")
     public void allTasks() {
         log.log(Level.INFO, "fetching all tasks");
 
@@ -65,12 +68,12 @@ public class TaskController {
 
     @GET
     @Path("{id}")
-    public String taskDetails(@PathParam("id") @NotNull Long id) {
+    public Viewable taskDetails(@PathParam("id") @NotNull Long id) {
         log.log(Level.INFO, "get task by id@{0}", id);
         Task task = taskRepository.findById(id);
 
         models.put("details", task);
-        return "details.xhtml";
+        return new Viewable("details.xhtml");
     }
 
     @GET
@@ -112,17 +115,17 @@ public class TaskController {
 
     @GET
     @Path("{id}/edit")
-    public String edit(@PathParam("id") Long id) {
+    public Viewable edit(@PathParam("id") Long id) {
         log.log(Level.INFO, "edit task @{0}", id);
 
         Task task = taskRepository.findById(id);
 
         TaskForm form = new TaskForm();
         form.setId(task.getId());
-        form.setName(task.getName());
-        form.setDescription(task.getDescription());
+        form.setName = task.getName();
+        form.description = task.getDescription();
         models.put("task", form);
-        return "edit.xhtml";
+        return new Viewable("edit.xhtml");
     }
 
     @PUT
@@ -157,7 +160,6 @@ public class TaskController {
 
     @PUT
     @Path("{id}/status")
-    @CsrfProtected
     public Response updateStatus(@PathParam(value = "id") Long id, @NotNull @FormParam(value = "status") String status) {
         log.log(Level.INFO, "updating status of the existed task@id:{0}, status:{1}", new Object[]{id, status});
 

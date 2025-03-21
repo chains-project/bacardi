@@ -22,37 +22,29 @@
 <  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 <  * SOFTWARE.
 <  */
-37,40c14,15
-< import org.cactoos.scalar.IoCheckedScalar;
-< import org.cactoos.scalar.SolidScalar;
-< import org.cactoos.text.FormattedText;
-< import org.cactoos.text.JoinedText;
+33,34c10,13
+< import org.cactoos.func.IoCheckedFunc;
+< import org.cactoos.io.Directory;
 ---
-> import org.cactoos.scalar.ScalarOf;
-> import org.cactoos.text.Concatenated;
-53c28
-<     private final IoCheckedScalar<Path> path;
+> import org.cactoos.Func;
+> import org.cactoos.Text;
+> import org.cactoos.TextOf;
+> import org.cactoos.io.DirectoryAsFiles;
+58c37
+<     private final IoCheckedFunc<Path, Boolean> filter;
 ---
->     private final Scalar<Path> path;
-103,105c78
-<         this.path = new IoCheckedScalar<>(
-<             new SolidScalar<>(pth)
+>     private final Func<Path, Boolean> filter;
+106,107c85
+<         this.filter = new IoCheckedFunc<Path, Boolean>(
+<             (file) -> file.toFile().isFile()
+---
+>         this.filter = (file) -> file.toFile().isFile()
+110,111c88
+<                 .matches(file)
 <         );
 ---
->         this.path = new ScalarOf<>(pth);
-119,120c92
-<             new JoinedText(
-<                 ".",
+>             .matches(file);
+156c133
+<                 new Filtered<>(this.filter, new Directory(this.path.value()))
 ---
->             new Concatenated(
-121a94
->                 ".",
-128,131c101,103
-<                     new FormattedText(
-<                         "Wallet in path %s already exists",
-<                         wpth.toUri().getPath()
-<                     )
----
->                     new Concatenated(
->                         "Wallet in path ", wpth.toUri().getPath(), " already exists"
->                     ).asString()
+>                 new Filtered<>(this.filter, new DirectoryAsFiles(this.path.value()))

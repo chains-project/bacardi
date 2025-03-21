@@ -1,20 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error messages indicate that the `org.bouncycastle.crypto.tls` package and the `TlsFatalAlert` class are not found. This suggests that the dependency update has removed or changed the location of these classes.
-   
-2. Review the client code:
-   - The problematic areas are the imports and the usage of `TlsFatalAlert` in the `decodeCiphertext` method.
-   - The `TlsFatalAlert` class is used to throw an exception when the MAC check fails.
-
-3. Consider potential fixes:
-   - Since the `TlsFatalAlert` class is not available, we need to replace it with an alternative way to handle the exception.
-   - We can replace the `TlsFatalAlert` with a custom exception or a standard Java exception like `IOException`.
-
-4. Plan the necessary changes:
-   - Remove the import for `TlsFatalAlert` and `AlertDescription`.
-   - Replace the `TlsFatalAlert` exception with an `IOException`.
-</code_analysis>
-
 ```java
 package io.github.hapjava.server.impl.crypto;
 
@@ -44,7 +27,7 @@ public class ChachaDecoder {
     byte[] calculatedMAC = PolyKeyCreator.create(macKey, additionalData, ciphertext);
 
     if (!Arrays.constantTimeAreEqual(calculatedMAC, receivedMAC)) {
-      throw new IOException("Bad record MAC");
+      throw new RuntimeException("Bad record MAC");
     }
 
     byte[] output = new byte[ciphertext.length];
@@ -69,5 +52,3 @@ public class ChachaDecoder {
   }
 }
 ```
-
-In this fix, the `TlsFatalAlert` exception is replaced with an `IOException` to maintain the exception handling logic while ensuring the code compiles with the updated dependency.

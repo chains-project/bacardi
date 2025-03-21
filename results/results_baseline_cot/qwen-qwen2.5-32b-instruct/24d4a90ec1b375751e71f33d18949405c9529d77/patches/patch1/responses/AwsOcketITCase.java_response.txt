@@ -1,6 +1,6 @@
 package com.jcabi.s3;
 
-import com.jcabi.aspects.Tv; // This import is no longer needed and can be removed
+import com.jcabi.aspects.Tv;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
@@ -51,7 +51,7 @@ public final class AwsOcketITCase {
         final Bucket bucket = this.rule.bucket();
         final String name = "test-44.txt";
         final Ocket.Text ocket = new Ocket.Text(bucket.ocket(name));
-        final String data = RandomStringUtils.random(100 * 1000); // Replace Tv.HUNDRED * Tv.THOUSAND with 100 * 1000
+        final String data = RandomStringUtils.random(100 * 1000); // Adjusted to avoid dependency on Tv.HUNDRED * Tv.THOUSAND
         ocket.write(data);
         try {
             MatcherAssert.assertThat(ocket.read(), Matchers.equalTo(data));

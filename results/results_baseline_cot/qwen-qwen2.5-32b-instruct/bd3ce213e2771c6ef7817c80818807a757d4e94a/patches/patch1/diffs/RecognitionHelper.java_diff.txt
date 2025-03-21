@@ -1,114 +1,8 @@
-6c6,9
-< import java.nio.file.*;
----
-> import java.nio.file.FileVisitOption;
-> import java.nio.file.Files;
-> import java.nio.file.Path;
-> import java.nio.file.Paths;
-17a21
+17a18
 > import com.fasterxml.jackson.core.JsonProcessingException;
-31,430c35
-<     /**
-<      * Object to access project configuration
-<      */
-<     private ProjectConfiguration projConf;
+42d42
 < 
-<     /**
-<      * Image type of the project
-<      * Possible values: { Binary, Gray }
-<      */
-<     private String projectImageType;
-< 
-< 
-<     /**
-<      * Object to use generic functionalities
-<      */
-<     private GenericHelper genericHelper;
-< 
-<     /**
-<      * Object to determine process states
-<      */
-<     private ProcessStateCollector procStateCol;
-< 
-<     /**
-<      * Helper object for process handling
-<      */
-<     private ProcessHandler processHandler;
-< 
-<     /**
-<      * Progress of the Recognition process
-<      */
-<     private int progress = -1;
-< 
-<     /**
-<      * Indicates if a Recognition process is already running
-<      */
-<     private boolean RecognitionRunning = false;
-< 
-<     /**
-<      * Last time the images/pagexml are modified
-<      */
-<     private Map<String,Long> imagesLastModified;
-< 
-<     /**
-<      * Structure to monitor the progress of the process
-<      * pageId : segmentId : lineSegmentId : processedState
-<      *
-<      * Structure example:
-<      * {
-<      *     "0002": {
-<      *         "0002__000__paragraph" : {
-<      *             "0002__000__paragraph__000" : true,
-<      *             "0002__000__paragraph__001" : false,
-<      *             ...
-<      *         },
-<      *         ...
-<      *     },
-<      *     ...
-<      * }
-<      */
-<     private TreeMap<String,TreeMap<String, TreeMap<String, Boolean>>> processState = new TreeMap<>();
-< 
-<     /**
-<      * Constructor
-<      *
-<      * @param projectDir Path to the project directory
-<      * @param projectImageType Type of the project (binary, gray)
-<      *
-<      */
-<     public RecognitionHelper(String projectDir, String projectImageType) {
-<         this.projectImageType = projectImageType;
-<         projConf = new ProjectConfiguration(projectDir);
-<         genericHelper = new GenericHelper(projConf);
-<         procStateCol = new ProcessStateCollector(projConf, projectImageType);
-<         processHandler = new ProcessHandler();
-<     }
-< 
-<     /**
-<      * Gets the process handler object
-<      *
-<      * @return Returns the process Helper
-<      */
-<     public ProcessHandler getProcessHandler() {
-<         return processHandler;
-<     }
-< 
-<     /**
-<      * Initializes the structure with which the progress of the process can be monitored
-<      *
-<      * @param pageIds Identifiers of the chosen pages (e.g 0002,0003)
-<      * @throws IOException
-<      */
-<     public void initialize(List<String> pageIds) throws IOException {
-<         // Init the listener for image modification
-<         imagesLastModified = new HashMap<>();
-<         for(String pageId: pageIds) {
-<             final String pageXML = projConf.OCR_DIR + pageId + projConf.CONF_EXT;
-<             imagesLastModified.put(pageXML,new File(pageXML).lastModified());
-<         }
-<     }
-< 
-<     /**
+132,152c132
 <      * Returns the absolute path of all line segment images for the pages in the processState
 <      *
 <      * @param pageIds Identifiers of the chosen pages (e.g 0002,0003)
@@ -130,10 +24,15 @@
 < 
 <     /**
 <      * Returns the progress of the process
-<      *
+---
+>      * Returns the Ids of the pages, for which line segmentation was already executed
+154,155c134,135
 <      * @return Progress percentage
 <      * @throws IOException
-<      */
+---
+>      * @param pageIds Identifiers of the pages (e.g 0002,0003)
+>      * @return Information if files exist
+157,171c137,140
 <     public int getProgress() throws IOException {
 <         // Prevent function from calculation progress if process is not running
 <         if (!RecognitionRunning)
@@ -149,11 +48,16 @@
 <             progress = (modifiedCount*100) / imagesLastModified.size();
 <         } else {
 <             progress = -1;
-<         }
+---
+>     public boolean doOldFilesExist(String[] pageIds) {
+>         for (String pageId : pageIds) {
+>             if (procStateCol.recognitionState(pageId))
+>                 return true;
+173c142
 <         return progress;
-<     }
-< 
-<     /**
+---
+>         return false;
+177,194d145
 <      * Extracts checkpoints of a String joined by a whitespace
 <      *
 <      * @return List of checkpoints
@@ -172,68 +76,36 @@
 <         return ckptList;
 <     }
 <     /**
-<      * Executes OCR on a list of pages
+196c147
 <      * Achieved with the help of the external python program "calamary-predict"
-<      *
-<      * @param pageIds Identifiers of the pages (e.g 0002,0003)
+---
+>      * Achieved with the help of an external python program "calamari-predict"
+199,200c150
 <      * @param cmdArgs Command line arguments for "calamary-predict"
 <      * @throws IOException
-<      */
-<     public void execute(List<String> pageIds, final List<String> cmdArgs) throws IOException {
-<         RecognitionRunning = true;
-<         progress = 0;
-< 
-<         List<String> cmdArgsWork = new ArrayList<>(cmdArgs);
-< 
-<         //// Estimate Skew
-<         if (cmdArgsWork.contains("--estimate_skew")) {
-<                 // Calculate the skew of all regions where none was calculated before
-<                 List<String> skewparams = new ArrayList<>();
-<             skewparams.add("skewestimate");
-<                 final int maxskewIndex = cmdArgsWork.indexOf("--maxskew");
-<                 if(maxskewIndex > -1) {
-<                         skewparams.add(cmdArgsWork.remove(maxskewIndex));
-<                         skewparams.add(cmdArgsWork.remove(maxskewIndex));
-<                 }
-<                 final int skewstepsIndex = cmdArgsWork.indexOf("--skewsteps");
-<                 if(skewstepsIndex > -1) {
+---
+>      * @param cmdArgs Command line arguments for "calamari-predict"
+221c171
 <                         skewparams.add(cmdArgsWork.remove(skewstepsIndex));
-<                         skewparams.add(cmdArgsWork.remove(skewstepsIndex));
-<                 }
-< 
-<                         // Create temp json file with all segment images (to not overload parameter list)
-<                         // Temp file in a temp folder named "skew-<random numbers>.json"
-<                         File segmentListFile = File.createTempFile("skew-",".json");
+---
+>                         skewparams.add(cmdArgsWork.remove(skewstepsIndex);
+227,228c177,178
 <                         skewparams.add(segmentListFile.toString());
 <                         segmentListFile.deleteOnExit(); // Delete if OCR4all terminates
-<                         ObjectMapper mapper = new ObjectMapper();
-<                         ArrayNode dataList = mapper.createArrayNode();
-<                         for (String pageId : pageIds) {
-<                                 ArrayNode pageList = mapper.createArrayNode();
-<                                 pageList.add(projConf.getImageDirectoryByType(projectImageType) + pageId +
-<                                                 projConf.getImageExtensionByType(projectImageType));
-<                                 final String pageXML = projConf.OCR_DIR + pageId + projConf.CONF_EXT;
-<                                 pageList.add(pageXML);
-< 
+---
+>             segmentListFile.deleteOnExit();
+> 
+238d187
 <                                 // Add affected line segment images with their absolute path to the json file
-<                                 dataList.add(pageList);
-<                         }
-<                         ObjectWriter writer = mapper.writer();
-<                         writer.writeValue(segmentListFile, dataList);
+241a191
+>             try {
+242a193,195
+>             } catch (JsonProcessingException e) {
+>                 e.printStackTrace();
+>             }
+251d203
 < 
-<             processHandler = new ProcessHandler();
-<             processHandler.setFetchProcessConsole(true);
-<             processHandler.startProcess("ocr4all-helper-scripts", skewparams, false);
-< 
-<                 cmdArgsWork.remove("--estimate_skew");
-<         }
-< 
-< 
-<         //// Recognize
-<                 // Reset recognition data
-<                 deleteOldFiles(pageIds);
-<                 initialize(pageIds);
-< 
+257,289c209,213
 <         int index;
 <         if (cmdArgsWork.contains("--checkpoint")) {
 <             index = cmdArgsWork.indexOf("--checkpoint");
@@ -267,7 +139,13 @@
 <             // Add affected images with their absolute path to the file
 <             content.add(projConf.getImageDirectoryByType(projectImageType) + pageId +
 <                                 projConf.getImageExtensionByType(projectImageType));
-<         }
+---
+>         int modifiedCount = 0;
+>         if(imagesLastModified != null) {
+>             for(String pagexml : imagesLastModified.keySet()) {
+>                 if(imagesLastModified.get(pagexml) < new File(pagexml).lastModified()) {
+>                     modifiedCount++;
+291,300d214
 <         Files.write(segmentListFile.toPath(), content, StandardOpenOption.APPEND);
 <         command.add(segmentListFile.toString());
 < 
@@ -278,9 +156,11 @@
 <             command.add(arg);
 <             if (arg.equals("--checkpoint") && cmdArgsIterator.hasNext()) {
 <                 command.addAll(extractModelsOfJoinedString(cmdArgsIterator.next()));
-<             }
-<         }
-< 
+301a216,218
+>             progress = (modifiedCount*100) / imagesLastModified.size();
+>         } else {
+>             progress = -1;
+304,325d220
 <         command.add("--data");
 <         command.add("PageXML");
 <         // Set output extension to input extension in order to overwrite the original file
@@ -303,41 +183,15 @@
 <         processHandler.setFetchProcessConsole(true);
 <         processHandler.startProcess("calamari-predict", command, false);
 < 
-<         // Execute progress update to fill processState data structure with correct values
-<         getProgress();
-<         // Process extension to ocropus-gpageseg script
-<         createSkippedSegments();
-< 
-<         progress = 100;
-<         RecognitionRunning = false;
-< 
-<         // Clean up temp segmentListFile
-<         // segmentListFile.delete();
-<     }
-< 
-<     /**
-<      * Resets the progress (use if an error occurs)
-<      */
-<     public void resetProgress() {
-<         RecognitionRunning = false;
-<         progress = -1;
-<     }
-< 
-<     /**
-<      * Cancels the process
-<      */
-<     public void cancelProcess() {
-<         if (processHandler != null)
-<             processHandler.stopProcess();
-<         RecognitionRunning = false;
-<     }
-< 
-<     /**
+356c251
 <      * Returns the Ids of the pages, for which line segmentation was already executed
-<      *
+---
+>      * Returns the progress of the process
+358c253
 <      * @return List with page ids
-<      * @throws IOException
-<      */
+---
+>      * @return Progress percentage
+361,368c256,259
 <     public ArrayList<String> getValidPageIds() throws IOException {
 <         // Get all pages and check which ones are already line segmented
 <         ArrayList<String> validPageIds = new ArrayList<String>();
@@ -346,10 +200,21 @@
 <             if (procStateCol.lineSegmentationState(pageId) == true)
 <                 validPageIds.add(pageId);
 <         }
-< 
+---
+>     public int getProgress() throws IOException {
+>         // Prevent function from calculation progress if process is not running
+>         if (!RecognitionRunning)
+>             return progress;
+370,371c261,265
 <         Collections.sort(validPageIds);
 <         return validPageIds;
-<     }
+---
+>         int modifiedCount = 0;
+>         if(imagesLastModified != null) {
+>             for(String pagexml : imagesLastModified.keySet()) {
+>                 if(imagesLastModified.get(pagexml) < new File(pagexml).lastModified()) {
+>                     modifiedCount++;
+373,394d266
 < 
 <     /**
 <      * Deletion of old process related files
@@ -372,15 +237,19 @@
 <                 fileWriter.write(pageXMLContent);
 <                 fileWriter.flush();
 <                 fileWriter.close();
-<             }
-<         }
-<     }
-< 
-<     /**
+395a268,270
+>             progress = (modifiedCount*100) / imagesLastModified.size();
+>         } else {
+>             progress = -1;
+396a272
+>         return progress;
+400c276
 <      * Creates the recognition files of the linesegments that were skipped by the ocropus-rpred script
-<      *
-<      * @throws IOException
-<      */
+---
+>      * Extracts checkpoints of a String joined by a whitespace
+401a278
+>      * @return List of checkpoints
+404,427c281,289
 <     public void createSkippedSegments() throws IOException{
 <         for(String pageId : processState.keySet()) {
 <             for(String segmentId :processState.get(pageId).keySet()) {
@@ -405,48 +274,37 @@
 <         for (String pageId : pageIds) {
 <             if (procStateCol.recognitionState(pageId))
 <                 return true;
-<         }
-<         return false;
-<     }
 ---
->     // ... (rest of the class remains unchanged)
-448,449d52
+>     public List<String> extractModelsOfJoinedString(String joinedckptString) throws IOException {
+>         String [] checkpoints = joinedckptString.split(ProjectConfiguration.MODEL_EXT + " ");
+>         List<String> ckptList = new ArrayList<>();
+>         Iterator <String> ckptIterator= Arrays.asList(checkpoints).iterator();
+>         while (ckptIterator.hasNext()) {
+>             String ckpt = ckptIterator.next();
+>             if (ckptIterator.hasNext())
+>                 ckpt = ckpt + ProjectConfiguration.MODEL_EXT;
+>             ckptList.add(ckpt);
+429c291
+<         return false;
+---
+>         return ckptList;
+434,452d295
+<      * Consider the subsequent information to load models correctly
+<      *
+<      * Possible model location directories:
+<      * ProjectConfiguration.PROJ_MODEL_DEFAULT_DIR
+<      * ProjectConfiguration.PROJ_MODEL_CUSTOM_DIR
+<      *
+<      * Model path structures on the filesystem:
+<      * Default: OS_PATH/{TRAINING_IDENTIFIER}/{ID}.ckpt.json
+<      * Custom:  OS_PATH/{PROJECT_NAME}/{TRAINING_IDENTIFIER}/{ID}.ckpt.json
+<      *
+<      * Example: /var/ocr4all/models/default/Baiter_000/Baiter.ckpt.json
+<      * Display: Baiter_000/Baiter
+<      * Example: /var/ocr4all/models/custom/Bibel/0/0.ckpt.json
+<      * Display: Bibel/0/0
 <      * Example: /var/ocr4all/models/custom/Bibel/heading/0.ckpt.json
 <      * Display: Bibel/heading/0
-458c61
-<         TreeMap<String, String> models = new TreeMap<String, String>();
----
->         TreeMap<String, String> models = new TreeMap<>();
-465,469c68,70
-<         Files.walk(Paths.get(ProjectConfiguration.PROJ_MODEL_DIR), FileVisitOption.FOLLOW_LINKS)
-<         .map(Path::toFile)
-<         .filter(fileEntry -> fileEntry.getName().endsWith(ProjectConfiguration.MODEL_EXT))
-<         .forEach(
-<             fileEntry -> {
----
->         try (var stream = Files.walk(Paths.get(ProjectConfiguration.PROJ_MODEL_DIR), FileVisitOption.FOLLOW_LINKS)) {
->             stream.filter(Files::isRegularFile)
->                   .forEach(fileEntry -> {
-471c72
-<                 String modelName = fileEntry.getAbsolutePath();
----
->                       String modelName = fileEntry.toString();
-476c77
-<                 models.put(modelName, fileEntry.getAbsolutePath());
----
->                       models.put(modelName, fileEntry.toString());
-477a79
->         }
-482,491c84
-<     /**
-<      * Determines conflicts with the process
 <      *
-<      * @param currentProcesses Processes that are currently running
-<      * @param inProcessFlow Indicates if the process is executed within the ProcessFlow
-<      * @return Type of process conflict
-<      */
-<     public int getConflictType(List<String> currentProcesses, boolean inProcessFlow) {
-<         return ProcessConflictDetector.recognitionConflict(currentProcesses, inProcessFlow);
-<     }
----
->     // ... (rest of the class remains unchanged)
+<      * The models need to be in the following structure:
+<      * ANY_PATH/{MODEL_NAME}/ANY_NAME.ckpt.json

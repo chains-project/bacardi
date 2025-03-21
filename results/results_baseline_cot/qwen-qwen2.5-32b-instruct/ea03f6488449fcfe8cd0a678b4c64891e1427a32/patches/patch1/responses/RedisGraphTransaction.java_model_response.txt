@@ -1,23 +1,9 @@
-<code_analysis>
-The error messages indicate that several classes and interfaces that were previously available in the `redis.clients.jedis.commands` package are no longer present in the updated version of the Jedis dependency. This suggests that the Jedis library has undergone a significant change, possibly refactoring or removing these interfaces. The client code is attempting to extend or implement these interfaces, which leads to compilation errors.
-
-The specific interfaces that are missing are:
-- `MultiKeyBinaryRedisPipeline`
-- `BinaryScriptingCommandsPipeline`
-- `BasicRedisPipeline`
-- `MultiKeyCommandsPipeline`
-- `ClusterPipeline`
-- `RedisPipeline`
-- `ScriptingCommandsPipeline`
-- `BinaryRedisPipeline`
-
-Given the constraints, the solution involves removing the references to these interfaces from the `RedisGraphTransaction` interface definition. This is because the interface `RedisGraphTransaction` is trying to extend interfaces that no longer exist in the updated Jedis version. Removing these references will resolve the compilation errors.
-</code_analysis>
-
 ```java
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
+import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.BinaryJedis;
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +66,15 @@ public interface RedisGraphTransaction extends Closeable {
     Response<ResultSet> callProcedure(String graphId, String procedure);
 
     /**
+     * Invokes stored procedure with arguments
+     * @param graphId a graph to perform the query on
+     * @param procedure procedure name to invoke
+     * @param args procedure arguments
+     * @return a response which builds result set with the procedure data
+     */
+    Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args);
+
+    /**
      * Invoke a stored procedure
      * @param graphId a graph to perform the query on
      * @param procedure - procedure to execute
@@ -87,7 +82,7 @@ public interface RedisGraphTransaction extends Closeable {
      * @param kwargs - procedure output arguments
      * @return a response which builds result set with the procedure data
      */
-    Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args, Map<String, List<String>> kwargs);
+    Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args  , Map<String, List<String>> kwargs);
 
     /**
      * Deletes the entire graph
@@ -119,5 +114,3 @@ public interface RedisGraphTransaction extends Closeable {
     String discard();
 }
 ```
-
-This solution removes the references to the missing interfaces, which should resolve the compilation errors. The methods and their implementations remain intact, ensuring that the functional behavior of the `RedisGraphTransaction` interface is preserved.

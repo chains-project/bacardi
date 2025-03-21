@@ -1,11 +1,3 @@
-<code_analysis>
-The error message indicates that the method `addEnabledLanguages` is not found in the `AnalysisEngineConfiguration.Builder` class. This suggests that the method signature has changed or been removed in the updated dependency. The method `addEnabledLanguages` is used in the `buildAnalysisEngineConfiguration` method. We need to find the correct method to use in the updated dependency.
-
-Upon reviewing the client code, it seems that the `addEnabledLanguages` method is used to add enabled languages to the `AnalysisEngineConfiguration`. In the updated dependency, this method might have been replaced or removed. We need to find the correct method to use or an alternative approach to achieve the same functionality.
-
-Given the constraints, we will need to find the correct method or approach to add enabled languages to the `AnalysisEngineConfiguration` in the updated dependency.
-</code_analysis>
-
 ```java
 package sorald.sonar;
 
@@ -42,8 +34,6 @@ import org.sonarsource.sonarlint.core.client.api.common.PluginDetails;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.DefaultClientIssue;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.IssueListener;
 import org.sonarsource.sonarlint.core.client.api.exceptions.SonarLintWrappedException;
-import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisConfiguration;
-import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneGlobalConfiguration;
 import org.sonarsource.sonarlint.core.commons.Language;
 import org.sonarsource.sonarlint.core.commons.RuleKey;
 import org.sonarsource.sonarlint.core.commons.log.ClientLogOutput;
@@ -54,6 +44,7 @@ import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoadResult;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInfo;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInstancesLoader;
+import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginRequirementsCheckResult;
 import org.sonarsource.sonarlint.core.rule.extractor.SonarLintRuleDefinition;
 import sorald.FileUtils;
 import sorald.util.ConfigLoader;
@@ -151,14 +142,14 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                 instancesLoader.instantiatePluginClasses(allPlugins);
 
         return new LoadedPluginsThatDoesNotCloseLoader(
-                (pluginInstancesByKeys, instancesLoader);
+                pluginInstancesByKeys, new PluginInstancesLoader());
     }
 
     private static Collection<PluginInfo> getAllPlugins(
             Map<String, PluginRequirementsCheckResult> pluginCheckResultByKeys) {
         return pluginCheckResultByKeys.values().stream()
                 .map(PluginRequirementsCheckResult::getPlugin)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     private static Map<String, SonarLintRuleDefinition> computeAllRulesDefinitionsByKey() {
@@ -167,7 +158,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
         return AnalysisEngineConfiguration.builder()
-                .setLanguages(globalConfig.getEnabledLanguages())
+                .addEnabledLanguages(globalConfig.getEnabledLanguages())
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())
@@ -191,6 +182,11 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
      */
     public void recreateAnalysisEngine() {
         this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, logOutput);
+    }
+
+    @Override
+    public AnalysisEngine getAnalysisEngine() {
+        return analysisEngine;
     }
 
     public AnalysisResults analyze(
@@ -290,5 +286,3 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     }
 }
 ```
-
-In the provided fix, the `addEnabledLanguages` method has been replaced with `setLanguages` in the `buildAnalysisEngineConfiguration` method. This is based on the assumption that the `addEnabledLanguages` method has been replaced or removed in the updated dependency, and `setLanguages` is the correct method to use for setting the enabled languages in the new version.

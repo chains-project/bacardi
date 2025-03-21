@@ -19,13 +19,6 @@ import java.util.*;
 
 import static java.lang.String.format;
 
-/**
- * YAML model representer.
- *
- * @author jvanzyl
- * @author bentmann
- * @since 0.7
- */
 class ModelRepresenter extends Representer {
   public ModelRepresenter() {
     this.representers.put(Xpp3Dom.class, new RepresentXpp3Dom());
@@ -38,7 +31,7 @@ class ModelRepresenter extends Representer {
   }
 
   protected NodeTuple representJavaBeanProperty(Object javaBean, Property property,
-                                                 Object propertyValue, Tag customTag) {
+                                               Object propertyValue, Tag customTag) {
     if (property != null && property.getName().equals("pomFile")) {
       // "pomFile" is not a part of POM http://maven.apache.org/xsd/maven-4.0.0.xsd
       return null;
@@ -98,22 +91,26 @@ class ModelRepresenter extends Representer {
       for (int i = 0; i < n; i++) {
         Xpp3Dom child = node.getChild(i);
 
+        String childName = child.getName();
+
         String singularName = null;
-        int childNameLength = child.getName().length();
-        if ("reportPlugins".equals(child.getName())) {
+        int childNameLength = childName.length();
+        if ("reportPlugins".equals(childName)) {
           singularName = "plugin";
-        } else if (childNameLength > 3 && child.getName().endsWith("ies")) {
-          singularName = child.getName().substring(0, childNameLength - 3);
-        } else if (childNameLength > 1 && child.getName().endsWith("s")) {
-          singularName = child.getName().substring(0, childNameLength - 1);
+        } else if (childNameLength > 3 && childName.endsWith("ies")) {
+          singularName = childName.substring(0, childNameLength - 3);
+        } else if (childNameLength > 1 && childName.endsWith("s")) {
+          singularName = childName.substring(0, childNameLength - 1);
         }
 
         Object childValue = child.getValue();
         if (childValue == null) {
           boolean isList = singularName != null;
-          for (int j = 0, grandChildCount = child.getChildCount(); j < grandChildCount; j++) {
-            String grandChildName = child.getChild(j).getName();
-            isList &= grandChildName.equals(singularName);
+          if (isList) { // check for eventual list construction
+            for (int j = 0, grandChildCount = child.getChildCount(); j < grandChildCount; j++) {
+              String grandChildName = child.getChild(j).getName();
+              isList &= grandChildName.equals(singularName);
+            }
           }
           if (isList) {
             childValue = toList(child, singularName);
@@ -121,7 +118,7 @@ class ModelRepresenter extends Representer {
             childValue = toMap(child);
           }
         }
-        map.put(child.getName(), childValue);
+        map.put(childName, childValue);
       }
 
       for (String attrName : node.getAttributeNames()) {
@@ -154,7 +151,6 @@ class ModelRepresenter extends Representer {
     }
   }
 
-  // Model elements order {
   private static List<String> ORDER_MODEL = new ArrayList<>(Arrays.asList(
           "modelEncoding",
           "modelVersion",
@@ -197,7 +193,6 @@ class ModelRepresenter extends Representer {
           "groupId", "artifactId", "version", "type", "classifier", "scope"));
   private static List<String> ORDER_PLUGIN = new ArrayList<>(Arrays.asList(
           "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
-  //}
 
   protected Set<Property> getProperties(Class<? extends Object> type) {
     try {
@@ -219,15 +214,11 @@ class ModelRepresenter extends Representer {
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
-    try {
-      Set<Property> standard = super.getProperties(type);
-      Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));
-      sorted.addAll(standard);
-      return sorted;
-    } catch (IntrospectionException e) {
-      throw new RuntimeException(e);
-    }
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) throws IntrospectionException {
+    Set<Property> standard = super.getProperties(type);
+    Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));
+    sorted.addAll(standard);
+    return sorted;
   }
 
   private class ModelPropertyComparator implements Comparator<Property> {

@@ -68,13 +68,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.feedzai.commons.sql.abstraction.ddl.DbColumnConstraint.NOT_NULL;
-import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.BLOB;
-import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.BOOLEAN;
-import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.CLOB;
-import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.DOUBLE;
-import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.INT;
-import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.LONG;
-import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.STRING;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.BLOB;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.BOOLEAN;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.CLOB;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.DOUBLE;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.INT;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.LONG;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.STRIN;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.L;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.all;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.avg;
@@ -86,103 +86,23 @@ import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.coalesc
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.column;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.concat;
 import static com com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.count;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.createView;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.dbColumn;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.dbEntity;
+import static static com.feedzai.commons.sql dialect.SqlBuilder.createView;
+import static static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.dbColumn;
+import static static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.dbEntity;
 import static static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.dbFk;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.delete;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.div;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.dropPK;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.entry;
-import static static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.eq;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.f;
-import static static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.floor;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.in;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.k;
-import static static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.like;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.lit;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.lower;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.max;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.min;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.mod;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.neq;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.notBetween
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.or;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.select;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.stddev;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.stringAgg;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.sum;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.table;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.udf;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.union;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.update;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.upper;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.values;
-import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.with;
-import static com.feedzai.commons.sql.abstraction.engine.EngineTestUtils.buildEntity;
-import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.ENGINE;
-import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.JDBC;
-import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.PASSWORD;
-import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.SCHEMA_POLICY;
-import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.USERNAME;
-import static com.feedzai.commons.sql.abstraction.util.StringUtils.quotize;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeTrue;
-
-/**
- * @author Rui Vilao (rui.vilao@feedzai.com)
- * @since 2.0.0
- */
-@RunWith(Parameterized.class)
-public class EngineGeneralTest {
-
-{
-    private static final double DELTA = 1e-7;
-
-    protected DatabaseEngine engine;
-    protected Properties properties;
-
-    @Parameterized.Parameters
-    public static Collection<DatabaseConfiguration> data() throws Exception {
-        return DatabaseTestUtil.loadConfigurations();
-    }
-
-    @Parameterized.Parameter
-    public DatabaseConfiguration config;
-
-    @BeforeClass
-    public static void initStatic() {
-        ((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);
-    }
-
-    @Before
-    public void init() throws DatabaseFactoryException {
-        properties = new Properties() {
-            {
-                setProperty(JDBC, config.jdbc);
-                setProperty(USERNAME, config.username);
-                setProperty(PASSWORD, config.password);
-                setProperty(ENGINE, config.engine);
-                setProperty(SCHEMA_POLICY, "drop-create");
-            }
-        };
-
-        engine = DatabaseFactory.getConnection(properties);
-    }
-
-    @After
-    public void cleanup() {
-        engine.close();
-    }
-
-    // ... (rest of the class remains unchanged)
-}
+import static static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.delete;
+import static static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.div;
+import static static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.dropPK;
+import static static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.entry;
+import static static static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.eq;
+import static static static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.f;
+import static static static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.floor;
+import static static static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.in;
+import static static static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.like;
+import static static static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.lit;
+import static static static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.lower;
+import static static static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.max;
+import static static static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.min;
+import static static static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.mod;
+import static static static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.neq;
+import static static static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.notBetween

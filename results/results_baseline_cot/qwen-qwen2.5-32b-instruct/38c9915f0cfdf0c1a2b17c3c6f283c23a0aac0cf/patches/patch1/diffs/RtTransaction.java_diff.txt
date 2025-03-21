@@ -22,172 +22,127 @@
 <  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 <  * SOFTWARE.
 <  */
-33,38d9
+33,34c10,13
 < import org.cactoos.iterable.LengthOf;
 < import org.cactoos.list.ListOf;
-< import org.cactoos.scalar.IoCheckedScalar;
-< import org.cactoos.scalar.ItemAt;
-< import org.cactoos.scalar.StickyScalar;
-< import org.cactoos.scalar.UncheckedScalar;
-43d13
+---
+> import org.cactoos.text.FormattedText;
+> import org.cactoos.text.Splitter;
+> import org.cactoos.text.TextOf;
+> import org.cactoos.text.TrimmedText;
+39,44d17
+< import org.cactoos.text.FormattedText;
+< import org.cactoos.text.SplitText;
+< import org.cactoos.text.TextOf;
+< import org.cactoos.text.TrimmedText;
 < import org.cactoos.text.UncheckedText;
-88c58
-<     private final IoCheckedScalar<String> transaction;
----
->     private final String transaction;
-92a63
->      * @throws IOException If an I/O error occurs
-94,102c65,67
-<     RtTransaction(final String trnsct) {
-<         this.transaction = new IoCheckedScalar<>(
-<             new StickyScalar<>(
-<                 () -> {
-<                     if (
-<                         new TrimmedText(
-<                             new TextOf(trnsct)
-<                         ).asString().isEmpty()
-<                     ) {
----
->     RtTransaction(final String trnsct) throws IOException {
->         this.transaction = trnsct;
->         if (new TrimmedText(new TextOf(trnsct)).asString().isEmpty()) {
-107,112c72,73
-<                     final List<Text> pieces =
+< import org.cactoos.time.ZonedDateTimeOf;
+108,112c81,82
 <                         new ListOf<>(
 <                             new SplitText(trnsct, ";")
 <                         );
 <                     // @checkstyle MagicNumberCheck (1 line)
 <                     if (new LengthOf(pieces).intValue() != 7) {
 ---
->         final List<Text> pieces = new ListOf<>(new SplitText(trnsct, ";"));
->         if (pieces.size() != 7) {
-115d75
+>                         new Splitter(trnsct, ";").toList();
+>                     if (pieces.size() != 7) {
+115d84
 <                                 // @checkstyle LineLength (1 line)
-121,124d80
-<                     return trnsct;
-<                 }
-<             )
-<         );
-128d83
-<     @SuppressWarnings("PMD.ShortMethodName")
-130,136c85
+130c99
 <         final String ident = new UncheckedText(
-<             new IoCheckedScalar<>(
-<                 new ItemAt<>(
+---
+>         final String ident = new UncheckedScalar<>(
+133c102
 <                     0, new SplitText(this.transaction.value(), ";")
-<                 )
-<             ).value()
-<         ).asString();
 ---
->         final String ident = new SplitText(this.transaction, ";").get(0).asString();
-139d87
+>                     0, new Splitter(this.transaction.value(), ";").toList()
+139d107
 <                 new UncheckedText(
-141d88
+141d108
 <                         // @checkstyle LineLength (1 line)
-144d90
+144d110
 <                     )
-148d93
+148d113
 <         // @checkstyle MagicNumber (1 line)
-155,161c100
+155c120
 <             new UncheckedText(
-<                 new IoCheckedScalar<>(
-<                     new ItemAt<>(
+---
+>             new UncheckedScalar<>(
+158c123
 <                         1, new SplitText(this.transaction.value(), ";")
-<                     )
-<                 ).value()
-<             ).asString(),
 ---
->             new SplitText(this.transaction, ";").get(1).asString(),
-163c102
-<         ).value();
----
->         );
-168,174c107
+>                         1, new Splitter(this.transaction.value(), ";").toList()
+168c133
 <         final String amnt = new UncheckedText(
-<             new IoCheckedScalar<>(
-<                 new ItemAt<>(
-<                     2, new SplitText(this.transaction.value(), ";")
-<                 )
-<             ).value()
-<         ).asString();
 ---
->         final String amnt = new SplitText(this.transaction, ";").get(2).asString();
-177d109
+>         final String amnt = new UncheckedScalar<>(
+171c136
+<                     2, new SplitText(this.transaction.value(), ";")
+---
+>                     2, new Splitter(this.transaction.value(), ";").toList()
+177d141
 <                 new UncheckedText(
-179d110
+179d142
 <                         // @checkstyle LineLength (1 line)
-182d112
+182d144
 <                     )
-186d115
+186d147
 <         // @checkstyle MagicNumber (1 line)
-192,200c121
+192c153
 <         final String prefix = new UncheckedText(
-<             new IoCheckedScalar<>(
-<                 new ItemAt<>(
+---
+>         final String prefix = new UncheckedScalar<>(
+195,196c156
 <                     //@checkstyle MagicNumberCheck (1 line)
 <                     3, new SplitText(this.transaction.value(), ";")
-<                 )
-<             ).value()
-<         ).asString();
-<         //@checkstyle MagicNumberCheck (1 line)
 ---
->         final String prefix = new SplitText(this.transaction, ";").get(3).asString();
-212,219c133
+>                     3, new Splitter(this.transaction.value(), ";").toList()
+200d159
+<         //@checkstyle MagicNumberCheck (1 line)
+212c171
 <         final String bnf = new UncheckedText(
-<             new IoCheckedScalar<>(
-<                 new ItemAt<>(
+---
+>         final String bnf = new UncheckedScalar<>(
+215,216c174
 <                     //@checkstyle MagicNumberCheck (1 line)
 <                     4, new SplitText(this.transaction.value(), ";")
-<                 )
-<             ).value()
-<         ).asString();
 ---
->         final String bnf = new SplitText(this.transaction, ";").get(4).asString();
-222d135
+>                     4, new Splitter(this.transaction.value(), ";").toList()
+222d179
 <                 new UncheckedText(
-224d136
+224d180
 <                         // @checkstyle LineLength (1 line)
-227d138
+227d182
 <                     )
-236,243c147
+236c191
 <         final String dtls = new UncheckedText(
-<             new IoCheckedScalar<>(
-<                 new ItemAt<>(
+---
+>         final String dtls = new UncheckedScalar<>(
+239,240c194
 <                     //@checkstyle MagicNumberCheck (1 line)
 <                     5, new SplitText(this.transaction.value(), ";")
-<                 )
-<             ).value()
-<         ).asString();
 ---
->         final String dtls = new SplitText(this.transaction, ";").get(5).asString();
-246d149
+>                     5, new Splitter(this.transaction.value(), ";").toList()
+246d199
 <                 new UncheckedText(
-248d150
+248d200
 <                         // @checkstyle LineLength (1 line)
-251d152
+251d202
 <                     )
-260,270c161,162
+260c211
 <         final String sign = new UncheckedText(
-<             new IoCheckedScalar<>(
-<                 new ItemAt<>(
+---
+>         final String sign = new UncheckedScalar<>(
+263,264c214
 <                     //@checkstyle MagicNumberCheck (1 line)
 <                     6, new SplitText(this.transaction.value(), ";")
-<                 )
-<             ).value()
-<         ).asString();
+---
+>                     6, new Splitter(this.transaction.value(), ";").toList()
+268d217
 <         // @checkstyle MagicNumber (1 line)
-<         if (sign.length() != 684
-<             || !RtTransaction.SIGN.matcher(sign).matches()) {
----
->         final String sign = new SplitText(this.transaction, ";").get(6).asString();
->         if (sign.length() != 684 || !RtTransaction.SIGN.matcher(sign).matches()) {
-272d163
+272d220
 <                 new UncheckedText(
-274d164
+274d221
 <                         // @checkstyle LineLength (1 line)
-277d166
+277d223
 <                     )
-286c175
-<         return new UncheckedScalar<>(this.transaction).value();
----
->         return this.transaction;

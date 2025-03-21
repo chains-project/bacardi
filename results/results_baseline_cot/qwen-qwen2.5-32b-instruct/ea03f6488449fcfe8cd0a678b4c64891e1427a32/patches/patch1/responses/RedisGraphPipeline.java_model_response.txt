@@ -1,16 +1,11 @@
-<code_analysis>
-The error messages indicate that several classes and interfaces that the `RedisGraphPipeline` interface extends are not found. This suggests that the Jedis dependency has been updated, and some of the interfaces that were previously available are no longer present or have been renamed or moved. The missing classes are `MultiKeyBinaryRedisPipeline`, `BinaryScriptingCommandsPipeline`, `BasicRedisPipeline`, `MultiKeyCommandsPipeline`, `ScriptingCommandsPipeline`, `RedisPipeline`, `BinaryRedisPipeline`, and `ClusterPipeline`.
-
-To resolve these issues, we need to identify the new structure or the new names of these interfaces in the updated Jedis version. If these interfaces have been removed or renamed, we need to either remove the extension from the `RedisGraphPipeline` interface or replace them with the new equivalent interfaces.
-
-For the sake of this example, let's assume that the interfaces have been removed or are no longer part of the Jedis package. We will remove the extension of these interfaces from the `RedisGraphPipeline` interface.
-</code_analysis>
-
 ```java
 package com.redislabs.redisgraph;
 
+import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
-import redis.clients.jedis.commands.RedisPipeline;
+import redis.clients.jedis.params.ScriptParams;
+import redis.clients.jedis.util.SafeEncoder;
+
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +13,7 @@ import java.util.Map;
 /**
  * An interface which aligned to Jedis Pipeline interface
  */
-public interface RedisGraphPipeline extends RedisPipeline, Closeable {
+public interface RedisGraphPipeline extends Pipeline, Closeable {
 
     /**
      * Execute a Cypher query.
@@ -35,24 +30,6 @@ public interface RedisGraphPipeline extends RedisPipeline, Closeable {
      * @return a response which builds the result set with the query answer.
      */
     Response<ResultSet> readOnlyQuery(String graphId, String query);
-
-    /**
-     * Execute a Cypher query with timeout.
-     * @param graphId a graph to perform the query on
-     * @param query Cypher query
-     * @param timeout
-     * @return a response which builds the result set with the query answer.
-     */
-    Response<ResultSet> query(String graphId, String query, long timeout);
-
-    /**
-     * Executes a cypher read-only query with timeout.
-     * @param graphId a graph to perform the query on
-     * @param query Cypher query
-     * @param timeout
-     * @return a response which builds the result set with the query answer.
-     */
-    Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout);
 
     /**
      * Executes a cypher query with parameters.
@@ -117,7 +94,7 @@ public interface RedisGraphPipeline extends RedisPipeline, Closeable {
      * @param kwargs - procedure output arguments
      * @return a response which builds result set with the procedure data
      */
-    Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args, Map<String, List<String>> kwargs);
+    Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args  , Map<String, List<String>> kwargs);
 
     /**
      * Deletes the entire graph
@@ -154,5 +131,3 @@ public interface RedisGraphPipeline extends RedisPipeline, Closeable {
     Response<Long> waitReplicas(int replicas, long timeout);
 }
 ```
-
-In this solution, I have removed the extension of the interfaces that are causing the compilation errors, as they are no longer available in the updated Jedis dependency. The `RedisGraphPipeline` interface now only extends `RedisPipeline` and `Closeable`. This should resolve the compilation errors related to missing symbols.

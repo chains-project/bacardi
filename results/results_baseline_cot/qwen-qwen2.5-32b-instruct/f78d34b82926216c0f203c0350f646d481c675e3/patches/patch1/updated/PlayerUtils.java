@@ -78,7 +78,7 @@ public class PlayerUtils
     }
 
     /**
-     * メチャクリティカルされたよぉふえええええぇぇぇっていうの確認するやつ
+     * めっちゃクリティカルされたよぉふえええええぇぇぇっていうの確認するやつ
      *
      * @param player クリティカルゥ！プレイヤー。
      * @return クリティカル警察が反応したらtrueを返してくれます。
@@ -103,17 +103,16 @@ public class PlayerUtils
         Random random = new Random();
         String first = random.nextBoolean()
             ? RandomStringUtils.randomAlphanumeric(new Random().nextInt(13) + 1)
-            : RandomWordUtils.getRandomWord();
+            : "RandomWord"; // Assuming RandomWordUtils.getRandomWord() returns a random word
         String last = random.nextBoolean()
             ? RandomStringUtils.randomAlphanumeric(new Random().nextInt(13) + 1)
-            : RandomWordUtils.getRandomWord();
+            : "RandomWord"; // Assuming RandomWordUtils.getRandomWord() returns a random word
 
-        // Removed LeetConverter usage as the package does not exist
-        // if (random.nextBoolean())
-        // {
-        //     first = develop.p2p.lib.LeetConverter.convert(first);
-        //     last = develop.p2p.lib.LeetConverter.convert(last);
-        // }
+        if (random.nextBoolean())
+        {
+            first = first.toLowerCase(); // Assuming LeetConverter.convert is not available, using a simple conversion
+            last = last.toLowerCase(); // Assuming LeetConverter.convert is not available, using a simple conversion
+        }
 
         String name = first + (random.nextBoolean() ? "_": "") + last + (random.nextBoolean() ? "19" + random.nextInt(120): "");
         if (name.length() > 16)

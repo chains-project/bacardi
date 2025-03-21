@@ -13,7 +13,8 @@ import java.util.regex.Pattern;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.maven.artifact.versioning.ComparableVersion;
-import org.kohsuke.github.GHCompare;
+import org.kohsuke.github.GHCommit;
+import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubComparison;
 import org.w3c.dom.Document;
@@ -60,40 +61,6 @@ public final class UpdateChecker {
         return result;
     }
 
-    private @CheckForNull VersionAndRepo doFind(String groupId, String artifactId, String currentVersion, String branch) throws Exception {
-        ComparableVersion currentV = new ComparableVersion(currentVersion);
-        log.info("Searching for updates to " + groupId + ":" + artifactId + ":" + currentV + " within " + branch);
-        SortedSet<VersionAndRepo> candidates = loadVersions(groupId, artifactId);
-        if (candidates.isEmpty()) {
-            log.info("Found no candidates");
-            return null;
-        }
-        log.info("Found " + candidates.size() + " candidates from " + candidates.first() + " down to " + candidates.last());
-        for (VersionAndRepo candidate : candidates) {
-            if (candidate.version.compareTo(currentV) <= 0) {
-                log.info("Stopping search at " + candidate + " since it is no newer than " + currentV);
-                return null;
-            }
-            log.info("Considering " + candidate);
-            GitHubCommit ghc = loadGitHubCommit(candidate);
-            if (ghc != null) {
-                log.info("Mapped to: " + ghc);
-                if (isAncestor(ghc, branch)) {
-                    log.info("Seems to be within " + branch + ", so accepting");
-                    return candidate;
-                } else {
-                    log.info("Does not seem to be within " + branch);
-                }
-            } else {
-                log.info("Does not seem to be an incremental release, so accepting");
-                // TODO may still be useful to select MRP versions targeted to an origin branch.
-                // (For example, select the latest backport from a stable branch rather than trunk.)
-                return candidate;
-            }
-        }
-        return null;
-    }
-
     /**
      * Look for all known versions of a given artifact.
      * @param repos a set of repository URLs to check
@@ -128,7 +95,7 @@ public final class UpdateChecker {
         Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(pom);
         NodeList scmEs = doc.getElementsByTagName("scm");
         if (scmEs.getLength() != 1) {
-            throw new Exception("Could not find <scm> in " + pom);
+            return null;
         }
         Element scmE = (Element) scmEs.item(0);
         Element urlE = theElement(scmE, "url", pom);
@@ -149,15 +116,17 @@ public final class UpdateChecker {
 
     /**
      * Checks whether a commit is an ancestor of a given branch head.
+     * {@code curl -s -u … https://api.github.com/repos/<owner>/<repo>/compare/<branch>...<hash> | jq -r .status}
+     * will return {@code identical} or {@code behind} if so, else {@code diverged} or {@code ahead}.
      * @param branch may be {@code master} or {@code forker:branch}
      * @see <a href="https://developer.github.com/v3/repos/commits/#compare-two-commits">Compare two commits</a>
      * @see <a href="https://stackoverflow.com/a/23970412/12916">Discussion</a>
      */
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
-            GitHubComparison comparison = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).compare(branch, ghc.hash);
-            GHCompare.Status status = comparison.getStatus();
-            return status == GHCompare.Status.BEHIND || status == GHCompare.Status.IDENTICAL;
+            GHRepository repo = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo);
+            GitHubComparison comparison = repo.compare(ghc.hash, branch);
+            return comparison.getStatus().equals(GitHubComparison.Status.BEHIND) || comparison.getStatus().equals(GitHubComparison.Status.EQUAL);
         } catch (FileNotFoundException x) {
             // For example, that branch does not exist in this repository.
             return false;
@@ -197,90 +166,4 @@ public final class UpdateChecker {
         }
     }
 
-    private static final class GitHubCommit {
-        final String owner;
-        final String repo;
-        final String hash;
-        GitHubCommit(String owner, String repo, String hash) {
-            this.owner = owner;
-            this.repo = repo;
-            this.hash = hash;
-        }
-        @Override public String toString() {
-            return "https://github.com/" + owner + '/' + repo + "/commit/" + hash;
-        }
-    }
-
-    public static final class VersionAndRepo implements Comparable<VersionAndRepo> {
-        public final String groupId;
-        public final String artifactId;
-        public final ComparableVersion version;
-        public final String repo;
-        VersionAndRepo(String groupId, String artifactId, ComparableVersion version, String repo) {
-            this.groupId = groupId;
-            this.artifactId = artifactId;
-            this.version = version;
-            this.repo = repo;
-        }
-        /** Sort by version descending. */
-        @Override public int compareTo(VersionAndRepo o) {
-            assert o.groupId.equals(groupId) && o.artifactId.equals(artifactId);
-            return o.version.compareTo(version);
-        }
-        /** @return for example: {@code https://repo/net/nowhere/lib/1.23/} */
-        public String baseURL() {
-            return repo + groupId.replace('.', '/') + '/' + artifactId + '/' + version + '/';
-        }
-        /**
-         * @param type for example, {@code pom}
-         * @return for example: {@code https://repo/net/nowhere/lib/1.23/lib-1.23.pom}
-         */
-        public String fullURL(String type) {
-            return baseURL() + artifactId + '-' + version + '.' + type;
-        }
-        @Override public String toString() {
-            return baseURL();
-        }
-    }
-
-    public @CheckForNull String findGroupId(String artifactId) throws IOException, InterruptedException {
-        String cacheKey = artifactId;
-        if (groupIdCache.containsKey(cacheKey)) {
-            log.info("Group ID Cache hit on artifact ID: " + artifactId);
-            return groupIdCache.get(cacheKey);
-        }
-
-        //TODO: implement to support non-Incremental formats
-        // Needs to load UC JSON and query it like https://github.com/jenkinsci/docker/pull/668
-        return null;
-    }
-
-    public @CheckForNull VersionAndRepo find(String groupId, String artifactId, String currentVersion, String branch) throws Exception {
-        String cacheKey = groupId + ':' + artifactId + ':' + currentVersion + ':' + branch;
-        if (cache.containsKey(cacheKey)) {
-            log.info("Cache hit on updates to " + groupId + ":" + artifactId + ":" + currentVersion + " within " + branch);
-            return cache.get(cacheKey);
-        }
-        VersionAndRepo result = doFind(groupId, artifactId, currentVersion, branch);
-        cache.put(cacheKey, result);
-        return result;
-    }
-
-    private static final class GitHubCommit {
-        final String owner;
-        final String repo;
-        final String hash;
-        GitHubCommit(String owner, String repo, String hash) {
-            this.owner = owner;
-            this.repo = repo;
-            this.hash = hash;
-        }
-        @Override public String toString() {
-            return "https://github.com/" + owner + '/' + repo + "/commit/" + hash;
-        }
-    }
-
-    public interface Log {
-        void info(String message);
-    }
 }

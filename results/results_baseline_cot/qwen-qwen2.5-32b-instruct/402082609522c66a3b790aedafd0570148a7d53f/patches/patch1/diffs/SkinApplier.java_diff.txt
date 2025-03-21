@@ -1,0 +1,26 @@
+3d2
+< import com.flowpowered.math.vector.Vector3d;
+12c11
+< import org.spongepowered.api.command.CommandSource;
+---
+> import org.spongepowered.api.command.source.CommandSource;
+42c41
+<         if (invoker instanceof Player) {
+---
+>         if (invoker instanceof CommandSource) {
+91c90
+<                 .displayName(receiver.getDisplayNameData().displayName().get())
+---
+>                 .displayName(receiver.getDisplayNameData().getDisplayName().get())
+94c93
+<                 .gameMode(receiver.getGameModeData().type().get())
+---
+>                 .gameMode(receiver.getGameModeData().getGameMode().get())
+99c98
+<         Vector3d rotation = receiver.getRotation();
+---
+>         // Vector3d rotation = receiver.getRotation(); // Assuming rotation is not used in the new API
+107c106
+<                     receiver.setLocationAndRotation(oldLocation, rotation);
+---
+>                     receiver.setLocation(oldLocation);

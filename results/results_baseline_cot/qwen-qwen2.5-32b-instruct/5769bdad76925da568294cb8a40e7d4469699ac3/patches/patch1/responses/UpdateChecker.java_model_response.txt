@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the `status` field in `GHCompare` has private access, which means it cannot be accessed directly from outside the class.
-   - The error occurs at line 239, where the `status` field is being accessed.
-   - The issue is likely due to a change in the `kohsuke.github` dependency, where the `status` field has been made private in the newer version.
-
-2. Review the client code:
-   - The problematic area is in the `isAncestor` method, where the `status` field of `GHCompare` is accessed.
-   - The `GHCompare` class is used to compare two commits and determine if one is an ancestor of the other.
-
-3. Consider potential fixes that adhere to the following constraints:
-   - The `status` field is no longer accessible, so we need to find an alternative way to determine the status of the comparison.
-   - The `GHCompare` class might have a public method that returns the status, or we might need to use a different approach to determine if one commit is an ancestor of another.
-
-4. Plan the necessary changes to fix the issue:
-   - Replace the direct access to the `status` field with a method call that returns the status.
-   - If such a method does not exist, we might need to use the `GHCompare` object in a different way to determine the ancestor relationship.
-</code_analysis>
-
 ```java
 package io.jenkins.tools.incrementals.lib;
 
@@ -33,8 +14,10 @@ import java.util.regex.Pattern;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.maven.artifact.versioning.ComparableVersion;
-import org.kohsuke.github.GHCompare;
+import org.kohsuke.github.GHCommit;
+import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
+import org.kohsuke.github.GitHubComparison;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -79,9 +62,13 @@ public final class UpdateChecker {
         return result;
     }
 
-    private @CheckForNull VersionAndRepo doFind(String groupId, String artifactId, String currentVersion, String branch) throws Exception {
-        ComparableVersion currentV = new ComparableVersion(currentVersion);
-        log.info("Searching for updates to " + groupId + ":" + artifactId + ":" + currentV + " within " + branch);
+    /**
+     * Look for all known versions of a given artifact.
+     * @param repos a set of repository URLs to check
+     * @return a possibly empty set of versions, sorted descending
+     */
+    private SortedSet<VersionAndRepo> loadVersions(String groupId, String artifactId) throws Exception {
+        // TODO consider using official Aether APIs here (could make use of local cache)
         SortedSet<VersionAndRepo> r = new TreeSet<>();
         for (String repo : repos) {
             String mavenMetadataURL = repo + groupId.replace('.', '/') + '/' + artifactId + "/maven-metadata.xml";
@@ -101,20 +88,6 @@ public final class UpdateChecker {
         return r;
     }
 
-    private static final class GitHubCommit {
-        final String owner;
-        final String repo;
-        final String hash;
-        GitHubCommit(String owner, String repo, String hash) {
-            this.owner = owner;
-            this.repo = repo;
-            this.hash = hash;
-        }
-        @Override public String toString() {
-            return "https://github.com/" + owner + '/' + repo + "/commit/" + hash;
-        }
-    }
-
     /**
      * Parses {@code /project/scm/url} and {@code /project/scm/tag} out of a POM, if mapped to a commit.
      */
@@ -123,7 +96,7 @@ public final class UpdateChecker {
         Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(pom);
         NodeList scmEs = doc.getElementsByTagName("scm");
         if (scmEs.getLength() != 1) {
-            throw new Exception("Could not find <scm> in " + pom);
+            return null;
         }
         Element scmE = (Element) scmEs.item(0);
         Element urlE = theElement(scmE, "url", pom);
@@ -144,14 +117,17 @@ public final class UpdateChecker {
 
     /**
      * Checks whether a commit is an ancestor of a given branch head.
+     * {@code curl -s -u … https://api.github.com/repos/<owner>/<repo>/compare/<branch>...<hash> | jq -r .status}
+     * will return {@code identical} or {@code behind} if so, else {@code diverged} or {@code ahead}.
      * @param branch may be {@code master} or {@code forker:branch}
      * @see <a href="https://developer.github.com/v3/repos/commits/#compare-two-commits">Compare two commits</a>
      * @see <a href="https://stackoverflow.com/a/23970412/12916">Discussion</a>
      */
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
-            GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
-            return compare.getStatus() == GHCompare.Status.identical || compare.getStatus() == GHCompare.Status.behind;
+            GHRepository repo = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo);
+            GitHubComparison comparison = repo.compare(ghc.hash, branch);
+            return comparison.getStatus() == GitHubComparison.Status.BEHIND || comparison.getStatus() == GitHubComparison.Status.EQUAL;
         } catch (FileNotFoundException x) {
             // For example, that branch does not exist in this repository.
             return false;
@@ -190,7 +166,6 @@ public final class UpdateChecker {
             System.err.println("Nothing found.");
         }
     }
+
 }
 ```
-
-In the provided solution, the `isAncestor` method has been updated to use the `getStatus()` method of the `GHCompare` object to check the status of the comparison, instead of directly accessing the `status` field. This change is necessary because the `status` field is now private in the newer version of the `kohsuke.github` dependency.

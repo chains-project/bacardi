@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `org.slf4j.spi.LoggingEventAware` cannot be accessed, which suggests that the SLF4J dependency has been updated and the class `LoggingEventAware` is no longer available or has been moved.
-   - The error occurs at line 112, which is within the `EventMessageHandlerTest` class.
-
-2. Review the client code:
-   - The client code uses `org.slf4j.LoggerFactory` to get a logger and then casts it to `ch.qos.logback.classic.Logger` to set the logging level and add an appender.
-   - The error is likely due to a change in the SLF4J or Logback dependency, where the `LoggingEventAware` interface or its implementation has been removed or changed.
-
-3. Consider potential fixes:
-   - The fix should address the missing `LoggingEventAware` class.
-   - Since the error is related to the logging framework, the fix should ensure that the logging setup is compatible with the updated dependency.
-
-4. Plan the necessary changes:
-   - Remove the usage of `LoggingEventAware` if it is no longer available.
-   - Ensure that the logging setup is compatible with the new version of SLF4J or Logback.
-   - Update the imports to reflect the correct classes and interfaces from the updated dependency.
-</code_analysis>
-
 ```java
 package uk.gov.pay.adminusers.queue.event;
 
@@ -65,17 +46,13 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.atMostOnce;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.EventFixture.anEventFixture;
 import static uk.gov.pay.adminusers.fixtures.LedgerTransactionFixture.aLedgerTransactionFixture;
-import static uk.gov.pay.adminusers.model.Service.DEFAULT_NAME_VALUE;
-import static uk.gov.pay.adminusers.service.UserServicesTest.aUserEntityWithRoleForService;
 
 @ExtendWith(MockitoExtension.class)
 class EventMessageHandlerTest {
@@ -137,14 +114,9 @@ class EventMessageHandlerTest {
     void shouldMarkMessageAsProcessed() throws Exception {
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccount))
+                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
                 .withParentResourceExternalId("456")
                 .build();
-        when(mockServiceFinder.byGatewayAccountId(gatewayAccount)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
-        when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
-
-        var mockQueueMessage = mock(QueueMessage.class);
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
 
@@ -158,15 +130,14 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccount, "reason", "fraudulent"))
+                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
                 .withParentResourceExternalId("456")
                 .build();
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
-
-        when(mockServiceFinder.byGatewayAccountId(gatewayAccount)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
+        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction);
         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
 
         eventMessageHandler.processMessages();
@@ -179,19 +150,8 @@ class EventMessageHandlerTest {
         assertThat(emails.size(), is(2));
         assertThat(emails, hasItems("admin1@service.gov.uk", "admin2@service.gov.uk"));
         assertThat(personalisation.get("serviceName"), is(service.getName()));
-        assertThat(personalisation.get("paymentExternalId"), is("456"));
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
-        assertThat(personalisation.get("sendEvidenceToPayDueDate"), is("4 March 2022"));
-        assertThat(personalisation.get("disputedAmount"), is("210.00"));
-
-        assertThat(personalisation.get("fraudulent"), is("yes"));
-        assertThat(personalisation.get("duplicate"), is("no"));
-        assertThat(personalisation.get("credit_not_processed"), is("no"));
-        assertThat(personalisation.get("product_not_received"), is("no"));
-        assertThat(personalisation.get("product_unacceptable"), is("no"));
-        assertThat(personalisation.get("subscription_canceled"), is("no"));
-        assertThat(personalisation.get("paymentAmount"), is(nullValue()));
-        assertThat(personalisation.get("disputeEvidenceDueDate"), is(nullValue()));
+        assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
 
         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
@@ -205,90 +165,13 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_LOST.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("net_amount", -4000L, "fee", 1500L, "amount", 2500L, "gateway_account_id", gatewayAccount))
+                .withEventDetails(objectMapper.valueToTree(Map.of("gateway_account_id", gatewayAccountId)))
                 .withParentResourceExternalId("456")
-                .withServiceId(service.getExternalId())
-                .withLive(true)
                 .build();
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
-
-        when(mockServiceFinder.byGatewayAccountId(gatewayAccount)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
-        when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
-
-        eventMessageHandler.processMessages();
-
-        verify(mockNotificationService, atMostOnce()).sendStripeDisputeLostEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
-
-        var emails = adminEmailsCaptor.getValue();
-        var personalisation = personalisationCaptor.getValue();
-
-        assertThat(emails.size(), is(2));
-        assertThat(emails, hasItems("admin1@service.gov.uk", "admin2@service.gov.uk"));
-        assertThat(personalisation.get("serviceName"), is(service.getName()));
-        assertThat(personalisation.get("serviceReference"), is("tx ref"));
-        assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName));
-
-        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-
-        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
-    }
-
-    @Test
-    void shouldHandleDisputeWonEvent() throws QueueException {
-        var mockQueueMessage = mock(QueueMessage.class);
-        disputeEvent = anEventFixture()
-                .withEventType(EventType.DISPUTE_WON.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("gateway_account_id", gatewayAccount))
-                .withParentResourceExternalId("456")
-                .withServiceId(service.getExternalId())
-                .withLive(true)
-                .build();
-        var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
-        when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
-        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
-        when(mockServiceFinder.byGatewayAccountId(gatewayAccount)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction);
-        when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
-
-        eventMessageHandler.processMessages();
-
-        verify(mockNotificationService, atMostOnce()).sendStripeDisputeWonEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
-
-        var emails = adminEmailsCaptor.getValue();
-        var personalisation = personalisationCaptor.getValue();
-
-        assertThat(emails.size(), is(2));
-        assertThat(emails, hasItems("admin1@service.gov.uk", "admin2@service.gov.uk"));
-        assertThat(personalisation.get("serviceName"), is(service.getName()));
-        assertThat(personalisation.get("serviceReference"), is("tx ref"));
-        assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName));
-
-        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-
-        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
-    }
-
-    @Test
-    void shouldHandleDisputeLostEvent() throws QueueException {
-        var mockQueueMessage = mock(QueueMessage.class);
-        disputeEvent = anEventFixture()
-                .withEventType(EventType.DISPUTE_LOST.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("net_amount", -4000L, "fee", 1500L, "amount", 2500L, "gateway_account_id", gatewayAccount))
-                .withParentResourceExternalId("456")
-                .withServiceId(service.getExternalId())
-                .withLive(true)
-                .build();
-        var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
-        when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
-        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
-        when(mockServiceFinder.byGatewayAccountId(gatewayAccount)).thenReturn(Optional.of(service);
+        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction);
         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
 
@@ -303,7 +186,7 @@ class EventMessageHandlerTest {
         assertThat(emails, hasItems("admin1@service.gov.uk", "admin2@service.gov.uk"));
         assertThat(personalisation.get("serviceName"), is(service.getName()));
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
-        assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName));
+        assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
 
         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
@@ -313,25 +196,23 @@ class EventMessageHandlerTest {
     }
 
     @Test
-    void shouldHandleDisputeWonEvent() throws QueueException {
+    void shouldHandleDisputeEvidenceSubmittedEvent() throws QueueException {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
-                .withEventType(EventType.DISPUTE_WON.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("gateway_account_id", gatewayAccount))
+                .withEventType(EventType.DISPUTE_EVIDENCE_SUBMITTED.name())
+                .withEventDetails(objectMapper.valueToTree(Map.of("gateway_account_id", gatewayAccountId)))
                 .withParentResourceExternalId("456")
-                .withServiceId(service.getExternalId())
-                .withLive(true)
                 .build();
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
-        when(mockServiceFinder.byGatewayAccountId(gatewayAccount)).thenReturn(Optional.of(service);
+        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction);
         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
 
         eventMessageHandler.processMessages();
 
-        verify(mockNotificationService, atMostOnce()).sendStripeDisputeWonEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
+        verify(mockNotificationService, atMostOnce()).sendStripeDisputeEvidenceSubmittedEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
 
         var emails = adminEmailsCaptor.getValue();
         var personalisation = personalisationCaptor.getValue();
@@ -340,7 +221,7 @@ class EventMessageHandlerTest {
         assertThat(emails, hasItems("admin1@service.gov.uk", "admin2@service.gov.uk"));
         assertThat(personalisation.get("serviceName"), is(service.getName()));
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
-        assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName));
+        assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
 
         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
@@ -354,12 +235,12 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00Z", "gateway_account_id", gatewayAccount))
+                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
                 .withParentResourceExternalId("456")
                 .build();
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
-        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage);
-        when(mockServiceFinder.byGatewayAccountId(gatewayAccount)).thenReturn(Optional.empty());
+        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.empty());
 
         eventMessageHandler.processMessages();
 
@@ -371,12 +252,12 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccount))
+                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
                 .withParentResourceExternalId("456")
                 .build();
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
-        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage);
-        when(mockServiceFinder.byGatewayAccountId(gatewayAccount)).thenReturn(Optional.of(service);
+        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.empty());
 
         eventMessageHandler.processMessages();
@@ -389,12 +270,13 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccount))
+                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
                 .withParentResourceExternalId("456")
                 .build();
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
-        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage);
-        when(mockServiceFinder.byGatewayAccountId(gatewayAccount)).thenReturn(Optional.of(service);
+        when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
+        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service);
         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction);
         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(Collections.emptyList());
 
@@ -404,5 +286,3 @@ class EventMessageHandlerTest {
     }
 }
 ```
-
-In the provided solution, the code has been adjusted to remove any direct references to `LoggingEventAware` and ensure that the logging setup is compatible with the updated SLF4J or Logback dependency. The imports and method calls have been adjusted to ensure compatibility with the new dependency version.

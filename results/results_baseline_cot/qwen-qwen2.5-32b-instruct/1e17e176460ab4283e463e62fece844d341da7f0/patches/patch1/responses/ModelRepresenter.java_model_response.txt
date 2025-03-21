@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The first error indicates that the constructor `Representer()` is undefined, which means the `Representer` class no longer has a no-argument constructor in the updated dependency version.
-   - The second error indicates that the `IntrospectionException` is not compatible with the `getProperties` method's throws clause, suggesting that the `getProperties` method in the updated dependency version no longer throws `IntrospectionException`.
-
-2. Review the client code:
-   - The `ModelRepresenter` class extends `Representer` and overrides the `getProperties` method.
-   - The `ModelRepresenter` constructor calls `super()` implicitly, which is causing the first error.
-   - The `getProperties` method throws `IntrospectionException`, which is causing the second error.
-
-3. Consider potential fixes:
-   - The `Representer` class in the updated dependency version likely requires a constructor with specific parameters.
-   - The `getProperties` method in the updated dependency version no longer throws `IntrospectionException`, so the method signature needs to be adjusted.
-
-4. Plan the necessary changes:
-   - Modify the `ModelRepresenter` constructor to explicitly call a constructor of `Representer` with the required parameters.
-   - Remove the `IntrospectionException` from the `getProperties` method's throws clause.
-</code_analysis>
-
 ```java
 package org.sonatype.maven.polyglot.yaml;
 
@@ -34,20 +15,15 @@ import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
 
+import java.beans.IntrospectionException;
 import java.util.*;
 
 import static java.lang.String.format;
 
-/**
- * YAML model representer.
- *
- * @author jvanzyl
- * @author bentmann
- * @since 0.7
- */
 class ModelRepresenter extends Representer {
   public ModelRepresenter() {
-    super(new Representer.Options());
+    super();
+    this.representers.put(Xpp3Dom.class, new RepresentXpp3Dom());
     Represent stringRepresenter = this.representers.get(String.class);
     this.representers.put(Boolean.class, stringRepresenter);
     this.multiRepresenters.put(Number.class, stringRepresenter);
@@ -57,7 +33,7 @@ class ModelRepresenter extends Representer {
   }
 
   protected NodeTuple representJavaBeanProperty(Object javaBean, Property property,
-                                                 Object propertyValue, Tag customTag) {
+                                                Object propertyValue, Tag customTag) {
     if (property != null && property.getName().equals("pomFile")) {
       // "pomFile" is not a part of POM http://maven.apache.org/xsd/maven-4.0.0.xsd
       return null;
@@ -131,18 +107,7 @@ class ModelRepresenter extends Representer {
 
         Object childValue = child.getValue();
         if (childValue == null) {
-          boolean isList = singularName != null;
-          if (isList) { // check for eventual list construction
-            for (int j = 0, grandChildCount = child.getChildCount(); j < grandChildCount; j++) {
-              String grandChildName = child.getChild(j).getName();
-              isList &= grandChildName.equals(singularName);
-            }
-          }
-          if (isList) {
-            childValue = toList(child, singularName);
-          } else {
-            childValue = toMap(child);
-          }
+          childValue = toMap(child);
         }
         map.put(childName, childValue);
       }
@@ -152,28 +117,6 @@ class ModelRepresenter extends Representer {
       }
 
       return map;
-    }
-
-    private List<Object> toList(Xpp3Dom node, String childName) {
-      List<Object> list = new ArrayList<>();
-
-      int n = node.getChildCount();
-      for (int i = 0; i < n; i++) {
-        Xpp3Dom child = node.getChild(i);
-
-        if (!childName.equals(child.getName())) {
-          throw new YAMLException(format("child name: '%s' does not match expected name: '%s' at node %s",
-              child.getName(), childName, node));
-        }
-
-        Object childValue = child.getValue();
-        if (childValue == null) {
-          childValue = toMap(child);
-        }
-        list.add(childValue);
-      }
-
-      return list;
     }
   }
 
@@ -220,7 +163,8 @@ class ModelRepresenter extends Representer {
   private static List<String> ORDER_PLUGIN = new ArrayList<>(Arrays.asList(
           "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
 
-  protected Set<Property> getProperties(Class<? extends Object> type) {
+  protected Set<Property> getProperties(Class<? extends Object> type)
+          throws IntrospectionException {
     if (type.isAssignableFrom(Model.class)) {
       return sortTypeWithOrder(type, ORDER_MODEL);
     } else if (type.isAssignableFrom(Developer.class)) {
@@ -236,7 +180,8 @@ class ModelRepresenter extends Representer {
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+          throws IntrospectionException {
     Set<Property> standard = super.getProperties(type);
     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));
     sorted.addAll(standard);
@@ -268,15 +213,8 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0; // compare further
+      return 0;// compare further
     }
   }
 }
 ```
-
-In this fix:
-- The `ModelRepresenter` constructor now explicitly calls the `Representer` constructor with `new Representer.Options()`.
-- The `getProperties` method no longer throws `IntrospectionException`, as it is no longer part of the method's signature in the updated dependency version.
-- The `ORDER_*` lists are initialized with `new ArrayList<>(Arrays.asList(...))` to ensure they are properly initialized.
-- The `ModelPropertyComparator` class is kept as is, as it does not directly relate to the dependency update issues.
-- The `ModelRepresenter` class is complete and should compile correctly with the updated dependency version.

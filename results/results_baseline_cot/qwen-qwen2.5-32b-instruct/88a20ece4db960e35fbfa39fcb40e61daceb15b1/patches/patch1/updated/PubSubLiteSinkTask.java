@@ -4,8 +4,9 @@ import static com.google.pubsublite.kafka.sink.Schemas.encodeToBytes;
 
 import com.google.api.core.ApiService.State;
 import com.google.cloud.pubsublite.Message;
-import com.google.cloud.pubsublite.PublishInfo; // Assuming PublishMetadata was replaced by PublishInfo
-import com.google.cloud.pubsublite.internal.Publisher;
+import com.google.cloud.pubsublite.Publisher;
+import com.google.cloud.pubsublite.internal.Publisher.PublisherBuilder;
+import com.google.cloud.pubsublite.proto.PubSubMessage;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.protobuf.ByteString;
@@ -25,7 +26,7 @@ import org.apache.kafka.connect.sink.SinkTask;
 public class PubSubLiteSinkTask extends SinkTask {
 
   private final PublisherFactory factory;
-  private @Nullable Publisher<PublishInfo> publisher; // Change type from PublishMetadata to PublishInfo
+  private @Nullable Publisher<PubSubMessage> publisher;
 
   @VisibleForTesting
   PubSubLiteSinkTask(PublisherFactory factory) {
@@ -92,7 +93,7 @@ public class PubSubLiteSinkTask extends SinkTask {
         message.setEventTime(Timestamps.fromMillis(record.timestamp()));
       }
       message.setAttributes(attributes.build());
-      publisher.publish(message.build()); // Assuming the publish method signature remains the same
+      publisher.publish(message.build());
     }
   }
 

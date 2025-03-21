@@ -1,24 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the `User` class cannot be found within the `com.artipie.http.auth.Authentication` interface.
-   - The errors occur at lines 56 and 57 of the `AuthScopeSliceTest` class.
-   - This suggests that the `User` class has been removed or moved in the updated dependency version.
-
-2. Review the client code:
-   - The problematic areas are where `new Authentication.User("alice")` is used.
-   - The `User` class is being used to create an instance of a user for testing purposes.
-
-3. Consider potential fixes:
-   - The `User` class is no longer available in the updated dependency version.
-   - The fix should involve replacing the usage of `User` with an alternative that is compatible with the new version of the dependency.
-   - If the `User` class has been replaced by a different class or method, that should be used instead.
-
-4. Plan the necessary changes:
-   - Replace `new Authentication.User("alice")` with a compatible alternative.
-   - If the `User` class has been replaced by a different class, import that class and use it instead.
-   - If the `User` class has been replaced by a method, call that method to create a user instance.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
@@ -40,6 +19,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.IsEqual;
 import org.junit.jupiter.api.Test;
+import org.reactivestreams.Publisher;
 
 /**
  * Tests for {@link AuthScopeSlice}.
@@ -74,10 +54,8 @@ class AuthScopeSliceTest {
             (headers, rline) -> CompletableFuture.completedFuture(
                 new AuthScheme.Result() {
                     @Override
-                    public Optional<Authentication> user() {
-                        // Assuming the new version of the dependency uses a different class or method to create a user.
-                        // Replace the following line with the correct way to create a user in the new version.
-                        return Optional.of(Authentication.create("alice"));
+                    public Optional<Authentication.User> user() {
+                        return Optional.of(new Authentication.User("alice", "alice@example.com"));
                     }
 
                     @Override
@@ -106,5 +84,3 @@ class AuthScopeSliceTest {
     }
 }
 ```
-
-In the proposed fix, I've assumed that the `User` class has been replaced by a method `create` in the `Authentication` class. If the actual replacement is different, the code should be adjusted accordingly.

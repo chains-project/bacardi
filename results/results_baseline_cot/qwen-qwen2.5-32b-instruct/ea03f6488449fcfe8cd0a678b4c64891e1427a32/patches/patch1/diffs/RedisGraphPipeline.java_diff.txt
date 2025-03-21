@@ -1,33 +1,52 @@
-4,9d3
+2a3
+> import redis.clients.jedis.Pipeline;
+4,11c5,6
 < import redis.clients.jedis.commands.BasicRedisPipeline;
 < import redis.clients.jedis.commands.BinaryRedisPipeline;
 < import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
 < import redis.clients.jedis.commands.ClusterPipeline;
 < import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;
 < import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
-11,12d4
+< import redis.clients.jedis.commands.RedisPipeline;
 < import redis.clients.jedis.commands.ScriptingCommandsPipeline;
-< 
-20,24c12
+---
+> import redis.clients.jedis.params.ScriptParams;
+> import redis.clients.jedis.util.SafeEncoder;
+20,24c15
 < public interface RedisGraphPipeline extends
 <         MultiKeyBinaryRedisPipeline,
 <         MultiKeyCommandsPipeline, ClusterPipeline,
 <         BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
 <         BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
 ---
-> public interface RedisGraphPipeline extends RedisPipeline, Closeable {
-52c40
+> public interface RedisGraphPipeline extends Pipeline, Closeable {
+43,60d33
+<      * Execute a Cypher query with timeout.
+<      * @param graphId a graph to perform the query on
+<      * @param query Cypher query
+<      * @param timeout
+<      * @return a response which builds the result set with the query answer.
+<      */
+<     Response<ResultSet> query(String graphId, String query, long timeout);
+< 
+<     /**
 <      * Execute a Cypher read-only query with timeout.
----
->      * Executes a cypher read-only query with timeout.
-132d119
+<      * @param graphId a graph to perform the query on
+<      * @param query Cypher query
+<      * @param timeout
+<      * @return a response which builds the result set with the query answer.
+<      */
+<     Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout);
+< 
+<     /**
+132d104
 <     
-146,147c133
+146,147c118
 <     public void sync();
 <     
 ---
 >     void sync();
-159c145
+159c130
 <     public Response<Long> waitReplicas(int replicas, long timeout);
 ---
 >     Response<Long> waitReplicas(int replicas, long timeout);

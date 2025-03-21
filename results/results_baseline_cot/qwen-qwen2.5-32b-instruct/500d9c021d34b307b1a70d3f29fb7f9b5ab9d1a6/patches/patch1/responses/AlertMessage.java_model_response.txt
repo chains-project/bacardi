@@ -1,34 +1,18 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the package `javax.mvc` does not exist, and the class `RedirectScoped` cannot be found. This suggests that the dependency related to `javax.mvc` has been updated or removed, and the new version no longer includes these classes.
-
-2. Review the client code:
-   - The problematic areas are the import statement `import javax.mvc.RedirectScoped;` and the usage of `@RedirectScoped` annotation.
-   - The `AlertMessage` class uses `@RedirectScoped` to define its scope, which is no longer available in the updated dependency.
-
-3. Consider potential fixes:
-   - Since `javax.mvc` is no longer available, we need to find an alternative or remove the dependency on it.
-   - If the `RedirectScoped` annotation is not critical for the functionality, it can be removed. Otherwise, we need to find a replacement that provides similar functionality.
-
-4. Plan the necessary changes:
-   - Remove the import statement for `javax.mvc.RedirectScoped`.
-   - Remove the `@RedirectScoped` annotation from the `AlertMessage` class.
-   - Ensure that the removal of `@RedirectScoped` does not affect the intended functionality of the `AlertMessage` class.
-</code_analysis>
-
 ```java
 package com.example.web;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import javax.inject.Named;
+import jakarta.inject.Named;
+import jakarta.mvc.annotation.RedirectScoped;
 
 /**
  * Used to transport messages back to the client.
  *
  * @author Hantsy Bai<hantsy@gmail.com>
  */
+@RedirectScoped
 @Named("flashMessage")
 public class AlertMessage implements Serializable {
 
@@ -145,5 +129,3 @@ public class AlertMessage implements Serializable {
 
 }
 ```
-
-This fix removes the dependency on the `javax.mvc` package and the `@RedirectScoped` annotation, which are no longer available. The class should now compile without errors, assuming that the removal of `@RedirectScoped` does not affect the intended functionality. If `@RedirectScoped` was critical for the application's behavior, a replacement or alternative approach would need to be identified and implemented.

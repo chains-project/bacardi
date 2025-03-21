@@ -28,53 +28,31 @@
 <  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 <  * OF THE POSSIBILITY OF SUCH DAMAGE.
 <  */
-48c19,20
-< import org.hamcrest.Matchers;
----
-> import org.hamcrest.core.IsEqual;
-> import org.hamcrest.core.StringContains;
-54c26
-<  * HTTP response and manipulate with it afterwords, for example:
----
->  * HTTP response and manipulate with it afterwards, for example:
-60,61c32,33
-<  *   .assertBody(Matchers.containsString("hello, world!"))
-<  *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
----
->  *   .assertBody(new StringContains("hello, world!"))
->  *   .assertHeader("Content-Type", new IsEqual<>(Collections.singletonList("text/plain")))
-65,67d36
+45d15
+< import org.hamcrest.CustomMatcher;
+65,67d34
 <  * <p>Method {@link #jump(URI)} creates a new instance of class
 <  * {@link Request} with all cookies transferred from the current one.
 <  *
-103c72
+103c70
 <      * @return The same object
 ---
 >      * @return This object
-114,115c83
+114,115c81
 <             this,
 <             new RestResponse.StatusMatch(message, status)
 ---
->             this.status(), new IsEqual<>(status)
-123c91
+>             this.status(), Matchers.equalTo(status)
+121,123c87,90
+<      * Verifies HTTP response status code against the provided matcher,
+<      * and throws {@link AssertionError} in case of mismatch.
 <      * @param matcher Matcher to validate status code
 ---
+>      * Verifies HTTP response status code against the provided matcher, and throws
+>      * {@link AssertionError} in case of mismatch.
+>      *
 >      * @param matcher The matcher to use
-175c143
-<      * <p>The iterator for the matcher will always be a real object an never
----
->      * <p>The iterator for the matcher will always be a real object and never
-210c178
-<         return this.assertHeader(name, Matchers.hasItems(value));
----
->         return this.assertHeader(name, new IsEqual<>(Collections.singletonList(value)));
-246c214
-<             Matchers.not(Matchers.emptyIterableOf(String.class))
----
->             new IsEqual<>(Collections.singletonList("http://example.com"))
-284c252
-<             Matchers.notNullValue()
----
->             new IsEqual<>(null)
+124a92
+>      * @since 0.9
 332d299
 < 

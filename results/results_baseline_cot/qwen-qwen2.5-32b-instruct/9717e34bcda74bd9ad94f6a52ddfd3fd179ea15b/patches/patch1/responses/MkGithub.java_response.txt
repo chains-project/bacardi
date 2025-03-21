@@ -89,11 +89,6 @@ public final class MkGithub implements Github {
     }
 
     @Override
-    public String toString() {
-        return this.storage.toString();
-    }
-
-    @Override
     public Request entry() {
         return new FakeRequest()
             .withBody("{}")
@@ -177,7 +172,8 @@ public final class MkGithub implements Github {
      * @param login User to login
      * @return Github
      */
-    public Github relogin(final String login) {
+    public Github relogin(final String login
+    ) {
         return new MkGithub(this.storage, login);
     }
 

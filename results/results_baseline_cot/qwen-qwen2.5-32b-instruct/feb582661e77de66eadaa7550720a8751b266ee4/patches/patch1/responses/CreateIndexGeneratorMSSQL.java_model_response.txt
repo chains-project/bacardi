@@ -1,21 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the `StringUtils` class cannot be found in the `liquibase.util` package.
-   - This suggests that the `StringUtils` class has been moved or removed in the updated dependency version.
-
-2. Review the client code:
-   - The `StringUtils.trimToNull` method is used in the `generateMSSQLSql` method.
-   - The import statement for `StringUtils` is present but the class is not found, indicating a change in the dependency.
-
-3. Consider potential fixes:
-   - The `StringUtils` class is likely replaced by another utility class in the newer version of the dependency.
-   - The `StringUtils.trimToNull` method can be replaced with an equivalent method from a different utility class or a direct implementation.
-
-4. Plan the necessary changes:
-   - Replace the `StringUtils.trimToNull` method with an equivalent method or direct implementation.
-   - Ensure the import statement for `StringUtils` is removed or updated if necessary.
-</code_analysis>
-
 ```java
 package liquibase.ext.mssql.sqlgenerator;
 
@@ -26,6 +8,7 @@ import liquibase.ext.mssql.statement.CreateIndexStatementMSSQL;
 import liquibase.sql.Sql;
 import liquibase.sql.UnparsedSql;
 import liquibase.sqlgenerator.SqlGeneratorChain;
+import liquibase.sqlgenerator.core.CreateIndexGenerator;
 import liquibase.statement.core.CreateIndexStatement;
 import liquibase.util.StringUtil;
 
@@ -105,5 +88,3 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
   }
 }
 ```
-
-In this fix, the `StringUtil.trimToNull` method from the `liquibase.util.StringUtil` class is used as a replacement for `StringUtils.trimToNull`. This assumes that `StringUtil.trimToNull` is available in the updated dependency version and behaves similarly to the original `StringUtils.trimToNull` method. If `StringUtil.trimToNull` is not available or does not behave as expected, an alternative method or direct implementation should be used.

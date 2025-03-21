@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the method `parseEnchantment()` cannot be found in the class `com.cryptomorin.xseries.XEnchantment`.
-   - The errors occur at lines 93 and 71 of the `WWCTranslateGUIChatMenu.java` file.
-   - This suggests that the `XEnchantment` class from the `xseries` library has been updated, and the `parseEnchantment()` method is no longer available.
-
-2. Review the client code:
-   - The problematic areas are where `XEnchantment.matchXEnchantment("power").get().parseEnchantment()` is called.
-   - The `parseEnchantment()` method is used to get an enchantment object, which is then added to the item meta.
-
-3. Consider potential fixes:
-   - The `XEnchantment` class might have changed its API, and the `parseEnchantment()` method might have been replaced with a different method or the functionality might be directly available through the `XEnchantment` class.
-   - We need to find the correct method or approach to get the enchantment object from the `XEnchantment` class.
-
-4. Plan the necessary changes:
-   - Replace the `parseEnchantment()` method call with the correct method or approach from the updated `XEnchantment` class.
-   - Ensure that the enchantment is correctly applied to the item meta.
-</code_analysis>
-
 ```java
 package com.expl0itz.worldwidechat.inventory.wwctranslategui;
 
@@ -88,7 +69,7 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
 				ItemMeta outgoingChatMeta = outgoingChatButton.getItemMeta();
 				if (targetTranslator.getTranslatingChatOutgoing()) {
 					outgoingChatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					outgoingChatMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false); // Replace with the correct enchantment
+					outgoingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantmentType(), 1, false);
 					outgoingChatMeta.setDisplayName(ChatColor.GREEN
 							+ CommonDefinitions.getMessage("wwctGUIChatOutgoingButton"));
 				} else {
@@ -101,29 +82,29 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
 					WWCTranslateChatOutgoing translateChatOutgoing = new WWCTranslateChatOutgoing((CommandSender) player, null, null, args);
 					translateChatOutgoing.processCommand();
 					getTranslateChatMenu(targetPlayerUUID).open(player);
-				}));
+				}));	
 			}
 			
 			/* Incoming Chat Button */
 			if ((player.getUniqueId().toString().equals(targetPlayerUUID) && player.hasPermission("worldwidechat.wwctci")) || (!player.getUniqueId().toString().equals(targetPlayerUUID)) && player.hasPermission("worldwidechat.wwctci.otherplayers")) {
-				ItemStack incomingChatButton = XMaterial.MAP.parseItem();
-				ItemMeta incomingChatMeta = incomingChatButton.getItemMeta();
-				if (targetTranslator.getTranslatingChatIncoming()) {
-					incomingChatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					incomingChatMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false); // Replace with the correct enchantment
-					incomingChatMeta.setDisplayName(ChatColor.GREEN
-							+ CommonDefinitions.getMessage("wwctGUIChatIncomingButton"));
-				} else {
-					incomingChatMeta.setDisplayName(ChatColor.YELLOW
-							+ CommonDefinitions.getMessage("wwctGUIChatIncomingButton"));
-				}
-				incomingChatButton.setItemMeta(incomingChatMeta);
-				contents.set(1, 5, ClickableItem.of(incomingChatButton, e -> {
-					String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName() };
-					WWCTranslateChatIncoming translateChatIncoming = new WWCTranslateChatIncoming((CommandSender) player, null, null, args);
-					translateChatIncoming.processCommand();
-					getTranslateChatMenu(targetPlayerUUID).open(player);
-				}));
+            	ItemStack incomingChatButton = XMaterial.MAP.parseItem();
+    			ItemMeta incomingChatMeta = incomingChatButton.getItemMeta();
+    			if (targetTranslator.getTranslatingChatIncoming()) {
+    				incomingChatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+    				incomingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantmentType(), 1, false);
+    				incomingChatMeta.setDisplayName(ChatColor.GREEN
+    						+ CommonDefinitions.getMessage("wwctGUIChatIncomingButton"));
+    			} else {
+    				incomingChatMeta.setDisplayName(ChatColor.YELLOW
+    						+ CommonDefinitions.getMessage("wwctGUIChatIncomingButton"));
+    			}
+    			incomingChatButton.setItemMeta(incomingChatMeta);
+    			contents.set(1, 5, ClickableItem.of(incomingChatButton, e -> {
+    				String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName() };
+    				WWCTranslateChatIncoming translateChatIncoming = new WWCTranslateChatIncoming((CommandSender) player, null, null, args);
+    				translateChatIncoming.processCommand();
+    				getTranslateChatMenu(targetPlayerUUID).open(player);
+    			}));	
 			}
 			
 			/* Bottom Left Option: Previous Page */
@@ -141,7 +122,3 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
 	}
 }
 ```
-
-In the provided solution, the `parseEnchantment()` method calls have been replaced with a direct enchantment addition using `XEnchantment.PROTECTION_ENVIRONMENTAL`. This is a placeholder and should be replaced with the correct enchantment that was intended to be used. The `XEnchantment` class in the `xseries` library might have a different method or constant to get the desired enchantment. If the `XEnchantment` class does not provide a direct method to get the enchantment, you may need to use the `XEnchantment` enum values directly or find the correct method to get the enchantment object.
-  
-Please note that the `XEnchantment.PROTECTION_ENVIRONMENTAL` is used as a placeholder and should be replaced with the correct enchantment that was intended to be used. The `XEnchantment` class in the `xseries` library might have a different method or constant to get the desired enchantment.

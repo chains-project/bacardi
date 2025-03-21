@@ -14,15 +14,14 @@
 <  * See the License for the specific language governing permissions and
 <  * limitations under the License.
 <  */
-22c7
+22,23c7,9
 < import com.google.cloud.pubsublite.PublishMetadata;
+< import com.google.cloud.pubsublite.internal.Publisher;
 ---
-> import com.google.cloud.pubsublite.PublishInfo; // Assuming PublishMetadata was replaced by PublishInfo
-43c28
+> import com.google.cloud.pubsublite.Publisher;
+> import com.google.cloud.pubsublite.internal.Publisher.PublisherBuilder;
+> import com.google.cloud.pubsublite.proto.PubSubMessage;
+43c29
 <   private @Nullable Publisher<PublishMetadata> publisher;
 ---
->   private @Nullable Publisher<PublishInfo> publisher; // Change type from PublishMetadata to PublishInfo
-110c95
-<       publisher.publish(message.build());
----
->       publisher.publish(message.build()); // Assuming the publish method signature remains the same
+>   private @Nullable Publisher<PubSubMessage> publisher;

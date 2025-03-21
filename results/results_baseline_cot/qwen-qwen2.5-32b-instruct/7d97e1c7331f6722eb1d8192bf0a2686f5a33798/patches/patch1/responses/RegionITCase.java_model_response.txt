@@ -1,25 +1,8 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `Tv` cannot be found in the package `com.jcabi.aspects`.
-   - This suggests that the `Tv` class has been removed or moved in the updated dependency version.
-
-2. Review the client code:
-   - The `Tv` class is used in the `RegionITCase` class to provide constants like `Tv.TEN` and `Tv.EIGHT`.
-   - These constants are used in the `putsAndRemovesIndividualItems` and `selectsManyItems` methods.
-
-3. Consider potential fixes:
-   - Since `Tv` is not available, we need to replace its usage with direct values or define our own constants.
-   - We can define our own constants in the `RegionITCase` class to avoid dependency on `Tv`.
-
-4. Plan the necessary changes:
-   - Define constants `TEN` and `EIGHT` in the `RegionITCase` class.
-   - Replace all occurrences of `Tv.TEN` and `Tv.EIGHT` with the new constants.
-</code_analysis>
-
 ```java
 package com.jcabi.simpledb;
 
 import com.amazonaws.services.simpledb.model.SelectRequest;
+import com.jcabi.aspects.Tv;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
@@ -45,23 +28,13 @@ final class RegionITCase {
     private static final String SECRET =
         System.getProperty("failsafe.sdb.secret");
 
-    /**
-     * Constant for ten.
-     */
-    private static final int TEN = 10;
-
-    /**
-     * Constant for eight.
-     */
-    private static final int EIGHT = 8;
-
     @Test
     void putsAndRemovesIndividualItems() {
         final Domain domain = this.domain();
         try {
-            final String name = RandomStringUtils.randomAlphanumeric(TEN);
-            final String attr = RandomStringUtils.randomAlphabetic(EIGHT);
-            final String value = RandomStringUtils.randomAlphanumeric(TEN);
+            final String name = RandomStringUtils.randomAlphanumeric(10);
+            final String attr = RandomStringUtils.randomAlphabetic(8);
+            final String value = RandomStringUtils.randomAlphanumeric(10);
             for (int idx = 0; idx < 2; ++idx) {
                 domain.item(name).put(attr, value);
                 MatcherAssert.assertThat(
@@ -107,7 +80,7 @@ final class RegionITCase {
     void selectsManyItems() {
         final Domain domain = this.domain();
         try {
-            for (int idx = 0; idx < TEN; ++idx) {
+            for (int idx = 0; idx < 10; ++idx) {
                 domain.item(String.format("i-%d", idx)).put("hey", "");
             }
             MatcherAssert.assertThat(
@@ -116,7 +89,7 @@ final class RegionITCase {
                         String.format("SELECT * FROM `%s`", domain.name())
                     ).withConsistentRead(true)
                 ),
-                Matchers.iterableWithSize(TEN)
+                Matchers.iterableWithSize(10)
             );
         } finally {
             domain.drop();
@@ -144,5 +117,3 @@ final class RegionITCase {
 
 }
 ```
-
-This solution defines the constants `TEN` and `EIGHT` within the `RegionITCase` class to replace the usage of `Tv.TEN` and `Tv.EIGHT`, ensuring the code remains self-contained and does not rely on the missing `Tv` class.

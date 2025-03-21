@@ -54,7 +54,7 @@ public class Payment implements ToString2 {
 
     @Override
     public String toString() {
-        final JAXBToStringStrategy strategy = new JAXBToStringStrategy(); // Direct instantiation instead of getInstance()
+        final JAXBToStringStrategy strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

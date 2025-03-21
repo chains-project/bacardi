@@ -14,20 +14,15 @@ import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
 
+import java.beans.IntrospectionException;
 import java.util.*;
 
 import static java.lang.String.format;
 
-/**
- * YAML model representer.
- *
- * @author jvanzyl
- * @author bentmann
- * @since 0.7
- */
 class ModelRepresenter extends Representer {
   public ModelRepresenter() {
-    super(new Representer.Options());
+    super();
+    this.representers.put(Xpp3Dom.class, new RepresentXpp3Dom());
     Represent stringRepresenter = this.representers.get(String.class);
     this.representers.put(Boolean.class, stringRepresenter);
     this.multiRepresenters.put(Number.class, stringRepresenter);
@@ -37,7 +32,7 @@ class ModelRepresenter extends Representer {
   }
 
   protected NodeTuple representJavaBeanProperty(Object javaBean, Property property,
-                                                 Object propertyValue, Tag customTag) {
+                                                Object propertyValue, Tag customTag) {
     if (property != null && property.getName().equals("pomFile")) {
       // "pomFile" is not a part of POM http://maven.apache.org/xsd/maven-4.0.0.xsd
       return null;
@@ -111,18 +106,7 @@ class ModelRepresenter extends Representer {
 
         Object childValue = child.getValue();
         if (childValue == null) {
-          boolean isList = singularName != null;
-          if (isList) { // check for eventual list construction
-            for (int j = 0, grandChildCount = child.getChildCount(); j < grandChildCount; j++) {
-              String grandChildName = child.getChild(j).getName();
-              isList &= grandChildName.equals(singularName);
-            }
-          }
-          if (isList) {
-            childValue = toList(child, singularName);
-          } else {
-            childValue = toMap(child);
-          }
+          childValue = toMap(child);
         }
         map.put(childName, childValue);
       }
@@ -132,28 +116,6 @@ class ModelRepresenter extends Representer {
       }
 
       return map;
-    }
-
-    private List<Object> toList(Xpp3Dom node, String childName) {
-      List<Object> list = new ArrayList<>();
-
-      int n = node.getChildCount();
-      for (int i = 0; i < n; i++) {
-        Xpp3Dom child = node.getChild(i);
-
-        if (!childName.equals(child.getName())) {
-          throw new YAMLException(format("child name: '%s' does not match expected name: '%s' at node %s",
-              child.getName(), childName, node));
-        }
-
-        Object childValue = child.getValue();
-        if (childValue == null) {
-          childValue = toMap(child);
-        }
-        list.add(childValue);
-      }
-
-      return list;
     }
   }
 
@@ -200,7 +162,8 @@ class ModelRepresenter extends Representer {
   private static List<String> ORDER_PLUGIN = new ArrayList<>(Arrays.asList(
           "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
 
-  protected Set<Property> getProperties(Class<? extends Object> type) {
+  protected Set<Property> getProperties(Class<? extends Object> type)
+          throws IntrospectionException {
     if (type.isAssignableFrom(Model.class)) {
       return sortTypeWithOrder(type, ORDER_MODEL);
     } else if (type.isAssignableFrom(Developer.class)) {
@@ -216,7 +179,8 @@ class ModelRepresenter extends Representer {
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+          throws IntrospectionException {
     Set<Property> standard = super.getProperties(type);
     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));
     sorted.addAll(standard);
@@ -248,7 +212,7 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0; // compare further
+      return 0;// compare further
     }
   }
 }

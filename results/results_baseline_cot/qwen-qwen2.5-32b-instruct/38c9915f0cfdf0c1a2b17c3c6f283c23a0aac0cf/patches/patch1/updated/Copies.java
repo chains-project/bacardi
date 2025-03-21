@@ -4,6 +4,7 @@ import io.zold.api.Copies.Copy;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.cactoos.collection.CollectionOf;
 import org.cactoos.iterable.IterableEnvelope;
 import org.cactoos.iterable.IterableOf;
 import org.cactoos.iterable.Joined;
@@ -64,7 +65,9 @@ public final class Copies extends IterableEnvelope<Copy> {
      */
     private static boolean equalWallets(final Wallet first,
         final Wallet second) throws IOException {
-        return first.id() == second.id() && first.ledger().size() == second.ledger().size();
+        return first.id() == second.id() && new CollectionOf<>(
+            first.ledger()
+        ).size() == new CollectionOf<>(second.ledger()).size();
     }
 
     /**

@@ -1,7 +1,0 @@
-12a13
-> import org.jenkinsci.plugins.p4.workspace.Workspace;
-44c45,46
-<                 ClientHelper perforceClient = new ClientHelper(credentials, buildListener, clientString, StandardCharsets.UTF_8.toString());
----
->                 // Changed the ClientHelper instantiation to use the build object as the first parameter.
->                 ClientHelper perforceClient = new ClientHelper(build, credentials, buildListener, clientString, Workspace.getDefaultWorkspace());

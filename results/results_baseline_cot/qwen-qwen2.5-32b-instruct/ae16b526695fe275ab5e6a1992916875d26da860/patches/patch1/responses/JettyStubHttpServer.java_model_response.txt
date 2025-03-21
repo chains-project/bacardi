@@ -1,8 +1,14 @@
-<code_analysis>
-The error messages indicate that the compiler cannot find symbols, which suggests that some classes or methods used in the code are no longer available in the updated Jetty dependency. Specifically, the errors point to the `SelectChannelConnector` class and its methods, which have been deprecated or removed in newer versions of Jetty. The `SelectChannelConnector` class was used for configuring the HTTP connector in older versions of Jetty, but in newer versions, Jetty has moved towards using `ServerConnector` and other updated classes.
-
-To fix the issue, the code needs to be updated to use the new classes and methods provided by the updated Jetty dependency. The `SelectChannelConnector` class should be replaced with `ServerConnector`, and the methods used to configure the connector should be updated accordingly.
-</code_analysis>
+```java
+<repair_strategy>
+1. The errors indicate that the `SelectChannelConnector` class and its methods are no longer available in the newer version of Jetty.
+2. In the newer version of Jetty, `SelectChannelConnector` has been replaced by `ServerConnector`.
+3. The `setPort` method and `getLocalPort` method need to be updated to use the new `ServerConnector` class.
+4. The `Server` class in the newer version of Jetty does not have `setSendServerVersion` and `setSendDateHeader` methods, so these lines need to be removed or replaced with equivalent functionality if available.
+5. The minimal changes needed are to replace `SelectChannelConnector` with `ServerConnector` and adjust the method calls accordingly.
+6. The changes should not affect the overall functionality of the class.
+7. Ensure that the class compiles and adheres to the constraints.
+8. The `org.eclipse.jetty.server.ServerConnector` import is needed.
+</repair_strategy>
 
 ```java
 package net.jadler.stubbing.server.jetty;
@@ -30,9 +36,7 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
-        this.server.setSendServerVersion(false);
-        this.server.setSendDateHeader(true);
-
+        
         this.httpConnector = new ServerConnector(server);
         this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);
@@ -41,6 +45,7 @@ public class JettyStubHttpServer implements StubHttpServer {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void registerRequestManager(final RequestManager ruleProvider) {
         Validate.notNull(ruleProvider, "ruleProvider cannot be null");
 
@@ -50,6 +55,7 @@ public class JettyStubHttpServer implements StubHttpServer {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void start() throws Exception {
         logger.debug("starting jetty");
         server.start();
@@ -59,6 +65,7 @@ public class JettyStubHttpServer implements StubHttpServer {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void stop() throws Exception {
         logger.debug("stopping jetty");
         server.stop();
@@ -68,10 +75,10 @@ public class JettyStubHttpServer implements StubHttpServer {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getPort() {
         return httpConnector.getLocalPort();
     }
 }
 ```
-
-In this fix, the `SelectChannelConnector` class has been replaced with `ServerConnector`, and the method calls have been updated to match the new API. This should resolve the compilation errors caused by the dependency update.
+```

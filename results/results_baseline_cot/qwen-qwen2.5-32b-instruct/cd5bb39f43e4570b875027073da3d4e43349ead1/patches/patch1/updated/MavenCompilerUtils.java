@@ -3,6 +3,8 @@ package org.simplify4u.plugins.utils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.repository.RepositorySystem;
+import org.apache.maven.shared.utils.xml.Xpp3Dom;
+import org.apache.maven.shared.utils.xml.Xpp3DomBuilder;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -51,8 +53,37 @@ public final class MavenCompilerUtils {
         if (config == null) {
             return emptySet();
         }
-        // Assuming the configuration is a simple map or list, we can directly extract the values.
-        // This is a simplified approach and may need to be adjusted based on the actual configuration structure.
-        return emptySet(); // Placeholder for the actual extraction logic.
+        if (config instanceof Xpp3Dom) {
+            return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
+                    .flatMap(aggregate -> stream(aggregate.getChildren("path")))
+                    .map(processor -> system.createArtifact(
+                            extractChildValue(processor, "groupId"),
+                            extractChildValue(processor, "artifactId"),
+                            extractChildValue(processor, "version"),
+                            PACKAGING))
+                    // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
+                    // therefore there is little use in logging incomplete paths that are filtered out.
+                    .filter(a -> !a.getGroupId().isEmpty())
+                    .filter(a -> !a.getArtifactId().isEmpty())
+                    .filter(a -> !a.getVersion().isEmpty())
+                    .collect(Collectors.toSet());
+        }
+        // It is expected that this will never occur due to all Configuration instances of all plugins being provided as
+        // XML document. If this happens to occur on very old plugin versions, we can safely add the type support and
+        // simply return an empty set.
+        throw new UnsupportedOperationException("Please report that an unsupported type of configuration container" +
+                " was encountered: " + config.getClass());
+    }
+
+    /**
+     * Extract child value if child is present, or return empty string if absent.
+     *
+     * @param node the parent node
+     * @param name the child node name
+     * @return Returns child value if child node present or otherwise empty string.
+     */
+    private static String extractChildValue(Xpp3Dom node, String name) {
+        final Xpp3Dom child = node.getChild(name);
+        return child == null ? "" : child.getValue();
     }
 }

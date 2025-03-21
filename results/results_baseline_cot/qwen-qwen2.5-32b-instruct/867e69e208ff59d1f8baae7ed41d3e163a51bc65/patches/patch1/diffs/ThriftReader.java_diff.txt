@@ -14,39 +14,82 @@
 <  * See the License for the specific language governing permissions and
 <  * limitations under the License.
 <  */
-25a11
-> import org.apache.thrift.transport.TTransportFactory;
-63,64c49,50
+31,35d15
+< /**
+<  * Reader that reads Thrift messages of thrift type from a file
+<  * <p/>
+<  * This class is NOT thread-safe.
+<  */
+39,43d18
+<   /**
+<    * Factory that get a TBase instance of the thrift type to be read.
+<    *
+<    * @param <T> The thrift message type to be read.
+<    */
+45d19
+< 
+49,51d22
+<   /**
+<    * Factory that get a TProtocol instance.
+<    */
+53d23
+< 
+57d26
+<   // Factory that creates empty objects that will be initialized with values from the file.
+59,60d27
+< 
+<   // The ByteOffsetInputStream to read from.
+62,63d28
+< 
 <   // The framed framedTransport.
-<   private final TFramedTransport framedTransport;
----
->   // TTransport implementation.
->   private final TTransport transport;
-80,81c66,67
+65,66d29
+< 
+<   // TProtocol implementation.
+80,81c43
 <     this.framedTransport = new TFramedTransport(new TIOStreamTransport(this
 <         .byteOffsetInputStream), maxMessageSize);
 ---
->     TTransportFactory transportFactory = new TFramedTransport.Factory();
->     this.transport = transportFactory.getTransport(new TIOStreamTransport(this.byteOffsetInputStream));
-83c69
-<     this.protocol = protocolFactory.get(this.framedTransport);
----
->     this.protocol = protocolFactory.get(this.transport);
-95c81
-<     if (framedTransport.getBytesRemainingInBuffer() == 0 && byteOffsetInputStream.isEOF()) {
----
->     if (transport.getBytesRemainingInBuffer() == 0 && byteOffsetInputStream.isEOF()) {
-110,111c96,97
+>     this.framedTransport = new TFramedTransport(this.byteOffsetInputStream, maxMessageSize);
+86,92d47
+<   /**
+<    * Read one thrift message.
+<    *
+<    * @return next thrift message from the reader. null if no thrift message in the reader.
+<    * @throws IOException when file error.
+<    * @throws TException  when parse error.
+<    */
+94d48
+<     // If frame buffer is empty and we are at EOF of underlying input stream, return null.
+104,107d57
+<   /**
+<    * @return byte offset of the next message.
+<    * @throws IOException on file error.
+<    */
+110,111c60,61
 <         byteOffsetInputStream.getByteOffset() >= framedTransport.getBytesRemainingInBuffer());
 <     return byteOffsetInputStream.getByteOffset() - framedTransport.getBytesRemainingInBuffer();
 ---
->         byteOffsetInputStream.getByteOffset() >= transport.getBytesRemainingInBuffer());
->     return byteOffsetInputStream.getByteOffset() - transport.getBytesRemainingInBuffer();
-127c113
+>         byteOffsetInputStream.getByteOffset() >= framedTransport.bytesRemainingInBuffer());
+>     return byteOffsetInputStream.getByteOffset() - framedTransport.bytesRemainingInBuffer();
+114,119d63
+<   /**
+<    * Set byte offset of the next message to be read.
+<    *
+<    * @param byteOffset byte offset.
+<    * @throws IOException on file error.
+<    */
+121d64
+<     // If we already at the byte offset, return.
+126,129c69
+<     // Clear the buffer
 <     framedTransport.consumeBuffer(framedTransport.getBytesRemainingInBuffer());
+< 
+<     // Set underlying stream byte offset
 ---
->     transport.consumeBuffer(transport.getBytesRemainingInBuffer());
-139c125
-<     framedTransport.close();
----
->     transport.close();
+>     framedTransport.consumeBuffer(framedTransport.bytesRemainingInBuffer());
+133,137d72
+<   /**
+<    * Close the reader.
+<    *
+<    * @throws IOException on file error.
+<    */

@@ -13,7 +13,6 @@ import javax.inject.Singleton;
 
 import org.jclouds.byon.Node;
 import org.jclouds.byon.domain.YamlNode;
-import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -65,8 +64,7 @@ public class NodesFromYamlStream implements Function<ByteSource, LoadingCache<St
    @Override
    public LoadingCache<String, Node> apply(ByteSource source) {
 
-      LoaderOptions options = new LoaderOptions();
-      Constructor constructor = new Constructor(Config.class, options);
+      Constructor constructor = new Constructor(Config.class);
 
       TypeDescription nodeDesc = new TypeDescription(YamlNode.class);
       nodeDesc.putListPropertyType("tags", String.class);
@@ -80,7 +78,7 @@ public class NodesFromYamlStream implements Function<ByteSource, LoadingCache<St
       InputStream in = null;
       try {
          in = source.openStream();
-         config = (Config) yaml.load(in);
+         config = yaml.loadAs(in, Config.class);
       } catch (IOException ioe) {
          throw propagate(ioe);
       } finally {

@@ -1,3 +1,8 @@
+/*----------------------------------------------------------------
+ *  Copyright (c) ThoughtWorks, Inc.
+ *  Licensed under the Apache License, Version 2.0
+ *  See LICENSE.txt in the project root for license information.
+ *----------------------------------------------------------------*/
 package com.thoughtworks.gauge.scan;
 
 import com.thoughtworks.gauge.ClasspathHelper;
@@ -14,7 +19,6 @@ import org.reflections.vfs.ZipDir;
 import java.io.File;
 import java.net.URL;
 import java.util.jar.JarFile;
-import java.util.function.Predicate;
 
 import static com.thoughtworks.gauge.GaugeConstant.PACKAGE_TO_SCAN;
 
@@ -49,7 +53,7 @@ public class ClasspathScanner {
         Configuration config = new ConfigurationBuilder()
                 .setScanners(new MethodAnnotationsScanner(), new SubTypesScanner())
                 .addUrls(ClasspathHelper.getUrls())
-                .filterInputsBy(this::shouldScan);
+                .filterInputsBy(new FilterBuilder().includePackage(PACKAGE_TO_SCAN));
 
         return new Reflections(config);
     }
@@ -57,14 +61,11 @@ public class ClasspathScanner {
     private boolean shouldScan(String s) {
         final String packagesToScan = System.getenv(PACKAGE_TO_SCAN);
         if (packagesToScan == null || packagesToScan.isEmpty()) {
-            Predicate<String> includePredicate = new FilterBuilder().include(".+\\.class").asPredicate();
-            return includePredicate.test(s);
+            return s.endsWith(".class");
         }
         final String[] packages = packagesToScan.split(",");
         for (String packageToScan : packages) {
-            String regex = String.format(".?\\.??%s\\..+\\.class", packageToScan);
-            Predicate<String> packagePredicate = new FilterBuilder().include(regex).asPredicate();
-            if (packagePredicate.test(s)) {
+            if (s.startsWith(packageToScan.replace(".", "/")) && s.endsWith(".class")) {
                 return true;
             }
         }

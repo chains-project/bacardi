@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the `Models` class cannot be found, which suggests that the dependency containing this class has been updated or removed.
-   - The error occurs at line 29, where `Models` is used.
-
-2. Review the client code:
-   - The `Models` class is being injected into the `PostNotFoundExceptionMapper` class.
-   - The `Models` class is used to put an error message into the model.
-
-3. Consider potential fixes:
-   - The `Models` class is part of the older Jakarta MVC specification. In the newer versions, the `Models` class might have been deprecated or moved.
-   - The `Models` class is used to put an error message into the model, which can be replaced with a different approach if the class is no longer available.
-
-4. Plan the necessary changes:
-   - Remove the `Models` class injection and usage.
-   - Since the `Models` class is used to put an error message into the model, we need to find an alternative way to handle this if necessary.
-   - Ensure the class compiles correctly after the changes.
-</code_analysis>
-
 ```java
 package com.example.config;
 
@@ -25,6 +6,7 @@ import com.example.domain.TaskNotFoundException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
+import javax.mvc.binding.Models;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
@@ -34,15 +16,17 @@ public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFound
 
     @Inject
     Logger log;
+    //private static Logger log = Logger.getLogger(PostNotFoundExceptionMapper.class.getName());
+
+    @Inject
+    Models models;
 
     @Override
     public Response toResponse(TaskNotFoundException exception) {
         log.log(Level.INFO, "handling exception : PostNotFoundException");
-        // Removed models.put("error", exception.getMessage());
+        models.put("error", exception.getMessage());
         return Response.status(Response.Status.NOT_FOUND).entity("error.xhtml").build();
     }
 
 }
 ```
-
-In this fix, the `Models` class injection and usage have been removed because it is no longer available in the updated dependency. The error message that was previously added to the model is no longer being added, as there is no direct replacement for the `Models` class in the newer dependency version. If the error message needs to be passed to the view, an alternative approach would need to be implemented, such as using a different mechanism to pass data to the view.

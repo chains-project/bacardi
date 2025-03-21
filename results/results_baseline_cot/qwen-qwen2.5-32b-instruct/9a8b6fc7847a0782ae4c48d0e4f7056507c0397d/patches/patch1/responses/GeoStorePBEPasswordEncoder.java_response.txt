@@ -1,5 +1,25 @@
 package it.geosolutions.geostore.core.security.password;
 
+/*
+ *  Copyright (C) 2007 - 2011 GeoSolutions S.A.S.
+ *  http://www.geo-solutions.it
+ *
+ *  GPLv3 + Classpath exception
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import static it.geosolutions.geostore.core.security.password.SecurityUtils.scramble;
 import static it.geosolutions.geostore.core.security.password.SecurityUtils.toBytes;
 import static it.geosolutions.geostore.core.security.password.SecurityUtils.toChars;
@@ -9,13 +29,26 @@ import java.util.Arrays;
 import java.util.Base64;
 import org.jasypt.encryption.pbe.StandardPBEByteEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.jasypt.spring.security3.PBEPasswordEncoder; // Updated import
 
+import it.geosolutions.geostore.core.security.KeyStoreProvider;
+import it.geosolutions.geostore.core.security.KeyStoreProviderImpl;
 import it.geosolutions.geostore.core.security.password.CharArrayPasswordEncoder;
+import it.geosolutions.geostore.core.security.password.PasswordEncoder;
 import it.geosolutions.geostore.core.security.password.PasswordEncodingType;
-import it.geosolutions.geostore.core.security.password.KeyStoreProvider;
-import it.geosolutions.geostore.core.security.password.KeyStoreProviderImpl;
 
+/**
+ * Password Encoder using symmetric encryption
+ * 
+ * The salt parameter is not used, this implementation computes a random salt as
+ * default.
+ * 
+ * {@link #isPasswordValid(String, String, Object)}
+ * {@link #encodePassword(String, Object)}
+ * 
+ * @author Lorenzo Natali
+ * 
+ */
 public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder {
 
 	StandardPBEStringEncryptor stringEncrypter;
@@ -23,6 +56,8 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 
 	private String providerName, algorithm;
 	private String keyAliasInKeyStore = KeyStoreProviderImpl.CONFIGPASSWORDKEY;
+
+	private KeyStoreProvider keystoreProvider;
 
 	public KeyStoreProvider getKeystoreProvider() {
 		return keystoreProvider;
@@ -70,7 +105,10 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			}
 			stringEncrypter.setAlgorithm(getAlgorithm());
 
-			return stringEncrypter;
+			PBEPasswordEncoder encoder = new PBEPasswordEncoder();
+			encoder.setPbeStringEncryptor(stringEncrypter);
+
+			return encoder;
 		} finally {
 			scramble(password);
 			scramble(chars);

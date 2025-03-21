@@ -22,15 +22,11 @@
 <  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 <  * SOFTWARE.
 <  */
-27c4,6
-< import org.cactoos.iterable.LengthOf;
----
-> import org.cactoos.iterable.IterableOf;
-> 
-> import java.util.stream.Collectors;
-52,53c31,32
+27a5
+> import org.cactoos.scalar.Unchecked;
+52,53c30,31
 <         return new LengthOf(other.suffixes()).intValue()
 <             - new LengthOf(this.sfxs).intValue();
 ---
->         return (int) other.suffixes().stream().count()
->             - (int) this.sfxs.stream().count();
+>         return new Unchecked<>(new LengthOf(other.suffixes())).intValue()
+>             - new Unchecked<>(new LengthOf(this.sfxs)).intValue();

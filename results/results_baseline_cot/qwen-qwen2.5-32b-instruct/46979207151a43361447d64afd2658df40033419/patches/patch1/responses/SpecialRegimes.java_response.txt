@@ -15,7 +15,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "cashVATSchemeIndicator",
     "thirdPartiesBillingIndicator"
 })
-public class SpecialRegimes implements ToString2 {
+public class SpecialRegimes implements ToString2
+{
 
     @XmlElement(name = "SelfBillingIndicator")
     protected int selfBillingIndicator;
@@ -83,4 +84,5 @@ public class SpecialRegimes implements ToString2 {
         }
         return buffer;
     }
+
 }

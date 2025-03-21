@@ -1,27 +1,9 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the `Matchers` class cannot be found in the `org.hamcrest` package.
-   - This suggests that the `hamcrest` library version used in the project might have changed, and the `Matchers` class might have been moved or renamed.
-
-2. Review the client code:
-   - The `Matchers` class is used in the `hasPath` and `hasQuery` methods to create matchers for the `URI` properties.
-   - The `Matchers` class is part of the `org.hamcrest` package, and it seems that the import for `Matchers` is missing or incorrect.
-
-3. Consider potential fixes that adhere to the following constraints:
-   - The `Matchers` class is part of the `org.hamcrest.core` package in newer versions of the `hamcrest` library.
-   - The import statement needs to be updated to reflect the correct package.
-
-4. Plan the necessary changes to fix the issue:
-   - Update the import statement for `Matchers` to `org.hamcrest.core.Matchers`.
-   - Ensure that the import statement is correctly placed at the top of the file.
-</code_analysis>
-
 ```java
 package com.jcabi.http.mock;
 
 import java.net.URI;
 import org.hamcrest.Matcher;
-import org.hamcrest.core.Matchers;
+import org.hamcrest.Matchers;
 
 /**
  * Convenient set of matchers for {@link MkQuery}.
@@ -90,5 +72,3 @@ public final class MkQueryMatchers {
 
 }
 ```
-
-In this fix, the import statement for `Matchers` has been updated to `org.hamcrest.core.Matchers` to reflect the correct package in the newer version of the `hamcrest` library. This should resolve the compilation error.

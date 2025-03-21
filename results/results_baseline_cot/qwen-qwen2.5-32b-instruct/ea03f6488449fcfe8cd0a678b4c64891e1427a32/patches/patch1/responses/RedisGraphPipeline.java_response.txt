@@ -1,7 +1,10 @@
 package com.redislabs.redisgraph;
 
+import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
-import redis.clients.jedis.commands.RedisPipeline;
+import redis.clients.jedis.params.ScriptParams;
+import redis.clients.jedis.util.SafeEncoder;
+
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +12,7 @@ import java.util.Map;
 /**
  * An interface which aligned to Jedis Pipeline interface
  */
-public interface RedisGraphPipeline extends RedisPipeline, Closeable {
+public interface RedisGraphPipeline extends Pipeline, Closeable {
 
     /**
      * Execute a Cypher query.
@@ -26,24 +29,6 @@ public interface RedisGraphPipeline extends RedisPipeline, Closeable {
      * @return a response which builds the result set with the query answer.
      */
     Response<ResultSet> readOnlyQuery(String graphId, String query);
-
-    /**
-     * Execute a Cypher query with timeout.
-     * @param graphId a graph to perform the query on
-     * @param query Cypher query
-     * @param timeout
-     * @return a response which builds the result set with the query answer.
-     */
-    Response<ResultSet> query(String graphId, String query, long timeout);
-
-    /**
-     * Executes a cypher read-only query with timeout.
-     * @param graphId a graph to perform the query on
-     * @param query Cypher query
-     * @param timeout
-     * @return a response which builds the result set with the query answer.
-     */
-    Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout);
 
     /**
      * Executes a cypher query with parameters.
@@ -108,7 +93,7 @@ public interface RedisGraphPipeline extends RedisPipeline, Closeable {
      * @param kwargs - procedure output arguments
      * @return a response which builds result set with the procedure data
      */
-    Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args, Map<String, List<String>> kwargs);
+    Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args  , Map<String, List<String>> kwargs);
 
     /**
      * Deletes the entire graph

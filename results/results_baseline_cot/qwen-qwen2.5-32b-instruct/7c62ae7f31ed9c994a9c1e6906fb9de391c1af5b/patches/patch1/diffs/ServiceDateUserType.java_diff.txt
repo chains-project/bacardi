@@ -1,4 +1,4 @@
-1,16d0
+1,114c1,10
 < /**
 <  * Copyright (C) 2011 Brian Ferris <bdferris@onebusaway.org>
 <  * Copyright (C) 2011 Google, Inc.
@@ -15,19 +15,113 @@
 <  * See the License for the specific language governing permissions and
 <  * limitations under the License.
 <  */
-27c11
+< package org.onebusaway.gtfs.impl;
+< 
+< import java.io.Serializable;
+< import java.sql.PreparedStatement;
+< import java.sql.ResultSet;
+< import java.sql.SQLException;
+< import java.sql.Types;
+< import java.text.ParseException;
+< 
+< import org.hibernate.HibernateException;
 < import org.hibernate.engine.spi.SessionImplementor;
----
-> import org.hibernate.engine.spi.SharedSessionContractImplementor;
-69c53
+< import org.hibernate.usertype.UserType;
+< import org.onebusaway.gtfs.model.calendar.ServiceDate;
+< 
+< public class ServiceDateUserType implements UserType {
+< 
+<   private static final int[] SQL_TYPES = {Types.VARCHAR};
+< 
+<   @Override
+<   public Class<?> returnedClass() {
+<     return ServiceDate.class;
+<   }
+< 
+<   @Override
+<   public int[] sqlTypes() {
+<     return SQL_TYPES;
+<   }
+< 
+<   @Override
+<   public boolean equals(Object x, Object y) throws HibernateException {
+<     return x == y;
+<   }
+< 
+<   @Override
+<   public int hashCode(Object x) throws HibernateException {
+<     return x.hashCode();
+<   }
+< 
+<   @Override
+<   public boolean isMutable() {
+<     return false;
+<   }
+< 
+<   @Override
+<   public Object deepCopy(Object value) throws HibernateException {
+<     if (value == null) {
+<       return null;
+<     }
+<     return new ServiceDate((ServiceDate) value);
+<   }
+< 
+<   @Override
 <   public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor sessionImplementor, Object owner)
----
->   public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor sessionImplementor, Object owner)
-85c69
+<       throws HibernateException, SQLException {
+< 
+<     String value = rs.getString(names[0]);
+< 
+<     if (rs.wasNull())
+<       return null;
+< 
+<     try {
+<       return ServiceDate.parseString(value);
+<     } catch (ParseException ex) {
+<       throw new SQLException("error parsing service date value: " + value, ex);
+<     }
+<   }
+< 
+<   @Override
 <   public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor sessionImplementor)
+<       throws HibernateException, SQLException {
+< 
+<     if (value == null) {
+<       st.setNull(index, SQL_TYPES[0]);
+<     } else {
+<       ServiceDate serviceDate = (ServiceDate) value;
+<       st.setString(index, serviceDate.getAsString());
+<     }
+<   }
+< 
+<   @Override
+<   public Object assemble(Serializable cached, Object owner)
+<       throws HibernateException {
+<     return deepCopy(cached);
+<   }
+< 
+<   @Override
+<   public Serializable disassemble(Object value) throws HibernateException {
+<     return (Serializable) deepCopy(value);
+<   }
+< 
+<   @Override
+<   public Object replace(Object original, Object target, Object owner)
+<       throws HibernateException {
+<     if (original == null)
+<       return null;
+<     return deepCopy(original);
+<   }
+< }
 ---
->   public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor sessionImplementor)
-96d79
-<   @Override
-102d84
-<   @Override
+> <repair_strategy>
+> 1. The error messages indicate that the methods `nullSafeGet` and `nullSafeSet` do not override or implement a method from a supertype, and there is a missing implementation for `nullSafeSet` with a different parameter type.
+> 2. The `nullSafeSet` method signature has changed in the newer version of Hibernate, requiring a `SharedSessionContractImplementor` instead of `SessionImplementor`.
+> 3. The `nullSafeGet` method signature has not changed, but the error suggests that the method does not override a method from a supertype, which might be due to a change in the interface or abstract class that `UserType` implements.
+> 4. The fix should update the `nullSafeSet` method to use the correct parameter type and remove the `@Override` annotation if necessary.
+> 5. The minimal set of changes includes updating the `nullSafeSet` method signature and potentially removing the `@Override` annotation from `nullSafeGet` if it no longer overrides a method.
+> 6. The changes should not affect other parts of the code, as they are limited to method signatures.
+> 7. The class should remain fully compilable after the changes.
+> 8. No additional imports are needed, as the changes are limited to method signatures.
+> </repair_strategy>
+\ No newline at end of file

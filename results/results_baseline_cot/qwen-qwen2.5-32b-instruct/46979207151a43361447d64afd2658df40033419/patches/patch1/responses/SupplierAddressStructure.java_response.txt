@@ -19,7 +19,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "region",
     "country"
 })
-public class SupplierAddressStructure implements ToString2 {
+public class SupplierAddressStructure implements ToString2
+{
 
     @XmlElement(name = "BuildingNumber")
     protected String buildingNumber;
@@ -36,8 +37,9 @@ public class SupplierAddressStructure implements ToString2 {
     @XmlElement(name = "Country", required = true)
     protected String country;
 
-    // ... (getters and setters remain unchanged)
+    // ... (rest of the getters and setters)
 
+    @Override
     public String toString() {
         final JAXBToStringStrategy strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();

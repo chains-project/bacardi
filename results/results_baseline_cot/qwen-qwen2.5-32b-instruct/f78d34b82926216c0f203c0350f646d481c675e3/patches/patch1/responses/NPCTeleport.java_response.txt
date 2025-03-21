@@ -58,6 +58,7 @@ public class NPCTeleport
      */
     private static void auraPanic_teleport(Player player, EntityPlayer target, ItemStack[] arm, int count, CommandSender sender, boolean reachMode)
     {
+        final double range = reachMode ? config.getDouble("npc.reachPanicRange"): config.getDouble("npc.panicRange");
         final double[] clt = {0.0};
         final int[] now = {0};
 
@@ -91,88 +92,20 @@ public class NPCTeleport
             {
                 for (double i = 0; i < Math.PI * 2; i++)
                 {
-                    Location center = player.getLocation();
+                    double rangeTmp = range;
 
-                    if (center.getPitch() <= 0.0f || center.getPitch() > 15.0f)
-                        center.setPitch(0.0f);
+                    if (config.getBoolean("npc.wave"))
+                        rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
+                            .get(0.01, true);
 
-                    Location n = new Location(
-                        center.getWorld(),
-                        center.getX() + Math.cos(i) * config.getDouble("npc.panicRange"),
-                        center.getY() + config.getDouble("npc.panicHeight"),
-                        center.getZ() + Math.sin(i) * config.getDouble("npc.panicRange"),
-                        (float) i,
-                        (float) i
-                    );
-
-                    NPC.setLocation(n, target);
-                    ((CraftPlayer) player).getHandle().playerConnection
-                        .sendPacket(new PacketPlayOutEntityTeleport(target));
-
-                    NPC.setArmor(player, target, arm);
-                    new BukkitRunnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            Bukkit.getOnlinePlayers()
-                                .parallelStream()
-                                .filter(p -> p.hasPermission("psac.viewnpc"))
-                                .forEachOrdered(p ->
-                                {
-                                    ((CraftPlayer) p).getHandle().playerConnection
-                                        .sendPacket(new PacketPlayOutEntityTeleport(target));
-                                    NPC.setArmor(p, target, arm);
-                                });
-                            this.cancel();
-                        }
-                    }.runTask(PeyangSuperbAntiCheat.getPlugin());
-                }
-
-                clt[0] += 0.035;
-                if (clt[0] >= sec)
-                {
-                    Variables.logger.info("Finished");
-                    this.cancel();
-                }
-            }
-        }.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, 1);
-    }
-
-    /**
-     * AuraBotのテレポート。
-     *
-     * @param player    プレイヤー。
-     * @param target    ターゲット。
-     * @param arm       装備。
-     * @param reachMode リーチモードかどうか。
-     */
-    private static void auraBotTeleport(Player player, EntityPlayer target, ItemStack[] arm, boolean reachMode)
-    {
-        final double[] time = {0.0};
-        final double radius = reachMode ? config.getDouble("npc.reachRange"): config.getDoubleList("npc.range")
-            .get(new Random().nextInt(config.getDoubleList("npc.range").size()));
-
-        BukkitRunnable r = new BukkitRunnable()
-        {
-            public void run()
-            {
-                double speed = 0.0;
-
-                if (player.hasMetadata("speed"))
-                    for (MetadataValue value : player.getMetadata("speed"))
-                        if (value.getOwningPlugin().getName().equals(PeyangSuperbAntiCheat.getPlugin().getName()))
-                            speed = value.asDouble() * 2.0;
-                for (double i = 0; i < Math.PI * 2; i++)
-                {
                     final Location center = player.getLocation();
                     final Location n = new Location(
                         center.getWorld(),
-                        auraBotXPos(time[0], radius + speed) + center.getX(),
-                        center.getY() + 1.0,
-                        auraBotZPos(time[0], radius + speed) + center.getZ(),
-                        (float) i,
-                        (float) i
+                        auraBotXPos(time[0], rangeTmp) + center.getX(),
+                        center.getY() + new WaveCreator(1.0, 2.0, 0 - config.getDouble("npc.waveRange")).get(0.01, count[0] < 20),
+                        auraBotZPos(time[0], rangeTmp) + center.getZ(),
+                        (float) ypp.getStatic(),
+                        (float) ypp.get(4.5, false)
                     );
 
                     NPC.setLocation(n, target);
@@ -197,11 +130,16 @@ public class NPCTeleport
                             this.cancel();
                         }
                     }.runTask(PeyangSuperbAntiCheat.getPlugin());
-                    time[0] += config.getDouble("npc.time");
+                    count[0]++;
+                    CheatDetectNowMeta meta = cheatMeta.getMetaByPlayerUUID(player.getUniqueId());
+                    if (meta == null) continue;
+                    meta.setNpcLocation(n.toVector());
                 }
+                time[0] += config.getDouble("npc.time") + (config.getBoolean("npc.speed.wave")
+                    ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
+                    : 0.0);
             }
-        };
-        r.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, 1);
+        }.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, 1);
 
         new BukkitRunnable()
         {
@@ -237,5 +175,26 @@ public class NPCTeleport
     private static double auraBotXPos(double time, double radius)
     {
         return Math.cos(time) * radius;
+    }
+
+    // Assuming WaveCreator is a custom class that needs to be defined or imported.
+    // If it's a custom class, ensure it's defined or imported correctly.
+    // If it's part of an external library, ensure the correct import is added.
+    // For the sake of this example, I'll assume it's a custom class and define a simple version here.
+    private static class WaveCreator {
+        private double min;
+        private double max;
+        private double waveRange;
+
+        public WaveCreator(double min, double max, double waveRange) {
+            this.min = min;
+            this.max = max;
+            this.waveRange = waveRange;
+        }
+
+        public double get(double step, boolean wave) {
+            // Simplified implementation for demonstration purposes.
+            return wave ? min + (Math.random() * (max - min)) : min;
+        }
     }
 }

@@ -69,15 +69,14 @@ public class ConfigurationMessagesOverridePossibleListGUI implements InventoryPr
 				if (messagesConfig.getString("Overrides." + entry.getKey()) != null) {
 					lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwcConfigGUIMessagesAlreadyOverriden"));
 					currentEntryMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					// Fix: Replace the parseEnchantment() call with the correct method or directly use the enchantment object.
-					currentEntryMeta.addEnchant(XEnchantment.matchXEnchantment("power").get(), 1, false);
+					currentEntryMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
 				}
 				lore.add(CommonDefinitions.getMessage("wwcConfigGUIMessagesOverrideOriginalLabel") + ": " + messagesConfig.getString("Messages." + entry.getKey()));
 				currentEntryMeta.setLore(lore);
 				currentEntry.setItemMeta(currentEntryMeta);
 				currentMessages[currSpot] = ClickableItem.of(currentEntry, e -> {
 					// Start conversation
-					ConversationFactory textConvo = new ConversationFactory(main).getServer()).withModality(true)
+					ConversationFactory textConvo = new ConversationFactory(main).withModality(true)
 							.withFirstPrompt(new ChatSettingsModifyOverrideTextConversation(ConfigurationMessagesOverridePossibleListGUI.overrideNewMessageSettings, entry.getKey()));
 				    textConvo.buildConversation(player).begin();
 				});
@@ -110,6 +109,7 @@ public class ConfigurationMessagesOverridePossibleListGUI implements InventoryPr
 					overrideNewMessageSettings.open(player,
 							pagination.next().getPage());
 				}));
+				;
 			}
 		} catch (Exception e) {
 			WWCInventoryManager.inventoryError(player, e);

@@ -6,55 +6,86 @@
 <  * which accompanies this distribution, and is available at
 <  * http://www.eclipse.org/legal/epl-v10.html
 <  */
-24d16
-< import java.beans.IntrospectionException;
-38c30
-<     this.representers.put(Xpp3Dom.class, new RepresentXpp3Dom());
----
->     super(new Representer.Options());
-94d85
+29,35d21
+< /**
+<  * YAML model representer.
+<  *
+<  * @author jvanzyl
+<  * @author bentmann
+<  * @since 0.7
+<  */
+37a24
+>     super();
+94d80
 < 
-107a99
+107a94
 > 
-168,170c160
+122,131d108
+<           boolean isList = singularName != null;
+<           if (isList) { // check for eventual list construction
+<             for (int j = 0, grandChildCount = child.getChildCount(); j < grandChildCount; j++) {
+<               String grandChildName = child.getChild(j).getName();
+<               isList &= grandChildName.equals(singularName);
+<             }
+<           }
+<           if (isList) {
+<             childValue = toList(child, singularName);
+<           } else {
+134d110
+<         }
+144,165d119
+< 
+<     private List<Object> toList(Xpp3Dom node, String childName) {
+<       List<Object> list = new ArrayList<>();
+< 
+<       int n = node.getChildCount();
+<       for (int i = 0; i < n; i++) {
+<         Xpp3Dom child = node.getChild(i);
+< 
+<         if (!childName.equals(child.getName())) {
+<           throw new YAMLException(format("child name: '%s' does not match expected name: '%s' at node %s",
+<               child.getName(), childName, node));
+<         }
+< 
+<         Object childValue = child.getValue();
+<         if (childValue == null) {
+<           childValue = toMap(child);
+<         }
+<         list.add(childValue);
+<       }
+< 
+<       return list;
+<     }
+168,170c122
 <   // Model elements order {
 <   //TODO move to polyglot-common, or to org.apache.maven:maven-model
 <   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
 ---
 >   private static List<String> ORDER_MODEL = new ArrayList<>(Arrays.asList(
-204c194
+204c156
 <   private static List<String> ORDER_DEVELOPER = new ArrayList<String>(Arrays.asList(
 ---
 >   private static List<String> ORDER_DEVELOPER = new ArrayList<>(Arrays.asList(
-206c196
+206c158
 <   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<String>(Arrays.asList(
 ---
 >   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<>(Arrays.asList(
-208c198
+208c160
 <   private static List<String> ORDER_DEPENDENCY = new ArrayList<String>(Arrays.asList(
 ---
 >   private static List<String> ORDER_DEPENDENCY = new ArrayList<>(Arrays.asList(
-210c200
+210c162
 <   private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
 ---
 >   private static List<String> ORDER_PLUGIN = new ArrayList<>(Arrays.asList(
-212d201
+212d163
 <   //}
-214,219c203
+214,217d164
 <   /*
 <    * Change the default order. Important data goes first.
 <    */
 <   @Override
-<   protected Set<Property> getProperties(Class<? extends Object> type)
-<           throws IntrospectionException {
----
->   protected Set<Property> getProperties(Class<? extends Object> type) {
-235,236c219
-<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
-<           throws IntrospectionException {
----
->   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
-238c221
+238c185
 <       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
 ---
 >     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));

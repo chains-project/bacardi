@@ -1,4 +1,4 @@
-package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
+package com.premiumminds.billy.portugal.services.exportsaftptv1_02_01schema;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -19,24 +19,32 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "salesInvoices",
-    "movementOfGoods",
-    "workingDocuments",
-    "payments"
+    "movementmentOfGoods",
+    "workingDocuments"
 })
 @XmlRootElement(name = "SourceDocuments")
 public class SourceDocuments implements ToString2 {
 
 {
-    private static final ToStringStrategy2 STRATEGY = JAXBToStringStrategy.getInstance();
 
-    // ... (other fields declarations)
+    @XmlElement(name = "SalesInvoices")
+    protected SourceDocuments.SaleInvoice saleInvoice;
+    @XmlElement(name = "MovementOfGoods")
+    protected SourceDocuments.MovementOfGoods movementOfGoods;
+    @XmlElement(name = "WorkingDocuments")
+    protected SourceDocuments.WorkingDocuments workingDocuments;
 
+    // ... (rest of the class remains unchanged)
+
+    @Override
     public String toString() {
+        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
-        append(null, buffer, STRATEGY);
+        append(null, buffer, strategy);
         return buffer.toString();
     }
 
+    @Override
     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         strategy.appendStart(locator, this, buffer);
         appendFields(locator, buffer, strategy);
@@ -44,56 +52,26 @@ public class SourceDocuments implements ToString2 {
         return buffer;
     }
 
-    // ... (other methods and nested classes)
-
-    public static class MovementOfGoods implements ToString2
-    {
-        private static final ToStringStrategy2 STRATEGY = JAXBToStringStrategy.getInstance();
-
-        // ... (other field declarations)
-
-        public String toString() {
-            final StringBuilder buffer = new StringBuilder();
-            append(null, buffer, STRATEGY);
-            return buffer.toString();
-        }
-
-        public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-            strategy.appendStart(locator, this, buffer);
-            appendFields(locator, buffer, strategy);
-            strategy.appendEnd(locator, this, buffer);
-            return buffer;
-        }
-
-        // ... (other methods and nested classes)
-
-        public static class DocumentStatus implements ToString2
+    @Override
+    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         {
-            private static final ToStringStrategy2 STRATEGY = JAXBToStringStrategy.getInstance();
-
-            // ... (other field declarations)
-
-            public String toString() {
-                final StringBuilder buffer = new StringBuilder();
-                append(null, buffer, STRATEGY);
-                return buffer.toString();
-            }
-
-            public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                strategy.appendStart(locator, this, buffer);
-                appendFields(locator, buffer, strategy);
-                strategy.appendEnd(locator, this, buffer);
-                return buffer;
-            }
-
-            // ... (other methods and nested classes)
-
+            SourceDocuments.SaleInvoice theSaleInvoice;
+            theSaleInvoice = this.getSaleInvoice();
+            strategy.appendField(locator, this, "saleInvoice", buffer, theSaleInvoice, (this.saleInvoice!= null);
         }
-
-        // ... (other nested classes implementations)
-
+        {
+            SourceDocuments.MovementOfGoods theMovementOfGoods;
+            theMovementOfGoods = this.getMovementOfGoods();
+            strategy.appendField(locator, this, "movementmentOfGoods", buffer, theMovementOfGoods, (this.movementOfGoods!= null);
+        }
+        {
+            SourceDocuments.WorkingDocuments theWorkingDocuments;
+            theWorkingDocuments = this.getWorkingDocuments();
+            strategy.appendField(locator, this, "workingDocuments", buffer, theWorkingDocuments, (this.workingDocuments!= null);
+        }
+        return buffer;
     }
 
-    // ... (other nested class implementations)
+    // ... (rest of the class remain unchanged)
 
 }

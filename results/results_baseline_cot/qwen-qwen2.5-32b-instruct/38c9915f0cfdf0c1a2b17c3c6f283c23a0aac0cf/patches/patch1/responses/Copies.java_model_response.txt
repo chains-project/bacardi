@@ -1,9 +1,3 @@
-<code_analysis>
-The error message indicates that the class `CollectionOf` cannot be found in the package `org.cactoos.collection`. This suggests that the `CollectionOf` class has either been moved or removed in the updated version of the `org.cactoos` dependency. The error occurs in the `equalWallets` method where `CollectionOf` is used to compare the size of the ledgers of two wallets.
-
-To resolve this issue, we need to find the equivalent functionality in the updated version of the `org.cactoos` dependency or replace the usage of `CollectionOf` with a different approach that does not rely on this class.
-</code_analysis>
-
 ```java
 package io.zold.api;
 
@@ -11,6 +5,7 @@ import io.zold.api.Copies.Copy;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.cactoos.collection.CollectionOf;
 import org.cactoos.iterable.IterableEnvelope;
 import org.cactoos.iterable.IterableOf;
 import org.cactoos.iterable.Joined;
@@ -71,7 +66,9 @@ public final class Copies extends IterableEnvelope<Copy> {
      */
     private static boolean equalWallets(final Wallet first,
         final Wallet second) throws IOException {
-        return first.id() == second.id() && first.ledger().size() == second.ledger().size();
+        return first.id() == second.id() && new CollectionOf<>(
+            first.ledger()
+        ).size() == new CollectionOf<>(second.ledger()).size();
     }
 
     /**
@@ -141,5 +138,3 @@ public final class Copies extends IterableEnvelope<Copy> {
     }
 }
 ```
-
-In this fix, the `CollectionOf` class is replaced with the `size()` method directly on the `ledger()` method of the `Wallet` class, assuming that `ledger()` returns a collection-like object that has a `size()` method. This change is made to ensure compatibility with the updated dependency version.

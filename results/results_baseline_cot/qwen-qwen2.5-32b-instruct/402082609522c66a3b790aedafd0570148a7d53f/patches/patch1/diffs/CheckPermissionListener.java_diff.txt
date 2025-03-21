@@ -1,0 +1,30 @@
+17c17
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+---
+> import org.spongepowered.api.network.ChannelBinding;
+20,21c20,21
+< import org.spongepowered.api.network.RawDataListener;
+< import org.spongepowered.api.network.RemoteConnection;
+---
+> import org.spongepowered.api.network.message.MessageChannel;
+> import org.spongepowered.api.network.message.MessageChannelRegistrar;
+26c26
+< public class CheckPermissionListener implements RawDataListener {
+---
+> public class CheckPermissionListener implements MessageChannel.MessageHandler {
+29c29
+<     private final RawDataChannel permissionsResultChannel;
+---
+>     private final MessageChannel permissionsResultChannel;
+32c32
+<     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+---
+>     CheckPermissionListener(ChangeSkinSponge plugin, MessageChannelRegistrar channelRegistrar) {
+36c36
+<         permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
+---
+>         permissionsResultChannel = channelRegistrar.getOrCreate(plugin, combinedName);
+40c40
+<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+---
+>     public void handle(ChannelBuf data, RemoteConnection connection, Type side) {

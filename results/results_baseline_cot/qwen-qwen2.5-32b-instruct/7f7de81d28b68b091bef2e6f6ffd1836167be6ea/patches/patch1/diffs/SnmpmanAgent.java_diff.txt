@@ -1,70 +1,14 @@
-35,40d34
-< /**
-<  * This is the core class of the {@code Snmpman}. The agent simulates the SNMP-capable devices.
-<  * <br>
+38,39c38
 <  * This class can be instantiated via the constructor {@link #SnmpmanAgent(com.oneandone.snmpman.configuration.AgentConfiguration)}, which
 <  * requires an instance of the {@link com.oneandone.snmpman.configuration.AgentConfiguration}.
-<  */
-44,46d37
-<     /**
-<      * The default charset for files being read.
-<      */
-48,51d38
-< 
-<     /**
-<      * The pattern of variable bindings in a walk file.
-<      */
-53,56d39
-< 
-<     /**
-<      * The configuration of this agent.
-<      */
-57a41
->     private final List<ManagedObject<?>> groups = new ArrayList<>();
-59,68d42
-<     /**
-<      * The list of managed object groups.
-<      */
-<     private final List<ManagedObject> groups = new ArrayList<>();
-< 
-<     /**
-<      * Initializes a new instance of an SNMP agent.
-<      *
-<      * @param configuration the configuration for this agent
-<      */
-75,81d48
-<     /**
-<      * Returns the name of {@code this} agent.
-<      * <br>
-<      * See {@code AgentConfiguration.name} for more information on the return value.
-<      *
-<      * @return the name of {@code this} agent.
-<      */
-86,92d52
-<     /**
-<      * Returns the boot-counter file for the specified agent.
-<      * <p>
-<      * This file will be created in the same directory as the {@link com.oneandone.snmpman.configuration.AgentConfiguration#getWalk()} file.
-<      *
-<      * @return the boot-counter file
-<      */
-97,103d56
-<     /**
-<      * Returns the configuration file for the specified agent.
-<      * <p>
-<      * This file will be created in the same directory as the {@link com.oneandone.snmpman.configuration.AgentConfiguration#getWalk()} file.
-<      *
-<      * @return the configuration file
-<      */
-108,113d60
-<     /**
-<      * Translates a string into {@code x-www-form-urlencoded} format. The method uses the <i>UTF-8</i> encoding scheme.
-<      *
-<      * @param string {@code String} to be translated
+---
+>  * See {@code AgentConfiguration.name} for more information on the return value.
+112c111,112
 <      * @return the translated {@code String}
-<      */
-123,215d69
-<     /**
+---
+>      * @return a a {@code String} instance with the specified type and value
+>      * @throws IllegalArgumentException if the type could not be mapped to a {@code Variable} implementation
+124,164d123
 <      * Returns the root OIDs of the bindings.
 <      *
 <      * @param bindings the variable bindings
@@ -106,180 +50,82 @@
 <     }
 < 
 <     /**
-<      * Returns a {@link Variable} instance for the specified parameters.
-<      *
-<      * @param type  the type of the variable
-<      * @param value the value of this variable
-<      * @return a a {@link Variable} instance with the specified type and value
+170c129
 <      * @throws IllegalArgumentException if the type could not be mapped to a {@link Variable} implementation
-<      */
-<     private static Variable getVariable(final String type, final String value) {
-<         switch (type) {
-<             // TODO add "BITS" support
-<             case "STRING":
-<                 if (value.startsWith("\"") && value.endsWith("\"")) {
-<                     if (value.length() == 2) {
-<                         return new OctetString();
-<                     }
-<                     return new OctetString(value.substring(1, value.length() - 1));
-<                 } else {
-<                     return new OctetString(value);
-<                 }
-<             case "OID":
-<                 return new OID(value);
-<             case "Gauge32":
-<                 return new Gauge32(Long.parseLong(value.replaceAll("[^-?0-9]+", "")));
-<             case "Timeticks":
-<                 final int openBracket = value.indexOf("(") + 1;
-<                 final int closeBracket = value.indexOf(")");
-<                 if (openBracket == 0 || closeBracket < 0) {
-<                     throw new IllegalArgumentException("could not parse time tick value in " + value);
-<                 }
-<                 return new TimeTicks(Long.parseLong(value.substring(openBracket, closeBracket)));
-<             case "Counter32":
-<                 return new Counter32(Long.parseLong(value.replaceAll("[^-?0-9]+", "")));
-<             case "Counter64":
-<                 // Parse unsigned long
-<                 return new Counter64(UnsignedLong.valueOf(value).longValue());
-<             case "INTEGER":
-<                 return new Integer32(Integer.parseInt(value.replaceAll("[^-?0-9]+", "")));
-<             case "Hex-STRING":
-<                 return OctetString.fromHexString(value, ' ');
-<             case "IpAddress":
-<                 return new IpAddress(value);
-<             default:
-<                 throw new IllegalArgumentException("illegal type \"" + type + "\" in walk detected");
-<         }
-<     }
+---
+>      * @throws IllegalArgumentException if the type could not be mapped to a {@code Variable} implementation
+259,261c218
+<                 final OctetString context = new OctetString(String.valueOf(vlan));
 < 
-<     /**
-<      * Starts this agent instance.
-<      *
-<      * @throws IOException signals that this agent could not be initialized by the {@link #init()} method
-<      */
-222d75
-<         // configure community index contexts
-241d93
-<     @Override
-266c118
-<                     ManagedObject mo = server.lookup(new DefaultMOQuery(scope, false));
+<                 final List<OID> roots = SnmpmanAgent.getRoots(variableBindings);
 ---
->                     ManagedObject<?> mo = server.lookup(new DefaultMOQuery(scope, false));
-303,305d154
-<     /**
-<      * Creates the {@link StaticMOGroup} with all information necessary to register it to the server.
-<      */
-324,330d172
-<     /**
-<      * Creates a list of {@link VariableBinding} out of a mapping of {@link OID} and {@link Variable}.
-<      *
-<      * @param variableBindings mapping of {@link OID} and {@link Variable}.
-<      * @param root             root SNMP OID.
-<      * @return list of {@link VariableBinding}.
-<      */
-337,341d178
-<     /**
-<      * Registers a {@link ManagedObject} to the server with an empty {@link OctetString} community context.
-<      *
-<      * @param group {@link ManagedObject} to register.
-<      */
-347,352d183
-<     /**
-<      * Registers a {@link ManagedObject} to the server with a {@link OctetString} community context.
-<      *
-<      * @param group   {@link ManagedObject} to register.
-<      * @param context community context.
-<      */
-357c188
+>                 final List<OID> roots = SnpmanAgent.getRoots(variableBindings);
+265c222
+<                     DefaultMOContextScope scope = new DefaultMOContextScope(context, root, true, root.nextPeer(), false);
+---
+>                     DefaultMOContextScope scope = new DefaultMOContextScope(new OctetString(String.valueOf(vlan)), root, true, root.nextPeer(), false);
+270c227
+<                             scope = new DefaultMOContextScope(context, variableBinding.getOid(), true, variableBinding.getOid().nextPeer(), false);
+---
+>                             scope = new DefaultMOContextScope(new OctetString(String.valueOf(vlan)), variableBinding.getOid(), true, variableBinding.getOid().nextPeer(), false);
+276c233
+<                                 registerGroupAndContext(group, context);
+---
+>                                 registerGroupAndContext(group, new OctetString(String.valueOf(vlan));
+281c238
+<                         registerGroupAndContext(group, context);
+---
+>                         registerGroupAndContext(group, new OctetString(String.valueOf(vlan));
+312c269
+<             final List<OID> roots = SnmpmanAgent.getRoots(variableBindings);
+---
+>             final List<OID> roots = SnpmanAgent.getRoots(variableBindings);
+356,367c313,316
+<                 MOContextScope contextScope = new DefaultMOContextScope(new OctetString(), group.getScope());
 <                 ManagedObject other = server.lookup(new DefaultMOQuery(contextScope, false));
+<                 if (other != null) {
+<                     log.warn("group {} already existed", group);
+<                     return;
+<                 }
+< 
+<                 contextScope = new DefaultMOContextScope(null, group.getScope());
+<                 other = server.lookup(new DefaultMOQuery(contextScope, false));
+<                 if (other != null) {
+<                     registerHard(group);
+<                     return;
 ---
->                 ManagedObject<?> other = server.lookup(new DefaultMOQuery(contextScope, false));
-378,384d208
-<     /**
+>                 MOContextScope contextScope = new DefaultMOContextScope(new OctetString(""), group.getScope());
+>                 ManagedObject query;
+>                 while ((query = server.lookup(new DefaultMOQuery(contextScope, false))) != null) {
+>                     server.unregister(query, context);
+379,398d327
 <      * Sets the private registry value of {@link DefaultMOServer} via reflection.
 <      * FIXME
 <      * If there is any possibility to avoid this, then replace!
 <      *
 <      * @param group {@link ManagedObject} to register.
 <      */
-389,390c213,214
+<     private void registerHard(final MOGroup group) {
+<         try {
+<             final Field registry = server.getClass().getDeclaredField("registry");
+<             registry.setAccessible(true);
 <             final SortedMap<MOScope, ManagedObject> reg = server.getRegistry();
 <             DefaultMOContextScope contextScope = new DefaultMOContextScope(new OctetString(""), group.getScope());
----
->             final SortedMap<MOScope, ManagedObject<?>> reg = server.getRegistry();
->             DefaultMOContextScope contextScope = new DefaultMOContextScope(new OctetString(), group.getScope());
-398,403d221
-<     /**
-<      * Reads all variable bindings using {@link #VARIABLE_BINDING_PATTERN}.
-<      *
-<      * @param reader the reader to read the bindings from.
-<      * @return the map of oid to variable binding.
-<      */
-432,436d249
-<     /**
-<      * Unregisters all default managed objects in the specified context {@code ctx}.
-<      *
-<      * @param ctx the context from which all default managed objects should be unregistred
-<      */
-440c253
-<         ManagedObject query;
----
->         ManagedObject<?> query;
-446,455d258
-<     /**
-<      * Returns the variable bindings for a device configuration and a list of bindings.
-<      * <p>
-<      * In this step the {@link ModifiedVariable} instances will be created as a wrapper for dynamic variables.
-<      *
-<      * @param device   the device configuration
-<      * @param bindings the bindings as the base
-<      * @return the variable bindings for the specified device configuration
-<      */
-<     @SuppressWarnings("unchecked")
-489c292
-<         for (final ManagedObject mo : groups) {
----
->         for (final ManagedObject<?> mo : groups) {
-516d318
-<         // configure community index contexts
-542,581d343
-< 
-<     @Override
-<     protected void addCommunities(final SnmpCommunityMIB snmpCommunityMIB) {
-<         log.trace("adding communities {} for agent \"{}\"", snmpCommunityMIB.toString(), configuration.getName());
-<         // configure community index contexts
-<         for (final Long vlan : configuration.getDevice().getVlans()) {
-<             configureSnmpCommunity(snmpCommunityMIB, vlan);
+<             reg.put(contextScope, group);
+<             registry.set(server, reg);
+<         } catch (NoSuchFieldException | IllegalAccessException e) {
+<             log.warn("could not set server registry", e);
 <         }
-<         configureSnmpCommunity(snmpCommunityMIB, null);
 <     }
 < 
 <     /**
-<      * Configures an SNMP community for a given SNMP community context.
-<      *
-<      * @param snmpCommunityMIB SNMP community.
-<      * @param context          SNMP community context.
-<      */
-<     private void configureSnmpCommunity(final SnmpCommunityMIB snmpCommunityMIB, final Long context) {
-<         String communityString;
-<         OctetString contextName;
-<         if (context != null) {
-<             communityString = configuration.getCommunity() + "@" + context;
-<             contextName = new OctetString(String.valueOf(context));
-<         } else {
-<             communityString = configuration.getCommunity();
-<             contextName = new OctetString();
-<         }
-<         final Variable[] com2sec = new Variable[]{
-<                 new OctetString(communityString),       // community name
-<                 new OctetString(communityString),       // security name
-<                 getAgent().getContextEngineID(),        // local engine ID
-<                 contextName,                            // default context name
-<                 new OctetString(),                      // transport tag
-<                 new Integer32(StorageType.readOnly),    // storage type
-<                 new Integer32(RowStatus.active)         // row status
-<         };
-<         final SnmpCommunityMIB.SnmpCommunityEntryRow row = snmpCommunityMIB.getSnmpCommunityEntry().createRow(
-<                 new OctetString(communityString + "2" + communityString).toSubIndex(true), com2sec);
-<         snmpCommunityMIB.getSnmpCommunityEntry().addRow(row);
-<     }
+415c344
+<                         variable = SnmpmanAgent.getVariable("STRING", "\"\"");
+---
+>                         variable = SnpmanAgent.getVariable("STRING", "\"\"");
+417c346
+<                         variable = SnmpmanAgent.getVariable(matcher.group(6), matcher.group(7));
+---
+>                         variable = SnpmanAgent.getVariable(matcher.group(6), matcher.group(7));
+543a473
+>     @SuppressWarnings("unchecked")

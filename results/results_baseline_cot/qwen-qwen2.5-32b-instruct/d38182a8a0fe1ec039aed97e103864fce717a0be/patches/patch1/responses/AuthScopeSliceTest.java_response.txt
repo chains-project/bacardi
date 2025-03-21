@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.IsEqual;
 import org.junit.jupiter.api.Test;
+import org.reactivestreams.Publisher;
 
 /**
  * Tests for {@link AuthScopeSlice}.
@@ -52,10 +53,8 @@ class AuthScopeSliceTest {
             (headers, rline) -> CompletableFuture.completedFuture(
                 new AuthScheme.Result() {
                     @Override
-                    public Optional<Authentication> user() {
-                        // Assuming the new version of the dependency uses a different class or method to create a user.
-                        // Replace the following line with the correct way to create a user in the new version.
-                        return Optional.of(Authentication.create("alice"));
+                    public Optional<Authentication.User> user() {
+                        return Optional.of(new Authentication.User("alice", "alice@example.com"));
                     }
 
                     @Override

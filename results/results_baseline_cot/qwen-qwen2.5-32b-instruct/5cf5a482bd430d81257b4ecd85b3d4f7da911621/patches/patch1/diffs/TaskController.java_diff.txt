@@ -1,90 +1,24 @@
-5d4
-< import com.example.web.AlertMessage.Type;
-12,19d10
+12d11
 < import javax.mvc.Controller;
-< import javax.mvc.Models;
-< import javax.mvc.View;
-< import javax.mvc.binding.BindingResult;
-< import javax.mvc.binding.ParamError;
-< import javax.mvc.security.CsrfProtected;
-< import javax.validation.Valid;
-< import javax.validation.constraints.NotNull;
-28a20,21
-> import javax.validation.Valid;
-> import javax.validation.constraints.NotNull;
-30d22
-< import org.eclipse.krazo.engine.Viewable;
-33d24
+33d31
 < @Controller
-41,47c32
-<     private Models models;
-< 
-<     @Inject
-<     private BindingResult validationResult;
-< 
-<     @Inject
-<     TaskRepository taskRepository;
----
->     private TaskRepository taskRepository;
-53d37
-<     @View("tasks.xhtml")
-62,66d45
-< 
-<         models.put("todotasks", todotasks);
-<         models.put("doingtasks", doingtasks);
-<         models.put("donetasks", donetasks);
-< 
-71c50
-<     public Viewable taskDetails(@PathParam("id") @NotNull Long id) {
----
->     public String taskDetails(@PathParam("id") @NotNull Long id) {
-74,76c53
-< 
-<         models.put("details", task);
-<         return new Viewable("details.xhtml");
----
->         return "details.xhtml";
-84d60
-<         models.put("task", form);
-89,90d64
-<     @CsrfProtected
+90d87
 <     //@ValidateOnExecution(type = ExecutableType.NONE)
-101,102d74
-<             models.put("errors", alert);
-<             models.put("task", form);
-107,108c79,80
+108c105
+<         task.setDescription(form.getDescription());
+---
+>         task.description(form.getDescription());
+127c124
+<         form.setDescription(task.getDescription());
+---
+>         form.description(task.getDescription());
+152,153c149,150
 <         task.setName(form.getName());
 <         task.setDescription(form.getDescription());
 ---
->         task.setName = form.getName();
->         task.description = form.getDescription();
-112c84
-<         flashMessage.notify(Type.success, "Task was created successfully!");
----
->         flashMessage.notify(AlertMessage.Type.success, "Task was created successfully!");
-119c91
-<     public Viewable edit(@PathParam("id") Long id) {
----
->     public String edit(@PathParam("id") Long id) {
-128,129c100
-<         models.put("task", form);
-<         return new Viewable("edit.xhtml");
----
->         return "edit.xhtml";
-134d104
-<     @CsrfProtected
-145,146d114
-<             models.put("errors", alert);
-<             models.put("task", form);
-157c125
-<         flashMessage.notify(Type.info, "Task was updated successfully!");
----
->         flashMessage.notify(AlertMessage.Type.info, "Task was updated successfully!");
-164d131
+>         task.name(form.getName());
+>         task.description(form.getDescription());
+164c161
 <     //@CsrfProtected
-174c141
-<         flashMessage.notify(Type.info, "Task status was updated successfully!");
 ---
->         flashMessage.notify(AlertMessage.Type.info, "Task status was updated successfully!");
-187d153
-<         models.put("flashMessage", flashMessage);
+>     @CsrfProtected

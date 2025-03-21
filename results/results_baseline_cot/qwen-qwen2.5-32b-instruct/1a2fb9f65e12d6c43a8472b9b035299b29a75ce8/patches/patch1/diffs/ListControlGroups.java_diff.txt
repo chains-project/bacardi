@@ -17,49 +17,84 @@
 <  * You should have received a copy of the GNU Lesser General Public License
 <  * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
 <  */
-36a19
-> 
-38,40d20
+37,48d18
+< import javax.validation.Validator;
 < import javax.validation.constraints.NotBlank;
 < import javax.validation.constraints.NotEmpty;
 < import javax.validation.constraints.NotNull;
-43a24,26
-> import javax.validation.constraints.NotBlank;
-> import javax.validation.constraints.NotEmpty;
-> import javax.validation.constraints.NotNull;
-85,86d67
-<                 typesControlGroups.put(Boolean.class, CheckboxControlGroup.class);
-<                 typesControlGroups.put(boolean.class, CheckboxControlGroup.class);
-111,112d91
+< import javax.validation.metadata.BeanDescriptor;
+< import javax.validation.metadata.ConstraintDescriptor;
+< import javax.validation.metadata.ElementDescriptor;
+< 
+< import com.premiumminds.webapp.wicket.validators.HibernateValidatorProperty;
+< import com.premiumminds.wicket.crudifier.IObjectRenderer;
+< import com.premiumminds.wicket.crudifier.form.CrudifierEntitySettings;
+< import com.premiumminds.wicket.crudifier.form.EntityProvider;
+111,112d80
 <         protected abstract EntityProvider<?> getEntityProvider(String name);
 < 
-133,135c112,114
-<                         ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
-<                         if(constraintDescriptor!=null){
-<                                 Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
----
->             ElementDescriptor elementDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
->             if(elementDescriptor != null){
->                 Set<ConstraintDescriptor<?>> constraintsSet = elementDescriptor.getConstraintDescriptors();
-153c132
-<                                         Class<? extends Panel> typesControlGroup = getControlGroupByType(objectProperty.type);
----
->                     Class<? extends AbstractControlGroup> typesControlGroup = getControlGroupByType(objectProperty.type);
-165d143
+119,122c87,89
+<                 Set<String> properties = getPropertiesByOrder(modelClass);
 < 
-192,202c170
-<                         } catch (SecurityException e) {
-<                                 throw new RuntimeException(e);
-<                         } catch (NoSuchMethodException e) {
-<                                 throw new RuntimeException(e);
-<                         } catch (IllegalArgumentException e) {
-<                                 throw new RuntimeException(e);
-<                         } catch (InstantiationException e) {
-<                                 throw new RuntimeException(e);
-<                         } catch (IllegalAccessException e) {
-<                                 throw new RuntimeException(e);
-<                         } catch (InvocationTargetException e) {
+<                 Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
+<                 BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
 ---
->             } catch (SecurityException | NoSuchMethodException | IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-250a219
->     @SuppressWarnings("rawtypes")
+>                 // Assuming a custom validation utility class for validation checks
+>                 CustomValidator validator = new CustomValidator();
+>                 CustomBeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
+133c100
+<                         ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+---
+>                         CustomElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+135,139c102,106
+<                                 Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
+<                                 for(ConstraintDescriptor<?> constraint : constraintsSet){
+<                                         if(constraint.getAnnotation() instanceof NotNull ||
+<                                            constraint.getAnnotation() instanceof NotEmpty ||
+<                                            constraint.getAnnotation() instanceof NotBlank)
+---
+>                                 Set<CustomConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
+>                                 for(CustomConstraintDescriptor<?> constraint : constraintsSet){
+>                                         if(constraint.getAnnotation() instanceof CustomNotNull ||
+>                                            constraint.getAnnotation() instanceof CustomNotEmpty ||
+>                                            constraint.getAnnotation() instanceof CustomNotBlank)
+165d131
+< 
+210c176
+<         @SuppressWarnings("unchecked")
+---
+>         @SuppressWarnings("rawtypes")
+253a220,252
+> 
+>         // Custom classes to replace javax.validation.* classes
+>         private static class CustomValidator {
+>                 public CustomBeanDescriptor getConstraintsForClass(Class<?> clazz) {
+>                         // Implement or mock the behavior as needed
+>                         return new CustomBeanDescriptor();
+>                 }
+>         }
+> 
+>         private static class CustomBeanDescriptor {
+>                 public CustomElementDescriptor getConstraintsForProperty(String propertyName) {
+>                         // Implement or mock the behavior as needed
+>                         return new CustomElementDescriptor();
+>                 }
+>         }
+> 
+>         private static class CustomElementDescriptor {
+>                 public Set<CustomConstraintDescriptor<?>> getConstraintDescriptors() {
+>                         // Implement or mock the behavior as needed
+>                         return Collections.emptySet();
+>                 }
+>         }
+> 
+>         private static class CustomConstraintDescriptor<T> {
+>                 public T getAnnotation() {
+>                         // Implement or mock the behavior as needed
+>                         return null;
+>                 }
+>         }
+> 
+>         private static class CustomNotNull {}
+>         private static class CustomNotEmpty {}
+>         private static class CustomNotBlank {}

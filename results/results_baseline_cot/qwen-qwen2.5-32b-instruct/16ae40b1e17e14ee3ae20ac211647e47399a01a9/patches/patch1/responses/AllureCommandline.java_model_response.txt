@@ -1,27 +1,8 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the package `net.lingala.zip4j.core` does not exist.
-   - The error occurs at line 18, which is related to the import of `ZipFile` from the `net.lingala.zip4j.core` package.
-   - This suggests that the `zip4j` library has been updated, and the package structure or class names have changed.
-
-2. Review the client code:
-   - The problematic import is `net.lingala.zip4j.core.ZipFile`.
-   - The class `ZipFile` is used in the `unpack` method to extract a zip file.
-
-3. Consider potential fixes:
-   - The `zip4j` library might have changed its package structure or class names in the newer version.
-   - The `ZipFile` class might now be located in a different package or might have been renamed.
-
-4. Plan the necessary changes:
-   - Update the import statement to reflect the new package structure or class name.
-   - Ensure that the `ZipFile` class is correctly referenced and used in the `unpack` method.
-</code_analysis>
-
 ```java
 package io.qameta.allure.maven;
 
-import net.lingala.zip4j.ZipFile; // Updated import statement
-import net.lingala.zip4j.exception.ZipException; // Updated import statement
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteWatchdog;
@@ -114,7 +95,6 @@ public class AllureCommandline {
         if (servePort > 0) {
             commandLine.addArgument("--port");
             commandLine.addArgument(Objects.toString(servePort));
-            ));
         }
         for (Path resultsPath : resultsPaths) {
             commandLine.addArgument(resultsPath.toAbsolutePath().toString(), true);
@@ -221,7 +201,7 @@ public class AllureCommandline {
 
     private void unpack(final File file) throws IOException {
         try {
-            final ZipFile zipFile = new ZipFile(file); // Use the updated ZipFile class
+            final ZipFile zipFile = new ZipFile(file);
             zipFile.extractAll(getInstallationDirectory().toAbsolutePath().toString());
         } catch (ZipException e) {
             throw new IOException(e);
@@ -246,5 +226,3 @@ public class AllureCommandline {
     }
 }
 ```
-
-In this fix, the import statement for `ZipFile` and `ZipException` has been updated to reflect the new package structure of the `zip4j` library. The rest of the code remains unchanged, ensuring that the class will compile correctly with the updated dependency.

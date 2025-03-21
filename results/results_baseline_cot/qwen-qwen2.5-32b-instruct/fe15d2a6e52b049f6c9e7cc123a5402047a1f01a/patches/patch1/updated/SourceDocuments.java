@@ -1,9 +1,77 @@
-package
-assistant
-<code_analysis>
-The error messages indicate that the `getInstance()` method cannot be found in the `JAXBToStringStrategy` class. This suggests that the `JAXBToStringStrategy` class in the newer version of the dependency no longer has the `getInstance()` method. This could be due to a change in the API where the `getInstance()` method was removed or renamed.
+package com.premiumminds.billy.portugal.services.exportsaftptv1_02_01schema;
 
-The `toString()` and `appendFields` method calls in the `SourceDocuments` class and its inner class instances are trying to call `JAXBToStringStrategy.getInstance()`, which is causing the compilation errors. 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSchemaType;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.datatype.XMLGregorianCalendar;
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
+import org.jvnet.jaxb2_commons.lang.ToString2;
+import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
+import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
-To fix this, we need to replace the `getInstance()` method call with an alternative way to get an instance of `ToStringStrategy2`. If the `JAXBToStringStrategy` class no longer provides a static `getInstance()` method, we might need to instantiate `JAXBToStringStrategy` directly or use a different strategy instance.
-</code_analysis>
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "", propOrder = {
+    "salesInvoices",
+    "movementmentOfGoods",
+    "workingDocuments"
+})
+@XmlRootElement(name = "SourceDocuments")
+public class SourceDocuments implements ToString2 {
+
+{
+
+    @XmlElement(name = "SalesInvoices")
+    protected SourceDocuments.SaleInvoices saleInvoice;
+    @XmlElement(name = "MovementOfGoods")
+    protected SourceDocuments.MovementOfGoods movementOfGoods;
+    @XmlElement(name = "WorkingDocuments")
+    protected SourceDocuments.WorkingDocuments workingDocuments;
+
+    // ... (rest of the class remains unchanged)
+
+    @Override
+    public String toString() {
+        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
+        final StringBuilder buffer = new StringBuilder();
+        append(null, buffer, strategy);
+        return buffer.toString();
+    }
+
+    @Override
+    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+        strategy.appendStart(locator, this, buffer);
+        appendFields(locator, buffer, strategy);
+        strategy.appendEnd(locator, this, buffer);
+        return buffer;
+    }
+
+    @Override
+    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+        {
+            SourceDocuments.SaleInvoice theSaleInvoice;
+            theSaleInvoice = this.getSaleInvoice();
+            strategy.appendField(locator, this, "saleInvoice", buffer, theSaleInvoice, (this.saleInvoice!= null);
+        }
+        {
+            SourceDocuments.MovementOfGoods theMovementOfGoods;
+            theMovementOfGoods = this.getMovementOfGoods();
+            strategy.appendField(locator, this, "movementmentOfGoods", buffer, theMovementOfGoods, (this.movementOfGoods!= null);
+        }
+        {
+            SourceDocuments.WorkingDocuments theWorkingDocuments;
+            theWorkingDocuments = this.getWorkingDocuments();
+            strategy.appendField(locator, this, "workingDocuments", buffer, theWorkingDocuments, (this.workingDocuments!= null);
+        }
+        return buffer;
+    }
+
+    // ... (rest of the class remain unchanged)
+
+}

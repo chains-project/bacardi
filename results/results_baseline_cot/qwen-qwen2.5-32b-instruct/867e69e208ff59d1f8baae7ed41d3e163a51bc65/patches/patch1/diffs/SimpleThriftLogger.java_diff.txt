@@ -14,58 +14,25 @@
 <  * See the License for the specific language governing permissions and
 <  * limitations under the License.
 <  */
-24d8
-< import org.apache.thrift.transport.TFramedTransport;
-45c29
-<   private static final class ByteOffsetTFramedTransport extends TFramedTransport {
+36,43c21
+< /**
+<  * Thrift Logger which is used to log thrift log messages into a log file.
+<  *
+<  * This class is used by unit test and ThriftLogGenerator to write log messages to thrift log
+<  * file. It provides APIs for client to control the flush behavior and log file rotation.
+<  */
+< @SuppressWarnings("rawtypes")
+< public final class SimpleThriftLogger<T extends TBase> implements Closeable {
 ---
->   private static final class ByteOffsetTTransport extends TTransport {
-46a31
->     private final TTransport transport;
-49,50c34,35
-<     public ByteOffsetTFramedTransport(TTransport transport) {
-<       super(transport);
----
->     public ByteOffsetTTransport(TTransport transport) {
->       this.transport = transport;
-54a40,59
->     public boolean isOpen() {
->       return transport.isOpen();
->     }
-> 
->     @Override
->     public void open() throws TTransportException {
->       transport.open();
->     }
-> 
->     @Override
->     public void close() {
->       transport.close();
->     }
-> 
->     @Override
->     public int read(byte[] buf, int off, int len) throws TTransportException {
->       return transport.read(buf, off, len);
->     }
-> 
->     @Override
-56c61
-<       super.write(buf, off, len);
----
->       transport.write(buf, off, len);
-62c67
-<       super.flush();
----
->       transport.flush();
-75c80
-<   private ByteOffsetTFramedTransport transport;
----
->   private ByteOffsetTTransport transport;
-81c86
-<     transport = new ByteOffsetTFramedTransport(new TIOStreamTransport(bufferedOutputStream));
----
->     transport = new ByteOffsetTTransport(new TIOStreamTransport(bufferedOutputStream));
-115c120
-<     transport = new ByteOffsetTFramedTransport(new TIOStreamTransport(bufferedOutputStream));
----
->     transport = new ByteOffsetTTransport(new TIOStreamTransport(bufferedOutputStream));
+> public final class SimpleThriftLogger<T extends TBase<?, ?>> implements Closeable {
+85,89d62
+<   /**
+<    * Write a thrift message to log file.
+<    * @param message to be written
+<    * @throws Exception on write error.
+<    */
+96,99d68
+<   /**
+<    * Simple implementation of log file rotation.
+<    * @throws java.io.IOException
+<    */

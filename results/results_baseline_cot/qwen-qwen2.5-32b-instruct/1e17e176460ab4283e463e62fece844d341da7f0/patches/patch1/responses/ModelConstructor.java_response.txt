@@ -15,26 +15,14 @@ import java.util.Map;
 
 import static java.lang.String.format;
 
-/**
- * YAML model constructor.
- *
- * @author jvanzyl
- * @author bentmann
- * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
- * @since 0.7
- */
 public final class ModelConstructor extends Constructor {
 
   private static final Tag XPP3DOM_TAG = new Tag("!!" + Xpp3Dom.class.getName());
 
-  /**
-   * It maps the runtime class to its Construct implementation.
-   */
   private final Map<Class<?>, Construct> pomConstructors = new HashMap<>();
 
   public ModelConstructor() {
     super();
-    setRootNodeClass(Model.class);
 
     yamlConstructors.put(XPP3DOM_TAG, new ConstructXpp3Dom());
     yamlClassConstructors.put(NodeId.mapping, new MavenObjectConstruct());
@@ -117,20 +105,16 @@ public final class ModelConstructor extends Constructor {
     desc.putListPropertyType("roles", String.class);
     addTypeDescription(desc);
 
-    desc = new TypeDescription(DistributionManagement.class);
-    addTypeDescription(desc);
-
-    desc = new TypeDescription(Scm.class);
-    addTypeDescription(desc);
-
-    desc = new TypeDescription(IssueManagement.class);
-    addTypeDescription(desc);
+    addTypeDescription(new TypeDescription(DistributionManagement.class));
+    addTypeDescription(new TypeDescription(Scm.class));
+    addTypeDescription(new TypeDescription(IssueManagement.class));
+    addTypeDescription(new TypeDescription(Parent.class));
+    addTypeDescription(new TypeDescription(Organization.class));
   }
 
   @Override
   protected Construct getConstructor(Node node) {
     if (pomConstructors.containsKey(node.getType()) && node instanceof ScalarNode) {
-      //construct compact form from scalar
       return pomConstructors.get(node.getType());
     } else {
       return super.getConstructor(node);
@@ -152,13 +136,11 @@ public final class ModelConstructor extends Constructor {
           continue;
         }
 
-        // lists need the insertion of intermediate XML DOM nodes which hold the actual values
         if (entryValue instanceof List && !((List) entryValue).isEmpty()) {
           toDom(child, key, (List) entryValue);
         } else if (entryValue instanceof Map) {
-          //noinspection unchecked
           toDom(child, (Map) entryValue);
-        } else { // if not a list or map then copy the string value
+        } else {
           child.setValue(entryValue.toString());
         }
         parent.addChild(child);
@@ -171,20 +153,18 @@ public final class ModelConstructor extends Constructor {
 
       String childKey;
 
-      // deal with YAML explicit pairs which are mapped to Object[] by SnakeYAML
       if (firstItem.getClass().isArray()) {
         for (Object item : list) {
           Object[] pair = (Object[]) item;
           childKey = "" + pair[0];
           Xpp3Dom itemNode = new Xpp3Dom(childKey);
-          if (pair[1] != null && pair[1] instanceof Map)
-            //noinspection unchecked
+          if (pair[1] instanceof Map)
             toDom(itemNode, (Map) pair[1]);
           else
             itemNode.setValue("" + pair[1]);
           parent.addChild(itemNode);
         }
-      } else { // automagically determine the node's child key using the collection node's name
+      } else {
         if (!parentKey.endsWith("s")) {
           throw new RuntimeException(format("collection key '%s' does not end in 's'. Please resort to the " +
               "documentation on how to use explicit pairs for specifying child node names", parentKey));
@@ -202,7 +182,6 @@ public final class ModelConstructor extends Constructor {
         for (Object item : list) {
           Xpp3Dom itemNode = new Xpp3Dom(childKey);
           if (item instanceof Map)
-            //noinspection unchecked
             toDom(itemNode, (Map) item);
           else
             itemNode.setValue(item.toString());
@@ -235,8 +214,8 @@ public final class ModelConstructor extends Constructor {
     protected Object constructJavaBean2ndStep(MappingNode node, Object object) {
       Class<?> type = node.getType();
 
-      List<Class> specialCases = Arrays.<Class>asList(Dependency.class, Model.class, Plugin.class, ReportPlugin.class);
-      List<Class> configurationContainers = Arrays.<Class>asList(Plugin.class, PluginExecution.class,
+      List<Class> specialCases = Arrays.asList(Dependency.class, Model.class, Plugin.class, ReportPlugin.class);
+      List<Class> configurationContainers = Arrays.asList(Plugin.class, PluginExecution.class,
           ReportPlugin.class, ReportSet.class);
 
       if (configurationContainers.contains(type)) {
@@ -271,17 +250,10 @@ public final class ModelConstructor extends Constructor {
           return coord.mergeReportPlugin(plugin);
         }
       }
-      // create JavaBean
       return super.constructJavaBean2ndStep(node, object);
     }
   }
 
-  /**
-   * Dirty hack - remove 'id' if it is present.
-   *
-   * @param node - the node to remove the coordinate from
-   * @return removed coordinate if it was removed
-   */
   private String removeId(MappingNode node) {
     NodeTuple id = null;
     String scalar = null;

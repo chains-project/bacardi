@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `PublishMetadata` cannot be found, which suggests that the class `PublishMetadata` has been removed or moved in the updated dependency.
-   - The errors occur at lines 43 and 22, where `PublishMetadata` is referenced.
-
-2. Review the client code:
-   - The class `PubSubLiteSinkTask` uses `PublishMetadata` as a type parameter for the `Publisher` class.
-   - The `Publisher` class is used to publish messages to Pub/Sub Lite.
-
-3. Consider potential fixes:
-   - The `PublishMetadata` class is no longer available, so we need to find an alternative or remove its usage.
-   - If `PublishMetadata` was used to store metadata about the published messages, we need to check if there is a new class or method in the updated dependency that can replace its functionality.
-   - If `PublishMetadata` is no longer necessary, we can remove its usage and adjust the code accordingly.
-
-4. Plan the necessary changes:
-   - Remove the usage of `PublishMetadata` as a type parameter for the `Publisher` class.
-   - Adjust the `Publisher` instantiation and usage to not rely on `PublishMetadata`.
-</code_analysis>
-
 ```java
 package com.google.pubsublite.kafka.sink;
 
@@ -24,7 +5,7 @@ import static com.google.pubsublite.kafka.sink.Schemas.encodeToBytes;
 
 import com.google.api.core.ApiService.State;
 import com.google.cloud.pubsublite.Message;
-import com.google.cloud.pubsublite.Publisher;
+import com.google.cloud.pubsublite.internal.Publisher;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.protobuf.ByteString;
@@ -152,5 +133,3 @@ public class PubSubLiteSinkTask extends SinkTask {
   }
 }
 ```
-
-In this fix, the `PublishMetadata` type parameter has been removed from the `Publisher` class, as it is no longer available in the updated dependency. The rest of the code remains unchanged, assuming that the `Publisher` class in the new dependency version does not require `PublishMetadata` for its operations.

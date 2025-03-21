@@ -13,24 +13,22 @@ import java.util.Map;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.HttpHeaders;
 import lombok.EqualsAndHashCode;
-import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.core.IsEqual;
-import org.hamcrest.core.StringContains;
+import org.hamcrest.Matchers;
 
 /**
  * REST response.
  *
  * <p>This response decorator is able to make basic assertions on
- * HTTP response and manipulate with it afterwards, for example:
+ * HTTP response and manipulate with it afterwords, for example:
  *
  * <pre> String name = new JdkRequest("http://my.example.com")
  *   .fetch()
  *   .as(RestResponse.class)
  *   .assertStatus(200)
- *   .assertBody(new StringContains("hello, world!"))
- *   .assertHeader("Content-Type", new IsEqual<>(Collections.singletonList("text/plain")))
+ *   .assertBody(Matchers.containsString("hello, world!"))
+ *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
  *   .jump(URI.create("/users"))
  *   .fetch();</pre>
  *
@@ -80,16 +78,18 @@ public final class RestResponse extends AbstractResponse {
                 "HTTP response status is not equal to %d:%n%s",
                 status, this
             ),
-            this.status(), new IsEqual<>(status)
+            this.status(), Matchers.equalTo(status)
         );
         return this;
     }
 
     /**
-     * Verifies HTTP response status code against the provided matcher,
-     * and throws {@link AssertionError} in case of mismatch.
+     * Verifies HTTP response status code against the provided matcher, and throws
+     * {@link AssertionError} in case of mismatch.
+     *
      * @param matcher The matcher to use
      * @return This object
+     * @since 0.9
      */
     public RestResponse assertStatus(final Matcher<Integer> matcher) {
         MatcherAssert.assertThat(
@@ -140,7 +140,7 @@ public final class RestResponse extends AbstractResponse {
      * Verifies HTTP header against provided matcher, and throws
      * {@link AssertionError} in case of mismatch.
      *
-     * <p>The iterator for the matcher will always be a real object and never
+     * <p>The iterator for the matcher will always be a real object an never
      * {@code NULL}, even if such a header is absent in the response. If the
      * header is absent the iterable will be empty.
      *
@@ -175,7 +175,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, new IsEqual<>(Collections.singletonList(value)));
+        return this.assertHeader(name, Matchers.hasItems(value));
     }
 
     /**
@@ -211,7 +211,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            new IsEqual<>(Collections.singletonList("http://example.com"))
+            Matchers.not(Matchers.emptyIterableOf(String.class))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -249,7 +249,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            new IsEqual<>(null)
+            Matchers.notNullValue()
         );
         assert cookie != null;
         return cookie;

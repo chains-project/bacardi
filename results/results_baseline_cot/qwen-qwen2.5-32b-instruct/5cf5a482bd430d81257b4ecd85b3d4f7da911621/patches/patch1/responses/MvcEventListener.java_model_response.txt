@@ -1,13 +1,3 @@
-<code_analysis>
-The error messages indicate that the `javax.mvc.event` package and its associated classes (such as `BeforeControllerEvent`, `BeforeProcessViewEvent`, `AfterControllerEvent`, `AfterProcessViewEvent`, and `ControllerRedirectEvent`) are not found. This suggests that the dependency related to the `javax.mvc.event` package has been updated or removed, and the new version no longer includes these classes.
-
-Given the context of the error, it seems that the `javax.mvc.event` package has been replaced or deprecated in the newer version of the dependency. The solution would be to either find the equivalent classes in the new version or remove the code that relies on these classes if they are no longer available.
-
-Since the exact replacement or the new version details are not provided, the safest approach would be to remove the code that relies on these classes to ensure the code compiles. However, if the functionality provided by these classes is critical, the developer would need to find the equivalent functionality in the new version or implement a workaround.
-
-For the purpose of this exercise, I will remove the methods that rely on the `javax.mvc.event` package to resolve the compilation errors.
-</code_analysis>
-
 ```java
 package com.example;
 
@@ -16,6 +6,11 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import jakarta.mvc.event.AfterControllerEvent;
+import jakarta.mvc.event.AfterProcessViewEvent;
+import jakarta.mvc.event.BeforeControllerEvent;
+import jakarta.mvc.event.BeforeProcessViewEvent;
+import jakarta.mvc.event.ControllerRedirectEvent;
 
 @ApplicationScoped
 public class MvcEventListener {
@@ -23,11 +18,29 @@ public class MvcEventListener {
     @Inject
     Logger LOGGER;
 
+    private void onControllerMatched(@Observes BeforeControllerEvent event) {
+        LOGGER.info(() -> "Controller matched for " + event.getUriInfo().getRequestUri());
+    }
+
+    private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
+        LOGGER.info(() -> "View engine: " + event.getEngine());
+    }
+
+    private void onAfterControllerEvent(@Observes AfterControllerEvent event) {
+        LOGGER.info(() -> "AfterControllerEvent:: " + event.getResourceInfo());
+    }
+
+    private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
+        LOGGER.info(() -> "AfterProcessViewEvent:: " + event);
+    }
+    
+    private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
+        LOGGER.info(() -> "ControllerRedirectEvent:: " + event);
+    }
+
     @PostConstruct
     private void init() {
         LOGGER.config(() -> this.getClass().getSimpleName() + " created");
     }
 }
 ```
-
-This solution removes the methods that rely on the `javax.mvc.event` package, which resolves the compilation errors. If the functionality provided by these methods is necessary, the developer would need to find the equivalent classes or methods in the updated dependency or implement the required functionality in another way.

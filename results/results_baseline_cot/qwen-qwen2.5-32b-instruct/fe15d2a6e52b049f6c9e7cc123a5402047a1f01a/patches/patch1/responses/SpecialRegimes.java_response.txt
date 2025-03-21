@@ -4,7 +4,9 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
+import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -13,7 +15,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "cashVATSchemeIndicator",
     "thirdPartiesBillingIndicator"
 })
-public class SpecialRegimes implements ToString2 {
+public class SpecialRegimes implements ToString2
+{
 
     @XmlElement(name = "SelfBillingIndicator")
     protected int selfBillingIndicator;
@@ -48,14 +51,14 @@ public class SpecialRegimes implements ToString2 {
 
     @Override
     public String toString() {
-        final org.jvnet.jaxb2_commons.lang.ToStringStrategy2 strategy = new org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy2();
+        final JAXBToStringStrategy strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
     }
 
     @Override
-    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, org.jvnet.jaxb2_commons.lang.ToStringStrategy2 strategy) {
+    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         strategy.appendStart(locator, this, buffer);
         appendFields(locator, buffer, strategy);
         strategy.appendEnd(locator, this, buffer);
@@ -63,7 +66,7 @@ public class SpecialRegimes implements ToString2 {
     }
 
     @Override
-    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, org.jvnet.jaxb2_commons.lang.ToStringStrategy2 strategy) {
+    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         {
             int theSelfBillingIndicator;
             theSelfBillingIndicator = this.getSelfBillingIndicator();
@@ -81,4 +84,5 @@ public class SpecialRegimes implements ToString2 {
         }
         return buffer;
     }
+
 }

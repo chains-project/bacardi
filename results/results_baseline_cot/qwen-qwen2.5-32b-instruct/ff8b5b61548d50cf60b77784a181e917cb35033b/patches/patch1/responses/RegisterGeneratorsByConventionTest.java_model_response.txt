@@ -1,9 +1,3 @@
-<code_analysis>
-The error message indicates that the package `org.mockito.runners` and the class `MockitoJUnitRunner` are not found. This suggests that the version of Mockito being used has been updated, and the `MockitoJUnitRunner` class has been moved or removed. In newer versions of Mockito, the `MockitoJUnitRunner` has been deprecated and removed. Instead, the `MockitoJUnitRunner` has been replaced by `MockitoJUnitJupiter` for JUnit 5, or the `MockitoAnnotations.initMocks(this)` method for JUnit 4.
-
-Given that the code is using JUnit 4 (as indicated by the `@Before` and `@Test` annotations), the appropriate fix would be to remove the `@RunWith(MockitoJUnitRunner.class)` annotation and initialize mocks manually using `MockitoAnnotations.initMocks(this)` in the `@Before` method.
-</code_analysis>
-
 ```java
 package com.pholser.junit.quickcheck.internal.generator;
 
@@ -23,8 +17,11 @@ import com.pholser.junit.quickcheck.random.SourceOfRandomness;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.Arrays;
+
+@RunWith(MockitoJUnitRunner.class)
 public class RegisterGeneratorsByConventionTest {
     private GeneratorRepository repo;
     @Mock private SourceOfRandomness random;
@@ -32,7 +29,6 @@ public class RegisterGeneratorsByConventionTest {
 
     @Before
     public void setupRepository() {
-        MockitoAnnotations.initMocks(this);
         repo = new GeneratorRepository(random);
     }
 
@@ -76,5 +72,3 @@ public class RegisterGeneratorsByConventionTest {
     }
 }
 ```
-
-This solution removes the `@RunWith(MockitoJUnitRunner.class)` annotation and initializes mocks manually in the `@Before` method using `MockitoAnnotations.initMocks(this)`. This approach is compatible with the latest Mockito versions and ensures that the mocks are properly initialized for the test cases.

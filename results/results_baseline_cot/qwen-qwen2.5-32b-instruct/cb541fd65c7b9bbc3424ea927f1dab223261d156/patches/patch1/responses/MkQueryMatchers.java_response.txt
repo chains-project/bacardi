@@ -2,7 +2,7 @@ package com.jcabi.http.mock;
 
 import java.net.URI;
 import org.hamcrest.Matcher;
-import org.hamcrest.core.Matchers;
+import org.hamcrest.Matchers;
 
 /**
  * Convenient set of matchers for {@link MkQuery}.

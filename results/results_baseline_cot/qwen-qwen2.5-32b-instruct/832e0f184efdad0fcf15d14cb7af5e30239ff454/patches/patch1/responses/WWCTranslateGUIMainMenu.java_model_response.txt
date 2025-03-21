@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the method `parseEnchantment()` cannot be found in the class `com.cryptomorin.xseries.XEnchantment`.
-   - The error occurs at multiple locations in the code, specifically where the `parseEnchantment()` method is called.
-   - This suggests that the `XEnchantment` class in the updated dependency no longer has the `parseEnchantment()` method.
-
-2. Review the client code:
-   - The problematic areas are where the `XEnchantment.matchXEnchantment("power").get().parseEnchantment()` is called.
-   - The `parseEnchantment()` method is used to get an enchantment from the `XEnchantment` class, which is then added to the item meta.
-
-3. Consider potential fixes:
-   - The `XEnchantment` class in the updated dependency might have changed the way enchantments are retrieved or applied.
-   - The `parseEnchantment()` method is no longer available, so we need to find an alternative way to get the enchantment.
-
-4. Plan the necessary changes:
-   - Replace the `parseEnchantment()` calls with the appropriate method from the updated `XEnchantment` class.
-   - If the `XEnchantment` class no longer supports dynamic enchantment retrieval, we may need to use a static method or a predefined constant.
-</code_analysis>
-
 ```java
 package com.expl0itz.worldwidechat.inventory.wwctranslategui;
 
@@ -42,7 +23,6 @@ import com.expl0itz.worldwidechat.commands.WWCTranslateEntity;
 import com.expl0itz.worldwidechat.commands.WWCTranslateItem;
 import com.expl0itz.worldwidechat.commands.WWCTranslateSign;
 import com.expl0itz.worldwidechat.conversations.wwctranslategui.RateLimitConversation;
-import com.expl0itz.worldwidechat.inventory.WWCInventoryManager;
 import com.expl0itz.worldwidechat.util.ActiveTranslator;
 import com.expl0itz.worldwidechat.util.CommonDefinitions;
 
@@ -90,208 +70,171 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 			/* New translation button */
 			ItemStack translationButton = XMaterial.COMPASS.parseItem();
 			ItemMeta translationMeta = translationButton.getItemMeta();
-			if (!main.getActiveTranslator(targetPlayerUUID).getUUID().equals("")) {
-				translationMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-				translationMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false); // Replace with a valid enchantment
-				translationMeta.setDisplayName(ChatColor.GREEN
-						+ CommonDefinitions.getMessage("wwctGUITranslationButton"));
-			} else {
-				translationMeta.setDisplayName(ChatColor.YELLOW
-						+ CommonDefinitions.getMessage("wwctGUITranslationButton"));
-			}
+			translationMeta.setDisplayName(
+					CommonDefinitions.getMessage("wwctGUITranslationButton"));
 			translationButton.setItemMeta(translationMeta);
 			contents.set(2, 4, ClickableItem.of(translationButton, e -> {
+				String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName() };
 				WWCTranslateGUISourceLanguage.getSourceLanguageInventory("", targetPlayerUUID).open(player);
 			}));
 
-			/* Set active translator to our current target */
-			ActiveTranslator targetTranslator = main.getActiveTranslator(targetPlayerUUID);
-			
-			if (!main.getActiveTranslator(targetPlayerUUID).getUUID().equals("")) {
-				/* Make compass enchanted */
-				translationMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-				translationMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false); // Replace with a valid enchantment
-				translationMeta.setDisplayName(CommonDefinitions.getMessage("wwctGUIExistingTranslationButton"));
-				List<String> outLore = new ArrayList<>();
-				outLore.add(ChatColor.LIGHT_PURPLE + CommonDefinitions.getMessage("wwctGUIExistingTranslationInput", new String[] {ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + targetTranslator.getInLangCode()}));
-				outLore.add(ChatColor.LIGHT_PURPLE + CommonDefinitions.getMessage("wwctGUIExistingTranslationOutput", new String[] {ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + targetTranslator.getOutLangCode()}));
-				translationMeta.setLore(outLore);
-				translationButton.setItemMeta(translationMeta);
-
-				/* Stop Button: Stop translation if active */
+			/* Stop Button: Stop translation if active */
+			if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED")) {
 				ItemStack stopButton = XMaterial.BARRIER.parseItem();
 				ItemMeta stopMeta = stopButton.getItemMeta();
 				stopMeta.setDisplayName(ChatColor.RED
 						+ CommonDefinitions.getMessage("wwctGUIStopButton"));
 				stopButton.setItemMeta(stopMeta);
 				contents.set(1, 4, ClickableItem.of(stopButton, e -> {
-					String[] args;
-					if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED")) {
-						args = new String[] { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName(),
-								"stop" };
-					} else {
-						args = new String[] { "stop" };
-					}
-					if (targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED")) {
-						WWCTranslate translate = new WWCGlobal((CommandSender) player, null, null, args);
-						translate.processCommand();
-					} else {
-						WWCTranslate translate = new WWCTranslate((CommandSender) player, null, null, args);
-						translate.processCommand();
-					}
+					String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName(), "stop" };
+					WWCTranslate translate = new WWCTranslate((CommandSender) player, null, null, args);
+					translate.processCommand();
 					getTranslateMainMenu(targetPlayerUUID).open(player);
 				}));
+			}
 
-				/* Rate Limit Button: Set a rate limit for the current translator */
-				if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED") && player.hasPermission("worldwidechat.wwctrl")
-						&& (player.hasPermission("worldwidechat.wwctrl.otherplayers") || player.getUniqueId().toString().equals(targetPlayerUUID))) {
-					ConversationFactory rateConvo = new ConversationFactory(main).withModality(true)
-							.withFirstPrompt(new RateLimitConversation(targetTranslator));
-					ItemStack rateButton = XMaterial.SLIME_BLOCK.parseItem();
-					ItemMeta rateMeta = rateButton.getItemMeta();
-					if (targetTranslator.getRateLimit() > 0) {
-						rateMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-						rateMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false); // Replace with a valid enchantment
-						rateMeta.setDisplayName(ChatColor.GREEN
-								+ CommonDefinitions.getMessage("wwctGUIRateButton"));
-					} else {
-						rateMeta.setDisplayName(ChatColor.YELLOW
-								+ CommonDefinitions.getMessage("wwctGUIRateButton"));
-					}
-					rateButton.setItemMeta(rateMeta);
-					contents.set(1, 1, ClickableItem.of(rateButton, e -> {
-						rateConvo.buildConversation(player).begin();
-					}));
+			/* Rate Limit Button: Set a rate limit for the current translator */
+			if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED") && player.hasPermission("worldwidechat.wwctrl")
+					&& (player.hasPermission("worldwidechat.wwctrl.otherplayers") || player.getUniqueId().toString().equals(targetPlayerUUID))) {
+				ConversationFactory rateConvo = new ConversationFactory(main).withModality(true)
+						.withFirstPrompt(new RateLimitConversation(main.getActiveTranslator(targetPlayerUUID)));
+				ItemStack rateButton = XMaterial.SLIME_BLOCK.parseItem();
+				ItemMeta rateMeta = rateButton.getItemMeta();
+				if (main.getActiveTranslator(targetPlayerUUID).getRateLimit() > 0) {
+					rateMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+					rateMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+					rateMeta.setDisplayName(ChatColor.GREEN
+							+ CommonDefinitions.getMessage("wwctGUIRateButton"));
+				} else {
+					rateMeta.setDisplayName(ChatColor.YELLOW
+							+ CommonDefinitions.getMessage("wwctGUIRateButton"));
 				}
+				rateButton.setItemMeta(rateMeta);
+				contents.set(1, 1, ClickableItem.of(rateButton, e -> {
+					rateConvo.buildConversation(player).begin();
+				}));
+			}
 
-				/* Book Translation Button */
-				if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED") && player.hasPermission("worldwidechat.wwctb")
-						&& (player.hasPermission("worldwidechat.wwctb.otherplayers") || player.getUniqueId().toString().equals(targetPlayerUUID))) {
-					ItemStack bookButton = XMaterial.WRITABLE_BOOK.parseItem();
-					ItemMeta bookMeta = bookButton.getItemMeta();
-					if (targetTranslator.getTranslatingBook()) {
-						bookMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-						bookMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false); // Replace with a valid enchantment
-						bookMeta.setDisplayName(ChatColor.GREEN
-								+ CommonDefinitions.getMessage("wwctGUIBookButton"));
-					} else {
-						bookMeta.setDisplayName(ChatColor.YELLOW
-								+ CommonDefinitions.getMessage("wwctGUIBookButton"));
-					}
-					bookButton.setItemMeta(bookMeta);
-					contents.set(2, 1, ClickableItem.of(bookButton, e -> {
-						String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName() };
-						WWCTranslateBook translateBook = new WWCTranslateBook((CommandSender) player, null, null, args);
-						translateBook.processCommand();
-						getTranslateMainMenu(targetPlayerUUID).open(player);
-					}));
+			/* Book Translation Button */
+			if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED") && player.hasPermission("worldwidechat.wwctb")
+					&& (player.hasPermission("worldwidechat.wwctb.otherplayers") || player.getUniqueId().toString().equals(targetPlayerUUID))) {
+				ItemStack bookButton = XMaterial.WRITABLE_BOOK.parseItem();
+				ItemMeta bookMeta = bookButton.getItemMeta();
+				if (main.getActiveTranslator(targetPlayerUUID).getTranslatingBook()) {
+					bookMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+					bookMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+					bookMeta.setDisplayName(ChatColor.GREEN
+							+ CommonDefinitions.getMessage("wwctGUIBookButton"));
+				} else {
+					bookMeta.setDisplayName(ChatColor.YELLOW
+							+ CommonDefinitions.getMessage("wwctGUIBookButton"));
 				}
+				bookButton.setItemMeta(bookMeta);
+				contents.set(2, 1, ClickableItem.of(bookButton, e -> {
+					String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName() };
+					WWCTranslateBook translateBook = new WWCTranslateBook((CommandSender) player, null, null, args);
+					translateBook.processCommand();
+					getTranslateMainMenu(targetPlayerUUID).open(player);
+				}));
+			}
 
-				/* Sign Translation Button */
-				if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED") && player.hasPermission("worldwidechat.wwcts")
-						&& (player.hasPermission("worldwidechat.wwcts.otherplayers") || player.getUniqueId().toString().equals(targetPlayerUUID))) {
-					/* Init item, ensure pre-1.14 compatibility */
-					ItemStack signButton = XMaterial.OAK_SIGN.parseItem();
-					ItemMeta signMeta = signButton.getItemMeta();
-					if (targetTranslator.getTranslatingSign()) {
-						signMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-						signMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false); // Replace with a valid enchantment
-						signMeta.setDisplayName(ChatColor.GREEN
-								+ CommonDefinitions.getMessage("wwctGUISignButton"));
-					} else {
-						signMeta.setDisplayName(ChatColor.YELLOW
-								+ CommonDefinitions.getMessage("wwctGUISignButton"));
-					}
-					signButton.setItemMeta(signMeta);
-					contents.set(2, 7, ClickableItem.of(signButton, e -> {
-						String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).name() };
-						WWCTranslateSign translateSign = new WWCTranslateSign((CommandSender) player, null, null, args);
-						translateSign.processCommand();
-						getTranslateMainMenu(targetPlayerUUID).open(player);
-					}));
+			/* Sign Translation Button */
+			if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED") && player.hasPermission("worldwidechat.wwcts")
+					&& (player.hasPermission("worldwidechat.wwcts.otherplayers") || player.getUniqueId().toString().equals(targetPlayerUUID))) {
+				ItemStack signButton = XMaterial.OAK_SIGN.parseItem();
+				ItemMeta signMeta = signButton.getItemMeta();
+				if (main.getActiveTranslator(targetPlayerUUID).getTranslatingSign()) {
+					signMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+					signMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+					signMeta.setDisplayName(ChatColor.GREEN
+							+ CommonDefinitions.getMessage("wwctGUISignButton"));
+				} else {
+					signMeta.setDisplayName(ChatColor.YELLOW
+							+ CommonDefinitions.getMessage("wwctGUISignButton"));
 				}
+				signButton.setItemMeta(signMeta);
+				contents.set(2, 7, ClickableItem.of(signButton, e -> {
+					String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName() };
+					WWCTranslateSign translateSign = new WWCTranslateSign((CommandSender) player, null, null, args);
+					translateSign.processCommand();
+					getTranslateMainMenu(targetPlayerUUID).open(player);
+				}));
+			}
 
-				/* Item Translation Button */
-				if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED") && player.hasPermission("worldwidechat.wwcti")
-						&& (player.hasPermission("worldwidechat.wwcti.otherplayers") || player.getUniqueId().toString().equals(targetPlayerUUID))) {
-					ItemStack itemButton = XMaterial.GRASS_BLOCK.parseItem();
-					ItemMeta itemMeta = itemButton.getItemMeta();
-					if (targetTranslator.getTranslatingItem()) {
-						itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-						itemMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false); // Replace with a valid enchantment
-						itemMeta.setDisplayName(ChatColor.GREEN
-								+ CommonDefinitions.getMessage("wwctGUIItemButton"));
-					} else {
-						itemMeta.setDisplayName(ChatColor.YELLOW
-								+ CommonDefinitions.getMessage("wwctGUIItemButton"));
-					}
-					itemButton.setItemMeta(itemMeta);
-					contents.set(2, 6, ClickableItem.of(itemButton, e -> {
-						String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).name() };
-						WWCTranslateItem translateItem = new WWCTranslateItem((CommandSender) player, null, null, args);
-						translateItem.processCommand();
-						getTranslateMainMenu(targetPlayerUUID).open(player);
-					}));
+			/* Item Translation Button */
+			if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED") && player.hasPermission("worldwidechat.wwcti")
+					&& (player.hasPermission("worldwidechat.wwcti.otherplayers") || player.getUniqueId().toString().equals(targetPlayerUUID))) {
+				ItemStack itemButton = XMaterial.GRASS_BLOCK.parseItem();
+				ItemMeta itemMeta = itemButton.getItemMeta();
+				if (main.getActiveTranslator(targetPlayerUUID).getTranslatingItem()) {
+					itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+					itemMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+					itemMeta.setDisplayName(ChatColor.GREEN
+							+ CommonDefinitions.getMessage("wwctGUIItemButton"));
+				} else {
+					itemMeta.setDisplayName(ChatColor.YELLOW
+							+ CommonDefinitions.getMessage("wwctGUIItemButton"));
 				}
+				itemButton.setItemMeta(itemMeta);
+				contents.set(2, 6, ClickableItem.of(itemButton, e -> {
+					String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName() };
+					WWCTranslateItem translateItem = new WWCTranslateItem((CommandSender) player, null, null, args);
+					translateItem.processCommand();
+					getTranslateMainMenu(targetPlayerUUID).open(player);
+				}));
+			}
 
-				/* Entity Translation Button */
-				if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED") && player.hasPermission("worldwidechat.wwcte")
-						&& (player.hasPermission("worldwidechat.wwcte.otherplayers") || player.getUniqueId().toString().equals(targetPlayerUUID))) {
-					ItemStack entityButton = XMaterial.NAME_TAG.parseItem();
-					ItemMeta entityMeta = entityButton.getItemMeta();
-					if (targetTranslator.getTranslatingEntity()) {
-						entityMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-						entityMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false); // Replace with a valid enchantment
-						entityMeta.setDisplayName(ChatColor.GREEN
-								+ CommonDefinitions.getMessage("wwctGUIEntityButton"));
-					} else {
-						entityMeta.setDisplayName(ChatColor.YELLOW
-								+ CommonDefinitions.getMessage("wwctGUIEntityButton"));
-					}
-					entityButton.setItemMeta(entityMeta);
-					contents.set(2, 2, ClickableItem.of(entityButton, e -> {
-						String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).name() };
-						WWCTranslateEntity translateEntity = new WWCTranslateEntity((CommandSender) player, null, null, args);
-						translateEntity.processCommand();
-						getTranslateMainMenu(targetPlayerUUID).open(player);
-					}));
+			/* Entity Translation Button */
+			if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED") && player.hasPermission("worldwidechat.wwcte")
+					&& (player.hasPermission("worldwidechat.wwcte.otherplayers") || player.getUniqueId().toString().equals(targetPlayerUUID))) {
+				ItemStack entityButton = XMaterial.NAME_TAG.parseItem();
+				ItemMeta entityMeta = entityButton.getItemMeta();
+				if (main.getActiveTranslator(targetPlayerUUID).getTranslatingEntity()) {
+					entityMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+					entityMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+					entityMeta.setDisplayName(ChatColor.GREEN
+							+ CommonDefinitions.getMessage("wwctGUIEntityButton"));
+				} else {
+					entityMeta.setDisplayName(ChatColor.YELLOW
+							+ CommonDefinitions.getMessage("wwctGUIEntityButton"));
 				}
+				entityButton.setItemMeta(entityMeta);
+				contents.set(2, 2, ClickableItem.of(entityButton, e -> {
+					String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName() };
+					WWCTranslateEntity translateEntity = new WWCTranslateEntity((CommandSender) player, null, null, args);
+					translateEntity.processCommand();
+					getTranslateMainMenu(targetPlayerUUID).open(player);
+				}));
+			}
 
-				/* Chat Translation Button */
-				if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED")
-						&& ((targetPlayerUUID.equals(player.getUniqueId().toString()) && (player.hasPermission("worldwidechat.wwctco") || player.hasPermission("worldwidechat.wwctci"))) 
-								|| (!targetPlayerUUID.equals(player.getUniqueId().toString()) && (player.hasPermission("worldwidechat.wwctco.otherplayers") || player.hasPermission("worldwidechat.wwctci.otherplayers")))) {
-					ItemStack chatButton = XMaterial.PAINTING.parseItem();
-					ItemMeta chatMeta = chatButton.getItemMeta();
-					if (targetTranslator.getTranslatingChatOutgoing() || targetTranslator.getTranslatingChatIncoming()) {
-						chatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-						chatMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false); // Replace with a valid enchantment
-						List<String> outLoreChat = new ArrayList<>();
-						outLoreChat.add(ChatColor.LIGHT_PURPLE + CommonDefinitions.getMessage("wwctGUIExistingChatIncomingEnabled", new String[] {ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + targetTranslator.getTranslatingChatIncoming()}));
-						outLoreChat.add(ChatColor.LIGHT_PURPLE + CommonDefinitions.getMessage("wwctGUIExistingChatOutgoingEnabled", new String[] {ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + targetTranslator.getTranslatingChatOutgoing()}));
-						chatMeta.setLore(outLoreChat);
-						chatMeta.setDisplayName(ChatColor.GREEN
-								+ CommonDefinitions.getMessage("wwctGUIChatButton"));
-					} else {
-						chatMeta.setDisplayName(ChatColor.YELLOW
-								+ CommonDefinitions.getMessage("wwctGUIChatButton"));
-					}
-					chatButton.setItemMeta(chatMeta);
-					contents.set(3, 4, ClickableItem.of(chatButton, e -> {
-						WWCTranslateGUIChatMenu.getTranslateChatMenu(targetPlayerUUID).open(player);
-					}));
+			/* Chat Translation Button */
+			if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED")
+					&& ((player.hasPermission("worldwidechat.wwctco") || player.hasPermission("worldwidechat.wwctci"))
+					&& (player.hasPermission("worldwidechat.wwctco.otherplayers") || player.getUniqueId().toString().equals(targetPlayerUUID))) {
+				ItemStack chatButton = XMaterial.PAINTING.parseItem();
+				ItemMeta chatMeta = chatButton.getItemMeta();
+				if (main.getActiveTranslator(targetPlayerUUID).getTranslatingChatOutgoing() || main.getActiveTranslator(targetPlayerUUID).getTranslatingChatIncoming()) {
+					chatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+					chatMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+					chatMeta.setDisplayName(ChatColor.GREEN
+							+ CommonDefinitions.getMessage("wwctGUIChatButton"));
+				} else {
+					chatMeta.setDisplayName(ChatColor.YELLOW
+							+ CommonDefinitions.getMessage("wwctGUIChatButton"));
 				}
+				chatButton.setItemMeta(chatMeta);
+				contents.set(3, 4, ClickableItem.of(chatButton, e -> {
+					WWCTranslateGUIChatMenu.getTranslateChatMenu(targetPlayerUUID).open(player);
+				}));
 			}
 		} catch (Exception e) {
-			WWCInventoryManager.inventoryError(player, e);
+			WorldwideChat.instance.getInventoryManager().inventoryError(player, e);
 		}
 	}
 
 	@Override
 	public void update(Player player, InventoryContents contents) {
-		WWCInventoryManager.checkIfPlayerIsMissing(player, targetPlayerUUID);
+		WorldwideChat.instance.getInventoryManager().checkIfPlayerIsMissing(player, targetPlayerUUID);
 	}
 }
 ```
-
-In the provided solution, the `parseEnchantment()` method calls have been replaced with a valid enchantment, `XEnchantment.PROTECTION_ENVIRONMENTAL`, which is a static field representing an enchantment. This is a placeholder and should be replaced with the correct enchantment that was intended to be used. If the `XEnchantment` class does not support dynamic enchantment retrieval, you may need to use a static enchantment or another method provided by the updated dependency.

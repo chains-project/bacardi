@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the `FopFactory.newInstance()` method call is incorrect because it does not match any of the available method signatures in the updated version of the Apache FOP library.
-   - The error occurs at line 115 in the `transformToStream` method.
-   - The issue is caused by a breaking change in the Apache FOP library, where the `newInstance()` method without arguments is no longer available.
-
-2. Review the client code:
-   - The problematic area is the `FopFactory.newInstance()` call in the `transformToStream` method.
-   - The rest of the code seems to be unaffected by this change, but it's important to ensure that the fix does not introduce any new issues.
-
-3. Consider potential fixes:
-   - The fix should involve using one of the available `newInstance` methods, such as `newInstance(FopFactoryConfig)`, `newInstance(File)`, or `newInstance(URI)`.
-   - Since the code does not provide a specific configuration or file/URI for the FOP factory, the simplest fix would be to use the default configuration by creating a `FopFactoryConfig` instance.
-
-4. Plan the necessary changes:
-   - Replace the `FopFactory.newInstance()` call with `FopFactory.newInstance(new FopFactoryConfig())`.
-   - Ensure that the `FopFactoryConfig` class is correctly imported.
-</code_analysis>
-
 ```java
 package com.premiumminds.billy.gin.services.impl.pdf;
 
@@ -58,7 +39,7 @@ import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.FopFactoryBuilder;
-import org.apache.fop.apps.FopFactoryConfig;
+import org.apache.xmlgraphics.util.MimeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,7 +96,8 @@ public abstract class FOPPDFTransformer {
         StreamSource transformSource = new StreamSource(templateStream);
 
         // create an instance of fop factory
-        FopFactory fopFactory = FopFactory.newInstance(new FopFactoryConfig());
+        FopFactoryBuilder builder = new FopFactoryBuilder(new File("."));
+        FopFactory fopFactory = builder.build();
         // a user agent is needed for transformation
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
         // to store output
@@ -141,7 +123,8 @@ public abstract class FOPPDFTransformer {
             // Construct fop with desired output format
             Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, outStream);
 
-            // Resulting SAX events (the generated FO) must be piped through to FOP
+            // Resulting SAX events (the generated FO)
+            // must be piped through to FOP
             Result res = new SAXResult(fop.getDefaultHandler());
 
             // Start XSLT transformation and FOP processing
@@ -209,5 +192,3 @@ public abstract class FOPPDFTransformer {
     }
 }
 ```
-
-This fix addresses the issue by using the `FopFactory.newInstance(FopFactoryConfig)` method with a default configuration, which is compatible with the updated version of the Apache FOP library. The import for `FopFactoryConfig` is added to ensure the code compiles correctly.

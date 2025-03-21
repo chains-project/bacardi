@@ -1,4 +1,4 @@
-package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -6,7 +6,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
-import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -37,18 +36,18 @@ public class SupplierAddressStructure implements ToString2
     @XmlElement(name = "Country", required = true)
     protected String country;
 
-    // ... (getters and setters remain unchanged)
+    // ... (rest of the getters and setters)
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new JAXBToStringStrategy(); // Direct instantiation instead of getInstance()
+        final JAXBToStringStrategy strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
     }
 
     @Override
-    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, JAXBToStringStrategy strategy) {
         strategy.appendStart(locator, this, buffer);
         appendFields(locator, buffer, strategy);
         strategy.appendEnd(locator, this, buffer);
@@ -56,7 +55,7 @@ public class SupplierAddressStructure implements ToString2
     }
 
     @Override
-    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, JAXBToStringStrategy strategy) {
         {
             String theBuildingNumber;
             theBuildingNumber = this.getBuildingNumber();

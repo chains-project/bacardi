@@ -1,56 +1,19 @@
-1,18d0
-< //
-< // Wire
-< // Copyright (C) 2016 Wire Swiss GmbH
-< //
-< // This program is free software: you can redistribute it and/or modify
-< // it under the terms of the GNU General Public License as published by
-< // the Free Software Foundation, either version 3 of the License, or
-< // (at your option) any later version.
-< //
-< // This program is distributed in the hope that it will be useful,
-< // but WITHOUT ANY WARRANTY; without even the implied warranty of
-< // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-< // GNU General Public License for more details.
-< //
-< // You should have received a copy of the GNU General Public License
-< // along with this program. If not, see http://www.gnu.org/licenses/.
-< //
-< 
-23d4
-< import com.codahale.metrics.jmx.JmxReporter;
-51d31
+32d31
+< import com.wire.lithium.server.monitoring.VersionResource;
+51d49
 < import io.dropwizard.servlets.tasks.Task;
-129c109
-<     public void run(final Config config, Environment env) throws Exception {
----
->     public void run(final Config config, Environment env) {
-169a150
+53a52
+> import io.dropwizard.setup.AdminEnvironment;
+169a169
 > 
-194,210c175
-<     public StorageFactory getStorageFactory() {
-<         if (config.database.getDriverClass().equalsIgnoreCase("fs")) {
-<             return botId -> new FileState(config.database.getUrl(), botId);
-<         }
-< 
-<         return botId -> new JdbiState(botId, getJdbi());
-<     }
-< 
-<     public CryptoFactory getCryptoFactory() {
-<         if (config.database.getDriverClass().equalsIgnoreCase("fs")) {
-<             return (botId) -> new CryptoFile(config.database.getUrl(), botId);
-<         }
-< 
-<         return (botId) -> new CryptoDatabase(botId, new JdbiStorage(getJdbi()));
-<     }
-< 
-<     private void addResources() {
+220,221c220,222
+<         addTask(new ConversationTask(getRepo()));
+<         addTask(new AvailablePrekeysTask(getRepo()));
 ---
->     protected void addResources() {
-260,265d224
+>         AdminEnvironment admin = environment.admin();
+>         admin.addTask(new ConversationTask(getRepo()));
+>         admin.addTask(new AvailablePrekeysTask(getRepo()));
+258,260d258
+<         environment.metrics().register("logger.errors", (Gauge<Integer>) Logger::getErrorCount);
+<         environment.metrics().register("logger.warnings", (Gauge<Integer>) Logger::getWarningCount);
 < 
-<         JmxReporter jmxReporter = JmxReporter.forRegistry(environment.metrics())
-<                 .convertRatesTo(TimeUnit.SECONDS)
-<                 .convertDurationsTo(TimeUnit.MILLISECONDS)
-<                 .build();
-<         jmxReporter.start();

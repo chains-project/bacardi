@@ -1,4 +1,47 @@
-9c9
+1,34c1,10
+< package com.github.games647.changeskin.sponge.task;
+< 
+< import com.github.games647.changeskin.core.model.auth.Account;
+< import com.github.games647.changeskin.core.shared.task.SharedUploader;
+< import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+< 
+< import java.util.concurrent.TimeUnit;
+< 
 < import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.scheduler.Task;
+< 
+< public class SkinUploader extends SharedUploader {
+< 
+<     private final ChangeSkinSponge plugin;
+<     private final CommandSource invoker;
+< 
+<     public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {
+<         super(plugin.getCore(), owner, url);
+< 
+<         this.plugin = plugin;
+<         this.invoker = invoker;
+<     }
+< 
+<     @Override
+<     public void sendMessageInvoker(String key) {
+<         plugin.sendMessage(invoker, key);
+<     }
+< 
+<     @Override
+<     protected void scheduleChangeTask(String oldSkinUrl) {
+<         Runnable task = new SkinChanger(plugin, owner, url, oldSkinUrl, invoker);
+<         Task.builder().delay(1, TimeUnit.MINUTES).execute(task).async().submit(plugin);
+<     }
+< }
 ---
-> import org.spongepowered.api.command.source.CommandSource; // Updated import
+> <repair_strategy>
+> 1. The error indicates that the class `CommandSource` cannot be found, which suggests a change in the package or class name in the newer version of the Sponge API.
+> 2. After comparing the old and new API versions, it appears that `CommandSource` has been moved or renamed.
+> 3. The client code needs to be updated to use the correct class name or package for `CommandSource`.
+> 4. The fix should not change the function signatures but may require adjusting imports.
+> 5. The minimal set of changes needed is to update the import statement for `CommandSource`.
+> 6. There should be no side effects on other parts of the code.
+> 7. The class should remain fully compilable after the changes.
+> 8. The correct import for `CommandSource` in the newer version of the API needs to be identified.
+> </repair_strategy>
+\ No newline at end of file

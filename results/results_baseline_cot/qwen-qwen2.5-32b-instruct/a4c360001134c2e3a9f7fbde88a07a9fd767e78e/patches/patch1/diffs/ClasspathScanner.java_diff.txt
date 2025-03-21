@@ -1,18 +1,13 @@
-1,5d0
-< /*----------------------------------------------------------------
-<  *  Copyright (c) ThoughtWorks, Inc.
-<  *  Licensed under the Apache License, Version 2.0
-<  *  See LICENSE.txt in the project root for license information.
-<  *----------------------------------------------------------------*/
-21a17
-> import java.util.function.Predicate;
-64c60,61
+56c56
+<                 .filterInputsBy(this::shouldScan);
+---
+>                 .filterInputsBy(new FilterBuilder().includePackage(PACKAGE_TO_SCAN));
+64c64
 <             return new FilterBuilder().include(".+\\.class").apply(s);
 ---
->             Predicate<String> includePredicate = new FilterBuilder().include(".+\\.class").asPredicate();
->             return includePredicate.test(s);
-69c66,67
+>             return s.endsWith(".class");
+68,69c68
+<             String regex = String.format(".?\\.??%s\\..+\\.class", packageToScan);
 <             if (new FilterBuilder().include(regex).apply(s)) {
 ---
->             Predicate<String> packagePredicate = new FilterBuilder().include(regex).asPredicate();
->             if (packagePredicate.test(s)) {
+>             if (s.startsWith(packageToScan.replace(".", "/")) && s.endsWith(".class")) {

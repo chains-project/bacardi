@@ -75,7 +75,7 @@ public class WWCInventoryManager extends InventoryManager {
 			pageButton = XMaterial.LILY_PAD.parseItem();
 			pageMeta.setDisplayName(ChatColor.AQUA
 					+ CommonDefinitions.getMessage("wwcGUIPageNumber", args));
-			if (args.length > 0 && args[0].equals("1")) {
+			if (args[0].equals("1")) {
 				pageMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
 			}
 		} else {

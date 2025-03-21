@@ -15,11 +15,9 @@
 <  * limitations under the License.
 <  */
 < 
-24c8
-< import com.hazelcast.core.Member;
+23a8
+> import com.hazelcast.core.HazelcastInstance;
+42c27
+<         this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";
 ---
-> import com.hazelcast.core.ClusterMember; // Assuming the new class name is ClusterMember
-41c25
-<     public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
----
->     public HazelcastClusterNodeInfo(final ClusterMember member, final long joinedTime) { // Use ClusterMember instead of Member
+>         this.hostname = member.getAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";

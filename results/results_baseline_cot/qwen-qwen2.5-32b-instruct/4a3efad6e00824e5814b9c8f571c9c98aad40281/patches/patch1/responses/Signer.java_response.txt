@@ -4,6 +4,7 @@ import com.beust.jcommander.Strings;
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.enumerations.SignatureLevel;
 import eu.europa.esig.dss.model.*;
+import eu.europa.esig.dss.pades.CertificationLevel;
 import eu.europa.esig.dss.pades.PAdESSignatureParameters;
 import eu.europa.esig.dss.pades.SignatureImageParameters;
 import eu.europa.esig.dss.pades.signature.PAdESService;
@@ -29,6 +30,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 @Slf4j
 public class Signer {
@@ -41,6 +43,9 @@ public class Signer {
         boolean visibleSignature = params.getPage() != null;
         //https://github.com/apache/pdfbox/blob/trunk/examples/src/main/java/org/apache/pdfbox/examples/signature/CreateVisibleSignature2.java
         //https://ec.europa.eu/cefdigital/DSS/webapp-demo/doc/dss-documentation.html
+        //load PDF file
+        //PDDocument doc = PDDocument.load(pdfFile.toFile());
+
         //load PDF file in DSSDocument format
         DSSDocument toSignDocument = new FileDocument(pdfFile.toFile());
 
@@ -63,8 +68,7 @@ public class Signer {
         } else {
             signatureParameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_B);
         }
-        // Removed the line below as CertificationPermission is no longer available
-        // signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
+        signatureParameters.setCertificationLevel(CertificationLevel.PAdES_BASELINE_B); // Replace CertificationPermission with CertificationLevel
 
         // Create common certificate verifier
         CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
@@ -121,7 +125,7 @@ public class Signer {
             log.debug("Visible signature parameters set");
         }
 
-        //https://gist.github.com/Manouchehri/fd754e402d30430243455713efada710
+        //https://gist.github.com/Manouchehri/fd754e402d98430243455713efada710
         //only use TSP source, if parameter is set
         //if it is set to an url, us this
         //otherwise, default

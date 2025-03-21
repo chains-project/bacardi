@@ -23,7 +23,7 @@ import org.hamcrest.core.StringContains;
  * REST response.
  *
  * <p>This response decorator is able to make basic assertions on
- * HTTP response and manipulate with it afterwards, for example:
+ * HTTP response and manipulate with it afterwords, for example:
  *
  * <pre> String name = new JdkRequest("http://my.example.com")
  *   .fetch()
@@ -33,6 +33,9 @@ import org.hamcrest.core.StringContains;
  *   .assertHeader("Content-Type", new IsEqual<>(Collections.singletonList("text/plain")))
  *   .jump(URI.create("/users"))
  *   .fetch();</pre>
+ *
+ * <p>Method {@link #jump(URI)} creates a new instance of class
+ * {@link Request} with all cookies transferred from the current one.
  *
  * <p>The class is immutable and thread-safe.
  *
@@ -80,8 +83,7 @@ public final class RestResponse extends AbstractResponse {
                 "HTTP response status is not equal to %d:%n%s",
                 status, this
             ),
-            this,
-            new RestResponse.StatusMatch(message, status)
+            this.status(), new IsEqual<>(status)
         );
         return this;
     }
@@ -141,7 +143,7 @@ public final class RestResponse extends AbstractResponse {
      * Verifies HTTP header against provided matcher, and throws
      * {@link AssertionError} in case of mismatch.
      *
-     * <p>The iterator for the matcher will always be a real object and never
+     * <p>The iterator for the matcher will always be a real object an never
      * {@code NULL}, even if such a header is absent in the response. If the
      * header is absent the iterable will be empty.
      *
@@ -194,7 +196,7 @@ public final class RestResponse extends AbstractResponse {
             for (final String header : headers.get(HttpHeaders.SET_COOKIE)) {
                 for (final HttpCookie cookie : HttpCookie.parse(header)) {
                     req = req.header(
-                        (HttpHeaders.COOKIE,
+                        HttpHeaders.COOKIE,
                         String.format(
                             "%s=%s", cookie.getName(), cookie.getValue()
                         )
@@ -212,7 +214,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            new IsEqual<>(Collections.singletonList("http://example.com"))
+            new IsEqual<>(Collections.singletonList("not empty"))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -229,7 +231,8 @@ public final class RestResponse extends AbstractResponse {
         final Map<String, List<String>> headers = this.headers();
         MatcherAssert.assertThat(
             "cookies should be set in HTTP header",
-            headers.containsKey(HttpHeaders.SET_COOKIE)
+            headers.containsKey(HttpHeaders.SET_COOKIE),
+            new IsEqual<>(true)
         );
         final List<String> cookies = headers.get(HttpHeaders.SET_COOKIE);
         final Iterator<String> iterator = cookies.iterator();

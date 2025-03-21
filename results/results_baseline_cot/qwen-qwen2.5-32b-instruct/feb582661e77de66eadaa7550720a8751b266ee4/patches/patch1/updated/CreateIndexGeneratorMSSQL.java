@@ -7,6 +7,7 @@ import liquibase.ext.mssql.statement.CreateIndexStatementMSSQL;
 import liquibase.sql.Sql;
 import liquibase.sql.UnparsedSql;
 import liquibase.sqlgenerator.SqlGeneratorChain;
+import liquibase.sqlgenerator.core.CreateIndexGenerator;
 import liquibase.statement.core.CreateIndexStatement;
 import liquibase.util.StringUtil;
 

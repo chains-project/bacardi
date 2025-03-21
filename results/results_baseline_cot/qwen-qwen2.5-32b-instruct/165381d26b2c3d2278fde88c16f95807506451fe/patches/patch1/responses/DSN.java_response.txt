@@ -5,7 +5,8 @@ import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
-import com.github.javaparser.printer.PrettyPrinter;
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import com.github.javaparser.printer.configuration.DefaultPrettyPrinterConfiguration;
 import org.btrplace.safeplace.spec.Constraint;
 import org.btrplace.safeplace.spec.SpecScanner;
 import org.btrplace.safeplace.testing.Bench;
@@ -13,6 +14,11 @@ import org.btrplace.safeplace.testing.Result;
 import org.btrplace.safeplace.testing.TestCampaign;
 import org.btrplace.safeplace.testing.TestScanner;
 import org.btrplace.safeplace.testing.fuzzer.Restriction;
+import org.btrplace.safeplace.testing.reporting.CSVReport;
+import org.btrplace.safeplace.testing.reporting.StoredReport;
+import org.btrplace.safeplace.testing.verification.Verifier;
+import org.btrplace.safeplace.testing.verification.btrplace.CheckerVerifier;
+import org.btrplace.safeplace.testing.verification.spec.SpecVerifier;
 import org.testng.Assert;
 
 import java.io.InputStream;
@@ -28,9 +34,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-/**
- * @author Fabien Hermenier
- */
 public class DSN {
 
     public static String root = "xp-dsn";
@@ -42,11 +45,13 @@ public class DSN {
         return new TestScanner(l);
     }
 
-    // ... (rest of the class remains unchanged)
+    // ... (rest of the methods remain unchanged)
 
     private static class UnitTestsVisitor extends VoidVisitorAdapter<Void> {
 
         private final List<Integer> l;
+
+        private final DefaultPrettyPrinterConfiguration noComments = new DefaultPrettyPrinterConfiguration().setPrintComments(false);
 
         UnitTestsVisitor(List<Integer> numbers) {
             this.l = numbers;
@@ -54,8 +59,7 @@ public class DSN {
 
         @Override
         public void visit(MethodDeclaration n, Void arg) {
-            System.out.println(n.getNameAsString());
-            if (n.toString(new PrettyPrinter().setPrintComments(false)).contains("solve")) {
+            if (n.toString(noComments).contains("solve")) {
                 n.getRange().ifPresent(r -> l.add(r.end.line - r.begin.line));
             }
             super.visit(n, arg);

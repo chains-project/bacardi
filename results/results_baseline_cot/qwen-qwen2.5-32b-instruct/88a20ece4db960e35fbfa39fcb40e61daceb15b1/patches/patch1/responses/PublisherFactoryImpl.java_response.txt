@@ -17,7 +17,7 @@ class PublisherFactoryImpl implements PublisherFactory {
   private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
 
   @Override
-  public Publisher newPublisher(Map<String, String> params) {
+  public Publisher<Void> newPublisher(Map<String, String> params) {
     Map<String, ConfigValue> config = ConfigDefs.config().validateAll(params);
     RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
     TopicPath topic =

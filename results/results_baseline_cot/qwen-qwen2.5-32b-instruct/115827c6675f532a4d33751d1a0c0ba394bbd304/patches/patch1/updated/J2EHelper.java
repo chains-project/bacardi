@@ -4,6 +4,7 @@ import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
+import javax.servlet.FilterRegistration;
 
 import org.pac4j.core.config.Config;
 import org.pac4j.dropwizard.Pac4jFactory.ServletCallbackFilterConfiguration;
@@ -73,7 +74,10 @@ public final class J2EHelper {
 
         filter.setConfigOnly(config);
 
-        environment.servlets().addFilter(filter.getClass().getName(), (Filter) filter)
-                .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, mapping);
+        final FilterRegistration.Dynamic filterRegistration = environment
+                .servlets().addFilter(filter.getClass().getName(), (Filter) filter);
+
+        filterRegistration.addMappingForUrlPatterns(
+                EnumSet.of(DispatcherType.REQUEST), true, mapping);
     }
 }
