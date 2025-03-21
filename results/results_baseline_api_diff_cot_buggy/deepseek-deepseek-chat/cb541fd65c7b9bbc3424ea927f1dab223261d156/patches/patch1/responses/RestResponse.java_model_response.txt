@@ -271,4 +271,66 @@ public final class RestResponse extends AbstractResponse {
         while (iterator.hasNext()) {
             final String obj = iterator.next();
             for (final HttpCookie candidate : HttpCookie.parse(obj)) {
-                if (candidate.getName().equals(name)
+                if (candidate.getName().equals(name)) {
+                    cookie = RestResponse.cookie(candidate);
+                    break;
+                }
+            }
+        }
+        MatcherAssert.assertThat(
+            Logger.format(
+                "cookie '%s' not found in Set-Cookie header: '%s'",
+                name,
+                cookies
+            ),
+            cookie,
+            IsNot.notNullValue()
+        );
+        assert cookie != null;
+        return cookie;
+    }
+
+    /**
+     * Convert HTTP cookie to a standard one.
+     * @param cookie HTTP cookie
+     * @return Regular one
+     */
+    private static Cookie cookie(final HttpCookie cookie) {
+        return new Cookie(
+            cookie.getName(),
+            cookie.getValue(),
+            cookie.getPath(),
+            cookie.getDomain(),
+            cookie.getVersion()
+        );
+    }
+
+    /**
+     * Status matcher.
+     *
+     * @since 1.2
+     */
+    private static final class StatusMatch extends CustomMatcher<Response> {
+
+        /**
+         * HTTP status to check.
+         */
+        private final transient int status;
+
+        /**
+         * Ctor.
+         * @param msg Message to show
+         * @param sts HTTP status to check
+         */
+        StatusMatch(final String msg, final int sts) {
+            super(msg);
+            this.status = sts;
+        }
+
+        @Override
+        public boolean matches(final Object resp) {
+            return Response.class.cast(resp).status() == this.status;
+        }
+    }
+}
+```

@@ -1,0 +1,21 @@
+14d13
+< import org.spongepowered.api.command.CommandSource;
+16,17c15,16
+< import org.spongepowered.api.network.ChannelBuf;
+< import org.spongepowered.api.network.RawDataListener;
+---
+> import org.spongepowered.api.network.channel.ChannelBuf;
+> import org.spongepowered.api.network.channel.raw.RawDataListener;
+19c18
+< import org.spongepowered.api.scheduler.Task;
+---
+> import org.spongepowered.api.scheduler.TaskExecutorService;
+26d24
+<     @Override
+35,36c33,35
+<             Runnable skinUpdater = new SkinApplier(plugin, (CommandSource) connection, receiver.get(), null, false);
+<             Task.builder().execute(skinUpdater).submit(plugin);
+---
+>             Runnable skinUpdater = new SkinApplier(plugin, receiver.get(), receiver.get(), null, false);
+>             TaskExecutorService scheduler = Sponge.getScheduler().createExecutor(plugin);
+>             scheduler.submit(skinUpdater);

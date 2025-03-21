@@ -1,21 +1,4 @@
-1,16d0
-< /*
-<  * Copyright 2016 Google LLC
-<  *
-<  * Licensed under the Apache License, Version 2.0 (the "License");
-<  * you may not use this file except in compliance with the License.
-<  * You may obtain a copy of the License at
-<  *
-<  *       http://www.apache.org/licenses/LICENSE-2.0
-<  *
-<  * Unless required by applicable law or agreed to in writing, software
-<  * distributed under the License is distributed on an "AS IS" BASIS,
-<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-<  * See the License for the specific language governing permissions and
-<  * limitations under the License.
-<  */
-< 
-25,28c9,12
+25,28c25,28
 < import com.google.api.services.translate.Translate;
 < import com.google.api.services.translate.model.DetectionsResourceItems;
 < import com.google.api.services.translate.model.LanguagesResource;
@@ -25,11 +8,11 @@
 > import com.google.api.services.translate.v3.model.DetectLanguageResponse;
 > import com.google.api.services.translate.v3.model.SupportedLanguages;
 > import com.google.api.services.translate.v3.model.Translation;
-69c53
+69c69
 <   public List<List<DetectionsResourceItems>> detect(List<String> texts) {
 ---
 >   public List<List<DetectLanguageResponse>> detect(List<String> texts) {
-71,73c55,58
+71,73c71,74
 <       List<List<DetectionsResourceItems>> detections =
 <           translate.detections().list(texts).setKey(options.getApiKey()).execute().getDetections();
 <       return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
@@ -38,11 +21,11 @@
 >           translate.projects().locations().detectLanguage("projects/" + options.getProjectId(), texts)
 >               .setKey(options.getApiKey()).execute().getDetections();
 >       return detections != null ? detections : ImmutableList.<List<DetectLanguageResponse>>of();
-80c65
+80c81
 <   public List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
 ---
 >   public List<SupportedLanguages> listSupportedLanguages(Map<Option, ?> optionMap) {
-82,85c67,68
+82,85c83,84
 <       List<LanguagesResource> languages =
 <           translate
 <               .languages()
@@ -50,15 +33,15 @@
 ---
 >       List<SupportedLanguages> languages =
 >           translate.projects().locations().getSupportedLanguages("projects/" + options.getProjectId())
-92c75
+92c91
 <       return languages != null ? languages : ImmutableList.<LanguagesResource>of();
 ---
 >       return languages != null ? languages : ImmutableList.<SupportedLanguages>of();
-99c82
+99c98
 <   public List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap) {
 ---
 >   public List<Translation> translate(List<String> texts, Map<Option, ?> optionMap) {
-104,107c87,88
+104,107c103,104
 <       List<TranslationsResource> translations =
 <           translate
 <               .translations()
@@ -66,13 +49,13 @@
 ---
 >       List<Translation> translations =
 >           translate.projects().locations().translateText("projects/" + options.getProjectId(), texts, targetLanguage)
-115,116c96,97
+115,116c112,113
 <           translations != null ? translations : ImmutableList.<TranslationsResource>of(),
 <           new Function<TranslationsResource, TranslationsResource>() {
 ---
 >           translations != null ? translations : ImmutableList.<Translation>of(),
 >           new Function<Translation, Translation>() {
-118,120c99,101
+118,120c115,117
 <             public TranslationsResource apply(TranslationsResource translationsResource) {
 <               if (translationsResource.getDetectedSourceLanguage() == null) {
 <                 translationsResource.setDetectedSourceLanguage(sourceLanguage);
@@ -80,7 +63,7 @@
 >             public Translation apply(Translation translation) {
 >               if (translation.getDetectedSourceLanguage() == null) {
 >                 translation.setDetectedSourceLanguage(sourceLanguage);
-122c103
+122c119
 <               return translationsResource;
 ---
 >               return translation;

@@ -172,7 +172,7 @@ public class SupplierAddressStructure implements ToString2
      * 
      * @return
      *     possible object is
-    极     {@link String }
+     *     {@link String }
      *     
      */
     public String getPostalCode() {

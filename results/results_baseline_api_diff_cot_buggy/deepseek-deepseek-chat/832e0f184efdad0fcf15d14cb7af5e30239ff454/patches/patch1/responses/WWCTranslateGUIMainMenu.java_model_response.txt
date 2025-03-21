@@ -240,4 +240,30 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 					if (targetTranslator.getTranslatingChatOutgoing() || targetTranslator.getTranslatingChatIncoming()) {
 						chatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 						chatMeta.addEnchant(XEnchantment.POWER.parseEnchantment(), 1, false);
-						List<String
+						List<String> outLoreChat = new ArrayList<>();
+						outLoreChat.add(ChatColor.LIGHT_PURPLE + CommonDefinitions.getMessage("wwctGUIExistingChatIncomingEnabled", new String[] {ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + targetTranslator.getTranslatingChatIncoming()}));
+						outLoreChat.add(ChatColor.LIGHT_PURPLE + CommonDefinitions.getMessage("wwctGUIExistingChatOutgoingEnabled", new String[] {ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + targetTranslator.getTranslatingChatOutgoing()}));
+						chatMeta.setLore(outLoreChat);
+						chatMeta.setDisplayName(ChatColor.GREEN
+								+ CommonDefinitions.getMessage("wwctGUIChatButton"));
+					} else {
+						chatMeta.setDisplayName(ChatColor.YELLOW
+								+ CommonDefinitions.getMessage("wwctGUIChatButton"));
+					}
+					chatButton.setItemMeta(chatMeta);
+					contents.set(3, 4, ClickableItem.of(chatButton, e -> {
+						WWCTranslateGUIChatMenu.getTranslateChatMenu(targetPlayerUUID).open(player);
+					}));
+				}
+			}
+		} catch (Exception e) {
+			WWCInventoryManager.inventoryError(player, e);
+		}
+	}
+
+	@Override
+	public void update(Player player, InventoryContents contents) {
+		WWCInventoryManager.checkIfPlayerIsMissing(player, targetPlayerUUID);
+	}
+}
+```

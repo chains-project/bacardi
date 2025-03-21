@@ -1,0 +1,181 @@
+35,40d34
+< /**
+<  * This is the core class of the {@code Snmpman}. The agent simulates the SNMP-capable devices.
+<  * <br>
+<  * This class can be instantiated via the constructor {@link #SnmpmanAgent(com.oneandone.snmpman.configuration.AgentConfiguration)}, which
+<  * requires an instance of the {@link com.oneandone.snmpman.configuration.AgentConfiguration}.
+<  */
+44,46d37
+<     /**
+<      * The default charset for files being read.
+<      */
+48,51d38
+< 
+<     /**
+<      * The pattern of variable bindings in a walk file.
+<      */
+53,56d39
+< 
+<     /**
+<      * The configuration of this agent.
+<      */
+58,61d40
+< 
+<     /**
+<      * The list of managed object groups.
+<      */
+64,68d42
+<     /**
+<      * Initializes a new instance of an SNMP agent.
+<      *
+<      * @param configuration the configuration for this agent
+<      */
+75,81d48
+<     /**
+<      * Returns the name of {@code this} agent.
+<      * <br>
+<      * See {@code AgentConfiguration.name} for more information on the return value.
+<      *
+<      * @return the name of {@code this} agent.
+<      */
+86,92d52
+<     /**
+<      * Returns the boot-counter file for the specified agent.
+<      * <p>
+<      * This file will be created in the same directory as the {@link com.oneandone.snmpman.configuration.AgentConfiguration#getWalk()} file.
+<      *
+<      * @return the boot-counter file
+<      */
+97,103d56
+<     /**
+<      * Returns the configuration file for the specified agent.
+<      * <p>
+<      * This file will be created in the same directory as the {@link com.oneandone.snmpman.configuration.AgentConfiguration#getWalk()} file.
+<      *
+<      * @return the configuration file
+<      */
+108,113d60
+<     /**
+<      * Translates a string into {@code x-www-form-urlencoded} format. The method uses the <i>UTF-8</i> encoding scheme.
+<      *
+<      * @param string {@code String} to be translated
+<      * @return the translated {@code String}
+<      */
+123,128d69
+<     /**
+<      * Returns the root OIDs of the bindings.
+<      *
+<      * @param bindings the variable bindings
+<      * @return the roots of the specified variable bindings
+<      */
+164,171d104
+<     /**
+<      * Returns a {@link Variable} instance for the specified parameters.
+<      *
+<      * @param type  the type of the variable
+<      * @param value the value of this variable
+<      * @return a a {@link Variable} instance with the specified type and value
+<      * @throws IllegalArgumentException if the type could not be mapped to a {@link Variable} implementation
+<      */
+174d106
+<             // TODO add "BITS" support
+198d129
+<                 // Parse unsigned long
+211,215d141
+<     /**
+<      * Starts this agent instance.
+<      *
+<      * @throws IOException signals that this agent could not be initialized by the {@link #init()} method
+<      */
+222d147
+<         // configure community index contexts
+232,233d156
+<     @Override
+<     @SuppressWarnings("unchecked")
+241d163
+<     @Override
+303,305d224
+<     /**
+<      * Creates the {@link StaticMOGroup} with all information necessary to register it to the server.
+<      */
+324,330d242
+<     /**
+<      * Creates a list of {@link VariableBinding} out of a mapping of {@link OID} and {@link Variable}.
+<      *
+<      * @param variableBindings mapping of {@link OID} and {@link Variable}.
+<      * @param root             root SNMP OID.
+<      * @return list of {@link VariableBinding}.
+<      */
+337,341d248
+<     /**
+<      * Registers a {@link ManagedObject} to the server with an empty {@link OctetString} community context.
+<      *
+<      * @param group {@link ManagedObject} to register.
+<      */
+347,352d253
+<     /**
+<      * Registers a {@link ManagedObject} to the server with a {@link OctetString} community context.
+<      *
+<      * @param group   {@link ManagedObject} to register.
+<      * @param context community context.
+<      */
+378,384d278
+<     /**
+<      * Sets the private registry value of {@link DefaultMOServer} via reflection.
+<      * FIXME
+<      * If there is any possibility to avoid this, then replace!
+<      *
+<      * @param group {@link ManagedObject} to register.
+<      */
+389c283
+<             final SortedMap<MOScope, ManagedObject> reg = server.getRegistry();
+---
+>             final Map<MOScope, ManagedObject> reg = (Map<MOScope, ManagedObject>) registry.get(server);
+398,403d291
+<     /**
+<      * Reads all variable bindings using {@link #VARIABLE_BINDING_PATTERN}.
+<      *
+<      * @param reader the reader to read the bindings from.
+<      * @return the map of oid to variable binding.
+<      */
+432,436d319
+<     /**
+<      * Unregisters all default managed objects in the specified context {@code ctx}.
+<      *
+<      * @param ctx the context from which all default managed objects should be unregistred
+<      */
+446,454d328
+<     /**
+<      * Returns the variable bindings for a device configuration and a list of bindings.
+<      * <p>
+<      * In this step the {@link ModifiedVariable} instances will be created as a wrapper for dynamic variables.
+<      *
+<      * @param device   the device configuration
+<      * @param bindings the bindings as the base
+<      * @return the variable bindings for the specified device configuration
+<      */
+486d359
+<     @Override
+494d366
+<     @Override
+497d368
+<         // do nothing here
+500d370
+<     @Override
+503d372
+<         // do nothing here
+506d374
+<     @Override
+516d383
+<         // configure community index contexts
+543d409
+<     @Override
+546d411
+<         // configure community index contexts
+553,558d417
+<     /**
+<      * Configures an SNMP community for a given SNMP community context.
+<      *
+<      * @param snmpCommunityMIB SNMP community.
+<      * @param context          SNMP community context.
+<      */

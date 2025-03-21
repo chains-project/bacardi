@@ -1,0 +1,43 @@
+9,12c9,12
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.parameter.Parameterized;
+14a15
+> import org.spongepowered.api.text.Text;
+16,18d16
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+< 
+29,30c27,29
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         if (!(src instanceof Player)) {
+---
+>     public CommandResult execute(CommandContext args) {
+>         Player src = args.getCause().first(Player.class).orElse(null);
+>         if (src == null) {
+35c34
+<         String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
+---
+>         String skinName = args.one(Parameter.string().key("skinName").build()).orElse("").toLowerCase().replace("skin-", "");
+39,40c38
+<             Player receiver = (Player) src;
+<             Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+---
+>             Task.builder().execute(new SkinSelector(plugin, src, targetId)).submit(plugin);
+49,52c47,49
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+<                 .executor(this)
+<                 .arguments(string(of("skinName")))
+---
+>     public Parameterized buildSpec() {
+>         return Parameterized.builder()
+>                 .addParameter(Parameter.string().key("skinName").build())
+53a51
+>                 .executor(this)

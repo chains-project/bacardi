@@ -1,0 +1,39 @@
+13,17c13,18
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+< import org.spongepowered.api.scheduler.Task;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.parameter.Command;
+> import org.spongepowered.api.scheduler.TaskExecutorService;
+> import org.spongepowered.api.command.source.CommandSource;
+19c20
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+---
+> import static org.spongepowered.api.command.parameter.Parameter.string;
+33d33
+<     @Override
+35c35
+<         String url = args.<String>getOne("url").get();
+---
+>         String url = args.one("url").orElse("");
+43c43,44
+<                 Task.builder().async().execute(skinUploader).submit(plugin);
+---
+>                 TaskExecutorService scheduler = plugin.getScheduler();
+>                 scheduler.submit(skinUploader);
+52,54c53,54
+<     @Override
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command buildSpec() {
+>         return Command.builder()
+56c56
+<                 .arguments(string(of("url")))
+---
+>                 .addParameter(Parameter.string().key("url").build())
