@@ -8,7 +8,6 @@ import jakarta.mvc.Models;
 import jakarta.mvc.UriRef;
 import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.binding.MvcBinding;
-import jakarta.mvc.binding.ParamError;
 import jakarta.mvc.security.CsrfProtected;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.FormParam;
@@ -52,7 +51,7 @@ public class GreetingController {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
             bindingResult.getAllErrors()
                     .stream()
-                    .forEach((ParamError t) -> {
+                    .forEach((jakarta.mvc.binding.ParamError t) -> {
                         alert.addError(t.getParamName(), "", t.getMessage());
                     });
             models.put("errors", alert);

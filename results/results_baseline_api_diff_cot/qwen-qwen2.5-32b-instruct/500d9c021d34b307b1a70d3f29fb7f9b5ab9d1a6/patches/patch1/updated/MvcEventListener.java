@@ -1,10 +1,10 @@
 package com.example;
 
 import java.util.logging.Logger;
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 import jakarta.mvc.event.AfterControllerEvent;
 import jakarta.mvc.event.AfterProcessViewEvent;
 import jakarta.mvc.event.BeforeControllerEvent;
@@ -30,7 +30,7 @@ public class MvcEventListener {
     }
 
     private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
-        LOGGER.info(() -> "AfterProcessViewEvent:: " + event.getEngine());
+        LOGGER.info(() -> "AfterProcessViewEvent:: " + event);
     }
     
     private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {

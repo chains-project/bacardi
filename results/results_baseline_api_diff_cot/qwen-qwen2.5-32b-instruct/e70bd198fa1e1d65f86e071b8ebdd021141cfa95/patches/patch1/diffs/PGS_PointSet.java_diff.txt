@@ -1,16 +1,22 @@
-25a26
-> import org.tinspin.index.PointIndex;
-45a47
+23c23
+< import org.jgrapht.alg.spanning.PrimMinimumSpanningTree;
+---
+> import org.jgrapht.alg.spanninging.PrimMinimumSpanningTree;
+25d24
+< import org.tinfour.common.IIncrementalTin;
+45a45
 > {
-66c68
+66c66
 <                 final KDTree<PVector> tree = KDTree.create(2);
 ---
->         final PointIndex<PVector> tree = new KDTree<>(2);
-70c72
+>         final KdTree<PVector> tree = new KdTree<>(2);
+70,71c70,71
 <                         if (tree.size() == 0 || tree.query1NN(coords).dist() > distanceTolerance) {
+<                                 tree.insert(coords, p);
 ---
->             if (tree.size() == 0 || tree.nearestNeighbor(coords).getDistance() > distanceTolerance) {
-78,986c80
+>             if (tree.size() == 0 || tree.nearestNeighbor(coords).length, coords).clone()).getDistance() > distanceTolerance) {
+>                 tree.addPoint(coords, p);
+78,986c78
 <         /**
 <          * Sorts a list of points according to the Hilbert space-filling curve to ensure
 <          * a high-degree of spatial locality in the sequence of points.

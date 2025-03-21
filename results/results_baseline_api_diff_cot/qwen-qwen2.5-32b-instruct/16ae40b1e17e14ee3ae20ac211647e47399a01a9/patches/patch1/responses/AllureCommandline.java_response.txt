@@ -47,7 +47,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings({"ClassDataAbstractionCoupling", "MultipleStringLiterals"})
+@SuppressWarnings({"ClassDataAbstractionCoupling", "ClassFanOutComplexity",
+        "MultipleStringLiterals"})
 public class AllureCommandline {
 
     public static final String ALLURE_DEFAULT_VERSION = "2.13.9";
@@ -118,7 +119,7 @@ public class AllureCommandline {
     private void checkAllureExists() throws FileNotFoundException {
         if (allureNotExists()) {
             throw new FileNotFoundException("There is no valid allure installation."
-                    + " Make sure you're using allure version not less than 2.x.");
+                    + " Make sure you're using allure version not less then 2.x.");
         }
     }
 
@@ -169,6 +170,7 @@ public class AllureCommandline {
                 unpack(resolved.next().getArtifact().getFile());
             } else {
                 throw new IOException("No allure commandline artifact found.");
+
             }
         } catch (DependencyResolverException e) {
             throw new IOException("Cannot resolve allure commandline dependencies.", e);

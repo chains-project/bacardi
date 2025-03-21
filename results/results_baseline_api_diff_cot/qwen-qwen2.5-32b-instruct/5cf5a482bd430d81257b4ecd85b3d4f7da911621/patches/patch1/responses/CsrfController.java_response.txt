@@ -1,13 +1,11 @@
 package com.example.web;
 
 import java.util.logging.Logger;
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
-import jakarta.mvc.binding.BindingResult;
-import jakarta.mvc.binding.MvcBinding;
-import jakarta.mvc.binding.ParamError;
+import com.example.web.AlertMessage; // Assuming AlertMessage is a custom class, adjust the import if necessary
 import jakarta.mvc.security.CsrfProtected;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.FormParam;
@@ -25,7 +23,7 @@ import jakarta.ws.rs.Path;
 public class CsrfController {
 
     @Inject
-    BindingResult bindingResult;
+    jakarta.mvc.binding.BindingResult bindingResult;
 
     @Inject
     Models models;
@@ -45,13 +43,13 @@ public class CsrfController {
     @CsrfProtected
     public String post(
             @FormParam("greeting")
-            @MvcBinding
+            @jakarta.mvc.binding.MvcBinding
             @NotBlank String greeting) {
         if (bindingResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
             bindingResult.getAllErrors()
                     .stream()
-                    .forEach((ParamError t) -> {
+                    .forEach((t) -> {
                         alert.addError(t.getParamName(), "", t.getMessage());
                     });
             models.put("errors", alert);

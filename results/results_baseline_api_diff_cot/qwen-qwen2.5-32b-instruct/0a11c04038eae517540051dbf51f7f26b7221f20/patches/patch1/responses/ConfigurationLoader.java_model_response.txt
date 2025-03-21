@@ -25,12 +25,14 @@ public final class ConfigurationLoader
 
   public Configuration loadOrGetDefault(Path configurationFilePath)
   {
+    ConfigurationLoader configurationLoader = new ConfigurationLoader();
+
     if (configurationFilePath == null)
     {
       configurationFilePath = DEFAULT_CONFIG_FILE_NAME;
     }
 
-    return load(configurationFilePath);
+    return configurationLoader.load(configurationFilePath);
   }
 
   private Configuration load(Path configurationFilePath)
@@ -62,5 +64,3 @@ public final class ConfigurationLoader
 
 }
 ```
-
-In this solution, the `Constructor` instantiation has been updated to use the new `Constructor(Configuration.class, options)` constructor, where `options` is an instance of `LoaderOptions`. This change is necessary due to the removal of the `Constructor(Class<T>)` constructor in the new version of the SnakeYAML library. The rest of the class remains unchanged to ensure that the fix is minimal and only addresses the dependency update issue.

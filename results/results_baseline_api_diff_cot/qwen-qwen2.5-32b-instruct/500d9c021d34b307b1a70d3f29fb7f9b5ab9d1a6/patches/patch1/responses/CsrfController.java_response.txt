@@ -5,9 +5,8 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
-import jakarta.mvc.binding.MvcBinding;
 import jakarta.mvc.security.CsrfProtected;
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -43,13 +42,14 @@ public class CsrfController {
     @CsrfProtected
     public String post(
             @FormParam("greeting")
-            @MvcBinding
+            @jakarta.mvc.binding.MvcBinding
             @NotBlank String greeting) {
         if (bindingResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
             bindingResult.getAllErrors()
-                    .forEach((paramError) -> {
-                        alert.addError(paramError.getParamName(), "", paramError.getMessage());
+                    .stream()
+                    .forEach((jakarta.mvc.binding.ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
                     });
             models.put("errors", alert);
             log.info("mvc binding failed.");

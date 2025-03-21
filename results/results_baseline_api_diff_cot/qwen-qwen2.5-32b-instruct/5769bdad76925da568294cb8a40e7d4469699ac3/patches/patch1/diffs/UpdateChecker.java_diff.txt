@@ -29,7 +29,20 @@
 > import org.kohsuke.github.GHRepository;
 41a18
 > import org.kohsuke.github.GitHubComparison;
-68,99d44
+46,48d22
+< /**
+<  * Looks for updates (incremental or otherwise) to a specific artifact.
+<  */
+53d26
+<     /** keys are {@code groupId:artifactId:currentVersion:branch} */
+55d27
+< 
+63,99d34
+<     @FunctionalInterface
+<     public interface Log {
+<         void info(String message);
+<     }
+< 
 <     public static final class VersionAndRepo implements Comparable<VersionAndRepo> {
 <         public final String groupId;
 <         public final String artifactId;
@@ -62,7 +75,11 @@
 <         }
 <     }
 < 
-123,161d67
+106,108d40
+< 
+<         //TODO: implement to support non-Incremental formats
+<         // Needs to load UC JSON and query it like https://github.com/jenkinsci/docker/pull/668
+123,166d54
 <     private @CheckForNull VersionAndRepo doFind(String groupId, String artifactId, String currentVersion, String branch) throws Exception {
 <         ComparableVersion currentV = new ComparableVersion(currentVersion);
 <         log.info("Searching for updates to " + groupId + ":" + artifactId + ":" + currentV + " within " + branch);
@@ -102,16 +119,80 @@
 <         return null;
 <     }
 < 
-210c116
-<             return null;
+<     /**
+<      * Look for all known versions of a given artifact.
+<      * @param repos a set of repository URLs to check
+<      * @return a possibly empty set of versions, sorted descending
+<      */
+168d55
+<         // TODO consider using official Aether APIs here (could make use of local cache)
+176c63
+<                 continue; // not even defined in this repo, fine
 ---
->             throw new Exception("Could not find <scm> in " + pom);
-231,232d136
+>                 continue;
+181d67
+<                 // Not bothering to exclude timestamped snapshots for now, since we are working with release repositories anyway.
+188c74
+<     private static final class GitHubCommit {
+---
+>     private static class GitHubCommit {
+202,204d87
+<     /**
+<      * Parses {@code /project/scm/url} and {@code /project/scm/tag} out of a POM, if mapped to a commit.
+<      */
+208,212c91
+<         NodeList scmEs = doc.getElementsByTagName("scm");
+<         if (scmEs.getLength() != 1) {
+<             return null;
+<         }
+<         Element scmE = (Element) scmEs.item(0);
+---
+>         Element scmE = theElement(doc, "scm", pom);
+229,236d107
+<     /**
+<      * Checks whether a commit is an ancestor of a given branch head.
 <      * {@code curl -s -u … https://api.github.com/repos/<owner>/<repo>/compare/<branch>...<hash> | jq -r .status}
 <      * will return {@code identical} or {@code behind} if so, else {@code diverged} or {@code ahead}.
-239,240c143,144
+<      * @param branch may be {@code master} or {@code forker:branch}
+<      * @see <a href="https://developer.github.com/v3/repos/commits/#compare-two-commits">Compare two commits</a>
+<      * @see <a href="https://stackoverflow.com/a/23970412/12916">Discussion</a>
+<      */
+239,240c110,112
 <             GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
 <             return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
 ---
->             GitHubComparison comparison = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).compare(branch, ghc.hash);
+>             GHRepository repo = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo);
+>             GitHubComparison comparison = repo.compare(ghc.hash, branch);
 >             return comparison.getStatus() == GitHubComparison.Status.BEHIND || comparison.getStatus() == GitHubComparison.Status.IDENTICAL;
+242d113
+<             // For example, that branch does not exist in this repository.
+245,247d115
+<         // TODO check behavior when the comparison is huge (too many commits or too large diff)
+<         // and perhaps fall back to cloning into a temp dir and pulling all PR refs https://gist.github.com/piscisaureus/3342247
+<         // Currently https://developer.github.com/v4/object/commit/ does no better than this.
+279a148,172
+>     public static final class VersionAndRepo implements Comparable<VersionAndRepo> {
+>         public final String groupId;
+>         public final String artifactId;
+>         public final ComparableVersion version;
+>         public final String repo;
+>         VersionAndRepo(String groupId, String artifactId, ComparableVersion version, String repo) {
+>             this.groupId = groupId;
+>             this.artifactId = artifactId;
+>             this.version = version;
+>             this.repo = repo;
+>         }
+>         public int compareTo(VersionAndRepo o) {
+>             assert o.groupId.equals(groupId) && o.artifactId.equals(artifactId);
+>             return o.version.compareTo(version);
+>         }
+>         public String baseURL() {
+>             return repo + groupId.replace('.', '/') + '/' + artifactId + '/' + version + '/';
+>         }
+>         public String fullURL(String type) {
+>             return baseURL() + artifactId + '-' + version + '.' + type;
+>         }
+>         @Override public String toString() {
+>             return baseURL();
+>         }
+>     }

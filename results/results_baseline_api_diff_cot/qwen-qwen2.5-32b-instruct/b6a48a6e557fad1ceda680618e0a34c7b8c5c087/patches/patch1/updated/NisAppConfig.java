@@ -1,7 +1,6 @@
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -53,7 +52,6 @@ import java.util.function.*;
 @EnableTransactionManagement
 public class NisAppConfig {
 
-{
 	@Autowired
 	private AccountDao accountDao;
 
@@ -107,15 +105,16 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final ClassicConfiguration config = new ClassicConfiguration();
-		config.setDataSource(this.dataSource());
-		config.setClassLoader(NisAppConfig.class.getClassLoader());
-		config.setLocations(new Location[]{new Location(prop.getProperty("flyway.locations"))});
-		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		return new Flyway(config);
+		final org.flywaydb.core.Flyway flyway = new Flyway(new org.flywaydb.core.api.configuration.Configuration());
+		flyway.getConfiguration().setDataSource(this.dataSource());
+		flyway.getConfiguration().setLocations(prop.getProperty("flyway.locations").split(","));
+		flyway.getConfiguration().setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		flyway.getConfiguration().setClassLoader(NisAppConfig.class.getClassLoader());
+		return flyway;
 	}
 
 	@Bean
+	@DependsOn("flyway")
 	public SessionFactory sessionFactory() throws IOException {
 		return SessionFactoryLoader.load(this.dataSource());
 	}
@@ -127,8 +126,8 @@ public class NisAppConfig {
 
 	@Bean
 	public BlockChainServices blockChainServices() {
-		return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
-				this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+		return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
+				this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
 	}
 
 	@Bean
@@ -195,8 +194,6 @@ public class NisAppConfig {
 	}
 
 	// endregion
-
-	// region harvester
 
 	@Bean
 	public Harvester harvester() {

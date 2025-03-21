@@ -1,4 +1,4 @@
-4,11c4,7
+4,10d3
 < import redis.clients.jedis.commands.BasicRedisPipeline;
 < import redis.clients.jedis.commands.BinaryRedisPipeline;
 < import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
@@ -6,48 +6,81 @@
 < import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;
 < import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
 < import redis.clients.jedis.commands.RedisPipeline;
-< import redis.clients.jedis.commands.ScriptingCommandsPipeline;
+12c5,6
+< 
 ---
-> import redis.clients.jedis.exceptions.JedisException;
-> import redis.clients.jedis.params.ScanParams;
-> import redis.clients.jedis.resps.ScanResult;
-> import redis.clients.jedis.util.SafeEncoder;
-20,24c16
-< public interface RedisGraphPipeline extends
+> import redis.clients.jedis.pipeline.RedisPipeline;
+> import redis.clients.jedis.pipeline.ClusterPipeline;
+21,24c15,18
 <         MultiKeyBinaryRedisPipeline,
 <         MultiKeyCommandsPipeline, ClusterPipeline,
 <         BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
 <         BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
 ---
-> public interface RedisGraphPipeline extends Closeable {
-52c44
+>         RedisPipeline,
+>         ClusterPipeline,
+>         ScriptingCommandsPipeline,
+>         Closeable {
+43,79c37
+<      * Execute a Cypher query with timeout.
+<      * @param graphId a graph to perform the query on
+<      * @param query Cypher query
+<      * @param timeout
+<      * @return a response which builds the result set with the query answer.
+<      */
+<     Response<ResultSet> query(String graphId, String query, long timeout);
+< 
+<     /**
 <      * Execute a Cypher read-only query with timeout.
+<      * @param graphId a graph to perform the query on
+<      * @param query Cypher query
+<      * @param timeout
+<      * @return a response which builds the result set with the query answer.
+<      */
+<     Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout);
+< 
+<     /**
+<      * Executes a cypher query with parameters.
+<      * @param graphId a graph to perform the query on.
+<      * @param query Cypher query.
+<      * @param params parameters map.
+<      * @return  a response which builds the result set with the query answer.
+<      */
+<     Response<ResultSet> query(String graphId, String query, Map<String, Object> params);
+< 
+<     /**
+<      * Executes a cypher read-only query with parameters.
+<      * @param graphId a graph to perform the query on.
+<      * @param query Cypher query.
+<      * @param params parameters map.
+<      * @return  a response which builds the result set with the query answer.
+<      */
+<     Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params);
+< 
+<     /**
+<      * Executes a cypher query with parameters and timeout.
 ---
->      * Executes a cypher read-only query with timeout.
-100c92
+>      * Execute a Cypher query with parameters and timeout.
+100c58
 <      * @param graphId a graph to perform the query on
 ---
 >      * @param graphId graph to perform the query on
-108c100
+108c66
 <      * @param graphId a graph to perform the query on
 ---
 >      * @param graphId graph to perform the query on
-117c109
+117c75
 <      * @param graphId a graph to perform the query on
 ---
 >      * @param graphId graph to perform the query on
-132d123
+132d89
 <     
-143c134
-<      * get return values from pipelined commands, capture the different Response&lt;?&gt; of the
----
->      * get return values from pipelined commands, capture the different Response<?> of the
-146,147c137
+146,147c103
 <     public void sync();
 <     
 ---
 >     void sync();
-159c149
+159c115
 <     public Response<Long> waitReplicas(int replicas, long timeout);
 ---
 >     Response<Long> waitReplicas(int replicas, long timeout);

@@ -53,7 +53,6 @@ import java.util.function.*;
 @EnableTransactionManagement
 public class NisAppConfig {
 
-{
 	@Autowired
 	private AccountDao accountDao;
 
@@ -102,11 +101,14 @@ public class NisAppConfig {
 		return dataSource;
 	}
 
-	@Bean
+	@Bean(initMethod = "migrate")
 	public Flyway flyway() throws IOException {
+		final Properties prop = new Properties();
+		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+
 		final ClassicConfiguration configuration = new ClassicConfiguration();
 		configuration.setDataSource(this.dataSource());
-		configuration.setLocations(prop.getProperty("flyway.locations"));
+		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
 		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
 
@@ -126,8 +128,8 @@ public class NisAppConfig {
 
 	@Bean
 	public BlockChainServices blockChainServices() {
-		return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
-				this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+		return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
+				this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
 	}
 
 	@Bean
@@ -194,8 +196,6 @@ public class NisAppConfig {
 	}
 
 	// endregion
-
-	// region harvester
 
 	@Bean
 	public Harvester harvester() {
@@ -334,7 +334,7 @@ public class NisAppConfig {
 		final Map<BlockChainFeature, Supplier<Supplier<WeightedBalances>>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<WeightedBalances>>>() {
 			{
 				this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
-				this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
+				this.put(BlockChainFeature.WB_IMMEDIATE_VESTINGING, AlwaysVestedBalances::new);
 			}
 		};
 

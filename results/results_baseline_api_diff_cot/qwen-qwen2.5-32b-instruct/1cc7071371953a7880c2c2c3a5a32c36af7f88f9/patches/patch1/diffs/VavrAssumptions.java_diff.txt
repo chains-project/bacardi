@@ -1,0 +1,149 @@
+45a46
+> {
+50,51c51,52
+<     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED)
+<             .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
+---
+>     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().disableTypeValidation()
+>             .with(new AauxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
+55,57c56
+<     private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
+< 
+<     private static final class AssumptionMethodInterceptor {
+---
+>     private static final TypeCache<SimpleKey> CACHE = new TypeCache.SimpleKey<>(TypeCache.Sort.SOFT);
+58a58,59
+>     private static final class AssumptionMethodInterceptor
+>     {
+60,61c61,64
+<         public static Object intercept(@This AbstractVavrAssert<?, ?> assertion, @SuperCall Callable<Object> proxy) throws Exception {
+<             try {
+---
+>         public static Object intercept(@This AbstractVavrAssert<?, ?> assertion, @SuperCall Callable<Object> proxy) throws Exception
+>         {
+>             try
+>             {
+63c66,67
+<                 if (result != assertion && result instanceof AbstractVavrAssert) {
+---
+>                 if (result != assertion && result instanceof AbstractVavrAssert)
+>                 {
+68c72,74
+<             } catch (AssertionError e) {
+---
+>             }
+>             catch (AssertionError e)
+>             {
+84c90,91
+<     public static <LEFT, RIGHT> EitherAssert<LEFT, RIGHT> assumeThat(Either<LEFT, RIGHT> actual) {
+---
+>     public static <LEFT, RIGHT> EitherAssert<LEFT, RIGHT> assumeThat(Either<LEFT, RIGHT> actual)
+>     {
+97c104,105
+<     public static <VALUE> LazyAssert<VALUE> assumeThat(Lazy<VALUE> actual) {
+---
+>     public static <VALUE> LazyAssert<VALUE> assumeThat(Lazy<VALUE> actual)
+>     {
+111c119,120
+<     public static <K, V> MapAssert<K, V> assumeThat(Map<K, V> actual) {
+---
+>     public static <K, V> MapAssert<K, V> assumeThat(Map<K, V> actual)
+>     {
+125c134,135
+<     public static <K, V> MultimapAssert<K, V> assumeThat(Multimap<K, V> actual) {
+---
+>     public static <K, V> MultimapAssert<K, V> assumeThat(Multimap<K, V> actual)
+>     {
+138c148,149
+<     public static <VALUE> OptionAssert<VALUE> assumeThat(Option<VALUE> actual) {
+---
+>     public static <VALUE> OptionAssert<VALUE> assumeThat(Option<VALUE> actual)
+>     {
+151c162,163
+<     public static <ELEMENT> SetAssert<ELEMENT> assumeThat(Set<ELEMENT> actual) {
+---
+>     public static <ELEMENT> SetAssert<ELEMENT> assumeThat(Set<ELEMENT> actual)
+>     {
+164c176,177
+<     public static <ELEMENT> SeqAssert<ELEMENT> assumeThat(Seq<ELEMENT> actual) {
+---
+>     public static <ELEMENT> SeqAssert<ELEMENT> assumeThat(Seq<ELEMENT> actual)
+>     {
+177c190,191
+<     public static <VALUE> TryAssert<VALUE> assumeThat(Try<VALUE> actual) {
+---
+>     public static <VALUE> TryAssert<VALUE> assumeThat(Try<VALUE> actual)
+>     {
+191c205,206
+<     public static <INVALID, VALID> ValidationAssert<INVALID, VALID> assumeThat(Validation<INVALID, VALID> actual) {
+---
+>     public static <INVALID, VALID> ValidationAssert<INVALID, VALID> assumeThat(Validation<INVALID, VALID> actual)
+>     {
+197c212,213
+<                                                               Object actual) {
+---
+>                                                               Object actual)
+>     {
+203,204c219,222
+<                                                       Object... constructorParams) {
+<         try {
+---
+>                                                       Object... constructorParams)
+>     {
+>         try
+>         {
+208c226,228
+<         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+---
+>         }
+>         catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e)
+>         {
+214c234,235
+<     private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass) {
+---
+>     private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass)
+>     {
+221c242,243
+<     private static <ASSERTION> Class<? extends ASSERTION> generateAssumptionClass(Class<ASSERTION> assertionType) {
+---
+>     private static <ASSERTION> Class<? extends ASSERTION> generateAssumptionClass(Class<ASSERTION> assertionType)
+>     {
+230c252,253
+<     private static RuntimeException assumptionNotMet(AssertionError assertionError) throws ReflectiveOperationException {
+---
+>     private static RuntimeException assumptionNotMet(AssertionError assertionError) throws ReflectiveOperationException
+>     {
+237c260
+<         assumptionClass = getAssumptionClass("org.testng.SkipException");
+---
+>         assumptionClass = getAssumptionClass"org.testng.SkipException");
+243,244c266,269
+<     private static Class<?> getAssumptionClass(String className) {
+<         try {
+---
+>     private static Class<?> getAssumptionClass(String className)
+>     {
+>         try
+>         {
+246c271,273
+<         } catch (ClassNotFoundException e) {
+---
+>         }
+>         catch (ClassNotFoundException e)
+>         {
+252c279,280
+<                                                      AssertionError e) throws ReflectiveOperationException {
+---
+>                                                      AssertionErrorError assertionError) throws ReflectiveOperationException
+>     {
+254c282
+<                 .newInstance("assumption was not met due to: " + e.getMessage(), e);
+---
+>                 .newInstance("assumption was not met due to: " + assertionError.getMessage(), assertionError);
+258c286,287
+<     private static AbstractVavrAssert<?, ?> asAssumption(AbstractVavrAssert<?, ?> assertion) {
+---
+>     private static AbstractVavrAssert<?, ?> asAssumption(AbstractVavrAssert<?, ?> assertion)
+>     {
+272d300
+< 

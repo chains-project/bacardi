@@ -1,27 +1,13 @@
-3a4
-> import org.flywaydb.core.api.configuration.ClassicConfiguration;
-54a56
-> {
-108,113c110,116
+103c103
+<         @Bean(initMethod = "migrate")
+---
+>         @Bean
+108c108
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
-<                 flyway.setDataSource(this.dataSource());
+---
+>                 final Flyway flyway = new Flyway(new org.flywaydb.core.api.configuration.Configuration());
+110,111c110
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
 <                 flyway.setLocations(prop.getProperty("flyway.locations"));
-<                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-<                 return flyway;
 ---
->                 ClassicConfiguration config = new ClassicConfiguration();
->                 config.setDataSource(this.dataSource());
->                 config.setLocations(prop.getProperty("flyway.locations").split(","));
->                 config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
->                 config.setClassLoader(NisAppConfig.class.getClassLoader());
-> 
->                 return new Flyway(config);
-117d119
-<         @DependsOn("flyway")
-334,335c336,337
-<                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
-<                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
----
->                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
->                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTINGING, () -> AlwaysVestedBalances::new);
+>                 flyway.setLocations(prop.getProperty("flyway.locations").split(","));

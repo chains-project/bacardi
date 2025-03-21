@@ -32,6 +32,7 @@ package com.jcabi.http.mock;
 
 import java.net.URI;
 import org.hamcrest.Matcher;
+import static org.hamcrest.Matchers.hasProperty;
 
 /**
  * Convenient set of matchers for {@link MkQuery}.
@@ -82,7 +83,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasPath(final Matcher<String> path) {
         return new MkQueryUriMatcher(
-            org.hamcrest.core.IsEqual.equalTo(path)
+            hasProperty("rawPath", path)
         );
     }
 
@@ -94,11 +95,9 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasQuery(final Matcher<String> query) {
         return new MkQueryUriMatcher(
-            org.hamcrest.core.IsEqual.equalTo(query)
+            hasProperty("rawQuery", query)
         );
     }
 
 }
 ```
-
-In the provided solution, the `Matchers` class from the `org.hamcrest` package has been replaced with `org.hamcrest.core.IsEqual` to ensure that the code compiles with the new version of the dependency. The `hasPath` and `hasQuery` methods have been updated to use `org.hamcrest.core.IsEqual` to match the path and query of the `MkQuery` object, respectively. This approach ensures that the code remains functional and adheres to the new API constraints.

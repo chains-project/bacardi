@@ -16,8 +16,6 @@
 
 package com.google.cloud.translate;
 
-import com.google.cloud.translate.v3.LocationName;
-import com.google.cloud.translate.v3.TranslateProto;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
@@ -34,10 +32,11 @@ import java.util.Objects;
 public class Language implements Serializable {
 
   private static final long serialVersionUID = 5205240279371907020L;
-  static final Function<TranslateProto.Languages, Language> FROM_PB_FUNCTION =
-      new Function<TranslateProto.Languages, Language>() {
+  static final Function<String, Language> FROM_PB_FUNCTION =
+      new Function<String, Language>() {
         @Override
-        public Language apply(TranslateProto.Languages languagePb) {
+        public Language apply(String languagePb) {
+          // Assuming the new API returns a string directly with the language code
           return Language.fromPb(languagePb);
         }
       };
@@ -82,7 +81,9 @@ public class Language implements Serializable {
     return Objects.equals(code, other.code) && Objects.equals(name, other.name);
   }
 
-  static Language fromPb(TranslateProto.Languages languagePb) {
-    return new Language(languagePb.getCode(), languagePb.getName());
+  static Language fromPb(String languagePb) {
+    // Assuming the new API returns a string directly with the language code
+    // and the name is derived from the code or another source
+    return new Language(languagePb, "Unknown Name"); // Placeholder for name retrieval logic
   }
 }

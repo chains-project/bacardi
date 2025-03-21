@@ -2,32 +2,27 @@
 < 
 ---
 > import java.util.Locale;
-6,7c6,8
+6,15c6,8
 < import javax.mvc.MvcContext;
 < //https://www.mvc-spec.org/learn/cookbook/multilang_en.html
----
-> import jakarta.mvc.annotation.Controller;
-> import jakarta.mvc.annotation.View;
-> 
-9,10c10,11
+< /**
 <  * Provides I18n messages for the UI per request. To get the correct locale, the method {@link MvcContext#getLocale()}
 <  * is used. This method uses the built-in {@link javax.mvc.locale.LocaleResolver} of the used MVC Implementation.
----
->  * Provides I18n messages for the UI per request. To get the correct locale, the method {@link LocaleResolver#getLocale()}
->  * is used. This method uses the built-in {@link LocaleResolver} of the used MVC Implementation.
-13,14c14
+<  *
+<  * @author Tobias Erdle
 <  * @see MvcContext#getLocale()
 <  * @see javax.mvc.locale.LocaleResolver
+<  */
 ---
->  * @see LocaleResolver#getLocale()
-17a18
-> @Controller
-23c24
+> import javax.servlet.http.HttpServletRequest;
+> import javax.servlet.http.HttpServletRequestWrapper;
+> 
+23c16
 <     private MvcContext mvcContext;
 ---
->     private LocaleResolver localeResolver;
-33c34,35
+>     private HttpServletRequest request;
+33c26,27
 <         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
 ---
->         final Locale locale = localeResolver.getLocale();
+>         final Locale locale = request.getLocale();
 >         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, locale);

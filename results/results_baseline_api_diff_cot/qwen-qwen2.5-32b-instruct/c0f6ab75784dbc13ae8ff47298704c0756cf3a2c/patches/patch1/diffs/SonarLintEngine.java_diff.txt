@@ -1,33 +1,25 @@
 36,37d35
 < import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisConfiguration;
 < import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneGlobalConfiguration;
-42d39
+40,42d37
+< import org.sonarsource.sonarlint.core.commons.log.ClientLogOutput;
+< import org.sonarsource.sonarlint.core.commons.progress.ClientProgressMonitor;
 < import org.sonarsource.sonarlint.core.commons.progress.ProgressMonitor;
-45,46d41
-< import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader;
+46c41
 < import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader.Configuration;
+---
+> import org.sonarsource.sonarlint.core.plugin.commons.Configuration;
 67c62
 <     // The only instance of this singleton class
 ---
 >     // The only instance of this class
-70c65,66
-<     // We need to reinitialise it before starting analysis of any source files on any rules.
----
->     // We need to reinitialise the analysis engine as it is stopped after each analysis executed by {@link
->     // SonarStaticAnalyzer}.
-77c73
+77c72
 <         this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, null);
 ---
 >         this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, logOutput);
-147c143
-<                 pluginInstancesByKeys, new PluginInstancesLoader());
----
->                 (pluginInstancesByKeys, new PluginInstancesLoader());
-163c159
+163c158
 <                 .addEnabledLanguages(globalConfig.getEnabledLanguages())
 ---
->                 .addEnabledLanguages(new Language[] {Language.JAVA})
-222c218
-<                                                                             i.getRuleKey()))),
----
->                                                                             i.getRuleKey())),
+>                 .addEnabledLanguages(List.of(Language.JAVA))
+223d217
+<                                             logOutput),

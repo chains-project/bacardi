@@ -29,7 +29,7 @@ public class NameResolver extends SharedNameResolver {
 
     @Override
     public void sendMessageInvoker(String id) {
-        plugin.sendMessage(invoker, Text.of(id));
+        plugin.sendMessage((org.spongepowered.api.command.source.CommandSource) invoker, id);
     }
 
     @Override
@@ -41,9 +41,7 @@ public class NameResolver extends SharedNameResolver {
     @Override
     protected void scheduleDownloader(UUID uuid) {
         //run this is the same thread
-        new SkinDownloader(plugin, invoker, receiver, uuid, keepSkin).run();
+        new SkinDownloader(plugin, (org.spongepowered.api.command.source.CommandSource) invoker, receiver, uuid, keepSkin).run();
     }
 }
 ```
-
-In this solution, the `CommandSource` class has been replaced with `MessageReceiver` as it is a more general interface that can be used to send messages, which seems to be the intended use of `CommandSource` in the original code. The `sendMessageInvoker` method has been updated to use `Text.of(id)` to create a `Text` object, which is required by the `MessageReceiver` interface for sending messages.

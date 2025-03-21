@@ -35,6 +35,7 @@ import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -69,7 +70,7 @@ public class AbstractTest {
         final Tag localDateTag = new Tag("!LocalDate");
         representer.addClassTag(LocalDate.class, localDateTag);
 
-        Constructor constructor = new Constructor(clazz, loadingConfig) {{
+        final Constructor constructor = new Constructor(clazz, loadingConfig) {{
             this.addTypeDescription(new TypeDescription(ZoneId.class, "ZoneId"));
             this.addTypeDescription(new TypeDescription(LocalDate.class, "LocalDate"));
 
@@ -88,5 +89,3 @@ public class AbstractTest {
 
 }
 ```
-
-The fix involves removing the dependency on `TrustedTagInspector` which has been removed in the new version of the dependency. The class and its usage have been removed from the code, ensuring that the class remains compilable and functional with the new version of the dependency.

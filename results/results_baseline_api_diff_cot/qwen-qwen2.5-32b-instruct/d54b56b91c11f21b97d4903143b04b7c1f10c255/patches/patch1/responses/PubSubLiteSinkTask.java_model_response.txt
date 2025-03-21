@@ -82,7 +82,8 @@ public class PubSubLiteSinkTask extends SinkTask {
             Constants.KAFKA_PARTITION_HEADER,
             ByteString.copyFromUtf8(record.kafkaPartition().toString()));
         attributes.put(
-            Constants.KAFKA_OFFSET_HEADER, ByteString.copyFromUtf8(Long.toString(record.kafkaOffset())));
+            Constants.KAFKA_OFFSET_HEADER,
+            ByteString.copyFromUtf8(Long.toString(record.kafkaOffset())));
       }
       if (record.timestamp() != null) {
         attributes.put(
@@ -132,5 +133,3 @@ public class PubSubLiteSinkTask extends SinkTask {
   }
 }
 ```
-
-In this solution, the `PublishMetadata` class has been removed from the dependency, and the client code was using it as a type for the `publisher` field. The fix involves changing the type of `publisher` from `Publisher<PublishMetadata>` to `Publisher<Message>` since `PublishMetadata` is no longer available. This change is made to ensure the class compiles and functions correctly with the new dependency version. The rest of the code remains unchanged to maintain its original functionality.

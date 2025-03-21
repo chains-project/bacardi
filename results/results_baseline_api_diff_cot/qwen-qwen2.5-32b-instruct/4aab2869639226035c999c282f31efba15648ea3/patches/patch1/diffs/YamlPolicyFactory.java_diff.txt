@@ -1,14 +1,17 @@
-9c9,11
+9,11c9,12
 < import com.artipie.asto.factory.Storages;
+< import java.io.IOException;
+< import java.io.UncheckedIOException;
 ---
-> import com.artipie.asto.fs.FileStorageFactory;
 > import com.artipie.asto.factory.Config;
-> import com.artipie.asto.factory.StorageConfig;
-40a43
->             final Config storageConfig = new Config(Yaml.createYamlInput(sub.toString()).readYamlMapping());
-43,45c46
+> import com.artipie.asto.factory.StorageFactory;
+> import com.artipie.security.Policy;
+> import com.artipie.security.PolicyConfig;
+40a42
+>             final StorageFactory factory = new StorageFactory();
+43,44c45,46
 <                     new Storages().newStorage(
 <                         sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
-<                     )
 ---
->                     new FileStorageFactory().newStorage(storageConfig)
+>                     factory.newStorage(
+>                         new Config(sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping())

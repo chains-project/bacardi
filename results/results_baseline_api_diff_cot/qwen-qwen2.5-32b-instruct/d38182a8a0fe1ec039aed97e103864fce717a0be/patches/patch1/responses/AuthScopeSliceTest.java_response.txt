@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.IsEqual;
 import org.junit.jupiter.api.Test;
+import org.reactivestreams.Publisher;
 
 /**
  * Tests for {@link AuthScopeSlice}.

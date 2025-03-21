@@ -5,18 +5,17 @@
 <  * license that can be found in the LICENSE.txt file.
 <  */
 < 
-14,15c8
-< import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+13d6
+< import com.github.javaparser.ast.expr.AnnotationExpr;
+15c8
 < import com.github.javaparser.printer.PrettyPrinterConfiguration;
 ---
 > import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration; // Updated import
-41d33
-< import java.util.stream.Collectors;
-53,127d44
-<         Bench.mode = Bench.Mode.REPLAY;
-<         return new TestScanner(l);
-<     }
-< 
+43,45d35
+< /**
+<  * @author Fabien Hermenier
+<  */
+57,329c47
 <     ////@Test
 <     public void fuzzingSizing() throws Exception {
 <         TestScanner sc = newScanner();
@@ -88,7 +87,7 @@
 <     public void specLength() throws Exception {
 <         SpecScanner sc = new SpecScanner();
 <         List<Constraint> l = sc.scan();
-129,319c46
+<         System.out.println(l.stream().map(Constraint::pretty).collect(Collectors.joining("\n")));
 < 
 <         Path path = Paths.get(root, "inv.csv");
 <         String out = l.stream()
@@ -280,9 +279,8 @@
 < 
 <         FunctionVisitor(List<Integer> numbers) {
 <             this.l = numbers;
----
->         return new TestScanner(l);
-322,329c49
+<         }
+< 
 <         @Override
 <         public void visit(MethodDeclaration n, Void arg) {
 <             if (n.getNameAsString().equals("eval")) {
@@ -293,9 +291,7 @@
 <     }
 ---
 >     // ... (rest of the methods remain unchanged)
-335c55
+335c53
 <       private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
 ---
->         private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false); // Updated instantiation
-343d62
-<             System.out.println(n.getNameAsString());
+>         private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false); // Updated constructor and method call

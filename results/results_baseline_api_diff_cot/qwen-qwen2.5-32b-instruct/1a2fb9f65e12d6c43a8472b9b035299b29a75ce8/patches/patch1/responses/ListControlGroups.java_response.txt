@@ -1,21 +1,3 @@
-/**
- * Copyright (C) 2014 Premium Minds.
- *
- * This file is part of wicket-crudifier.
- *
- * wicket-crudifier is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
- * later version.
- *
- * wicket-crudifier is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
- */
 package com.premiumminds.wicket.crudifier.form.elements;
 
 import java.beans.PropertyDescriptor;
@@ -41,209 +23,181 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.metadata.BeanDescriptor;
 import jakarta.validation.metadata.ConstraintDescriptor;
 import jakarta.validation.metadata.ElementDescriptor;
-
-import com.premiumminds.webapp.wicket.validators.HibernateValidatorProperty;
-import com.premiumminds.wicket.crudifier.IObjectRenderer;
-import com.premiumminds.wicket.crudifier.form.CrudifierEntitySettings;
-import com.premiumminds.wicket.crudifier.form.EntityProvider;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.wicket.Component;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 
 public abstract class ListControlGroups<T> extends Panel {
-	private static final long serialVersionUID = 7205285700113097720L;
+    private static final long serialVersionUID = 7205285700113097720L;
 
-	private Map<String, AbstractControlGroup<?>> fieldComponents = new HashMap<String, AbstractControlGroup<?>>();
+    private Map<String, AbstractControlGroup<?>> fieldComponents = new HashMap<String, AbstractControlGroup<?>>();
 
-	private Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> controlGroupProviders = new HashMap<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>>();
+    private Map<Class<?>, ControlGroupProvider<?>> controlGroupProviders = new HashMap<Class<?>, ControlGroupProvider<?>>();
 
-	@SuppressWarnings("rawtypes")
-	private Map<Class<?>, Class<? extends AbstractControlGroup>> typesControlGroups = new HashMap<Class<?>, Class<? extends AbstractControlGroup>>();
+    @SuppressWarnings("rawtypes")
+    private final Map<Class<?>, Class<? extends AbstractControlGroup>> typesControlGroups = new HashMap<Class<?>, Class<? extends AbstractControlGroup>>();
 
-	private List<ObjectProperties> objectProperties;
-	private CrudifierEntitySettings entitySettings;
-	private Map<Class<?>, IObjectRenderer<?>> renderers;
+    private List<ObjectProperties> objectProperties;
+    private CrudifierEntitySettings entitySettings;
+    private Map<Class<?>, IObjectRenderer<?>> renderers;
 
-	public ListControlGroups(String id, IModel<T> model, CrudifierEntitySettings entitySettings, Map<Class<?>, IObjectRenderer<?>> renderers) {
-		super(id, model);
+    public ListControlGroups(String id, IModel<T> model, CrudifierEntitySettings entitySettings, Map<Class<?>, IObjectRenderer<?>> renderers) {
+        super(id, model);
 
-		typesControlGroups.put(Date.class, DateControlGroup.class);
-		typesControlGroups.put(LocalDateTime.class, TemporalControlGroup.class);
-		typesControlGroups.put(Temporal.class, TemporalControlGroup.class);
-		typesControlGroups.put(String.class, TextFieldControlGroup.class);
-		typesControlGroups.put(Integer.class, TextFieldControlGroup.class);
-		typesControlGroups.put(int.class, TextFieldControlGroup.class);
-		typesControlGroups.put(Long.class, TextFieldControlGroup.class);
-		typesControlGroups.put(long.class, TextFieldControlGroup.class);
-		typesControlGroups.put(Double.class, TextFieldControlGroup.class);
-		typesControlGroups.put(double.class, TextFieldControlGroup.class);
-		typesControlGroups.put(BigDecimal.class, TextFieldControlGroup.class);
-		typesControlGroups.put(BigInteger.class, TextFieldControlGroup.class);
-		typesControlGroups.put(Boolean.class, CheckboxControlGroup.class);
-		typesControlGroups.put(boolean.class, CheckboxControlGroup.class);
-		typesControlGroups.put(Set.class, CollectionControlGroup.class);
+        typesControlGroups.put(Date.class, DateControlGroup.class);
+        typesControlGroups.put(LocalDateTime.class, TemporalControlGroup.class);
+        typesControlGroups.put(Temporal.class, TemporalControlGroup.class);
+        typesControlGroups.put(String.class, TextFieldControlGroup.class);
+        typesControlGroups.put(Integer.class, TextFieldControlGroup.class);
+        typesControlGroups.put(int.class, TextFieldControlGroup.class);
+        typesControlGroups.put(Long.class, TextFieldControlGroup.class);
+        typesControlGroups.put(long.class, TextFieldControlGroup.class);
+        typesControlGroups.put(Double.class, TextFieldControlGroup.class);
+        typesControlGroups.put(double.class, TextFieldControlGroup.class);
+        typesControlGroups.put(BigDecimal.class, TextFieldControlGroup.class);
+        typesControlGroups.put(BigInteger.class, TextFieldControlGroup.class);
+        typesControlGroups.put(Boolean.class, CheckboxControlGroup.class);
+        typesControlGroups.put(boolean.class, CheckboxControlGroup.class);
 
-		objectProperties = new ArrayList<ObjectProperties>();
-		this.entitySettings = entitySettings;
-		this.renderers = renderers;
-	}
+        objectProperties = new ArrayList<ObjectProperties>();
+        this.entitySettings = entitySettings;
+        this.renderers = renderers;
+    }
 
-	@SuppressWarnings("rawtypes")
-	private Set<String> getPropertiesByOrder(Class<?> modelClass) {
-		Set<String> properties = new LinkedHashSet<String>();
+    @SuppressWarnings("rawtypes")
+    private Set<String> getPropertiesByOrder(Class<?> modelClass) {
+        Set<String> properties = new LinkedHashSet<String>();
 
-		for(String property : entitySettings.getOrderOfFields()){
-			if(!entitySettings.getHiddenFields().contains(property))
-				properties.add(property);
-		}
-		for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
-			if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
-			   !properties.contains(descriptor.getName()) &&
-			   !descriptor.getName().equals("class"))
-				properties.add(descriptor.getName());
-		}
+        for(String property : entitySettings.getOrderOfFields()){
+            if(!entitySettings.getHiddenFields().contains(property))
+                properties.add(property);
+        }
+        for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
+            if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
+               !properties.contains(descriptor.getName()) &&
+               !descriptor.getName().equals("class"))
+                properties.add(descriptor.getName());
+        }
 
-		return properties;
-	}
+        return properties;
+    }
 
-	@Override
-	protected void onInitialize() {
-		super.onInitialize();
+    @Override
+    protected void onInitialize() {
+        super.onInitialize();
 
-		Class<?> modelClass = getModel().getObject().getClass();
+        Class<?> modelClass = getModel().getObject().getClass();
 
-		Set<String> properties = getPropertiesByOrder(modelClass);
+        Set<String> properties = getPropertiesByOrder(modelClass);
 
-		Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
-		BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
-		for(String property : properties){
-			PropertyDescriptor descriptor;
-			try {
-				descriptor = PropertyUtils.getPropertyDescriptor(getModel().getObject(), property);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
+        Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
+        BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
+        for(String property : properties){
+            PropertyDescriptor descriptor;
+            try {
+                descriptor = PropertyUtils.getPropertyDescriptor(getModel().getObject(), property);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
 
-			boolean required = false;
+            boolean required = false;
 
-			ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
-			if(constraintDescriptor!=null){
-				Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
-				for(ConstraintDescriptor<?> constraint : constraintsSet){
-					if(constraint.getAnnotation() instanceof NotNull ||
-					   constraint.getAnnotation() instanceof NotEmpty ||
-					   constraint.getAnnotation() instanceof NotBlank)
-						required = true;
-				}
-			}
+            ElementDescriptor elementDescriptor = constraintDescriptors.getConstraintsForProperty(property);
+            if(elementDescriptor!=null){
+                Set<ConstraintDescriptor<?>> constraintsSet = elementDescriptor.getConstraintDescriptors();
+                for(ConstraintDescriptor<?> constraint : constraintsSet){
+                    if(constraint.getAnnotation() instanceof NotNull ||
+                       constraint.getAnnotation() instanceof NotEmpty ||
+                       constraint.getAnnotation() instanceof NotBlank)
+                        required = true;
+                }
+            }
 
-			objectProperties.add(new ObjectProperties(descriptor, required));
-		}
-		
-		RepeatingView view = new RepeatingView("controlGroup");
-		for(ObjectProperties objectProperty : objectProperties){
-			try {
-				AbstractControlGroup<?> controlGroup;
-				if(!controlGroupProviders.containsKey(objectProperty.type)) {
-					Constructor<?> constructor;
-					Class<? extends AbstractControlGroup> typesControlGroup = getControlGroupByType(objectProperty.type);
-					if(typesControlGroup==null){
-						if(objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
-						else typesControlGroup = ObjectChoiceControlGroup.class;
-					}
+            objectProperties.add(new ObjectProperties(descriptor, required));
+        }
 
-					constructor = typesControlGroup.getConstructor(String.class, IModel.class);
+        RepeatingView view = new RepeatingView("controlGroup");
+        for(ObjectProperties objectProperty : objectProperties){
+            try {
+                AbstractControlGroup<?> controlGroup;
+                if(!controlGroupProviders.containsKey(objectProperty.type)) {
+                    Constructor<?> constructor;
+                    Class<? extends Panel> typesControlGroup = getControlGroupByType(objectProperty.type);
+                    if(typesControlGroup==null){
+                        if(objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
+                        else typesControlGroup = ObjectChoiceControlGroup.class;
+                    }
 
-					controlGroup = (AbstractControlGroup<?>) constructor.newInstance(view.newChildId(), new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name));
-					controlGroup.init(objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
-					controlGroup.setEnabled(objectProperty.enabled);
+                    constructor = typesControlGroup.getConstructor(String.class, IModel.class);
 
-					if(typesControlGroup==ObjectChoiceControlGroup.class){
-						IObjectRenderer<?> renderer = renderers.get(objectProperty.type);
-						if(renderer==null){
-							renderer = new IObjectRenderer<Object>() {
-								private static final long serialVersionUID = -6171655578529011405L;
+                    controlGroup = (AbstractControlGroup<?>) constructor.newInstance(view.newChildId(), new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name));
+                    controlGroup.init(objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
+                    controlGroup.setEnabled(objectProperty.enabled);
+                } else {
+                    controlGroup = controlGroupProviders
+                            .get(objectProperty.type)
+                            .createControlGroup(view.newChildId()
+                                    , new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name)
+                                    , objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
+                }
+                view.add(controlGroup);
 
-								public String render(Object object) {
-									return object.toString();
-								}
-							};
-						}
-						((ObjectChoiceControlGroup<?>) controlGroup).setConfiguration(getEntityProvider(objectProperty.name), renderer);
-					} else if(typesControlGroup==CollectionControlGroup.class){
-						((CollectionControlGroup<?>) controlGroup).setConfiguration(getEntityProvider(objectProperty.name), renderers);
-					}
+                fieldComponents.put(objectProperty.name, controlGroup);
+            } catch (SecurityException e) {
+                throw new RuntimeException(e);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException(e);
+            } catch (InstantiationException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
-				} else {
-					controlGroup = controlGroupProviders
-							.get(objectProperty.type)
-							.createControlGroup(view.newChildId(), new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name), objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
-				}
-				view.add(controlGroup);
+        add(view);
+    }
 
-				fieldComponents.put(objectProperty.name, controlGroup);
-			} catch (SecurityException e) {
-				throw new RuntimeException(e);
-			} catch (NoSuchMethodException e) {
-				throw new RuntimeException(e);
-			} catch (IllegalArgumentException e) {
-				throw new RuntimeException(e);
-			} catch (InstantiationException e) {
-				throw new RuntimeException(e);
-			} catch (IllegalAccessException e) {
-				throw new RuntimeException(e);
-			} catch (InvocationTargetException e) {
-				throw new RuntimeException(e);
-			}
-		}
+    @SuppressWarnings("rawtypes")
+    public IModel<T> getModel(){
+        return (IModel<T>) getDefaultModel();
+    }
 
-		add(view);
-	}
+    public Component getResourceBase(){
+        return this;
+    }
 
-	@SuppressWarnings("rawtypes")
-	private Set<String> getPropertiesByOrder(Class<?> modelClass) {
-		Set<String> properties = new LinkedHashSet<String>();
+    public Map<String, AbstractControlGroup<?>> getFieldsControlGroup(){
+        return Collections.unmodifiableMap(fieldComponents);
+    }
 
-		for(String property : entitySettings.getOrderOfFields()){
-			if(!entitySettings.getHiddenFields().contains(property))
-				properties.add(property);
-		}
-		for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
-			if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
-			   !properties.contains(descriptor.getName()) &&
-			   !descriptor.getName().equals("class"))
-				properties.add(descriptor.getName());
-		}
+    @SuppressWarnings("rawtypes")
+    public Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap(){
+        return typesControlGroups;
+    }
 
-		return properties;
-	}
+    @SuppressWarnings("rawtypes")
+    public Map<Class<?>, ControlGroupProvider<?>> getControlGroupProviders(){
+        return this.controlGroupProviders;
+    }
 
-	@SuppressWarnings("rawtypes")
-	public Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap(){
-		return typesControlGroups;
-	}
+    private static final class ObjectProperties implements Serializable {
+        private static final long serialVersionUID = 1747577998897955928L;
+        private String name;
+        private boolean enabled;
+        private Class<?> type;
+        private boolean required;
 
-	@SuppressWarnings("rawtypes")
-	public Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> getControlGroupProviders(){
-		return this.controlGroupProviders;
-	}
-
-	@SuppressWarnings("rawtypes")
-	private static final class ObjectProperties implements Serializable {
-		private static final long serialVersionUID = 1747577998897955928L;
-		private String name;
-		private boolean enabled;
-		private Class<?> type;
-		private boolean required;
-
-		public ObjectProperties(PropertyDescriptor descriptor, boolean required){
-			this.name = descriptor.getName();
-			this.enabled = descriptor.getWriteMethod()!=null;
-			this.type = descriptor.getPropertyType();
-			this.required = required;
-		}
-	}
+        public ObjectProperties(PropertyDescriptor descriptor, boolean required){
+            this.name = descriptor.getName();
+            this.enabled = descriptor.getWriteMethod()!=null;
+            this.type = descriptor.getPropertyType();
+            this.required = required;
+        }
+    }
 }

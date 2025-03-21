@@ -28,67 +28,79 @@
 <  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 <  * OF THE POSSIBILITY OF SUCH DAMAGE.
 <  */
-48c19,21
+45d15
+< import org.hamcrest.CustomMatcher;
+48c18,22
 < import org.hamcrest.Matchers;
 ---
 > import org.hamcrest.core.IsEqual;
-> import org.hamcrest.core.IsNot;
 > import org.hamcrest.core.StringContains;
-54c27
-<  * HTTP response and manipulate with it afterwords, for example:
----
->  * HTTP response and manipulate with it afterwards, for example:
-60,61c33,34
+> import org.hamcrest.core.IsAnything;
+> import org.hamcrest.core.IsNot;
+> import org.hamcrest.core.IsCollectionContaining;
+60,61c34,35
 <  *   .assertBody(Matchers.containsString("hello, world!"))
 <  *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
 ---
 >  *   .assertBody(new StringContains("hello, world!"))
->  *   .assertHeader("Content-Type", new IsEqual<>(Collections.singletonList("text/plain")))
-65c38
-<  * <p>Method {@link #jump(URI)} creates a new instance of class
----
->  * <p>The method {@link #jump(URI)} creates a new instance of class
-92c65,67
-<             String.format("HTTP response is not valid: %s", this),
----
->             String.format(
->                 "HTTP response is not valid: %s", this
->             ),
-103c78
+>  *   .assertHeader("Content-Type", new IsCollectionContaining<>(new IsEqual<>("text/plain")))
+103c77
 <      * @return The same object
 ---
 >      * @return This object
-114,115c89,90
+114,115c88,89
 <             this,
 <             new RestResponse.StatusMatch(message, status)
 ---
 >             this.status(),
 >             new IsEqual<>(status)
-165c140,141
+121,123c95,97
+<      * Verifies HTTP response status code against the provided matcher,
+<      * and throws {@link AssertionError} in case of mismatch.
+<      * @param matcher Matcher to validate status code
+---
+>      * Verifies HTTP response status code against the provided matcher, and throws
+>      * {@link AssertionError} in case of mismatch.
+>      * @param matcher The matcher to use
+132c106,107
+<             this.status(), matcher
+---
+>             this.status(),
+>             matcher
+149c124,125
+<             this.body(), matcher
+---
+>             this.body(),
+>             matcher
+165c141,142
 <             ), this.binary(),
 ---
 >             ),
 >             this.binary(),
-175c151
-<      * <p>The iterator for the matcher will always be a real object an never
+196c173,174
+<             values, matcher
 ---
->      * <p>The iterator for the matcher will always be a real object and never
-210c186
+>             values,
+>             matcher
+210c188
 <         return this.assertHeader(name, Matchers.hasItems(value));
 ---
->         return this.assertHeader(name, new IsEqual<>(Collections.singletonList(value)));
-246c222
+>         return this.assertHeader(name, new IsCollectionContaining<>(new IsEqual<>(value)));
+226c204
+<                 for (final HttpCookie cookie : HttpCookie.parse(header)) {
+---
+>                 for (final HttpCookie candidate : HttpCookie.parse(header)) {
+230c208
+<                             "%s=%s", cookie.getName(), cookie.getValue()
+---
+>                             "%s=%s", candidate.getName(), candidate.getValue()
+246c224
 <             Matchers.not(Matchers.emptyIterableOf(String.class))
 ---
->             new IsNot<>(new IsEqual<>(Collections.emptyList()))
-263c239,240
-<             headers.containsKey(HttpHeaders.SET_COOKIE)
----
->             headers.containsKey(HttpHeaders.SET_COOKIE),
->             new IsEqual<>(true)
-284c261
+>             new IsNot<>(new IsCollectionContaining<>(new IsAnything<>()))
+284c262
 <             Matchers.notNullValue()
 ---
->             new IsEqual<>(null)
-332d308
+>             new IsEqual<>(cookie)
+332d309
 < 

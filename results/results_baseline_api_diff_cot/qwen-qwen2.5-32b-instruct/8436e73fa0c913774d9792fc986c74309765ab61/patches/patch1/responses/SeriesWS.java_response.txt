@@ -173,4 +173,5 @@ public interface SeriesWS {
         String motivo,
         @WebParam(name = "declaracaoNaoEmissao", targetNamespace = "")
         boolean declaracaoNaoEmissao);
+
 }

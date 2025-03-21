@@ -1,12 +1,35 @@
-22c22
+1,15d0
+< /**
+<  * Copyright 2019 Pinterest, Inc.
+<  * 
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  * 
+<  *    http://www.apache.org/licenses/LICENSE-2.0
+<  * 
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+22c7
 < import ch.qos.logback.core.encoder.EncoderBase;
 ---
 > import ch.qos.logback.core.encoder.Encoder;
-51c51
+38,40d22
+< /**
+<  * Utils to create logback appenders
+<  */
+48,51c30
+<   /**
+<    * Encoder for LogMessage objects.
+<    */
 <   public static class LogMessageEncoder extends EncoderBase<LogMessage> {
 ---
 >   public static class LogMessageEncoder implements Encoder<LogMessage> {
-58,65c58,66
+58,65c37,49
 <     public void init(OutputStream os) {
 <       this.os = os;
 <       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
@@ -23,30 +46,62 @@
 >     @Override
 >     public void stop() {
 >       if (framedTransport != null) {
->         framedTransport.close();
+>         try {
+>           framedTransport.close();
+>         } catch (IOException e) {
+>           // Handle or log the exception
+>         }
 >       }
-70a72,76
->         if (framedTransport == null) {
+69c53
+<     public void doEncode(LogMessage logMessage) throws IOException {
+---
+>     public byte[] encode(LogMessage logMessage) {
+70a55,65
+>         if (os == null) {
+>           os = new OutputStream() {
+>             @Override
+>             public void write(int b) throws IOException {
+>               // No-op
+>             }
+>           };
 >           final int bufferCapacity = 10;
 >           framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);
 >           protocol = new TBinaryProtocol(framedTransport);
 >         }
-79,80c85,91
+72a68
+>         return new byte[0]; // Return an empty byte array as a placeholder
+74c70
+<         throw new IOException(e);
+---
+>         throw new RuntimeException(e);
+79,80c75,81
 <     public void close() throws IOException {
 <       framedTransport.close();
 ---
->     public byte[] headerBytes() {
->       return new byte[0];
+>     public byte[] getHeader() {
+>       return new byte[0]; // Return an empty byte array as a placeholder
 >     }
 > 
 >     @Override
->     public byte[] footerBytes() {
->       return new byte[0];
-99c110
+>     public byte[] getFooter() {
+>       return new byte[0]; // Return an empty byte array as a placeholder
+84,92d84
+<   /**
+<    * Create the basic thrift appender which logs to a file
+<    * and rolls the file when it exceeds a certain size.
+<    *
+<    * @param basePath base directory the files are under.
+<    * @param topic the topic name for the current appender.
+<    * @param rotateThresholdKBytes threshold in kilobytes to rotate after.
+<    * @param context the logback context.
+<    */
+99c91
 <     RollingFileAppender<LogMessage> appender = new RollingFileAppender<LogMessage>();
 ---
 >     RollingFileAppender<LogMessage> appender = new RollingFileAppender<>();
-108c119
+108c100
 <     TimeBasedRollingPolicy policy = new TimeBasedRollingPolicy();
 ---
 >     TimeBasedRollingPolicy<LogMessage> policy = new TimeBasedRollingPolicy<>();
+115d106
+<     // Also impose a max size per file policy.

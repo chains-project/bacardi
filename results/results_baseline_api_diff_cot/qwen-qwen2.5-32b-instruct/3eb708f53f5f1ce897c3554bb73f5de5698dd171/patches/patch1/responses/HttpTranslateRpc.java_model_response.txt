@@ -7,6 +7,13 @@ import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.translate.v3.Translate;
+import com.google.api.services.translate.v3.model.DetectLanguageRequest;
+import com.google.api.services.translate.v3.model.DetectLanguageResponse;
+import com.google.api.services.translate.v3.model.Glossary;
+import com.google.api.services.translate.v3.model.ListGlossariesResponse;
+import com.google.api.services.translate.v3.model.TranslateTextRequest;
+import com.google.api.services.translate.v3.model.TranslateTextResponse;
 import com.google.cloud.http.HttpTransportOptions;
 import com.google.cloud.translate.TranslateException;
 import com.google.cloud.translate.TranslateOptions;
@@ -20,14 +27,18 @@ import java.util.Map;
 public class HttpTranslateRpc implements TranslateRpc {
 
   private final TranslateOptions options;
-  private final com.google.cloud.translate.v3.Translate translate;
+  private final Translate translate;
 
   public HttpTranslateRpc(TranslateOptions options) {
     HttpTransportOptions transportOptions = (HttpTransportOptions) options.getTransportOptions();
     HttpTransport transport = transportOptions.getHttpTransportFactory().create();
     HttpRequestInitializer initializer = transportOptions.getHttpRequestInitializer(options);
     this.options = options;
-    this.translate = new com.google.cloud.translate.v3.Translate(transport, new JacksonFactory(), initializer);
+    translate =
+        new Translate.Builder(transport, new JacksonFactory(), initializer)
+            .setRootUrl(options.getHost())
+            .setApplicationName(options.getApplicationName())
+            .build();
   }
 
   private static TranslateException translate(IOException exception) {
@@ -43,55 +54,38 @@ public class HttpTranslateRpc implements TranslateRpc {
   }
 
   @Override
-  public List<List<Map<String, Double>>> detect(List<String> texts) {
+  public List<List<String>> detect(List<String> texts) {
     try {
-      List<List<Map<String, Double>>> detections = translate.detect(texts).getDetections();
-      return detections != null ? detections : ImmutableList.of();
+      DetectLanguageRequest request = new DetectLanguageRequest().setTexts(texts);
+      DetectLanguageResponse response = translate.projects().locations().detectLanguage(request).setParent("projects/" + options.getProjectId()).execute();
+      return response.getLanguages();
     } catch (IOException ex) {
       throw translate(ex);
     }
   }
 
   @Override
-  public List<Map<String, String>> listSupportedLanguages(Map<Option, ?> optionMap) {
-    try {
-      List<Map<String, String>> languages = translate.listSupportedLanguages().getLanguages();
-      return languages != null ? languages : ImmutableList.of();
-    } catch (IOException ex) {
-      throw translate(ex);
-    }
-  }
-
-  @Override
-  public List<Map<String, String>> translate(List<String> texts, Map<Option, ?> optionMap) {
+  public List<Glossary> listSupportedLanguages(Map<Option, ?> optionMap) {
     try {
       String targetLanguage = firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
-      List<Map<String, String>> translations = translate.translate(texts, targetLanguage).getTranslations();
-      return Lists.transform(
-          translations != null ? translations : ImmutableList.of(),
-          new Function<Map<String, String>, Map<String, String>>() {
-            @Override
-            public Map<String, String> apply(Map<String, String> translationsResource) {
-              // Since setDetectedSourceLanguage and getDetectedSourceLanguage are removed, we need to handle this differently.
-              // Assuming the source language is known or can be inferred, we can set it directly.
-              String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
-              translationsResource.put("sourceLanguage", sourceLanguage);
-              return translationsResource;
-            }
-          });
+      ListGlossariesResponse response = translate.projects().locations().glossaries().list("projects/" + options.getProjectId() + "/locations/global").execute();
+      return response.getGlossaries();
+    } catch (IOException ex) {
+      throw translate(ex);
+    }
+  }
+
+  @Override
+  public List<String> translate(List<String> texts, Map<Option, ?> optionMap) {
+    try {
+      String targetLanguage = firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
+      String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
+      TranslateTextRequest request = new TranslateTextRequest().setTargetLanguage(targetLanguage).setSourceLanguage(sourceLanguage).setTexts(texts);
+      TranslateTextResponse response = translate.projects().locations().translateText(request).setParent("projects/" + options.getProjectId() + "/locations/global").execute();
+      return response.getTranslations();
     } catch (IOException ex) {
       throw translate(ex);
     }
   }
 }
 ```
-
-In this solution, I've made the following changes to address the API changes:
-
-1. Updated the `translate` field to use the new `com.google.cloud.translate.v3.Translate` class.
-2. Adjusted the `detect` method to return a `List<List<Map<String, Double>>>` instead of `List<List<DetectionsResourceItems>>`, assuming the new API returns a similar structure.
-3. Adjusted the `listSupportedLanguages` method to return a `List<Map<String, String>>` instead of `List<LanguagesResource>`, assuming the new API returns a similar structure.
-4. Adjusted the `translate` method to return a `List<Map<String, String>>` instead of `List<TranslationsResource>`, and removed the usage of `setDetectedSourceLanguage` and `getDetectedSourceLanguage` as they no longer exist in the new API.
-5. Updated the imports to reflect the new API structure, assuming the new API is under the `com.google.cloud.translate.v3` package.
-
-Please note that the actual structure of the new API's return types and methods should be verified and adjusted accordingly. The above solution assumes a similar structure to the old API for demonstration purposes.

@@ -40,6 +40,12 @@ public class GeoStoreDigestPasswordEncoder extends AbstractGeoStorePasswordEncod
 	    }
 
 	    @Override
+	    protected Object createStringEncoder() {
+	        StrongPasswordEncryptor encryptor = new StrongPasswordEncryptor();
+	        return encryptor;
+	    }
+
+	    @Override
 	    protected CharArrayPasswordEncoder createCharEncoder() {
 	        return new CharArrayPasswordEncoder() {
 	            StandardByteDigester digester = new StandardByteDigester();

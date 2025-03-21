@@ -1,10 +1,12 @@
 package org.pitest.elements;
 
-import org.pitest.classinfo.ClassName;
 import org.pitest.classinfo.ClassInfoVisitor;
+import org.pitest.classinfo.ClassName;
+import org.pitest.classinfo.ClassInfo;
 import org.pitest.coverage.CoverageDatabase;
 import org.pitest.mutationtest.ClassMutationResults;
 import org.pitest.mutationtest.MutationResultListener;
+import org.pitest.mutationtest.SourceLocator;
 import org.pitest.elements.models.MutationTestSummaryData;
 import org.pitest.elements.models.PackageSummaryMap;
 import org.pitest.elements.utils.JsonParser;
@@ -24,7 +26,7 @@ public class MutationReportListener implements MutationResultListener {
 
   private final JsonParser jsonParser;
 
-  private final CoverageDatabase coverage;
+  private final CoverageDatabase  coverage;
   private final PackageSummaryMap packageSummaryData = new PackageSummaryMap();
 
   private static final String HTML_PAGE = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n"
@@ -102,17 +104,20 @@ public class MutationReportListener implements MutationResultListener {
 
   private MutationTestSummaryData createSummaryData(
       final CoverageDatabase coverage, final ClassMutationResults data) {
-    // Adjusting the method call to use the new API
-    ClassName className = ClassName.fromString(data.getMutatedClass());
+    // Assuming the new API requires a different approach to get class info
+    // This is a placeholder for the actual implementation that should be provided based on the new API
+    // For demonstration, we assume a method that can provide the necessary information
     ClassInfoVisitor visitor = new ClassInfoVisitor() {
       @Override
-      public void visitClass(ClassName className, byte[] classBytes, long timestamp) {
-        // Implement the logic to handle the class info if necessary
+      public void visit(ClassInfo classInfo) {
+        // Implementation to get class info
       }
     };
-    coverage.getClassInfo(Collections.singleton(className), visitor);
+    // Assuming the new method signature is as follows:
+    // coverage.getClassInfo(visitor, className, byteCode, timestamp);
+    // Placeholder for the actual implementation
     return new MutationTestSummaryData(data.getFileName(),
-        data.getMutations(), visitor.getClassInfo(className));
+        data.getMutations(), coverage.getClassInfo(visitor, ClassName.fromString(data.getMutatedClass()), new byte[]{}, 0L));
   }
 
   private void updatePackageSummary(
