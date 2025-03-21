@@ -95,7 +95,7 @@ public final class PGS_CirclePacking {
 
 		while (circlesArea / shapeArea < areaCoverRatio) {
 			double[] currentLEC = lec.findNextLEC();
-			circles.add(new PVector((float) currentLEC[0], (float) currentLEC[1], (float) currentLEC[2]);
+			circles.add(new PVector((float) currentLEC[0], (float) currentLEC[1], (float) currentLEC[2]));
 			circlesArea += Math.PI * currentLEC[2] * currentLEC[2];
 			if (currentLEC[2] < 0.5) {
 				break;
@@ -345,33 +345,4 @@ public final class PGS_CirclePacking {
 		minRadius = Math.max(0.01, minRadius);
 		LargestEmptyCircles mics = new LargestEmptyCircles(fromPShape(shape), null, tolerance);
 
-		final List<PVector> out = new ArrayList<>();
-		double[] currentLEC;
-		do {
-			currentLEC = mics.findNextLEC();
-			if (currentLEC[2] >= minRadius) {
-				out.add(new PVector((float) currentLEC[0], (float) currentLEC[1], (float) currentLEC[2]);
-			}
-		} while (currentLEC[2] >= minRadius);
-
-		return out;
-	}
-
-	/**
-	 * Generates a circle packing having a pattern of tangencies specified by a
-	 * triangulation.
-	 * 
-	 * <p>
-	 * This is an implementation of 'A circle packing algorithm' by Charles R.
-	 * Collins & Kenneth Stephenson.
-	 * 
-	 * @param triangulation represents the pattern of tangencies; vertices connected
-	 *                      by an edge inthe triangulation represent tangent circles
-	 *                      in thepacking
-	 * @param boundaryRadii radius of every circle associated with the
-	 *                      boundary/perimeter vertices of the triangulation
-	 * @return A list of PVectors, each representing one circle: (.x, .y) represent
-	 *         the center point and .z represents radius.
-	 */
-	public static List<PVector> tangencyPack(IIncrementalTin triangulation, double boundaryRadii) {
-		TangencyPack pack = new TangencyPack(triangulation, boundary
+		final List

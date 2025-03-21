@@ -77,49 +77,49 @@ public class GreetingController {
 ```
 
 with the following error information:
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[8,17] package javax.mvc does not exist
-
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[46,6] cannot find symbol
-  symbol:   class UriRef
-  location: class com.example.web.GreetingController
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[11,25] package javax.mvc.binding does not exist
 
 [ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[29,5] cannot find symbol
   symbol:   class BindingResult
+  location: class com.example.web.GreetingController
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[10,25] package javax.mvc.binding does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[24,2] cannot find symbol
+  symbol: class Controller
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[32,5] cannot find symbol
+  symbol:   class Models
   location: class com.example.web.GreetingController
 
 [ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[49,14] cannot find symbol
   symbol:   class MvcBinding
   location: class com.example.web.GreetingController
 
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[12,26] package javax.mvc.security does not exist
-
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[32,5] cannot find symbol
-  symbol:   class Models
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[46,6] cannot find symbol
+  symbol:   class UriRef
   location: class com.example.web.GreetingController
 
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[11,25] package javax.mvc.binding does not exist
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[8,17] package javax.mvc does not exist
 
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[24,2] cannot find symbol
-  symbol: class Controller
-
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[10,25] package javax.mvc.binding does not exist
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[12,26] package javax.mvc.security does not exist
 
 [ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[9,25] package javax.mvc.binding does not exist
 
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
-     Class javax.mvc.UriRef has been removed in the new version of the dependency.
-     Interface jakarta.mvc.UriRef has been added in the new version of the dependency.
+     Class javax.mvc.binding.ParamError has been removed in the new version of the dependency.
      Class javax.mvc.binding.BindingResult has been removed in the new version of the dependency.
      Interface jakarta.mvc.binding.MvcBinding has been added in the new version of the dependency.
      Class javax.mvc.binding.MvcBinding has been removed in the new version of the dependency.
-     Class javax.mvc.security.CsrfProtected has been removed in the new version of the dependency.
-     Interface jakarta.mvc.security.CsrfProtected has been added in the new version of the dependency.
+     Interface jakarta.mvc.Controller has been added in the new version of the dependency.
+     Class javax.mvc.Controller has been removed in the new version of the dependency.
      Class javax.mvc.Models has been removed in the new version of the dependency.
      Interface jakarta.mvc.Models has been added in the new version of the dependency.
-     Class javax.mvc.binding.ParamError has been removed in the new version of the dependency.
-     Class javax.mvc.Controller has been removed in the new version of the dependency.
-     Interface jakarta.mvc.Controller has been added in the new version of the dependency.
+     Interface jakarta.mvc.UriRef has been added in the new version of the dependency.
+     Class javax.mvc.UriRef has been removed in the new version of the dependency.
+     Class javax.mvc.security.CsrfProtected has been removed in the new version of the dependency.
+     Interface jakarta.mvc.security.CsrfProtected has been added in the new version of the dependency.
 
 Before proposing a fix, please analyze the situation and plan your approach within <repair_strategy> tags:
 

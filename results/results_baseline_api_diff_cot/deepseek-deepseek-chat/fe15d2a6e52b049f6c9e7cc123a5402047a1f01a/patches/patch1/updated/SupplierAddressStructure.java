@@ -160,7 +160,7 @@ public class SupplierAddressStructure implements ToString2
      * 
      * @param value
      *     allowed object is
-    极     {@link String }
+     *     {@link String }
      *     
      */
     public void setCity(String value) {
@@ -228,7 +228,7 @@ public class SupplierAddressStructure implements ToString2
     }
 
     /**
-     * Sets the value极 the country property.
+     * Sets the value of the country property.
      * 
      * @param value
      *     allowed object is
@@ -275,7 +275,7 @@ public class SupplierAddressStructure implements ToString2
         {
             String theCity;
             theCity = this.getCity();
-            strategy.appendField(locator极 this, "city", buffer, theCity, (this.city!= null));
+            strategy.appendField(locator, this, "city", buffer, theCity, (this.city!= null));
         }
         {
             String thePostalCode;

@@ -276,4 +276,154 @@ public class ReportBuilder
 				// If this column has a header the JRDesignStaticText get the
 				// propertys of the Column
 				if(col.hasHeaderColumn())
+				{
+					final HeaderColumn headerColumn = col.getHeaderColumn();
+					// Build label and set x / y
+					headerLabel = new JRDesignStaticText();
+					headerLabel.setX(x);
+					headerLabel.setWidth(col.getWidth());
+					headerLabel.setY(TemplateConfig.DEFAULT_COMPONENT_Y_POSITION);
+					
+					headerLabel.setHeight(headerLabelHeight);
+					this.setStlyeForTextField(headerLabel,headerColumn.getStyle());
+					this.prepareTextfieldWithBorder(headerLabel,headerColumn.getStyle());
+					this.prepareTextfieldPadding(headerLabel,headerColumn.getStyle());
+					
+					headerLabel.setPositionType(PositionTypeEnum.FLOAT);
+
+					
+					// Get the Property
+					headerLabel.setText(headerColumn.getProperty());
+					headerBand.addElement(headerLabel);
+				}
+				else
+				{
+					// an empty label must be added to complete the layout
+					// Build label and set x / y
+					emptyHeaderLabel = new JRDesignStaticText();
+					emptyHeaderLabel.setX(x);
+					emptyHeaderLabel.setWidth(col.getWidth());
+					headerBand.addElement(emptyHeaderLabel);
+				}
+			}
+			
+			final ContentColumn contentColumn = col.getContentColumn();
+			
+			textField = new JRDesignTextField();
+			textField.setX(x);
+			textField.setWidth(col.getWidth());
+			textField.setY(TemplateConfig.DEFAULT_COMPONENT_Y_POSITION);
+			textField.setHeight(contentLabelHeight);
+			
+			this.setStlyeForTextField(textField,contentColumn.getStyle());
+			textField.setPattern(contentColumn.getProperty());
+			
+			// box tag properties
+			this.prepareTextfieldWithBorder(textField,contentColumn.getStyle());
+			this.prepareTextfieldPadding(textField,contentColumn.getStyle());
+			
+			textField.setExpression(this.buildExpression(contentColumn));
+			
+			textField.setPositionType(PositionTypeEnum.FLOAT);
+			
+			if(this.config.isBlankWhenNullValue())
+			{
+				textField.setBlankWhenNull(true);
+			}
+			detailBand.addElement(textField);
+			
+			x += col.getWidth();
+		}
 		
+	}
+	
+	private void setStlyeForTextField(final JRDesignTextElement txtField, final ColumnStyle style)
+	{
+		txtField.setBackcolor(style.getBackground());
+		txtField.setForecolor(style.getForeground());
+		// Font
+		final Font f = style.getFont();
+		txtField.setFontName(f.getName());
+		txtField.setFontSize(Float.valueOf(f.getSize()));
+		txtField.setBold(Boolean.valueOf(f.isBold()));
+		txtField.setItalic(Boolean.valueOf(f.isItalic()));
+		txtField.setHorizontalTextAlign(style.getHorizontalAlignment().getHorizontalTextAlignEnum());
+		
+		
+		if(!style.getBackground().equals(Color.WHITE))
+		{
+			txtField.setMode(ModeEnum.OPAQUE);
+		}
+	}
+	
+	
+	private void prepareTextfieldWithBorder(final JRDesignTextElement textField, final ColumnStyle style)
+	{
+		final ColumnBorder border = style.getColBorder();
+		if(border == null)
+		{
+			return;
+		}
+		
+		textField.getLineBox().getPen().setLineWidth((float) border.getLineWidth());
+		textField.getLineBox().getPen().setLineColor(border.getLineColor());
+		textField.getLineBox().getPen().setLineStyle(border.getLineStyle().getLineStyleEnum());
+	}
+	
+	private void prepareTextfieldPadding(final JRDesignTextElement textField, final ColumnStyle style)
+	{
+		final ColumnPadding colPadding = style.getColumnPadding();
+		final JRLineBox lineBox = textField.getLineBox();
+		
+		
+		lineBox.setTopPadding(colPadding.getTopWidth());
+		lineBox.setRightPadding(colPadding.getRightWidth());
+		lineBox.setLeftPadding(colPadding.getLeftWidth());
+		lineBox.setBottomPadding(colPadding.getBottomWidth());
+	}
+	
+	
+	private JRDesignExpression buildExpression(final ContentColumn column)
+	{
+		final JRDesignExpression expression = new JRDesignExpression();
+		expression.setText("$F{" + column.getFieldName() + "}");
+		return expression;
+	}
+	
+	
+	/**
+	 * 
+	 * Assemble and compile a {@link JasperReport} based on the information of
+	 * the {@link TemplateConfig} object.
+	 * 
+	 * @return the compiled {@link JasperReport}
+	 * @throws ExportException
+	 */
+	public JasperReport assembleReport() throws ExportException
+	{
+		try
+		{
+			final JasperDesign jasperDesign = this.createDefaultDesign();
+			this.createTemplateFields(jasperDesign);
+			
+			final JRDesignBand headerBand = this.initHeaderBand();
+			final JRDesignBand detailBand = this.initDetailBand();
+			
+			this.createHeaderAndContent(headerBand,detailBand);
+			
+			((JRDesignSection)jasperDesign.getDetailSection()).addBand(detailBand);
+			if(this.config.hasAnyHeader())
+			{
+				jasperDesign.setTitle(headerBand);
+			}
+						
+			return JasperCompileManager.compileReport(jasperDesign);
+		}
+		catch(final Exception e)
+		{
+			throw new ExportException(e);
+		}
+	}
+	
+}
+```

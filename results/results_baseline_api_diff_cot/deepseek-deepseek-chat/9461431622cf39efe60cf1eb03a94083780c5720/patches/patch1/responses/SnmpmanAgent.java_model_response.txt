@@ -394,4 +394,50 @@ public class SnmpmanAgent extends BaseAgent {
         vacmMIB.addAccess(new OctetString("v3test"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_PRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("testReadView"), new OctetString("testWriteView"), new OctetString("testNotifyView"), StorageType.nonVolatile);
 
         vacmMIB.addViewTreeFamily(new OctetString("fullReadView"), new OID("1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
-        vacmMIB.addViewTreeFamily(new OctetString("fullWriteView"), new OID("1"),
+        vacmMIB.addViewTreeFamily(new OctetString("fullWriteView"), new OID("1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+        vacmMIB.addViewTreeFamily(new OctetString("fullNotifyView"), new OID("1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+
+        vacmMIB.addViewTreeFamily(new OctetString("restrictedReadView"), new OID("1.3.6.1.2"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+        vacmMIB.addViewTreeFamily(new OctetString("restrictedWriteView"), new OID("1.3.6.1.2.1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+        vacmMIB.addViewTreeFamily(new OctetString("restrictedNotifyView"), new OID("1.3.6.1.2"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+        vacmMIB.addViewTreeFamily(new OctetString("restrictedNotifyView"), new OID("1.3.6.1.6.3.1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+
+        vacmMIB.addViewTreeFamily(new OctetString("testReadView"), new OID("1.3.6.1.2"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+        vacmMIB.addViewTreeFamily(new OctetString("testReadView"), new OID("1.3.6.1.2.1.1"), new OctetString(), VacmMIB.vacmViewExcluded, StorageType.nonVolatile);
+        vacmMIB.addViewTreeFamily(new OctetString("testWriteView"), new OID("1.3.6.1.2.1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+        vacmMIB.addViewTreeFamily(new OctetString("testNotifyView"), new OID("1.3.6.1.2"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+    }
+
+    protected void addCommunities(final SnmpCommunityMIB snmpCommunityMIB) {
+        log.trace("adding communities {} for agent \"{}\"", snmpCommunityMIB.toString(), configuration.getName());
+        for (final Long vlan : configuration.getDevice().getVlans()) {
+            configureSnmpCommunity(snmpCommunityMIB, vlan);
+        }
+        configureSnmpCommunity(snmpCommunityMIB, null);
+    }
+
+    private void configureSnmpCommunity(final SnmpCommunityMIB snmpCommunityMIB, final Long context) {
+        String communityString;
+        OctetString contextName;
+        if (context != null) {
+            communityString = configuration.getCommunity() + "@" + context;
+            contextName = new OctetString(String.valueOf(context));
+        } else {
+            communityString = configuration.getCommunity();
+            contextName = new OctetString();
+        }
+        final Variable[] com2sec = new Variable[]{
+                new OctetString(communityString),
+                new OctetString(communityString),
+                getAgent().getContextEngineID(),
+                contextName,
+                new OctetString(),
+                new Integer32(StorageType.readOnly),
+                new Integer32(RowStatus.active)
+        };
+        final SnmpCommunityMIB.SnmpCommunityEntryRow row = snmpCommunityMIB.getSnmpCommunityEntry().createRow(
+                new OctetString(communityString + "2" + communityString).toSubIndex(true), com2sec);
+        snmpCommunityMIB.getSnmpCommunityEntry().addRow(row);
+    }
+}
+```
