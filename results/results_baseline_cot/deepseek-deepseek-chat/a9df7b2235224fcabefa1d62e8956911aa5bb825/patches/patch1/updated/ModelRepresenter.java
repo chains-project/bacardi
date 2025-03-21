@@ -91,6 +91,7 @@ class ModelRepresenter extends Representer {
     return false;
   }
 
+
   private class RepresentXpp3Dom implements Represent {
     private static final String ATTRIBUTE_PREFIX = "attr/";
 
@@ -213,7 +214,6 @@ class ModelRepresenter extends Representer {
   /*
    * Change the default order. Important data goes first.
    */
-  @Override
   protected Set<Property> getProperties(Class<? extends Object> type) {
     try {
       if (type.isAssignableFrom(Model.class)) {
@@ -230,7 +230,7 @@ class ModelRepresenter extends Representer {
         return super.getProperties(type);
       }
     } catch (IntrospectionException e) {
-      return new TreeSet<>();
+      throw new RuntimeException(e);
     }
   }
 

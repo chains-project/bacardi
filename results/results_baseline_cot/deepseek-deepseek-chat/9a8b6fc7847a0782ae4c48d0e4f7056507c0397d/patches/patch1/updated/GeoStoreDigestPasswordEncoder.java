@@ -21,8 +21,8 @@ package it.geosolutions.geostore.core.security.password;
 
 import org.apache.commons.codec.binary.Base64;
 import org.jasypt.digest.StandardByteDigester;
-import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.jasypt.util.password.StrongPasswordEncryptor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import static it.geosolutions.geostore.core.security.password.SecurityUtils.toBytes;
 
 /**
@@ -31,47 +31,56 @@ import static it.geosolutions.geostore.core.security.password.SecurityUtils.toBy
  *
  */
 public class GeoStoreDigestPasswordEncoder extends AbstractGeoStorePasswordEncoder{
-	
 
-		/**
-		 * The digest is not reversible
-		 */
-	    public GeoStoreDigestPasswordEncoder() {
-	        setReversible(false);
-	    }
+    /**
+     * The digest is not reversible
+     */
+    public GeoStoreDigestPasswordEncoder() {
+        setReversible(false);
+    }
 
-	    @Override
-	    protected StandardPBEStringEncryptor createStringEncoder() {
-	        StandardPBEStringEncryptor encoder = new StandardPBEStringEncryptor();
-	        encoder.setPasswordEncryptor(new StrongPasswordEncryptor());
-	        return encoder;
-	    }
+    @Override
+    protected PasswordEncoder createStringEncoder() {
+        org.springframework.security.crypto.password.PasswordEncoder encoder = new org.springframework.security.crypto.password.PasswordEncoder() {
+            private StrongPasswordEncryptor encryptor = new StrongPasswordEncryptor();
 
-	    @Override
-	    protected CharArrayPasswordEncoder createCharEncoder() {
-	        return new CharArrayPasswordEncoder() {
-	            StandardByteDigester digester = new StandardByteDigester();
-	            {
-	                digester.setAlgorithm("SHA-256");
-	                digester.setIterations(100000);
-	                digester.setSaltSizeBytes(16);
-	                digester.initialize();
-	            }
-	            
-	            @Override
-	            public String encodePassword(char[] rawPass, Object salt) {
-	                return new String(Base64.encodeBase64(digester.digest(toBytes(rawPass))));
-	            }
-	            @Override
-	            public boolean isPasswordValid(String encPass, char[] rawPass, Object salt) {
-	                return digester.matches(toBytes(rawPass), Base64.decodeBase64(encPass.getBytes())); 
-	            }
-	        };
-	    }
+            @Override
+            public String encode(CharSequence rawPassword) {
+                return encryptor.encryptPassword(rawPassword.toString());
+            }
 
-	    @Override
-	    public PasswordEncodingType getEncodingType() {
-	        return PasswordEncodingType.DIGEST;
-	    }
-	
+            @Override
+            public boolean matches(CharSequence rawPassword, String encodedPassword) {
+                return encryptor.checkPassword(rawPassword.toString(), encodedPassword);
+            }
+        };
+        return encoder;
+    }
+
+    @Override
+    protected CharArrayPasswordEncoder createCharEncoder() {
+        return new CharArrayPasswordEncoder() {
+            StandardByteDigester digester = new StandardByteDigester();
+            {
+                digester.setAlgorithm("SHA-256");
+                digester.setIterations(100000);
+                digester.setSaltSizeBytes(16);
+                digester.initialize();
+            }
+
+            @Override
+            public String encodePassword(char[] rawPass, Object salt) {
+                return new String(Base64.encodeBase64(digester.digest(toBytes(rawPass))));
+            }
+            @Override
+            public boolean isPasswordValid(String encPass, char[] rawPass, Object salt) {
+                return digester.matches(toBytes(rawPass), Base64.decodeBase64(encPass.getBytes()));
+            }
+        };
+    }
+
+    @Override
+    public PasswordEncodingType getEncodingType() {
+        return PasswordEncodingType.DIGEST;
+    }
 }

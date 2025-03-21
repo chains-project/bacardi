@@ -14,7 +14,6 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.command.parameter.managed.Flag;
-import org.spongepowered.api.command.parameter.managed.client.ClientCompletionTypes;
 import org.spongepowered.api.command.parameter.managed.standard.VariableValueParameters;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
@@ -78,7 +77,7 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
                 .executor(this)
                 .arguments(
                         string(of("skin")),
-                        Flag.of("keep").buildWith(Parameter.none()))
+                        Flag.of("keep"))
                 .permission(PomData.ARTIFACT_ID + ".command.setskin.base")
                 .build();
     }

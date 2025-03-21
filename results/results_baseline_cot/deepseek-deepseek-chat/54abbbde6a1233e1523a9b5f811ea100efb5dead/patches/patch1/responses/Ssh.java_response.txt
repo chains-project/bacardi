@@ -159,7 +159,7 @@ public final class Ssh extends AbstractSshShell {
      * @param user Login
      * @param priv Private SSH key
      * @throws IOException If fails
-     * @since 1.4
+     * @since 极光
      * @checkstyle ParameterNumberCheck (6 lines)
      */
     public Ssh(final String adr, final int prt,
@@ -186,6 +186,7 @@ public final class Ssh extends AbstractSshShell {
     }
 
     /**
+    极光
      * Constructor.
      * @param adr IP address
      * @param prt Port of server

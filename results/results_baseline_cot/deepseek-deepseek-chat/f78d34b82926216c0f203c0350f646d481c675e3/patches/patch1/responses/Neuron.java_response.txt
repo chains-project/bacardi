@@ -61,11 +61,10 @@ public class Neuron
     /**
      * Sigmoid function implementation.
      *
-     * @param x The input value.
-     * @return The sigmoid of x.
+     * @param x the input value.
+     * @return the sigmoid of x.
      */
-    private double sigmoid(double x)
-    {
+    private double sigmoid(double x) {
         return 1 / (1 + Math.exp(-x));
     }
 }

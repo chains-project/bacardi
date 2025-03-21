@@ -1,14 +1,28 @@
-11,12c11,12
+10,12c10,13
+< import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
+> import org.spongepowered.api.command.parameter.Parameter;
+> import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.CommandExecutor;
-> import org.spongepowered.api.command.CommandSpec;
-14a15
-> import org.spongepowered.api.text.Text;
-17d17
+> import org.spongepowered.api.command.parameter.CommandContext.Builder;
+15,17c16
+< 
+< import static org.spongepowered.api.command.args.GenericArguments.string;
 < import static org.spongepowered.api.text.Text.of;
-52c52
-<                 .arguments(string(of("skinName")))
 ---
->                 .arguments(string(Text.of("skinName")))
+> import org.spongepowered.api.text.Text;
+49,50c48,49
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Builder buildSpec() {
+>         return CommandContext.builder()
+52,54c51,52
+<                 .arguments(string(of("skinName")))
+<                 .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
+<                 .build();
+---
+>                 .addParameter(Parameter.string().key("skinName").build())
+>                 .permission(PomData.ARTIFACT_ID + ".command.skinselect.base");

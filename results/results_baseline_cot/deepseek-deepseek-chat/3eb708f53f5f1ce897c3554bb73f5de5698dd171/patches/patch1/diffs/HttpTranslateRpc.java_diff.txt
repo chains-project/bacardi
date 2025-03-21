@@ -1,10 +1,50 @@
-25,28c25,28
-< import com.google.api.services.translate.Translate;
+26,28c26,28
 < import com.google.api.services.translate.model.DetectionsResourceItems;
 < import com.google.api.services.translate.model.LanguagesResource;
 < import com.google.api.services.translate.model.TranslationsResource;
 ---
-> import com.google.api.services.translate.v2.Translate;
-> import com.google.api.services.translate.v2.model.DetectionsResourceItems;
-> import com.google.api.services.translate.v2.model.LanguagesResource;
-> import com.google.api.services.translate.v2.model.TranslationsResource;
+> import com.google.api.services.translate.model.DetectionsListResponse;
+> import com.google.api.services.translate.model.LanguagesListResponse;
+> import com.google.api.services.translate.model.TranslationsListResponse;
+69c69
+<   public List<List<DetectionsResourceItems>> detect(List<String> texts) {
+---
+>   public List<List<DetectionsListResponse.Detections>> detect(List<String> texts) {
+71c71
+<       List<List<DetectionsResourceItems>> detections =
+---
+>       List<List<DetectionsListResponse.Detections>> detections =
+73c73
+<       return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
+---
+>       return detections != null ? detections : ImmutableList.<List<DetectionsListResponse.Detections>>of();
+80c80
+<   public List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
+---
+>   public List<LanguagesListResponse.Languages> listSupportedLanguages(Map<Option, ?> optionMap) {
+82c82
+<       List<LanguagesResource> languages =
+---
+>       List<LanguagesListResponse.Languages> languages =
+92c92
+<       return languages != null ? languages : ImmutableList.<LanguagesResource>of();
+---
+>       return languages != null ? languages : ImmutableList.<LanguagesListResponse.Languages>of();
+99c99
+<   public List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap) {
+---
+>   public List<TranslationsListResponse.Translations> translate(List<String> texts, Map<Option, ?> optionMap) {
+104c104
+<       List<TranslationsResource> translations =
+---
+>       List<TranslationsListResponse.Translations> translations =
+115,116c115,116
+<           translations != null ? translations : ImmutableList.<TranslationsResource>of(),
+<           new Function<TranslationsResource, TranslationsResource>() {
+---
+>           translations != null ? translations : ImmutableList.<TranslationsListResponse.Translations>of(),
+>           new Function<TranslationsListResponse.Translations, TranslationsListResponse.Translations>() {
+118c118
+<             public TranslationsResource apply(TranslationsResource translationsResource) {
+---
+>             public TranslationsListResponse.Translations apply(TranslationsListResponse.Translations translationsResource) {

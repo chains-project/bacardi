@@ -108,6 +108,12 @@ public class PlayerUtils
             ? RandomStringUtils.randomAlphanumeric(new Random().nextInt(13) + 1)
             : RandomWordUtils.getRandomWord();
 
+        if (random.nextBoolean())
+        {
+            first = first.replace('a', '4').replace('e', '3').replace('i', '1').replace('o', '0').replace('s', '5');
+            last = last.replace('a', '4').replace('e', '3').replace('i', '1').replace('o', '0').replace('s', '5');
+        }
+
         String name = first + (random.nextBoolean() ? "_": "") + last + (random.nextBoolean() ? "19" + random.nextInt(120): "");
         if (name.length() > 16)
             name = random.nextBoolean() ? first: last;

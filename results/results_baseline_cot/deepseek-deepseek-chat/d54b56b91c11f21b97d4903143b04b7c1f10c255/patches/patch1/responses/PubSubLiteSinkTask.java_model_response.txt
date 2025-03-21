@@ -1,27 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the class `PublishMetadata` cannot be found in the package `com.google.cloud.pubsublite`.
-   - The errors occur at line 22 (import statement) and line 43 (class field declaration).
-   - This suggests that the `PublishMetadata` class has been removed or relocated in the updated version of the `com.google.cloud.pubsublite` dependency.
-
-2. Review the client code:
-   - The `PubSubLiteSinkTask` class uses `PublishMetadata` as a type parameter for the `Publisher` class.
-   - The `Publisher` class is from the `com.google.cloud.pubsublite.internal` package.
-   - The code relies on `PublishMetadata` for tracking publishing metadata, but this class is no longer available.
-
-3. Consider potential fixes:
-   - Investigate the newer version of the `com.google.cloud.pubsublite` dependency to find the replacement for `PublishMetadata`.
-   - Update the import statement and type parameter to use the correct class from the newer version.
-   - Ensure that the functionality remains consistent with the original implementation.
-
-4. Plan the necessary changes:
-   - Replace `PublishMetadata` with the appropriate class from the newer version of the dependency.
-   - Update the import statement to reflect the new class location.
-   - Verify that the `Publisher` class still supports the same operations with the new metadata type.
-</code_analysis>
-
-Based on the analysis, here is the fixed class:
-
 ```java
 /*
  * Copyright 2020 Google LLC
@@ -64,7 +40,7 @@ import org.apache.kafka.connect.sink.SinkTask;
 public class PubSubLiteSinkTask extends SinkTask {
 
   private final PublisherFactory factory;
-  private @Nullable Publisher<Void> publisher;
+  private @Nullable Publisher<Message> publisher;
 
   @VisibleForTesting
   PubSubLiteSinkTask(PublisherFactory factory) {
@@ -172,5 +148,3 @@ public class PubSubLiteSinkTask extends SinkTask {
   }
 }
 ```
-
-The main change in this fix is replacing `PublishMetadata` with `Void` as the type parameter for the `Publisher` class. This change reflects the updated API where the publisher no longer requires metadata tracking. The rest of the class remains unchanged to maintain the existing functionality.

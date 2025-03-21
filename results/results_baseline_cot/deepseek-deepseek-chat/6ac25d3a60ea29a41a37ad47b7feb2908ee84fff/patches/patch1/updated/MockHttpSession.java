@@ -60,31 +60,9 @@ public class MockHttpSession implements HttpSession {
     return 0;
   }
 
-  @Override
-  public boolean isNew() {
-    return false;
-  }
-
-  @Override
-  public void invalidate() {
-  }
-
-  @Override
-  public void removeAttribute(final String s) {
-    attributes.remove(s);
-  }
-
-  @Override
-  public void setAttribute(final String s, final Object o) {
-    attributes.put(s, o);
-  }
-
-  @Override
-  public void setMaxInactiveInterval(final int i) {
-  }
-
-  @Override
-  public ServletContext getServletContext() {
+  /** @deprecated */
+  @Deprecated
+  public Object getSessionContext() {
     return null;
   }
 
@@ -102,15 +80,41 @@ public class MockHttpSession implements HttpSession {
     return new String[0];
   }
 
+  @Override
+  public void invalidate() {
+  }
+
+  @Override
+  public boolean isNew() {
+    return false;
+  }
+
   /** @deprecated */
   @Deprecated
   @Override
   public void putValue(final String s, final Object o) {
   }
 
-  /** @deprecated */
-  @Deprecated
+  @Override
+  public void removeAttribute(final String s) {
+    attributes.remove(s);
+  }
+
   @Override
   public void removeValue(final String s) {
+  }
+
+  @Override
+  public void setAttribute(final String s, final Object o) {
+    attributes.put(s, o);
+  }
+
+  @Override
+  public void setMaxInactiveInterval(final int i) {
+  }
+
+  @Override
+  public ServletContext getServletContext() {
+    return null;
   }
 }

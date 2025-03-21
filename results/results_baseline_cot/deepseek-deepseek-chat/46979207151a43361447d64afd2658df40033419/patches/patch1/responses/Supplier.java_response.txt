@@ -29,23 +29,22 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierID"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}AccountID"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierTaxID"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CompanyName"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Contact" minOccurs="0"/&gt;
- *         &lt;element name="BillingAddress" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierAddressStructure"/&gt;
- *         &lt;element name="ShipFromAddress" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierAddressStructure" maxOccurs="unbounded" minOccurs="0"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Telephone" minOccurs="0"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Fax" minOccurs="0"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Email" minOccurs="0"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Website" minOccurs="0"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SelfBillingIndicator"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
+ *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *     &lt;sequence&gt;
+ *       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierID"/&gt;
+ *       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}AccountID"/&gt;
+ *       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierTaxID"/&gt;
+ *       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CompanyName"/&gt;
+ *       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Contact" minOccurs="0"/&gt;
+ *       &lt;element name="BillingAddress" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierAddressStructure"/&gt;
+ *       &lt;element name="ShipFromAddress" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierAddressStructure" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Telephone" minOccurs="0"/&gt;
+ *       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Fax" minOccurs="0"/&gt;
+ *       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Email" minOccurs="0"/&gt;
+ *       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Website" minOccurs="0"/&gt;
+ *       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SelfBillingIndicator"/&gt;
+ *     &lt;/sequence&gt;
+ *   &lt;/restriction&gt;
  * &lt;/complexType&gt;
  * </pre>
  * 
@@ -70,11 +69,11 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 public class Supplier implements ToString2
 {
 
-    @XmlElement(name极 "SupplierID", required = true)
+    @XmlElement(name = "SupplierID", required = true)
     protected String supplierID;
     @XmlElement(name = "AccountID", required = true)
     protected String accountID;
-    @XmlElement(name = "SupplierTaxID", required = true)
+    @XmlElement(name极 "SupplierTaxID", required = true)
     protected String supplierTaxID;
     @XmlElement(name = "CompanyName", required = true)
     protected String companyName;
@@ -108,7 +107,7 @@ public class Supplier implements ToString2
     }
 
     /**
-     * Sets the value of极 the supplierID property.
+     * Sets the value of the supplierID property.
      * 
      * @param value
      *     allowed object is
@@ -120,7 +119,7 @@ public class Supplier implements ToString2
     }
 
     /**
-     * Gets the value of the accountID property.
+     * Gets极 the value of the accountID property.
      * 
      * @return
      *     possible object is
@@ -187,13 +186,13 @@ public class Supplier implements ToString2
      *     {@link String }
      *     
      */
-    public void setCompanyName(String value) {
+    public极 void setCompanyName(String value) {
         this.companyName = value;
     }
 
     /**
      * Gets the value of the contact property.
-     * 
+    极 * 
      * @return
      *     possible object is
      *     {@link String }
@@ -297,7 +296,7 @@ public class Supplier implements ToString2
      * 
      * @return
      *     possible object is
-    极     {@link String }
+     *     {@link String }
      *     
      */
     public String getFax() {
@@ -307,7 +306,7 @@ public class Supplier implements ToString2
     /**
      * Sets the value of the fax property.
      * 
-     * @param value
+     * @极 value
      *     allowed object is
      *     {@link String }
      *     
@@ -426,7 +425,7 @@ public class Supplier implements ToString2
         {
             SupplierAddressStructure theBillingAddress;
             theBillingAddress = this.getBillingAddress();
-            strategy.appendField(locator, this, "billingAddress", buffer, theBillingAddress, (this.billingAddress!= null));
+            strategy.appendField(locator, this, "billingAddress", buffer, theBillingAddress, (极 this.billingAddress!= null));
         }
         {
             List<SupplierAddressStructure> theShipFromAddress;

@@ -37,11 +37,11 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
 
   private final TranslateRpc translateRpc;
 
-  private static final Function<List<TranslateRpc.Detection>, Detection>
+  private static final Function<List<Map<String, Object>>, Detection>
       DETECTION_FROM_PB_FUNCTION =
-          new Function<List<TranslateRpc.Detection>, Detection>() {
+          new Function<List<Map<String, Object>>, Detection>() {
             @Override
-            public Detection apply(List<TranslateRpc.Detection> detectionPb) {
+            public Detection apply(List<Map<String, Object>> detectionPb) {
               return Detection.fromPb(detectionPb.get(0));
             }
           };
@@ -56,9 +56,9 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<TranslateRpc.Language>>() {
+              new Callable<List<Map<String, Object>>>() {
                 @Override
-                public List<TranslateRpc.Language> call() {
+                public List<Map<String, Object>> call() {
                   return translateRpc.listSupportedLanguages(optionMap(options));
                 }
               },
@@ -74,21 +74,21 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   @Override
   public List<Detection> detect(final List<String> texts) {
     try {
-      List<List<TranslateRpc.Detection>> detectionsPb =
+      List<List<Map<String, Object>>> detectionsPb =
           runWithRetries(
-              new Callable<List<List<TranslateRpc.Detection>>>() {
+              new Callable<List<List<Map<String, Object>>>>() {
                 @Override
-                public List<List<TranslateRpc.Detection>> call() {
+                public List<List<Map<String, Object>>> call() {
                   return translateRpc.detect(texts);
                 }
               },
               getOptions().getRetrySettings(),
               EXCEPTION_HANDLER,
               getOptions().getClock());
-      Iterator<List<TranslateRpc.Detection>> detectionIterator = detectionsPb.iterator();
+      Iterator<List<Map<String, Object>>> detectionIterator = detectionsPb.iterator();
       Iterator<String> textIterator = texts.iterator();
       while (detectionIterator.hasNext() && textIterator.hasNext()) {
-        List<TranslateRpc.Detection> detectionPb = detectionIterator.next();
+        List<Map<String, Object>> detectionPb = detectionIterator.next();
         String text = textIterator.next();
         checkState(
             detectionPb != null && !detectionPb.isEmpty(), "No detection found for text: %s", text);
@@ -115,9 +115,9 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<TranslateRpc.Translation>>() {
+              new Callable<List<Map<String, Object>>>() {
                 @Override
-                public List<TranslateRpc.Translation> call() {
+                public List<Map<String, Object>> call() {
                   return translateRpc.translate(texts, optionMap(options));
                 }
               },

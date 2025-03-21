@@ -11,7 +11,7 @@ import java.util.Optional;
 
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.source.CommandSource;
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.network.ChannelBuf;
 import org.spongepowered.api.network.RawDataListener;

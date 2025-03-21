@@ -1,23 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `CertificationPermission` cannot be found in the package `eu.europa.esig.dss.pades`.
-   - This suggests that the class `CertificationPermission` has either been moved, renamed, or removed in the updated version of the dependency.
-
-2. Review the client code:
-   - The problematic line is `signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);` where `CertificationPermission` is used.
-   - The import statement `import eu.europa.esig.dss.pades.CertificationPermission;` is causing the issue because the class is no longer available in that package.
-
-3. Consider potential fixes:
-   - Research the updated dependency to find the new location or replacement for `CertificationPermission`.
-   - Update the import statement and the usage of `CertificationPermission` to match the new version of the dependency.
-
-4. Plan the necessary changes:
-   - Replace the import statement with the correct one based on the updated dependency.
-   - Update the usage of `CertificationPermission` to use the new class or enum if it has been renamed or moved.
-</code_analysis>
-
-Based on the analysis, here is the fixed class:
-
 ```java
 package org.openpdfsign;
 
@@ -88,8 +68,7 @@ public class Signer {
         } else {
             signatureParameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_B);
         }
-        // Removed the use of CertificationPermission as it is no longer available
-        // signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
+        signatureParameters.setPermissionLevel(eu.europa.esig.dss.pades.PAdESConstants.MINIMAL_CHANGES_PERMITTED);
 
         // Create common certificate verifier
         CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
@@ -190,5 +169,3 @@ public class Signer {
     }
 }
 ```
-
-In this fix, I removed the line that sets the permission using `CertificationPermission` since it is no longer available in the updated dependency. This change ensures that the code compiles without errors while maintaining the core functionality of the signing process.

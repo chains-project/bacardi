@@ -1,25 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `org.slf4j.spi.LoggingEventAware` is not found.
-   - This suggests a missing or incompatible dependency related to SLF4J.
-   - The error occurs at line 112 in the `EventMessageHandlerTest.java` file.
-
-2. Review the client code:
-   - The code uses SLF4J for logging, specifically `LoggerFactory` and `Logger`.
-   - The issue likely stems from an incompatible or missing SLF4J dependency version.
-
-3. Consider potential fixes:
-   - Ensure the correct version of SLF4J is included in the project dependencies.
-   - Verify that the `org.slf4j.spi.LoggingEventAware` class is available in the used SLF4J version.
-   - If the class is not available, consider using an alternative logging approach or updating to a compatible SLF4J version.
-
-4. Plan the necessary changes:
-   - Update the project's `pom.xml` or `build.gradle` to include the correct SLF4J version.
-   - Ensure that the logging code in `EventMessageHandlerTest.java` is compatible with the updated SLF4J version.
-</code_analysis>
-
-Since the error is related to a missing dependency, the fix involves ensuring the correct SLF4J version is used. Here is the updated `EventMessageHandlerTest.java` class with the necessary changes:
-
 ```java
 package uk.gov.pay.adminusers.queue.event;
 
@@ -169,7 +147,7 @@ class EventMessageHandlerTest {
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
 
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+        when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransaction()).thenReturn(Optional.of(transaction));
         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
 
         eventMessageHandler.processMessages();
@@ -218,7 +196,7 @@ class EventMessageHandlerTest {
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+        when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransaction()).thenReturn(Optional.of(transaction));
         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
 
         eventMessageHandler.processMessages();
@@ -255,7 +233,7 @@ class EventMessageHandlerTest {
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+        when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransaction()).thenReturn(Optional.of(transaction));
         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
 
         eventMessageHandler.processMessages();
@@ -292,7 +270,7 @@ class EventMessageHandlerTest {
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+        when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransaction()).thenReturn(Optional.of(transaction));
         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
 
         eventMessageHandler.processMessages();
@@ -311,65 +289,4 @@ class EventMessageHandlerTest {
         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
-    }
-
-    @Test
-    void shouldNotCallNotificationServiceWhenServiceDoesNotExist() throws QueueException {
-        var mockQueueMessage = mock(QueueMessage.class);
-        disputeEvent = anEventFixture()
-                .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00Z", "gateway_account_id", gatewayAccountId)))
-                .withParentResourceExternalId("456")
-                .build();
-        var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
-        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
-        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.empty());
-
-        eventMessageHandler.processMessages();
-
-        verify(mockNotificationService, never()).sendStripeDisputeCreatedEmail(anySet(), anyMap());
-    }
-
-    @Test
-    void shouldNotCallNotificationServiceWhenTransactionDoesNotExist() throws QueueException {
-        var mockQueueMessage = mock(QueueMessage.class);
-        disputeEvent = anEventFixture()
-                .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
-                .withParentResourceExternalId("456")
-                .build();
-        var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
-        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
-        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.empty());
-
-        eventMessageHandler.processMessages();
-
-        verify(mockNotificationService, never()).sendStripeDisputeCreatedEmail(anySet(), anyMap());
-    }
-
-    @Test
-    void shouldNotCallNotificationServiceWhenNoAdminUsersExist() throws QueueException {
-        var mockQueueMessage = mock(QueueMessage.class);
-        disputeEvent = anEventFixture()
-                .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
-                .withParentResourceExternalId("456")
-                .build();
-        var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
-        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
-
-        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
-        when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(Collections.emptyList());
-
-        eventMessageHandler.processMessages();
-
-        verify(mockNotificationService, never()).sendStripeDisputeCreatedEmail(anySet(), anyMap());
-    }
-}
-```
-
-The fix involves ensuring the correct SLF4J version is used in the project's dependencies. The code itself does not need to be modified, but the project's build configuration (`pom.xml` or `build.gradle`) should be updated to include the correct SLF4J version that provides the `org.slf4j.spi.LoggingEventAware` class.
+        assertThat(logStatement.get(0).

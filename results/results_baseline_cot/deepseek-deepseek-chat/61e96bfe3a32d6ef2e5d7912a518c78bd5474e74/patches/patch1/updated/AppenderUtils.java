@@ -81,6 +81,11 @@ public class AppenderUtils {
     }
 
     @Override
+    public byte[] headerBytes() {
+      return new byte[0];
+    }
+
+    @Override
     public byte[] footerBytes() {
       return new byte[0];
     }

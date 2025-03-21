@@ -1,23 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `TrustedTagInspector` cannot be found.
-   - The error occurs at line 66 and line 36 in the `AbstractTest` class.
-   - The issue is related to the `snakeyaml` dependency, specifically the `TrustedTagInspector` class.
-
-2. Review the client code:
-   - The problematic code is in the `createMockEntity` method where `TrustedTagInspector` is used to set the tag inspector in `LoaderOptions`.
-   - The import statement `import org.yaml.snakeyaml.inspector.TrustedTagInspector;` is causing the error because the class is not found.
-
-3. Consider potential fixes:
-   - The `TrustedTagInspector` class might have been moved or renamed in the newer version of `snakeyaml`.
-   - Researching the `snakeyaml` documentation or source code reveals that `TrustedTagInspector` has been replaced or its functionality has been integrated differently.
-
-4. Plan the necessary changes to fix the issue:
-   - Replace the usage of `TrustedTagInspector` with an alternative approach that achieves the same functionality.
-   - Update the import statements to reflect the correct classes from the newer `snakeyaml` version.
-   - Ensure the fix maintains the intended behavior of the code.
-</code_analysis>
-
 ```java
 /*
  * Copyright (C) 2017 Premium Minds.
@@ -83,7 +63,7 @@ public class AbstractTest {
 
     public <T extends MockBaseEntity> T createMockEntity(Class<T> clazz, String path) {
         final LoaderOptions loadingConfig = new LoaderOptions();
-        loadingConfig.setTagInspector(tag -> true); // Replace TrustedTagInspector with a lambda that always returns true
+        loadingConfig.setTagInspector(tag -> true);
 
         final Representer representer = new Representer(new DumperOptions());
         final Tag zoneIdTag = new Tag("!ZoneId");
@@ -110,5 +90,3 @@ public class AbstractTest {
 
 }
 ```
-
-In this fix, the `TrustedTagInspector` has been replaced with a lambda function `tag -> true` that always returns `true`, effectively trusting all tags. This change aligns with the intended behavior of the original code while addressing the issue caused by the missing `TrustedTagInspector` class in the updated `snakeyaml` dependency.

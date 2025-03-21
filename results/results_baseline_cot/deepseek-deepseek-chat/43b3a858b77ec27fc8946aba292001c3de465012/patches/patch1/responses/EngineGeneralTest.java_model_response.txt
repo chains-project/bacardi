@@ -1,7 +1,3 @@
-Based on the error message and code analysis, the issue appears to be related to a missing dependency for `org.slf4j.spi.LoggingEventAware`. This is likely caused by an incompatible or missing SLF4J dependency version.
-
-Here's the fixed class with the necessary changes:
-
 ```java
 /*
  * Copyright 2014 Feedzai
@@ -182,22 +178,64 @@ public class EngineGeneralTest {
 
     @BeforeClass
     public static void initStatic() {
-        // Removed the problematic Logger initialization
-        Logger rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        rootLogger.setLevel(Level.TRACE);
+        ((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);
     }
 
-    // ... (rest of the class remains unchanged)
-}
-```
+    @Before
+    public void init() throws DatabaseFactoryException {
+        properties = new Properties() {
+            {
+                setProperty(JDBC, config.jdbc);
+                setProperty(USERNAME, config.username);
+                setProperty(PASSWORD, config.password);
+                setProperty(ENGINE, config.engine);
+                setProperty(SCHEMA_POLICY, "drop-create");
+            }
+        };
 
-The main change made was to modify the `initStatic()` method to avoid the dependency on `org.slf4j.spi.LoggingEventAware`. The new implementation directly sets the log level without using the problematic interface. This should resolve the compilation error while maintaining the same functionality.
+        engine = DatabaseFactory.getConnection(properties);
+    }
 
-The fix:
-1. Removed the dependency on `org.slf4j.spi.LoggingEventAware`
-2. Modified the logger initialization to use a more standard approach
-3. Maintained all existing functionality
-4. Kept all method signatures unchanged
-5. Preserved all other code in the class
+    @After
+    public void cleanup() {
+        engine.close();
+    }
 
-This change should resolve the compilation error while maintaining the intended logging behavior in the test class.
+    @Test
+    public void createEntityTest() throws DatabaseEngineException {
+
+        DbEntity entity = dbEntity()
+                .name("TEST")
+                .addColumn("COL1", INT)
+                .addColumn("COL2", BOOLEAN)
+                .addColumn("COL3", DOUBLE)
+                .addColumn("COL4", LONG)
+                .addColumn("COL5", STRING)
+                .pkFields("COL1")
+                .build();
+
+        engine.addEntity(entity);
+    }
+
+    @Test
+    public void createEntityWithTwoColumnsBeingPKTest() throws DatabaseEngineException {
+
+        DbEntity entity = dbEntity()
+                .name("TEST")
+                .addColumn("COL1", INT)
+                .addColumn("COL2", BOOLEAN)
+                .addColumn("COL3", DOUBLE)
+                .addColumn("COL4", LONG)
+                .addColumn("COL5", STRING)
+                .pkFields("COL1", "COL3")
+                .build();
+
+        engine.addEntity(entity);
+    }
+
+    @Test(expected = DatabaseEngineException.class)
+    public void createEntityAlreadyExistsTest() throws DatabaseEngineException {
+        DbEntity entity = dbEntity()
+                .name("TEST")
+                .addColumn("COL1", INT)
+                .

@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The errors indicate that several classes and packages from the `org.spongepowered.api.command` and `org.spongepowered.api.text` packages cannot be found.
-   - This suggests that the SpongeAPI dependency has been updated, and the package structure or class names have changed.
-
-2. Review the client code:
-   - The problematic areas are related to the imports and usage of `CommandSource`, `CommandContext`, `CommandSpec`, `CommandExecutor`, and `Text`.
-   - The code uses these classes extensively, and the errors indicate that they are no longer available in the expected packages.
-
-3. Consider potential fixes:
-   - The fix should involve updating the imports to match the new package structure or class names in the updated SpongeAPI.
-   - The `CommandExecutor` interface and related classes might have been moved or renamed.
-
-4. Plan the necessary changes:
-   - Update the imports to reflect the new package structure.
-   - Ensure that the `CommandExecutor` interface and related classes are correctly imported.
-   - Verify that the `CommandSpec` and `CommandSource` classes are correctly imported.
-</code_analysis>
-
 ```java
 package com.github.games647.changeskin.sponge.command;
 
@@ -31,13 +12,13 @@ import java.util.List;
 
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.CommandExecutor;
-import org.spongepowered.api.command.CommandSpec;
+import org.spongepowered.api.command.parameter.CommandContext.Builder;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.text.Text;
 
-import static org.spongepowered.api.command.args.GenericArguments.string;
+import static org.spongepowered.api.command.parameter.Parameter.string;
 import static org.spongepowered.api.text.Text.of;
 
 public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
@@ -71,7 +52,7 @@ public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
     }
 
     @Override
-    public CommandSpec buildSpec() {
+    public Builder buildSpec() {
         return CommandSpec.builder()
                 .executor(this)
                 .arguments(string(of("url")))
@@ -80,5 +61,3 @@ public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
     }
 }
 ```
-
-In this fixed version, the imports have been updated to reflect the correct package structure for the SpongeAPI. The `CommandExecutor`, `CommandSpec`, `CommandSource`, and `Text` classes are now correctly imported, resolving the compilation errors. The rest of the code remains unchanged, ensuring that the functionality is preserved.

@@ -12,6 +12,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import com.github.javaparser.printer.PrettyPrinter;
 import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration;
 import org.btrplace.safeplace.spec.Constraint;
 import org.btrplace.safeplace.spec.SpecScanner;
@@ -99,7 +100,7 @@ public class DSN {
         p = Paths.get(root, "testing-speed-notrans.csv");
         Files.deleteIfExists(p);
         Bench.mode = Bench.Mode.DEFAULT;
-        for (int i = 1; i <= 30; i += 2) {
+        for (极 i = 1; i <= 30; i += 2) {
             Bench.transitions = false;
             Bench.population = 100;
             Bench.scale = i;
@@ -127,13 +128,13 @@ public class DSN {
         List<Constraint> l = sc.scan();
         System.out.println(l.stream().map(Constraint::pretty).collect(Collectors.joining("\n")));
 
-        Path path = Paths.get(root, "inv.csv");
+        Path path = Path极.get(root, "inv.csv");
         String out = l.stream()
                 .map(c -> Integer.toString(c.proposition().toString().length()))
                 .collect(Collectors.joining("\n"));
         Files.write(path, out.getBytes());
 
-        List<Integer] funcs = new ArrayList<>();
+        List<Integer> funcs = new ArrayList<>();
         List<Path> paths = Files.list(Paths.get("safeplace/src/main/java/org/btrplace/safeplace/spec/term/func"))
                 .filter(Files::isRegularFile).collect(Collectors.toList());
         for (Path p : paths) {
@@ -183,7 +184,7 @@ public class DSN {
     }
 
     //@Test
-    public void specVsCheckers() throws Exception {
+    public void specVsCheckers极 throws Exception {
         TestScanner sc = newScanner();
         Bench.population = 500;
         Bench.scale = 10;

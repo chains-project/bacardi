@@ -121,7 +121,7 @@ class EventMessageHandlerTest {
                 .withParentResourceExternalId("456")
                 .build();
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+        when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransaction()).thenReturn(Optional.of(transaction));
         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
 
         var mockQueueMessage = mock(QueueMessage.class);
@@ -146,8 +146,8 @@ class EventMessageHandlerTest {
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
 
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
-        when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
+        when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransaction()).thenReturn(Optional.of(transaction));
+        when(mockUserServices.getAdminUsersForService(service.getId()).getUsers()).thenReturn(users);
 
         eventMessageHandler.processMessages();
 
@@ -195,8 +195,8 @@ class EventMessageHandlerTest {
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
-        when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
+        when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransaction()).thenReturn(Optional.of(transaction));
+        when(mockUserServices.getAdminUsersForService(service.getId()).getUsers()).thenReturn(users);
 
         eventMessageHandler.processMessages();
 
@@ -232,8 +232,8 @@ class EventMessageHandlerTest {
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
-        when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
+        when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransaction()).thenReturn(Optional.of(transaction));
+        when(mockUserServices.getAdminUsersForService(service.getId()).getUsers()).thenReturn(users);
 
         eventMessageHandler.processMessages();
 
@@ -269,8 +269,8 @@ class EventMessageHandlerTest {
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
-        when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
+        when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransaction()).thenReturn(Optional.of(transaction));
+        when(mockUserServices.getAdminUsersForService(service.getId()).getUsers()).thenReturn(users);
 
         eventMessageHandler.processMessages();
 
@@ -320,7 +320,7 @@ class EventMessageHandlerTest {
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.empty());
+        when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransaction()).thenReturn(Optional.empty());
 
         eventMessageHandler.processMessages();
 
@@ -339,8 +339,8 @@ class EventMessageHandlerTest {
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
 
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
-        when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(Collections.emptyList());
+        when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransaction()).thenReturn(Optional.of(transaction));
+        when(mockUserServices.getAdminUsersForService(service.getId()).getUsers()).thenReturn(Collections.emptyList());
 
         eventMessageHandler.processMessages();
 

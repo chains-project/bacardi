@@ -27,7 +27,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
-import org.cactoos.iterable.Filtered;
+import org.cactoos.collection.CollectionOf;
 import org.cactoos.iterable.IterableOf;
 import org.cactoos.iterable.Joined;
 import org.cactoos.iterable.Mapped;
@@ -228,7 +228,7 @@ public interface Wallet {
         //  b) If the transaction makes the balance of the wallet negative,
         //  it is ignored;
         //  c) If the transaction is positive and it’s absent in the paying
-        //  wallet (which exists at the node), it is ignored; If the paying
+        //  wallet (which exists at the node), it’s ignored; If the paying
         //  wallet doesn’t exist at the node, the transaction is ignored;
         @Override
         public Wallet merge(final Wallet other) throws IOException {
@@ -244,21 +244,25 @@ public interface Wallet {
                 );
             }
             final Iterable<Transaction> ledger = this.ledger();
-            final Iterable<Transaction> candidates = new Filtered<>(
-                incoming -> new Filtered<>(
-                    origin -> new Unchecked<>(
-                        new Or(
-                            () -> incoming.equals(origin),
-                            () -> incoming.id() == origin.id()
-                                && incoming.bnf().equals(origin.bnf()),
-                            () -> incoming.id() == origin.id()
-                                && incoming.amount() < 0L,
-                            () -> incoming.prefix().equals(origin.prefix())
+            final Iterable<Transaction> candidates = new CollectionOf<>(
+                new org.cactoos.iterable.Filtered<>(
+                    incoming -> new CollectionOf<>(
+                        new org.cactoos.iterable.Filtered<>(
+                            origin -> new Unchecked<>(
+                                new Or(
+                                    () -> incoming.equals(origin),
+                                    () -> incoming.id() == origin.id()
+                                        && incoming.bnf().equals(origin.bnf()),
+                                    () -> incoming.id() == origin.id()
+                                        && incoming.amount() < 0L,
+                                    () -> incoming.prefix().equals(origin.prefix())
+                                )
+                            ).value(),
+                            ledger
                         )
-                    ).value(),
-                    ledger
-                ).isEmpty(),
-                other.ledger()
+                    ).isEmpty(),
+                    other.ledger()
+                )
             );
             return new Wallet.Fake(
                 this.id(),

@@ -1,27 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error occurs at line 353 and 350 in AuthTest.java.
-   - The first error indicates that the `User` class cannot be found in the `com.artipie.http.auth.Authentication` interface.
-   - The second error indicates a type mismatch in the lambda expression return type, where it expects `Optional<AuthUser>` but gets `Optional<Object>`.
-
-2. Review the client code:
-   - The issue is in the `Bearer` class's `slice` method, specifically in the lambda expression for the `BearerAuthScheme` constructor.
-   - The code is trying to use `Authentication.User`, which seems to have been replaced or renamed in the updated dependency version.
-   - The return type of the lambda expression needs to be `Optional<AuthUser>` instead of `Optional<Object>`.
-
-3. Consider potential fixes:
-   - Replace `Authentication.User` with `AuthUser` from the `com.artipie.http.auth` package.
-   - Update the lambda expression to return `Optional<AuthUser>` explicitly.
-   - Ensure the correct import for `AuthUser` is present.
-
-4. Plan the necessary changes:
-   - Add import for `com.artipie.http.auth.AuthUser`.
-   - Modify the lambda expression to use `AuthUser` instead of `Authentication.User`.
-   - Update the return type of the lambda expression to match `Optional<AuthUser>`.
-</code_analysis>
-
-Here is the fixed Java class:
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
@@ -40,7 +16,6 @@ import com.artipie.http.Headers;
 import com.artipie.http.Response;
 import com.artipie.http.Slice;
 import com.artipie.http.auth.Authentication;
-import com.artipie.http.auth.AuthUser;
 import com.artipie.http.auth.BasicAuthScheme;
 import com.artipie.http.auth.BearerAuthScheme;
 import com.artipie.http.auth.Permissions;
@@ -376,7 +351,7 @@ public final class AuthTest {
                     token -> CompletableFuture.completedFuture(
                         Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
                             .filter(user -> token.equals(token(user)))
-                            .map(user -> new AuthUser(user.name(), "test"))
+                            .map(user -> new Authentication.User(user.name()))
                             .findFirst()
                     ),
                     ""

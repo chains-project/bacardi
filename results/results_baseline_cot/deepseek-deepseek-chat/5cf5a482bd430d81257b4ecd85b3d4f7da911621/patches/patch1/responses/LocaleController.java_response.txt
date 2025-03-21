@@ -4,16 +4,13 @@ import java.util.Locale;
 import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import jakarta.mvc.Controller;
-import jakarta.mvc.Models;
-import jakarta.mvc.MvcContext;
+import javax.mvc.binding.MvcBinding;
+import javax.mvc.MvcContext;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.mvc.Models;
+import javax.mvc.Controller;
 
-/**
- *
- * @author hantsy
- */
 @Path("locale")
 @Controller
 @RequestScoped

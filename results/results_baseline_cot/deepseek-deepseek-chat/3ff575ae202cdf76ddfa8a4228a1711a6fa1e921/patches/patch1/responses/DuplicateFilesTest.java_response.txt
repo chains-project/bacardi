@@ -34,7 +34,6 @@ public class DuplicateFilesTest
         throws Exception
     {
         super.setUp();
-        // Use the logger directly from the container
         Logger logger = getContainer().getLogger();
         logger.setThreshold( Logger.LEVEL_DEBUG );
     }

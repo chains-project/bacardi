@@ -1,23 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The errors indicate that several classes and packages from the `org.spongepowered.api.command` and `org.spongepowered.api.text` packages cannot be found.
-   - This suggests that the SpongeAPI dependency has been updated, and the package structure or class names have changed.
-
-2. Review the client code:
-   - The code uses classes like `CommandSource`, `CommandExecutor`, `CommandSpec`, `CommandException`, and `Text` from the SpongeAPI.
-   - The imports for these classes are causing compilation errors, indicating that the package structure or class names have changed in the updated dependency.
-
-3. Consider potential fixes:
-   - The most likely fix is to update the imports to match the new package structure or class names in the updated SpongeAPI version.
-   - The `CommandSource`, `CommandExecutor`, `CommandSpec`, and `CommandException` classes might have been moved or renamed.
-   - The `Text` and `TextSerializers` classes might have been moved or renamed as well.
-
-4. Plan the necessary changes:
-   - Update the imports to reflect the new package structure or class names.
-   - Ensure that the new imports are compatible with the updated SpongeAPI version.
-   - Verify that the functionality remains the same after the import changes.
-</code_analysis>
-
 ```java
 package com.github.games647.changeskin.sponge.command;
 
@@ -32,16 +12,17 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.parameter.CommandContext;
-import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.CommandExecutor;
+import org.spongepowered.api.command.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
-public class InfoCommand implements Command, ChangeSkinCommand {
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
 
     @Inject
     private ChangeSkinSponge plugin;
@@ -50,13 +31,13 @@ public class InfoCommand implements Command, ChangeSkinCommand {
     private SkinFormatter formatter;
 
     @Override
-    public CommandResult execute(CommandContext args) {
-        if (!(args.getCause().getRoot() instanceof Player)) {
-            plugin.sendMessage(args.getCause().getRoot(), "no-console");
+    public CommandResult execute(CommandSource src, CommandContext args) {
+        if (!(src instanceof Player)) {
+            plugin.sendMessage(src, "no-console");
             return CommandResult.empty();
         }
 
-        UUID uniqueId = ((Player) args.getCause().getRoot()).getUniqueId();
+        UUID uniqueId = ((Player) src).getUniqueId();
         Task.builder().async()
                 .execute(() -> {
                     UserPreference preferences = plugin.getCore().getStorage().getPreferences(uniqueId);
@@ -68,8 +49,8 @@ public class InfoCommand implements Command, ChangeSkinCommand {
     }
 
     @Override
-    public Command.Parameterized buildSpec() {
-        return Command.builder()
+    public CommandSpec buildSpec() {
+        return CommandSpec.builder()
                 .executor(this)
                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
                 .build();
@@ -94,5 +75,3 @@ public class InfoCommand implements Command, ChangeSkinCommand {
     }
 }
 ```
-
-In this fixed version, the imports have been updated to reflect the new package structure in the updated SpongeAPI. The `CommandSource` and `CommandExecutor` classes have been replaced with `Command` and `Command.Parameterized`, and the `CommandContext` class has been updated to the new package. The `Text` and `TextSerializers` classes have been retained as they are still valid in the updated API. The `CommandException` class has been removed as it is no longer needed in the updated API. The `CommandSpec` class has been replaced with `Command.Parameterized`. The `execute` method signature has been updated to match the new `Command` interface. The `buildSpec` method has been updated to return `Command.Parameterized` instead of `CommandSpec`.

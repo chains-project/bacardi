@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `Matchers` from the `org.hamcrest` package cannot be found.
-   - This suggests that there might be an issue with the Hamcrest library version or the import statement.
-
-2. Review the client code:
-   - The code uses `Matchers` in the `hasPath` and `hasQuery` methods.
-   - The import statement `import org.hamcrest.Matchers;` is present but might be incorrect or outdated.
-
-3. Consider potential fixes:
-   - The issue might be resolved by ensuring the correct import statement is used.
-   - Alternatively, the `Matchers` class might have been moved or renamed in a newer version of the Hamcrest library.
-
-4. Plan the necessary changes to fix the issue:
-   - Verify the correct import statement for the `Matchers` class in the newer version of Hamcrest.
-   - Update the import statement if necessary.
-   - Ensure that the rest of the code remains unchanged.
-</code_analysis>
-
 ```java
 /*
  * Copyright (c) 2011-2017, jcabi.com
@@ -120,5 +101,3 @@ public final class MkQueryMatchers {
 
 }
 ```
-
-The fix involves updating the import statement from `import org.hamcrest.Matchers;` to `import org.hamcrest.CoreMatchers;`. This change ensures that the `Matchers` class is correctly imported from the `CoreMatchers` package, which is the correct location in newer versions of the Hamcrest library. The rest of the code remains unchanged, ensuring that the functionality is preserved.

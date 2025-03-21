@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the package `com.mysql.jdbc.exceptions` does not exist.
-   - The specific error occurs at line 21 and line 40, where the class `MySQLTimeoutException` is referenced.
-   - This suggests that the MySQL JDBC driver dependency has been updated, and the `MySQLTimeoutException` class has been moved or renamed.
-
-2. Review the client code:
-   - The problematic areas are the import statement for `com.mysql.jdbc.exceptions.MySQLTimeoutException` and the usage of `MySQLTimeoutException` in the `isTimeoutException` method.
-   - The code is part of a MySQL query exception handler, and the `isTimeoutException` method checks if an exception is an instance of `MySQLTimeoutException`.
-
-3. Consider potential fixes:
-   - The `MySQLTimeoutException` class has likely been moved to a different package in the updated MySQL JDBC driver.
-   - The correct import statement should be updated to reflect the new package location of `MySQLTimeoutException`.
-
-4. Plan the necessary changes:
-   - Update the import statement to use the correct package for `MySQLTimeoutException`.
-   - Ensure that the `isTimeoutException` method continues to function as intended with the updated import.
-</code_analysis>
-
 ```java
 /*
  * Copyright 2019 Feedzai
@@ -38,9 +19,8 @@ package com.feedzai.commons.sql.abstraction.engine.impl.mysql;
 
 import com.feedzai.commons.sql.abstraction.engine.handler.QueryExceptionHandler;
 
-import com.mysql.cj.exceptions.MySQLTimeoutException;
-
 import java.sql.SQLException;
+import java.sql.SQLTimeoutException;
 
 /**
  * A specific implementation of {@link QueryExceptionHandler} for MySQL engine.
@@ -57,7 +37,7 @@ public class MySqlQueryExceptionHandler extends QueryExceptionHandler {
 
     @Override
     public boolean isTimeoutException(final SQLException exception) {
-        return exception instanceof MySQLTimeoutException || super.isTimeoutException(exception);
+        return exception instanceof SQLTimeoutException || super.isTimeoutException(exception);
     }
 
     @Override

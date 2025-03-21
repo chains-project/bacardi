@@ -2,103 +2,185 @@
 < import org.cactoos.iterable.LengthOf;
 ---
 > import org.cactoos.iterable.IterableOf;
-35c35
+35d34
 < import org.cactoos.scalar.IoCheckedScalar;
----
-> import org.cactoos.scalar.Checked;
-37,38c37,38
+37,38c36,37
 < import org.cactoos.scalar.StickyScalar;
 < import org.cactoos.scalar.UncheckedScalar;
 ---
-> import org.cactoos.scalar.Sticky;
+> import org.cactoos.scalar.ScalarOf;
 > import org.cactoos.scalar.Unchecked;
-40c40
+40c39
 < import org.cactoos.text.SplitText;
 ---
 > import org.cactoos.text.Split;
-42c42
+42,43c41
 < import org.cactoos.text.TrimmedText;
+< import org.cactoos.text.UncheckedText;
 ---
 > import org.cactoos.text.Trimmed;
-88c88
+88c86
 <     private final IoCheckedScalar<String> transaction;
 ---
->     private final Checked<String> transaction;
-95,96c95,96
+>     private final ScalarOf<String> transaction;
+95,96c93
 <         this.transaction = new IoCheckedScalar<>(
 <             new StickyScalar<>(
 ---
->         this.transaction = new Checked<>(
->             new Sticky<>(
-99c99
+>         this.transaction = new ScalarOf<>(
+99c96
 <                         new TrimmedText(
 ---
->                         new Trimmed(
-109c109
+>                     new Trimmed(
+109c106
 <                             new SplitText(trnsct, ";")
 ---
->                             new Split(trnsct, ";")
-112c112
+>                         new Split(trnsct, ";")
+112c109
 <                     if (new LengthOf(pieces).intValue() != 7) {
 ---
->                     if (new IterableOf<>(pieces).size() != 7) {
-131c131
+>                 if (new IterableOf<>(pieces).size() != 7) {
+123d119
+<             )
+130,131c126
+<         final String ident = new UncheckedText(
 <             new IoCheckedScalar<>(
 ---
->             new Checked<>(
-133c133
+>         final String ident = new Unchecked<>(
+133c128
 <                     0, new SplitText(this.transaction.value(), ";")
 ---
->                     0, new Split(this.transaction.value(), ";")
-156c156
+>                 0, new Split(this.transaction.value(), ";")
+135,136c130
+<             ).value()
+<         ).asString();
+---
+>         ).value().asString();
+139c133
+<                 new UncheckedText(
+---
+>                 new Unchecked<>(
+145c139
+<                 ).asString()
+---
+>                 ).value().asString()
+155,156c149
+<             new UncheckedText(
 <                 new IoCheckedScalar<>(
 ---
->                 new Checked<>(
-158c158
+>             new Unchecked<>(
+158c151
 <                         1, new SplitText(this.transaction.value(), ";")
 ---
->                         1, new Split(this.transaction.value(), ";")
-169c169
+>                     1, new Split(this.transaction.value(), ";")
+160,161c153
+<                 ).value()
+<             ).asString(),
+---
+>             ).value().asString(),
+168,169c160
+<         final String amnt = new UncheckedText(
 <             new IoCheckedScalar<>(
 ---
->             new Checked<>(
-171c171
+>         final String amnt = new Unchecked<>(
+171c162
 <                     2, new SplitText(this.transaction.value(), ";")
 ---
->                     2, new Split(this.transaction.value(), ";")
-193c193
+>                 2, new Split(this.transaction.value(), ";")
+173,174c164
+<             ).value()
+<         ).asString();
+---
+>         ).value().asString();
+177c167
+<                 new UncheckedText(
+---
+>                 new Unchecked<>(
+183c173
+<                 ).asString()
+---
+>                 ).value().asString()
+192,193c182
+<         final String prefix = new UncheckedText(
 <             new IoCheckedScalar<>(
 ---
->             new Checked<>(
-196c196
+>         final String prefix = new Unchecked<>(
+196c185
 <                     3, new SplitText(this.transaction.value(), ";")
 ---
->                     3, new Split(this.transaction.value(), ";")
-213c213
+>                 3, new Split(this.transaction.value(), ";")
+198,199c187
+<             ).value()
+<         ).asString();
+---
+>         ).value().asString();
+212,213c200
+<         final String bnf = new UncheckedText(
 <             new IoCheckedScalar<>(
 ---
->             new Checked<>(
-216c216
+>         final String bnf = new Unchecked<>(
+216c203
 <                     4, new SplitText(this.transaction.value(), ";")
 ---
->                     4, new Split(this.transaction.value(), ";")
-237c237
+>                 4, new Split(this.transaction.value(), ";")
+218,219c205
+<             ).value()
+<         ).asString();
+---
+>         ).value().asString();
+222c208
+<                 new UncheckedText(
+---
+>                 new Unchecked<>(
+228c214
+<                 ).asString()
+---
+>                 ).value().asString()
+236,237c222
+<         final String dtls = new UncheckedText(
 <             new IoCheckedScalar<>(
 ---
->             new Checked<>(
-240c240
+>         final String dtls = new Unchecked<>(
+240c225
 <                     5, new SplitText(this.transaction.value(), ";")
 ---
->                     5, new Split(this.transaction.value(), ";")
-261c261
+>                 5, new Split(this.transaction.value(), ";")
+242,243c227
+<             ).value()
+<         ).asString();
+---
+>         ).value().asString();
+246c230
+<                 new UncheckedText(
+---
+>                 new Unchecked<>(
+252c236
+<                 ).asString()
+---
+>                 ).value().asString()
+260,261c244
+<         final String sign = new UncheckedText(
 <             new IoCheckedScalar<>(
 ---
->             new Checked<>(
-264c264
+>         final String sign = new Unchecked<>(
+264c247
 <                     6, new SplitText(this.transaction.value(), ";")
 ---
->                     6, new Split(this.transaction.value(), ";")
-286c286
+>                 6, new Split(this.transaction.value(), ";")
+266,267c249
+<             ).value()
+<         ).asString();
+---
+>         ).value().asString();
+272c254
+<                 new UncheckedText(
+---
+>                 new Unchecked<>(
+278c260
+<                 ).asString()
+---
+>                 ).value().asString()
+286c268
 <         return new UncheckedScalar<>(this.transaction).value();
 ---
 >         return new Unchecked<>(this.transaction).value();

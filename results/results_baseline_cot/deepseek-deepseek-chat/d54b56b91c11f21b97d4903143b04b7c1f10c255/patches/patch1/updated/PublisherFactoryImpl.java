@@ -49,7 +49,7 @@ class PublisherFactoryImpl implements PublisherFactory {
             SinglePartitionPublisherBuilder.newBuilder()
                 .setTopic(topic)
                 .setPartition(partition)
-                .setClientContext(PubsubContext.of(FRAMEWORK))
+                .setContext(PubsubContext.of(FRAMEWORK))
                 .build());
     return builder.build();
   }

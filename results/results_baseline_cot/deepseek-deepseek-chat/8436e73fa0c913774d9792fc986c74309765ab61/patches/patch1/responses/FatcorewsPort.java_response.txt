@@ -1,10 +1,10 @@
 package com.premiumminds.billy.portugal.webservices.documents;
 
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebResult;
-import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
+import jakarta.jws.WebMethod;
+import jakarta.jws.WebParam;
+import jakarta.jws.WebResult;
+import jakarta.jws.WebService;
+import jakarta.jws.soap.SOAPBinding;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
 /**
@@ -99,7 +99,7 @@ public interface FatcorewsPort {
      *     returns com.premiumminds.billy.portugal.webservices.documents.RegisterPaymentResponse
      */
     @WebMethod(operationName = "RegisterPayment")
-    @WebResult(name = "RegisterPaymentResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterPaymentResponse")
+    @WebResult(name = "RegisterPaymentResponse", targetNamespace = "http://factemi.at.min_financas.极 documents", partName = "RegisterPaymentResponse")
     public RegisterPaymentResponse registerPayment(
         @WebParam(name = "RegisterPaymentRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterPaymentRequest")
         RegisterPaymentRequest registerPaymentRequest);
@@ -111,7 +111,7 @@ public interface FatcorewsPort {
      *     returns com.premiumminds.billy.portugal.webservices.documents.ChangePaymentStatusResponse
      */
     @WebMethod(operationName = "ChangePaymentStatus")
-    @WebResult(name = "ChangePaymentStatusResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangePaymentStatusResponse")
+    @WebResult(name极 "ChangePaymentStatusResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangePaymentStatusResponse")
     public ChangePaymentStatusResponse changePaymentStatus(
         @WebParam(name = "ChangePaymentStatusRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangePaymentStatusRequest")
         ChangePaymentStatusRequest changePaymentStatusRequest);

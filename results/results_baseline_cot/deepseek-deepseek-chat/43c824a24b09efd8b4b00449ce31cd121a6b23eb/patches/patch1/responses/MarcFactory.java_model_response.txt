@@ -1,19 +1,6 @@
-<code_analysis>
-1. The error message indicates that the class `JsonBranch` cannot be found. This class is imported from the package `de.gwdg.metadataqa.api.json` and is used in the `MarcFactory` class.
-
-2. The issue appears to be related to a missing or incorrect import statement for the `JsonBranch` class. The error occurs on lines 313 and 322, where `JsonBranch` is used in the `create` method.
-
-3. The root cause seems to be a breaking change in the dependency that either moved or removed the `JsonBranch` class. The fix should ensure that the correct import statement is used or that the class is replaced with an equivalent class from the updated dependency.
-
-4. The proposed fix will involve updating the import statement to use the correct package or class from the updated dependency. If `JsonBranch` has been moved to a different package, the import statement should be updated accordingly. If `JsonBranch` has been removed, it should be replaced with an equivalent class or interface.
-
-5. The fix should not change any function signatures or remove existing code unless it directly causes a compilation error. The goal is to ensure that the `MarcFactory` class compiles correctly with the updated dependency.
-</code_analysis>
-
 ```java
 package de.gwdg.metadataqa.marc;
 
-import de.gwdg.metadataqa.api.json.JsonBranch;
 import de.gwdg.metadataqa.api.model.pathcache.JsonPathCache;
 import de.gwdg.metadataqa.api.model.XmlFieldInstance;
 import de.gwdg.metadataqa.api.schema.MarcJsonSchema;
@@ -77,36 +64,36 @@ public class MarcFactory {
 
   public static BibliographicRecord create(JsonPathCache cache, MarcVersion version) {
     var marcRecord = new Marc21Record();
-    for (JsonBranch branch : schema.getPaths()) {
-      if (branch.getParent() != null)
+    for (String path : schema.getPaths()) {
+      if (path.contains("."))
         continue;
-      switch (branch.getLabel()) {
+      switch (path) {
         case "leader":
-          marcRecord.setLeader(new Leader(extractFirst(cache, branch)));
+          marcRecord.setLeader(new Leader(extractFirst(cache, path)));
           break;
         case "001":
-          marcRecord.setControl001(new Control001(extractFirst(cache, branch)));
+          marcRecord.setControl001(new Control001(extractFirst(cache, path)));
           break;
         case "003":
-          marcRecord.setControl003(new Control003(extractFirst(cache, branch)));
+          marcRecord.setControl003(new Control003(extractFirst(cache, path)));
           break;
         case "005":
-          marcRecord.setControl005(new Control005(extractFirst(cache, branch), marcRecord));
+          marcRecord.setControl005(new Control005(extractFirst(cache, path), marcRecord));
           break;
         case "006":
           marcRecord.setControl006(
-            new Control006(extractFirst(cache, branch), marcRecord));
+            new Control006(extractFirst(cache, path), marcRecord));
           break;
         case "007":
           marcRecord.setControl007(
-            new Control007(extractFirst(cache, branch), marcRecord));
+            new Control007(extractFirst(cache, path), marcRecord));
           break;
         case "008":
           marcRecord.setControl008(
-            new Control008(extractFirst(cache, branch), marcRecord));
+            new Control008(extractFirst(cache, path), marcRecord));
           break;
         default:
-          JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());
+          JSONArray fieldInstances = (JSONArray) cache.getFragment(path);
           for (var fieldInsanceNr = 0; fieldInsanceNr < fieldInstances.size(); fieldInsanceNr++) {
             var fieldInstance = (Map) fieldInstances.get(fieldInsanceNr);
             var field = MapToDatafield.parse(fieldInstance, version);
@@ -114,7 +101,7 @@ public class MarcFactory {
               marcRecord.addDataField(field);
               field.setMarcRecord(marcRecord);
             } else {
-              marcRecord.addUnhandledTags(branch.getLabel());
+              marcRecord.addUnhandledTags(path);
             }
           }
           break;
@@ -323,8 +310,8 @@ public class MarcFactory {
     return field;
   }
 
-  private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
-    List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
+  private static List<String> extractList(JsonPathCache cache, String path) {
+    List<XmlFieldInstance> instances = cache.get(path);
     List<String> values = new ArrayList<>();
     if (instances != null)
       for (XmlFieldInstance instance : instances)
@@ -332,8 +319,8 @@ public class MarcFactory {
     return values;
   }
 
-  private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
-    List<String> list = extractList(cache, branch);
+  private static String extractFirst(JsonPathCache cache, String path) {
+    List<String> list = extractList(cache, path);
     if (!list.isEmpty())
       return list.get(0);
     return null;
@@ -451,51 +438,4 @@ public class MarcFactory {
         try {
           marc4jRecord.setLeader(new LeaderImpl(line.getContent()));
         } catch (StringIndexOutOfBoundsException e) {
-          logger.severe("Error at creating leader: " + e.getMessage());
-        }
-      } else if (line.isNumericTag()) {
-        if (line.isControlField()) {
-          marc4jRecord.addVariableField(new ControlFieldImpl(line.getTag(), line.getContent()));
-        } else {
-          var df = new DataFieldImpl(line.getTag(), line.getInd1().charAt(0), line.getInd2().charAt(0));
-          for (String[] pair : line.parseSubfields()) {
-            if (pair.length == 2 && pair[0] != null && pair[1] != null) {
-              df.addSubfield(new SubfieldImpl(pair[0].charAt(0), pair[1]));
-            } else {
-              logger.warning(String.format(
-                "parse error in record #%s) tag %s: '%s'",
-                line.getRecordID(), line.getTag(), line.getRawContent()
-              ));
-            }
-          }
-          marc4jRecord.addVariableField(df);
-        }
-      }
-    }
-    return marc4jRecord;
-  }
-
-  public static Record createRecordFromPica(List<PicaLine> lines,
-                                            String idField,
-                                            String idCode,
-                                            PicaSchemaManager schema) {
-    Record marc4jRecord = new RecordImpl();
-    String id = null;
-    for (PicaLine line : lines) {
-      // String tag = schema.containsKey(line.getQualifiedTag()) ? line.getQualifiedTag() : line.getTag();
-      DataFieldImpl df = new DataFieldImpl(line.getQualifiedTag(), ' ', ' ');
-      for (PicaSubfield picaSubfield : line.getSubfields()) {
-        df.addSubfield(new SubfieldImpl(picaSubfield.getCode().charAt(0), picaSubfield.getValue()));
-        if (line.getTag().equals(idField) && picaSubfield.getCode().equals(idCode))
-          id = picaSubfield.getValue();
-      }
-      marc4jRecord.addVariableField(df);
-    }
-    if (id != null)
-      marc4jRecord.addVariableField(new ControlFieldImpl("001", id));
-    return marc4jRecord;
-  }
-}
-```
-
-The fix involves ensuring that the `JsonBranch` class is correctly imported from the `de.gwdg.metadataqa.api.json` package. If the `JsonBranch` class has been moved or renamed in the updated dependency, the import statement should be updated accordingly. In this case, the import statement remains the same as the class is still expected to be in the same package.
+          logger.severe("Error at creating leader:

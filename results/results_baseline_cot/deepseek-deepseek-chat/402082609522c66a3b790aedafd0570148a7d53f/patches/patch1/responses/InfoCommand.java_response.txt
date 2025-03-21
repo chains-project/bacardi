@@ -11,16 +11,17 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.parameter.CommandContext;
-import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.CommandExecutor;
+import org.spongepowered.api.command.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
-public class InfoCommand implements Command, ChangeSkinCommand {
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
 
     @Inject
     private ChangeSkinSponge plugin;
@@ -29,13 +30,13 @@ public class InfoCommand implements Command, ChangeSkinCommand {
     private SkinFormatter formatter;
 
     @Override
-    public CommandResult execute(CommandContext args) {
-        if (!(args.getCause().getRoot() instanceof Player)) {
-            plugin.sendMessage(args.getCause().getRoot(), "no-console");
+    public CommandResult execute(CommandSource src, CommandContext args) {
+        if (!(src instanceof Player)) {
+            plugin.sendMessage(src, "no-console");
             return CommandResult.empty();
         }
 
-        UUID uniqueId = ((Player) args.getCause().getRoot()).getUniqueId();
+        UUID uniqueId = ((Player) src).getUniqueId();
         Task.builder().async()
                 .execute(() -> {
                     UserPreference preferences = plugin.getCore().getStorage().getPreferences(uniqueId);
@@ -47,8 +48,8 @@ public class InfoCommand implements Command, ChangeSkinCommand {
     }
 
     @Override
-    public Command.Parameterized buildSpec() {
-        return Command.builder()
+    public CommandSpec buildSpec() {
+        return CommandSpec.builder()
                 .executor(this)
                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
                 .build();

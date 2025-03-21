@@ -1,21 +1,3 @@
-//
-// Wire
-// Copyright (C) 2016 Wire Swiss GmbH
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program. If not, see http://www.gnu.org/licenses/.
-//
-
 package com.wire.lithium;
 
 import com.codahale.metrics.Gauge;
@@ -44,13 +26,13 @@ import com.wire.xenon.factories.StorageFactory;
 import com.wire.xenon.state.FileState;
 import com.wire.xenon.state.JdbiState;
 import com.wire.xenon.tools.Logger;
-import io.dropwizard.Application;
+import io.dropwizard.core.Application;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
-import io.dropwizard.core.setup.Environment;
 import io.dropwizard.servlets.tasks.Task;
-import io.dropwizard.setup.Bootstrap;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.flywaydb.core.Flyway;
@@ -63,11 +45,6 @@ import javax.ws.rs.client.Client;
 import java.util.SortedMap;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Entry point for your Application
- *
- * @param <Config> Dropwizard configuration
- */
 public abstract class Server<Config extends Configuration> extends Application<Config> {
     protected ClientRepo repo;
     protected Config config;
@@ -76,39 +53,14 @@ public abstract class Server<Config extends Configuration> extends Application<C
     protected MessageHandlerBase messageHandler;
     protected Jdbi jdbi;
 
-    /**
-     * This method is called once by the sdk in order to create the main message handler
-     *
-     * @param config Configuration object (yaml)
-     * @param env    Environment object
-     * @return Instance of your class that implements {@link MessageHandlerBase}
-     * @throws Exception allowed to throw exception
-     */
     protected abstract MessageHandlerBase createHandler(Config config, Environment env) throws Exception;
 
-    /**
-     * Override this method to put your custom initialization
-     * NOTE: MessageHandler is not yet set when this method is invoked!
-     *
-     * @param config Configuration object (yaml)
-     * @param env    Environment object
-     * @throws Exception allowed to throw exception
-     */
-    @SuppressWarnings("RedundantThrows") // this method can be overridden
+    @SuppressWarnings("RedundantThrows")
     protected void initialize(Config config, Environment env) throws Exception {
 
     }
 
-    /**
-     * Override this method in case you need to add custom Resource and/or Task
-     * {@link #addResource(Object)}
-     * and {@link #addTask(io.dropwizard.servlets.tasks.Task)}
-     *
-     * @param config Configuration object (yaml)
-     * @param env    Environment object
-     * @throws Exception allowed to throw exception
-     */
-    @SuppressWarnings("RedundantThrows") // this method can be overridden
+    @SuppressWarnings("RedundantThrows")
     protected void onRun(Config config, Environment env) throws Exception {
 
     }
@@ -208,11 +160,9 @@ public abstract class Server<Config extends Configuration> extends Application<C
     }
 
     private void addResources() {
-        /* --- Wire Common --- */
-        addResource(new VersionResource()); // add version endpoint
-        addResource(new StatusResource()); // empty status for k8s
-        addResource(new RequestMdcFactoryFilter()); // MDC data
-        /* //- Wire Common --- */
+        addResource(new VersionResource());
+        addResource(new StatusResource());
+        addResource(new RequestMdcFactoryFilter());
 
         botResource();
         messageResource();
@@ -241,9 +191,7 @@ public abstract class Server<Config extends Configuration> extends Application<C
     }
 
     private void initTelemetry() {
-        /* --- Wire Common --- */
         environment.jersey().register(new RequestMdcFactoryFilter());
-        /* //- Wire Common --- */
 
         final CryptoFactory cryptoFactory = getCryptoFactory();
         final StorageFactory storageFactory = getStorageFactory();

@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the package `develop.p2p.lib` does not exist, and the class `WaveCreator` cannot be found.
-   - The error occurs at line 3 (import statement) and line 185 (usage of `WaveCreator`).
-
-2. Review the client code:
-   - The code imports `develop.p2p.lib.WaveCreator`, which is causing the issue.
-   - The `WaveCreator` class is used in the `magic` method to create wave effects.
-
-3. Consider potential fixes:
-   - Since the `develop.p2p.lib.WaveCreator` package is not available, we need to either find an alternative class or implement the `WaveCreator` functionality directly in the code.
-   - Given that the `WaveCreator` class is used for wave effects, we can implement a simple wave generator directly in the `Decorations` class.
-
-4. Plan the necessary changes:
-   - Remove the import statement for `develop.p2p.lib.WaveCreator`.
-   - Implement a simple `WaveCreator` class within the `Decorations` class to handle the wave generation.
-   - Ensure the `magic` method continues to function as expected with the new implementation.
-</code_analysis>
-
 ```java
 package ml.peya.plugins.Objects;
 
@@ -201,7 +182,9 @@ public class Decorations
     public static void magic(Player player, int seconds)
     {
         final int[] count = {0};
-        WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1);
+        double waveAmplitude = 0.8;
+        double waveFrequency = 1.8;
+        double wavePhase = 0.1;
 
         BukkitRunnable runnable = new BukkitRunnable()
         {
@@ -216,7 +199,8 @@ public class Decorations
 
                     circle(center.add(0, 0.7, 0), count[0], 2.7, Particle.ENCHANTMENT_TABLE);
 
-                    circle(center.clone().add(0, wave.get(0.01, false), 0), count[0], wave.getStatic());
+                    double waveValue = waveAmplitude * Math.sin(waveFrequency * i + wavePhase);
+                    circle(center.clone().add(0, waveValue, 0), count[0], waveAmplitude);
 
                     circle(center.clone().add(3.2, 0.7, 3.2), count[0], 1.5);
                     circle(center.clone().add(-3.2, 0.7, -3.2), count[0], 1.5);
@@ -328,32 +312,5 @@ public class Decorations
             laser(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20));
     }
 
-    /**
-     * Simple WaveCreator implementation
-     */
-    private static class WaveCreator {
-        private final double amplitude;
-        private final double frequency;
-        private final double phase;
-
-        public WaveCreator(double amplitude, double frequency, double phase) {
-            this.amplitude = amplitude;
-            this.frequency = frequency;
-            this.phase = phase;
-        }
-
-        public double get(double time, boolean isStatic) {
-            if (isStatic) {
-                return amplitude;
-            }
-            return amplitude * Math.sin(frequency * time + phase);
-        }
-
-        public double getStatic() {
-            return amplitude;
-        }
-    }
 }
 ```
-
-In this fix, I removed the import statement for `develop.p2p.lib.WaveCreator` and implemented a simple `WaveCreator` class directly within the `Decorations` class. This ensures that the `magic` method continues to function as expected without relying on the missing dependency.

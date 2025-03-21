@@ -4,14 +4,14 @@ import com.github.games647.changeskin.core.model.auth.Account;
 import com.github.games647.changeskin.core.shared.task.SharedSkinChanger;
 import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
-import org.spongepowered.api.command.CommandCause;
-import org.spongepowered.api.text.serializer.ComponentSerializer;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
 public class SkinChanger extends SharedSkinChanger {
 
-    private final CommandCause invoker;
+    private final CommandSource invoker;
 
-    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandCause invoker) {
+    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker) {
         super(plugin.getCore(), owner, url, oldSkinUrl);
 
         this.invoker = invoker;
@@ -19,6 +19,6 @@ public class SkinChanger extends SharedSkinChanger {
 
     @Override
     protected void sendMessageInvoker(String localeMessage) {
-        invoker.sendMessage(ComponentSerializer.legacy().deserialize(localeMessage));
+        invoker.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage));
     }
 }

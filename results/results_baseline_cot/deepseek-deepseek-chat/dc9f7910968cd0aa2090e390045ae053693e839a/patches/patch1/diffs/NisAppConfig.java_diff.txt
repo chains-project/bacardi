@@ -5,9 +5,21 @@
 <                 flyway.setLocations(prop.getProperty("flyway.locations"));
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 ---
->         Flyway flyway = Flyway.configure()
->                 .dataSource(this.dataSource())
->                 .classLoader(NisAppConfig.class.getClassLoader())
->                 .locations(prop.getProperty("flyway.locations"))
->                 .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
->                 .load();
+>                 final Flyway flyway = Flyway.configure()
+>                                 .dataSource(this.dataSource())
+>                                 .classLoader(NisAppConfig.class.getClassLoader())
+>                                 .locations(prop.getProperty("flyway.locations"))
+>                                 .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
+>                                 .load();
+246c247
+<                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
+---
+>                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions);
+270c271
+<         private static org.nem.nis.pox.poi.PoiOptions getBlockDependentPoiOptions(final BlockHeight height) {
+---
+>         private static org.nem.nis.pox.poi.PoiOptions getBlockDependentPoiOptions final BlockHeight height) {
+340c341
+<                 final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
+---
+>                 final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear;

@@ -214,7 +214,6 @@ class ModelRepresenter extends Representer {
   /*
    * Change the default order. Important data goes first.
    */
-  @Override
   protected Set<Property> getProperties(Class<? extends Object> type) {
     try {
       if (type.isAssignableFrom(Model.class)) {

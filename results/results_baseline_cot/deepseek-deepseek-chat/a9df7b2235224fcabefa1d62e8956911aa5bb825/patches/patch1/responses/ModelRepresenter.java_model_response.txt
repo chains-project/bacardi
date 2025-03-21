@@ -1,23 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the `IntrospectionException` is not compatible with the throws clause in `Representer.getProperties(Class<? extends Object>)`.
-   - The error occurs at line 218 in the `ModelRepresenter` class.
-   - The issue is related to the `getProperties` method, which is overridden from the `Representer` class.
-
-2. Review the client code:
-   - The `getProperties` method in `ModelRepresenter` is overridden and throws `IntrospectionException`.
-   - The parent class `Representer`'s `getProperties` method does not declare `IntrospectionException` in its throws clause.
-   - This mismatch in the throws clause is causing the compilation error.
-
-3. Consider potential fixes:
-   - The `IntrospectionException` should be caught within the `getProperties` method instead of being thrown.
-   - The method should handle the exception internally and return an appropriate result.
-
-4. Plan the necessary changes to fix the issue:
-   - Modify the `getProperties` method to catch `IntrospectionException` and handle it appropriately.
-   - Ensure the method still returns a `Set<Property>` as expected.
-</code_analysis>
-
 ```java
 /**
  * Copyright (c) 2012 to original author or authors
@@ -111,6 +91,7 @@ class ModelRepresenter extends Representer {
     }
     return false;
   }
+
 
   private class RepresentXpp3Dom implements Represent {
     private static final String ATTRIBUTE_PREFIX = "attr/";
@@ -234,7 +215,6 @@ class ModelRepresenter extends Representer {
   /*
    * Change the default order. Important data goes first.
    */
-  @Override
   protected Set<Property> getProperties(Class<? extends Object> type) {
     try {
       if (type.isAssignableFrom(Model.class)) {
@@ -251,7 +231,7 @@ class ModelRepresenter extends Representer {
         return super.getProperties(type);
       }
     } catch (IntrospectionException e) {
-      return new TreeSet<>();
+      throw new RuntimeException(e);
     }
   }
 

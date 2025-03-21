@@ -30,7 +30,6 @@
 package com.jcabi.ssh;
 
 import com.jcabi.aspects.RetryOnFailure;
-import com.jcabi.aspects.Tv;
 import com.jcabi.log.Logger;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
@@ -74,7 +73,7 @@ public final class SshByPassword extends AbstractSshShell {
     // @checkstyle ProtectedMethodInFinalClassCheck (10 lines)
     @Override
     @RetryOnFailure(
-        attempts = 7, // Replaced Tv.SEVEN with 7
+        attempts = 7,
         delay = 1,
         unit = TimeUnit.MINUTES,
         verbose = false,
@@ -95,9 +94,9 @@ public final class SshByPassword extends AbstractSshShell {
             session.setConfig("StrictHostKeyChecking", "no");
             session.setPassword(this.password);
             session.setServerAliveInterval(
-                (int) TimeUnit.SECONDS.toMillis(10) // Replaced Tv.TEN with 10
+                (int) TimeUnit.SECONDS.toMillis(10)
             );
-            session.setServerAliveCountMax(1000000); // Replaced Tv.MILLION with 1000000
+            session.setServerAliveCountMax(1000000);
             session.connect((int) TimeUnit.SECONDS.toMillis(10L));
             return session;
         } catch (final JSchException ex) {

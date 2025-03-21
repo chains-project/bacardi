@@ -1,24 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `org.slf4j.spi.LoggingEventAware` cannot be found.
-   - This suggests a missing or incompatible dependency related to SLF4J.
-   - The error occurs at line 112 in the `EventMessageHandlerTest.java` file.
-
-2. Review the client code:
-   - The code uses SLF4J for logging, specifically the `Logger` and `ILoggingEvent` classes.
-   - The issue likely stems from an incompatible version of SLF4J or a missing transitive dependency.
-
-3. Consider potential fixes:
-   - Ensure the correct version of SLF4J is included in the project dependencies.
-   - Verify that the `org.slf4j.spi.LoggingEventAware` class is available in the classpath.
-   - If the class is no longer available in the newer version, consider using an alternative approach for logging.
-
-4. Plan the necessary changes:
-   - Update the project's `pom.xml` or `build.gradle` to include the correct version of SLF4J.
-   - If the `LoggingEventAware` interface is no longer available, modify the logging code to use a different approach.
-   - Ensure that the logging functionality remains intact after the changes.
-</code_analysis>
-
 ```java
 package uk.gov.pay.adminusers.queue.event;
 
@@ -160,7 +139,7 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId, "reason", "fraudulent")))
+                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_dueDate", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId, "reason", "fraudulent")))
                 .withParentResourceExternalId("456")
                 .build();
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
@@ -168,7 +147,7 @@ class EventMessageHandlerTest {
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
 
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+        when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransactionId()).thenReturn(Optional.of(transaction));
         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
 
         eventMessageHandler.processMessages();
@@ -217,7 +196,7 @@ class EventMessageHandlerTest {
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+        when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransactionId()).thenReturn(Optional.of(transaction));
         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
 
         eventMessageHandler.processMessages();
@@ -254,7 +233,7 @@ class EventMessageHandlerTest {
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+        when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransactionId()).thenReturn(Optional.of(transaction));
         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
 
         eventMessageHandler.processMessages();
@@ -291,7 +270,7 @@ class EventMessageHandlerTest {
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+        when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransactionId()).thenReturn(Optional.of(transaction));
         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
 
         eventMessageHandler.processMessages();
@@ -342,7 +321,7 @@ class EventMessageHandlerTest {
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.empty());
+        when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransactionId()).thenReturn(Optional.empty());
 
         eventMessageHandler.processMessages();
 
@@ -361,7 +340,7 @@ class EventMessageHandlerTest {
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
 
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+        when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransactionId()).thenReturn(Optional.of(transaction));
         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(Collections.emptyList());
 
         eventMessageHandler.processMessages();
@@ -370,20 +349,3 @@ class EventMessageHandlerTest {
     }
 }
 ```
-
-The fix involves ensuring that the correct version of SLF4J is included in the project dependencies. The code itself does not need to be modified, but the project's build configuration (e.g., `pom.xml` or `build.gradle`) should be updated to include the correct version of SLF4J. Here is an example of how to update the `pom.xml`:
-
-```xml
-<dependency>
-    <groupId>org.slf4j</groupId>
-    <artifactId>slf4j-api</artifactId>
-    <version>1.7.36</version>
-</dependency>
-<dependency>
-    <groupId>ch.qos.logback</groupId>
-    <artifactId>logback-classic</artifactId>
-    <version>1.2.11</version>
-</dependency>
-```
-
-This ensures that the `org.slf4j.spi.LoggingEventAware` class is available in the classpath, resolving the compilation error.

@@ -1,25 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `CommandSource` cannot be found.
-   - The errors occur on lines 8, 14, and 18 in the `NameResolver` class.
-   - This suggests that the `CommandSource` class has either been moved, renamed, or removed in the updated version of the Sponge API.
-
-2. Review the client code:
-   - The `CommandSource` class is imported from `org.spongepowered.api.command`.
-   - It is used as a parameter in the constructor and as a field in the `NameResolver` class.
-   - The `sendMessageInvoker` method also uses `CommandSource` to send messages.
-
-3. Consider potential fixes:
-   - The `CommandSource` class might have been replaced by a different class in the newer version of the Sponge API.
-   - A common replacement for `CommandSource` in newer versions of Sponge is `CommandCause` or `CommandExecutor`.
-   - The fix should involve updating the import statement and replacing `CommandSource` with the appropriate class.
-
-4. Plan the necessary changes:
-   - Update the import statement to use the correct class from the Sponge API.
-   - Replace all occurrences of `CommandSource` with the new class name.
-   - Ensure that the new class provides the same functionality as `CommandSource`.
-</code_analysis>
-
 ```java
 package com.github.games647.changeskin.sponge.task;
 
@@ -28,17 +6,18 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.UUID;
 
-import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 
 public class NameResolver extends SharedNameResolver {
 
     private final ChangeSkinSponge plugin;
-    private final CommandCause invoker;
+    private final CommandSource invoker;
     private final Player receiver;
     private final boolean keepSkin;
 
-    public NameResolver(ChangeSkinSponge plugin, CommandCause invoker, String targetName, Player receiver
+    public NameResolver(ChangeSkinSponge plugin, CommandSource invoker, String targetName, Player receiver
             , boolean keepSkin) {
         super(plugin.getCore(), targetName, keepSkin);
 
@@ -66,5 +45,3 @@ public class NameResolver extends SharedNameResolver {
     }
 }
 ```
-
-In this fix, I replaced `CommandSource` with `CommandCause`, which is a more recent class in the Sponge API that serves a similar purpose. The import statement has been updated accordingly, and all references to `CommandSource` have been changed to `CommandCause`. This should resolve the compilation errors while maintaining the intended functionality of the code.

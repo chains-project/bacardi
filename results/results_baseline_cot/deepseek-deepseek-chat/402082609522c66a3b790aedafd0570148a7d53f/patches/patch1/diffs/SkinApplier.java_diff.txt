@@ -1,25 +1,20 @@
-3c3
+3d2
 < import com.flowpowered.math.vector.Vector3d;
----
-> import org.spongepowered.math.vector.Vector3d;
-12,13c12
-< import org.spongepowered.api.command.CommandSource;
+13d11
 < import org.spongepowered.api.data.key.Keys;
----
-> import org.spongepowered.api.command.CommandCause;
-18a18
-> import org.spongepowered.api.data.Keys;
-23c23
-<     private final CommandSource invoker;
----
->     private final CommandCause invoker;
-26c26
-<     public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
----
->     public SkinApplier(ChangeSkinSponge plugin, CommandCause invoker, Player receiver, SkinModel targetSkin
-84,85c84,85
+18a17,19
+> import org.spongepowered.api.data.key.Keys;
+> import org.spongepowered.api.util.Tristate;
+> import org.spongepowered.api.util.Tristate;
+84,85c85,86
 <         receiver.offer(Keys.VANISH, true);
 <         receiver.offer(Keys.VANISH, false);
 ---
->         receiver.offer(Keys.VANISH.get(), true);
->         receiver.offer(Keys.VANISH.get(), false);
+>         receiver.offer(Keys.VANISH, Tristate.TRUE);
+>         receiver.offer(Keys.VANISH, Tristate.FALSE);
+99d99
+<         Vector3d rotation = receiver.getRotation();
+107c107
+<                     receiver.setLocationAndRotation(oldLocation, rotation);
+---
+>                     receiver.setLocation(oldLocation);

@@ -55,6 +55,8 @@ import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
+import org.apache.fop.apps.FopFactoryBuilder;
+import org.apache.fop.apps.MimeConstants;
 import org.apache.xmlgraphics.util.MimeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,7 +114,7 @@ public abstract class FOPPDFTransformer {
         StreamSource transformSource = new StreamSource(templateStream);
 
         // create an instance of fop factory
-        FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
+        FopFactory fopFactory = new FopFactoryBuilder(new URI(".")).build();
         // a user agent is needed for transformation
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
         // to store output

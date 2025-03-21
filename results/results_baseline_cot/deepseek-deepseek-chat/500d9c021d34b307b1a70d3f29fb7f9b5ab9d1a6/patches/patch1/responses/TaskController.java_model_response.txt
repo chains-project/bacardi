@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The errors indicate that several packages and classes from the `javax.mvc` namespace are missing. This suggests that the project is using an outdated or incorrect version of the MVC (Model-View-Controller) framework.
-   - The specific missing packages include `javax.mvc`, `javax.mvc.binding`, `javax.mvc.security`, and classes like `Models`, `Controller`, `BindingResult`, `CsrfProtected`, and `View`.
-
-2. Review the client code:
-   - The code is heavily reliant on the `javax.mvc` framework, which is causing compilation errors due to missing dependencies.
-   - The imports and annotations related to `javax.mvc` are causing the errors.
-
-3. Consider potential fixes:
-   - The `javax.mvc` namespace has been replaced by `jakarta.mvc` in newer versions of the MVC framework. This is part of the transition from Java EE to Jakarta EE.
-   - The fix involves updating the imports and annotations to use the `jakarta.mvc` namespace instead of `javax.mvc`.
-
-4. Plan the necessary changes:
-   - Replace all `javax.mvc` imports with `jakarta.mvc` imports.
-   - Ensure that the correct classes and annotations from the `jakarta.mvc` namespace are used.
-   - No changes to method signatures or logic are required, only the imports and annotations need to be updated.
-</code_analysis>
-
 ```java
 package com.example.web;
 
@@ -29,12 +10,12 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import jakarta.mvc.Controller;
-import jakarta.mvc.Models;
-import jakarta.mvc.View;
-import jakarta.mvc.binding.BindingResult;
-import jakarta.mvc.binding.ParamError;
-import jakarta.mvc.security.CsrfProtected;
+import javax.mvc.Controller;
+import javax.mvc.Models;
+import javax.mvc.View;
+import javax.mvc.binding.BindingResult;
+import javax.mvc.binding.ParamError;
+import javax.mvc.security.CsrfProtected;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
@@ -107,7 +88,6 @@ public class TaskController {
 
     @POST
     @CsrfProtected
-    //@ValidateOnExecution(type = ExecutableType.NONE)
     public Response save(@Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "saving new task @{0}", form);
 
@@ -181,7 +161,6 @@ public class TaskController {
 
     @PUT
     @Path("{id}/status")
-    //@CsrfProtected
     public Response updateStatus(@PathParam(value = "id") Long id, @NotNull @FormParam(value = "status") String status) {
         log.log(Level.INFO, "updating status of the existed task@id:{0}, status:{1}", new Object[]{id, status});
 

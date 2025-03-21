@@ -32,15 +32,13 @@ import java.util.regex.Pattern;
 import org.cactoos.Text;
 import org.cactoos.iterable.IterableOf;
 import org.cactoos.list.ListOf;
-import org.cactoos.scalar.Checked;
 import org.cactoos.scalar.ItemAt;
-import org.cactoos.scalar.Sticky;
+import org.cactoos.scalar.ScalarOf;
 import org.cactoos.scalar.Unchecked;
 import org.cactoos.text.FormattedText;
 import org.cactoos.text.Split;
 import org.cactoos.text.TextOf;
 import org.cactoos.text.Trimmed;
-import org.cactoos.text.UncheckedText;
 import org.cactoos.time.ZonedDateTimeOf;
 
 /**
@@ -85,64 +83,60 @@ final class RtTransaction implements Transaction {
     /**
      * String representation of transaction.
      */
-    private final Checked<String> transaction;
+    private final ScalarOf<String> transaction;
 
     /**
      * Ctor.
      * @param trnsct String representation of transaction
      */
     RtTransaction(final String trnsct) {
-        this.transaction = new Checked<>(
-            new Sticky<>(
-                () -> {
-                    if (
-                        new Trimmed(
-                            new TextOf(trnsct)
-                        ).asString().isEmpty()
-                    ) {
-                        throw new IOException(
-                            "Invalid transaction string: string is empty"
-                        );
-                    }
-                    final List<Text> pieces =
-                        new ListOf<>(
-                            new Split(trnsct, ";")
-                        );
-                    // @checkstyle MagicNumberCheck (1 line)
-                    if (new IterableOf<>(pieces).size() != 7) {
-                        throw new IOException(
-                            new FormattedText(
-                                // @checkstyle LineLength (1 line)
-                                "Invalid transaction string: expected 7 fields, but found %d",
-                                pieces.size()
-                            ).asString()
-                        );
-                    }
-                    return trnsct;
+        this.transaction = new ScalarOf<>(
+            () -> {
+                if (
+                    new Trimmed(
+                        new TextOf(trnsct)
+                    ).asString().isEmpty()
+                ) {
+                    throw new IOException(
+                        "Invalid transaction string: string is empty"
+                    );
                 }
-            )
+                final List<Text> pieces =
+                    new ListOf<>(
+                        new Split(trnsct, ";")
+                    );
+                // @checkstyle MagicNumberCheck (1 line)
+                if (new IterableOf<>(pieces).size() != 7) {
+                    throw new IOException(
+                        new FormattedText(
+                            // @checkstyle LineLength (1 line)
+                            "Invalid transaction string: expected 7 fields, but found %d",
+                            pieces.size()
+                        ).asString()
+                    );
+                }
+                return trnsct;
+            }
         );
     }
 
     @Override
     @SuppressWarnings("PMD.ShortMethodName")
     public int id() throws IOException {
-        final String ident = new UncheckedText(
-            new Checked<>(
-                new ItemAt<>(
-                    0, new Split(this.transaction.value(), ";")
-                )
-            ).value()
-        ).asString();
+        final String ident = new Unchecked<>(
+            new ItemAt<>(
+                0, new Split(this.transaction.value(), ";")
+            )
+        ).value().asString();
         if (!RtTransaction.IDENT.matcher(ident).matches()) {
             throw new IOException(
-                new UncheckedText(
+                new Unchecked<>(
                     new FormattedText(
                         // @checkstyle LineLength (1 line)
                         "Invalid ID '%s' expecting 16-bit unsigned hex string with 4 symbols",
                         ident
                     )
-                ).asString()
+                ).value().asString()
             );
         }
         // @checkstyle MagicNumber (1 line)
@@ -152,35 +146,31 @@ final class RtTransaction implements Transaction {
     @Override
     public ZonedDateTime time() throws IOException {
         return new ZonedDateTimeOf(
-            new UncheckedText(
-                new Checked<>(
-                    new ItemAt<>(
-                        1, new Split(this.transaction.value(), ";")
-                    )
-                ).value()
-            ).asString(),
+            new Unchecked<>(
+                new ItemAt<>(
+                    1, new Split(this.transaction.value(), ";")
+                )
+            ).value().asString(),
             DateTimeFormatter.ISO_OFFSET_DATE_TIME
         ).value();
     }
 
     @Override
     public long amount() throws IOException {
-        final String amnt = new UncheckedText(
-            new Checked<>(
-                new ItemAt<>(
-                    2, new Split(this.transaction.value(), ";")
-                )
-            ).value()
-        ).asString();
+        final String amnt = new Unchecked<>(
+            new ItemAt<>(
+                2, new Split(this.transaction.value(), ";")
+            )
+        ).value().asString();
         if (!RtTransaction.HEX.matcher(amnt).matches()) {
             throw new IOException(
-                new UncheckedText(
+                new Unchecked<>(
                     new FormattedText(
                         // @checkstyle LineLength (1 line)
                         "Invalid amount '%s' expecting 64-bit signed hex string with 16 symbols",
                         amnt
                     )
-                ).asString()
+                ).value().asString()
             );
         }
         // @checkstyle MagicNumber (1 line)
@@ -189,14 +179,12 @@ final class RtTransaction implements Transaction {
 
     @Override
     public String prefix() throws IOException {
-        final String prefix = new UncheckedText(
-            new Checked<>(
-                new ItemAt<>(
-                    //@checkstyle MagicNumberCheck (1 line)
-                    3, new Split(this.transaction.value(), ";")
-                )
-            ).value()
-        ).asString();
+        final String prefix = new Unchecked<>(
+            new ItemAt<>(
+                //@checkstyle MagicNumberCheck (1 line)
+                3, new Split(this.transaction.value(), ";")
+            )
+        ).value().asString();
         //@checkstyle MagicNumberCheck (1 line)
         if (prefix.length() < 8 || prefix.length() > 32) {
             throw new IOException("Invalid prefix size");
@@ -209,23 +197,21 @@ final class RtTransaction implements Transaction {
 
     @Override
     public String bnf() throws IOException {
-        final String bnf = new UncheckedText(
-            new Checked<>(
-                new ItemAt<>(
-                    //@checkstyle MagicNumberCheck (1 line)
-                    4, new Split(this.transaction.value(), ";")
-                )
-            ).value()
-        ).asString();
+        final String bnf = new Unchecked<>(
+            new ItemAt<>(
+                //@checkstyle MagicNumberCheck (1 line)
+                4, new Split(this.transaction.value(), ";")
+            )
+        ).value().asString();
         if (!RtTransaction.HEX.matcher(bnf).matches()) {
             throw new IOException(
-                new UncheckedText(
+                new Unchecked<>(
                     new FormattedText(
                         // @checkstyle LineLength (1 line)
                         "Invalid bnf string '%s', expecting hex string with 16 symbols",
                         bnf
                     )
-                ).asString()
+                ).value().asString()
             );
         }
         return bnf;
@@ -233,23 +219,21 @@ final class RtTransaction implements Transaction {
 
     @Override
     public String details() throws IOException {
-        final String dtls = new UncheckedText(
-            new Checked<>(
-                new ItemAt<>(
-                    //@checkstyle MagicNumberCheck (1 line)
-                    5, new Split(this.transaction.value(), ";")
-                )
-            ).value()
-        ).asString();
+        final String dtls = new Unchecked<>(
+            new ItemAt<>(
+                //@checkstyle MagicNumberCheck (1 line)
+                5, new Split(this.transaction.value(), ";")
+            )
+        ).value().asString();
         if (!RtTransaction.DTLS.matcher(dtls).matches()) {
             throw new IOException(
-                new UncheckedText(
+                new Unchecked<>(
                     new FormattedText(
                         // @checkstyle LineLength (1 line)
                         "Invalid details string '%s', does not match pattern '%s'",
                         dtls, RtTransaction.DTLS
                     )
-                ).asString()
+                ).value().asString()
             );
         }
         return dtls;
@@ -257,25 +241,23 @@ final class RtTransaction implements Transaction {
 
     @Override
     public String signature() throws IOException {
-        final String sign = new UncheckedText(
-            new Checked<>(
-                new ItemAt<>(
-                    //@checkstyle MagicNumberCheck (1 line)
-                    6, new Split(this.transaction.value(), ";")
-                )
-            ).value()
-        ).asString();
+        final String sign = new Unchecked<>(
+            new ItemAt<>(
+                //@checkstyle MagicNumberCheck (1 line)
+                6, new Split(this.transaction.value(), ";")
+            )
+        ).value().asString();
         // @checkstyle MagicNumber (1 line)
         if (sign.length() != 684
             || !RtTransaction.SIGN.matcher(sign).matches()) {
             throw new IOException(
-                new UncheckedText(
+                new Unchecked<>(
                     new FormattedText(
                         // @checkstyle LineLength (1 line)
                         "Invalid signature '%s', expecting base64 string with 684 characters",
                         sign
                     )
-                ).asString()
+                ).value().asString()
             );
         }
         return sign;

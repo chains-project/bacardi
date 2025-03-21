@@ -238,8 +238,12 @@ public class RecognitionHelper {
 				// Add affected line segment images with their absolute path to the json file
 				dataList.add(pageList);
 			}
-			ObjectWriter writer = mapper.writer();
-			writer.writeValue(segmentListFile, dataList);
+			try {
+			    ObjectWriter writer = mapper.writer();
+			    writer.writeValue(segmentListFile, dataList);
+			} catch (IOException e) {
+			    throw new IOException("Failed to write segment list file", e);
+			}
 
             processHandler = new ProcessHandler();
             processHandler.setFetchProcessConsole(true);

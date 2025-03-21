@@ -20,26 +20,28 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.manager.CommandManager;
-import org.spongepowered.api.command.CommandCause;
-import org.spongepowered.api.event.lifecycle.GameInitializationEvent;
-import org.spongepowered.api.event.lifecycle.GamePreInitializationEvent;
-import org.spongepowered.api.event.lifecycle.GameStoppingServerEvent;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
+import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 import org.spongepowered.api.network.channel.raw.RawDataChannel;
 import org.spongepowered.api.network.channel.ChannelManager;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.serializer.TextSerializer;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
 import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
 import static com.github.games647.changeskin.core.message.SkinUpdateMessage.UPDATE_SKIN_CHANNEL;
 import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 
 @Singleton
-@Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
-        url = PomData.URL, description = PomData.DESCRIPTION)
-public class ChangeSkinSponge implements PlatformPlugin<CommandCause> {
+@Plugin(ARTIFACT_ID)
+public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
 
     private final Path dataFolder;
     private final Logger logger;
@@ -58,7 +60,7 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandCause> {
     }
 
     @Listener
-    public void onPreInit(GamePreInitializationEvent preInitEvent) {
+    public void onPreInit(StartedEngineEvent<Server> preInitEvent) {
         try {
             core.load(true);
             initialized = true;
@@ -68,11 +70,11 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandCause> {
     }
 
     @Listener
-    public void onInit(GameInitializationEvent initEvent) {
+    public void onInit(RegisterCommandEvent<CommandManager> initEvent) {
         if (!initialized)
             return;
 
-        CommandManager cmdManager = Sponge.getCommandManager();
+        CommandManager cmdManager = initEvent.getManager();
 
         cmdManager.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
         cmdManager.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
@@ -93,7 +95,7 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandCause> {
     }
 
     @Listener
-    public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
+    public void onShutdown(StoppingEngineEvent<Server> stoppingServerEvent) {
         core.close();
     }
 
@@ -102,7 +104,7 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandCause> {
     }
 
     @Override
-    public boolean hasSkinPermission(CommandCause invoker, UUID uuid, boolean sendMessage) {
+    public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
         if (invoker.hasPermission(PomData.ARTIFACT_ID + ".skin.whitelist." + uuid)) {
             return true;
         }
@@ -134,10 +136,10 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandCause> {
     }
 
     @Override
-    public void sendMessage(CommandCause receiver, String key) {
+    public void sendMessage(CommandSource receiver, String key) {
         String message = core.getMessage(key);
         if (message != null && receiver != null) {
-            receiver.sendMessage(Text.of(message));
+            receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
         }
     }
 }

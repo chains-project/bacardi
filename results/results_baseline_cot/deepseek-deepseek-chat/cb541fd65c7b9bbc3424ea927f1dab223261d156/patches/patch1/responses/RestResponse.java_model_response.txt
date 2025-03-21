@@ -1,23 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `Matchers` from the `org.hamcrest` package cannot be found.
-   - This suggests that the Hamcrest library is either missing or not properly imported in the project.
-   - The error occurs at line 48 in the `RestResponse.java` file.
-
-2. Review the client code:
-   - The code uses `org.hamcrest.Matchers` extensively for assertions and matchers.
-   - The import statement `import org.hamcrest.Matchers;` is present but might be pointing to an incorrect or missing dependency.
-
-3. Consider potential fixes:
-   - Ensure that the correct version of the Hamcrest library is included in the project dependencies.
-   - Verify that the import statement is correct and matches the package structure of the Hamcrest library.
-
-4. Plan the necessary changes:
-   - Add the correct Hamcrest dependency to the project's build configuration (e.g., Maven or Gradle).
-   - Ensure the import statement `import org.hamcrest.Matchers;` is correct.
-   - No changes to the method signatures or existing code are required.
-</code_analysis>
-
 ```java
 /*
  * Copyright (c) 2011-2022, jcabi.com
@@ -66,7 +46,7 @@ import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
+import org.hamcrest.core.IsCollectionContaining;
 
 /**
  * REST response.
@@ -228,7 +208,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, Matchers.hasItems(value));
+        return this.assertHeader(name, IsCollectionContaining.hasItems(value));
     }
 
     /**
@@ -264,7 +244,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            Matchers.not(Matchers.emptyIterableOf(String.class))
+            IsCollectionContaining.hasItems()
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -302,7 +282,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            Matchers.notNullValue()
+            IsCollectionContaining.hasItems()
         );
         assert cookie != null;
         return cookie;
@@ -352,22 +332,3 @@ public final class RestResponse extends AbstractResponse {
     }
 }
 ```
-
-To fix the issue, ensure that the Hamcrest library is included in the project's dependencies. For Maven, add the following dependency to your `pom.xml`:
-
-```xml
-<dependency>
-    <groupId>org.hamcrest</groupId>
-    <artifactId>hamcrest-core</artifactId>
-    <version>2.2</version>
-    <scope>test</scope>
-</dependency>
-```
-
-For Gradle, add the following to your `build.gradle`:
-
-```groovy
-testImplementation 'org.hamcrest:hamcrest-core:2.2'
-```
-
-This will ensure that the `org.hamcrest.Matchers` class is available in the project.

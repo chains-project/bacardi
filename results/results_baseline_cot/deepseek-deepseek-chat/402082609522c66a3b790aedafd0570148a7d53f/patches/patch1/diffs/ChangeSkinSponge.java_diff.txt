@@ -1,53 +1,58 @@
-23,33c23,33
+23c23
 < import org.spongepowered.api.command.CommandManager;
-< import org.spongepowered.api.command.CommandSource;
+---
+> import org.spongepowered.api.command.CommandResult;
+25c25
 < import org.spongepowered.api.config.ConfigDir;
-< import org.spongepowered.api.event.Listener;
+---
+> import org.spongepowered.api.command.manager.CommandManager;
+27,32c27,35
 < import org.spongepowered.api.event.game.state.GameInitializationEvent;
 < import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 < import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 < import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
 < import org.spongepowered.api.network.ChannelRegistrar;
 < import org.spongepowered.api.plugin.Plugin;
-< import org.spongepowered.api.text.serializer.TextSerializers;
 ---
-> import org.spongepowered.api.command.manager.CommandManager;
-> import org.spongepowered.api.command.CommandCause;
-> import org.spongepowered.api.event.lifecycle.GameInitializationEvent;
-> import org.spongepowered.api.event.lifecycle.GamePreInitializationEvent;
-> import org.spongepowered.api.event.lifecycle.GameStoppingServerEvent;
+> import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+> import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
+> import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 > import org.spongepowered.api.network.channel.raw.RawDataChannel;
 > import org.spongepowered.api.network.channel.ChannelManager;
 > import org.spongepowered.plugin.PluginContainer;
 > import org.spongepowered.plugin.builtin.jvm.Plugin;
 > import org.spongepowered.api.text.Text;
 > import org.spongepowered.api.text.serializer.TextSerializer;
-42c42
-< public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
+40,41c43
+< @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+<         url = PomData.URL, description = PomData.DESCRIPTION)
 ---
-> public class ChangeSkinSponge implements PlatformPlugin<CommandCause> {
-53d52
+> @Plugin(ARTIFACT_ID)
+53d54
 <     //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
-63d61
+62,63c63
+<     public void onPreInit(GamePreInitializationEvent preInitEvent) {
 <         //load config and database
-79d76
+---
+>     public void onPreInit(StartedEngineEvent<Server> preInitEvent) {
+73c73
+<     public void onInit(GameInitializationEvent initEvent) {
+---
+>     public void onInit(RegisterCommandEvent<CommandManager> initEvent) {
+77c77
+<         CommandManager cmdManager = Sponge.getCommandManager();
+---
+>         CommandManager cmdManager = initEvent.getManager();
+79d78
 <         //command and event register
-89,90c86
+89,90c88
 <         //incoming channel
 <         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
 ---
 >         ChannelManager channelReg = Sponge.getChannelManager();
-109c105
-<     public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
+100c98
+<     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
 ---
->     public boolean hasSkinPermission(CommandCause invoker, UUID uuid, boolean sendMessage) {
-114d109
+>     public void onShutdown(StoppingEngineEvent<Server> stoppingServerEvent) {
+114d111
 <         //disallow - not whitelisted or blacklisted
-142c137
-<     public void sendMessage(CommandSource receiver, String key) {
----
->     public void sendMessage(CommandCause receiver, String key) {
-145c140
-<             receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
----
->             receiver.sendMessage(Text.of(message));

@@ -1,34 +1,15 @@
-<code_analysis>
-1. Examine the error message:
-   - The error messages indicate that several classes from the `redis.clients.jedis.commands` package cannot be found. These classes include `ClusterPipeline`, `BinaryRedisPipeline`, `MultiKeyCommandsPipeline`, `BinaryScriptingCommandsPipeline`, `BasicRedisPipeline`, `MultiKeyBinaryRedisPipeline`, `RedisPipeline`, and `ScriptingCommandsPipeline`.
-   - The errors occur in the import statements and the interface declaration of `RedisGraphPipeline`.
-
-2. Review the client code:
-   - The `RedisGraphPipeline` interface extends multiple interfaces from the `redis.clients.jedis.commands` package, but these interfaces are no longer available in the updated dependency version.
-   - The interface also includes several methods that are likely dependent on these missing interfaces.
-
-3. Consider potential fixes:
-   - The issue appears to be related to a breaking change in the Jedis library, where the pipeline-related interfaces have been reorganized or removed.
-   - The fix should involve updating the `RedisGraphPipeline` interface to extend the correct interfaces from the updated Jedis library.
-
-4. Plan the necessary changes:
-   - Research the updated Jedis library to identify the correct interfaces that should be extended.
-   - Update the import statements and the interface declaration to use the correct interfaces.
-   - Ensure that the methods in `RedisGraphPipeline` are compatible with the new interfaces.
-</code_analysis>
-
-Based on the analysis, here is the fixed version of the `RedisGraphPipeline` interface:
-
 ```java
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
-import redis.clients.jedis.Pipeline;
-import redis.clients.jedis.commands.ScriptingCommands;
-import redis.clients.jedis.commands.MultiKeyCommands;
-import redis.clients.jedis.commands.BinaryScriptingCommands;
-import redis.clients.jedis.commands.BinaryCommands;
-import redis.clients.jedis.commands.BasicCommands;
+import redis.clients.jedis.commands.ClusterPipeline;
+import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
+import redis.clients.jedis.commands.ScriptingCommandsPipeline;
+import redis.clients.jedis.commands.RedisPipeline;
+import redis.clients.jedis.commands.BasicRedisPipeline;
+import redis.clients.jedis.commands.BinaryRedisPipeline;
+import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;
+import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
 
 import java.io.Closeable;
 import java.util.List;
@@ -38,13 +19,10 @@ import java.util.Map;
  * An interface which aligned to Jedis Pipeline interface
  */
 public interface RedisGraphPipeline extends
-        Pipeline,
-        MultiKeyCommands,
-        BinaryCommands,
-        BinaryScriptingCommands,
-        ScriptingCommands,
-        BasicCommands,
-        Closeable {
+        MultiKeyBinaryRedisPipeline,
+        MultiKeyCommandsPipeline, ClusterPipeline,
+        BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
+        BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
 
     /**
      * Execute a Cypher query.
@@ -159,14 +137,14 @@ public interface RedisGraphPipeline extends
      * @return A list of all the responses in the order you executed them.
      */
     List<Object> syncAndReturnAll();
-
+    
     /**
      * Synchronize pipeline by reading all responses. This operation close the pipeline. In order to
      * get return values from pipelined commands, capture the different Response&lt;?&gt; of the
      * commands you execute.
      */
     public void sync();
-
+    
     /**
      * Blocks until all the previous write commands are successfully transferred and acknowledged by
      * at least the specified number of replicas. If the timeout, specified in milliseconds, is
@@ -180,5 +158,3 @@ public interface RedisGraphPipeline extends
     public Response<Long> waitReplicas(int replicas, long timeout);
 }
 ```
-
-In this fix, the `RedisGraphPipeline` interface now extends the `Pipeline` interface from the `redis.clients.jedis` package, along with other relevant command interfaces (`MultiKeyCommands`, `BinaryCommands`, `BinaryScriptingCommands`, `ScriptingCommands`, and `BasicCommands`). This should resolve the compilation errors caused by the missing interfaces in the updated Jedis library.

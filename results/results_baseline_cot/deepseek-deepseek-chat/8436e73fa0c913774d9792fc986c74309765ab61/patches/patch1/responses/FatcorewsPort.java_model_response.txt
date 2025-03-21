@@ -1,36 +1,11 @@
-<code_analysis>
-1. Examine the error message:
-   - The error messages indicate that the classes `WebParam`, `WebResult`, `WebMethod`, `WebService`, and `SOAPBinding` cannot be found.
-   - The packages `javax.jws` and `javax.jws.soap` are reported as non-existent.
-   - This suggests that the JAX-WS (Java API for XML Web Services) dependencies are missing or incorrectly configured.
-
-2. Review the client code:
-   - The code heavily relies on JAX-WS annotations (`@WebService`, `@WebMethod`, `@WebParam`, `@WebResult`, `@SOAPBinding`).
-   - The imports for these annotations are from the `javax.jws` and `javax.jws.soap` packages, which are not found.
-
-3. Consider potential fixes:
-   - The issue is likely due to a missing or outdated JAX-WS dependency.
-   - The correct fix would be to ensure that the JAX-WS API is included in the project's dependencies.
-   - The imports should remain the same, but the project's build configuration (e.g., Maven or Gradle) needs to be updated to include the correct JAX-WS dependency.
-
-4. Plan the necessary changes:
-   - No changes are needed in the Java code itself.
-   - The build configuration (e.g., `pom.xml` for Maven or `build.gradle` for Gradle) should be updated to include the JAX-WS API dependency.
-   - The correct dependency for JAX-WS API is `javax.xml.ws:jaxws-api`.
-
-Given that the issue is related to missing dependencies and not the code itself, the Java class remains unchanged. The fix involves updating the project's build configuration to include the necessary JAX-WS dependencies.
-</code_analysis>
-
-Since the issue is related to missing dependencies and not the code itself, the Java class remains unchanged. However, here is the complete class with the correct imports:
-
 ```java
 package com.premiumminds.billy.portugal.webservices.documents;
 
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebResult;
-import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
+import jakarta.jws.WebMethod;
+import jakarta.jws.WebParam;
+import jakarta.jws.WebResult;
+import jakarta.jws.WebService;
+import jakarta.jws.soap.SOAPBinding;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
 /**
@@ -125,7 +100,7 @@ public interface FatcorewsPort {
      *     returns com.premiumminds.billy.portugal.webservices.documents.RegisterPaymentResponse
      */
     @WebMethod(operationName = "RegisterPayment")
-    @WebResult(name = "RegisterPaymentResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterPaymentResponse")
+    @WebResult(name = "RegisterPaymentResponse", targetNamespace = "http://factemi.at.min_financas.极 documents", partName = "RegisterPaymentResponse")
     public RegisterPaymentResponse registerPayment(
         @WebParam(name = "RegisterPaymentRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterPaymentRequest")
         RegisterPaymentRequest registerPaymentRequest);
@@ -137,7 +112,7 @@ public interface FatcorewsPort {
      *     returns com.premiumminds.billy.portugal.webservices.documents.ChangePaymentStatusResponse
      */
     @WebMethod(operationName = "ChangePaymentStatus")
-    @WebResult(name = "ChangePaymentStatusResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangePaymentStatusResponse")
+    @WebResult(name极 "ChangePaymentStatusResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangePaymentStatusResponse")
     public ChangePaymentStatusResponse changePaymentStatus(
         @WebParam(name = "ChangePaymentStatusRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangePaymentStatusRequest")
         ChangePaymentStatusRequest changePaymentStatusRequest);
@@ -156,21 +131,3 @@ public interface FatcorewsPort {
 
 }
 ```
-
-To resolve the issue, ensure that the following dependency is included in your `pom.xml` (for Maven) or `build.gradle` (for Gradle):
-
-**Maven:**
-```xml
-<dependency>
-    <groupId>javax.xml.ws</groupId>
-    <artifactId>jaxws-api</artifactId>
-    <version>2.3.1</version>
-</dependency>
-```
-
-**Gradle:**
-```groovy
-implementation 'javax.xml.ws:jaxws-api:2.3.1'
-```
-
-This will provide the necessary JAX-WS classes and resolve the compilation errors.

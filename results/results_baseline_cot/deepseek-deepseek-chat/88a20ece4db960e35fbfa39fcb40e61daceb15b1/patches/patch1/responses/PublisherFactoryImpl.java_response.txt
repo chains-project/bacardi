@@ -24,7 +24,6 @@ import com.google.cloud.pubsublite.internal.wire.PubsubContext;
 import com.google.cloud.pubsublite.internal.wire.PubsubContext.Framework;
 import com.google.cloud.pubsublite.internal.wire.RoutingPublisherBuilder;
 import com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder;
-import com.google.cloud.pubsublite.proto.PubSubMessage;
 import java.util.Map;
 import org.apache.kafka.common.config.ConfigValue;
 
@@ -33,7 +32,7 @@ class PublisherFactoryImpl implements PublisherFactory {
   private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
 
   @Override
-  public Publisher<PubSubMessage> newPublisher(Map<String, String> params) {
+  public Publisher<Void> newPublisher(Map<String, String> params) {
     Map<String, ConfigValue> config = ConfigDefs.config().validateAll(params);
     RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
     TopicPath topic =
@@ -46,7 +45,7 @@ class PublisherFactoryImpl implements PublisherFactory {
             .build();
     builder.setTopic(topic);
     builder.setPublisherFactory(
-        (partition, context) ->
+        partition ->
             SinglePartitionPublisherBuilder.newBuilder()
                 .setTopic(topic)
                 .setPartition(partition)

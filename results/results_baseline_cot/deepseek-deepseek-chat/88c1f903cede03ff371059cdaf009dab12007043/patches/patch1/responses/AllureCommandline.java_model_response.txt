@@ -1,24 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the package `net.lingala.zip4j.core` does not exist.
-   - This suggests that the dependency for `zip4j` has been updated or changed, and the package structure has been modified.
-
-2. Review the client code:
-   - The problematic import is `import net.lingala.zip4j.core.ZipFile;`.
-   - The `ZipFile` class is used in the `unpack` method to extract files from a zip archive.
-   - The code also imports `net.lingala.zip4j.exception.ZipException;`, which might also be affected.
-
-3. Consider potential fixes:
-   - The `zip4j` library has likely been updated, and the package structure has changed.
-   - The new package structure for `zip4j` should be used to resolve the issue.
-   - The `ZipFile` class is now located in the `net.lingala.zip4j` package instead of `net.lingala.zip4j.core`.
-
-4. Plan the necessary changes:
-   - Update the import statement for `ZipFile` to use the new package structure.
-   - Update the import statement for `ZipException` if necessary.
-   - Ensure that the `unpack` method continues to function correctly with the updated `ZipFile` class.
-</code_analysis>
-
 ```java
 /*
  *  Copyright 2021 Qameta Software OÜ
@@ -146,7 +125,7 @@ public class AllureCommandline {
     }
 
     private int execute(final CommandLine commandLine, final int timeout) throws IOException {
-        final DefaultExecutor executor = new DefaultExecutor();
+        final DefaultExecutor executor = new DefaultExecutor;
         final ExecuteWatchdog watchdog = new ExecuteWatchdog(TimeUnit.SECONDS.toMillis(timeout));
         executor.setWatchdog(watchdog);
         executor.setExitValue(0);

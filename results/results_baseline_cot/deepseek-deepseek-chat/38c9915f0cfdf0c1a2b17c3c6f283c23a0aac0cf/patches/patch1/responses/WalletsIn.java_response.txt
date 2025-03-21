@@ -34,10 +34,10 @@ import org.cactoos.func.IoCheckedFunc;
 import org.cactoos.io.Directory;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.Mapped;
-import org.cactoos.scalar.Checked;
-import org.cactoos.scalar.Sticky;
-import org.cactoos.text.TextOf;
+import org.cactoos.scalar.IoChecked;
+import org.cactoos.scalar.Solid;
 import org.cactoos.text.FormattedText;
+import org.cactoos.text.Joined;
 import org.cactoos.text.UncheckedText;
 
 /**
@@ -50,7 +50,7 @@ public final class WalletsIn implements Wallets {
     /**
      * Path containing wallets.
      */
-    private final Checked<Path> path;
+    private final IoChecked<Path> path;
 
     /**
      * Filter for matching file extensions.
@@ -100,8 +100,8 @@ public final class WalletsIn implements Wallets {
      */
     public WalletsIn(final Scalar<Path> pth, final String ext,
         final Random random) {
-        this.path = new Checked<>(
-            new Sticky<>(pth)
+        this.path = new IoChecked<>(
+            new Solid<>(pth)
         );
         this.filter = new IoCheckedFunc<Path, Boolean>(
             (file) -> file.toFile().isFile()
@@ -116,12 +116,10 @@ public final class WalletsIn implements Wallets {
     @Override
     public Wallet create() throws IOException {
         final Path wpth = this.path.value().resolve(
-            new TextOf(
-                new FormattedText(
-                    "%s.%s",
-                    Long.toHexString(this.random.nextLong()),
-                    this.ext
-                )
+            new Joined(
+                ".",
+                Long.toHexString(this.random.nextLong()),
+                this.ext
             ).asString()
         );
         if (wpth.toFile().exists()) {

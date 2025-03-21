@@ -67,8 +67,7 @@ public class Signer {
         } else {
             signatureParameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_B);
         }
-        // Removed the use of CertificationPermission as it is no longer available
-        // signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
+        signatureParameters.setPermissionLevel(eu.europa.esig.dss.pades.PAdESConstants.MINIMAL_CHANGES_PERMITTED);
 
         // Create common certificate verifier
         CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();

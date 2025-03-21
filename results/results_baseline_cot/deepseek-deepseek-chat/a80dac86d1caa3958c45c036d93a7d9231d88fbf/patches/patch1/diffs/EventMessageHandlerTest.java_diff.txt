@@ -1,2 +1,42 @@
-8d7
-< import com.google.gson.GsonBuilder;
+124c124
+<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+---
+>         when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransaction()).thenReturn(Optional.of(transaction));
+149,150c149,150
+<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+<         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
+---
+>         when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransaction()).thenReturn(Optional.of(transaction));
+>         when(mockUserServices.getAdminUsersForService(service.getId()).getUsers()).thenReturn(users);
+198,199c198,199
+<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+<         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
+---
+>         when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransaction()).thenReturn(Optional.of(transaction));
+>         when(mockUserServices.getAdminUsersForService(service.getId()).getUsers()).thenReturn(users);
+235,236c235,236
+<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+<         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
+---
+>         when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransaction()).thenReturn(Optional.of(transaction));
+>         when(mockUserServices.getAdminUsersForService(service.getId()).getUsers()).thenReturn(users);
+272,273c272,273
+<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+<         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
+---
+>         when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransaction()).thenReturn(Optional.of(transaction));
+>         when(mockUserServices.getAdminUsersForService(service.getId()).getUsers()).thenReturn(users);
+317c317
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
+---
+>                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id, gatewayAccountId)))
+323c323
+<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.empty());
+---
+>         when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransaction()).thenReturn(Optional.empty());
+342,343c342,343
+<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+<         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(Collections.emptyList());
+---
+>         when(mockLedgerService.getTransaction(transaction.getTransactionId()).getTransaction()).thenReturn(Optional.of(transaction));
+>         when(mockUserServices.getAdminUsersForService(service.getId()).getUsers()).thenReturn(Collections.emptyList());

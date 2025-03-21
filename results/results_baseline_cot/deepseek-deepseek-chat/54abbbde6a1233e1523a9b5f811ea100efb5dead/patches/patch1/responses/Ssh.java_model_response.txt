@@ -1,28 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the class `Tv` from package `com.jcabi.aspects` cannot be found.
-   - The error occurs at line 33 (import statement) and line 235 (usage of `Tv.MILLION`).
-   - This suggests that the `com.jcabi.aspects` dependency might have been updated or removed, and the `Tv` class is no longer available.
-
-2. Review the client code:
-   - The `Tv` class is used in two places:
-     - As an import: `import com.jcabi.aspects.Tv;`
-     - In the code: `session.setServerAliveCountMax(Tv.MILLION);`
-   - The `Tv` class was likely used to provide constant values, and `Tv.MILLION` is used to set the server alive count max.
-
-3. Consider potential fixes:
-   - Since `Tv` is not available, we can replace `Tv.MILLION` with a direct integer value.
-   - The value `Tv.MILLION` likely represents 1,000,000, so we can use `1000000` directly.
-   - This change maintains the functionality without requiring the `Tv` class.
-
-4. Plan the necessary changes:
-   - Remove the import statement for `com.jcabi.aspects.Tv`.
-   - Replace `Tv.MILLION` with `1000000` in the code.
-   - Ensure the rest of the class remains unchanged.
-</code_analysis>
-
-Here is the fixed Java class:
-
 ```java
 /*
  * Copyright (c) 2014-2022, jcabi.com
@@ -185,7 +160,7 @@ public final class Ssh extends AbstractSshShell {
      * @param user Login
      * @param priv Private SSH key
      * @throws IOException If fails
-     * @since 1.4
+     * @since 极光
      * @checkstyle ParameterNumberCheck (6 lines)
      */
     public Ssh(final String adr, final int prt,
@@ -212,6 +187,7 @@ public final class Ssh extends AbstractSshShell {
     }
 
     /**
+    极光
      * Constructor.
      * @param adr IP address
      * @param prt Port of server

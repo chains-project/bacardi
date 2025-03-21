@@ -1,32 +1,16 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that multiple classes from the `redis.clients.jedis.commands` package cannot be found. These classes include `BinaryScriptingCommandsPipeline`, `RedisPipeline`, `MultiKeyCommandsPipeline`, `ClusterPipeline`, `ScriptingCommandsPipeline`, `MultiKeyBinaryRedisPipeline`, `BasicRedisPipeline`, and `BinaryRedisPipeline`.
-   - The issue appears to be related to a breaking change in the Jedis library, where these interfaces have been moved, renamed, or removed.
-
-2. Review the client code:
-   - The `RedisGraphTransaction` interface extends multiple interfaces from the `redis.clients.jedis.commands` package, all of which are reported as missing.
-   - The code itself is not directly at fault; the issue lies in the dependencies it relies on.
-
-3. Consider potential fixes:
-   - The most likely fix is to update the imports and the extended interfaces to match the new structure of the Jedis library.
-   - Since the exact new structure is not provided, we need to assume that these interfaces have been consolidated or moved to a different package.
-
-4. Plan the necessary changes:
-   - Update the imports to reflect the new package structure.
-   - Modify the extended interfaces to match the new structure.
-   - Ensure that the functionality remains consistent with the original intent of the code.
-</code_analysis>
-
 ```java
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
-import redis.clients.jedis.commands.ClusterCommands;
-import redis.clients.jedis.commands.MultiKeyCommands;
-import redis.clients.jedis.commands.ScriptingCommands;
 import redis.clients.jedis.commands.BasicCommands;
 import redis.clients.jedis.commands.BinaryCommands;
-import redis.clients.jedis.commands.PipelineCommands;
+import redis.clients.jedis.commands.ScriptingCommands;
+import redis.clients.jedis.commands.MultiKeyCommands;
+import redis.clients.jedis.commands.ClusterCommands;
+import redis.clients.jedis.commands.BinaryScriptingCommands;
+import redis.clients.jedis.commands.MultiKeyBinaryCommands;
+import redis.clients.jedis.commands.RedisPipeline;
+import redis.clients.jedis.commands.ScriptingCommandsPipeline;
 
 import java.io.Closeable;
 import java.util.List;
@@ -36,13 +20,10 @@ import java.util.Map;
  * An interface which aligned to Jedis transactional interface
  */
 public interface RedisGraphTransaction extends
-        MultiKeyCommands,
-        ClusterCommands,
-        ScriptingCommands,
-        BasicCommands,
-        BinaryCommands,
-        PipelineCommands,
-        Closeable {
+        MultiKeyBinaryCommands,
+        MultiKeyCommands, ClusterCommands,
+        BinaryScriptingCommands, ScriptingCommandsPipeline,
+        BasicCommands, BinaryCommands, RedisPipeline, Closeable {
 
     /**
      * Execute a Cypher query.
@@ -161,6 +142,7 @@ public interface RedisGraphTransaction extends
      */
     Response<String> deleteGraph(String graphId);
 
+
     /**
      * executes the transaction
      * @return a list of the executed transaction commands answers, in case of successful transaction, null otherwise
@@ -185,5 +167,3 @@ public interface RedisGraphTransaction extends
     String discard();
 }
 ```
-
-In this fix, I have updated the imports and the extended interfaces to match the new structure of the Jedis library. The interfaces `MultiKeyBinaryRedisPipeline`, `MultiKeyCommandsPipeline`, `ClusterPipeline`, `BinaryScriptingCommandsPipeline`, `ScriptingCommandsPipeline`, `BasicRedisPipeline`, `BinaryRedisPipeline`, and `RedisPipeline` have been replaced with `MultiKeyCommands`, `ClusterCommands`, `ScriptingCommands`, `BasicCommands`, `BinaryCommands`, and `PipelineCommands`. These changes should resolve the compilation errors caused by the breaking dependency update.

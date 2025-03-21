@@ -27,7 +27,7 @@ import java.util.Comparator;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.IterableEnvelope;
 import org.cactoos.iterable.Sorted;
-import org.cactoos.scalar.NumberOf;
+import org.cactoos.scalar.LengthOf;
 
 /**
  * {@link Remote} nodes that should receive taxes.
@@ -46,7 +46,7 @@ public final class TaxBeneficiaries extends IterableEnvelope<Remote> {
             Comparator.comparing(Remote::score),
             new Filtered<>(
                 // @checkstyle MagicNumberCheck (1 line)
-                n -> new NumberOf(n.score().suffixes()).intValue() >= 16,
+                n -> new LengthOf(n.score().suffixes()).intValue() >= 16,
                 nodes
             )
         ));

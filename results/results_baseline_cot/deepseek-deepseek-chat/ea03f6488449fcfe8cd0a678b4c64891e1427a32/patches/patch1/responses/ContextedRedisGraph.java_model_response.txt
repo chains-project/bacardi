@@ -1,25 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the `Client` class from `redis.clients.jedis` cannot be found.
-   - The errors occur on lines 12, 142, and 157 in the `ContextedRedisGraph` class.
-   - This suggests that the `Client` class has been moved, renamed, or removed in the updated version of the `jedis` dependency.
-
-2. Review the client code:
-   - The `Client` class is used in the `multi()` and `pipelined()` methods to create `RedisGraphTransaction` and `RedisGraphPipeline` objects.
-   - The import statement `import redis.clients.jedis.Client;` is present but failing.
-
-3. Consider potential fixes:
-   - The `Client` class might have been replaced or moved to a different package in the newer version of `jedis`.
-   - We need to find the correct class or alternative approach to achieve the same functionality.
-
-4. Plan the necessary changes:
-   - Update the import statement to use the correct class or package.
-   - Modify the code to use the new class or method if the `Client` class has been replaced.
-   - Ensure that the `multi()` and `pipelined()` methods continue to function as intended.
-</code_analysis>
-
-Based on the analysis, here is the fixed class:
-
 ```java
 package com.redislabs.redisgraph.impl.api;
 
@@ -33,6 +11,7 @@ import com.redislabs.redisgraph.impl.graph_cache.RedisGraphCaches;
 import com.redislabs.redisgraph.impl.resultset.ResultSetImpl;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Connection;
 import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.util.SafeEncoder;
 
@@ -161,8 +140,10 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphTransaction multi() {
         Jedis jedis = getConnection();
-        jedis.multi();
-        RedisGraphTransaction transaction = new RedisGraphTransaction(jedis, this);
+        Connection connection = jedis.getConnection();
+        connection.multi();
+        connection.getOne();
+        RedisGraphTransaction transaction = new RedisGraphTransaction(connection, this);
         transaction.setRedisGraphCaches(caches);
         return transaction;
     }
@@ -174,7 +155,8 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphPipeline pipelined() {
         Jedis jedis = getConnection();
-        RedisGraphPipeline pipeline = new RedisGraphPipeline(jedis, this);
+        Connection connection = jedis.getConnection();
+        RedisGraphPipeline pipeline = new RedisGraphPipeline(connection, this);
         pipeline.setRedisGraphCaches(caches);
         return pipeline;
     }
@@ -234,5 +216,3 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
 
 }
 ```
-
-In this fix, I removed the dependency on the `Client` class and directly used the `Jedis` instance to create `RedisGraphTransaction` and `RedisGraphPipeline` objects. This approach assumes that the `RedisGraphTransaction` and `RedisGraphPipeline` classes can accept a `Jedis` instance instead of a `Client` instance. This change aligns with the updated `jedis` dependency and resolves the compilation errors.

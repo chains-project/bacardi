@@ -181,7 +181,9 @@ public class Decorations
     public static void magic(Player player, int seconds)
     {
         final int[] count = {0};
-        WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1);
+        double waveAmplitude = 0.8;
+        double waveFrequency = 1.8;
+        double wavePhase = 0.1;
 
         BukkitRunnable runnable = new BukkitRunnable()
         {
@@ -196,7 +198,8 @@ public class Decorations
 
                     circle(center.add(0, 0.7, 0), count[0], 2.7, Particle.ENCHANTMENT_TABLE);
 
-                    circle(center.clone().add(0, wave.get(0.01, false), 0), count[0], wave.getStatic());
+                    double waveValue = waveAmplitude * Math.sin(waveFrequency * i + wavePhase);
+                    circle(center.clone().add(0, waveValue, 0), count[0], waveAmplitude);
 
                     circle(center.clone().add(3.2, 0.7, 3.2), count[0], 1.5);
                     circle(center.clone().add(-3.2, 0.7, -3.2), count[0], 1.5);
@@ -308,29 +311,4 @@ public class Decorations
             laser(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20));
     }
 
-    /**
-     * Simple WaveCreator implementation
-     */
-    private static class WaveCreator {
-        private final double amplitude;
-        private final double frequency;
-        private final double phase;
-
-        public WaveCreator(double amplitude, double frequency, double phase) {
-            this.amplitude = amplitude;
-            this.frequency = frequency;
-            this.phase = phase;
-        }
-
-        public double get(double time, boolean isStatic) {
-            if (isStatic) {
-                return amplitude;
-            }
-            return amplitude * Math.sin(frequency * time + phase);
-        }
-
-        public double getStatic() {
-            return amplitude;
-        }
-    }
 }

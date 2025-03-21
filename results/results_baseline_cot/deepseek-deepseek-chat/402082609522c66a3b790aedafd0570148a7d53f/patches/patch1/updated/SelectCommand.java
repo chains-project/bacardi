@@ -7,14 +7,13 @@ import com.google.inject.Inject;
 
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.CommandExecutor;
-import org.spongepowered.api.command.CommandSpec;
+import org.spongepowered.api.command.parameter.CommandContext.Builder;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
-
-import static org.spongepowered.api.command.args.GenericArguments.string;
 
 public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
 
@@ -46,11 +45,10 @@ public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
     }
 
     @Override
-    public CommandSpec buildSpec() {
-        return CommandSpec.builder()
+    public Builder buildSpec() {
+        return CommandContext.builder()
                 .executor(this)
-                .arguments(string(Text.of("skinName")))
-                .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
-                .build();
+                .addParameter(Parameter.string().key("skinName").build())
+                .permission(PomData.ARTIFACT_ID + ".command.skinselect.base");
     }
 }

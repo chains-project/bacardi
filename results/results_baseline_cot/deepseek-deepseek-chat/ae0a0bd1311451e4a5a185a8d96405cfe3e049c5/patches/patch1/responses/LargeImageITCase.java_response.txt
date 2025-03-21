@@ -1,1 +1,0 @@
-new StringContains(false, String.format("Status: Downloaded newer image for %s", this.remote()))

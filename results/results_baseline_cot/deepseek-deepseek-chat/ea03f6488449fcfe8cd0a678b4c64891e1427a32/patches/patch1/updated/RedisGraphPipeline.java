@@ -1,12 +1,14 @@
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
-import redis.clients.jedis.Pipeline;
-import redis.clients.jedis.commands.ScriptingCommands;
-import redis.clients.jedis.commands.MultiKeyCommands;
-import redis.clients.jedis.commands.BinaryScriptingCommands;
-import redis.clients.jedis.commands.BinaryCommands;
-import redis.clients.jedis.commands.BasicCommands;
+import redis.clients.jedis.commands.ClusterPipeline;
+import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
+import redis.clients.jedis.commands.ScriptingCommandsPipeline;
+import redis.clients.jedis.commands.RedisPipeline;
+import redis.clients.jedis.commands.BasicRedisPipeline;
+import redis.clients.jedis.commands.BinaryRedisPipeline;
+import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;
+import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
 
 import java.io.Closeable;
 import java.util.List;
@@ -16,13 +18,10 @@ import java.util.Map;
  * An interface which aligned to Jedis Pipeline interface
  */
 public interface RedisGraphPipeline extends
-        Pipeline,
-        MultiKeyCommands,
-        BinaryCommands,
-        BinaryScriptingCommands,
-        ScriptingCommands,
-        BasicCommands,
-        Closeable {
+        MultiKeyBinaryRedisPipeline,
+        MultiKeyCommandsPipeline, ClusterPipeline,
+        BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
+        BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
 
     /**
      * Execute a Cypher query.
@@ -137,14 +136,14 @@ public interface RedisGraphPipeline extends
      * @return A list of all the responses in the order you executed them.
      */
     List<Object> syncAndReturnAll();
-
+    
     /**
      * Synchronize pipeline by reading all responses. This operation close the pipeline. In order to
      * get return values from pipelined commands, capture the different Response&lt;?&gt; of the
      * commands you execute.
      */
     public void sync();
-
+    
     /**
      * Blocks until all the previous write commands are successfully transferred and acknowledged by
      * at least the specified number of replicas. If the timeout, specified in milliseconds, is

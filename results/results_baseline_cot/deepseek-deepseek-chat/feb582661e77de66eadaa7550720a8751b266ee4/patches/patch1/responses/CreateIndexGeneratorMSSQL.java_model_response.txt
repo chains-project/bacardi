@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the class `StringUtils` from the package `liquibase.util` cannot be found.
-   - The error occurs at line 77 in the `generateMSSQLSql` method where `StringUtils.trimToNull(statement.getTablespace())` is called.
-   - The import statement `import liquibase.util.StringUtils;` is also causing an error, suggesting that the `StringUtils` class has been moved or removed in the updated dependency version.
-
-2. Review the client code:
-   - The problematic area is the usage of `StringUtils.trimToNull` in the `generateMSSQLSql` method.
-   - The import statement for `StringUtils` is incorrect or outdated.
-
-3. Consider potential fixes:
-   - The `StringUtils` class might have been moved to a different package or replaced with a different utility class.
-   - A common replacement for `StringUtils` in newer versions of libraries is `org.apache.commons.lang3.StringUtils`.
-
-4. Plan the necessary changes to fix the issue:
-   - Update the import statement to use the correct package for `StringUtils`.
-   - Ensure that the `StringUtils.trimToNull` method is available in the new package.
-</code_analysis>
-
 ```java
 package liquibase.ext.mssql.sqlgenerator;
 
@@ -29,7 +10,7 @@ import liquibase.sql.UnparsedSql;
 import liquibase.sqlgenerator.SqlGeneratorChain;
 import liquibase.sqlgenerator.core.CreateIndexGenerator;
 import liquibase.statement.core.CreateIndexStatement;
-import org.apache.commons.lang3.StringUtils;
+import liquibase.util.StringUtil;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -94,7 +75,7 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
       builder.append(" WITH (FILLFACTOR = ").append(statement.getFillFactor()).append(")");
     }
     // This block simplified, since we know we have MSSQLDatabase
-    if (StringUtils.trimToNull(statement.getTablespace()) != null) {
+    if (StringUtil.trimToNull(statement.getTablespace()) != null) {
       builder.append(" ON ").append(statement.getTablespace());
     }
 

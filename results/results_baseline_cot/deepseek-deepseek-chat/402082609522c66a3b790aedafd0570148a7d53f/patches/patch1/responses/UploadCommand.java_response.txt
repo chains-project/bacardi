@@ -11,13 +11,13 @@ import java.util.List;
 
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.CommandExecutor;
-import org.spongepowered.api.command.CommandSpec;
+import org.spongepowered.api.command.parameter.CommandContext.Builder;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.text.Text;
 
-import static org.spongepowered.api.command.args.GenericArguments.string;
+import static org.spongepowered.api.command.parameter.Parameter.string;
 import static org.spongepowered.api.text.Text.of;
 
 public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
@@ -51,7 +51,7 @@ public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
     }
 
     @Override
-    public CommandSpec buildSpec() {
+    public Builder buildSpec() {
         return CommandSpec.builder()
                 .executor(this)
                 .arguments(string(of("url")))

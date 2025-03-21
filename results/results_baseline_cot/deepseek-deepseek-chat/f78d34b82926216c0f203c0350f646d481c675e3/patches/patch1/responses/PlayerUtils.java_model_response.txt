@@ -1,24 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the package `develop.p2p.lib` does not exist.
-   - The error occurs at lines 113 and 114 in the `getRandomPlayer` method.
-   - The issue is related to the use of `develop.p2p.lib.LeetConverter.convert`, which is not available in the current environment.
-
-2. Review the client code:
-   - The problematic code is in the `getRandomPlayer` method where `develop.p2p.lib.LeetConverter.convert` is used to convert strings to "leet" format.
-   - The code attempts to use a library that is not available, causing compilation errors.
-
-3. Consider potential fixes:
-   - Since the `develop.p2p.lib.LeetConverter` is not available, we need to either remove the leet conversion or replace it with an alternative implementation.
-   - Removing the leet conversion would simplify the code without affecting the core functionality.
-   - Ensure that the rest of the method remains unchanged to maintain its intended behavior.
-
-4. Plan the necessary changes:
-   - Remove the lines that use `develop.p2p.lib.LeetConverter.convert`.
-   - Keep the rest of the method logic intact.
-   - Ensure the method still generates a random player name as intended.
-</code_analysis>
-
 ```java
 package ml.peya.plugins.Utils;
 
@@ -129,6 +108,12 @@ public class PlayerUtils
         String last = random.nextBoolean()
             ? RandomStringUtils.randomAlphanumeric(new Random().nextInt(13) + 1)
             : RandomWordUtils.getRandomWord();
+
+        if (random.nextBoolean())
+        {
+            first = first.replace('a', '4').replace('e', '3').replace('i', '1').replace('o', '0').replace('s', '5');
+            last = last.replace('a', '4').replace('e', '3').replace('i', '1').replace('o', '0').replace('s', '5');
+        }
 
         String name = first + (random.nextBoolean() ? "_": "") + last + (random.nextBoolean() ? "19" + random.nextInt(120): "");
         if (name.length() > 16)

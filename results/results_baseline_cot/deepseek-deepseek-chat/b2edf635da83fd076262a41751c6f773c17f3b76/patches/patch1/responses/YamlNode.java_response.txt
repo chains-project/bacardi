@@ -39,6 +39,33 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.io.ByteSource;
 
+/**
+ * Serializes to the following
+ * 
+ * <pre>
+ *       id: cluster-1
+ *       name: cluster-1
+ *       description: xyz
+ *       hostname: cluster-1.mydomain.com
+ *       location_id: virginia
+ *       os_arch: x86
+ *       os_family: linux
+ *       os_description: redhat
+ *       os_version: 5.3
+ *       os_64bit: 5.3
+ *       login_port: 2022
+ *       group: hadoop
+ *       tags:
+ *           - vanilla
+ *       metadata:
+ *           key1: val1
+ *       username: kelvin
+ *       credential: password_or_rsa
+ *         or
+ *       credential_url: password_or_rsa_file ex. resource:///id_rsa will get the classpath /id_rsa; file://path/to/id_rsa
+ *       sudo_password: password
+ * </pre>
+ */
 public class YamlNode {
    public String id;
    public String name;
@@ -182,4 +209,5 @@ public class YamlNode {
          return yaml;
       }
    };
+
 }

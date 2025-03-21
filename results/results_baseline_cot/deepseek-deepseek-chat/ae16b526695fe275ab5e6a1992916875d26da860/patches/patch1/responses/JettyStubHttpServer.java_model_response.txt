@@ -1,25 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates multiple "cannot find symbol" errors, suggesting that certain classes or methods are not found.
-   - The errors occur at lines 80, 34, 37, 14, 36, and 33.
-   - The issue is likely related to the Jetty dependency, specifically the `SelectChannelConnector` class, which has been deprecated or removed in newer versions of Jetty.
-
-2. Review the client code:
-   - The problematic areas are related to the `SelectChannelConnector` class and its usage.
-   - The `SelectChannelConnector` class is used in the constructor to create a connector for the Jetty server.
-   - The `Connector` interface and `Server` class are also involved.
-
-3. Consider potential fixes:
-   - Replace the deprecated `SelectChannelConnector` with a newer connector class, such as `ServerConnector`.
-   - Update the imports to reflect the new classes.
-   - Ensure the new connector class is compatible with the existing code.
-
-4. Plan the necessary changes:
-   - Replace `SelectChannelConnector` with `ServerConnector`.
-   - Update the imports to include `ServerConnector` and any other necessary classes.
-   - Modify the constructor to use the new connector class.
-</code_analysis>
-
 ```java
 /*
  * Copyright (c) 2012 - 2016 Jadler contributors
@@ -43,7 +21,7 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
     private final Server server;
-    private final Connector httpConnector;
+    private final ServerConnector httpConnector;
 
     public JettyStubHttpServer() {
         this(0);
@@ -56,7 +34,7 @@ public class JettyStubHttpServer implements StubHttpServer {
         this.server.setSendDateHeader(true);
         
         this.httpConnector = new ServerConnector(this.server);
-        ((ServerConnector) this.httpConnector).setPort(port);
+        this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);
     }
     

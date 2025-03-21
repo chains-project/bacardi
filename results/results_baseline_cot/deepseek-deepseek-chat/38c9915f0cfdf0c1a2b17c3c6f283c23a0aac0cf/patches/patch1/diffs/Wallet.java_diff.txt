@@ -1,7 +1,7 @@
 30c30
 < import org.cactoos.collection.Filtered;
 ---
-> import org.cactoos.iterable.Filtered;
+> import org.cactoos.collection.CollectionOf;
 36c36
 < import org.cactoos.scalar.CheckedScalar;
 ---
@@ -22,15 +22,21 @@
 <                         new SplitText(
 ---
 >                         new Split(
-231c231
-<         //  wallet (which exists at the node), it’s ignored; If the paying
----
->         //  wallet (which exists at the node), it is ignored; If the paying
-249c249
+247,249c247,251
+<             final Iterable<Transaction> candidates = new Filtered<>(
+<                 incoming -> new Filtered<>(
 <                     origin -> new UncheckedScalar<>(
 ---
->                     origin -> new Unchecked<>(
-275c275
+>             final Iterable<Transaction> candidates = new CollectionOf<>(
+>                 new org.cactoos.iterable.Filtered<>(
+>                     incoming -> new CollectionOf<>(
+>                         new org.cactoos.iterable.Filtered<>(
+>                             origin -> new Unchecked<>(
+259a262
+>                         )
+261a265
+>                 )
+275c279
 <                         new SplitText(
 ---
 >                         new Split(

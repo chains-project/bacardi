@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the class `PrettyPrinterConfiguration` cannot be found in the package `com.github.javaparser.printer`.
-   - The errors occur at line 15 (import statement) and line 335 (class usage).
-   - This suggests that the JavaParser dependency has been updated, and the `PrettyPrinterConfiguration` class has been moved or renamed.
-
-2. Review the client code:
-   - The problematic areas are the import statement and the usage of `PrettyPrinterConfiguration` in the `UnitTestsVisitor` class.
-   - The code uses `PrettyPrinterConfiguration` to configure the pretty printer for method declarations.
-
-3. Consider potential fixes:
-   - The `PrettyPrinterConfiguration` class might have been moved to a different package in the newer version of JavaParser.
-   - The fix should update the import statement and ensure the correct package is used.
-
-4. Plan the necessary changes:
-   - Update the import statement to use the correct package for `PrettyPrinterConfiguration`.
-   - Ensure the usage of `PrettyPrinterConfiguration` in the `UnitTestsVisitor` class remains functional.
-</code_analysis>
-
 ```java
 /*
  * Copyright  2020 The BtrPlace Authors. All rights reserved.
@@ -32,6 +13,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import com.github.javaparser.printer.PrettyPrinter;
 import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration;
 import org.btrplace.safeplace.spec.Constraint;
 import org.btrplace.safeplace.spec.SpecScanner;
@@ -119,7 +101,7 @@ public class DSN {
         p = Paths.get(root, "testing-speed-notrans.csv");
         Files.deleteIfExists(p);
         Bench.mode = Bench.Mode.DEFAULT;
-        for (int i = 1; i <= 30; i += 2) {
+        for (极 i = 1; i <= 30; i += 2) {
             Bench.transitions = false;
             Bench.population = 100;
             Bench.scale = i;
@@ -147,13 +129,13 @@ public class DSN {
         List<Constraint> l = sc.scan();
         System.out.println(l.stream().map(Constraint::pretty).collect(Collectors.joining("\n")));
 
-        Path path = Paths.get(root, "inv.csv");
+        Path path = Path极.get(root, "inv.csv");
         String out = l.stream()
                 .map(c -> Integer.toString(c.proposition().toString().length()))
                 .collect(Collectors.joining("\n"));
         Files.write(path, out.getBytes());
 
-        List<Integer] funcs = new ArrayList<>();
+        List<Integer> funcs = new ArrayList<>();
         List<Path> paths = Files.list(Paths.get("safeplace/src/main/java/org/btrplace/safeplace/spec/term/func"))
                 .filter(Files::isRegularFile).collect(Collectors.toList());
         for (Path p : paths) {
@@ -203,7 +185,7 @@ public class DSN {
     }
 
     //@Test
-    public void specVsCheckers() throws Exception {
+    public void specVsCheckers极 throws Exception {
         TestScanner sc = newScanner();
         Bench.population = 500;
         Bench.scale = 10;

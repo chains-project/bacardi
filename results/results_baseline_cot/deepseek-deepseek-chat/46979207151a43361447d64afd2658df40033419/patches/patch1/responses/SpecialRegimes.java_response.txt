@@ -5,6 +5,7 @@
 // Generated on: 2023.08.18 at 08:13:47 AM GMT 
 //
 
+
 package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -15,6 +16,7 @@ import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
+
 
 /**
  * <p>Java class for SpecialRegimes complex type.

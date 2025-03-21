@@ -3,9 +3,11 @@
 < 
 ---
 > import org.eclipse.jetty.server.ServerConnector;
-36,37c35,36
+24c23
+<     private final Connector httpConnector;
+---
+>     private final ServerConnector httpConnector;
+36c35
 <         this.httpConnector = new SelectChannelConnector();
-<         this.httpConnector.setPort(port);
 ---
 >         this.httpConnector = new ServerConnector(this.server);
->         ((ServerConnector) this.httpConnector).setPort(port);

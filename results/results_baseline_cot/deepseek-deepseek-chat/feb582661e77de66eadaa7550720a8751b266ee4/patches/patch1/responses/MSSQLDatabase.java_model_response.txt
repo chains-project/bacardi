@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the method `getInstance()` cannot be found in the class `liquibase.executor.ExecutorService`.
-   - The error occurs on line 18 in the `MSSQLDatabase` class.
-   - This suggests that the `ExecutorService` class in the updated dependency no longer has a static `getInstance()` method.
-
-2. Review the client code:
-   - The problematic line is `ExecutorService.getInstance().getExecutor(this).execute(...)`.
-   - The code is trying to access an executor instance using the `getInstance()` method, which is no longer available.
-
-3. Consider potential fixes:
-   - The `ExecutorService` class might have been updated to use a different method to obtain an executor instance.
-   - We need to find the correct way to get an executor instance in the updated dependency version.
-
-4. Plan the necessary changes:
-   - Replace the `getInstance()` call with the appropriate method to obtain an executor instance.
-   - Ensure that the new method is compatible with the updated dependency version.
-</code_analysis>
-
 ```java
 package liquibase.ext.mssql.database;
 
@@ -40,5 +21,3 @@ public class MSSQLDatabase extends liquibase.database.core.MSSQLDatabase {
     }
 }
 ```
-
-In this fix, I replaced the `getInstance()` call with a direct instantiation of the `ExecutorService` class. This assumes that the `ExecutorService` class can be instantiated directly in the updated dependency version. If the `ExecutorService` class requires a different approach to obtain an instance, you may need to adjust the code accordingly.

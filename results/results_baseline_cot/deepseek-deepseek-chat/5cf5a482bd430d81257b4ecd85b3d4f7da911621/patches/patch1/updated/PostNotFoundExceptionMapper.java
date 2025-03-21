@@ -10,7 +10,6 @@ import com.example.domain.TaskNotFoundException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
-import javax.mvc.binding.MvcBinding;
 import javax.mvc.Models;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -27,7 +26,7 @@ public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFound
     //private static Logger log = Logger.getLogger(PostNotFoundExceptionMapper.class.getName());
 
     @Inject
-    Models models;
+    javax.mvc.Models models;
 
     @Override
     public Response toResponse(TaskNotFoundException exception) {

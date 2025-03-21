@@ -14,10 +14,9 @@ import java.util.UUID;
 
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.network.channel.raw.RawDataChannel;
-import org.spongepowered.api.network.channel.raw.RawDataListener;
-import org.spongepowered.api.network.channel.ChannelRegistrar;
-import org.spongepowered.api.network.channel.raw.RawDataBuf;
+import org.spongepowered.api.network.ChannelBuf;
+import org.spongepowered.api.network.ChannelRegistrar;
+import org.spongepowered.api.network.RawDataListener;
 import org.spongepowered.api.network.RemoteConnection;
 
 import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
@@ -26,7 +25,7 @@ import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 public class CheckPermissionListener implements RawDataListener {
 
     private final ChangeSkinSponge plugin;
-    private final RawDataChannel permissionsResultChannel;
+    private final org.spongepowered.api.network.channel.raw.RawDataChannel permissionsResultChannel;
 
     @Inject
     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
@@ -37,7 +36,7 @@ public class CheckPermissionListener implements RawDataListener {
     }
 
     @Override
-    public void handlePayload(RawDataBuf data, RemoteConnection connection, Type side) {
+    public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
 
         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
         CheckPermMessage checkMessage = new CheckPermMessage();

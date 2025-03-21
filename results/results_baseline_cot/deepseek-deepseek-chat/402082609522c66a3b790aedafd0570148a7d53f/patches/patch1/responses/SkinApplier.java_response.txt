@@ -1,6 +1,5 @@
 package com.github.games647.changeskin.sponge.task;
 
-import org.spongepowered.math.vector.Vector3d;
 import com.github.games647.changeskin.core.model.UserPreference;
 import com.github.games647.changeskin.core.model.skin.SkinModel;
 import com.github.games647.changeskin.core.shared.task.SharedApplier;
@@ -9,21 +8,23 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import java.util.UUID;
 
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.tab.TabListEntry;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
-import org.spongepowered.api.data.Keys;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.util.Tristate;
+import org.spongepowered.api.util.Tristate;
 
 public class SkinApplier extends SharedApplier {
 
     private final ChangeSkinSponge plugin;
-    private final CommandCause invoker;
+    private final CommandSource invoker;
     private final Player receiver;
 
-    public SkinApplier(ChangeSkinSponge plugin, CommandCause invoker, Player receiver, SkinModel targetSkin
+    public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
             , boolean keepSkin) {
         super(plugin.getCore(), targetSkin, keepSkin);
 
@@ -81,8 +82,8 @@ public class SkinApplier extends SharedApplier {
         sendUpdateSelf();
 
         //triggers an update for others player to see the new skin
-        receiver.offer(Keys.VANISH.get(), true);
-        receiver.offer(Keys.VANISH.get(), false);
+        receiver.offer(Keys.VANISH, Tristate.TRUE);
+        receiver.offer(Keys.VANISH, Tristate.FALSE);
     }
 
     private void sendUpdateSelf() {
@@ -96,7 +97,6 @@ public class SkinApplier extends SharedApplier {
                 .build());
 
         Location<World> oldLocation = receiver.getLocation();
-        Vector3d rotation = receiver.getRotation();
         World receiverWorld = receiver.getWorld();
         Sponge.getServer().getWorlds()
                 .stream()
@@ -104,7 +104,7 @@ public class SkinApplier extends SharedApplier {
                 .findFirst()
                 .ifPresent(world -> {
                     receiver.setLocation(world.getSpawnLocation());
-                    receiver.setLocationAndRotation(oldLocation, rotation);
+                    receiver.setLocation(oldLocation);
                 });
     }
 }

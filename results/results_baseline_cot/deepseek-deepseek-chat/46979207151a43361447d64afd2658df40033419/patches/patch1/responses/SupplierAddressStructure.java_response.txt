@@ -265,7 +265,7 @@ public class SupplierAddressStructure implements ToString2
         {
             String theStreetName;
             theStreetName = this.getStreetName();
-            strategy.appendField(locator, this, "streetName", buffer, theStreetName, (this.streetName!= null));
+            strategy.appendField(locator, this, "streetName", buffer, theStreetName, (this.st街Name!= null));
         }
         {
             String theAddressDetail;

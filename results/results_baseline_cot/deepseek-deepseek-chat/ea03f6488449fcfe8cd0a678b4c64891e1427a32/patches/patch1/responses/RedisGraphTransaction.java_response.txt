@@ -1,12 +1,15 @@
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
-import redis.clients.jedis.commands.ClusterCommands;
-import redis.clients.jedis.commands.MultiKeyCommands;
-import redis.clients.jedis.commands.ScriptingCommands;
 import redis.clients.jedis.commands.BasicCommands;
 import redis.clients.jedis.commands.BinaryCommands;
-import redis.clients.jedis.commands.PipelineCommands;
+import redis.clients.jedis.commands.ScriptingCommands;
+import redis.clients.jedis.commands.MultiKeyCommands;
+import redis.clients.jedis.commands.ClusterCommands;
+import redis.clients.jedis.commands.BinaryScriptingCommands;
+import redis.clients.jedis.commands.MultiKeyBinaryCommands;
+import redis.clients.jedis.commands.RedisPipeline;
+import redis.clients.jedis.commands.ScriptingCommandsPipeline;
 
 import java.io.Closeable;
 import java.util.List;
@@ -16,13 +19,10 @@ import java.util.Map;
  * An interface which aligned to Jedis transactional interface
  */
 public interface RedisGraphTransaction extends
-        MultiKeyCommands,
-        ClusterCommands,
-        ScriptingCommands,
-        BasicCommands,
-        BinaryCommands,
-        PipelineCommands,
-        Closeable {
+        MultiKeyBinaryCommands,
+        MultiKeyCommands, ClusterCommands,
+        BinaryScriptingCommands, ScriptingCommandsPipeline,
+        BasicCommands, BinaryCommands, RedisPipeline, Closeable {
 
     /**
      * Execute a Cypher query.
@@ -140,6 +140,7 @@ public interface RedisGraphTransaction extends
      * @return a response which builds the delete running time statistics
      */
     Response<String> deleteGraph(String graphId);
+
 
     /**
      * executes the transaction

@@ -34,7 +34,7 @@ public class PubnubStreamingService {
   public PubnubStreamingService(String publicKey) {
     mapper = new ObjectMapper();
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    PNConfiguration pnConfiguration = new PNConfiguration(new com.pubnub.api.UserId("defaultUserId"));
+    PNConfiguration pnConfiguration = new PNConfiguration(new com.pubnub.api.UserId("userId"));
     pnConfiguration.setSubscribeKey(publicKey);
     pubnub = new PubNub(pnConfiguration);
     pnStatusCategory = PNStatusCategory.PNDisconnectedCategory;
@@ -87,18 +87,6 @@ public class PubnubStreamingService {
                   LOG.debug("PubNub signal: {}", pnSignalResult.toString());
                 }
 
-                public void user(PubNub pubnub, Object pnUserResult) {
-                  LOG.debug("PubNub user: {}", pnUserResult.toString());
-                }
-
-                public void space(PubNub pubnub, Object pnSpaceResult) {
-                  LOG.debug("PubNub space: {}", pnSpaceResult.toString());
-                }
-
-                public void membership(PubNub pubnub, Object pnMembershipResult) {
-                  LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
-                }
-
                 @Override
                 public void messageAction(
                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
@@ -106,7 +94,7 @@ public class PubnubStreamingService {
                 }
 
                 @Override
-                public void file(PubNub pubnub, Object pnFileEventResult) {
+                public void file(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult pnFileEventResult) {
                   LOG.debug("PubNub file: {}", pnFileEventResult.toString());
                 }
               });

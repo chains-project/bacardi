@@ -1,21 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The errors indicate that several classes from the `org.spongepowered.api.network` package cannot be found, including `ChannelBuf`, `RawDataListener`, `ChannelBinding`, `ChannelRegistrar`, and `RawDataChannel`.
-   - This suggests that the SpongeAPI dependency has been updated, and these classes have either been moved, renamed, or removed.
-
-2. Review the client code:
-   - The `CheckPermissionListener` class implements `RawDataListener` and uses several network-related classes from the SpongeAPI.
-   - The errors occur in the imports and the class declaration, indicating that the package structure or class names have changed in the updated dependency.
-
-3. Consider potential fixes:
-   - The most likely scenario is that the SpongeAPI has undergone significant changes in its network package, and the classes have been relocated or renamed.
-   - The fix would involve updating the imports and class references to match the new package structure or class names in the updated SpongeAPI version.
-
-4. Plan the necessary changes:
-   - Update the imports to reflect the new package structure or class names.
-   - Ensure that the `CheckPermissionListener` class still implements the correct interface and uses the correct classes for network communication.
-</code_analysis>
-
 ```java
 package com.github.games647.changeskin.sponge.bungee;
 
@@ -33,10 +15,9 @@ import java.util.UUID;
 
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.network.channel.raw.RawDataChannel;
-import org.spongepowered.api.network.channel.raw.RawDataListener;
-import org.spongepowered.api.network.channel.ChannelRegistrar;
-import org.spongepowered.api.network.channel.raw.RawDataBuf;
+import org.spongepowered.api.network.ChannelBuf;
+import org.spongepowered.api.network.ChannelRegistrar;
+import org.spongepowered.api.network.RawDataListener;
 import org.spongepowered.api.network.RemoteConnection;
 
 import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
@@ -45,7 +26,7 @@ import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 public class CheckPermissionListener implements RawDataListener {
 
     private final ChangeSkinSponge plugin;
-    private final RawDataChannel permissionsResultChannel;
+    private final org.spongepowered.api.network.channel.raw.RawDataChannel permissionsResultChannel;
 
     @Inject
     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
@@ -56,7 +37,7 @@ public class CheckPermissionListener implements RawDataListener {
     }
 
     @Override
-    public void handlePayload(RawDataBuf data, RemoteConnection connection, Type side) {
+    public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
 
         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
         CheckPermMessage checkMessage = new CheckPermMessage();
@@ -103,5 +84,3 @@ public class CheckPermissionListener implements RawDataListener {
     }
 }
 ```
-
-In this fixed version, the imports have been updated to reflect the new package structure of the SpongeAPI. The `ChannelBuf` class has been replaced with `RawDataBuf`, and the `RawDataListener` and `RawDataChannel` classes have been updated to their new locations in the `org.spongepowered.api.network.channel.raw` package. The `ChannelRegistrar` class has been updated to its new location in the `org.spongepowered.api.network.channel` package. These changes should resolve the compilation errors caused by the breaking dependency update.
