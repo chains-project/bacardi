@@ -1,18 +1,3 @@
-<code_analysis>
-1. The error message indicates that the class `org.hamcrest.Matchers` cannot be found. This suggests that the Hamcrest library is either missing or the import statement is incorrect.
-
-2. The client code uses `org.hamcrest.Matchers` in multiple places for assertions and matchers. The issue is likely due to a breaking change in the Hamcrest library or a missing dependency.
-
-3. The fix should ensure that the correct Hamcrest library is included and that the import statement is accurate. Since the code is using Hamcrest for testing assertions, it's important to maintain the same functionality.
-
-4. The necessary changes include:
-   - Verifying the correct version of Hamcrest is included in the project dependencies.
-   - Ensuring the import statement for `org.hamcrest.Matchers` is correct.
-   - No changes to the method signatures or existing code are required, as the issue is purely related to the missing import.
-</code_analysis>
-
-Here is the fixed class with the correct import statement:
-
 ```java
 /*
  * Copyright (c) 2011-2017, jcabi.com
@@ -62,14 +47,8 @@ import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.IsNull;
-import org.hamcrest.core.IsEqual;
-import org.hamcrest.core.IsNot;
-import org.hamcrest.core.Is;
-import org.hamcrest.collection.IsEmptyIterable;
-import org.hamcrest.collection.IsIterableContaining;
-import org.hamcrest.text.IsEqualIgnoringCase;
-import org.hamcrest.text.IsEqualIgnoringWhiteSpace;
-import org.hamcrest.text.StringContainsInOrder;
+import org.hamcrest.core.IsCollectionContaining;
+import org.hamcrest.core.StringContains;
 
 /**
  * REST response.
@@ -231,7 +210,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, IsIterableContaining.hasItems(value));
+        return this.assertHeader(name, IsCollectionContaining.hasItems(value));
     }
 
     /**
@@ -267,7 +246,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            IsNot.not(IsEmptyIterable.emptyIterableOf(String.class))
+            IsCollectionContaining.hasItems()
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -353,8 +332,5 @@ public final class RestResponse extends AbstractResponse {
             return Response.class.cast(resp).status() == this.status;
         }
     }
-
 }
 ```
-
-In this fix, I replaced the `org.hamcrest.Matchers` import with specific imports from the `org.hamcrest.core` and `org.hamcrest.collection` packages. This ensures that the necessary matchers are available without relying on the deprecated `Matchers` class. The functionality remains the same, but the code now uses the correct imports for the Hamcrest library.

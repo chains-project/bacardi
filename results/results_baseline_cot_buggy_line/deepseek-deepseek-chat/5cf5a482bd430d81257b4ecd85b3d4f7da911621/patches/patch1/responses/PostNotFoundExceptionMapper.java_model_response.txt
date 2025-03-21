@@ -1,24 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `Models` cannot be found.
-   - The error occurs at line 29 in the `PostNotFoundExceptionMapper` class.
-   - This suggests that the `Models` class from the `javax.mvc` package is either missing or has been moved/renamed in the updated dependency version.
-
-2. Review the client code:
-   - The problematic line is `Models models;`, which is used to inject the `Models` instance.
-   - The `Models` class is imported from `javax.mvc.Models`, which is likely outdated or incorrect in the current dependency version.
-
-3. Consider potential fixes:
-   - The `Models` class might have been moved to a different package or renamed in the newer version of the Jakarta MVC API.
-   - The correct import statement needs to be updated to reflect the current package structure of the `Models` class.
-
-4. Plan the necessary changes to fix the issue:
-   - Update the import statement for the `Models` class to the correct package.
-   - Ensure that the `Models` class is available in the updated dependency version.
-</code_analysis>
-
-Based on the analysis, the issue is likely due to an outdated import statement for the `Models` class. The `Models` class has been moved to the `jakarta.mvc` package in the newer versions of the Jakarta MVC API. Here is the fixed class:
-
 ```java
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -32,10 +11,11 @@ import com.example.domain.TaskNotFoundException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
-import jakarta.mvc.Models;
+import javax.mvc.Models;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+import javax.mvc.MvcContext;
 
 /**
  *
@@ -48,16 +28,14 @@ public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFound
     //private static Logger log = Logger.getLogger(PostNotFoundExceptionMapper.class.getName());
 
     @Inject
-    Models models;
+    MvcContext mvcContext;
 
     @Override
     public Response toResponse(TaskNotFoundException exception) {
         log.log(Level.INFO, "handling exception : PostNotFoundException");
-        models.put("error", exception.getMessage());
+        mvcContext.getModels().put("error", exception.getMessage());
         return Response.status(Response.Status.NOT_FOUND).entity("error.xhtml").build();
     }
 
 }
 ```
-
-In this fix, the import statement for the `Models` class has been updated from `javax.mvc.Models` to `jakarta.mvc.Models`, which should resolve the compilation error.

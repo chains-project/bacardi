@@ -26,9 +26,9 @@ public class LoginListener extends SharedListener {
     }
 
     @Listener
-    public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
+    public void onPlayerPreLogin(ClientConnectionEvent.Join preLoginEvent) {
         SkinStorage storage = core.getStorage();
-        GameProfile profile = preLoginEvent.getProfile();
+        GameProfile profile = preLoginEvent.getTargetEntity().getProfile();
         UUID playerUUID = profile.getUniqueId();
 
         UserPreference preferences = storage.getPreferences(playerUUID);

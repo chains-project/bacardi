@@ -1,21 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `Tv` from the package `com.jcabi.aspects` cannot be found.
-   - This suggests that the dependency `com.jcabi.aspects` is either missing or has been updated in a way that removes or relocates the `Tv` class.
-
-2. Review the client code:
-   - The `Tv` class is used in the `readsAndWritesLargeObjectContent` method to generate a large string of random characters.
-   - The `Tv` class likely contained constants like `HUNDRED` and `THOUSAND` which are used to calculate the size of the random string.
-
-3. Consider potential fixes:
-   - Since the `Tv` class is missing, we can replace its usage with direct integer values or define our own constants.
-   - This approach avoids the need for the `com.jcabi.aspects` dependency and ensures the code remains functional.
-
-4. Plan the necessary changes:
-   - Replace `Tv.HUNDRED * Tv.THOUSAND` with a direct integer value (e.g., `100000`).
-   - This change will resolve the compilation error without altering the functionality of the code.
-</code_analysis>
-
 ```java
 /**
  * Copyright (c) 2012-2022, jcabi.com
@@ -98,7 +80,7 @@ public final class AwsOcketITCase {
         final Bucket bucket = this.rule.bucket();
         final String name = "test-44.txt";
         final Ocket.Text ocket = new Ocket.Text(bucket.ocket(name));
-        final String data = RandomStringUtils.random(100000);
+        final String data = RandomStringUtils.random(100 * 1000);
         ocket.write(data);
         try {
             MatcherAssert.assertThat(ocket.read(), Matchers.equalTo(data));

@@ -91,6 +91,7 @@ class ModelRepresenter extends Representer {
     return false;
   }
 
+
   private class RepresentXpp3Dom implements Represent {
     private static final String ATTRIBUTE_PREFIX = "attr/";
 
@@ -213,7 +214,6 @@ class ModelRepresenter extends Representer {
   /*
    * Change the default order. Important data goes first.
    */
-  @Override
   protected Set<Property> getProperties(Class<? extends Object> type) {
     try {
       if (type.isAssignableFrom(Model.class)) {
@@ -222,19 +222,20 @@ class ModelRepresenter extends Representer {
         return sortTypeWithOrder(type, ORDER_DEVELOPER);
       } else if (type.isAssignableFrom(Contributor.class)) {
         return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-      } else if (type.isAssignableFrom(Dependency.class)) {
+      }  else if (type.isAssignableFrom(Dependency.class)) {
         return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-      } else if (type.isAssignableFrom(Plugin.class)) {
+      }  else if (type.isAssignableFrom(Plugin.class)) {
         return sortTypeWithOrder(type, ORDER_PLUGIN);
       } else {
         return super.getProperties(type);
       }
     } catch (IntrospectionException e) {
-      return new TreeSet<>();
+      throw new RuntimeException(e);
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) throws IntrospectionException {
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+          throws IntrospectionException {
       Set<Property> standard = super.getProperties(type);
       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
       sorted.addAll(standard);

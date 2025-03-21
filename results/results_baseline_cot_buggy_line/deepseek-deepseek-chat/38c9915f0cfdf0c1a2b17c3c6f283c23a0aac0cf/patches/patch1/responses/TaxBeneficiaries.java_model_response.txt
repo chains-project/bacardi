@@ -1,25 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `LengthOf` cannot be found in the package `org.cactoos.iterable`.
-   - This suggests that the `LengthOf` class has either been moved to a different package or removed in the updated version of the `cactoos` library.
-
-2. Review the client code:
-   - The `LengthOf` class is used in the `TaxBeneficiaries` constructor to filter nodes based on the length of their score suffixes.
-   - The code relies on the `LengthOf` class to determine the length of an iterable.
-
-3. Consider potential fixes:
-   - The `LengthOf` class might have been moved to a different package in the newer version of `cactoos`.
-   - Alternatively, the functionality of `LengthOf` might be replaced by a different class or method in the updated library.
-   - The fix should ensure that the filtering logic remains intact while using the correct class or method from the updated dependency.
-
-4. Plan the necessary changes:
-   - Research the new location or replacement for the `LengthOf` class in the updated `cactoos` library.
-   - Update the import statement to reflect the correct package or class.
-   - Modify the code to use the new class or method if necessary.
-</code_analysis>
-
-Based on the analysis, the `LengthOf` class has been moved to a different package in the newer version of the `cactoos` library. The correct import should be updated to reflect this change. Here is the fixed class:
-
 ```java
 /*
  * The MIT License (MIT)
@@ -49,8 +27,8 @@ package io.zold.api;
 import java.util.Comparator;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.IterableEnvelope;
-import org.cactoos.scalar.LengthOf;
 import org.cactoos.iterable.Sorted;
+import org.cactoos.scalar.LengthOf;
 
 /**
  * {@link Remote} nodes that should receive taxes.
@@ -76,5 +54,3 @@ public final class TaxBeneficiaries extends IterableEnvelope<Remote> {
     }
 }
 ```
-
-In this fix, the import statement for `LengthOf` has been updated to `org.cactoos.scalar.LengthOf`, which is the correct package in the newer version of the `cactoos` library. The rest of the code remains unchanged, ensuring that the functionality is preserved.

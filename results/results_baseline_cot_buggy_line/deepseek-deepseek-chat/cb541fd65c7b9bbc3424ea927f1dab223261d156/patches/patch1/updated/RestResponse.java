@@ -45,10 +45,7 @@ import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.core.IsEqual;
-import org.hamcrest.core.IsNull;
-import org.hamcrest.core.StringContains;
-import org.hamcrest.collection.IsIterableContainingInAnyOrder;
+import org.hamcrest.core.IsCollectionContaining;
 
 /**
  * REST response.
@@ -210,7 +207,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, IsIterableContainingInAnyOrder.containsInAnyOrder(value));
+        return this.assertHeader(name, IsCollectionContaining.hasItems(value));
     }
 
     /**
@@ -246,7 +243,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            IsNull.notNullValue()
+            IsCollectionContaining.hasItems()
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -284,7 +281,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            IsNull.notNullValue()
+            IsCollectionContaining.hasItems()
         );
         assert cookie != null;
         return cookie;
@@ -332,5 +329,4 @@ public final class RestResponse extends AbstractResponse {
             return Response.class.cast(resp).status() == this.status;
         }
     }
-
 }

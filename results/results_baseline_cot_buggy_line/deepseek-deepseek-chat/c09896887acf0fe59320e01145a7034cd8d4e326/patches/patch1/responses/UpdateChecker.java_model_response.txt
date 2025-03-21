@@ -1,19 +1,3 @@
-<code_analysis>
-1. The error message indicates that the `status` field in `org.kohsuke.github.GHCompare` is private and cannot be accessed directly. This suggests that the GitHub API library has been updated and the access to this field has been restricted.
-
-2. The problematic line is in the `isAncestor` method where it tries to access the `status` field directly from a `GHCompare` object. The code needs to be modified to use a public method instead of directly accessing the private field.
-
-3. The fix should:
-   - Replace the direct field access with a public method call
-   - Maintain the same functionality
-   - Not change the method signature
-   - Keep the existing error handling
-
-4. After reviewing the GitHub API documentation, we can use the `getStatus()` method instead of directly accessing the `status` field. This is a public method that provides the same information.
-</code_analysis>
-
-Here's the fixed class:
-
 ```java
 /*
  * The MIT License
@@ -169,6 +153,11 @@ public final class UpdateChecker {
         return null;
     }
 
+    /**
+     * Look for all known versions of a given artifact.
+     * @param repos a set of repository URLs to check
+     * @return a possibly empty set of versions, sorted descending
+     */
     private SortedSet<VersionAndRepo> loadVersions(String groupId, String artifactId) throws Exception {
         SortedSet<VersionAndRepo> r = new TreeSet<>();
         for (String repo : repos) {
@@ -202,6 +191,9 @@ public final class UpdateChecker {
         }
     }
 
+    /**
+     * Parses {@code /project/scm/url} and {@code /project/scm/tag} out of a POM, if mapped to a commit.
+     */
     private static @CheckForNull GitHubCommit loadGitHubCommit(VersionAndRepo vnr) throws Exception {
         String pom = vnr.fullURL("pom");
         Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(pom);
@@ -226,11 +218,19 @@ public final class UpdateChecker {
         return new GitHubCommit(groupId, artifactId, tag);
     }
 
+    /**
+     * Checks whether a commit is an ancestor of a given branch head.
+     * {@code curl -s -u … https://api.github.com/repos/<owner>/<repo>/compare/<branch>...<hash> | jq -r .status}
+     * will return {@code identical} or {@code behind} if so, else {@code diverged} or {@code ahead}.
+     * @param branch may be {@code master} or {@code forker:branch}
+     * @see <a href="https://developer.github.com/v3/repos/commits/#compare-two-commits">Compare two commits</a>
+     * @see <a href="https://stackoverflow.com/a/23970412/12916">Discussion</a>
+     */
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
             GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
-            GHCompare.Status status = compare.getStatus();
-            return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
+            String status = compare.getStatus();
+            return "identical".equals(status) || "behind".equals(status);
         } catch (FileNotFoundException x) {
             return false;
         }
@@ -267,5 +267,3 @@ public final class UpdateChecker {
     }
 }
 ```
-
-The main change is in the `isAncestor` method, where I replaced the direct access to the `status` field with a call to the `getStatus()` method. This change maintains the same functionality while complying with the updated GitHub API library's access restrictions.

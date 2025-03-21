@@ -1,20 +1,8 @@
-7,8c7,9
-< import org.spongepowered.api.command.CommandSource;
-< import org.spongepowered.api.text.serializer.TextSerializers;
----
-> import org.spongepowered.api.command.CommandCause;
+6a7
+> import org.spongepowered.api.command.CommandResult;
+7a9
 > import org.spongepowered.api.text.Text;
-> import org.spongepowered.api.text.serializer.TextSerializer;
-12c13
-<     private final CommandSource invoker;
----
->     private final CommandCause invoker;
-14c15
-<     public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker) {
----
->     public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandCause invoker) {
-22c23,24
+22c24
 <         invoker.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage));
 ---
->         TextSerializer serializer = Text.serializers().legacy();
->         invoker.sendMessage(serializer.deserialize(localeMessage));
+>         invoker.sendMessage(TextSerializers.FORMATTING_CODE.deserialize(localeMessage));

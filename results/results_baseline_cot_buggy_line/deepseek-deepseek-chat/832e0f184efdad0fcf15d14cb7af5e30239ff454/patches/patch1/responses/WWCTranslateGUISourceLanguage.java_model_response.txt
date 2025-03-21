@@ -1,26 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the method `parseEnchantment()` cannot be found in the `XEnchantment` class.
-   - The error occurs in multiple lines where `XEnchantment.matchXEnchantment("power").get().parseEnchantment()` is called.
-   - This suggests that the `XEnchantment` class from the `XSeries` library has been updated, and the `parseEnchantment()` method is no longer available or has been replaced.
-
-2. Review the client code:
-   - The problematic lines are where `XEnchantment.matchXEnchantment("power").get().parseEnchantment()` is used to add an enchantment to an item.
-   - The code is trying to add a "power" enchantment to an item, but the method to parse the enchantment is no longer valid.
-
-3. Consider potential fixes:
-   - The `XEnchantment` class might have a new method or a different way to obtain the enchantment.
-   - Researching the `XSeries` library documentation or source code would help identify the correct method to use.
-   - A potential fix could involve using a different method from the `XEnchantment` class to obtain the enchantment.
-
-4. Plan the necessary changes to fix the issue:
-   - Replace `parseEnchantment()` with the correct method to obtain the enchantment.
-   - Ensure that the new method is compatible with the current version of the `XSeries` library.
-   - Test the changes to ensure that the enchantment is applied correctly.
-</code_analysis>
-
-Based on the analysis, here is the fixed Java class:
-
 ```java
 package com.expl0itz.worldwidechat.inventory.wwctranslategui;
 
@@ -94,10 +71,10 @@ public class WWCTranslateGUISourceLanguage implements InventoryProvider {
 				ArrayList<String> lore = new ArrayList<>();
 				currentLangMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 				if (selectedSourceLanguage.equals(main.getSupportedTranslatorLanguages().get(i).getLangCode())) {
-					currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+					currentLangMeta.addEnchant(XEnchantment.POWER.getEnchant(), 1, false);
 					lore.add(ChatColor.GREEN + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceTranslationSelected"));
 				} else if (currTranslator.getInLangCode().equals(main.getSupportedTranslatorLanguages().get(i).getLangCode())) {
-					currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+					currentLangMeta.addEnchant(XEnchantment.POWER.getEnchant(), 1, false);
 					lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceOrTargetTranslationAlreadyActive"));
 				}
 				currentLangMeta.setDisplayName(main.getSupportedTranslatorLanguages().get(i).getLangName());
@@ -143,10 +120,10 @@ public class WWCTranslateGUISourceLanguage implements InventoryProvider {
 				skipSourceMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 				ArrayList<String> lore = new ArrayList<>();
 				if ((currTranslator.getInLangCode().equals("None"))) {
-					skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+					skipSourceMeta.addEnchant(XEnchantment.POWER.getEnchant(), 1, false);
 					lore.add(ChatColor.GREEN + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceTranslationSelected"));
 				} else if (selectedSourceLanguage.equalsIgnoreCase("None")) {
-					skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+					skipSourceMeta.addEnchant(XEnchantment.POWER.getEnchant(), 1, false);
 					lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceOrTargetTranslationAlreadyActive"));
 				}
 				skipSourceButton.setItemMeta(skipSourceMeta);
@@ -177,5 +154,3 @@ public class WWCTranslateGUISourceLanguage implements InventoryProvider {
 
 }
 ```
-
-In this fix, the `parseEnchantment()` method has been replaced with `getEnchant()` method, which is the correct method to obtain the enchantment in the updated version of the `XSeries` library. This change ensures that the code compiles and functions correctly with the updated dependency.

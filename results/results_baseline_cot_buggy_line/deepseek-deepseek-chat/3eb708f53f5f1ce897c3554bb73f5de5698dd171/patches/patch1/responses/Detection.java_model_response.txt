@@ -1,23 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the package `com.google.api.services.translate.model` does not exist, and the class `DetectionsResourceItems` cannot be found.
-   - The error occurs in the import statement and the `fromPb` method.
-   - This suggests that the dependency `com.google.api.services.translate` has been updated or removed, and the class `DetectionsResourceItems` is no longer available in the expected package.
-
-2. Review the client code:
-   - The problematic areas are the import statement and the `fromPb` method that uses `DetectionsResourceItems`.
-   - The `Detection` class relies on `DetectionsResourceItems` to create instances of `Detection`.
-
-3. Consider potential fixes:
-   - The fix should involve updating the import statement and the `fromPb` method to use the correct class or package from the updated dependency.
-   - If `DetectionsResourceItems` has been moved or renamed, the correct class should be identified and used.
-
-4. Plan the necessary changes:
-   - Update the import statement to use the correct package or class.
-   - Modify the `fromPb` method to use the updated class or package.
-   - Ensure the rest of the class remains unchanged to maintain functionality.
-</code_analysis>
-
 ```java
 /*
  * Copyright 2016 Google LLC
@@ -37,7 +17,7 @@
 
 package com.google.cloud.translate;
 
-import com.google.cloud.translate.v3.Detection;
+import com.google.cloud.translate.v3.DetectedLanguage;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import java.util.Objects;
@@ -105,10 +85,8 @@ public class Detection implements Serializable {
     return Objects.equals(language, other.language) && Objects.equals(confidence, other.confidence);
   }
 
-  static Detection fromPb(Detection detectionPb) {
-    return new Detection(detectionPb.getLanguage(), detectionPb.getConfidence());
+  static Detection fromPb(DetectedLanguage detectionPb) {
+    return new Detection(detectionPb.getLanguageCode(), detectionPb.getConfidence());
   }
 }
 ```
-
-In this fix, I updated the import statement and the `fromPb` method to use the `com.google.cloud.translate.v3.Detection` class, which is likely the updated version of the `DetectionsResourceItems` class. This should resolve the compilation errors while maintaining the functionality of the `Detection` class.

@@ -1,27 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the package `develop.p2p.lib` does not exist, and the class `WaveCreator` cannot be found.
-   - The errors occur in multiple lines where `WaveCreator` is used.
-   - The issue is likely due to a missing or incorrect dependency that provides the `WaveCreator` class.
-
-2. Review the client code:
-   - The `WaveCreator` class is used in several places to create wave-like patterns for NPC movement.
-   - The import statement `import develop.p2p.lib.*;` is incorrect or outdated, leading to the missing package error.
-
-3. Consider potential fixes:
-   - The `WaveCreator` class seems to be a custom utility class for generating wave patterns.
-   - Since the original package is missing, we can either:
-     - Replace `WaveCreator` with a similar utility class from a different library.
-     - Implement a custom `WaveCreator` class within the project.
-
-4. Plan the necessary changes:
-   - Remove the incorrect import statement.
-   - Implement a custom `WaveCreator` class within the project to replace the missing functionality.
-   - Update the code to use the new `WaveCreator` class.
-</code_analysis>
-
-Here is the fixed Java class with a custom `WaveCreator` implementation:
-
 ```java
 package ml.peya.plugins.Detect;
 
@@ -182,8 +158,6 @@ public class NPCTeleport
         final double radius = reachMode ? config.getDouble("npc.reachRange"): config.getDoubleList("npc.range")
             .get(new Random().nextInt(config.getDoubleList("npc.range").size()));
 
-        WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
-
         final int[] count = {0};
         BukkitRunnable r = new BukkitRunnable()
         {
@@ -200,17 +174,16 @@ public class NPCTeleport
                     double rangeTmp = radius;
 
                     if (config.getBoolean("npc.wave"))
-                        rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
-                            .get(0.01, true);
+                        rangeTmp = radius - 0.1 + (Math.random() * 0.2);
 
                     final Location center = player.getLocation();
                     final Location n = new Location(
                         center.getWorld(),
                         auraBotXPos(time[0], rangeTmp + speed) + center.getX(),
-                        center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
+                        center.getY() + (count[0] < 20 ? 1.0 : 2.0),
                         auraBotZPos(time[0], rangeTmp + speed) + center.getZ(),
-                        (float) ypp.getStatic(),
-                        (float) ypp.get(4.5, false)
+                        (float) (10.0 + (Math.random() * 90.0)),
+                        (float) (10.0 + (Math.random() * 90.0))
                     );
 
                     NPC.setLocation(n, target);
@@ -241,7 +214,7 @@ public class NPCTeleport
                     meta.setNpcLocation(n.toVector());
                 }
                 time[0] += config.getDouble("npc.time") + (config.getBoolean("npc.speed.wave")
-                    ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
+                    ? (Math.random() * config.getDouble("npc.speed.waveRange")) - config.getDouble("npc.speed.waveRange")
                     : 0.0);
             }
         };
@@ -281,31 +254,6 @@ public class NPCTeleport
     private static double auraBotXPos(double time, double radius)
     {
         return Math.cos(time) * radius;
-    }
-
-    /**
-     * Custom WaveCreator class to replace the missing dependency.
-     */
-    private static class WaveCreator {
-        private final double min;
-        private final double max;
-        private final double amplitude;
-
-        public WaveCreator(double min, double max, double amplitude) {
-            this.min = min;
-            this.max = max;
-            this.amplitude = amplitude;
-        }
-
-        public double get(double step, boolean ascending) {
-            double range = max - min;
-            double value = min + (ascending ? step : range - step);
-            return value + amplitude * Math.sin(step * Math.PI * 2);
-        }
-
-        public double getStatic() {
-            return (min + max) / 2;
-        }
     }
 }
 ```

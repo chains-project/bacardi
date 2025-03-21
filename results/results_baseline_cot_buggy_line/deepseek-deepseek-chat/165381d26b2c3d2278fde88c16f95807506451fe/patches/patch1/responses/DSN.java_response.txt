@@ -264,7 +264,7 @@ public class DSN {
         Bench.mode = Bench.Mode.REPLAY;
         Bench.population = 1000;
         Bench.scale = 5;
-        Path p = Paths.get root, "errors.csv");
+        Path p = Paths.get(root, "errors.csv");
         Files.deleteIfExists(p);
         Bench.report = new CSVReport(p, "");
         sc.test(Bench.class).stream().forEach(x -> System.out.println(x.go()));
@@ -278,7 +278,7 @@ public class DSN {
         Bench.scale = 5;
 
         sc.test(Bench.class).forEach(x -> {
-            x.reportTo(new StoredReport(Paths.get("xp-dsn", "errors.txt"), r -> !r.result().equals(Result.SUCCESS)));
+            x.reportTo(new StoredReport(Paths.get("xp-dsn", "errors.txt"), r -> !r.result().equals(Result.SUCCESS));
             System.out.println(x.go());
         });
     }

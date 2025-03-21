@@ -1,25 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the `Flyway` class constructor and several methods (`setDataSource`, `setLocations`, `setValidateOnMigrate`, `setClassLoader`) are no longer available or have changed in the newer version of the Flyway library.
-   - The constructor now requires a `Configuration` object instead of being parameterless.
-   - The methods `setDataSource`, `setLocations`, `setValidateOnMigrate`, and `setClassLoader` are no longer available in the newer version.
-
-2. Review the client code:
-   - The problematic code is in the `flyway()` method where a `Flyway` instance is created and configured.
-   - The code attempts to set various properties on the `Flyway` instance using methods that no longer exist.
-
-3. Consider potential fixes:
-   - The newer version of Flyway likely uses a `Flyway.configure()` method to create a `Configuration` object, which is then used to create a `Flyway` instance.
-   - The properties previously set using individual methods should now be set using the `Configuration` object.
-
-4. Plan the necessary changes:
-   - Replace the direct instantiation of `Flyway` with a configuration-based approach.
-   - Use the `Flyway.configure()` method to create a `Configuration` object.
-   - Set the properties on the `Configuration` object before creating the `Flyway` instance.
-</code_analysis>
-
-Here is the fixed class:
-
 ```java
 package org.nem.specific.deploy.appconfig;
 
@@ -130,9 +108,9 @@ public class NisAppConfig {
 
 		final Flyway flyway = Flyway.configure()
 				.dataSource(this.dataSource())
+				.classLoader(NisAppConfig.class.getClassLoader())
 				.locations(prop.getProperty("flyway.locations"))
 				.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
-				.classLoader(NisAppConfig.class.getClassLoader())
 				.load();
 		return flyway;
 	}
@@ -267,7 +245,7 @@ public class NisAppConfig {
 		final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<ImportanceCalculator>>() {
 			{
 				this.put(BlockChainFeature.PROOF_OF_IMPORTANCE,
-						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
+						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions);
 				this.put(BlockChainFeature.PROOF_OF_STAKE, PosImportanceCalculator::new);
 			}
 		};

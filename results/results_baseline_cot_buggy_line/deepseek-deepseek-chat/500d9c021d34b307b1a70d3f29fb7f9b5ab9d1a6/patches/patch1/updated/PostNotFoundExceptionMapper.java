@@ -14,6 +14,7 @@ import javax.mvc.Models;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+import org.eclipse.krazo.engine.ModelsProxy;
 
 /**
  *
@@ -26,7 +27,7 @@ public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFound
     //private static Logger log = Logger.getLogger(PostNotFoundExceptionMapper.class.getName());
 
     @Inject
-    Models models;
+    ModelsProxy models;
 
     @Override
     public Response toResponse(TaskNotFoundException exception) {

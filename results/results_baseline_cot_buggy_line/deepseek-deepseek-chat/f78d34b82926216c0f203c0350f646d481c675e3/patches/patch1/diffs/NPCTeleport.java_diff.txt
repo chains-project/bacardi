@@ -1,28 +1,24 @@
 3d2
 < import develop.p2p.lib.*;
-260a260,284
-> 
->     /**
->      * Custom WaveCreator class to replace the missing dependency.
->      */
->     private static class WaveCreator {
->         private final double min;
->         private final double max;
->         private final double amplitude;
-> 
->         public WaveCreator(double min, double max, double amplitude) {
->             this.min = min;
->             this.max = max;
->             this.amplitude = amplitude;
->         }
-> 
->         public double get(double step, boolean ascending) {
->             double range = max - min;
->             double value = min + (ascending ? step : range - step);
->             return value + amplitude * Math.sin(step * Math.PI * 2);
->         }
-> 
->         public double getStatic() {
->             return (min + max) / 2;
->         }
->     }
+161,162d159
+<         WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
+< 
+179,180c176
+<                         rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
+<                             .get(0.01, true);
+---
+>                         rangeTmp = radius - 0.1 + (Math.random() * 0.2);
+186c182
+<                         center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
+---
+>                         center.getY() + (count[0] < 20 ? 1.0 : 2.0),
+188,189c184,185
+<                         (float) ypp.getStatic(),
+<                         (float) ypp.get(4.5, false)
+---
+>                         (float) (10.0 + (Math.random() * 90.0)),
+>                         (float) (10.0 + (Math.random() * 90.0))
+220c216
+<                     ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
+---
+>                     ? (Math.random() * config.getDouble("npc.speed.waveRange")) - config.getDouble("npc.speed.waveRange")

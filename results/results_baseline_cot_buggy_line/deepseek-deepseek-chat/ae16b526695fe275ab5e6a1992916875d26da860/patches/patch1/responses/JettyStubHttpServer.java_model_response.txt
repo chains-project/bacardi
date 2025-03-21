@@ -1,29 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The errors indicate that several symbols cannot be found, specifically related to `SelectChannelConnector`, `setSendServerVersion`, `setSendDateHeader`, and `getLocalPort`.
-   - These errors suggest that the Jetty dependency has been updated, and some classes and methods have been moved or renamed.
-
-2. Review the client code:
-   - The problematic lines are:
-     - `this.server.setSendDateHeader(true);`
-     - `this.httpConnector.setPort(port);`
-     - `import org.eclipse.jetty.server.nio.SelectChannelConnector;`
-     - `this.httpConnector = new SelectChannelConnector();`
-     - `return httpConnector.getLocalPort();`
-     - `this.server.setSendServerVersion(false);`
-   - The `SelectChannelConnector` class and some methods like `setSendServerVersion` and `setSendDateHeader` are no longer available in the updated Jetty version.
-
-3. Consider potential fixes:
-   - Replace `SelectChannelConnector` with a more modern connector class, such as `ServerConnector`.
-   - Update the methods `setSendServerVersion` and `setSendDateHeader` to use the new API.
-   - Ensure the correct imports are used for the updated Jetty version.
-
-4. Plan the necessary changes:
-   - Replace `SelectChannelConnector` with `ServerConnector`.
-   - Update the methods `setSendServerVersion` and `setSendDateHeader` to use the new API.
-   - Ensure the correct imports are used.
-</code_analysis>
-
 ```java
 /*
  * Copyright (c) 2012 - 2016 Jadler contributors
@@ -56,8 +30,8 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
-        this.server.setAttribute("org.eclipse.jetty.server.Server.SERVER_VERSION", null);
-        this.server.setAttribute("org.eclipse.jetty.server.Server.SEND_DATE_HEADER", true);
+        this.server.setSendServerVersion(false);
+        this.server.setSendDateHeader(true);
         
         this.httpConnector = new ServerConnector(server);
         this.httpConnector.setPort(port);

@@ -1,24 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The errors indicate that the classes `NotNull`, `NotEmpty`, `NotBlank`, `Validator`, `BeanDescriptor`, `ConstraintDescriptor`, and `ElementDescriptor` cannot be found.
-   - These classes are part of the `javax.validation` package, which suggests that the project is missing the `javax.validation` dependency or is using an outdated version.
-
-2. Review the client code:
-   - The code is using `javax.validation` annotations and classes to validate properties.
-   - The imports for `javax.validation` and its sub-packages are missing or incorrect.
-   - The code is trying to use `javax.validation` classes to check for validation constraints.
-
-3. Consider potential fixes:
-   - Update the imports to use the correct package names.
-   - Ensure that the `javax.validation` dependency is included in the project with the correct version.
-   - Replace the `javax.validation` imports with `jakarta.validation` if the project is using Jakarta EE 9 or later.
-
-4. Plan the necessary changes:
-   - Replace `javax.validation` imports with `jakarta.validation` imports.
-   - Ensure that the `jakarta.validation-api` dependency is included in the project.
-   - Verify that the code compiles and functions correctly with the updated imports.
-</code_analysis>
-
 ```java
 /**
  * Copyright (C) 2014 Premium Minds.
@@ -113,7 +92,7 @@ public abstract class ListControlGroups<T> extends Panel {
 		this.renderers = renderers;
 	}
 
-	private Set<String] getPropertiesByOrder(Class<?> modelClass) {
+	private Set<String> getPropertiesByOrder(Class<?> modelClass) {
 		Set<String> properties = new LinkedHashSet<String>();
 
 		for(String property : entitySettings.getOrderOfFields()){

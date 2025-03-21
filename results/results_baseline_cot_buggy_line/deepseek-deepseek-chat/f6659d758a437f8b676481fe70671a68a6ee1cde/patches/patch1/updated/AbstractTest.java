@@ -62,7 +62,7 @@ public class AbstractTest {
 
     public <T extends MockBaseEntity> T createMockEntity(Class<T> clazz, String path) {
         final LoaderOptions loadingConfig = new LoaderOptions();
-        loadingConfig.setTagInspector(tag -> true); // Replace TrustedTagInspector with a lambda that allows all tags
+        loadingConfig.setTagInspector(tag -> true);
 
         final Representer representer = new Representer(new DumperOptions());
         final Tag zoneIdTag = new Tag("!ZoneId");

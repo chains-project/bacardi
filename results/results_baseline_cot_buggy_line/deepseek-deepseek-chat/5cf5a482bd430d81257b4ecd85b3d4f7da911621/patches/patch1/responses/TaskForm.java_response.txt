@@ -2,7 +2,6 @@ package com.example.web;
 
 import java.io.Serializable;
 import java.util.Objects;
-import jakarta.mvc.binding.MvcBinding;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import javax.ws.rs.FormParam;
@@ -16,13 +15,11 @@ public class TaskForm implements Serializable {
 
     @NotBlank
     @FormParam("name")
-    @MvcBinding
     private String name;
 
     @NotBlank
     @Size(min = 10, max = 2000)
     @FormParam("description")
-    @MvcBinding
     private String description;
 
     public Long getId() {

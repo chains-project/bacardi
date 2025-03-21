@@ -1,26 +1,15 @@
-<code_analysis>
-1. Examine the error message:
-   - The error messages indicate that several classes from the `redis.clients.jedis.commands` package cannot be found. These classes include `MultiKeyCommandsPipeline`, `ScriptingCommandsPipeline`, `MultiKeyBinaryRedisPipeline`, `RedisPipeline`, `BinaryScriptingCommandsPipeline`, `BasicRedisPipeline`, `ClusterPipeline`, and `BinaryRedisPipeline`.
-   - The issue is likely due to a breaking change in the Jedis library where these classes have been moved, renamed, or removed.
-
-2. Review the client code:
-   - The `RedisGraphTransaction` interface extends multiple interfaces from the `redis.clients.jedis.commands` package, all of which are now missing.
-   - The interface defines several methods related to executing Cypher queries and managing transactions, which are not directly affected by the missing imports.
-
-3. Consider potential fixes:
-   - The most straightforward fix is to update the imports to match the new structure of the Jedis library. However, since the exact new location or replacement classes are not provided, we need to assume that these interfaces have been consolidated or replaced.
-   - Given the nature of the errors, it's likely that these interfaces have been replaced by a more general interface or removed entirely. We should consider removing the extends clauses for these missing interfaces and only keep the essential functionality.
-
-4. Plan the necessary changes:
-   - Remove the extends clauses for the missing interfaces.
-   - Ensure that the `RedisGraphTransaction` interface still provides the necessary methods for executing Cypher queries and managing transactions.
-   - Keep the `Closeable` interface as it is part of the standard Java library and is not affected by the Jedis update.
-</code_analysis>
-
 ```java
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
+import redis.clients.jedis.commands.ClusterPipeline;
+import redis.clients.jedis.commands.ScriptingCommandsPipeline;
+import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
+import redis.clients.jedis.commands.BasicRedisPipeline;
+import redis.clients.jedis.commands.RedisPipeline;
+import redis.clients.jedis.commands.BinaryRedisPipeline;
+import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;
+import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
 
 import java.io.Closeable;
 import java.util.List;
@@ -29,7 +18,11 @@ import java.util.Map;
 /**
  * An interface which aligned to Jedis transactional interface
  */
-public interface RedisGraphTransaction extends Closeable {
+public interface RedisGraphTransaction extends
+        MultiKeyBinaryRedisPipeline,
+        MultiKeyCommandsPipeline, ClusterPipeline,
+        BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
+        BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
 
     /**
      * Execute a Cypher query.
@@ -148,6 +141,7 @@ public interface RedisGraphTransaction extends Closeable {
      */
     Response<String> deleteGraph(String graphId);
 
+
     /**
      * executes the transaction
      * @return a list of the executed transaction commands answers, in case of successful transaction, null otherwise
@@ -172,5 +166,3 @@ public interface RedisGraphTransaction extends Closeable {
     String discard();
 }
 ```
-
-This fix removes the extends clauses for the missing interfaces and keeps the `Closeable` interface. The `RedisGraphTransaction` interface now only extends `Closeable`, and all the method signatures remain unchanged. This should resolve the compilation errors related to the missing classes.

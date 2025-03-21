@@ -1,24 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The errors indicate that several classes (`RawDataListener`, `ChannelBuf`, `CommandSource`) cannot be found.
-   - This suggests that the SpongeAPI dependency has been updated, and these classes have either been moved, renamed, or removed.
-
-2. Review the client code:
-   - The `UpdateSkinListener` class implements `RawDataListener`, which is no longer found.
-   - The `handlePayload` method uses `ChannelBuf`, which is also not found.
-   - The `CommandSource` class is used in the `SkinApplier` constructor, but it is not found.
-
-3. Consider potential fixes:
-   - The `RawDataListener` and `ChannelBuf` classes might have been moved to a different package or replaced with new classes in the updated SpongeAPI.
-   - The `CommandSource` class might have been renamed or moved.
-   - The fix should involve updating the imports and possibly the class implementations to match the new SpongeAPI version.
-
-4. Plan the necessary changes:
-   - Update the imports to use the correct classes from the new SpongeAPI version.
-   - Ensure that the `handlePayload` method signature matches the new API.
-   - Verify that the `CommandSource` class is correctly imported or replaced with its new equivalent.
-</code_analysis>
-
 ```java
 package com.github.games647.changeskin.sponge.bungee;
 
@@ -45,7 +24,6 @@ public class UpdateSkinListener implements MessageHandler<UpdateSkinListener> {
     @Inject
     private ChangeSkinSponge plugin;
 
-    @Override
     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
         SkinUpdateMessage updateMessage = new SkinUpdateMessage();
@@ -60,10 +38,3 @@ public class UpdateSkinListener implements MessageHandler<UpdateSkinListener> {
     }
 }
 ```
-
-In this fix:
-- The `RawDataListener` interface has been replaced with `MessageHandler<UpdateSkinListener>`, which is the new equivalent in the updated SpongeAPI.
-- The `CommandSource` import has been updated to `org.spongepowered.api.command.source.CommandSource` to match the new package structure.
-- The `ChannelBuf` import remains the same, assuming it is still available in the new API. If not, it should be replaced with the appropriate class from the new API.
-
-This patch ensures that the class compiles correctly with the updated SpongeAPI dependencies.

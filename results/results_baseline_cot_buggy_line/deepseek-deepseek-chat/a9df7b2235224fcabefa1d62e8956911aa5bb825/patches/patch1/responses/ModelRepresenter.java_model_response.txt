@@ -1,15 +1,3 @@
-<code_analysis>
-1. The error message indicates that the `getProperties` method in the `ModelRepresenter` class is throwing an `IntrospectionException`, but the `getProperties` method in the parent class `Representer` does not declare this exception in its throws clause. This is causing a compilation error because the overridden method cannot throw a checked exception that is not declared in the parent class.
-
-2. The problematic area is the `getProperties` method in the `ModelRepresenter` class, which overrides the `getProperties` method from the `Representer` class. The method is attempting to throw an `IntrospectionException`, which is not allowed.
-
-3. The fix should involve handling the `IntrospectionException` within the `getProperties` method rather than throwing it. This way, the method signature remains compatible with the parent class.
-
-4. The necessary change is to wrap the call to `super.getProperties(type)` in a try-catch block to handle the `IntrospectionException` internally. This will prevent the need to declare the exception in the method signature.
-</code_analysis>
-
-Here is the fixed Java class:
-
 ```java
 /**
  * Copyright (c) 2012 to original author or authors
@@ -104,6 +92,7 @@ class ModelRepresenter extends Representer {
     return false;
   }
 
+
   private class RepresentXpp3Dom implements Represent {
     private static final String ATTRIBUTE_PREFIX = "attr/";
 
@@ -177,6 +166,8 @@ class ModelRepresenter extends Representer {
     }
   }
 
+  // Model elements order {
+  //TODO move to polyglot-common, or to org.apache.maven:maven-model
   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
 		  "modelEncoding",
           "modelVersion",
@@ -205,6 +196,8 @@ class ModelRepresenter extends Representer {
           "dependencyManagement",
           "dependencies",
           "distributionManagement",
+          //"repositories",
+          //"pluginRepositories",
           "build",
           "profiles",
           "reporting"
@@ -217,8 +210,11 @@ class ModelRepresenter extends Representer {
 		  "groupId", "artifactId", "version", "type", "classifier", "scope"));
   private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
 		  "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
+  //}
 
-  @Override
+  /*
+   * Change the default order. Important data goes first.
+   */
   protected Set<Property> getProperties(Class<? extends Object> type) {
     try {
       if (type.isAssignableFrom(Model.class)) {
@@ -227,15 +223,15 @@ class ModelRepresenter extends Representer {
         return sortTypeWithOrder(type, ORDER_DEVELOPER);
       } else if (type.isAssignableFrom(Contributor.class)) {
         return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-      } else if (type.isAssignableFrom(Dependency.class)) {
+      }  else if (type.isAssignableFrom(Dependency.class)) {
         return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-      } else if (type.isAssignableFrom(Plugin.class)) {
+      }  else if (type.isAssignableFrom(Plugin.class)) {
         return sortTypeWithOrder(type, ORDER_PLUGIN);
       } else {
         return super.getProperties(type);
       }
     } catch (IntrospectionException e) {
-      throw new RuntimeException("Failed to get properties for type: " + type, e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -255,12 +251,14 @@ class ModelRepresenter extends Representer {
     }
 
     public int compare(Property o1, Property o2) {
+      // important go first
       for (String name : names) {
         int c = compareByName(o1, o2, name);
         if (c != 0) {
           return c;
         }
       }
+      // all the rest
       return o1.compareTo(o2);
     }
 
@@ -270,10 +268,8 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0;
+      return 0;// compare further
     }
   }
 }
 ```
-
-The main change is in the `getProperties` method, where the `IntrospectionException` is now caught and wrapped in a `RuntimeException`. This ensures that the method signature remains compatible with the parent class while still handling the exception appropriately.

@@ -1,26 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the `User` class cannot be found within the `com.artipie.http.auth.Authentication` interface.
-   - The error occurs at lines 56 and 57 in the `AuthScopeSliceTest` class.
-   - This suggests that the `User` class has been moved or renamed in the updated version of the `artipie-http` dependency.
-
-2. Review the client code:
-   - The problematic code is in the `user()` method where it attempts to create a new `Authentication.User` instance.
-   - The `Authentication` interface no longer contains the `User` class, which is causing the compilation error.
-
-3. Consider potential fixes:
-   - The `User` class might have been moved to a different package or renamed.
-   - We need to identify the new location or name of the `User` class in the updated dependency.
-   - The fix should involve importing the correct class and updating the instantiation code accordingly.
-
-4. Plan the necessary changes:
-   - Import the correct `User` class from the updated dependency.
-   - Update the instantiation of the `User` class to use the correct package or class name.
-   - Ensure that the rest of the code remains unchanged and functional.
-</code_analysis>
-
-Based on the analysis, here is the fixed class:
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
@@ -33,7 +10,6 @@ import com.artipie.http.Headers;
 import com.artipie.http.Response;
 import com.artipie.http.auth.AuthScheme;
 import com.artipie.http.auth.Authentication;
-import com.artipie.http.auth.BasicIdentities;
 import com.artipie.http.rs.StandardRs;
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -79,7 +55,7 @@ class AuthScopeSliceTest {
                 new AuthScheme.Result() {
                     @Override
                     public Optional<Authentication.User> user() {
-                        return Optional.of(new BasicIdentities.User("alice"));
+                        return Optional.of(new Authentication.User("alice"));
                     }
 
                     @Override
@@ -108,5 +84,3 @@ class AuthScopeSliceTest {
     }
 }
 ```
-
-In this fix, I have updated the `user()` method to use `BasicIdentities.User` instead of `Authentication.User`. This assumes that the `User` class has been moved to the `BasicIdentities` class in the updated dependency. If the `User` class is located elsewhere in the updated dependency, you would need to adjust the import and instantiation accordingly.

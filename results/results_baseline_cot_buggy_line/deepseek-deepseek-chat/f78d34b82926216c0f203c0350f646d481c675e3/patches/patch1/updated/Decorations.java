@@ -181,7 +181,9 @@ public class Decorations
     public static void magic(Player player, int seconds)
     {
         final int[] count = {0};
-        final double[] waveOffset = {0.0};
+        double waveAmplitude = 0.8;
+        double waveFrequency = 1.8;
+        double wavePhase = 0.1;
 
         BukkitRunnable runnable = new BukkitRunnable()
         {
@@ -196,8 +198,8 @@ public class Decorations
 
                     circle(center.add(0, 0.7, 0), count[0], 2.7, Particle.ENCHANTMENT_TABLE);
 
-                    double waveHeight = 0.7 + Math.sin(waveOffset[0]) * 0.1;
-                    circle(center.clone().add(0, waveHeight, 0), count[0], 1.8);
+                    double waveValue = waveAmplitude * Math.sin(waveFrequency * i + wavePhase);
+                    circle(center.clone().add(0, waveValue, 0), count[0], waveAmplitude);
 
                     circle(center.clone().add(3.2, 0.7, 3.2), count[0], 1.5);
                     circle(center.clone().add(-3.2, 0.7, -3.2), count[0], 1.5);
@@ -207,7 +209,6 @@ public class Decorations
                     circle(center.clone().add(0, 1.5, 0), count[0], 5, Particle.SPELL_WITCH);
 
                     count[0]++;
-                    waveOffset[0] += 0.01;
                 }
 
                 Location center = player.getLocation();

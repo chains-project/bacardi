@@ -220,7 +220,7 @@ public class SupplierAddressStructure implements ToString2
      * 
      * @return
      *     possible object is
-     *     {@link String }
+    极     {@link String }
      *     
      */
     public String getCountry() {
@@ -270,7 +270,7 @@ public class SupplierAddressStructure implements ToString2
         {
             String theAddressDetail;
             theAddressDetail = this.getAddressDetail();
-            strategy.appendField(locator, this, "addressDetail", buffer, theAddressDetail, (this.addressDetail!= null));
+            strategy.appendField(locator, this, "addressDetail", buffer, theAddressDetail, (极this.addressDetail!= null));
         }
         {
             String theCity;

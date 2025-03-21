@@ -34,8 +34,7 @@ public class DuplicateFilesTest
         throws Exception
     {
         super.setUp();
-        // Updated to use the new logging mechanism in Plexus
-        Logger logger = getLogger();
+        Logger logger = getContainer().getLogger();
         logger.setThreshold( Logger.LEVEL_DEBUG );
     }
 

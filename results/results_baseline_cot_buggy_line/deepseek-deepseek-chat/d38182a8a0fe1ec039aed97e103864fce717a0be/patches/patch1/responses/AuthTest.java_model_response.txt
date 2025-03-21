@@ -1,24 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the `Authentication.User` class cannot be found, suggesting a breaking change in the `com.artipie.http.auth.Authentication` interface.
-   - The second error suggests a type mismatch in the lambda expression, where the expected return type is `Optional<AuthUser>` but the actual return type is `Optional<Object>`.
-
-2. Review the client code:
-   - The issue occurs in the `Bearer` class's `slice` method, specifically in the lambda expression passed to `BearerAuthScheme`.
-   - The code attempts to create an `Authentication.User` object, but this class no longer exists in the updated dependency.
-
-3. Consider potential fixes:
-   - The `Authentication` interface likely now uses `AuthUser` instead of `User`.
-   - The lambda expression needs to return an `Optional<AuthUser>` instead of `Optional<Authentication.User>`.
-
-4. Plan the necessary changes:
-   - Replace `Authentication.User` with `AuthUser`.
-   - Ensure the lambda expression returns `Optional<AuthUser>`.
-   - Update imports to include `com.artipie.http.auth.AuthUser`.
-</code_analysis>
-
-Here is the fixed class:
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
@@ -37,7 +16,6 @@ import com.artipie.http.Headers;
 import com.artipie.http.Response;
 import com.artipie.http.Slice;
 import com.artipie.http.auth.Authentication;
-import com.artipie.http.auth.AuthUser;
 import com.artipie.http.auth.BasicAuthScheme;
 import com.artipie.http.auth.BearerAuthScheme;
 import com.artipie.http.auth.Permissions;
@@ -373,7 +351,7 @@ public final class AuthTest {
                     token -> CompletableFuture.completedFuture(
                         Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
                             .filter(user -> token.equals(token(user)))
-                            .map(user -> new AuthUser(user.name(), "test"))
+                            .map(user -> new Authentication.AuthUser(user.name(), "test"))
                             .findFirst()
                     ),
                     ""

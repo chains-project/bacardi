@@ -157,8 +157,6 @@ public class NPCTeleport
         final double radius = reachMode ? config.getDouble("npc.reachRange"): config.getDoubleList("npc.range")
             .get(new Random().nextInt(config.getDoubleList("npc.range").size()));
 
-        WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
-
         final int[] count = {0};
         BukkitRunnable r = new BukkitRunnable()
         {
@@ -175,17 +173,16 @@ public class NPCTeleport
                     double rangeTmp = radius;
 
                     if (config.getBoolean("npc.wave"))
-                        rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
-                            .get(0.01, true);
+                        rangeTmp = radius - 0.1 + (Math.random() * 0.2);
 
                     final Location center = player.getLocation();
                     final Location n = new Location(
                         center.getWorld(),
                         auraBotXPos(time[0], rangeTmp + speed) + center.getX(),
-                        center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
+                        center.getY() + (count[0] < 20 ? 1.0 : 2.0),
                         auraBotZPos(time[0], rangeTmp + speed) + center.getZ(),
-                        (float) ypp.getStatic(),
-                        (float) ypp.get(4.5, false)
+                        (float) (10.0 + (Math.random() * 90.0)),
+                        (float) (10.0 + (Math.random() * 90.0))
                     );
 
                     NPC.setLocation(n, target);
@@ -216,7 +213,7 @@ public class NPCTeleport
                     meta.setNpcLocation(n.toVector());
                 }
                 time[0] += config.getDouble("npc.time") + (config.getBoolean("npc.speed.wave")
-                    ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
+                    ? (Math.random() * config.getDouble("npc.speed.waveRange")) - config.getDouble("npc.speed.waveRange")
                     : 0.0);
             }
         };
@@ -256,30 +253,5 @@ public class NPCTeleport
     private static double auraBotXPos(double time, double radius)
     {
         return Math.cos(time) * radius;
-    }
-
-    /**
-     * Custom WaveCreator class to replace the missing dependency.
-     */
-    private static class WaveCreator {
-        private final double min;
-        private final double max;
-        private final double amplitude;
-
-        public WaveCreator(double min, double max, double amplitude) {
-            this.min = min;
-            this.max = max;
-            this.amplitude = amplitude;
-        }
-
-        public double get(double step, boolean ascending) {
-            double range = max - min;
-            double value = min + (ascending ? step : range - step);
-            return value + amplitude * Math.sin(step * Math.PI * 2);
-        }
-
-        public double getStatic() {
-            return (min + max) / 2;
-        }
     }
 }

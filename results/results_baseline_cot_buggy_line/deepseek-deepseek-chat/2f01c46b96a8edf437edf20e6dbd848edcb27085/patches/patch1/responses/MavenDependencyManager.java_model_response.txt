@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the package `org.codehaus.plexus.util.xml` does not exist.
-   - This suggests that the dependency providing the `Xpp3Dom` class is either missing or has been updated to a version where the package structure has changed.
-
-2. Review the client code:
-   - The problematic import is `import org.codehaus.plexus.util.xml.Xpp3Dom;`.
-   - The `Xpp3Dom` class is used in the `collectUsedClassesFromProcessors` method to parse XML configuration from Maven plugins.
-
-3. Consider potential fixes:
-   - The `Xpp3Dom` class might have been moved to a different package in a newer version of the dependency.
-   - Alternatively, a different class or method might be available in the updated dependency to achieve the same functionality.
-
-4. Plan the necessary changes:
-   - Investigate the current version of the `plexus-utils` dependency to find the correct package for `Xpp3Dom`.
-   - Update the import statement to reflect the correct package.
-   - Ensure that the rest of the code using `Xpp3Dom` remains compatible with the new package.
-</code_analysis>
-
 ```java
 package se.kth.depclean.wrapper;
 
@@ -44,7 +25,9 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
-import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.apache.maven.plugin.Plugin;
+import org.apache.maven.plugin.PluginExecution;
+import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
 import se.kth.depclean.core.AbstractDebloater;
 import se.kth.depclean.core.analysis.graph.DependencyGraph;
 import se.kth.depclean.core.analysis.model.ProjectDependencyAnalysis;
@@ -179,10 +162,10 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
     getLog().debug("# collectUsedClassesFromProcessors()");
     return Optional.ofNullable(project.getPlugin("org.bsc.maven:maven-processor-plugin"))
         .map(plugin -> plugin.getExecutionsAsMap().get("process"))
-        .map(exec -> (Xpp3Dom) exec.getConfiguration())
+        .map(exec -> exec.getConfiguration())
         .map(config -> config.getChild("processors"))
-        .map(Xpp3Dom::getChildren)
-        .map(arr -> Arrays.stream(arr).map(Xpp3Dom::getValue).collect(Collectors.toSet()))
+        .map(processors -> processors.getChildren())
+        .map(arr -> Arrays.stream(arr).map(processor -> processor.getValue()).collect(Collectors.toSet()))
         .orElse(of());
   }
 
@@ -246,15 +229,3 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
   }
 }
 ```
-
-The fix involves ensuring that the `Xpp3Dom` class is correctly imported. The import statement `import org.codehaus.plexus.util.xml.Xpp3Dom;` is correct based on the standard Maven dependencies. If the error persists, it may be necessary to verify that the `plexus-utils` dependency is correctly included in the project's `pom.xml`. Here is an example of how to include it:
-
-```xml
-<dependency>
-    <groupId>org.codehaus.plexus</groupId>
-    <artifactId>plexus-utils</artifactId>
-    <version>3.4.1</version>
-</dependency>
-```
-
-Ensure that the `plexus-utils` dependency is present in the project's `pom.xml` to resolve the issue.

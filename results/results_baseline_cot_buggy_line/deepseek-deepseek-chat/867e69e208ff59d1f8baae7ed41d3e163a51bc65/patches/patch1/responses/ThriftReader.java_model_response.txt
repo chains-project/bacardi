@@ -1,24 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the class `TFramedTransport` cannot be found in the package `org.apache.thrift.transport`.
-   - This suggests that the Thrift library version being used no longer includes `TFramedTransport` in the same package or it has been moved/renamed.
-
-2. Review the client code:
-   - The problematic lines are the import statement for `TFramedTransport` and its usage in the `ThriftReader` class.
-   - The `TFramedTransport` is used to create a framed transport for reading Thrift messages.
-
-3. Consider potential fixes:
-   - Research the newer versions of the Thrift library to determine where `TFramedTransport` has been moved or if it has been replaced by another class.
-   - Update the import statement and usage of `TFramedTransport` to match the new location or replacement class.
-
-4. Plan the necessary changes:
-   - Update the import statement to use the correct package or class.
-   - Modify the code to use the new class if `TFramedTransport` has been replaced.
-   - Ensure the functionality remains the same with the new class.
-</code_analysis>
-
-Based on the analysis, the `TFramedTransport` class has been moved to a different package in newer versions of the Thrift library. The correct import should be updated to reflect this change. Here is the fixed class:
-
 ```java
 /**
  * Copyright 2019 Pinterest, Inc.
@@ -42,9 +21,9 @@ import com.google.common.base.Strings;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.TIOStreamTransport;
 import org.apache.thrift.transport.TTransport;
-import org.apache.thrift.transport.layered.TFramedTransport;
+import org.apache.thrift.transport.TIOStreamTransport;
+import org.apache.thrift.transport.TFramedTransport;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -83,7 +62,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
   private final ByteOffsetInputStream byteOffsetInputStream;
 
   // The framed framedTransport.
-  private final TFramedTransport framedTransport;
+  private final TTransport framedTransport;
 
   // TProtocol implementation.
   private final TProtocol protocol;
@@ -162,5 +141,3 @@ public class ThriftReader<T extends TBase> implements Closeable {
   }
 }
 ```
-
-The fix involves updating the import statement for `TFramedTransport` to use the correct package `org.apache.thrift.transport.layered`. This should resolve the compilation error while maintaining the same functionality.

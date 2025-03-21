@@ -1,27 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error messages indicate that several classes (`PNSpaceResult`, `PNMembershipResult`, `PNUserResult`) cannot be found, suggesting these classes have been removed or moved in the updated dependency.
-   - The `SubscribeCallback` interface has a new abstract method `file` that needs to be implemented.
-   - The `PNConfiguration` constructor no longer accepts a no-argument constructor, indicating a breaking change in the PubNub API.
-
-2. Review the client code:
-   - The `SubscribeCallback` implementation is missing the `file` method, which is now required by the interface.
-   - The `PNConfiguration` instantiation is using a no-argument constructor, which is no longer valid.
-   - The imports for `PNSpaceResult`, `PNMembershipResult`, and `PNUserResult` are causing errors as these classes are no longer available.
-
-3. Consider potential fixes:
-   - Remove the `@Override` annotations for methods that no longer override any method in the updated dependency.
-   - Implement the `file` method in the `SubscribeCallback` implementation.
-   - Update the `PNConfiguration` instantiation to use the new constructor.
-   - Remove the imports and references to `PNSpaceResult`, `PNMembershipResult`, and `PNUserResult`.
-
-4. Plan the necessary changes:
-   - Remove the `@Override` annotations for `membership`, `user`, and `space` methods.
-   - Implement the `file` method in the `SubscribeCallback` implementation.
-   - Update the `PNConfiguration` instantiation to use the new constructor.
-   - Remove the imports and references to `PNSpaceResult`, `PNMembershipResult`, and `PNUserResult`.
-</code_analysis>
-
 ```java
 package info.bitrich.xchangestream.service.pubnub;
 
@@ -112,27 +88,15 @@ public class PubnubStreamingService {
                   LOG.debug("PubNub signal: {}", pnSignalResult.toString());
                 }
 
-                public void user(PubNub pubnub, Object pnUserResult) {
-                  LOG.debug("PubNub user: {}", pnUserResult.toString());
-                }
-
-                public void space(PubNub pubnub, Object pnSpaceResult) {
-                  LOG.debug("PubNub space: {}", pnSpaceResult.toString());
-                }
-
-                public void membership(PubNub pubnub, Object pnMembershipResult) {
-                  LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
+                @Override
+                public void file(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult pnFileEventResult) {
+                  LOG.debug("PubNub file: {}", pnFileEventResult.toString());
                 }
 
                 @Override
                 public void messageAction(
                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
                   LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
-                }
-
-                @Override
-                public void file(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult pnFileEventResult) {
-                  LOG.debug("PubNub file: {}", pnFileEventResult.toString());
                 }
               });
           e.onComplete();

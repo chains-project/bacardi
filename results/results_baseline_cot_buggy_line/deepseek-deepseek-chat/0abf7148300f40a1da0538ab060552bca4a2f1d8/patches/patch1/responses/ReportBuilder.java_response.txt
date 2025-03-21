@@ -57,7 +57,6 @@ public class ReportBuilder
 	
 	private JRDesignBand initHeaderBand()
 	{
-		// Header
 		final JRDesignBand headerBand = new JRDesignBand();
 		headerBand.setHeight(TemplateConfig.DEFAULT_HEADER_BAND_HEIGHT);
 		
@@ -97,13 +96,6 @@ public class ReportBuilder
 		return width;
 	}
 
-	/***
-	 * Calculated the page width including the margins.
-	 * 
-	 * @param properties
-	 * 
-	 * @return
-	 */
 	private int calcPageWidth(final PageProperties properties)
 	{
 		int width = 0;
@@ -119,10 +111,6 @@ public class ReportBuilder
 	}
 	
 	
-	/**
-	 * 
-	 * @return
-	 */
 	private int calcMaxHeaderHeight()
 	{
 		
@@ -134,11 +122,8 @@ public class ReportBuilder
 			final ColumnStyle style = col.getHeaderColumn().getStyle();
 			final Font font = style.getFont();
 			lbl.setFont(font);
-			//get the normal height of the label
 			int lblHeigh = (int)lbl.getPreferredSize().getHeight();
-			//add the column border width
 			lblHeigh+= style.getColBorder().getLineWidth()*2;
-			//Add padding
 			lblHeigh+= style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
 			
 			if(lblHeigh > maxHeight)
@@ -162,9 +147,7 @@ public class ReportBuilder
 			final Font font = style.getFont();
 			lbl.setFont(font);
 			int lblHeigh = (int)lbl.getPreferredSize().getHeight();
-			//Add border width
 			lblHeigh+= style.getColBorder().getLineWidth()*2;
-			//Add padding
 			lblHeigh+= style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
 			
 			if(lblHeigh > maxHeight)
@@ -237,15 +220,11 @@ public class ReportBuilder
 		
 		for(final TemplateColumn col : this.config.getColumns())
 		{
-			// Header is created
 			if(createHeader)
 			{
-				// If this column has a header the JRDesignStaticText get the
-				// propertys of the Column
 				if(col.hasHeaderColumn())
 				{
 					final HeaderColumn headerColumn = col.getHeaderColumn();
-					// Build label and set x / y
 					headerLabel = new JRDesignStaticText();
 					headerLabel.setX(x);
 					headerLabel.setWidth(col.getWidth());
@@ -258,15 +237,11 @@ public class ReportBuilder
 					
 					headerLabel.setPositionType(PositionTypeEnum.FLOAT);
 
-					
-					// Get the Property
 					headerLabel.setText(headerColumn.getProperty());
 					headerBand.addElement(headerLabel);
 				}
 				else
 				{
-					// an empty label must be added to complete the layout
-					// Build label and set x / y
 					emptyHeaderLabel = new JRDesignStaticText();
 					emptyHeaderLabel.setX(x);
 					emptyHeaderLabel.setWidth(col.getWidth());
@@ -285,7 +260,6 @@ public class ReportBuilder
 			this.setStlyeForTextField(textField,contentColumn.getStyle());
 			textField.setPattern(contentColumn.getProperty());
 			
-			// box tag properties
 			this.prepareTextfieldWithBorder(textField,contentColumn.getStyle());
 			this.prepareTextfieldPadding(textField,contentColumn.getStyle());
 			
@@ -308,14 +282,12 @@ public class ReportBuilder
 	{
 		txtField.setBackcolor(style.getBackground());
 		txtField.setForecolor(style.getForeground());
-		// Font
 		final Font f = style.getFont();
 		txtField.setFontName(f.getName());
 		txtField.setFontSize(Float.valueOf(f.getSize()));
 		txtField.setBold(Boolean.valueOf(f.isBold()));
 		txtField.setItalic(Boolean.valueOf(f.isItalic()));
 		txtField.setHorizontalTextAlign(style.getHorizontalAlignment().getHorizontalTextAlignEnum());
-		
 		
 		if(!style.getBackground().equals(Color.WHITE))
 		{
@@ -342,7 +314,6 @@ public class ReportBuilder
 		final ColumnPadding colPadding = style.getColumnPadding();
 		final JRLineBox lineBox = textField.getLineBox();
 		
-		
 		lineBox.setTopPadding(colPadding.getTopWidth());
 		lineBox.setRightPadding(colPadding.getRightWidth());
 		lineBox.setLeftPadding(colPadding.getLeftWidth());
@@ -358,14 +329,6 @@ public class ReportBuilder
 	}
 	
 	
-	/**
-	 * 
-	 * Assemble and compile a {@link JasperReport} based on the information of
-	 * the {@link TemplateConfig} object.
-	 * 
-	 * @return the compiled {@link JasperReport}
-	 * @throws ExportException
-	 */
 	public JasperReport assembleReport() throws ExportException
 	{
 		try

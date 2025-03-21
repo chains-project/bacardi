@@ -1,24 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `IoCheckedScalar` cannot be found in the package `org.cactoos.scalar`.
-   - This suggests that the `IoCheckedScalar` class has either been moved, renamed, or removed in the newer version of the `cactoos` library.
-
-2. Review the client code:
-   - The problematic import is `import org.cactoos.scalar.IoCheckedScalar;`.
-   - The `IoCheckedScalar` class is used in the `pull` method to wrap a `Reduced` scalar and handle IO exceptions.
-
-3. Consider potential fixes:
-   - The `IoCheckedScalar` class might have been replaced or its functionality might have been moved to another class in the newer version of `cactoos`.
-   - We need to find an equivalent class or method in the newer version of `cactoos` that provides similar functionality.
-
-4. Plan the necessary changes to fix the issue:
-   - Research the newer version of `cactoos` to find the replacement for `IoCheckedScalar`.
-   - Update the import statement and the usage of `IoCheckedScalar` in the `pull` method.
-   - Ensure that the new class or method provides the same functionality of wrapping a scalar and handling IO exceptions.
-</code_analysis>
-
-After researching the newer versions of `cactoos`, it appears that the `IoCheckedScalar` class has been replaced by `IoChecked` in the `org.cactoos.scalar` package. Here is the fixed class:
-
 ```java
 /*
  * The MIT License (MIT)
@@ -49,7 +28,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Sorted;
-import org.cactoos.scalar.IoChecked;
+import org.cactoos.scalar.Checked;
 import org.cactoos.scalar.Reduced;
 
 /**
@@ -85,14 +64,15 @@ public final class RtNetwork implements Network {
 
     @Override
     public Wallet pull(final long id) throws IOException {
-        return new IoChecked<>(
+        return new Checked<>(
             new Reduced<>(
                 Wallet::merge,
                 new Mapped<>(
                     c -> c::wallet,
                     new Sorted<>(new Copies(id, this))
                 )
-            )
+            ),
+            IOException.class
         ).value();
     }
 
@@ -102,5 +82,3 @@ public final class RtNetwork implements Network {
     }
 }
 ```
-
-In this fix, the `IoCheckedScalar` import has been replaced with `IoChecked`, and the usage of `IoCheckedScalar` in the `pull` method has been updated to use `IoChecked`. This should resolve the compilation error while maintaining the same functionality.

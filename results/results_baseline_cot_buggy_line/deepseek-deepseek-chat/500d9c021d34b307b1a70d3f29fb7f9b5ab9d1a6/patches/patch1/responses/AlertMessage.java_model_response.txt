@@ -1,21 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the package `javax.mvc` does not exist, and the class `RedirectScoped` cannot be found.
-   - This suggests that the `javax.mvc` package is no longer available or has been moved/renamed in the updated dependency version.
-
-2. Review the client code:
-   - The problematic areas are the import statement `import javax.mvc.RedirectScoped;` and the annotation `@RedirectScoped`.
-   - The `@RedirectScoped` annotation is used to define the scope of the `AlertMessage` class.
-
-3. Consider potential fixes:
-   - The `javax.mvc` package might have been moved to `jakarta.mvc` in newer versions of the MVC specification.
-   - The `RedirectScoped` annotation might still be available but under a different package.
-
-4. Plan the necessary changes:
-   - Update the import statement to use the `jakarta.mvc` package instead of `javax.mvc`.
-   - Ensure that the `RedirectScoped` annotation is still valid under the new package.
-</code_analysis>
-
 ```java
 package com.example.web;
 
@@ -23,14 +5,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Named;
-import jakarta.mvc.RedirectScoped;
+import javax.enterprise.context.RequestScoped;
 
 /**
  * Used to transport messages back to the client.
  *
  * @author Hantsy Bai<hantsy@gmail.com>
  */
-@RedirectScoped
+@RequestScoped
 @Named("flashMessage")
 public class AlertMessage implements Serializable {
 
@@ -147,5 +129,3 @@ public class AlertMessage implements Serializable {
 
 }
 ```
-
-The fix involves updating the import statement from `javax.mvc.RedirectScoped` to `jakarta.mvc.RedirectScoped`, which aligns with the newer version of the MVC specification. This change ensures that the `RedirectScoped` annotation is correctly imported and used in the `AlertMessage` class.

@@ -20,26 +20,28 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.manager.CommandManager;
+import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
-import org.spongepowered.api.network.channel.raw.RawDataChannel;
-import org.spongepowered.api.network.channel.ChannelRegistrar;
-import org.spongepowered.plugin.PluginContainer;
-import org.spongepowered.plugin.builtin.jvm.Plugin;
-import org.spongepowered.api.text.Text;
+import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+import org.spongepowered.api.network.ChannelRegistrar;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.serializer.TextSerializer;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
 import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
 import static com.github.games647.changeskin.core.message.SkinUpdateMessage.UPDATE_SKIN_CHANNEL;
 import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 
 @Singleton
-@Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+@PluginContainer(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
         url = PomData.URL, description = PomData.DESCRIPTION)
-public class ChangeSkinSponge implements PlatformPlugin<CommandResult> {
+public class ChangeSkinSponge implements PlatformPlugin<Command.Source> {
 
     private final Path dataFolder;
     private final Logger logger;
@@ -50,7 +52,6 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandResult> {
 
     private boolean initialized;
 
-    //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
     @Inject
     ChangeSkinSponge(Logger logger, @ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
         this.dataFolder = dataFolder;
@@ -59,8 +60,7 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandResult> {
     }
 
     @Listener
-    public void onPreInit(StartedEngineEvent<PluginContainer> preInitEvent) {
-        //load config and database
+    public void onPreInit(StartedEngineEvent<?> preInitEvent) {
         try {
             core.load(true);
             initialized = true;
@@ -70,13 +70,12 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandResult> {
     }
 
     @Listener
-    public void onInit(StartedEngineEvent<PluginContainer> initEvent) {
+    public void onInit(RegisterCommandEvent<Command.Parameterized> initEvent) {
         if (!initialized)
             return;
 
         CommandManager cmdManager = Sponge.getCommandManager();
 
-        //command and event register
         cmdManager.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
         cmdManager.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
         cmdManager.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
@@ -86,7 +85,6 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandResult> {
 
         Sponge.getEventManager().registerListeners(this, injector.getInstance(LoginListener.class));
 
-        //incoming channel
         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
         String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
         String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
@@ -97,7 +95,7 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandResult> {
     }
 
     @Listener
-    public void onShutdown(StoppingEngineEvent<PluginContainer> stoppingServerEvent) {
+    public void onShutdown(StoppingEngineEvent<?> stoppingServerEvent) {
         core.close();
     }
 
@@ -105,13 +103,11 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandResult> {
         return core;
     }
 
-    @Override
-    public boolean hasSkinPermission(CommandResult invoker, UUID uuid, boolean sendMessage) {
+    public boolean hasSkinPermission(Command.Source invoker, UUID uuid, boolean sendMessage) {
         if (invoker.hasPermission(PomData.ARTIFACT_ID + ".skin.whitelist." + uuid)) {
             return true;
         }
 
-        //disallow - not whitelisted or blacklisted
         if (sendMessage) {
             sendMessage(invoker, "no-permission");
         }
@@ -138,11 +134,10 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandResult> {
         return logger;
     }
 
-    @Override
-    public void sendMessage(CommandResult receiver, String key) {
+    public void sendMessage(Command.Source receiver, String key) {
         String message = core.getMessage(key);
         if (message != null && receiver != null) {
-            receiver.sendMessage(TextSerializer.LEGACY_FORMATTING_CODE.deserialize(message));
+            receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
         }
     }
 }

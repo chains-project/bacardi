@@ -1,23 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error occurs at line 115 in the `FOPPDFTransformer` class.
-   - The issue is with the `FopFactory.newInstance()` method, which no longer accepts no arguments.
-   - The error suggests that the method now requires parameters such as `FopFactoryConfig`, `File`, `URI`, or `URI` and `InputStream`.
-
-2. Review the client code:
-   - The problematic line is `FopFactory fopFactory = FopFactory.newInstance();`.
-   - The code is using Apache FOP (Formatting Objects Processor) for PDF generation.
-   - The `FopFactory` class has been updated, and the `newInstance()` method now requires parameters.
-
-3. Consider potential fixes:
-   - The simplest fix is to use the `newInstance(URI)` method, which is commonly used to specify the configuration file location.
-   - We can use the default configuration by passing `null` or a default URI.
-
-4. Plan the necessary changes:
-   - Modify the `FopFactory.newInstance()` call to use the `newInstance(URI)` method.
-   - Use `null` as the URI to indicate the default configuration.
-</code_analysis>
-
 ```java
 /*
  * Copyright (C) 2017 Premium Minds.
@@ -133,7 +113,7 @@ public abstract class FOPPDFTransformer {
         StreamSource transformSource = new StreamSource(templateStream);
 
         // create an instance of fop factory
-        FopFactory fopFactory = FopFactory.newInstance((URI) null);
+        FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
         // a user agent is needed for transformation
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
         // to store output

@@ -4,14 +4,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Named;
-import jakarta.mvc.RedirectScoped;
+import javax.enterprise.context.RequestScoped;
 
 /**
  * Used to transport messages back to the client.
  *
  * @author Hantsy Bai<hantsy@gmail.com>
  */
-@RedirectScoped
+@RequestScoped
 @Named("flashMessage")
 public class AlertMessage implements Serializable {
 

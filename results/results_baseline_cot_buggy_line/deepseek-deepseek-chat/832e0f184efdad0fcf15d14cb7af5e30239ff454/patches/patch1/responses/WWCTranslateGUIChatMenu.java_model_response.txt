@@ -1,21 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the method `parseEnchantment()` cannot be found in the `XEnchantment` class.
-   - This suggests that the `XEnchantment` class from the `XSeries` library has been updated, and the `parseEnchantment()` method is no longer available or has been renamed.
-
-2. Review the client code:
-   - The problematic lines are where `XEnchantment.matchXEnchantment("power").get().parseEnchantment()` is called.
-   - The code is attempting to parse an enchantment, but the method `parseEnchantment()` is not found in the updated `XEnchantment` class.
-
-3. Consider potential fixes:
-   - The `XEnchantment` class might have a new method to achieve the same functionality.
-   - According to the `XSeries` documentation, the `getEnchant()` method is now used to retrieve the `Enchantment` object.
-
-4. Plan the necessary changes:
-   - Replace `parseEnchantment()` with `getEnchant()` to align with the updated `XEnchantment` class.
-   - Ensure that the rest of the code remains unchanged to maintain functionality.
-</code_analysis>
-
 ```java
 package com.expl0itz.worldwidechat.inventory.wwctranslategui;
 
@@ -87,7 +69,7 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
 				ItemMeta outgoingChatMeta = outgoingChatButton.getItemMeta();
 				if (targetTranslator.getTranslatingChatOutgoing()) {
 					outgoingChatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					outgoingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+					outgoingChatMeta.addEnchant(XEnchantment.POWER.getEnchant(), 1, false);
 					outgoingChatMeta.setDisplayName(ChatColor.GREEN
 							+ CommonDefinitions.getMessage("wwctGUIChatOutgoingButton"));
 				} else {
@@ -109,7 +91,7 @@ public class WWCTranslateGUIChatMenu implements InventoryProvider {
     			ItemMeta incomingChatMeta = incomingChatButton.getItemMeta();
     			if (targetTranslator.getTranslatingChatIncoming()) {
     				incomingChatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-    				incomingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+    				incomingChatMeta.addEnchant(XEnchantment.POWER.getEnchant(), 1, false);
     				incomingChatMeta.setDisplayName(ChatColor.GREEN
     						+ CommonDefinitions.getMessage("wwctGUIChatIncomingButton"));
     			} else {

@@ -14,37 +14,30 @@ import java.util.UUID;
 
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.network.channel.raw.RawDataChannel;
-import org.spongepowered.api.network.channel.raw.RawDataListener;
-import org.spongepowered.api.network.channel.ChannelRegistrar;
-import org.spongepowered.api.network.channel.raw.RawDataBuf;
+import org.spongepowered.api.network.ChannelBinding;
+import org.spongepowered.api.network.ChannelBuf;
+import org.spongepowered.api.network.ChannelRegistrar;
+import org.spongepowered.api.network.MessageHandler;
 import org.spongepowered.api.network.RemoteConnection;
 
 import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
 import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 
-public class CheckPermissionListener implements RawDataListener {
+public class CheckPermissionListener implements MessageHandler<CheckPermMessage> {
 
     private final ChangeSkinSponge plugin;
-    private final RawDataChannel permissionsResultChannel;
+    private final ChannelBinding.Channel permissionsResultChannel;
 
     @Inject
     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
         this.plugin = plugin;
 
         String combinedName = new NamespaceKey(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL).getCombinedName();
-        permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
+        permissionsResultChannel = channelRegistrar.getOrCreate(plugin, combinedName);
     }
 
     @Override
-    public void handlePayload(RawDataBuf data, RemoteConnection connection, Type side) {
-        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
-        CheckPermMessage checkMessage = new CheckPermMessage();
-        checkMessage.readFrom(dataInput);
-
-        CheckPermMessage message = new CheckPermMessage();
-        message.readFrom(dataInput);
-
+    public void handleMessage(CheckPermMessage message, RemoteConnection connection, Type side) {
         checkPermissions((Player) connection, message);
     }
 
@@ -79,6 +72,6 @@ public class CheckPermissionListener implements RawDataListener {
     private void sendResultMessage(Player receiver, PermResultMessage resultMessage) {
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
         resultMessage.writeTo(dataOutput);
-        permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+        permissionsResultChannel.sendTo(receiver, buf -> buf.writeBytes(dataOutput.toByteArray()));
     }
 }

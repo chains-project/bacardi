@@ -1,24 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `LanguagesResource` cannot be found.
-   - The errors occur in lines where `LanguagesResource` is used, including the import statement, method parameters, and variable declarations.
-   - The import statement `import com.google.api.services.translate.model.LanguagesResource;` is failing because the package `com.google.api.services.translate.model` does not exist.
-
-2. Review the client code:
-   - The class `Language` uses `LanguagesResource` in several places, including a static function `FROM_PB_FUNCTION` and a method `fromPb`.
-   - The code relies on `LanguagesResource` for converting between the protobuf representation and the `Language` class.
-
-3. Consider potential fixes:
-   - The issue appears to be related to a breaking change in the dependency where `LanguagesResource` has been moved or renamed.
-   - The fix should involve updating the import statement and any references to `LanguagesResource` to match the new package or class name in the updated dependency.
-
-4. Plan the necessary changes:
-   - Update the import statement to use the correct package or class name for `LanguagesResource`.
-   - Ensure that all references to `LanguagesResource` in the code are updated accordingly.
-</code_analysis>
-
-Based on the analysis, here is the fixed Java class:
-
 ```java
 /*
  * Copyright 2016 Google LLC
@@ -38,7 +17,7 @@ Based on the analysis, here is the fixed Java class:
 
 package com.google.cloud.translate;
 
-import com.google.cloud.translate.v3.LanguageCode;
+import com.google.cloud.translate.v3.SupportedLanguage;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
@@ -55,10 +34,10 @@ import java.util.Objects;
 public class Language implements Serializable {
 
   private static final long serialVersionUID = 5205240279371907020L;
-  static final Function<LanguageCode, Language> FROM_PB_FUNCTION =
-      new Function<LanguageCode, Language>() {
+  static final Function<SupportedLanguage, Language> FROM_PB_FUNCTION =
+      new Function<SupportedLanguage, Language>() {
         @Override
-        public Language apply(LanguageCode languagePb) {
+        public Language apply(SupportedLanguage languagePb) {
           return Language.fromPb(languagePb);
         }
       };
@@ -103,10 +82,8 @@ public class Language implements Serializable {
     return Objects.equals(code, other.code) && Objects.equals(name, other.name);
   }
 
-  static Language fromPb(LanguageCode languagePb) {
-    return new Language(languagePb.getCode(), languagePb.getDisplayName());
+  static Language fromPb(SupportedLanguage languagePb) {
+    return new Language(languagePb.getLanguageCode(), languagePb.getDisplayName());
   }
 }
 ```
-
-In this fix, I have replaced `LanguagesResource` with `LanguageCode` from the `com.google.cloud.translate.v3` package, which is the correct class in the updated dependency. The method `fromPb` and the `Function` have been updated to use `LanguageCode` instead of `LanguagesResource`. The import statement has also been updated to reflect the correct package.

@@ -5,13 +5,17 @@
 <                 flyway.setLocations(prop.getProperty("flyway.locations"));
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 ---
->         Flyway flyway = Flyway.configure()
->                 .dataSource(this.dataSource())
->                 .classLoader(NisAppConfig.class.getClassLoader())
->                 .locations(prop.getProperty("flyway.locations"))
->                 .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
->                 .load();
+>                 final Flyway flyway = Flyway.configure()
+>                                 .dataSource(this.dataSource())
+>                                 .classLoader(NisAppConfig.class.getClassLoader())
+>                                 .locations(prop.getProperty("flyway.locations"))
+>                                 .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
+>                                 .load();
 227c228
 <                 return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
 ---
->         return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
+>                 return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
+250c251
+<                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
+---
+>                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions);

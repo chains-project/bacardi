@@ -107,9 +107,9 @@ public class NisAppConfig {
 
 		final Flyway flyway = Flyway.configure()
 				.dataSource(this.dataSource())
+				.classLoader(NisAppConfig.class.getClassLoader())
 				.locations(prop.getProperty("flyway.locations"))
 				.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
-				.classLoader(NisAppConfig.class.getClassLoader())
 				.load();
 		return flyway;
 	}
@@ -244,7 +244,7 @@ public class NisAppConfig {
 		final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<ImportanceCalculator>>() {
 			{
 				this.put(BlockChainFeature.PROOF_OF_IMPORTANCE,
-						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
+						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions);
 				this.put(BlockChainFeature.PROOF_OF_STAKE, PosImportanceCalculator::new);
 			}
 		};

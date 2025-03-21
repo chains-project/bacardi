@@ -1,15 +1,36 @@
-17,20c17,20
+17c17
 < import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
-< import org.spongepowered.api.network.ChannelBuf;
-< import org.spongepowered.api.network.ChannelRegistrar;
+---
+> import org.spongepowered.api.network.ChannelBinding;
+20c20
 < import org.spongepowered.api.network.RawDataListener;
 ---
-> import org.spongepowered.api.network.channel.raw.RawDataChannel;
-> import org.spongepowered.api.network.channel.raw.RawDataListener;
-> import org.spongepowered.api.network.channel.ChannelRegistrar;
-> import org.spongepowered.api.network.channel.raw.RawDataBuf;
-40,41c40
+> import org.spongepowered.api.network.MessageHandler;
+26c26
+< public class CheckPermissionListener implements RawDataListener {
+---
+> public class CheckPermissionListener implements MessageHandler<CheckPermMessage> {
+29c29
+<     private final RawDataChannel permissionsResultChannel;
+---
+>     private final ChannelBinding.Channel permissionsResultChannel;
+36c36
+<         permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
+---
+>         permissionsResultChannel = channelRegistrar.getOrCreate(plugin, combinedName);
+40,48c40
 <     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
 < 
+<         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+<         CheckPermMessage checkMessage = new CheckPermMessage();
+<         checkMessage.readFrom(dataInput);
+< 
+<         CheckPermMessage message = new CheckPermMessage();
+<         message.readFrom(dataInput);
+< 
 ---
->     public void handlePayload(RawDataBuf data, RemoteConnection connection, Type side) {
+>     public void handleMessage(CheckPermMessage message, RemoteConnection connection, Type side) {
+83c75
+<         permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+---
+>         permissionsResultChannel.sendTo(receiver, buf -> buf.writeBytes(dataOutput.toByteArray()));

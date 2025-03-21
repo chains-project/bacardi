@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the `LogMessageEncoder` class is not implementing all abstract methods from its parent class `EncoderBase<LogMessage>`.
-   - Specifically, the `footerBytes()` method is missing.
-   - The `@Override` annotations are causing errors because the methods they are annotating do not override any methods in the parent class in the updated dependency version.
-
-2. Review the client code:
-   - The `LogMessageEncoder` class extends `EncoderBase<LogMessage>` but does not implement the `footerBytes()` method.
-   - The `@Override` annotations are present on `init()`, `doEncode()`, and `close()` methods, but these methods do not override any methods in the parent class in the updated dependency version.
-
-3. Consider potential fixes:
-   - Implement the `footerBytes()` method to satisfy the abstract class requirements.
-   - Remove the `@Override` annotations from `init()`, `doEncode()`, and `close()` methods since they do not override any methods in the updated dependency version.
-
-4. Plan the necessary changes:
-   - Add the `footerBytes()` method to the `LogMessageEncoder` class.
-   - Remove the `@Override` annotations from `init()`, `doEncode()`, and `close()` methods.
-</code_analysis>
-
 ```java
 /**
  * Copyright 2019 Pinterest, Inc.
@@ -97,7 +78,10 @@ public class AppenderUtils {
       framedTransport.close();
     }
 
-    @Override
+    public byte[] headerBytes() {
+      return new byte[0];
+    }
+
     public byte[] footerBytes() {
       return new byte[0];
     }

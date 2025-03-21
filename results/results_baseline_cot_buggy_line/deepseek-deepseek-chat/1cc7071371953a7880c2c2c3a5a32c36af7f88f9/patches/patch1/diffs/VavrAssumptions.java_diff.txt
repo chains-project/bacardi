@@ -1,4 +1,4 @@
-24,33c24,33
+24,33c24,32
 < import org.assertj.core.internal.bytebuddy.ByteBuddy;
 < import org.assertj.core.internal.bytebuddy.TypeCache;
 < import org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey;
@@ -12,7 +12,6 @@
 ---
 > import net.bytebuddy.ByteBuddy;
 > import net.bytebuddy.TypeCache;
-> import net.bytebuddy.TypeCache.SimpleKey;
 > import net.bytebuddy.dynamic.scaffold.TypeValidation;
 > import net.bytebuddy.implementation.Implementation;
 > import net.bytebuddy.implementation.MethodDelegation;
@@ -20,7 +19,15 @@
 > import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 > import net.bytebuddy.implementation.bind.annotation.SuperCall;
 > import net.bytebuddy.implementation.bind.annotation.This;
-40c40
+40c39
 < import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;
 ---
 > import static net.bytebuddy.matcher.ElementMatchers.any;
+55c54
+<     private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
+---
+>     private static final TypeCache<TypeCache.SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
+215c214
+<         SimpleKey cacheKey = new SimpleKey(assertClass);
+---
+>         TypeCache.SimpleKey cacheKey = new TypeCache.SimpleKey(assertClass);

@@ -1,8 +1,10 @@
 30d29
 < import org.cactoos.collection.CollectionOf;
-91,93c90
+91c90
 <         return first.id() == second.id() && new CollectionOf<>(
-<             first.ledger()
+---
+>         return first.id() == second.id() && new IterableOf<>(
+93c92
 <         ).size() == new CollectionOf<>(second.ledger()).size();
 ---
->         return first.id() == second.id() && first.ledger().size() == second.ledger().size();
+>         ).iterator().hasNext() == new IterableOf<>(second.ledger()).iterator().hasNext();

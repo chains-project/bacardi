@@ -1,32 +1,11 @@
-94d93
-< 
-168,169d166
-<   // Model elements order {
-<   //TODO move to polyglot-common, or to org.apache.maven:maven-model
-198,199d194
-<           //"repositories",
-<           //"pluginRepositories",
-212d206
-<   //}
-214,216d207
-<   /*
-<    * Change the default order. Important data goes first.
-<    */
-218,219c209,210
+217,219c217,218
+<   @Override
 <   protected Set<Property> getProperties(Class<? extends Object> type)
 <           throws IntrospectionException {
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) {
 >     try {
-232a224,226
+232a232,234
 >     } catch (IntrospectionException e) {
->       throw new RuntimeException("Failed to get properties for type: " + type, e);
+>       throw new RuntimeException(e);
 >     }
-251d244
-<       // important go first
-258d250
-<       // all the rest
-268c260
-<       return 0;// compare further
----
->       return 0;

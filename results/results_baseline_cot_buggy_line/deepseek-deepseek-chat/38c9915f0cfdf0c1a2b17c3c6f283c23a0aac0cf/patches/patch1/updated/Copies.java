@@ -87,7 +87,9 @@ public final class Copies extends IterableEnvelope<Copy> {
      */
     private static boolean equalWallets(final Wallet first,
         final Wallet second) throws IOException {
-        return first.id() == second.id() && first.ledger().size() == second.ledger().size();
+        return first.id() == second.id() && new IterableOf<>(
+            first.ledger()
+        ).iterator().hasNext() == new IterableOf<>(second.ledger()).iterator().hasNext();
     }
 
     /**

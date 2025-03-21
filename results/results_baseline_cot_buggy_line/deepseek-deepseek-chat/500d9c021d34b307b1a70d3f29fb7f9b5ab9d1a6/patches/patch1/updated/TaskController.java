@@ -9,12 +9,6 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import jakarta.mvc.Controller;
-import jakarta.mvc.Models;
-import jakarta.mvc.View;
-import jakarta.mvc.binding.BindingResult;
-import jakarta.mvc.binding.ParamError;
-import jakarta.mvc.security.CsrfProtected;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
@@ -28,9 +22,14 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import org.eclipse.krazo.engine.Viewable;
+import org.eclipse.krazo.binding.BindingResult;
+import org.eclipse.krazo.binding.ParamError;
+import org.eclipse.krazo.security.CsrfProtected;
+import org.eclipse.krazo.MvcContext;
+import org.eclipse.krazo.core.Models;
 
 @Path("tasks")
-@Controller
+@javax.mvc.Controller
 @RequestScoped
 public class TaskController {
 
@@ -50,7 +49,7 @@ public class TaskController {
     AlertMessage flashMessage;
 
     @GET
-    @View("tasks.xhtml")
+    @javax.mvc.View("tasks.xhtml")
     public void allTasks() {
         log.log(Level.INFO, "fetching all tasks");
 
@@ -87,7 +86,6 @@ public class TaskController {
 
     @POST
     @CsrfProtected
-    //@ValidateOnExecution(type = ExecutableType.NONE)
     public Response save(@Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "saving new task @{0}", form);
 
@@ -161,7 +159,6 @@ public class TaskController {
 
     @PUT
     @Path("{id}/status")
-    //@CsrfProtected
     public Response updateStatus(@PathParam(value = "id") Long id, @NotNull @FormParam(value = "status") String status) {
         log.log(Level.INFO, "updating status of the existed task@id:{0}, status:{1}", new Object[]{id, status});
 

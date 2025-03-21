@@ -85,8 +85,12 @@ public class SimpleLocalizeClient
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
     throwOnError(httpResponse);
     String body = httpResponse.body();
-    ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
-    return exportResponse.getFiles();
+    try {
+      ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
+      return exportResponse.getFiles();
+    } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+      throw new IOException("Failed to parse response", e);
+    }
   }
 
   public void downloadFile(DownloadableFile downloadableFile, String downloadPathTemplate)

@@ -91,6 +91,7 @@ class ModelRepresenter extends Representer {
     return false;
   }
 
+
   private class RepresentXpp3Dom implements Represent {
     private static final String ATTRIBUTE_PREFIX = "attr/";
 
@@ -164,6 +165,8 @@ class ModelRepresenter extends Representer {
     }
   }
 
+  // Model elements order {
+  //TODO move to polyglot-common, or to org.apache.maven:maven-model
   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
 		  "modelEncoding",
           "modelVersion",
@@ -192,6 +195,8 @@ class ModelRepresenter extends Representer {
           "dependencyManagement",
           "dependencies",
           "distributionManagement",
+          //"repositories",
+          //"pluginRepositories",
           "build",
           "profiles",
           "reporting"
@@ -204,8 +209,11 @@ class ModelRepresenter extends Representer {
 		  "groupId", "artifactId", "version", "type", "classifier", "scope"));
   private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
 		  "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
+  //}
 
-  @Override
+  /*
+   * Change the default order. Important data goes first.
+   */
   protected Set<Property> getProperties(Class<? extends Object> type) {
     try {
       if (type.isAssignableFrom(Model.class)) {
@@ -214,15 +222,15 @@ class ModelRepresenter extends Representer {
         return sortTypeWithOrder(type, ORDER_DEVELOPER);
       } else if (type.isAssignableFrom(Contributor.class)) {
         return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-      } else if (type.isAssignableFrom(Dependency.class)) {
+      }  else if (type.isAssignableFrom(Dependency.class)) {
         return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-      } else if (type.isAssignableFrom(Plugin.class)) {
+      }  else if (type.isAssignableFrom(Plugin.class)) {
         return sortTypeWithOrder(type, ORDER_PLUGIN);
       } else {
         return super.getProperties(type);
       }
     } catch (IntrospectionException e) {
-      throw new RuntimeException("Failed to get properties for type: " + type, e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -242,12 +250,14 @@ class ModelRepresenter extends Representer {
     }
 
     public int compare(Property o1, Property o2) {
+      // important go first
       for (String name : names) {
         int c = compareByName(o1, o2, name);
         if (c != 0) {
           return c;
         }
       }
+      // all the rest
       return o1.compareTo(o2);
     }
 
@@ -257,7 +267,7 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0;
+      return 0;// compare further
     }
   }
 }

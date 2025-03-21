@@ -1,25 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the `StringUtils` class from the `liquibase.util` package cannot be found.
-   - The error occurs at line 77 and line 12 in the `CreateIndexGeneratorMSSQL` class.
-   - This suggests that the `StringUtils` class has either been moved, renamed, or removed in the updated version of the Liquibase dependency.
-
-2. Review the client code:
-   - The problematic lines are the import statement for `liquibase.util.StringUtils` and the usage of `StringUtils.trimToNull(statement.getTablespace())`.
-   - The code is using `StringUtils.trimToNull` to check if the `tablespace` value is null or empty after trimming.
-
-3. Consider potential fixes:
-   - The `StringUtils` class might have been moved to a different package or replaced with a different utility class.
-   - A common replacement for `StringUtils` in newer versions of libraries is `org.apache.commons.lang3.StringUtils`.
-   - Alternatively, if the functionality is simple, we could replace the `StringUtils.trimToNull` call with a direct string manipulation.
-
-4. Plan the necessary changes:
-   - Replace the import statement for `liquibase.util.StringUtils` with `org.apache.commons.lang3.StringUtils`.
-   - Alternatively, replace the `StringUtils.trimToNull` call with a direct string manipulation using `statement.getTablespace().trim()` and a null check.
-</code_analysis>
-
-Here is the fixed class using the `org.apache.commons.lang3.StringUtils` approach:
-
 ```java
 package liquibase.ext.mssql.sqlgenerator;
 
@@ -110,5 +88,3 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
   }
 }
 ```
-
-This fix replaces the `liquibase.util.StringUtils` import with `org.apache.commons.lang3.StringUtils`, which is a common utility class for string manipulation. The rest of the code remains unchanged, ensuring that the functionality is preserved.

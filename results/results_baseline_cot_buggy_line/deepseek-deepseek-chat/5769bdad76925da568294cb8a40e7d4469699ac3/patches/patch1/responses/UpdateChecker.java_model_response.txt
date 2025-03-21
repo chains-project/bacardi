@@ -1,24 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error occurs at line 239 in UpdateChecker.java.
-   - The specific issue is that the `status` field in `org.kohsuke.github.GHCompare` is private and cannot be accessed directly.
-   - This suggests that the GitHub API library has been updated and the access to the `status` field has been restricted.
-
-2. Review the client code:
-   - The problematic line is in the `isAncestor` method where it tries to access `status` directly from a `GHCompare` object.
-   - The code is using the GitHub API to compare two commits and check their relationship.
-
-3. Consider potential fixes:
-   - The fix should use the public API methods provided by the newer version of the GitHub library.
-   - Instead of accessing the private `status` field, we should use the `getStatus()` method which is the proper way to access the status in newer versions.
-
-4. Plan the necessary changes:
-   - Modify the line accessing `status` to use `getStatus()` instead.
-   - This change maintains the same functionality while adhering to the updated API's access restrictions.
-</code_analysis>
-
-Here is the fixed class:
-
 ```java
 /*
  * The MIT License
@@ -234,8 +213,8 @@ public final class UpdateChecker {
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
             GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
-            GHCompare.Status status = compare.getStatus();
-            return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
+            String status = compare.getStatus();
+            return "identical".equals(status) || "behind".equals(status);
         } catch (FileNotFoundException x) {
             return false;
         }

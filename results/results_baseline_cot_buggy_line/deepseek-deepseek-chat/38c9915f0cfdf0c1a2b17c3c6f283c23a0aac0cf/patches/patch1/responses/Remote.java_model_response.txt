@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `RandomText` cannot be found in the package `org.cactoos.text`.
-   - This suggests that the `RandomText` class has either been moved, renamed, or removed in the newer version of the `cactoos` library.
-
-2. Review the client code:
-   - The problematic import is `import org.cactoos.text.RandomText;`.
-   - The `RandomText` class is used in the `Fake` constructor to create a repeated sequence of random text values.
-
-3. Consider potential fixes:
-   - The `RandomText` class might have been replaced by another class in the newer version of `cactoos`.
-   - A possible replacement could be `org.cactoos.text.TextOf` or `org.cactoos.text.RandomString`.
-   - The fix should replace the `RandomText` class with an equivalent class that provides similar functionality.
-
-4. Plan the necessary changes:
-   - Replace the import statement with the correct class from the newer version of `cactoos`.
-   - Update the code to use the new class in place of `RandomText`.
-</code_analysis>
-
 ```java
 /*
  * The MIT License (MIT)
@@ -45,7 +26,8 @@
 package io.zold.api;
 
 import org.cactoos.iterable.Repeated;
-import org.cactoos.text.RandomString;
+import org.cactoos.text.TextOf;
+import org.cactoos.text.UncheckedText;
 
 /**
  * Remote node.
@@ -88,7 +70,7 @@ public interface Remote {
          */
         public Fake(final int val) {
             this(new RtScore(
-                new Repeated<>(val, new RandomString())
+                new Repeated<>(val, new UncheckedText(new TextOf("random")))
             ));
         }
 
@@ -117,5 +99,3 @@ public interface Remote {
     }
 }
 ```
-
-In this fix, the `RandomText` class has been replaced with `RandomString`, which is a more likely candidate for generating random text in the newer versions of the `cactoos` library. This change should resolve the compilation error while maintaining the intended functionality of the code.

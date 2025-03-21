@@ -34,10 +34,10 @@ import java.util.Objects;
 public class Translation implements Serializable {
 
   private static final long serialVersionUID = 2556017420486245581L;
-  static final Function<com.google.cloud.translate.v3.TranslationsResource, Translation> FROM_PB_FUNCTION =
-      new Function<com.google.cloud.translate.v3.TranslationsResource, Translation>() {
+  static final Function<com.google.cloud.translate.v3.Translation, Translation> FROM_PB_FUNCTION =
+      new Function<com.google.cloud.translate.v3.Translation, Translation>() {
         @Override
-        public Translation apply(com.google.cloud.translate.v3.TranslationsResource translationPb) {
+        public Translation apply(com.google.cloud.translate.v3.Translation translationPb) {
           return Translation.fromPb(translationPb);
         }
       };
@@ -103,7 +103,7 @@ public class Translation implements Serializable {
         && Objects.equals(sourceLanguage, other.sourceLanguage);
   }
 
-  static Translation fromPb(com.google.cloud.translate.v3.TranslationsResource translationPb) {
+  static Translation fromPb(com.google.cloud.translate.v3.Translation translationPb) {
     return new Translation(
         translationPb.getTranslatedText(),
         translationPb.getDetectedSourceLanguage(),

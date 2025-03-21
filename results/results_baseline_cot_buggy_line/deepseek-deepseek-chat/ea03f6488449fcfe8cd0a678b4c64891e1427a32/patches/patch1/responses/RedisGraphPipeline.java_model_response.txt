@@ -1,29 +1,16 @@
-<code_analysis>
-1. Examine the error message:
-   - The error messages indicate that several classes from the `redis.clients.jedis.commands` package cannot be found. This suggests that the package structure or class names in the Jedis library have changed in the updated version.
-
-2. Review the client code:
-   - The client code imports and extends multiple interfaces from the `redis.clients.jedis.commands` package, but these interfaces are no longer available in the updated version of the Jedis library.
-
-3. Consider potential fixes:
-   - The fix should involve updating the imports and the extended interfaces to match the new package structure or class names in the updated Jedis library.
-   - Since the exact new package structure is not provided, we will assume that the interfaces have been moved to a different package or renamed.
-
-4. Plan the necessary changes:
-   - Update the imports to use the correct package or class names from the updated Jedis library.
-   - Update the extended interfaces in the `RedisGraphPipeline` class to match the new class names or package structure.
-</code_analysis>
-
 ```java
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
-import redis.clients.jedis.Pipeline;
-import redis.clients.jedis.BinaryJedisCommands;
-import redis.clients.jedis.MultiKeyCommands;
-import redis.clients.jedis.ClusterCommands;
-import redis.clients.jedis.ScriptingCommands;
-import redis.clients.jedis.BinaryScriptingCommands;
+import redis.clients.jedis.commands.*;
+import redis.clients.jedis.commands.ClusterPipeline;
+import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
+import redis.clients.jedis.commands.BasicRedisPipeline;
+import redis.clients.jedis.commands.BinaryRedisPipeline;
+import redis.clients.jedis.commands.RedisPipeline;
+import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
+import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;
+import redis.clients.jedis.commands.ScriptingCommandsPipeline;
 
 import java.io.Closeable;
 import java.util.List;
@@ -33,10 +20,10 @@ import java.util.Map;
  * An interface which aligned to Jedis Pipeline interface
  */
 public interface RedisGraphPipeline extends
-        BinaryJedisCommands,
-        MultiKeyCommands, ClusterCommands,
-        BinaryScriptingCommands, ScriptingCommands,
-        Pipeline, Closeable {
+        MultiKeyBinaryRedisPipeline,
+        MultiKeyCommandsPipeline, ClusterPipeline,
+        BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
+        BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
 
     /**
      * Execute a Cypher query.
@@ -172,5 +159,3 @@ public interface RedisGraphPipeline extends
     public Response<Long> waitReplicas(int replicas, long timeout);
 }
 ```
-
-In this fix, I have updated the imports and the extended interfaces to use the new package structure or class names from the updated Jedis library. The `RedisGraphPipeline` interface now extends `BinaryJedisCommands`, `MultiKeyCommands`, `ClusterCommands`, `BinaryScriptingCommands`, `ScriptingCommands`, `Pipeline`, and `Closeable`. This should resolve the compilation errors caused by the breaking dependency update.

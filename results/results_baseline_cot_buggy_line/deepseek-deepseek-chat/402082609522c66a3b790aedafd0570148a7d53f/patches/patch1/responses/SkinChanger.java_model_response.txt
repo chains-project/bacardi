@@ -1,24 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The errors indicate that the classes `CommandSource` and `TextSerializers` cannot be found in their respective packages.
-   - This suggests that the SpongeAPI dependency has been updated, and these classes have either been moved or renamed.
-
-2. Review the client code:
-   - The problematic areas are the imports and the usage of `CommandSource` and `TextSerializers`.
-   - The `sendMessageInvoker` method uses `TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage)` to send a message to the `invoker`.
-
-3. Consider potential fixes:
-   - Research the SpongeAPI documentation to find the new location or replacement for `CommandSource` and `TextSerializers`.
-   - Update the imports and any related code to use the new classes or methods.
-
-4. Plan the necessary changes to fix the issue:
-   - Replace `CommandSource` with `ServerPlayer` or `CommandCause` if they are the new equivalents.
-   - Replace `TextSerializers.LEGACY_FORMATTING_CODE` with the new method for deserializing text.
-   - Ensure the new imports are correctly referenced.
-</code_analysis>
-
-Based on the analysis, here is the fixed class:
-
 ```java
 package com.github.games647.changeskin.sponge.task;
 
@@ -26,15 +5,16 @@ import com.github.games647.changeskin.core.model.auth.Account;
 import com.github.games647.changeskin.core.shared.task.SharedSkinChanger;
 import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
-import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.serializer.TextSerializer;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
 public class SkinChanger extends SharedSkinChanger {
 
-    private final CommandCause invoker;
+    private final CommandSource invoker;
 
-    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandCause invoker) {
+    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker) {
         super(plugin.getCore(), owner, url, oldSkinUrl);
 
         this.invoker = invoker;
@@ -42,13 +22,7 @@ public class SkinChanger extends SharedSkinChanger {
 
     @Override
     protected void sendMessageInvoker(String localeMessage) {
-        TextSerializer serializer = Text.serializers().legacy();
-        invoker.sendMessage(serializer.deserialize(localeMessage));
+        invoker.sendMessage(TextSerializers.FORMATTING_CODE.deserialize(localeMessage));
     }
 }
 ```
-
-In this fix:
-- `CommandSource` has been replaced with `CommandCause`, which is the updated class in the newer SpongeAPI versions.
-- `TextSerializers.LEGACY_FORMATTING_CODE` has been replaced with `Text.serializers().legacy()`, which is the new way to get the legacy text serializer.
-- The imports have been updated to reflect the new class locations.

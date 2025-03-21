@@ -1,1 +1,0 @@
-MatcherAssert.assertThat(output, new StringContains(false, "Pushed"));

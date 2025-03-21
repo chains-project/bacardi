@@ -81,8 +81,8 @@ public class NodesFromYamlStream implements Function<ByteSource, LoadingCache<St
    @Override
    public LoadingCache<String, Node> apply(ByteSource source) {
 
-      LoaderOptions loaderOptions = new LoaderOptions();
-      Constructor constructor = new Constructor(Config.class, loaderOptions);
+      LoaderOptions options = new LoaderOptions();
+      Constructor constructor = new Constructor(Config.class, options);
 
       TypeDescription nodeDesc = new TypeDescription(YamlNode.class);
       nodeDesc.putListPropertyType("tags", String.class);

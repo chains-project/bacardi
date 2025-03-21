@@ -1,24 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the class `CommandSource` cannot be found.
-   - The error occurs in the import statement, field declaration, and constructor parameter.
-   - This suggests that the `CommandSource` class has been moved, renamed, or removed in the updated version of the SpongeAPI dependency.
-
-2. Review the client code:
-   - The problematic areas are the import statement for `CommandSource`, the field declaration `private final CommandSource invoker;`, and the constructor parameter `CommandSource invoker`.
-   - The `CommandSource` class is used to interact with the command sender in SpongeAPI.
-
-3. Consider potential fixes:
-   - The `CommandSource` class might have been replaced by a different class in the newer version of SpongeAPI.
-   - Researching the SpongeAPI documentation reveals that `CommandSource` has been replaced by `CommandCause` or `CommandExecutor` in newer versions.
-   - The fix should involve updating the import statement and replacing `CommandSource` with the appropriate new class.
-
-4. Plan the necessary changes:
-   - Update the import statement to use the new class.
-   - Replace all occurrences of `CommandSource` with the new class.
-   - Ensure that the new class provides the same functionality as `CommandSource`.
-</code_analysis>
-
 ```java
 package com.github.games647.changeskin.sponge.task;
 
@@ -28,15 +7,17 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.concurrent.TimeUnit;
 
-import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.scheduler.Task;
 
 public class SkinUploader extends SharedUploader {
 
     private final ChangeSkinSponge plugin;
-    private final CommandCause invoker;
+    private final CommandSource invoker;
 
-    public SkinUploader(ChangeSkinSponge plugin, CommandCause invoker, Account owner, String url) {
+    public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {
         super(plugin.getCore(), owner, url);
 
         this.plugin = plugin;
@@ -55,5 +36,3 @@ public class SkinUploader extends SharedUploader {
     }
 }
 ```
-
-In this fix, I replaced `CommandSource` with `CommandCause`, which is the updated class in the newer version of SpongeAPI. The import statement has also been updated to reflect this change. This should resolve the compilation errors while maintaining the intended functionality of the code.

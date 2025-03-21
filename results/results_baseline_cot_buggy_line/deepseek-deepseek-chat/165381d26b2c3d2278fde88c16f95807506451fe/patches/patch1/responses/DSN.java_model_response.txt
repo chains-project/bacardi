@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the class `PrettyPrinterConfiguration` cannot be found.
-   - The error occurs in two places: the import statement and the initialization of `noComments` in the `UnitTestsVisitor` class.
-   - This suggests that the `PrettyPrinterConfiguration` class has either been moved, renamed, or removed in the newer version of the `javaparser` dependency.
-
-2. Review the client code:
-   - The problematic areas are the import statement and the initialization of `noComments`.
-   - The `PrettyPrinterConfiguration` class is used to configure the pretty printing of Java code without comments.
-
-3. Consider potential fixes:
-   - The `PrettyPrinterConfiguration` class might have been moved to a different package or replaced with a different class.
-   - The fix should ensure that the correct class or alternative is used to achieve the same functionality.
-
-4. Plan the necessary changes:
-   - Update the import statement to use the correct package or class.
-   - Modify the initialization of `noComments` to use the correct class or alternative.
-</code_analysis>
-
 ```java
 /*
  * Copyright  2020 The BtrPlace Authors. All rights reserved.
@@ -284,7 +265,7 @@ public class DSN {
         Bench.mode = Bench.Mode.REPLAY;
         Bench.population = 1000;
         Bench.scale = 5;
-        Path p = Paths.get root, "errors.csv");
+        Path p = Paths.get(root, "errors.csv");
         Files.deleteIfExists(p);
         Bench.report = new CSVReport(p, "");
         sc.test(Bench.class).stream().forEach(x -> System.out.println(x.go()));
@@ -298,7 +279,7 @@ public class DSN {
         Bench.scale = 5;
 
         sc.test(Bench.class).forEach(x -> {
-            x.reportTo(new StoredReport(Paths.get("xp-dsn", "errors.txt"), r -> !r.result().equals(Result.SUCCESS)));
+            x.reportTo(new StoredReport(Paths.get("xp-dsn", "errors.txt"), r -> !r.result().equals(Result.SUCCESS));
             System.out.println(x.go());
         });
     }

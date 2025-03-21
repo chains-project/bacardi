@@ -1,18 +1,17 @@
-108,113c108,113
+108,112c108,113
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
 <                 flyway.setLocations(prop.getProperty("flyway.locations"));
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-<                 return flyway;
 ---
->         return Flyway.configure()
->                 .dataSource(this.dataSource())
->                 .classLoader(NisAppConfig.class.getClassLoader())
->                 .locations(prop.getProperty("flyway.locations"))
->                 .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
->                 .load();
-226c226
-<                 return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
+>                 final Flyway flyway = Flyway.configure()
+>                                 .dataSource(this.dataSource())
+>                                 .classLoader(NisAppConfig.class.getClassLoader())
+>                                 .locations(prop.getProperty("flyway.locations"))
+>                                 .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
+>                                 .load();
+246c247
+<                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
 ---
->         return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
+>                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions);

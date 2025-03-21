@@ -1,19 +1,3 @@
-<code_analysis>
-1. The error message indicates that the Flyway dependency has been updated, and the methods `setValidateOnMigrate`, `setLocations`, `setDataSource`, and `setClassLoader` are no longer available in the `Flyway` class. Additionally, the `Flyway` constructor now requires a `Configuration` object instead of being parameterless.
-
-2. The client code is using an older version of Flyway where these methods were available. The code needs to be updated to use the new Flyway API, which likely involves using a `Flyway.configure()` method to create a `Flyway` instance with the desired configuration.
-
-3. The fix should:
-   - Replace the direct instantiation of `Flyway` with `Flyway.configure()`.
-   - Use the `configuration` object to set the properties that were previously set using the deprecated methods.
-   - Ensure that the `Flyway` instance is created with the correct configuration.
-
-4. The specific modifications required are:
-   - Replace `new Flyway()` with `Flyway.configure()`.
-   - Use the `configuration` object to set the data source, class loader, locations, and validate on migrate properties.
-   - Ensure the `Flyway` instance is created with the correct configuration.
-</code_analysis>
-
 ```java
 package org.nem.specific.deploy.appconfig;
 
@@ -242,7 +226,7 @@ public class NisAppConfig {
 
 	@Bean
 	public SynchronizedPoxFacade poxFacade() {
-		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
+		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
 	}
 
 	@Bean
@@ -265,7 +249,7 @@ public class NisAppConfig {
 		final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<ImportanceCalculator>>() {
 			{
 				this.put(BlockChainFeature.PROOF_OF_IMPORTANCE,
-						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
+						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions);
 				this.put(BlockChainFeature.PROOF_OF_STAKE, PosImportanceCalculator::new);
 			}
 		};

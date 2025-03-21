@@ -26,8 +26,8 @@ package io.zold.api;
 import java.util.Comparator;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.IterableEnvelope;
-import org.cactoos.scalar.LengthOf;
 import org.cactoos.iterable.Sorted;
+import org.cactoos.scalar.LengthOf;
 
 /**
  * {@link Remote} nodes that should receive taxes.

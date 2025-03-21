@@ -21,10 +21,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
+import org.apache.thrift.transport.TFramedTransport;
 
 import java.io.BufferedOutputStream;
 import java.io.Closeable;

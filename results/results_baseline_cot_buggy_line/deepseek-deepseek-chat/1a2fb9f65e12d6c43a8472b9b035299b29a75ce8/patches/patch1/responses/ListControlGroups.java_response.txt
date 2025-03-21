@@ -91,7 +91,7 @@ public abstract class ListControlGroups<T> extends Panel {
 		this.renderers = renderers;
 	}
 
-	private Set<String] getPropertiesByOrder(Class<?> modelClass) {
+	private Set<String> getPropertiesByOrder(Class<?> modelClass) {
 		Set<String> properties = new LinkedHashSet<String>();
 
 		for(String property : entitySettings.getOrderOfFields()){

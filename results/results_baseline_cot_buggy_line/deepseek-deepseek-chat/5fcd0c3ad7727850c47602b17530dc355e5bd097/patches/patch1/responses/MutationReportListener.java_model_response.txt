@@ -1,26 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error occurs at line 105 in the `MutationReportListener` class.
-   - The specific issue is that the method `getClassInfo(java.util.Set<org.pitest.classinfo.ClassName>)` cannot be found in the `CoverageDatabase` class.
-   - This suggests that the `CoverageDatabase` interface or class has been updated, and the `getClassInfo` method signature has changed or been removed.
-
-2. Review the client code:
-   - The problematic line is in the `createSummaryData` method where `coverage.getClassInfo(Collections.singleton(data.getMutatedClass()))` is called.
-   - The `CoverageDatabase` interface is used to retrieve class information, but the method signature no longer matches.
-
-3. Consider potential fixes:
-   - The `getClassInfo` method might have been replaced or renamed in the updated dependency.
-   - We need to find the correct method in the `CoverageDatabase` interface that can provide the required class information.
-   - If the method has been renamed or its parameters have changed, we need to adjust the call accordingly.
-
-4. Plan the necessary changes:
-   - Investigate the updated `CoverageDatabase` interface to find the correct method to retrieve class information.
-   - Modify the `createSummaryData` method to use the correct method from the `CoverageDatabase` interface.
-   - Ensure that the fix does not introduce new issues and maintains the existing functionality.
-</code_analysis>
-
-Based on the analysis, here is the fixed class:
-
 ```java
 package org.pitest.elements;
 
@@ -160,5 +137,3 @@ public class MutationReportListener implements MutationResultListener {
   }
 }
 ```
-
-In the fixed class, the `createSummaryData` method now uses `coverage.getCoverageForClass(data.getMutatedClass())` instead of `coverage.getClassInfo(Collections.singleton(data.getMutatedClass()))`. This change assumes that the `getCoverageForClass` method is the correct method to retrieve class information in the updated `CoverageDatabase` interface. If the method name or signature is different in the actual updated dependency, you should adjust the call accordingly.

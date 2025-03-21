@@ -1,27 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error indicates that the class `Storages` cannot be found in the package `com.artipie.asto.factory`.
-   - The error occurs at line 43 and line 9 in the `YamlPolicyFactory` class.
-   - This suggests that the `Storages` class might have been moved, renamed, or removed in the updated dependency version.
-
-2. Review the client code:
-   - The problematic area is the usage of `new Storages().newStorage(...)`.
-   - The import statement `import com.artipie.asto.factory.Storages;` is also causing an error.
-   - The code is trying to create a storage instance using the `Storages` class, which is no longer available.
-
-3. Consider potential fixes:
-   - The `Storages` class might have been replaced by a different class or method in the updated dependency.
-   - The fix should involve using the correct class or method to create the storage instance.
-   - The import statement needs to be updated to reflect the correct package or class.
-
-4. Plan the necessary changes:
-   - Identify the new class or method that replaces `Storages` in the updated dependency.
-   - Update the import statement to use the correct class or package.
-   - Modify the code to use the new class or method for creating the storage instance.
-</code_analysis>
-
-Based on the analysis, here is the fixed Java class:
-
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
@@ -32,6 +8,7 @@ package com.artipie.security.policy;
 import com.amihaiemil.eoyaml.Yaml;
 import com.artipie.asto.blocking.BlockingStorage;
 import com.artipie.asto.Storage;
+import com.artipie.asto.factory.Config;
 import com.artipie.asto.factory.StorageFactory;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -67,7 +44,7 @@ public final class YamlPolicyFactory implements PolicyFactory {
             return new YamlPolicy(
                 new BlockingStorage(
                     StorageFactory.INSTANCE.newStorage(
-                        sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
+                        sub.string("type"), new Config.YamlStorageConfig(Yaml.createYamlInput(sub.toString()).readYamlMapping())
                     )
                 )
             );
@@ -77,9 +54,3 @@ public final class YamlPolicyFactory implements PolicyFactory {
     }
 }
 ```
-
-In this fix:
-- The `Storages` class has been replaced with `StorageFactory`.
-- The import statement has been updated to `import com.artipie.asto.factory.StorageFactory;`.
-- The method `newStorage` is now called on `StorageFactory.INSTANCE` instead of `new Storages()`.
-- The rest of the class remains unchanged, ensuring that the functionality is preserved while resolving the dependency issue.

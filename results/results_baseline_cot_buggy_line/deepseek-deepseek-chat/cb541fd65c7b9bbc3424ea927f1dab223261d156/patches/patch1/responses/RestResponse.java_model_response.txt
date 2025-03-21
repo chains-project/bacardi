@@ -1,15 +1,3 @@
-<code_analysis>
-1. The error message indicates that the class `org.hamcrest.Matchers` cannot be found. This suggests that the Hamcrest library is either missing or has been updated in a way that changes the package structure or class names.
-
-2. The client code uses `org.hamcrest.Matchers` in multiple places for assertions and matchers. The error is specifically on the import statement, which means the class is not available in the expected package.
-
-3. The potential fix involves updating the import statement to use the correct package or class from the updated Hamcrest library. Since the error is related to the import, we need to ensure that the correct package is used.
-
-4. The necessary change is to update the import statement to use the correct package or class. If the `Matchers` class has been moved or renamed, we need to import it from the new location. If the class is no longer available, we might need to use an alternative class or method from the updated Hamcrest library.
-</code_analysis>
-
-Here is the fixed class with the updated import statement:
-
 ```java
 /*
  * Copyright (c) 2011-2022, jcabi.com
@@ -58,10 +46,7 @@ import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.core.IsEqual;
-import org.hamcrest.core.IsNull;
-import org.hamcrest.core.StringContains;
-import org.hamcrest.collection.IsIterableContainingInAnyOrder;
+import org.hamcrest.core.IsCollectionContaining;
 
 /**
  * REST response.
@@ -223,7 +208,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, IsIterableContainingInAnyOrder.containsInAnyOrder(value));
+        return this.assertHeader(name, IsCollectionContaining.hasItems(value));
     }
 
     /**
@@ -259,7 +244,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            IsNull.notNullValue()
+            IsCollectionContaining.hasItems()
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -297,7 +282,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            IsNull.notNullValue()
+            IsCollectionContaining.hasItems()
         );
         assert cookie != null;
         return cookie;
@@ -345,8 +330,5 @@ public final class RestResponse extends AbstractResponse {
             return Response.class.cast(resp).status() == this.status;
         }
     }
-
 }
 ```
-
-In this fix, I replaced the `org.hamcrest.Matchers` import with specific imports from the `org.hamcrest.core` and `org.hamcrest.collection` packages. This ensures that the necessary matchers are available and resolves the compilation error. The specific matchers used in the code have been updated to their corresponding classes in the new package structure.

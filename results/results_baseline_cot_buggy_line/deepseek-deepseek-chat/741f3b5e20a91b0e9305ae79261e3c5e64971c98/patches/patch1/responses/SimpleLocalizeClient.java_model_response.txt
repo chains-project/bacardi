@@ -1,26 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the class `com.fasterxml.jackson.core.exc.StreamReadException` cannot be found.
-   - This error occurs at line 88 in the `SimpleLocalizeClient` class, specifically in the `fetchDownloadableFiles` method where `objectMapper.readValue(body, ExportResponse.class)` is called.
-   - The issue is likely due to a missing or incompatible version of the Jackson library, specifically the `jackson-core` module.
-
-2. Review the client code:
-   - The problematic line is where the `ObjectMapper` is used to deserialize JSON into an `ExportResponse` object.
-   - The `ObjectMapper` is part of the Jackson library, which is used for JSON processing.
-   - The error suggests that the `StreamReadException` class, which is part of the `jackson-core` module, is missing.
-
-3. Consider potential fixes:
-   - The most straightforward fix is to ensure that the correct version of the `jackson-core` library is included in the project dependencies.
-   - If the `jackson-core` library is already included but the version is incompatible, it may need to be updated to a version that includes the `StreamReadException` class.
-
-4. Plan the necessary changes to fix the issue:
-   - Add or update the `jackson-core` dependency in the project's build configuration (e.g., Maven or Gradle).
-   - Ensure that the `jackson-core` version is compatible with the `jackson-databind` version being used.
-   - No changes to the client code are necessary if the correct dependencies are in place.
-</code_analysis>
-
-Since the issue is related to missing dependencies rather than the client code itself, the fix involves ensuring that the correct version of the `jackson-core` library is included in the project. Below is the complete `SimpleLocalizeClient` class with no changes, as the issue is resolved by updating the project's dependencies:
-
 ```java
 package io.simplelocalize.cli.client;
 
@@ -109,8 +86,12 @@ public class SimpleLocalizeClient
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
     throwOnError(httpResponse);
     String body = httpResponse.body();
-    ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
-    return exportResponse.getFiles();
+    try {
+      ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
+      return exportResponse.getFiles();
+    } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+      throw new IOException("Failed to parse response", e);
+    }
   }
 
   public void downloadFile(DownloadableFile downloadableFile, String downloadPathTemplate)
@@ -188,15 +169,3 @@ public class SimpleLocalizeClient
   }
 }
 ```
-
-To resolve the issue, ensure that the `jackson-core` dependency is included in your project's build configuration. For example, in a Maven `pom.xml`, you would add:
-
-```xml
-<dependency>
-    <groupId>com.fasterxml.jackson.core</groupId>
-    <artifactId>jackson-core</artifactId>
-    <version>2.13.0</version> <!-- or the version compatible with your jackson-databind -->
-</dependency>
-```
-
-This will ensure that the `StreamReadException` class is available, resolving the compilation error.

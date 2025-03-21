@@ -1,43 +1,11 @@
-<code_analysis>
-1. Examine the error message:
-   - The error messages indicate that the classes `WebParam`, `WebMethod`, `WebResult`, `WebService`, and `SOAPBinding` from the `javax.jws` and `javax.jws.soap` packages cannot be found.
-   - This suggests that the JAX-WS (Java API for XML Web Services) dependencies are either missing or incorrectly configured in the project.
-
-2. Review the client code:
-   - The client code is a JAX-WS web service interface that uses annotations from the `javax.jws` and `javax.jws.soap` packages.
-   - The error occurs in multiple lines where these annotations are used, indicating a widespread issue with the JAX-WS dependencies.
-
-3. Consider potential fixes:
-   - The most likely cause is that the JAX-WS API is not included in the project's classpath.
-   - The fix should involve adding the necessary JAX-WS dependencies to the project's build configuration (e.g., Maven or Gradle).
-
-4. Plan the necessary changes:
-   - Add the JAX-WS API dependency to the project's build configuration.
-   - Ensure that the correct version of the JAX-WS API is used to maintain compatibility with the existing code.
-</code_analysis>
-
-Since the issue is related to missing dependencies rather than the code itself, the fix involves adding the necessary dependencies to the project's build configuration. Below is the Maven dependency that should be added to the `pom.xml` file:
-
-```xml
-<dependency>
-    <groupId>javax.xml.ws</groupId>
-    <artifactId>jaxws-api</artifactId>
-    <version>2.3.1</version>
-</dependency>
-```
-
-This dependency includes the `javax.jws` and `javax.jws.soap` packages required by the client code. Once this dependency is added, the code should compile without errors.
-
-Here is the complete, fixed Java class with the correct imports:
-
 ```java
 package com.premiumminds.billy.portugal.webservices.documents;
 
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebResult;
-import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
+import jakarta.jws.WebMethod;
+import jakarta.jws.WebParam;
+import jakarta.jws.WebResult;
+import jakarta.jws.WebService;
+import jakarta.jws.soap.SOAPBinding;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
 /**
@@ -86,7 +54,7 @@ public interface FatcorewsPort {
     @WebMethod(operationName = "DeleteInvoice")
     @WebResult(name = "DeleteInvoiceResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeleteInvoiceResponse")
     public DeleteInvoiceResponse deleteInvoice(
-        @WebParam(name = "DeleteInvoiceRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeleteInvoiceRequest")
+        @WebParam(name = "DeleteInvoiceRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents, partName = "DeleteInvoiceRequest")
         DeleteInvoiceRequest deleteInvoiceRequest);
 
     /**
@@ -108,9 +76,9 @@ public interface FatcorewsPort {
      *     returns com.premiumminds.billy.portugal.webservices.documents.ChangeWorkStatusResponse
      */
     @WebMethod(operationName = "ChangeWorkStatus")
-    @WebResult(name = "ChangeWorkStatusResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangeWorkStatusResponse")
+    @WebResult(name = "ChangeWorkStatusResponse", targetNamespace = "http://factemi.at.min_fin极as.pt/documents", partName = "ChangeWorkStatusResponse")
     public ChangeWorkStatusResponse changeWorkStatus(
-        @WebParam(name = "ChangeWorkStatusRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangeWorkStatusRequest")
+        @WebParam(name = "ChangeWorkStatusRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", part极ame = "ChangeWorkStatusRequest")
         ChangeWorkStatusRequest changeWorkStatusRequest);
 
     /**
@@ -128,7 +96,7 @@ public interface FatcorewsPort {
     /**
      * 
      * @param registerPaymentRequest
-     * @return
+    极 @return
      *     returns com.premiumminds.billy.portugal.webservices.documents.RegisterPaymentResponse
      */
     @WebMethod(operationName = "RegisterPayment")
@@ -156,12 +124,9 @@ public interface FatcorewsPort {
      *     returns com.premiumminds.billy.portugal.webservices.documents.DeletePaymentResponse
      */
     @WebMethod(operationName = "DeletePayment")
-    @WebResult(name = "DeletePaymentResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeletePaymentResponse")
+    @WebResult(name = "DeletePaymentResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "极letePaymentResponse")
     public DeletePaymentResponse deletePayment(
         @WebParam(name = "DeletePaymentRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeletePaymentRequest")
         DeletePaymentRequest deletePaymentRequest);
-
 }
 ```
-
-This class should now compile correctly once the JAX-WS API dependency is added to the project.

@@ -1,22 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The error message indicates that the `apply(String)` method cannot be found in the `FilterBuilder` class.
-   - This suggests that the `FilterBuilder` class in the updated version of the `org.reflections` library no longer has the `apply(String)` method.
-   - The error occurs in lines 64 and 69 of the `ClasspathScanner.java` file.
-
-2. Review the client code:
-   - The problematic lines are where `FilterBuilder` is used to filter classpath entries based on regex patterns.
-   - The `FilterBuilder` class is part of the `org.reflections.util` package, and its API has likely changed in the newer version.
-
-3. Consider potential fixes:
-   - The `FilterBuilder` class might have a different method to apply filters, such as `test(String)` or `matches(String)`.
-   - We need to replace the `apply(String)` method with the appropriate method available in the updated `FilterBuilder` class.
-
-4. Plan the necessary changes:
-   - Replace `apply(String)` with `test(String)` or `matches(String)` based on the updated `FilterBuilder` API.
-   - Ensure that the rest of the code remains unchanged to maintain functionality.
-</code_analysis>
-
 ```java
 /*----------------------------------------------------------------
  *  Copyright (c) ThoughtWorks, Inc.
@@ -81,12 +62,12 @@ public class ClasspathScanner {
     private boolean shouldScan(String s) {
         final String packagesToScan = System.getenv(PACKAGE_TO_SCAN);
         if (packagesToScan == null || packagesToScan.isEmpty()) {
-            return new FilterBuilder().include(".+\\.class").test(s);
+            return new FilterBuilder().includePattern(".+\\.class").test(s);
         }
         final String[] packages = packagesToScan.split(",");
         for (String packageToScan : packages) {
             String regex = String.format(".?\\.??%s\\..+\\.class", packageToScan);
-            if (new FilterBuilder().include(regex).test(s)) {
+            if (new FilterBuilder().includePattern(regex).test(s)) {
                 return true;
             }
         }
@@ -94,5 +75,3 @@ public class ClasspathScanner {
     }
 }
 ```
-
-In this fix, I replaced the `apply(String)` method with `test(String)` in the `FilterBuilder` class, which is the correct method to use in the updated version of the `org.reflections` library. This change ensures that the code compiles and functions correctly with the updated dependency.

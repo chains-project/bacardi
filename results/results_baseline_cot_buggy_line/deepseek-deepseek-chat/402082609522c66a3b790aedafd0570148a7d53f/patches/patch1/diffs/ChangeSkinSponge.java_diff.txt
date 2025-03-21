@@ -1,52 +1,59 @@
-23,25c23,24
+23,24c23,25
 < import org.spongepowered.api.command.CommandManager;
 < import org.spongepowered.api.command.CommandSource;
-< import org.spongepowered.api.config.ConfigDir;
 ---
+> import org.spongepowered.api.command.Command;
 > import org.spongepowered.api.command.CommandResult;
 > import org.spongepowered.api.command.manager.CommandManager;
-27,33c26,33
+27,29c28,30
 < import org.spongepowered.api.event.game.state.GameInitializationEvent;
 < import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 < import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
-< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
-< import org.spongepowered.api.network.ChannelRegistrar;
-< import org.spongepowered.api.plugin.Plugin;
-< import org.spongepowered.api.text.serializer.TextSerializers;
 ---
+> import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
 > import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 > import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
-> import org.spongepowered.api.network.channel.raw.RawDataChannel;
-> import org.spongepowered.api.network.channel.ChannelRegistrar;
-> import org.spongepowered.plugin.PluginContainer;
-> import org.spongepowered.plugin.builtin.jvm.Plugin;
-> import org.spongepowered.api.text.Text;
+32c33,34
+< import org.spongepowered.api.plugin.Plugin;
+---
+> import org.spongepowered.api.plugin.PluginContainer;
 > import org.spongepowered.api.text.serializer.TextSerializer;
-42c42
+40c42
+< @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+---
+> @PluginContainer(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+42c44
 < public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
 ---
-> public class ChangeSkinSponge implements PlatformPlugin<CommandResult> {
-62c62
+> public class ChangeSkinSponge implements PlatformPlugin<Command.Source> {
+53d54
+<     //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
+62,63c63
 <     public void onPreInit(GamePreInitializationEvent preInitEvent) {
+<         //load config and database
 ---
->     public void onPreInit(StartedEngineEvent<PluginContainer> preInitEvent) {
+>     public void onPreInit(StartedEngineEvent<?> preInitEvent) {
 73c73
 <     public void onInit(GameInitializationEvent initEvent) {
 ---
->     public void onInit(StartedEngineEvent<PluginContainer> initEvent) {
-100c100
+>     public void onInit(RegisterCommandEvent<Command.Parameterized> initEvent) {
+79d78
+<         //command and event register
+89d87
+<         //incoming channel
+100c98
 <     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
 ---
->     public void onShutdown(StoppingEngineEvent<PluginContainer> stoppingServerEvent) {
-109c109
+>     public void onShutdown(StoppingEngineEvent<?> stoppingServerEvent) {
+108,109c106
+<     @Override
 <     public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
 ---
->     public boolean hasSkinPermission(CommandResult invoker, UUID uuid, boolean sendMessage) {
-142c142
+>     public boolean hasSkinPermission(Command.Source invoker, UUID uuid, boolean sendMessage) {
+114d110
+<         //disallow - not whitelisted or blacklisted
+141,142c137
+<     @Override
 <     public void sendMessage(CommandSource receiver, String key) {
 ---
->     public void sendMessage(CommandResult receiver, String key) {
-145c145
-<             receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
----
->             receiver.sendMessage(TextSerializer.LEGACY_FORMATTING_CODE.deserialize(message));
+>     public void sendMessage(Command.Source receiver, String key) {

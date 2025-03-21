@@ -1,19 +1,29 @@
-3c3
+3d2
 < import com.flowpowered.math.vector.Vector3d;
----
-> import org.spongepowered.math.vector.Vector3d;
-12,13c12
-< import org.spongepowered.api.command.CommandSource;
+13d11
 < import org.spongepowered.api.data.key.Keys;
+18a17,24
+> import org.spongepowered.api.data.key.Keys;
+> import org.spongepowered.api.util.Tristate;
+> import org.spongepowered.api.util.Identifiable;
+> import org.spongepowered.api.profile.GameProfile;
+> import org.spongepowered.api.text.Text;
+> import org.spongepowered.api.entity.Entity;
+> import org.spongepowered.api.entity.Transform;
+> import org.spongepowered.api.world.storage.WorldProperties;
+84,85c90,91
+<         receiver.offer(Keys.VANISH, true);
+<         receiver.offer(Keys.VANISH, false);
 ---
-> import org.spongepowered.api.command.CommandCause;
-18a18
-> import org.spongepowered.api.data.Keys;
-23c23
-<     private final CommandSource invoker;
+>         receiver.offer(Keys.VANISH, Tristate.TRUE);
+>         receiver.offer(Keys.VANISH, Tristate.FALSE);
+99c105
+<         Vector3d rotation = receiver.getRotation();
 ---
->     private final CommandCause invoker;
-26c26
-<     public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
+>         Transform<World> transform = receiver.getTransform();
+106,107c112,113
+<                     receiver.setLocation(world.getSpawnLocation());
+<                     receiver.setLocationAndRotation(oldLocation, rotation);
 ---
->     public SkinApplier(ChangeSkinSponge plugin, CommandCause invoker, Player receiver, SkinModel targetSkin
+>                     receiver.setTransform(new Transform<>(world, world.getSpawnLocation(), transform.getRotation()));
+>                     receiver.setTransform(new Transform<>(oldLocation.getExtent(), oldLocation.getPosition(), transform.getRotation()));

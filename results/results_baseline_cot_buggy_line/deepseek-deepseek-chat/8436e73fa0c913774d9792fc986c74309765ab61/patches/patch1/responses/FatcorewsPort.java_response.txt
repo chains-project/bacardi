@@ -1,10 +1,10 @@
 package com.premiumminds.billy.portugal.webservices.documents;
 
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebResult;
-import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
+import jakarta.jws.WebMethod;
+import jakarta.jws.WebParam;
+import jakarta.jws.WebResult;
+import jakarta.jws.WebService;
+import jakarta.jws.soap.SOAPBinding;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
 /**
@@ -53,7 +53,7 @@ public interface FatcorewsPort {
     @WebMethod(operationName = "DeleteInvoice")
     @WebResult(name = "DeleteInvoiceResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeleteInvoiceResponse")
     public DeleteInvoiceResponse deleteInvoice(
-        @WebParam(name = "DeleteInvoiceRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeleteInvoiceRequest")
+        @WebParam(name = "DeleteInvoiceRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents, partName = "DeleteInvoiceRequest")
         DeleteInvoiceRequest deleteInvoiceRequest);
 
     /**
@@ -75,9 +75,9 @@ public interface FatcorewsPort {
      *     returns com.premiumminds.billy.portugal.webservices.documents.ChangeWorkStatusResponse
      */
     @WebMethod(operationName = "ChangeWorkStatus")
-    @WebResult(name = "ChangeWorkStatusResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangeWorkStatusResponse")
+    @WebResult(name = "ChangeWorkStatusResponse", targetNamespace = "http://factemi.at.min_fin极as.pt/documents", partName = "ChangeWorkStatusResponse")
     public ChangeWorkStatusResponse changeWorkStatus(
-        @WebParam(name = "ChangeWorkStatusRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangeWorkStatusRequest")
+        @WebParam(name = "ChangeWorkStatusRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", part极ame = "ChangeWorkStatusRequest")
         ChangeWorkStatusRequest changeWorkStatusRequest);
 
     /**
@@ -95,7 +95,7 @@ public interface FatcorewsPort {
     /**
      * 
      * @param registerPaymentRequest
-     * @return
+    极 @return
      *     returns com.premiumminds.billy.portugal.webservices.documents.RegisterPaymentResponse
      */
     @WebMethod(operationName = "RegisterPayment")
@@ -123,9 +123,8 @@ public interface FatcorewsPort {
      *     returns com.premiumminds.billy.portugal.webservices.documents.DeletePaymentResponse
      */
     @WebMethod(operationName = "DeletePayment")
-    @WebResult(name = "DeletePaymentResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeletePaymentResponse")
+    @WebResult(name = "DeletePaymentResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "极letePaymentResponse")
     public DeletePaymentResponse deletePayment(
         @WebParam(name = "DeletePaymentRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeletePaymentRequest")
         DeletePaymentRequest deletePaymentRequest);
-
 }

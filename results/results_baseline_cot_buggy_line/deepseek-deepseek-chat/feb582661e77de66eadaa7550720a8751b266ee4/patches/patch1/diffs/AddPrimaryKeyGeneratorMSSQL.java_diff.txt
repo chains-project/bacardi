@@ -1,9 +1,33 @@
-12d11
+12c12
 < import liquibase.util.StringUtils;
-67,68c66,68
-<     if (StringUtils.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
-<       sql += " ON "+statement.getTablespace();
 ---
->     String tablespace = statement.getTablespace();
->     if (tablespace != null && !tablespace.trim().isEmpty() && database.supportsTablespaces()) {
->       sql += " ON "+tablespace.trim();
+> import org.apache.commons.lang3.StringUtils;
+20,30d19
+<   /**
+<    * Conditionally executes to extension's custom Primary Key SQL generation process if statement is the
+<    * AddPrimaryKeyStatementMSSQL implementation and the custom attribute (fillFactor) is set.
+<    *
+<    * Otherwise, defers to default liquibase implementation.
+<    *
+<    * @param statement
+<    * @param database
+<    * @param sqlGeneratorChain
+<    * @return
+<    */
+40,51d28
+<   /**
+<    * The extension's implementation is essentially a copy/paste of the default implementation, with the following changes:
+<    *
+<    * 1) Removed other database platform specific logic other than MSSQL (purely to simplify)
+<    *
+<    * 2) Added support for setting fillFactor
+<    *
+<    * @param statement
+<    * @param database
+<    * @param sqlGeneratorChain
+<    * @return
+<    */
+64d40
+<     // the only new feature being added is support for fillFactor
+84d59
+< 

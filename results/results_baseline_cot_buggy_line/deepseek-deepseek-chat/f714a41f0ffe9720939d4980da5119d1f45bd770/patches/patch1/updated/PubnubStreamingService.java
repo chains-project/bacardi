@@ -87,27 +87,15 @@ public class PubnubStreamingService {
                   LOG.debug("PubNub signal: {}", pnSignalResult.toString());
                 }
 
-                public void user(PubNub pubnub, Object pnUserResult) {
-                  LOG.debug("PubNub user: {}", pnUserResult.toString());
-                }
-
-                public void space(PubNub pubnub, Object pnSpaceResult) {
-                  LOG.debug("PubNub space: {}", pnSpaceResult.toString());
-                }
-
-                public void membership(PubNub pubnub, Object pnMembershipResult) {
-                  LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
+                @Override
+                public void file(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult pnFileEventResult) {
+                  LOG.debug("PubNub file: {}", pnFileEventResult.toString());
                 }
 
                 @Override
                 public void messageAction(
                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
                   LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
-                }
-
-                @Override
-                public void file(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult pnFileEventResult) {
-                  LOG.debug("PubNub file: {}", pnFileEventResult.toString());
                 }
               });
           e.onComplete();

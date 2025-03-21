@@ -23,7 +23,6 @@ public class UpdateSkinListener implements MessageHandler<UpdateSkinListener> {
     @Inject
     private ChangeSkinSponge plugin;
 
-    @Override
     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
         SkinUpdateMessage updateMessage = new SkinUpdateMessage();

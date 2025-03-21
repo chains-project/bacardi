@@ -1,26 +1,3 @@
-<code_analysis>
-1. Examine the error message:
-   - The errors indicate that the package `org.assertj.core.internal.bytebuddy` and its sub-packages do not exist.
-   - This suggests that the ByteBuddy dependency has been updated or changed, and the internal package structure has been modified.
-   - The errors occur in multiple imports and class usages, indicating a widespread issue with the ByteBuddy dependency.
-
-2. Review the client code:
-   - The code heavily relies on ByteBuddy for dynamic class generation and method interception.
-   - The imports and class usages related to ByteBuddy are causing compilation errors.
-   - The `VavrAssumptions` class uses ByteBuddy for creating assumption classes and intercepting methods.
-
-3. Consider potential fixes:
-   - Update the imports to use the correct ByteBuddy package structure.
-   - Ensure that the ByteBuddy classes and methods used in the code are compatible with the updated dependency version.
-   - Replace deprecated or removed classes/methods with their updated equivalents.
-
-4. Plan the necessary changes:
-   - Update the imports to use the correct ByteBuddy package structure.
-   - Replace `org.assertj.core.internal.bytebuddy` with `net.bytebuddy` in all imports.
-   - Ensure that the `ByteBuddy`, `TypeCache`, `Implementation`, and other related classes are correctly imported and used.
-   - Verify that the `RuntimeType`, `This`, and `SuperCall` annotations are correctly imported from the updated ByteBuddy package.
-</code_analysis>
-
 ```java
 /*
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
@@ -47,7 +24,6 @@ import io.vavr.control.Try;
 import io.vavr.control.Validation;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.TypeCache;
-import net.bytebuddy.TypeCache.SimpleKey;
 import net.bytebuddy.dynamic.scaffold.TypeValidation;
 import net.bytebuddy.implementation.Implementation;
 import net.bytebuddy.implementation.MethodDelegation;
@@ -76,7 +52,7 @@ public class VavrAssumptions {
 
     private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
 
-    private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
+    private static final TypeCache<TypeCache.SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
 
     private static final class AssumptionMethodInterceptor {
 
@@ -236,7 +212,7 @@ public class VavrAssumptions {
 
     @SuppressWarnings("unchecked")
     private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass) {
-        SimpleKey cacheKey = new SimpleKey(assertClass);
+        TypeCache.SimpleKey cacheKey = new TypeCache.SimpleKey(assertClass);
         return (Class<ASSERTION>) CACHE.findOrInsert(VavrAssumptions.class.getClassLoader(),
                 cacheKey,
                 () -> generateAssumptionClass(assertClass));

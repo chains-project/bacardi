@@ -1,7 +1,3 @@
-Based on the error message and code analysis, the issue appears to be related to the SLF4J logging framework. The error suggests that the `LoggingEventAware` interface from `org.slf4j.spi` package is missing, which is likely due to a version incompatibility or missing dependency.
-
-Here's the fixed version of the class:
-
 ```java
 package uk.gov.pay.adminusers.queue.event;
 
@@ -10,6 +6,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.GsonBuilder;
 import org.hamcrest.core.Is;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -112,21 +109,42 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
         logger.setLevel(Level.INFO);
         logger.addAppender(mockLogAppender);
     }
 
-    // ... (rest of the test methods remain unchanged)
-}
-```
+    @Test
+    void shouldMarkMessageAsProcessed() throws Exception {
+        disputeEvent = anEventFixture()
+                .withEventType(EventType.DISPUTE_CREATED.name())
+                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
+                .withParentResourceExternalId("456")
+                .build();
+        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
+        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+        when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
 
-The main change is in the `setUp()` method where I modified the logger initialization. Instead of getting the logger for `EventMessageHandler.class`, I'm now using `Logger.ROOT_LOGGER_NAME`. This change avoids the dependency on the `LoggingEventAware` interface that was causing the compilation error.
+        var mockQueueMessage = mock(QueueMessage.class);
+        var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
+        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
 
-The rest of the class remains unchanged as the issue was specifically related to the logger initialization. This fix should resolve the compilation error while maintaining the same logging functionality.
+        eventMessageHandler.processMessages();
 
-Make sure you have the correct versions of SLF4J and Logback in your project dependencies. The recommended versions are:
-- SLF4J API: 1.7.x or later
-- Logback Classic: 1.2.x or later
+        verify(mockEventSubscriberQueue).markMessageAsProcessed(mockQueueMessage);
+    }
 
-These versions should be compatible with each other and provide the necessary logging functionality without the `LoggingEventAware` interface dependency.
+    @Test
+    void shouldHandleDisputeCreatedEvent() throws QueueException {
+        var mockQueueMessage = mock(QueueMessage.class);
+        disputeEvent = anEventFixture()
+                .withEventType(EventType.DISPUTE_CREATED.name())
+                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId, "reason", "fraudulent")))
+                .withParentResourceExternalId("456")
+                .build();
+        var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
+        when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
+        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+
+        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
+        when(mockLedgerService.getTransaction(transaction.getTransactionId()))

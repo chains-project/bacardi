@@ -45,7 +45,7 @@ public class Neuron
     public void input(ArrayList<Input> inputData)
     {
         inputData.parallelStream().forEachOrdered(input -> input(input.getWeightingValue()));
-        setValue(sigmoid(sum));
+        setValue(1 / (1 + Math.exp(-sum)));
     }
 
     /**
@@ -56,16 +56,5 @@ public class Neuron
     public void input(double value)
     {
         sum += value;
-    }
-
-    /**
-     * Sigmoid function implementation.
-     *
-     * @param x the input value.
-     * @return the sigmoid of x.
-     */
-    private double sigmoid(double x)
-    {
-        return 1 / (1 + Math.exp(-x));
     }
 }

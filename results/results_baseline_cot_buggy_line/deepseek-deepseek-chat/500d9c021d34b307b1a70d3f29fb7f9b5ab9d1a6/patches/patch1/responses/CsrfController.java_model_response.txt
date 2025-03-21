@@ -1,47 +1,23 @@
-<code_analysis>
-1. Examine the error message:
-   - The errors indicate that the packages `javax.mvc`, `javax.mvc.security`, and `javax.mvc.binding` do not exist.
-   - The specific classes `CsrfProtected`, `UriRef`, `MvcBinding`, `Models`, `BindingResult`, `Controller`, and `ParamError` cannot be found.
-   - This suggests that the code is using outdated or incorrect package names for the MVC framework.
-
-2. Review the client code:
-   - The code is using `javax.mvc` and related packages, which are likely from an older version of the MVC specification.
-   - The newer versions of the MVC specification (e.g., Jakarta MVC) have moved to the `jakarta.mvc` namespace.
-
-3. Consider potential fixes:
-   - Update the import statements to use the `jakarta.mvc` namespace instead of `javax.mvc`.
-   - Ensure that the correct classes are imported from the `jakarta.mvc` package.
-
-4. Plan the necessary changes to fix the issue:
-   - Replace all `javax.mvc` imports with `jakarta.mvc`.
-   - Ensure that the class names and annotations remain the same, but are sourced from the correct package.
-</code_analysis>
-
 ```java
 package com.example.web;
 
 import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import jakarta.mvc.Controller;
-import jakarta.mvc.Models;
-import jakarta.mvc.UriRef;
-import jakarta.mvc.binding.BindingResult;
-import jakarta.mvc.binding.MvcBinding;
-import jakarta.mvc.binding.ParamError;
-import jakarta.mvc.security.CsrfProtected;
 import javax.validation.constraints.NotBlank;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.mvc.MvcContext;
+import javax.mvc.binding.MvcBinding;
+import javax.mvc.binding.BindingResult;
+import javax.mvc.binding.ParamError;
+import javax.mvc.Models;
+import javax.mvc.security.CsrfProtected;
 
-/**
- *
- * @author hantsy
- */
 @Path("csrf")
-@Controller
+@javax.mvc.annotation.Controller
 @RequestScoped
 public class CsrfController {
 

@@ -1,17 +1,3 @@
-<code_analysis>
-1. The error message indicates that the package `javax.validation` and its sub-packages (`javax.validation.constraints`, `javax.validation.metadata`) do not exist. This suggests that the code is using the old `javax.validation` API, which has been moved to `jakarta.validation` in newer versions.
-
-2. The client code is using classes like `Validator`, `BeanDescriptor`, `ElementDescriptor`, `ConstraintDescriptor`, and annotations like `@NotNull`, `@NotEmpty`, and `@NotBlank` from the `javax.validation` package. These classes and annotations are no longer available in the `javax.validation` package due to the migration to `jakarta.validation`.
-
-3. The fix involves updating the imports to use the `jakarta.validation` package instead of `javax.validation`. This change will resolve the compilation errors without altering the functionality of the code.
-
-4. The necessary changes are:
-   - Replace all `javax.validation` imports with `jakarta.validation` imports.
-   - Ensure that the `HibernateValidatorProperty.validatorFactory.getValidator()` still returns a `jakarta.validation.Validator` instance.
-
-5. The fix will address the root cause of the error by updating the imports to match the new package structure. This change is straightforward and does not introduce any side effects.
-</code_analysis>
-
 ```java
 /**
  * Copyright (C) 2014 Premium Minds.
@@ -78,7 +64,7 @@ public abstract class ListControlGroups<T> extends Panel {
 	@SuppressWarnings("rawtypes")
 	private final Map<Class<?>, Class<? extends AbstractControlGroup>> typesControlGroups = new HashMap<Class<?>, Class<? extends AbstractControlGroup>>();
 
-	private List<ObjectProperties] objectProperties;
+	private List<ObjectProperties> objectProperties;
 	private CrudifierEntitySettings entitySettings;
 	private Map<Class<?>, IObjectRenderer<?>> renderers;
 
@@ -181,90 +167,4 @@ public abstract class ListControlGroups<T> extends Panel {
 					if(typesControlGroup==ObjectChoiceControlGroup.class){
 						IObjectRenderer<?> renderer = renderers.get(objectProperty.type);
 						if(renderer==null){
-							renderer = new IObjectRenderer<Object>() {
-								private static final long serialVersionUID = -6171655578529011405L;
-
-								public String render(Object object) {
-									return object.toString();
-								}
-							};
-						}
-						((ObjectChoiceControlGroup<?>) controlGroup).setConfiguration(getEntityProvider(objectProperty.name), renderer);
-					} else if(typesControlGroup==CollectionControlGroup.class){
-						((CollectionControlGroup<?>) controlGroup).setConfiguration(getEntityProvider(objectProperty.name), renderers);
-					}
-
-				} else {
-					controlGroup = controlGroupProviders
-							.get(objectProperty.type)
-							.createControlGroup(view.newChildId()
-									, new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name)
-									, objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
-				}
-				view.add(controlGroup);
-
-				fieldComponents.put(objectProperty.name, controlGroup);
-			} catch (SecurityException e) {
-				throw new RuntimeException(e);
-			} catch (NoSuchMethodException e) {
-				throw new RuntimeException(e);
-			} catch (IllegalArgumentException e) {
-				throw new RuntimeException(e);
-			} catch (InstantiationException e) {
-				throw new RuntimeException(e);
-			} catch (IllegalAccessException e) {
-				throw new RuntimeException(e);
-			} catch (InvocationTargetException e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		add(view);
-	}
-
-	@SuppressWarnings("unchecked")
-	public IModel<T> getModel(){
-		return (IModel<T>) getDefaultModel();
-	}
-
-	public Component getResourceBase(){
-		return this;
-	}
-
-	public Map<String, AbstractControlGroup<?>> getFieldsControlGroup(){
-		return Collections.unmodifiableMap(fieldComponents);
-	}
-
-	@SuppressWarnings("rawtypes")
-	private Class<? extends AbstractControlGroup> getControlGroupByType(Class<?> type){
-		for(Class<?> mapType : typesControlGroups.keySet()){
-			if(type.isAssignableFrom(mapType)) return typesControlGroups.get(mapType);
-		}
-		return null;
-	}
-
-	private static final class ObjectProperties implements Serializable {
-		private static final long serialVersionUID = 1747577998897955928L;
-		private String name;
-		private boolean enabled;
-		private Class<?> type;
-		private boolean required;
-
-		public ObjectProperties(PropertyDescriptor descriptor, boolean required){
-			this.name = descriptor.getName();
-			this.enabled = descriptor.getWriteMethod()!=null;
-			this.type = descriptor.getPropertyType();
-			this.required = required;
-		}
-	}
-
-	@SuppressWarnings("rawtypes")
-	public Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap(){
-		return typesControlGroups;
-	}
-	
-	public Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> getControlGroupProviders(){
-		return this.controlGroupProviders;
-	}
-}
-```
+					
