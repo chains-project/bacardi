@@ -118,6 +118,17 @@ if output_build_success_latex:
 
     print(f"LaTeX table (BUILD_SUCCESS only, Prompt rows) with row coloring saved to {build_success_latex_file}")
 
+ # Rename LLMs
+counts_df.columns = pd.MultiIndex.from_tuples(
+    [(llm.replace("o3", "o3-mini")
+            .replace("deepseek", "Deepseek V3")
+            .replace("gemini", "Gemini-2.0-flash")
+            .replace("gpt", "Gpt-4o-mini")
+            .replace("qwen", "Qwen2.5-32b-instruct"), prompt)
+        for llm, prompt in counts_df.columns]
+)
+  
+
 if outupt_other_cat_plot:
      # Make a copy of counts_df to process for plotting.
     plot_df = counts_df.copy()
@@ -164,7 +175,7 @@ if outupt_other_cat_plot:
     plt.savefig(other_cat_plot)
     print(f"Plot saved to {other_cat_plot}")
 
-  
+   
 
 if output_sep_cat_plot:
     # Create a copy of counts_df for per-category plots.
