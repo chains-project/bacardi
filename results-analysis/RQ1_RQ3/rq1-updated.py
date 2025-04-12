@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 import matplotlib.pyplot as plt
+import re
 
 output_csv= False
 output_excel= False
@@ -9,9 +10,10 @@ output_latex= False
 output_build_success_latex= False
 outupt_other_cat_plot=False
 output_sep_cat_plot=True
+output_pgfkeys= False
 
 input_file = "rq1_data.csv"
-output_dir = "rq1-final-output"
+output_dir = "rq1-new-output"
 
 # Check if the output directory exists, if not create it
 if not os.path.exists(output_dir):
@@ -25,8 +27,25 @@ excel_file = output_dir+"/rq1_by_llm.xlsx"
 latex_file = output_dir+"/rq1_by_llm.tex"
 build_success_latex_file = output_dir+"/build_success_rq1.tex"
 other_cat_plot = output_dir+"/other_cat_plot.png"
+pgfkeys_file = output_dir+"/rq1_by_llm_pgfkeys.tex"
 
 prompts={("$P_1$","results_baseline"),("$P_2$","results_baseline_buggy_line"),("$P_3$","results_baseline_api_diff"), ("$P_4$","results_baseline_buggy_line_api_diff"),("$P_5$","results_baseline_cot"), ("$P_6$","results_baseline_cot_buggy_line"), ("$P_7$","results_baseline_api_diff_cot"), ("$P_8$","results_baseline_api_diff_cot_buggy")}
+
+llm_mapping = {
+    "deepseek": "\\textbf{Deepseek V3}",
+    "gemini": "\\textbf{Gemini-2.0-flash}",
+    "gpt": "\\textbf{Gpt-4o-mini}",
+    "o3": "\\textbf{Gpt-4o-mini}",
+    "qwen": "\\textbf{Qwen2.5-32b-instruct}"
+}
+
+llm_colors = {
+    "Deepseek V3": "#1f77b4",  # Blue
+    "Gemini-2.0-flash": "#ff7f0e",    # Orange
+    "Gpt-4o-mini": "#9467bd",       # Purple
+    "o3-mini": "#2ca02c",        # Green
+    "Qwen2.5-32b-instruct": "#d62728"       # Red
+}
 
 df = pd.read_csv(input_file)
 
@@ -49,6 +68,12 @@ for col in df_no_commit.columns:
 
     # 4. Get the distribution of status values for this column
     value_counts = df_no_commit[col].value_counts()
+
+    # Consider DEPENDENCY_RESOLUTION_FAILURE and WERROR_FAILURE as BUILD_SUCCESS
+    if "DEPENDENCY_RESOLUTION_FAILURE" in value_counts:
+        value_counts["BUILD_SUCCESS"] += value_counts.pop("DEPENDENCY_RESOLUTION_FAILURE")
+    if "WERROR_FAILURE" in value_counts:
+        value_counts["BUILD_SUCCESS"] += value_counts.pop("WERROR_FAILURE")
 
     # Find the matching tuple in prompts and replace prompt_part
     for prompt_tuple in prompts:
@@ -74,6 +99,15 @@ if output_excel:
     counts_df.to_excel(excel_file, index=True)
     print(f"Excel file saved to {excel_file}")
 
+# # Update counts_df before generating LaTeX table and plots
+# # Consider DEPENDENCY_RESOLUTION_FAILURE and WERROR_FAILURE as BUILD_SUCCESS
+# if "DEPENDENCY_RESOLUTION_FAILURE" in counts_df.index:
+#     counts_df.loc["BUILD_SUCCESS"] += counts_df.loc["DEPENDENCY_RESOLUTION_FAILURE"]
+#     counts_df = counts_df.drop("DEPENDENCY_RESOLUTION_FAILURE")
+# if "WERROR_FAILURE" in counts_df.index:
+#     counts_df.loc["BUILD_SUCCESS"] += counts_df.loc["WERROR_FAILURE"]
+#     counts_df = counts_df.drop("WERROR_FAILURE")
+
 if output_latex:
     # 7. Save the entire table to a LaTeX file
     counts_df.to_latex(
@@ -86,37 +120,58 @@ if output_latex:
     )
     print(f"LaTeX table saved to {latex_file}")
 
-#if recreating the table for the overleaf table, generate the file and only copy the values part as some of the table format in overleaf where edited manually
+# Process PGFKeys Output
+highest_build_success_key = None
+highest_build_success_value = 0 
+
+
+if output_pgfkeys:
+    with open(pgfkeys_file, "w") as f:
+        f.write(f"\\pgfkeyssetvalue{{total_commits}}{{{total_commits}}}\n")
+        for (llm, prompt), values in counts_dict.items():
+            prompt_clean = re.sub(r'\$','', prompt)  # Remove $$ around the prompt name
+            key_base = f"{llm}_{prompt_clean}"
+            for status, count in values.items():
+                percentage = (count / total_commits) * 100
+                f.write(f"\\pgfkeyssetvalue{{{key_base}_{status}}}{{{count}}}\n")
+                f.write(f"\\pgfkeyssetvalue{{{key_base}_{status}_percent}}{{{percentage:.2f}}}\n")
+                
+                if status == "BUILD_SUCCESS" and count > highest_build_success_value:
+                    highest_build_success_value = count
+                    highest_build_success_key = key_base+"_BUILD_SUCCESS"
+    print(f"PGFKeys file saved to {pgfkeys_file}")
+
+# LaTeX Output with Updated Headers and Highlighting
 if output_build_success_latex:
-    # 1. Filter to get only the BUILD_SUCCESS row (still numeric at this point)
     counts_build_success = counts_df.loc[["BUILD_SUCCESS"]]
-
-    # 2. Pivot so that Prompts are rows and LLMs are columns.
-    pivoted = counts_build_success.stack(level=1, future_stack=True)  # Moves Prompt into the row index
-    pivoted.index = pivoted.index.droplevel(0)     # Drop BUILD_SUCCESS from the row index
-    pivoted = pivoted.astype(object)               # Convert to object so we can store strings
-
-    # 3. Format each cell as "count/total_commits (XX.XX%)"
+    pivoted = counts_build_success.stack(level=1, future_stack=True)
+    pivoted.index = pivoted.index.droplevel(0)
+    pivoted = pivoted.astype(object)
+    
     for prompt in pivoted.index:
+        prompt_clean = re.sub(r'\$','', prompt)  # Remove $$ for LaTeX key usage
         for llm in pivoted.columns:
-            count_val = pivoted.loc[prompt, llm]
-            percentage = (count_val / total_commits) * 100
-            pivoted.loc[prompt, llm] = f"{count_val}\\{total_commits} ({percentage:.2f}\\%)"
-
-    # 4. Generate LaTeX code, then insert \rowcolors
-    latex_str = pivoted.to_latex(
+            key_base = f"{llm}_{prompt_clean}_BUILD_SUCCESS"
+            value_str = f"\\pgfkeysvalueof{{{key_base}}}/\\finaldata~(\\pgfkeysvalueof{{{key_base}_percent}}\\%)"
+            if key_base == highest_build_success_key:
+                value_str = f"\\textbf{{{value_str}}}"
+            pivoted.loc[prompt, llm] = value_str
+    
+    pivoted.columns = [llm_mapping.get(col, col) for col in pivoted.columns]  # Update column headers
+    
+    latex_table = pivoted.to_latex(
         index=True,
-        caption="Effectiveness of \\toolname~ on Compilation Failures at the build level",
+        caption="Build Success Rate of \\toolname~ on \\finaldata builds.",
         label="tab:build_success_prompt"
     )
-    # Insert row coloring immediately after \begin{tabular}
-    latex_str = latex_str.replace("\\begin{tabular}", "\\rowcolors{2}{gray!10}{white}\n\\begin{tabular}")
-
-    # Write the final LaTeX string to file
+    
+    # Wrap the table in a table* environment manually
+    latex_str = "\\begin{table*}[ht]\n\\centering\n" + latex_table + "\n\\end{table*}"
+    
     with open(build_success_latex_file, "w") as f:
         f.write(latex_str)
-
-    print(f"LaTeX table (BUILD_SUCCESS only, Prompt rows) with row coloring saved to {build_success_latex_file}")
+    print(f"LaTeX table (BUILD_SUCCESS only) with row coloring saved to {build_success_latex_file}")
+    print(f"Highest BUILD_SUCCESS key: {highest_build_success_key}")
 
  # Rename LLMs
 counts_df.columns = pd.MultiIndex.from_tuples(
@@ -127,7 +182,8 @@ counts_df.columns = pd.MultiIndex.from_tuples(
             .replace("qwen", "Qwen2.5-32b-instruct"), prompt)
         for llm, prompt in counts_df.columns]
 )
-  
+
+colors = {}
 
 if outupt_other_cat_plot:
      # Make a copy of counts_df to process for plotting.
@@ -161,7 +217,7 @@ if outupt_other_cat_plot:
     fig, ax = plt.subplots(figsize=(12, 6))
 
     for i, cat in enumerate(plot_df.index):
-        ax.bar(x + i * width, plot_df.loc[cat].values, width, label=cat)
+        ax.bar(x + i * width, plot_df.loc[cat].values, width, label=cat, color=[llm_colors.get(llm) for llm, _ in plot_df.columns])
 
     ax.set_xticks(x + width * (num_categories - 1) / 2)
     ax.set_xticklabels(new_labels, rotation=45, ha='right')
@@ -194,20 +250,18 @@ if output_sep_cat_plot:
     elif "ERROR_MODEL_RESPONSE" in sep_plot_df.index:
         sep_plot_df = sep_plot_df.rename(index={"ERROR_MODEL_RESPONSE": "COMPILATION_FAILURE"})
 
-    # # Exclude BUILD_SUCCESS from the plots.
-    # if "BUILD_SUCCESS" in sep_plot_df.index:
-    #     sep_plot_df = sep_plot_df.drop("BUILD_SUCCESS")
-        
+    # Exclude categories other than COMPILATION_FAILURE, BUILD_SUCCESS, and TEST_FAILURE
+    sep_plot_df = sep_plot_df.loc[["COMPILATION_FAILURE", "BUILD_SUCCESS", "TEST_FAILURE"]]
+
     # Convert columns to a MultiIndex from tuples so we can easily re-pivot the data.
     sep_plot_df.columns = pd.MultiIndex.from_tuples(sep_plot_df.columns, names=["llm", "prompt"])
 
     # Define the desired order of prompts for the x-axis.
     prompt_order = ["$P_1$", "$P_2$", "$P_3$", "$P_4$", "$P_5$", "$P_6$", "$P_7$", "$P_8$"]
 
-    # Get the list of unique LLM names and assign each a fixed color.
-    unique_llms = sorted(sep_plot_df.columns.get_level_values("llm").unique())
-    color_cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
-    colors = {llm: color_cycle[i % len(color_cycle)] for i, llm in enumerate(unique_llms)}
+    
+    
+    # colors = {llm: llm_colors.get(llm) for llm in unique_llms}
     
     # For each error category, create a separate grouped bar chart.
     for cat in sep_plot_df.index:
@@ -231,10 +285,10 @@ if output_sep_cat_plot:
             offsets = np.linspace(-bar_width * n_bars / 2, bar_width * n_bars / 2, n_bars)
             for offset, (llm, value) in zip(offsets, sorted_series.items()):
                 if llm not in added_labels:
-                    ax.bar(i + offset, value, bar_width, color=colors[llm], label=llm)
+                    ax.bar(i + offset, value, bar_width, color=llm_colors.get(llm), label=llm)
                     added_labels.add(llm)
                 else:
-                    ax.bar(i + offset, value, bar_width, color=colors[llm])
+                    ax.bar(i + offset, value, bar_width, color=llm_colors.get(llm))
         
         ax.set_xticks(x)
         ax.set_xticklabels(cat_df.index)
