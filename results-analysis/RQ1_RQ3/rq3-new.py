@@ -9,13 +9,13 @@ import matplotlib.pyplot as plt
 
 output_csv = False
 output_excel = False
-output_latex = True
-output_pgfkeys = False
+output_latex = False
+output_pgfkeys = True
 
 api_diff_path = '/Users/mam10532/Documents/GitHub/bacardi/analysis/api_diff.txt'
 
 root_folder_path = '/Users/mam10532/Documents/GitHub/bacardi/results'
-output_folder='rq3-overall-output/'
+output_folder='rq3-overall-output-nodecimals/'
 
 # Check if the output folder exists, if not, create it
 if not os.path.exists(output_folder):
@@ -112,7 +112,7 @@ for prompt_folder in os.listdir(root_folder_path):
                         print(f'Commits: {total_commits}')
                         # Calculate the percentage of fixed files
                         if total_prefix_errors> 0:
-                            relative_fixed_percentage = ((total_fixed_errors  - total_new_errors)/ total_prefix_errors) * 100
+                            relative_fixed_percentage = round(((total_fixed_errors - total_new_errors) / total_prefix_errors) * 100)
                         else:
                             relative_fixed_percentage = 0
 
@@ -174,7 +174,7 @@ for prompt, models in results.items():
             pgfkeys_output.append(f'\\pgfkeyssetvalue{{{prompt_alias}_{model}_total_prefix}}{{{result["total_prefix_errors"]}}}')
             pgfkeys_output.append(f'\\pgfkeyssetvalue{{{prompt_alias}_{model}_total_fixed}}{{{result["total_fixed_errors"]}}}')
             pgfkeys_output.append(f'\\pgfkeyssetvalue{{{prompt_alias}_{model}_total_new}}{{{result["total_new_errors"]}}}')
-            pgfkeys_output.append(f'\\pgfkeyssetvalue{{{prompt_alias}_{model}_relative_fixed_percentage}}{{{result["relative_fixed_percentage"]:.2f}}}')
+            pgfkeys_output.append(f'\\pgfkeyssetvalue{{{prompt_alias}_{model}_relative_fixed_percentage}}{{{result["relative_fixed_percentage"]}}}')
             relative=result['total_fixed_errors'] - result['total_new_errors']
             pgfkeys_output.append(f'\\pgfkeyssetvalue{{{prompt_alias}_{model}_relative_nominator}}{{{relative}}}')
     print()
