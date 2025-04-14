@@ -18,20 +18,25 @@ import java.nio.file.StandardOpenOption;
  */
 public class JsonUtils {
 
-    /** The default JSON file ending ".json" */
+    /**
+     * The default JSON file ending ".json"
+     */
     public static final String JSON_FILE_ENDING = ".json";
 
-    /** The string representing an empty JSON object */
+    /**
+     * The string representing an empty JSON object
+     */
     public static final String EMPTY_JSON_OBJECT = "{}";
 
     private static final ObjectMapper mapper =
-        new ObjectMapper().setDateFormat(new StdDateFormat());
+            new ObjectMapper().setDateFormat(new StdDateFormat());
 
     private JsonUtils() { /* Nothing to see here... */ }
 
     /**
      * Read a JSON object from file
-     * @param file the path to the JSON file to read.
+     *
+     * @param file     the path to the JSON file to read.
      * @param jsonType the type that the data should be considered as.
      * @return an object of the specified type as read from the given file.
      */
@@ -45,7 +50,8 @@ public class JsonUtils {
 
     /**
      * Read a JSON object from file
-     * @param file the path to the JSON file to read.
+     *
+     * @param file     the path to the JSON file to read.
      * @param jsonType the type that the data should be considered as.
      * @return an object of the specified type as read from the given file.
      */
@@ -59,7 +65,8 @@ public class JsonUtils {
 
     /**
      * Read a JSON object from file which can be empty
-     * @param file the path to the JSON file to read which can be empty.
+     *
+     * @param file     the path to the JSON file to read which can be empty.
      * @param jsonType the type that the data should be considered as.
      * @return an object of the specified type as read from the given file.
      */
@@ -93,14 +100,16 @@ public class JsonUtils {
 
     /**
      * Write an object to a JSON file.
+     *
      * @param outputFilePath the file path where the data should be written.
-     * @param data the object to be stored as JSON.
+     * @param data           the object to be stored as JSON.
      */
     public static void writeToFile(Path outputFilePath, Object data) {
-        try {
+        try (var writer = Files.newBufferedWriter(outputFilePath, StandardOpenOption.WRITE,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING)) {
             String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
-            Files.writeString(outputFilePath, json, StandardOpenOption.WRITE, StandardOpenOption.CREATE,
-                              StandardOpenOption.TRUNCATE_EXISTING);
+            writer.write(json);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

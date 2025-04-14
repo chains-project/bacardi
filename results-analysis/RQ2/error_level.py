@@ -10,14 +10,14 @@ api_diff_path = '/Users/frank/Documents/Work/PHD/bacardi/bacardi/analysis/api_di
 root_folder_path = '/Users/frank/Documents/Work/PHD/bacardi/bacardi/results'
 
 prompt_aliases = {
-    "results_baseline_buggy_line": "P2",
-    "results_baseline_api_diff_cot": "P7",
-    "results_baseline_cot": "P5",
-    "results_baseline": "P1",
-    "results_baseline_buggy_line_api_diff": "P4",
-    "results_baseline_api_diff": "P3",
-    "results_baseline_cot_buggy_line": "P6",
-    "results_baseline_api_diff_cot_buggy": "P8"
+    "results_baseline_buggy_line": "$P_2$",
+    "results_baseline_api_diff_cot": "$P_7$",
+    "results_baseline_cot": "$P_5$",
+    "results_baseline": "$P_1$",
+    "results_baseline_buggy_line_api_diff": "$P_4$",
+    "results_baseline_api_diff": "$P_3$",
+    "results_baseline_cot_buggy_line": "$P_6$",
+    "results_baseline_api_diff_cot_buggy": "$P_8$"
 }
 
 # Read the lines from the text file
@@ -86,7 +86,7 @@ for prompt, models in results.items():
         print(f"  Model: {model}")
         print(f"    Total Prefix Errors: {result['total_prefix_errors']}")
         print(f"    Total Fixed Errors: {result['total_fixed_errors']}")
-        print(f"    Fixed Percentage: {result['fixed_percentage']:.2f}%")
+        print(f"    Fixed Percentage: {result['fixed_percentage']:.0f}%")
     print()
 
 # Prepare data for LaTeX table
@@ -101,7 +101,7 @@ for prompt in prompts:
         fixed_percentage = result['fixed_percentage']
         total_fixed_errors = result['total_fixed_errors']
         total_prefix_errors = result['total_prefix_errors']
-        row.append(f"{total_fixed_errors}/{total_prefix_errors} ({fixed_percentage:.2f}\\%)")
+        row.append(f"{total_fixed_errors}/{total_prefix_errors} ({fixed_percentage:.0f}\\%)")
     table_data.append(row)
 
 # Generate LaTeX table without highlighted maximum values

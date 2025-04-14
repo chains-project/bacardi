@@ -226,7 +226,7 @@ public record Attempt(@Getter int index, @Getter FailureCategory failureCategory
     }
 
     public int processNewErrors(Map<String, ArrayList<String>> prefixErrorsMap,
-            Map<String, ArrayList<String>> postfixErrorsMap) {
+                                 Map<String, ArrayList<String>> postfixErrorsMap) {
         int newErrorsCount = 0;
 
         for (Map.Entry<String, ArrayList<String>> entry : postfixErrorsMap.entrySet()) {

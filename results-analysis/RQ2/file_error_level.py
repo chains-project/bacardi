@@ -156,16 +156,30 @@ with open(output_pgfkeys_path, 'w') as pgfkeys_file:
             total_fixed_files = result['total_fixed_files']
             total_prefix_files = result['total_prefix_files']
             fixed_percentage = result['fixed_percentage']
-            key_base = f"{model.replace('-', '_')}_{prompt_aliases[prompt].strip('$')}_BUILD_SUCCESS"
+            key_base = f"{model.replace('-', '_')}_{prompt_aliases[prompt].strip('$')}"
             pgfkeys_file.write(f"\\pgfkeyssetvalue{{{key_base}}}{{{total_fixed_files}/{total_prefix_files}}}\n")
-            pgfkeys_file.write(f"\\pgfkeyssetvalue{{{key_base}_percent}}{{{fixed_percentage:.2f}}}\n")
+            pgfkeys_file.write(f"\\pgfkeyssetvalue{{{key_base}_percent}}{{{fixed_percentage:.0f}}}\n")
+
+# Create a file with all the results stored as \pgfkeys commands
+output_pgfkeys_path = 'file_level_pgfkeys.tex'
+
+with open(output_pgfkeys_path, 'w') as pgfkeys_file:
+    for prompt, models in results.items():
+        for model, result in models.items():
+            total_fixed_files = result['total_fixed_files']
+            total_prefix_files = result['total_prefix_files']
+            fixed_percentage = result['fixed_percentage']
+            key_base = f"{model.replace('-', '_')}_{prompt_aliases[prompt].strip('$')}"
+            pgfkeys_file.write(f"\\pgfkeyssetvalue{{{key_base}_file_level_fixed}}{{{total_fixed_files}}}\n")
+            pgfkeys_file.write(f"\\pgfkeyssetvalue{{{key_base}_file_level_total}}{{{total_prefix_files}}}\n")
+            pgfkeys_file.write(f"\\pgfkeyssetvalue{{{key_base}_file_level_percent}}{{{fixed_percentage:.0f}}}\n")
 
 # Generate the LaTeX table using these keys
 latex_table_pgfkeys = "\\newcommand{\\fileerrorleveltab}{%\n"
 latex_table_pgfkeys += "\\centering\n"
 latex_table_pgfkeys += "\\rowcolors{2}{gray!10}{white}\n"
 latex_table_pgfkeys += "\\caption{Effectiveness of \\toolname in Fixing Compilation Failures at the File Level}\n"
-latex_table_pgfkeys += "\\label{tab:file_error_level}\n"
+latex_table_pgfkeys += "\\label{tab:file_file_level}\n"
 latex_table_pgfkeys += "\\begin{tabular}{l" + "r" * len(headers[1:]) + "}\n"
 latex_table_pgfkeys += "\\toprule\n"
 latex_table_pgfkeys += " & ".join(replace_headers(headers)) + " \\\\\n"
@@ -173,18 +187,19 @@ latex_table_pgfkeys += "\\hline\n"
 for prompt in prompts:
     row = [prompt_aliases.get(prompt, prompt)]
     for model in sorted(next(iter(results.values())).keys()):
-        key_base = f"{model.replace('-', '_')}_{prompt_aliases[prompt].strip('$')}_BUILD_SUCCESS"
-        row.append(f"\\pgfkeysvalueof{{{key_base}}}(\\pgfkeysvalueof{{{key_base}_percent}}\\%)")
+        key_base = f"{model.replace('-', '_')}_{prompt_aliases[prompt].strip('$')}"
+        row.append(f"\\pgfkeysvalueof{{{key_base}_file_level_fixed}}/\\pgfkeysvalueof{{{key_base}_file_level_total}} (\\pgfkeysvalueof{{{key_base}_file_level_percent}}\\%)")
     latex_table_pgfkeys += " & ".join(row) + " \\\\\n"
 latex_table_pgfkeys += "\\end{tabular}\n"
 latex_table_pgfkeys += "}"
 
-print(latex_table_pgfkeys)
+# Save the LaTeX table to a file
+output_latex_table_path = 'file_level_table.tex'
+with open(output_latex_table_path, 'w') as latex_table_file:
+    latex_table_file.write(latex_table_pgfkeys)
 
-output_json_path = 'fixed_error_rate.json'
-
-with open(output_json_path, 'w') as json_file:
-    json.dump(results, json_file, indent=4)
+print(f"PGFKeys saved to {output_pgfkeys_path}")
+print(f"LaTeX table saved to {output_latex_table_path}")
 
 
 
