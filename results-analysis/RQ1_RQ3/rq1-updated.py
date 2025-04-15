@@ -9,11 +9,12 @@ output_excel= False
 output_latex= False
 output_build_success_latex= False
 outupt_other_cat_plot=False
-output_sep_cat_plot=True
-output_pgfkeys= False
+output_sep_cat_plot=False
+output_sep_cat_percent_plot=True
+output_pgfkeys=False
 
 input_file = "rq1_data.csv"
-output_dir = "rq1-new-output"
+output_dir = "rq1-new-output-nodecimals"
 
 # Check if the output directory exists, if not create it
 if not os.path.exists(output_dir):
@@ -35,7 +36,7 @@ llm_mapping = {
     "deepseek": "\\textbf{Deepseek V3}",
     "gemini": "\\textbf{Gemini-2.0-flash}",
     "gpt": "\\textbf{Gpt-4o-mini}",
-    "o3": "\\textbf{Gpt-4o-mini}",
+    "o3": "\\textbf{o3-mini}",
     "qwen": "\\textbf{Qwen2.5-32b-instruct}"
 }
 
@@ -132,9 +133,9 @@ if output_pgfkeys:
             prompt_clean = re.sub(r'\$','', prompt)  # Remove $$ around the prompt name
             key_base = f"{llm}_{prompt_clean}"
             for status, count in values.items():
-                percentage = (count / total_commits) * 100
+                percentage = round((count / total_commits) * 100)
                 f.write(f"\\pgfkeyssetvalue{{{key_base}_{status}}}{{{count}}}\n")
-                f.write(f"\\pgfkeyssetvalue{{{key_base}_{status}_percent}}{{{percentage:.2f}}}\n")
+                f.write(f"\\pgfkeyssetvalue{{{key_base}_{status}_percent}}{{{percentage}}}\n")
                 
                 if status == "BUILD_SUCCESS" and count > highest_build_success_value:
                     highest_build_success_value = count
@@ -303,4 +304,74 @@ if output_sep_cat_plot:
         cat_filename = os.path.join(output_dir, f"{cat.replace(' ', '_')}_plot.png")
         plt.savefig(cat_filename)
         print(f"Plot for category {cat} saved to {cat_filename}")
+        plt.show()
+
+if output_sep_cat_percent_plot:
+    # Create a copy of counts_df for per-category percentage plots.
+    sep_plot_df = counts_df.copy()
+    
+    # Lump "NOT_REPAIRED" and "ERROR_MODEL_RESPONSE" into "COMPILATION_FAILURE"
+    if "COMPILATION_FAILURE" in sep_plot_df.index:
+        if "NOT_REPAIRED" in sep_plot_df.index:
+            sep_plot_df.loc["COMPILATION_FAILURE"] += sep_plot_df.loc["NOT_REPAIRED"]
+            sep_plot_df = sep_plot_df.drop("NOT_REPAIRED")
+        if "ERROR_MODEL_RESPONSE" in sep_plot_df.index:
+            sep_plot_df.loc["COMPILATION_FAILURE"] += sep_plot_df.loc["ERROR_MODEL_RESPONSE"]
+            sep_plot_df = sep_plot_df.drop("ERROR_MODEL_RESPONSE")
+    elif "NOT_REPAIRED" in sep_plot_df.index:
+        sep_plot_df = sep_plot_df.rename(index={"NOT_REPAIRED": "COMPILATION_FAILURE"})
+    elif "ERROR_MODEL_RESPONSE" in sep_plot_df.index:
+        sep_plot_df = sep_plot_df.rename(index={"ERROR_MODEL_RESPONSE": "COMPILATION_FAILURE"})
+
+    # Exclude categories other than COMPILATION_FAILURE, BUILD_SUCCESS, and TEST_FAILURE
+    sep_plot_df = sep_plot_df.loc[["COMPILATION_FAILURE", "BUILD_SUCCESS", "TEST_FAILURE"]]
+
+    # Convert counts to percentages
+    sep_plot_df = (sep_plot_df / total_commits) * 100
+
+    # Convert columns to a MultiIndex from tuples so we can easily re-pivot the data.
+    sep_plot_df.columns = pd.MultiIndex.from_tuples(sep_plot_df.columns, names=["llm", "prompt"])
+
+    # Define the desired order of prompts for the x-axis.
+    prompt_order = ["$P_1$", "$P_2$", "$P_3$", "$P_4$", "$P_5$", "$P_6$", "$P_7$", "$P_8$"]
+
+    # For each error category, create a separate grouped bar chart.
+    for cat in sep_plot_df.index:
+        # Extract the series for the current category, then unstack so that rows = prompts and columns = llm.
+        cat_series = sep_plot_df.loc[cat]
+        cat_df = cat_series.unstack(level=0)  # Now: index = prompt, columns = llm
+        # Reindex the DataFrame to enforce the desired prompt order, filling missing entries with 0.
+        cat_df = cat_df.reindex(prompt_order, fill_value=0)
+        
+        fig, ax = plt.subplots(figsize=(8, 6))
+        x = np.arange(len(cat_df.index))
+        bar_width = 0.1  # width for each individual bar
+        added_labels = set()  # to avoid duplicate legend entries
+
+        # For each prompt (row), sort the LLM values in descending order and plot them.
+        for i, prompt in enumerate(cat_df.index):
+            # Sort the values for this prompt in descending order
+            sorted_series = cat_df.loc[prompt].sort_values(ascending=False)
+            n_bars = len(sorted_series)
+            # Calculate offsets to center the group of bars for this prompt
+            offsets = np.linspace(-bar_width * n_bars / 2, bar_width * n_bars / 2, n_bars)
+            for offset, (llm, value) in zip(offsets, sorted_series.items()):
+                if llm not in added_labels:
+                    ax.bar(i + offset, value, bar_width, color=llm_colors.get(llm), label=llm)
+                    added_labels.add(llm)
+                else:
+                    ax.bar(i + offset, value, bar_width, color=llm_colors.get(llm))
+        
+        ax.set_xticks(x)
+        ax.set_xticklabels(cat_df.index)
+        ax.set_xlabel("Prompt")
+        ax.set_ylabel("Percentage of Builds")
+        ax.set_title(f"Percentage of builds resulting in {cat.lower().replace('_', ' ')}")
+        ax.set_ylim(0, 100)  # Set y-axis limit to 100%
+        ax.legend()
+        plt.tight_layout()
+        
+        cat_filename = os.path.join(output_dir, f"{cat.replace(' ', '_')}_percent_plot.png")
+        plt.savefig(cat_filename)
+        print(f"Percentage plot for category {cat} saved to {cat_filename}")
         plt.show()
