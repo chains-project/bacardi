@@ -6,15 +6,57 @@ Fix breaking dependency updates
 - **[classifier](breaking-classifier)**: classify breaking dependency updates and extract information from the logs
 - **[docker-build](docker-build)**: build docker images to reproduce the breaking dependency updates and patches to fix them
 - **[core](core)**: core functionality to fix breaking dependency updates
-- **[test-failures](test-failures)**: detect constructs that cause test failures
 - **[git-manager](git-manager)**: manage git repositories and create new branches for each failure category
 - **[extractor](extractor)**: extract information from the client's repository and api diff
- 
-##  Workflows
 
-### Classify breaking dependency updates
+## Setup and Installation
 
-- Werror: treat warnings as errors
-- Java version incompatibility: the new version of the dependency is not compatible with the Java version specified in the CI configuration
-- Test failures: the new version of the dependency causes test failures
-- Compilation errors: the new version of the dependency causes compilation errors
+To replicate the experiments, you need to set up the environment and build the project. Follow these steps:
+
+1. Clone the repository:
+   ```bash
+   git clone git@github.com:chains-project/bacardi.git
+   cd bacardi
+    ```
+2. Build the project:
+   ```bash
+   mvn clean install
+   ```
+3. Setup environment variable:
+   ```bash
+   cp .env.example .env
+   ```
+
+## Usage
+
+Run the application using the following command:
+```bash
+    java -jar ./core/target/Bump.jar
+```
+
+To execute a single fix specify in env file:
+```
+    SPECIFIC_FILE=<commit_hash>
+```
+---
+## Results
+The results of the experiments are stored in the `results` directory. Each experiment is organized into subdirectories, containing the following files:
+- `results_<prompt_name>`: Contains the results of the experiment for a specific prompt.
+- `<model_n>`: Contains the results for a specific model.
+```
+📁 results
+├── 📁 results_<prompt_name> each prompt results
+│   ├── 📁 <model_n> model results
+│   ├── -----
+│   ├── 📁 <model_n> model results
+```
+
+---
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+Thank you for using **Bacardi**! If you encounter any issues or have feedback, feel free to create an [issue](https://github.com/chains-project/bacardi/issues).
