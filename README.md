@@ -40,7 +40,7 @@ To execute a single fix specify in the env file:
 ```
 ---
 ## Results
-The results of the experiments are stored in the [core/results](results) directory. Each experiment is organized into subdirectories, containing the following files:
+The results of the experiments are stored in the [results](results) directory. Each experiment is organized into subdirectories, containing the following files:
 - `results_<prompt_name>`: Contains the results of the experiment for a specific prompt.
 - `<model_n>`: Contains the results for a specific model.
 ```
