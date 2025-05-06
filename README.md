@@ -1,4 +1,4 @@
-# bacardi
+# Bacardi: Fixing Breaking Dependency updates with Large Language Models
 Fix breaking dependency updates
 
 ## Repository Contents
