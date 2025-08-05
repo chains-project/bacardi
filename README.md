@@ -33,11 +33,24 @@ Run the application using the following command:
 ```bash
     java -jar ./core/target/Bump.jar
 ```
+### To execute a single breaking dependency update:
 
-To execute a single fix specify in the env file:
+BACARDI can target and fix one breaking dependency update at a time.
+Each case in the BUMP dataset is represented by a JSON record containing, among other fields, a `breaking_commit` hash. To repair just that one update:
+
+1. Open the `.env` file.  
+2. Add/replace the line below, replacing `<breaking_commit_hash>` with the exact value from the dataset’s JSON entry:
+```bash
+   SPECIFIC_FILE=<breaking_commit_hash>
+````
+You can find the `breaking_commit_hash` in the corresponding [`api-diff.txt`](results/api-diff.txt) file.
+
+3. Run the application using the following command:
+```bash
+    java -jar ./core/target/Bump.jar
 ```
-    SPECIFIC_FILE=<commit_hash>
-```
+Only the specified commit will be processed.
+
 ---
 ## Results
 The results of the experiments are stored in the [results](results) directory. Each experiment is organized into subdirectories, containing the following files:
