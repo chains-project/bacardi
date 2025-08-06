@@ -52,6 +52,37 @@ You can find the `breaking_commit_hash` in the corresponding [`api-diff.txt`](re
 Only the specified commit will be processed.
 
 ---
+### LLM configuration and selection 
+
+Bacardi is designed to work flexibly with multiple **Large Language Models (LLMs)**.
+It does **not** run on all LLMs by default.
+
+### 🔧 How to Select an LLM
+
+You can control which LLM is used via these environment variables in your `.env` file:
+
+| Variable                                            | Description                                                        | Example                                                                                                            |
+|-----------------------------------------------------|--------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| `LLM`                                               | Name of the model to use                                           | `gpt-4o-mini`, `gemini-2.0-flash-001`, `o3-mini-2025-01-31`, `deepseek-deepseek-chat`, `qwen-qwen2.5-32b-instruct` |
+| `LLM_TYPE`                                          | Type of inference provider                                         | `openai`, `openrouter`, `google`,                                                                                  |
+| `OPENROUTER_PROVIDER` *(optional)*                  | If using [OpenRouter](https://openrouter.ai), specify the provider | `open-inference/bf16`, `chutes/fp8`                                                                                |
+| `API_KEY` / `GOOGLE_API_KEY` / `OPENROUTER_API_KEY` | API keys for selected providers                                    | `your-api-key-here`                                                                                                |
+
+Bacardi currently supports these five models, each running with their respective inference providers:
+
+- **gpt-4o-mini** *(OpenAI)*
+- **o3-mini-2025-01-31** *(OpenAI)*
+- **gemini-2.0-flash-001** *(Google)*
+- **deepseek-deepseek-chat** *(via OpenRouter)*
+- **qwen-qwen2.5-32b-instruct** *(via OpenRouter)*
+
+> ❗ **Important**:
+> 
+>Bacardi <span style="color: red; font-weight: bold;">does not</span> automatically run on all models. You must configure the desired one before execution.
+>
+> Only the configured LLM will be used when running the repair pipeline.
+>
+---
 ## Results
 The results of the experiments are stored in the [results](results) directory. Each experiment is organized into subdirectories, containing the following files:
 - `results_<prompt_name>`: Contains the results of the experiment for a specific prompt.
