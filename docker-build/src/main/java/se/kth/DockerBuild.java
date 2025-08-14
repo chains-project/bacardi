@@ -452,6 +452,7 @@ public class DockerBuild {
                 breakingUpdateReproductionResult.getAttempts()
                         .add(new Attempt(attemptCount, FailureCategory.UNKNOWN_FAILURE, logFile.getParent().toString(),
                                 false));
+                break;
 
             } else {
                 log.info("Breaking commit did not fail in the {} attempt.", attemptCount);

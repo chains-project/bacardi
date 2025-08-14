@@ -107,16 +107,18 @@ public class BacardiCore {
         result = new Result(failureCategory);
 
         int attempts = 1;
-        StoreInfo storeInfo = new StoreInfo(setupPipeline, true);
+
+        // Check if the project is a git repository
+        GitManager gitManager = new GitManager(project.toFile());
+        // Check the status of the repository and create a new branch for the original
+        // status
+
+        gitManager.checkRepoStatus();
 
         while (failureCategory != FailureCategory.BUILD_SUCCESS && attempts <= MAX_ATTEMPTS) {
+            // Create a fresh patch folder for each attempt
+            StoreInfo storeInfo = new StoreInfo(setupPipeline, true);
 
-            // Check if the project is a git repository
-            GitManager gitManager = new GitManager(project.toFile());
-            // Check the status of the repository and create a new branch for the original
-            // status
-
-            gitManager.checkRepoStatus();
 
             switch (failureCategory) {
                 case JAVA_VERSION_FAILURE:
@@ -145,7 +147,6 @@ public class BacardiCore {
                     break;
                 case NOT_REPAIRED:
                     log.info("Not repaired.");
-                    attempts = MAX_ATTEMPTS + 1;
                     break;
                 default:
                     attempts = MAX_ATTEMPTS + 1;
@@ -158,6 +159,11 @@ public class BacardiCore {
             result.getAttempts().add(attempt);
             // number of attempts to repair the failure
             attempts++;
+
+            // Stop if explicitly marked as NOT_REPAIRED to avoid creating extra patch folders or wrong indexes
+            if (failureCategory == FailureCategory.NOT_REPAIRED) {
+                break;
+            }
         }
 
         if (failureCategory == FailureCategory.BUILD_SUCCESS) {
@@ -183,7 +189,10 @@ public class BacardiCore {
         // failure category and create a new branch
         if (previousFailureCategory != failureCategory) {
             previousFailureCategory = failureCategory;
-            gitManager.newBranch(Constants.BRANCH_DIRECT_COMPILATION_FAILURE + "_%s".formatted(result.getAttempts().size()));
+            gitManager.newBranch(Constants.BRANCH_DIRECT_COMPILATION_FAILURE + "_%s".formatted(result.getAttempts().size() + 1));
+        }else{
+            // if the previous failure category is the same, we are in the same branch but different attempt
+            gitManager.newBranch(Constants.BRANCH_DIRECT_COMPILATION_FAILURE + "_%s".formatted(result.getAttempts().size() + 1));
         }
         DockerBuild dockerBuild = setupPipeline.getDockerBuild();
         AtomicBoolean errorModelResponse = new AtomicBoolean(false);
@@ -281,7 +290,7 @@ public class BacardiCore {
                 }
 
                 if (isDifferent.contains(true)) {
-                    gitManager.commitAllChanges("Direct compilation failure repair attempt %s".formatted(result.getAttempts().size()));
+                    gitManager.commitAllChanges("Direct compilation failure repair attempt %s".formatted(result.getAttempts().size() + 1));
                     // copy the file to docker image
                     try {
                         String dockerImage = dockerBuild.copyFolderToDockerImage(setupPipeline.getDockerImage(), setupPipeline.getClientFolder().toString());
@@ -299,7 +308,13 @@ public class BacardiCore {
                     postFixstoreInfo.storeFilesErrors("postfix", listOfPostFixFilesWithErrors);
 
                 } else {
-                    // no changes were made
+                    // no changes were made: still persist current log into this attempt's patch folder
+                    try {
+                        Path currentLog = setupPipeline.getLogFilePath();
+                        Files.copy(currentLog, storeInfo.getPatchFolder().resolve("output.log"), StandardCopyOption.REPLACE_EXISTING);
+                    } catch (IOException ioe) {
+                        log.error("Error storing attempt log file.", ioe);
+                    }
                     return FailureCategory.NOT_REPAIRED;
                 }
                 // Check and try dependency resolution conflicts
@@ -323,7 +338,8 @@ public class BacardiCore {
             case BASELINE, BASELINE_COT, FIX_YOU -> repairDirectFailures.basePipeLine();
             case BASELINE_BUGGY_LINE, BASELINE_COT_BUGGY -> repairDirectFailures.buggyLinePipeLine();
             case BASELINE_API_DIFF, BASELINE_COT_API_DIFF -> repairDirectFailures.extractConstructsFromDirectFailures();
-            case BASELINE_API_DIFF_BUGGY, BASELINE_COT_API_DIFF_BUGGY -> repairDirectFailures.extractConstructsFromDirectFailuresWithBuggyLine();
+            case BASELINE_API_DIFF_BUGGY, BASELINE_COT_API_DIFF_BUGGY ->
+                    repairDirectFailures.extractConstructsFromDirectFailuresWithBuggyLine();
             default -> throw new IllegalStateException("Unexpected value: " + promptPipeLine);
         };
     }
