@@ -2,12 +2,25 @@
 Fix breaking dependency updates
 
 ## Repository Contents
+Overview of our Byam pipeline using LLMs to fix breaking dependency updates
 
-- **[classifier](breaking-classifier)**: classify breaking dependency updates and extract information from the logs
-- **[docker-build](docker-build)**: build docker images to reproduce the breaking dependency updates and patches to fix them
-- **[core](core)**: core functionality to fix breaking dependency updates
+![](assets/process.png)
+
+The repository is organized into the following main modules:
+
+For Step 1 Extract Failed Build Information:
 - **[git-manager](git-manager)**: manage git repositories and create new branches for each failure category
 - **[extractor](extractor)**: extract information from the client's repository and api diff
+- **[classifier](breaking-classifier)**: classify breaking dependency updates and extract information from the logs
+
+For Step 2 Generate Fixes using LLMs:
+- **[llm-inference](llm)**: interact with different LLMs to generate fixes for breaking dependency updates
+- **[prompts](prompts)**: contains different prompt templates for various scenarios
+
+For Step 3 Validate and Apply Fixes:
+- **[docker-build](docker-build)**: build docker images to reproduce the breaking dependency updates and patches to fix them
+- **[core](core)**: orchestrate the entire pipeline, manage configurations, and output results
+
 
 ## Setup and Installation
 
