@@ -1,26 +1,52 @@
 # Bacardi: Fixing Breaking Dependency updates with Large Language Models
 Fix breaking dependency updates
 
-## Repository Contents
-Overview of our Byam pipeline using LLMs to fix breaking dependency updates
+## 🔧 Tool Architecture Overview
 
+Bacardi automates the repair of breaking dependency updates through a three-step pipeline:
+1. **Extract Failed Build Information**
+2. **Use LLM to Generate Updated Code**
+3. **Validate Updated Code**
+
+The following diagram and module breakdown illustrate how the components interact across the system.
+
+---
+
+### 📌 Architectural Diagram
 ![](assets/process.png)
 
-The repository is organized into the following main modules:
+The diagram shows how build failures and API diffs flow through the system, how LLMs are invoked with prompt templates, and how fixes are validated in Docker builds.
 
-For Step 1 Extract Failed Build Information:
-- **[git-manager](git-manager)**: manage git repositories and create new branches for each failure category
-- **[extractor](extractor)**: extract information from the client's repository and api diff
-- **[classifier](breaking-classifier)**: classify breaking dependency updates and extract information from the logs
+---
 
-For Step 2 Generate Fixes using LLMs:
-- **[llm-inference](llm)**: interact with different LLMs to generate fixes for breaking dependency updates
-- **[prompts](prompts)**: contains different prompt templates for various scenarios
+### 🗂️ Module Structure
 
-For Step 3 Validate and Apply Fixes:
-- **[docker-build](docker-build)**: build docker images to reproduce the breaking dependency updates and patches to fix them
-- **[core](core)**: orchestrate the entire pipeline, manage configurations, and output results
+#### Step 1 — Extract Failed Build Information
+- **[`git-manager`](git-manager):**  
+  - Manages repositories and creates new branches for each failure category.
+- **[`extractor`](extractor):**  
+  - Extracts contextual information from the client’s repository and API diffs.
+- **[`breaking-classifier`](breaking-classifier):**  
+  - Classifies dependency-related failures and parses build logs.
 
+#### Step 2 — Use LLM to Generate Updated Code
+- **[`llm`](llm):**  
+  - Connects to LLM providers (OpenAI, Google, Anthropic, OpenRouter), resolved from `.env` (`LLM`, `LLM_TYPE`).
+    
+      Example
+      ```env
+      LLM=openai
+      LLM_TYPE=gpt-4o-mini
+- **[`prompts`](prompts):**  
+  - Stores reusable prompt templates tailored to different failure scenarios.
+
+#### Step 3 — Validate Updated Code
+- **[`docker-build`](docker-build):**  
+  - Builds reproducible Docker environments to test and validate proposed fixes.
+- **[`core`](core):**  
+  - Manage the full workflow, manages configurations, and outputs logs and results to [`results/`](results/).
+
+---
 
 ## Setup and Installation
 
