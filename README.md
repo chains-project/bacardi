@@ -1,6 +1,24 @@
 # Bacardi: Fixing Breaking Dependency updates with Large Language Models
 Fix breaking dependency updates
 
+If you use Bacardi, please cite:
+```bib
+@article{reyes_byam_2026,
+	title = {Byam: {Fixing} {Breaking} {Dependency} {Updates} with {Large} {Language} {Models}},
+	volume = {31},
+	issn = {1573-7616},
+	url = {https://doi.org/10.1007/s10664-026-10835-1},
+	doi = {10.1007/s10664-026-10835-1},
+	number = {4},
+	journal = {Empirical Software Engineering},
+	author = {Reyes, Frank and Mahmoud, May and Bono, Federico and Nadi, Sarah and Baudry, Benoit and Monperrus, Martin},
+	month = apr,
+	year = {2026},
+	pages = {113},
+}
+```
+
+
 ## 🔧 Tool Architecture Overview
 
 Bacardi automates the repair of breaking dependency updates through a three-step pipeline:
