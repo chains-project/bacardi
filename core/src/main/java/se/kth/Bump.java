@@ -88,7 +88,7 @@ public class Bump {
         // read Json file with attempts information
         resultsMap.putAll(getPreviousResults(JSON_PATH));
 
-        DockerBuild dockerBuild = new DockerBuild(true, MAX_ATTEMPTS);
+        ApptainerBuild containerBuild = new ApptainerBuild(true, MAX_ATTEMPTS, APPTAINER_SANDBOX_DIR);
 
         // Make sure project folder exits
         if (!Files.exists(Path.of(PROJECTS_PATH))) {
@@ -112,7 +112,7 @@ public class Bump {
                         .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure
                         // category
                         .forEach(e -> {
-                            threadrun(dockerBuild, e);
+                            threadrun(containerBuild, e);
                         })).join();
             } else {
                 customThreadPool.submit(() -> breaking.parallelStream().filter(e -> e.breakingCommit.equals(SPECIFIC_FILE)) // filter by breaking
@@ -121,7 +121,7 @@ public class Bump {
                         .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure
                         // category
                         .forEach(e -> {
-                            threadrun(dockerBuild, e);
+                            threadrun(containerBuild, e);
                         })).join();
                 customThreadPool.shutdown();
                 customThreadPool.close();
@@ -134,7 +134,7 @@ public class Bump {
                     .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure
                     // category
                     .forEach(e -> {
-                        threadrun(dockerBuild, e);
+                        threadrun(containerBuild, e);
                     })).join();
             customThreadPool.shutdown();
             customThreadPool.close();
@@ -157,27 +157,27 @@ public class Bump {
         }
     }
 
-    private static void threadrun(DockerBuild dockerBuild, BreakingUpdate e) {
+    private static void threadrun(ApptainerBuild containerBuild, BreakingUpdate e) {
 
         try {
             // starting processing breaking update
             LogUtils.logWithBox(log, "Processing breaking update: %s".formatted(e.breakingCommit));
             // Full path Folder/breaking-commit/project
-            Path clientFolder = settingClientFolderAndM2Folder(e, dockerBuild);
+            Path clientFolder = settingClientFolderAndM2Folder(e, containerBuild);
 
             SetupPipeline setupPipeline = new SetupPipeline();
             // adding breaking update to the pipeline
             setupPipeline.setBreakingUpdate(e);
-            // adding docker build to the pipeline
-            setupPipeline.setDockerBuild(dockerBuild);
+            // adding container build to the pipeline
+            setupPipeline.setContainerBuild(containerBuild);
             // adding client folder to the pipeline
             setupPipeline.setClientFolder(clientFolder.resolve(e.project));
             // adding log file path to the pipeline
             setupPipeline.setLogFilePath(Path.of("%s/%s.log".formatted(clientFolder.resolve(e.project), e.breakingCommit)));
             // adding m2 folder path to the pipeline
             setupPipeline.setM2FolderPath(Path.of("%s/%s/m2/".formatted(CLIENT_PATH, e.breakingCommit)));
-            // adding docker image to the pipeline
-            setupPipeline.setDockerImage(e.breakingUpdateReproductionCommand.replace("docker run ", ""));
+            // adding container image reference to the pipeline
+            setupPipeline.setContainerImage(e.breakingUpdateReproductionCommand.replace("docker run ", ""));
             // adding output patch folder to the pipeline
             setupPipeline.setOutPutPatchFolder(Path.of(OUTPUT_PATH));
             setupPipeline.setLibraryName(e.updatedDependency.dependencyGroupID);
@@ -190,7 +190,7 @@ public class Bump {
         }
     }
 
-    private static Path settingClientFolderAndM2Folder(BreakingUpdate e, DockerBuild dockerBuild) {
+    private static Path settingClientFolderAndM2Folder(BreakingUpdate e, ApptainerBuild containerBuild) {
         // Setting same m2 folder for the new docker image
         final var clientFolder = Path.of("%s/%s".formatted(CLIENT_PATH, e.breakingCommit));
         try {
@@ -225,10 +225,10 @@ public class Bump {
                         PromptPipeline.BASELINE_COT_API_DIFF,
                         PromptPipeline.BASELINE_COT_API_DIFF_BUGGY};
                 if (Arrays.asList(pipeline).contains(PIPELINE)) {
-                    getProjectData(preBreakingImage, dockerBuild, clientFolder, null, null, prevoiusJarInContainerPath);
+                    getProjectData(preBreakingImage, containerBuild, clientFolder, null, null, prevoiusJarInContainerPath);
                 }
                 // get jar from container for new version and m2 folder and project
-                getProjectData(breakingImage, dockerBuild, clientFolder, fromContainerM2, fromContainerProject, newJarInContainerPath);
+                getProjectData(breakingImage, containerBuild, clientFolder, fromContainerM2, fromContainerProject, newJarInContainerPath);
 
             }
         } catch (IOException e1) {
@@ -266,10 +266,10 @@ public class Bump {
 
         resultsMap.put(setupPipeline.getBreakingUpdate().breakingCommit, results);
         JsonUtils.writeToFile(Path.of(JSON_PATH), resultsMap);
-        DockerBuild.deleteImage(setupPipeline.getBreakingUpdate().breakingUpdateReproductionCommand.replace("docker run ", ""));
+        setupPipeline.getContainerBuild().deleteSandbox(setupPipeline.getBreakingUpdate().breakingUpdateReproductionCommand.replace("docker run ", ""));
         // TODO: isn't this image created in specific pipeline, shouldn't we add an
         // if-statement
-        DockerBuild.deleteImage(setupPipeline.getBreakingUpdate().preCommitReproductionCommand.replace("docker run ", ""));
+        setupPipeline.getContainerBuild().deleteSandbox(setupPipeline.getBreakingUpdate().preCommitReproductionCommand.replace("docker run ", ""));
     }
 
 }

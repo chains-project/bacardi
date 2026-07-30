@@ -9,7 +9,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import se.kth.DockerBuild;
+import se.kth.ApptainerBuild;
 import se.kth.model.SetupPipeline;
 import se.kth.models.FailureCategory;
 
@@ -158,14 +158,13 @@ public class RepairWError {
     }
 
     public String reproduce() throws IOException {
-        // create docker client
-        DockerBuild dockerBuild = setupPipeline.getDockerBuild();
+        ApptainerBuild containerBuild = setupPipeline.getContainerBuild();
 
-        dockerBuild.copyFolderToDockerImage(setupPipeline.getDockerImage(), setupPipeline.getClientFolder().toString());
+        containerBuild.copyFolderToDockerImage(setupPipeline.getContainerImage(), setupPipeline.getClientFolder().toString());
 
         Path logFilePath = setupPipeline.getLogFilePath().getParent().resolve("output.log");
 
-        dockerBuild.reproduce(setupPipeline.getDockerImage(), FailureCategory.WERROR_FAILURE, setupPipeline.getClientFolder(), logFilePath);
+        containerBuild.reproduce(setupPipeline.getContainerImage(), FailureCategory.WERROR_FAILURE, setupPipeline.getClientFolder(), logFilePath);
 
         setupPipeline.setLogFilePath(logFilePath);
 

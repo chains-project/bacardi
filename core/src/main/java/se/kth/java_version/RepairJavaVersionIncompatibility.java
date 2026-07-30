@@ -2,7 +2,7 @@ package se.kth.java_version;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.kth.DockerBuild;
+import se.kth.ApptainerBuild;
 import se.kth.model.SetupPipeline;
 import se.kth.models.FailureCategory;
 import se.kth.models.JavaVersionIncompatibility;
@@ -53,17 +53,17 @@ public class RepairJavaVersionIncompatibility {
 
         Path logFile = setupPipeline.getLogFilePath().getParent().resolve("output.log");
 
-        // get the DockerBuild object from the setupPipeline
-        DockerBuild dockerBuild = setupPipeline.getDockerBuild();
+        // get the ApptainerBuild object from the setupPipeline
+        ApptainerBuild containerBuild = setupPipeline.getContainerBuild();
 
         // Create a base image for the breaking update with the project code
-        String dockerImageName = dockerBuild.createNewBaseImageWithNewJavaVersion(clientCode, javaVersionInfo.getIncompatibility().mapVersions(incompatibility.wrongVersion()), null);
+        String containerImageName = containerBuild.createNewBaseImageWithNewJavaVersion(clientCode, javaVersionInfo.getIncompatibility().mapVersions(incompatibility.wrongVersion()), null);
 
 //             Reproduce the breaking update in the new Java version
-        dockerBuild.reproduce(dockerImageName.toLowerCase(), FailureCategory.JAVA_VERSION_FAILURE, clientCode, logFile);
+        containerBuild.reproduce(containerImageName.toLowerCase(), FailureCategory.JAVA_VERSION_FAILURE, clientCode, logFile);
 
         // Updating the Docker image name in the setupPipeline
-        setupPipeline.setDockerImage(dockerImageName);
+        setupPipeline.setContainerImage(containerImageName);
         //Updating the log file path in the setupPipeline
         setupPipeline.setLogFilePath(logFile);
 
@@ -74,7 +74,7 @@ public class RepairJavaVersionIncompatibility {
             log.info("Line: {}", yamlInfo.getLine());
             log.info("Java versions: {}", yamlInfo.getJavaVersions());
         });
-        return dockerImageName;
+        return containerImageName;
     }
 
     /**

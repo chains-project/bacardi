@@ -1,26 +1,26 @@
 package se.kth.instrumentation;
 
-import com.github.dockerjava.api.model.HostConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.kth.DockerBuild;
+import se.kth.ApptainerBuild;
 import se.kth.Util.FileUtils;
 
 import java.nio.file.Path;
+import java.util.List;
 
 public class ProjectExtractor {
 
     private static final Logger logger = LoggerFactory.getLogger(ProjectExtractor.class);
 
-    private final DockerBuild dockerBuild;
+    private final ApptainerBuild containerBuild;
     private final Path outputBasePath;
-    private final HostConfig hostConfig;
+    private final List<String> binds;
     private final String targetMethod;
 
-    public ProjectExtractor(DockerBuild dockerBuild, Path outputDir, HostConfig hostConfig, String targetMethod) {
-        this.dockerBuild = dockerBuild;
+    public ProjectExtractor(ApptainerBuild containerBuild, Path outputDir, List<String> binds, String targetMethod) {
+        this.containerBuild = containerBuild;
         this.outputBasePath = outputDir;
-        this.hostConfig = hostConfig;
+        this.binds = binds;
         this.targetMethod = targetMethod;
         FileUtils.ensureDirectoryExists(outputDir);
     }
@@ -29,23 +29,24 @@ public class ProjectExtractor {
         String[] entryPoint = String.format("mvn test -l output.log -DargLine=\"-javaagent:/instrumentation/semantic-agent-1" +
                 ".0-SNAPSHOT.jar=%s\"", targetMethod).split(" ");
 
+        String containerId;
         try {
-            dockerBuild.ensureBaseMavenImageExists(imageName);
+            containerBuild.ensureBaseMavenImageExists(imageName);
+            containerId = containerBuild.startSpinningContainer(imageName, binds);
         } catch (InterruptedException e) {
             logger.warn(e.getMessage());
             throw new RuntimeException(e);
         }
-        String containerId = dockerBuild.startSpinningContainer(imageName, hostConfig);
-        dockerBuild.executeInContainer(containerId, entryPoint);
+        containerBuild.executeInContainer(containerId, entryPoint);
         String outputDir = imageName.split("/")[2];
         Path outputPath = outputBasePath.resolve(outputDir);
-        Path containerOutputDir = dockerBuild.copyProjectFromContainer(containerId, "project", outputPath);
+        Path containerOutputDir = containerBuild.copyProjectFromContainer(containerId, "project", outputPath);
         if (containerOutputDir == null) {
             logger.warn("Failed to extract project from {} to local files {}", containerId, outputPath);
         } else {
             logger.info("Successfully extracted project from {} to local files {}", containerId, outputPath);
         }
-        dockerBuild.removeContainer(containerId);
+        containerBuild.removeContainer(containerId);
         return containerOutputDir;
     }
 }

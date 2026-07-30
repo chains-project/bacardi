@@ -4,7 +4,7 @@ import org.apache.maven.api.model.Model;
 import org.apache.maven.model.v4.MavenStaxWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.kth.DockerBuild;
+import se.kth.ApptainerBuild;
 import se.kth.MavenErrorInformation;
 import se.kth.SpoonConstructExtractor;
 import se.kth.failure_detection.DetectedFileWithErrors;
@@ -32,11 +32,11 @@ import static se.kth.Util.Constants.PIPELINE;
 public class RepairDirectFailures {
 
     private static Logger log = LoggerFactory.getLogger(RepairDirectFailures.class);
-    private final DockerBuild dockerBuild;
+    private final ApptainerBuild containerBuild;
     private final SetupPipeline setupPipeline;
 
-    public RepairDirectFailures(DockerBuild dockerBuild, SetupPipeline setupPipeline) {
-        this.dockerBuild = dockerBuild;
+    public RepairDirectFailures(ApptainerBuild containerBuild, SetupPipeline setupPipeline) {
+        this.containerBuild = containerBuild;
         this.setupPipeline = setupPipeline;
     }
 
@@ -100,19 +100,24 @@ public class RepairDirectFailures {
         return causingConstructExtractor.extractCausingConstructs();
     }
 
-    public Path generateDependencyTree(Path treeFile, String dockerImage, String projectPath) {
+    public Path generateDependencyTree(Path treeFile, String containerImage, String projectPath) {
 
         String[] command = {"/bin/sh", "-c",
                 "mvn dependency:3.7.0:tree -DoutputType=json -Dverbose=true -DoutputFile=tree.json"};
 
-        String containerId = dockerBuild.startSpinningContainer(dockerImage);
+        String containerId;
+        try {
+            containerId = containerBuild.startSpinningContainer(containerImage);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
-        String outputExecution = dockerBuild.executeInContainer(containerId, command);
+        String outputExecution = containerBuild.executeInContainer(containerId, command);
         if (outputExecution.contains("BUILD FAILURE")) {
             log.error("Error while generating dependency tree");
             return null;
         }
-        return dockerBuild.copyFromContainer(containerId, projectPath.concat("/tree.json"), treeFile);
+        return containerBuild.copyFromContainer(containerId, projectPath.concat("/tree.json"), treeFile);
     }
 
     public List<DependencyTree> identifyConflicts(Path mavenDependencyTreeFile) {
@@ -130,17 +135,17 @@ public class RepairDirectFailures {
     public String reproduce() {
 
         try {
-            dockerBuild.copyFolderToDockerImage(setupPipeline.getDockerImage(),
+            containerBuild.copyFolderToDockerImage(setupPipeline.getContainerImage(),
                     setupPipeline.getClientFolder().toString());
 
             Path logFilePath = setupPipeline.getLogFilePath().getParent().resolve("output.log");
 
-            dockerBuild.reproduce(setupPipeline.getDockerImage(), FailureCategory.COMPILATION_FAILURE,
+            containerBuild.reproduce(setupPipeline.getContainerImage(), FailureCategory.COMPILATION_FAILURE,
                     setupPipeline.getClientFolder(), logFilePath);
 
             setupPipeline.setLogFilePath(logFilePath);
 
-            return setupPipeline.getDockerImage();
+            return setupPipeline.getContainerImage();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

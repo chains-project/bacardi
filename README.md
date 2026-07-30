@@ -33,7 +33,7 @@ The following diagram and module breakdown illustrate how the components interac
 ### 📌 Architectural Diagram
 ![](assets/process.png)
 
-The diagram shows how build failures and API diffs flow through the system, how LLMs are invoked with prompt templates, and how fixes are validated in Docker builds.
+The diagram shows how build failures and API diffs flow through the system, how LLMs are invoked with prompt templates, and how fixes are validated in Apptainer builds.
 
 ---
 
@@ -49,7 +49,7 @@ The diagram shows how build failures and API diffs flow through the system, how 
 
 #### Step 2 — Use LLM to Generate Updated Code
 - **[`llm`](llm):**  
-  - Connects to LLM providers (OpenAI, Google, Anthropic, OpenRouter), resolved from `.env` (`LLM`, `LLM_TYPE`).
+  - Connects to LLM providers (OpenAI, Google, Anthropic, OpenRouter) **or a local model**, resolved from `.env` (`LLM`, `LLM_TYPE`).
     
       Example
       ```env
@@ -59,8 +59,8 @@ The diagram shows how build failures and API diffs flow through the system, how 
   - Stores reusable prompt templates tailored to different failure scenarios.
 
 #### Step 3 — Validate Updated Code
-- **[`docker-build`](docker-build):**  
-  - Builds reproducible Docker environments to test and validate proposed fixes.
+- **[`apptainer-build`](apptainer-build):**  
+  - Builds reproducible [Apptainer](https://apptainer.org/) sandboxes (rootless, no daemon) to test and validate proposed fixes.
 - **[`core`](core):**  
   - Manage the full workflow, manages configurations, and outputs logs and results to [`results/`](results/).
 
@@ -75,11 +75,16 @@ To replicate the experiments, you need to set up the environment and build the p
    git clone git@github.com:chains-project/bacardi.git
    cd bacardi
     ```
-2. Build the project:
+2. Install [Apptainer](https://apptainer.org/docs/admin/main/installation.html) (replaces Docker — no daemon, runs rootless). Verify it's on your `PATH`:
+   ```bash
+   apptainer --version
+   ```
+   Writable sandboxes need `--fakeroot` support, which requires `subuid`/`subgid` entries for your user (a one-time host setup step — most distro packages configure this automatically; see the [Apptainer rootless docs](https://apptainer.org/docs/user/main/fakeroot.html) if `apptainer build --sandbox` fails with a permissions error).
+3. Build the project:
    ```bash
    mvn clean install
    ```
-3. Setup environment variable:
+4. Setup environment variable:
    ```bash
    cp .env.example .env
    ```
@@ -111,7 +116,7 @@ Only the specified commit will be processed.
 ---
 ### LLM configuration and selection 
 
-Bacardi is designed to work flexibly with multiple **Large Language Models (LLMs)**.
+Bacardi is designed to work flexibly with multiple **Large Language Models (LLMs)**, either cloud-hosted or run **locally** on your own hardware.
 It does **not** run on all LLMs by default.
 
 ### 🔧 How to Select an LLM
@@ -120,12 +125,13 @@ You can control which LLM is used via these environment variables in your `.env`
 
 | Variable                                            | Description                                                        | Example                                                                                                            |
 |-----------------------------------------------------|--------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
-| `LLM`                                               | Name of the model to use                                           | `gpt-4o-mini`, `gemini-2.0-flash-001`, `o3-mini-2025-01-31`, `deepseek-deepseek-chat`, `qwen-qwen2.5-32b-instruct` |
-| `LLM_TYPE`                                          | Type of inference provider                                         | `openai`, `openrouter`, `google`,                                                                                  |
+| `LLM`                                               | Name of the model to use                                           | `gpt-4o-mini`, `gemini-2.0-flash-001`, `o3-mini-2025-01-31`, `deepseek-deepseek-chat`, `qwen-qwen2.5-32b-instruct`, `unsloth/gemma-3-12b-it-unsloth-bnb-4bit` |
+| `LLM_TYPE`                                          | Type of inference provider                                         | `openai`, `openrouter`, `google`, `anthropic`, `local`                                                             |
 | `OPENROUTER_PROVIDER` *(optional)*                  | If using [OpenRouter](https://openrouter.ai), specify the provider | `open-inference/bf16`, `chutes/fp8`                                                                                |
-| `API_KEY` / `GOOGLE_API_KEY` / `OPENROUTER_API_KEY` | API keys for selected providers                                    | `your-api-key-here`                                                                                                |
+| `API_KEY` / `GOOGLE_API_KEY` / `OPENROUTER_API_KEY` | API keys for the cloud providers                                   | `your-api-key-here`                                                                                                |
+| `LOCAL_LLM_BASE_URL` *(only for `LLM_TYPE=local`)*  | Base URL of your local inference server — **no API key needed**    | `http://localhost:8001/v1`                                                                                        |
 
-Bacardi currently supports these five models, each running with their respective inference providers:
+Bacardi currently supports these five cloud models, each running with their respective inference providers:
 
 - **gpt-4o-mini** *(OpenAI)*
 - **o3-mini-2025-01-31** *(OpenAI)*
@@ -139,6 +145,24 @@ Bacardi currently supports these five models, each running with their respective
 >
 > Only the configured LLM will be used when running the repair pipeline.
 >
+
+#### Running a local model (no API key required)
+
+Set `LLM_TYPE=local` to route generation to your own machine instead of a paid API. Bacardi talks to it over a plain HTTP endpoint, so it works with any OpenAI-compatible local server (Ollama, llama.cpp server, vLLM, text-generation-webui) — including a locally-loaded **Unsloth 4-bit model**, for which this repo ships a ready-to-use server:
+
+1. Start the local server once and leave it running (loads the model into memory a single time — see [`llm/local_server/serve_unsloth.py`](llm/local_server/serve_unsloth.py)):
+   ```bash
+   pip install unsloth torch transformers fastapi uvicorn
+   python3 llm/local_server/serve_unsloth.py --model unsloth/gemma-3-12b-it-unsloth-bnb-4bit --port 8001
+   ```
+2. Configure `.env`:
+   ```env
+   LLM_TYPE=local
+   LLM=unsloth/gemma-3-12b-it-unsloth-bnb-4bit
+   LOCAL_LLM_BASE_URL=http://localhost:8001/v1
+   ```
+3. Run Bacardi as usual — no `API_KEY`/`ANTHROPIC_API_KEY`/`GOOGLE_API_KEY`/`OPENROUTER_API_KEY` needed.
+
 ---
 ## Results
 The results of the experiments are stored in the [results](results) directory. Each experiment is organized into subdirectories, containing the following files:

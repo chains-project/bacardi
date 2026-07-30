@@ -22,6 +22,9 @@ public class Constants {
             System.getProperty("user.dir") + "/projects");
     ;
 
+    public static final String APPTAINER_SANDBOX_DIR = dotenv.get("APPTAINER_SANDBOX_DIR",
+            PROJECTS_PATH + "/.apptainer-sandboxes");
+
     public static final String LLM = dotenv.get("LLM", "gtp4o-mini");
 
     public static final String OUTPUT_PATH = dotenv.get("OUTPUT_PATH", System.getProperty("user.dir") + "/output") + "/" + (LLM.contains("/") ? LLM.replace("/", "-") : LLM);

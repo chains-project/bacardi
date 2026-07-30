@@ -3,7 +3,7 @@ package se.kth.injector;
 import org.apache.maven.api.model.Model;
 import org.apache.maven.model.v4.MavenStaxReader;
 import org.apache.maven.model.v4.MavenStaxWriter;
-import se.kth.DockerBuild;
+import se.kth.ApptainerBuild;
 import se.kth.model.MavenModel;
 import se.kth.utils.Config;
 
@@ -19,10 +19,10 @@ import java.util.stream.Stream;
 
 public class PomFileLocator {
 
-    private static DockerBuild dockerBuild = new DockerBuild(false);
+    private static ApptainerBuild containerBuild = new ApptainerBuild(false);
 
     public static List<Path> getPomFilePaths(String containerId) {
-        String commandOutput = dockerBuild.executeInContainer(containerId, "find", "/", "-type", "f", "-name",
+        String commandOutput = containerBuild.executeInContainer(containerId, "find", "/", "-type", "f", "-name",
                 "pom" + ".xml");
 
         String[] paths = commandOutput.split("\n");
@@ -32,7 +32,7 @@ public class PomFileLocator {
     }
 
     public static Model getModel(String containerId, Path pomFilePath) {
-        String commandOutput = dockerBuild.executeInContainer(containerId, "cat", pomFilePath.toString());
+        String commandOutput = containerBuild.executeInContainer(containerId, "cat", pomFilePath.toString());
 
         try {
             MavenStaxReader reader = new MavenStaxReader();

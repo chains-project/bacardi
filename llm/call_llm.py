@@ -4,17 +4,13 @@ import os
 from enum import Enum
 from dotenv import load_dotenv
 
-from models.gemini import GoogleModels, extract_text
-from models.openai import OpenAiModel
-from models.anthropic import AnthropicModel
-from models.openrouter import OpenRouterModels
-
 
 class LLMType(Enum):
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
     GEMINI = "google"
     OPENROUTE = "openrouter"
+    LOCAL = "local"
 
     def __str__(self):
         return self.value
@@ -24,6 +20,7 @@ class LLMType(Enum):
 
 
 def init_gpt4(prompt, file_path):
+    from models.openai import OpenAiModel
     model_response = OpenAiModel(
         os.getenv("LLM"),
         prompt
@@ -32,6 +29,7 @@ def init_gpt4(prompt, file_path):
 
 
 def init_anthropic(prompt, file_path):
+    from models.anthropic import AnthropicModel
     model_response = AnthropicModel(
         os.getenv("LLM"),
         prompt
@@ -40,6 +38,7 @@ def init_anthropic(prompt, file_path):
 
 
 def init_gemini(prompt, file_path):
+    from models.gemini import GoogleModels, extract_text
     model_response = GoogleModels(os.getenv("LLM"), prompt)
     _result = model_response._generate_response()
     text = extract_text(_result)
@@ -53,6 +52,7 @@ def init_gemini(prompt, file_path):
 
 
 def init_openroute(prompt, file_path):
+    from models.openrouter import OpenRouterModels
     model_response = OpenRouterModels(os.getenv("LLM"), prompt)
     _result = model_response._generate_response()
     text = _result['choices'][0]['message']['content']
@@ -62,6 +62,15 @@ def init_openroute(prompt, file_path):
     cost['file_path'] = file_path
     update_costs(resolver, os.getenv("LLM"), cost)
     return text
+
+
+def init_local(prompt, file_path):
+    from models.local import LocalModel
+    model_response = LocalModel(
+        os.getenv("LLM"),
+        prompt
+    )
+    return model_response._generate_response()
 
 
 def get_llm_response(prompt, _llm_type: LLMType):
@@ -128,7 +137,8 @@ class LLMResolver:
             LLMType.OPENAI: init_gpt4,
             LLMType.ANTHROPIC: init_anthropic,
             LLMType.GEMINI: init_gemini,
-            LLMType.OPENROUTE: init_openroute
+            LLMType.OPENROUTE: init_openroute,
+            LLMType.LOCAL: init_local
         }
 
         return definitions[for_type](prompt, file_path)

@@ -1,7 +1,6 @@
 package se.kth;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.github.dockerjava.api.model.HostConfig;
 import org.apache.commons.lang3.tuple.Pair;
 import picocli.CommandLine;
 import se.kth.Util.FileUtils;
@@ -57,12 +56,12 @@ public class Main {
 
 
     public static boolean run(String id, String preImageName, String postImageName, String targetMethod) {
-        DockerBuild dockerBuild = new DockerBuild(false);
+        ApptainerBuild containerBuild = new ApptainerBuild(false);
         Path extractedProjectsOutputDir = Config.getTmpDirPath().resolve("instrumentation-output").resolve(id);
         FileUtils.ensureDirectoryExists(extractedProjectsOutputDir.getParent());
         HostConfigBuilder configBuilder = new HostConfigBuilder(semanticAgentPath.toString());
-        HostConfig hostConfig = configBuilder.build();
-        ProjectExtractor projectExtractor = new ProjectExtractor(dockerBuild, extractedProjectsOutputDir, hostConfig,
+        List<String> binds = configBuilder.build();
+        ProjectExtractor projectExtractor = new ProjectExtractor(containerBuild, extractedProjectsOutputDir, binds,
                 targetMethod);
 
         Path preOutputPath = projectExtractor.extract(preImageName);

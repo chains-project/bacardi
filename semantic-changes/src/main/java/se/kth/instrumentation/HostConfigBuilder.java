@@ -1,11 +1,11 @@
 package se.kth.instrumentation;
 
-import com.github.dockerjava.api.model.HostConfig;
-import com.github.dockerjava.api.model.Mount;
-import com.github.dockerjava.api.model.MountType;
-
 import java.util.List;
 
+/**
+ * Builds the {@code hostPath:containerPath} bind-mount spec Apptainer's {@code --bind}
+ * flag expects, replacing Docker's {@code HostConfig}/{@code Mount} builder API.
+ */
 public class HostConfigBuilder {
 
     private final String agentPath;
@@ -14,11 +14,7 @@ public class HostConfigBuilder {
         this.agentPath = agentPath;
     }
 
-    public HostConfig build() {
-        return HostConfig.newHostConfig()
-                .withMounts(List.of(new Mount()
-                        .withSource(agentPath.toString())
-                        .withTarget("/instrumentation/semantic-agent-1.0-SNAPSHOT.jar")
-                        .withType(MountType.BIND)));
+    public List<String> build() {
+        return List.of("%s:/instrumentation/semantic-agent-1.0-SNAPSHOT.jar".formatted(agentPath));
     }
 }

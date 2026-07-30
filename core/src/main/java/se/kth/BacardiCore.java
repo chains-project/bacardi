@@ -161,7 +161,7 @@ public class BacardiCore {
         }
 
         if (failureCategory == FailureCategory.BUILD_SUCCESS) {
-            // DockerBuild.deleteImage(actualImage);
+            // setupPipeline.getContainerBuild().deleteSandbox(actualImage);
             log.info("Build success in attempt: {}", attempts - 1);
         }
         if (failureCategory == FailureCategory.NOT_REPAIRED) {
@@ -185,13 +185,13 @@ public class BacardiCore {
             previousFailureCategory = failureCategory;
             gitManager.newBranch(Constants.BRANCH_DIRECT_COMPILATION_FAILURE + "_%s".formatted(result.getAttempts().size()));
         }
-        DockerBuild dockerBuild = setupPipeline.getDockerBuild();
+        ApptainerBuild containerBuild = setupPipeline.getContainerBuild();
         AtomicBoolean errorModelResponse = new AtomicBoolean(false);
 
         // Ensure the base Maven image exists
         try {
-            dockerBuild.ensureBaseMavenImageExists(setupPipeline.getDockerImage());
-            log.info(setupPipeline.getDockerImage() + "Base Maven image exists.");
+            containerBuild.ensureBaseMavenImageExists(setupPipeline.getContainerImage());
+            log.info(setupPipeline.getContainerImage() + "Base Maven image exists.");
         } catch (InterruptedException e) {
             log.error("Error ensuring base maven image exists.", e);
             throw new RuntimeException(e);
@@ -201,7 +201,7 @@ public class BacardiCore {
         Path logFile = setupPipeline.getLogFilePath();
 
         // Repair with llm
-        RepairDirectFailures repairDirectFailures = new RepairDirectFailures(setupPipeline.getDockerBuild(), setupPipeline);
+        RepairDirectFailures repairDirectFailures = new RepairDirectFailures(setupPipeline.getContainerBuild(), setupPipeline);
 
         ArrayList<Boolean> isDifferent = new ArrayList<>();
         FailureCategory category;
@@ -284,16 +284,16 @@ public class BacardiCore {
                     gitManager.commitAllChanges("Direct compilation failure repair attempt %s".formatted(result.getAttempts().size()));
                     // copy the file to docker image
                     try {
-                        String dockerImage = dockerBuild.copyFolderToDockerImage(setupPipeline.getDockerImage(), setupPipeline.getClientFolder().toString());
-                        setupPipeline.setDockerImage(dockerImage);
+                        String containerImage = containerBuild.copyFolderToDockerImage(setupPipeline.getContainerImage(), setupPipeline.getClientFolder().toString());
+                        setupPipeline.setContainerImage(containerImage);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
 //                     reproduce the build
                     Path logFilePath = storeInfo.getPatchFolder().resolve("output.log");
-                    dockerBuild.reproduce(setupPipeline.getDockerImage(), FailureCategory.COMPILATION_FAILURE, setupPipeline.getClientFolder(), logFilePath);
+                    containerBuild.reproduce(setupPipeline.getContainerImage(), FailureCategory.COMPILATION_FAILURE, setupPipeline.getClientFolder(), logFilePath);
                     setupPipeline.setLogFilePath(logFilePath);
-                    RepairDirectFailures rebuildDirectFailures = new RepairDirectFailures(setupPipeline.getDockerBuild(), setupPipeline);
+                    RepairDirectFailures rebuildDirectFailures = new RepairDirectFailures(setupPipeline.getContainerBuild(), setupPipeline);
                     Map<String, Set<DetectedFileWithErrors>> listOfPostFixFilesWithErrors = getListOfFilesWithErrors(rebuildDirectFailures);
                     StoreInfo postFixstoreInfo = new StoreInfo(setupPipeline, storeInfo.getPatchFolder());
                     postFixstoreInfo.storeFilesErrors("postfix", listOfPostFixFilesWithErrors);
@@ -344,7 +344,7 @@ public class BacardiCore {
         RepairJavaVersionIncompatibility repairJavaVersionIncompatibility = new RepairJavaVersionIncompatibility(javaVersionInfo, project, isBump);
 
         actualImage = repairJavaVersionIncompatibility.repair(setupPipeline);
-        setupPipeline.setDockerImage(actualImage);
+        setupPipeline.setContainerImage(actualImage);
 
         List<YamlInfo> javaVersions = javaVersionInfo.getJavaInWorkflowFiles();
 
@@ -376,7 +376,7 @@ public class BacardiCore {
          */
 
         try {
-            setupPipeline.getDockerBuild().ensureBaseMavenImageExists(setupPipeline.getDockerImage());
+            setupPipeline.getContainerBuild().ensureBaseMavenImageExists(setupPipeline.getContainerImage());
         } catch (InterruptedException e) {
             log.error("Error ensuring base maven image exists.", e);
             throw new RuntimeException(e);
@@ -392,7 +392,7 @@ public class BacardiCore {
 
             WerrorInfo werrorInfo = werrorInformation.analyzeWerror(setupPipeline.getClientFolder().toString());
 
-            RepairWError repairWError = new RepairWError(project, isBump, setupPipeline.getDockerImage(), setupPipeline);
+            RepairWError repairWError = new RepairWError(project, isBump, setupPipeline.getContainerImage(), setupPipeline);
 
             if (repairWError.isWerrorJavaVersionIncompatibilityError(logFile.toAbsolutePath().toString())) {
                 // find all pom files with werror

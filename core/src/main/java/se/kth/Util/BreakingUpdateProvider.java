@@ -1,10 +1,9 @@
 package se.kth.Util;
 
 import com.fasterxml.jackson.databind.type.MapType;
-import com.github.dockerjava.api.command.CreateContainerResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.kth.DockerBuild;
+import se.kth.ApptainerBuild;
 import se.kth.Result;
 import se.kth.model.BreakingUpdate;
 import se.kth.models.FailureCategory;
@@ -24,7 +23,7 @@ import static se.kth.Util.FileUtils.getFilesInDirectory;
 
 public class BreakingUpdateProvider {
 
-    static Logger log = LoggerFactory.getLogger(DockerBuild.class);
+    static Logger log = LoggerFactory.getLogger(ApptainerBuild.class);
 
     /**
      * Retrieves a list of BreakingUpdate objects from the specified directory,
@@ -120,7 +119,7 @@ public class BreakingUpdateProvider {
 
     }
 
-    public static String getProjectData(String imageId, DockerBuild dockerBuild, Path toLocal, Path m2InContainer,
+    public static String getProjectData(String imageId, ApptainerBuild containerBuild, Path toLocal, Path m2InContainer,
                                         Path projectInContainer, Path jar) {
 
         try {
@@ -128,22 +127,22 @@ public class BreakingUpdateProvider {
             String[] entrypoint = new String[]{"/bin/sh", "sleep", "1000000"};
 
             // pull image
-            dockerBuild.ensureBaseMavenImageExists(imageId);
-            CreateContainerResponse container = dockerBuild.startContainerEntryPoint(imageId, entrypoint);
+            containerBuild.ensureBaseMavenImageExists(imageId);
+            String container = containerBuild.startContainerEntryPoint(imageId, entrypoint);
             // Copy m2 folder to local path in the breaking commit folder and project folder
             if (m2InContainer != null) {
-                // dockerBuild.copyM2FolderToLocalPath(container.getId(), m2InContainer,
+                // containerBuild.copyM2FolderToLocalPath(container, m2InContainer,
                 // toLocal.resolve("m2"));
-                dockerBuild.copyM2FolderToLocalPath(container.getId(), projectInContainer, toLocal);
+                containerBuild.copyM2FolderToLocalPath(container, projectInContainer, toLocal);
             }
             if (jar != null) {
                 // Copy the jar file to the local path
-                String path = extractDependencyJarPath(imageId, jar.getFileName().toString(), dockerBuild);
-                dockerBuild.copyFromContainer(container.getId(), path, toLocal.resolve(jar.getFileName()));
+                String path = extractDependencyJarPath(imageId, jar.getFileName().toString(), containerBuild);
+                containerBuild.copyFromContainer(container, path, toLocal.resolve(jar.getFileName()));
             }
             // Copy the jar file to the local path
 
-            dockerBuild.removeContainer(container.getId());
+            containerBuild.removeContainer(container);
             return imageId;
         } catch (InterruptedException e) {
             log.error("Something went wrong", e);
@@ -151,19 +150,19 @@ public class BreakingUpdateProvider {
         }
     }
 
-    private static String extractDependencyJarPath(String imageId, String jarName, DockerBuild dockerBuild) {
+    private static String extractDependencyJarPath(String imageId, String jarName, ApptainerBuild containerBuild) {
         try {
-            dockerBuild.ensureBaseMavenImageExists(imageId);
-            String containerId = dockerBuild.startSpinningContainer(imageId);
+            containerBuild.ensureBaseMavenImageExists(imageId);
+            String containerId = containerBuild.startSpinningContainer(imageId);
 
             String[] command = new String[]{"find", "/root/.m2/", "-type", "f", "-name", jarName};
-            String output = dockerBuild.executeInContainer(containerId, command);
+            String output = containerBuild.executeInContainer(containerId, command);
             String[] outputLines = output.split("\n");
             String dependencyPath = outputLines[0];
             if (outputLines.length != 1) {
                 log.warn("More than one path found for dependency {} at: \n{}", jarName, output);
             }
-            dockerBuild.removeContainer(containerId);
+            containerBuild.removeContainer(containerId);
             return Path.of(dependencyPath).toString();
 
         } catch (InterruptedException e) {

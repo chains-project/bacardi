@@ -1,6 +1,6 @@
 package se.kth.model;
 
-import se.kth.DockerBuild;
+import se.kth.ApptainerBuild;
 
 import java.nio.file.Path;
 
@@ -10,12 +10,12 @@ import java.nio.file.Path;
 
 public class SetupPipeline {
 
-    String dockerImage;
+    String containerImage;
     Path clientFolder;
     Path logFilePath;
     String branch;
     Path m2FolderPath;
-    DockerBuild dockerBuild;
+    ApptainerBuild containerBuild;
     BreakingUpdate breakingUpdate;
     Path outPutPatchFolder;
     String libraryName;

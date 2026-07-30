@@ -1,6 +1,6 @@
 package se.kth.rebuild.util;
 
-import se.kth.DockerBuild;
+import se.kth.ApptainerBuild;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -15,8 +15,8 @@ public class CreateDockerImage {
         String versionTag = "jsoup-1.7.3";
         String imageName = "jsoup-1.7.3";
 
-        DockerBuild dockerBuild = new DockerBuild(false);
-        Optional<String> containerId = dockerBuild.createImageForRepositoryAtVersion(baseImage, new URL(githubUrl),
+        ApptainerBuild containerBuild = new ApptainerBuild(false);
+        Optional<String> containerId = containerBuild.createImageForRepositoryAtVersion(baseImage, new URL(githubUrl),
                 versionTag, imageName, outputPath);
         if (containerId.isPresent()) {
             System.out.println(containerId);

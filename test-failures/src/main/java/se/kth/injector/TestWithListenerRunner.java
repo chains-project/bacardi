@@ -1,10 +1,8 @@
 package se.kth.injector;
 
-import com.github.dockerjava.api.model.HostConfig;
-import com.github.dockerjava.api.model.Mount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.kth.DockerBuild;
+import se.kth.ApptainerBuild;
 import se.kth.PipelineComponent;
 import se.kth.Util.FileUtils;
 import se.kth.model.BreakingUpdate;
@@ -44,8 +42,8 @@ public class TestWithListenerRunner extends PipelineComponent {
         String imageId = this.runBreaking ? breakingUpdate.getBreakingImageId() : breakingUpdate.getPreImageId();
 
         try {
-            DockerBuild dockerBuild = new DockerBuild(false);
-            dockerBuild.ensureBaseMavenImageExists(imageId);
+            ApptainerBuild containerBuild = new ApptainerBuild(false);
+            containerBuild.ensureBaseMavenImageExists(imageId);
 
             Path subPath = this.testOutputDirectory.resolve(commitId);
             Path potentialOutput = Config.getTmpDirPath().resolve(subPath);
@@ -59,20 +57,18 @@ public class TestWithListenerRunner extends PipelineComponent {
                     .withListenerMounts()
                     .withOutputMount(this.testOutputDirectory, commitId);
 
-            List<Mount> mounts = mountsBuilder.build();
-            HostConfig config = HostConfig.newHostConfig()
-                    .withMounts(mounts);
+            List<String> binds = mountsBuilder.build();
 
-            String containerId = dockerBuild.startSpinningContainer(imageId, config);
-            String testOutput = dockerBuild.executeInContainer(containerId, "mvn", "-l", "test-output.log", "test");
+            String containerId = containerBuild.startSpinningContainer(imageId, binds);
+            String testOutput = containerBuild.executeInContainer(containerId, "mvn", "-l", "test-output.log", "test");
 
             Path modifiedRootPom = mountsBuilder.getRootModifiedPomFile();
             Path containerOutput = this.containerOutputDirectory.resolve(commitId);
-            Path copyPath = dockerBuild.copyProjectFromContainer(containerId,
+            Path copyPath = containerBuild.copyProjectFromContainer(containerId,
                     modifiedRootPom.getParent().toString(),
                     containerOutput.toAbsolutePath());
 
-            dockerBuild.removeContainer(containerId);
+            containerBuild.removeContainer(containerId);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

@@ -2,7 +2,7 @@ package se.kth.japicmp;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.kth.DockerBuild;
+import se.kth.ApptainerBuild;
 import se.kth.PipelineComponent;
 import se.kth.Util.FileUtils;
 import se.kth.model.BreakingUpdate;
@@ -17,12 +17,12 @@ public class UpdatedDependencyExtractor extends PipelineComponent {
 
     private final Path preOutputPath;
     private final Path breakingOutputPath;
-    private final DockerBuild dockerBuild;
+    private final ApptainerBuild containerBuild;
 
     public UpdatedDependencyExtractor(Path preOutputPath, Path breakingOutputPath) {
         this.preOutputPath = preOutputPath;
         this.breakingOutputPath = breakingOutputPath;
-        this.dockerBuild = new DockerBuild(false);
+        this.containerBuild = new ApptainerBuild(false);
     }
 
     @Override
@@ -52,13 +52,13 @@ public class UpdatedDependencyExtractor extends PipelineComponent {
     private void extractDependencyJar(String imageId, UpdatedDependency updatedDependency, String version,
                                       Path outputPath) {
         try {
-            this.dockerBuild.ensureBaseMavenImageExists(imageId);
-            String containerId = this.dockerBuild.startSpinningContainer(imageId);
+            this.containerBuild.ensureBaseMavenImageExists(imageId);
+            String containerId = this.containerBuild.startSpinningContainer(imageId);
 
             String dependencyName = updatedDependency.dependencyArtifactID;
             String[] command = new String[]{"find", "/root/.m2/", "-type", "f", "-name",
                     dependencyName + "-" + version + ".jar"};
-            String output = this.dockerBuild.executeInContainer(containerId, command);
+            String output = this.containerBuild.executeInContainer(containerId, command);
             String[] outputLines = output.split("\n");
             String dependencyPath = outputLines[0];
             if (outputLines.length != 1) {
@@ -66,9 +66,9 @@ public class UpdatedDependencyExtractor extends PipelineComponent {
             }
 
             Path fromContainerM2 = Path.of(dependencyPath);
-            this.dockerBuild.copyM2FolderToLocalPath(containerId, fromContainerM2, outputPath);
+            this.containerBuild.copyM2FolderToLocalPath(containerId, fromContainerM2, outputPath);
 
-            this.dockerBuild.removeContainer(containerId);
+            this.containerBuild.removeContainer(containerId);
         } catch (InterruptedException e) {
             logger.error(e.getMessage(), e);
         }
